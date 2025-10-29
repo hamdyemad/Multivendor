@@ -50,6 +50,16 @@ return [
     'select_activity' => 'اختر النشاط',
     'leave_blank_to_keep_current' => 'اترك فارغًا للاحتفاظ بكلمة المرور الحالية',
     'no_image' => 'لا يوجد صورة',
+    'current_image' => 'الصورة الحالية',
+    'click_to_upload' => 'انقر لرفع الصورة',
+    'recommended_logo_size' => 'الحجم الموصى به: 400×400 بكسل',
+    'recommended_cover_size' => 'الحجم الموصى به: 1200×400 بكسل',
+    'please_fix_errors' => 'يرجى إصلاح أخطاء التحقق',
+    'error_occurred' => 'حدث خطأ',
+    'basic_info' => 'المعلومات الأساسية',
+    'id' => 'الرقم التعريفي',
+    'language' => 'اللغة',
+    'translations' => 'الترجمات',
     
     // DataTables
     'entries' => 'سجل',

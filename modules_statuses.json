@@ -1,5 +1,7 @@
 {
     "AreaSettings": true,
     "CategoryManagment": true,
-    "Vendor": true
+    "Vendor": true,
+    "Brands": true,
+    "CatalogManagement": true
 }

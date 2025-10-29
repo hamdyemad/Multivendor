@@ -199,6 +199,18 @@
         </li>
         @endcanany
         
+        <li>
+            <a href="{{ route('admin.brands.index') }}">
+                <span class="d-flex align-items-center justify-content-between w-100">
+                    <span class="d-flex align-items-center">
+                        <span class="nav-icon uil uil-ticket"></span>
+                        <span class="menu-text">{{ trans('menu.brands.title') }}</span>
+                    </span>
+                    <span class="badge-circle badge-success ms-1">20</span>
+                </span>
+            </a>
+        </li>
+
         @can('promocodes.view')
         <li>
             <a href="{{ route('admin.dashboard') }}">

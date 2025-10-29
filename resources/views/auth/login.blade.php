@@ -10,7 +10,7 @@
                 <div class="card border-0">
                     <div class="card-header">
                         <div class="edit-profile__title">
-                            <h6>Sign in HexaDash</h6>
+                            <h6>Sign in</h6>
                         </div>
                     </div>
                     <div class="card-body">

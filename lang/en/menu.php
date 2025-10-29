@@ -176,4 +176,7 @@
             'product report' => 'product report',
             'points report' => 'points report',
         ],
+        'brands' => [
+            'title' => 'Brands',
+        ],
     ];

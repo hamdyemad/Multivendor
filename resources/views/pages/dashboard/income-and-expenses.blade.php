@@ -9,7 +9,7 @@
             <div class="text-center mb-3" style="font-size: 0.75rem; color: #555;">
                 Income: <span style="color: #28a745; font-weight: 600;">3,250.0</span>
                 EGP |
-                Outcome: <span style="color: #dc3545; font-weight: 600;">0.0</span>
+                Expense: <span style="color: #dc3545; font-weight: 600;">0.0</span>
                 EGP
             </div>
 
@@ -43,7 +43,7 @@
             <div class="text-center mb-3" style="font-size: 0.75rem; color: #555;">
                 Income: <span style="color: #28a745; font-weight: 600;">123,725.1</span>
                 EGP |
-                Outcome: <span style="color: #dc3545; font-weight: 600;">1,502,585.1</span>
+                Expense: <span style="color: #dc3545; font-weight: 600;">1,502,585.1</span>
                 EGP
             </div>
 

@@ -13,9 +13,12 @@ return new class extends Migration
     {
         Schema::create('variants_configurations', function (Blueprint $table) {
             $table->id();
+            $table->enum('type', ['text', 'color'])->nullable();
+            $table->string('value')->nullable();
             $table->foreignId('key_id')->nullable()->constrained('variants_configurations_keys')->cascadeOnDelete();
             $table->foreignId('parent_id')->nullable()->constrained('variants_configurations')->cascadeOnDelete();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

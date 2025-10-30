@@ -18,11 +18,11 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="card-title mb-0">{{ trans('vendor::vendor.vendor_details') }}</h4>
                     <div class="d-flex gap-2">
+                        <a href="{{ route('admin.vendors.index') }}" class="btn btn-light btn-sm">
+                            <i class="uil uil-arrow-left"></i> {{ trans('vendor::vendor.back_to_list') }}
+                        </a>
                         <a href="{{ route('admin.vendors.edit', $vendor->id) }}" class="btn btn-primary btn-sm">
                             <i class="uil uil-edit"></i> {{ trans('vendor::vendor.edit_vendor') }}
-                        </a>
-                        <a href="{{ route('admin.vendors.index') }}" class="btn btn-secondary btn-sm">
-                            <i class="uil uil-arrow-left"></i> {{ trans('vendor::vendor.back_to_list') }}
                         </a>
                     </div>
                 </div>
@@ -31,15 +31,21 @@
                         <!-- Vendor Information -->
                         <div class="col-lg-6">
                             <div class="card border mb-4">
-                                <div class="card-header bg-light">
+                                <div class="card-header">
                                     <h5 class="mb-0">{{ trans('vendor::vendor.vendor_information') }}</h5>
                                 </div>
                                 <div class="card-body">
                                     <!-- Names -->
                                     @foreach($languages as $language)
                                     <div class="mb-3">
-                                        <label class="fw-bold">{{ trans('vendor::vendor.name') }} ({{ $language->name }}):</label>
-                                        <p class="mb-0" @if($language->rtl) dir="rtl" @endif>
+                                        <label class="fw-bold w-100" @if($language->rtl) dir="rtl" @endif>
+                                            @if($language->code == 'ar')
+                                                الاسم بالعربية
+                                            @else
+                                                {{ trans('vendor::vendor.name') }} ({{ $language->name }}):
+                                            @endif
+                                        </label>
+                                        <p class="mb-0 w-100" @if($language->rtl) dir="rtl" @endif>
                                             {{ $vendor->getTranslation('name', $language->code) ?? '-' }}
                                         </p>
                                     </div>
@@ -60,7 +66,7 @@
                                     <!-- Commission -->
                                     <div class="mb-3">
                                         <label class="fw-bold">{{ trans('vendor::vendor.commission') }}:</label>
-                                        <p class="mb-0">{{ $vendor->commission ?? 0 }}%</p>
+                                        <p class="mb-0">{{ $vendor->commission->commission ?? 0 }}%</p>
                                     </div>
 
                                     <!-- Status -->
@@ -68,9 +74,9 @@
                                         <label class="fw-bold">{{ trans('vendor::vendor.status') }}:</label>
                                         <p class="mb-0">
                                             @if($vendor->active)
-                                                <span class="badge badge-success">{{ trans('vendor::vendor.active') }}</span>
+                                                <span class="badge badge-success badge-lg badge-round">{{ trans('vendor::vendor.active') }}</span>
                                             @else
-                                                <span class="badge badge-danger">{{ trans('vendor::vendor.inactive') }}</span>
+                                                <span class="badge badge-danger badge-lg badge-round">{{ trans('vendor::vendor.inactive') }}</span>
                                             @endif
                                         </p>
                                     </div>
@@ -81,7 +87,7 @@
                                         <p class="mb-0">
                                             @if($vendor->activities && $vendor->activities->count() > 0)
                                                 @foreach($vendor->activities as $activity)
-                                                    <span class="badge badge-primary me-1">
+                                                    <span class="badge badge-primary  badge-lg badge-round me-1">
                                                         {{ $activity->getTranslation('name', app()->getLocale()) }}
                                                     </span>
                                                 @endforeach
@@ -97,7 +103,7 @@
                         <!-- Account Information -->
                         <div class="col-lg-6">
                             <div class="card border mb-4">
-                                <div class="card-header bg-light">
+                                <div class="card-header">
                                     <h5 class="mb-0">{{ trans('vendor::vendor.vendor_account_details') }}</h5>
                                 </div>
                                 <div class="card-body">
@@ -112,7 +118,7 @@
                                         <label class="fw-bold">{{ trans('vendor::vendor.logo') }}:</label>
                                         <div>
                                             @if($vendor->logo && $vendor->logo->path)
-                                                <img src="{{ asset($vendor->logo->path) }}" alt="Logo" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                                                <img src="{{ asset('storage/' . $vendor->logo->path) }}" alt="Logo" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
                                             @else
                                                 <p class="text-muted mb-0">{{ trans('vendor::vendor.no_logo_uploaded') }}</p>
                                             @endif
@@ -124,7 +130,7 @@
                                         <label class="fw-bold">{{ trans('vendor::vendor.banner') }}:</label>
                                         <div>
                                             @if($vendor->banner && $vendor->banner->path)
-                                                <img src="{{ asset($vendor->banner->path) }}" alt="Banner" class="img-thumbnail" style="max-width: 400px; max-height: 150px;">
+                                                <img src="{{ asset('storage/' . $vendor->banner->path) }}" alt="Banner" class="img-thumbnail" style="max-width: 400px; max-height: 150px;">
                                             @else
                                                 <p class="text-muted mb-0">{{ trans('vendor::vendor.no_banner_uploaded') }}</p>
                                             @endif
@@ -145,14 +151,20 @@
                         <!-- Descriptions -->
                         <div class="col-lg-12">
                             <div class="card border mb-4">
-                                <div class="card-header bg-light">
+                                <div class="card-header">
                                     <h5 class="mb-0">{{ trans('vendor::vendor.description') }}</h5>
                                 </div>
                                 <div class="card-body">
                                     @foreach($languages as $language)
                                     <div class="mb-3">
-                                        <label class="fw-bold">{{ trans('vendor::vendor.description') }} ({{ $language->name }}):</label>
-                                        <p class="mb-0" @if($language->rtl) dir="rtl" @endif>
+                                        <label class="fw-bold w-100" @if($language->rtl) dir="rtl" @endif>
+                                            @if($language->code == 'ar')
+                                                الوصف باللغة العربية
+                                            @else
+                                                {{ trans('vendor::vendor.description') }} ({{ $language->name }}):
+                                            @endif
+                                        </label>
+                                        <p class="mb-0 w-100" @if($language->rtl) dir="rtl" @endif>
                                             {{ $vendor->getTranslation('description', $language->code) ?? '-' }}
                                         </p>
                                     </div>
@@ -164,7 +176,7 @@
                         <!-- SEO Information -->
                         <div class="col-lg-12">
                             <div class="card border mb-4">
-                                <div class="card-header bg-light">
+                                <div class="card-header">
                                     <h5 class="mb-0">{{ trans('vendor::vendor.seo_information') }}</h5>
                                 </div>
                                 <div class="card-body">
@@ -188,7 +200,7 @@
                         @if($vendor->attachments && $vendor->attachments->where('type', 'document')->count() > 0)
                         <div class="col-lg-12">
                             <div class="card border mb-4">
-                                <div class="card-header bg-light">
+                                <div class="card-header">
                                     <h5 class="mb-0">{{ trans('vendor::vendor.vendor_documents') }}</h5>
                                 </div>
                                 <div class="card-body">

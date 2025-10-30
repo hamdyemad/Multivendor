@@ -1,0 +1,35 @@
+<?php
+
+return [
+    // Variants Configurations
+    'variants_configurations' => 'تكوينات المتغيرات',
+    'variants_configurations_management' => 'إدارة تكوينات المتغيرات',
+    'add_variants_config' => 'إضافة تكوين متغير',
+    'edit_variants_config' => 'تعديل تكوين المتغير',
+    'view_variants_config' => 'عرض تكوين المتغير',
+    'variants_config_details' => 'تفاصيل تكوين المتغير',
+    'tree_view' => 'عرض الشجرة',
+    'variants_configurations_tree' => 'شجرة تكوينات المتغيرات',
+    'children_count' => 'عدد الأطفال',
+    'no_variants_configs_found' => 'لم يتم العثور على تكوينات متغيرة',
+    
+    // Fields
+    'type' => 'النوع',
+    'text' => 'نص',
+    'color' => 'لون',
+    'enter_text_value' => 'أدخل قيمة نصية',
+    'choose_color' => 'اختر لوناً',
+    'name' => 'الاسم',
+    'enter_name' => 'أدخل الاسم',
+    'key' => 'المفتاح',
+    'parent' => 'التكوين الأب',
+    'value' => 'القيمة',
+    'all_parents' => 'جميع الآباء',
+    'no_parent' => 'لا يوجد أب',
+    
+    // Messages
+    'created_successfully' => 'تم إنشاء تكوين المتغير بنجاح',
+    'updated_successfully' => 'تم تحديث تكوين المتغير بنجاح',
+    'deleted_successfully' => 'تم حذف تكوين المتغير بنجاح',
+    'not_found' => 'لم يتم العثور على تكوين المتغير',
+];

@@ -6,7 +6,7 @@
             <div class="col-lg-12">
                 <x-breadcrumb :items="[
                     ['title' => trans('dashboard.title'), 'url' => route('admin.dashboard'), 'icon' => 'uil uil-estate'],
-                    ['title' => trans('catalogmanagement::brand.brands_management')]
+                    ['title' => trans('catalogmanagement::variantkey.variant_configuration_keys')]
                 ]" />
             </div>
         </div>
@@ -16,10 +16,13 @@
                 
                 <div class="userDatatable global-shadow border-light-0 p-30 bg-white radius-xl w-100 mb-30">
                     <div class="d-flex justify-content-between align-items-center mb-25">
-                        <h4 class="mb-0 fw-500">{{ trans('catalogmanagement::brand.brands_management') }}</h4>
+                        <h4 class="mb-0 fw-500">{{ trans('catalogmanagement::variantkey.variant_configuration_keys_management') }}</h4>
                         <div class="d-flex gap-2">
-                            <a href="{{ route('admin.brands.create') }}" class="btn btn-primary btn-default btn-squared text-capitalize">
-                                <i class="uil uil-plus"></i> {{ trans('catalogmanagement::brand.add_brand') }}
+                            <a href="{{ route('admin.variant-keys.tree') }}" class="btn btn-light btn-default btn-squared text-capitalize">
+                                <i class="uil uil-sitemap"></i> {{ trans('catalogmanagement::variantkey.tree_view') }}
+                            </a>
+                            <a href="{{ route('admin.variant-keys.create') }}" class="btn btn-primary btn-default btn-squared text-capitalize">
+                                <i class="uil uil-plus"></i> {{ trans('catalogmanagement::variantkey.add_variant_key') }}
                             </a>
                         </div>
                     </div>
@@ -35,19 +38,8 @@
                                                 <input type="text" 
                                                        class="form-control ih-medium ip-gray radius-xs b-light px-15" 
                                                        id="search" 
-                                                       placeholder="{{ trans('catalogmanagement::brand.search_by_name') }}"
+                                                       placeholder="{{ trans('common.search') }}"
                                                        autocomplete="off">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-group">
-                                                <label for="active" class="il-gray fs-14 fw-500 mb-10">{{ trans('catalogmanagement::brand.activation') }}</label>
-                                                <select class="form-control ih-medium ip-gray radius-xs b-light px-15" 
-                                                        id="active">
-                                                    <option value="">{{ trans('catalogmanagement::brand.all') }}</option>
-                                                    <option value="1">{{ trans('catalogmanagement::brand.active') }}</option>
-                                                    <option value="0">{{ trans('catalogmanagement::brand.inactive') }}</option>
-                                                </select>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
@@ -81,46 +73,48 @@
                                             </div>
                                         </div>
                                 </div>
+                                {{-- Entries Per Page Selector --}}
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <label class="me-2 mb-0">{{ trans('common.show') }}</label>
+                                        <select id="entriesSelect" class="form-select form-select-sm" style="width: auto;">
+                                            <option value="10">10</option>
+                                            <option value="25">25</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+                                        </select>
+                                        <label class="ms-2 mb-0">{{ trans('common.entries') }}</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Entries Per Page Selector --}}
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="d-flex align-items-center">
-                            <label class="me-2 mb-0">{{ trans('common.show') }}</label>
-                            <select id="entriesSelect" class="form-select form-select-sm" style="width: auto;">
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                            </select>
-                            <label class="ms-2 mb-0">{{ trans('common.entries') }}</label>
-                        </div>
-                    </div>
+                    
 
                     <div class="table-responsive">
-                        <table id="brandsDataTable" class="table mb-0 table-bordered table-hover" style="width:100%">
+                        <table id="variantKeysDataTable" class="table mb-0 table-bordered table-hover" style="width:100%">
                             <thead>
                                 <tr class="userDatatable-header">
                                     <th>
                                         <span class="userDatatable-title">#</span>
                                     </th>
-                                    <th>
-                                        <span class="userDatatable-title">{{ trans('catalogmanagement::brand.logo') }}</span>
-                                    </th>
                                     @foreach($languages as $language)
                                         <th>
-                                            <span class="userDatatable-title" @if($language->rtl) dir="rtl" @endif>
-                                                {{ trans('catalogmanagement::brand.name') }} ({{ $language->name }})
+                                            <span class="userDatatable-title w-100" @if($language->rtl) dir="rtl" @endif>
+                                                @if($language->code == 'ar')
+                                                    الاسم ({{ $language->name }})
+                                                @else
+                                                    {{ trans('catalogmanagement::variantkey.name') }} ({{ $language->name }})
+                                                @endif
                                             </span>
                                         </th>
                                     @endforeach
                                     <th>
-                                        <span class="userDatatable-title">{{ trans('catalogmanagement::brand.activation') }}</span>
+                                        <span class="userDatatable-title">{{ trans('catalogmanagement::variantkey.parent_key') }}</span>
                                     </th>
                                     <th>
-                                        <span class="userDatatable-title">{{ trans('catalogmanagement::brand.created_at') }}</span>
+                                        <span class="userDatatable-title">{{ trans('common.created_at') }}</span>
                                     </th>
                                     <th>
                                         <span class="userDatatable-title">{{ trans('common.actions') }}</span>
@@ -137,12 +131,12 @@
     </div>
     {{-- Delete Confirmation Modal with Loading Component --}}
     <x-delete-with-loading
-        modalId="modal-delete-brand"
-        tableId="brandsDataTable"
-        deleteButtonClass="delete-brand"
+        modalId="modal-delete-variant-key"
+        tableId="variantKeysDataTable"
+        deleteButtonClass="delete-variant-key"
         :title="__('main.confirm delete')"
         :message="__('main.are you sure you want to delete this')"
-        itemNameId="delete-brand-name"
+        itemNameId="delete-variant-key-name"
         confirmBtnId="confirmDeleteBtn"
         :cancelText="__('main.cancel')"
         :deleteText="__('main.delete')"
@@ -163,40 +157,33 @@
     $(document).ready(function() {
         let per_page = 10;
 
-        let viewRoute = '{{ route('admin.brands.show', ':id') }}';
-        let editRoute = '{{ route('admin.brands.edit', ':id') }}';
-        let deleteRoute = '{{ route('admin.brands.destroy', ':id') }}';
+        let viewRoute = '{{ route('admin.variant-keys.show', ':id') }}';
+        let editRoute = '{{ route('admin.variant-keys.edit', ':id') }}';
+        let deleteRoute = '{{ route('admin.variant-keys.destroy', ':id') }}';
         // Server-side processing with pagination
-        var table = $('#brandsDataTable').DataTable({
+        var table = $('#variantKeysDataTable').DataTable({
             processing: true,
-            serverSide: true, // Server-side processing
+            serverSide: true,
             ajax: {
-                url: '{{ route('admin.brands.datatable') }}',
+                url: '{{ route('admin.variant-keys.datatable') }}',
                 type: 'GET',
                 data: function(d) {
-                    // Map DataTables parameters to backend parameters
                     d.per_page = d.length;
                     d.page = (d.start / d.length) + 1;
-                    
-                    // Add search parameter from custom input
                     d.search = $('#search').val();
-                    
-                    // Add filter parameters
-                    d.active = $('#active').val();
+                    d.parent_key_id = $('#parent_key_id').val();
                     d.created_date_from = $('#created_date_from').val();
                     d.created_date_to = $('#created_date_to').val();
                     
-                    console.log('📤 Sending to server:', {
-                        search: d.search,
-                        active: d.active,
-                        created_date_from: d.created_date_from,
-                        created_date_to: d.created_date_to
-                    });
+                    // Add sorting parameters
+                    if (d.order && d.order.length > 0) {
+                        d.orderColumnIndex = d.order[0].column;
+                        d.orderDirection = d.order[0].dir;
+                    }
                     
                     return d;
                 },
                 dataSrc: function(json) {
-                    // Map backend response to DataTables format
                     json.recordsTotal = json.total || json.recordsTotal || 0;
                     json.recordsFiltered = json.recordsFiltered || json.total || 0;
                     return json.data || [];
@@ -207,28 +194,14 @@
                 }
             },
             columns: [
-                // ID column
                 { 
                     data: 'id', 
                     name: 'id',
+                    searchable: false,
                     render: function(data) {
                         return data;
                     }
                 },
-                // Logo column
-                { 
-                    data: 'logo_path',
-                    name: 'logo',
-                    orderable: false,
-                    searchable: false,
-                    render: function(data) {
-                        if (data) {
-                            return '<img src="{{ asset('storage/') }}/' + data + '" alt="Logo" style="width: 50px; height: 50px; object-fit: contain;" />';
-                        }
-                        return '-';
-                    }
-                },
-                // Name columns for each language
                 @foreach($languages as $language)
                 { 
                     data: 'translations.{{ $language->code }}.name',
@@ -246,30 +219,20 @@
                     }
                 },
                 @endforeach
-                // Active Status column
                 { 
-                    data: 'active',
-                    name: 'active',
+                    data: 'parent',
+                    name: 'parent',
+                    orderable: false,
                     render: function(data) {
-                        if (data == 1) {
-                            return '<span class="badge badge-success badge-lg badge-round">{{ __('common.active') }}</span>';
-                        } else {
-                            return '<span class="badge badge-danger badge-lg badge-round">{{ __('common.inactive') }}</span>';
-                        }
+                        return data || '-';
                     }
                 },
-                // Created At column
                 { 
                     data: 'created_at',
-                    name: 'created_at',
-                    render: function(data) {
-                        return data;
-                    }
+                    name: 'created_at'
                 },
-                // Actions column
-                { 
+                {
                     data: null,
-                    name: 'actions',
                     orderable: false,
                     searchable: false,
                     render: function(data, type, row) {
@@ -291,12 +254,13 @@
                                 </li>
                                 <li>
                                     <a href="javascript:void(0);" 
-                                    class="remove delete-brand" 
-                                    title="{{ trans('common.delete')}}">
+                                    class="remove delete-variant-key" 
+                                    title="{{ trans('common.delete') }}"
                                     data-bs-toggle="modal" 
-                                    data-bs-target="#modal-delete-brand"
+                                    data-bs-target="#modal-delete-variant-key"
                                     data-item-id="${row.id}"
-                                    data-item-name="${row.first_name}">
+                                    data-item-name="${$('<div>').text(row.first_name).html()}"
+                                    data-url="${deleteRoute.replace(':id', row.id)}">
                                         <i class="uil uil-trash-alt"></i>
                                     </a>
                                 </li>
@@ -305,95 +269,84 @@
                 }
             ],
             pageLength: per_page,
-            lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
-            order: [[0, 'desc']],
-            pagingType: 'full_numbers',
-            dom: '<"row"<"col-sm-12"tr>>' +
-                 '<"row mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
-            buttons: [
-                {
-                    extend: 'excel',
-                    exportOptions: {
-                        columns: ':not(:last-child)'
-                    },
-                    title: '{{ trans('catalogmanagement::brand.brands_management') }}'
-                }
-            ],
-            searching: true, // Enable built-in search
-            language: {
-                lengthMenu: "{{ trans('common.show') }} _MENU_",
-                info: "{{ trans('common.showing') }} _START_ {{ trans('common.to') }} _END_ {{ trans('common.of') }} _TOTAL_ {{ trans('common.entries') }}",
-                infoEmpty: "{{ trans('common.showing') }} 0 {{ trans('common.to') }} 0 {{ trans('common.of') }} 0 {{ trans('common.entries') }}",
-                infoFiltered: "({{ trans('common.filtered_from') }} _MAX_ {{ trans('common.total_entries') }})",
-                zeroRecords: "{{ trans('catalogmanagement::brand.no_brands_found') }}",
-                emptyTable: "{{ trans('catalogmanagement::brand.no_brands_found') }}",
-                loadingRecords: "{{ trans('common.loading') }}...",
-                processing: "{{ trans('common.processing') }}...",
-                search: "{{ trans('common.search') }}:",
-                paginate: {
-                    first: '{{ trans('common.first') }}',
-                    last: '{{ trans('common.last') }}',
-                    next: '{{ trans('common.next') }}',
-                    previous: '{{ trans('common.previous') }}'
-                },
-                aria: {
-                    sortAscending: ": {{ trans('common.sort_ascending') }}",
-                    sortDescending: ": {{ trans('common.sort_descending') }}"
-                }
-            }
+            lengthChange: false,
+            searching: false,
+            order: [[0, 'desc']]
         });
 
-        // Initialize Select2 on custom entries select
-        if ($.fn.select2) {
-            $('#entriesSelect').select2({
-                theme: 'bootstrap-5',
-                minimumResultsForSearch: Infinity,
-                width: 'auto'
-            });
-        }
-
-        // Handle entries select change
-        $('#entriesSelect').on('change', function() {
-            table.page.len($(this).val()).draw();
-        });
-
-        // Handle Excel export button
-        $('#exportExcel').on('click', function() {
-            table.button('.buttons-excel').trigger();
-        });
-
-        // Search with server-side processing and debounce
-        let searchTimer;
+        // Custom search input
         $('#search').on('keyup', function() {
-            clearTimeout(searchTimer);
-            searchTimer = setTimeout(function() {
-                console.log('🔍 Search triggered:', $('#search').val());
-                table.ajax.reload(); // Reload data from server with new search value
-            }, 500);
-        });
-        
-        $('#search').on('change', function() {
-            clearTimeout(searchTimer);
-            console.log('🔍 Search changed:', $(this).val());
             table.ajax.reload();
         });
 
-        // Server-side filter event listeners - reload data when filters change
-        $('#active, #created_date_from, #created_date_to').on('change', function() {
-            console.log('Filter changed:', $(this).attr('id'), '=', $(this).val());
+        // Filter by date range
+        $('#created_date_from, #created_date_to').on('change', function() {
             table.ajax.reload();
         });
-        
-        // Reset filters button
+
+        // Entries per page selector
+        $('#entriesSelect').on('change', function() {
+            per_page = $(this).val();
+            table.page.len(per_page).draw();
+        });
+
+        // Reset filters
         $('#resetFilters').on('click', function() {
-            console.log('Resetting all filters...');
-            // Clear all filter inputs
             $('#search').val('');
-            $('#active').val('');
             $('#created_date_from').val('');
             $('#created_date_to').val('');
-            // Clear search and reload table
-            table.search('').ajax.reload();
+            table.ajax.reload();
+        });
+
+        // Excel export functionality - Export directly from DataTable
+        $('#exportExcel').on('click', function() {
+            // Get all data from current table view (filtered)
+            const tableData = table.rows({ search: 'applied' }).data().toArray();
+            
+            if (tableData.length === 0) {
+                alert('{{ trans("common.no_data_to_export") ?? "No data to export" }}');
+                return;
+            }
+            
+            // Build CSV content
+            let csvContent = "\uFEFF"; // UTF-8 BOM for Excel
+            
+            // Header row
+            const headers = [
+                '#',
+                @foreach($languages as $language)
+                    '{{ $language->code == "ar" ? "الاسم" : trans("catalogmanagement::variantkey.name") }} ({{ $language->name }})',
+                @endforeach
+                '{{ trans("catalogmanagement::variantkey.parent_key") }}',
+                '{{ trans("common.created_at") }}'
+            ];
+            csvContent += headers.map(h => '"' + h + '"').join(',') + '\r\n';
+            
+            // Data rows
+            tableData.forEach(function(row) {
+                const rowData = [
+                    row.id,
+                    @foreach($languages as $language)
+                        row.translations['{{ $language->code }}'] ? row.translations['{{ $language->code }}'].name : '-',
+                    @endforeach
+                    row.parent ? row.parent : '-',
+                    row.created_at
+                ];
+                csvContent += rowData.map(cell => '"' + (cell || '-').toString().replace(/"/g, '""') + '"').join(',') + '\r\n';
+            });
+            
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            const filename = 'variant_keys_' + new Date().toISOString().slice(0, 19).replace(/:/g, '-') + '.csv';
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         });
         
         // Delete functionality is now handled by the delete-with-loading component

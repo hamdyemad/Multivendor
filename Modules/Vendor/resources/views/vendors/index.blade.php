@@ -309,9 +309,9 @@ $(document).ready(function() {
                 orderable: true,
                 render: function(data) {
                     if (data == 1) {
-                        return '<div class="userDatatable-content"><span class="badge badge-success">{{ trans('vendor::vendor.active') }}</span></div>';
+                        return '<div class="userDatatable-content"><span class="badge badge-success badge-lg badge-round">{{ trans('vendor::vendor.active') }}</span></div>';
                     } else {
-                        return '<div class="userDatatable-content"><span class="badge badge-danger">{{ trans('vendor::vendor.inactive') }}</span></div>';
+                        return '<div class="userDatatable-content"><span class="badge badge-danger badge-lg badge-round">{{ trans('vendor::vendor.inactive') }}</span></div>';
                     }
                 }
             },

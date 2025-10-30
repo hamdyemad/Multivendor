@@ -67,7 +67,11 @@
                 </a>
                 <ul class="px-0">
                     @can('products.create')
-                    <li><a href="{{ route('admin.dashboard') }}">{{ trans('menu.products.create') }}</a></li>
+                    <li>
+                        <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.products.create') }}">
+                            {{ trans('menu.products.create') }}
+                        </a>
+                    </li>
                     @endcan
                     
                     @can('products.view')
@@ -94,6 +98,31 @@
             </li>
         @endcanany
 
+        @canany(['variant-keys.view', 'variant-keys.create'])
+            <li class="has-child">
+                <a href="#" class="">
+                    <span class="nav-icon uil uil-box"></span>
+                    <span class="menu-text">variant configurations</span>
+                    <span class="toggle-icon"></span>
+                </a>
+                <ul class="px-0">
+                    <li>
+                        <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.variant-keys.index') }}">
+                            variant config keys
+                            <span class="badge-circle badge-primary ms-1">20</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.variants-configurations.index') }}">
+                            variant config
+                            <span class="badge-circle badge-primary ms-1">10</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        @endcanany
+        
+
         
         @canany(['product_setup.view', 'product_setup.create'])
         <li class="has-child">
@@ -103,7 +132,7 @@
                 <span class="toggle-icon"></span>
             </a>
             <ul class="px-0">
-                @can('product_setup.view')
+                @can('product_setup.index')
                 <li>
                     <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.products setup.all') }}
@@ -113,7 +142,11 @@
                 @endcan
                 
                 @can('product_setup.create')
-                <li><a href="{{ route('admin.dashboard') }}">{{ trans('menu.products setup.create') }}</a></li>
+                <li>
+                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
+                        {{ trans('menu.products setup.create') }}
+                    </a>
+                </li>
                 @endcan
             </ul>
         </li>
@@ -158,7 +191,7 @@
                 <span class="toggle-icon"></span>
             </a>
             <ul class="px-0">
-                @can('taxes.view')
+                @can('taxes.index')
                 <li>
                     <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.taxes.index') }}">
                         {{ trans('menu.taxes.all') }}
@@ -183,7 +216,7 @@
                 <span class="toggle-icon"></span>
             </a>
             <ul class="px-0">
-                @can('offers.view')
+                @can('offers.index')
                 <li>
                     <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.offers.all') }}
@@ -193,7 +226,11 @@
                 @endcan
                 
                 @can('offers.create')
-                <li><a href="{{ route('admin.dashboard') }}">{{ trans('menu.offers.create') }}</a></li>
+                <li>
+                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
+                        {{ trans('menu.offers.create') }}
+                    </a>
+                </li>
                 @endcan
             </ul>
         </li>
@@ -225,7 +262,7 @@
         </li>
         @endcan
         
-        @canany(['admin.roles.view', 'admin.admins.view'])
+        @canany(['roles.index', 'admins.index'])
         <li class="menu-title mt-30">
             <span>{{ trans('menu.sections.user management') }}</span>
         </li>
@@ -236,20 +273,26 @@
                 <span class="toggle-icon"></span>
             </a>
             <ul class="px-0">
-                @can('admin.roles.view')
-                <li><a href="{{ route('admin.admin-management.roles.index') }}">{{ trans('menu.admin managment.roles managment') }}</a>
+                @can('roles.index')
+                <li>
+                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.admin-management.roles.index') }}">
+                        {{ trans('menu.admin managment.roles managment') }}
+                    </a>
                 </li>
                 @endcan
                 
-                @can('admin.admins.view')
-                <li><a href="{{ route('admin.dashboard') }}">{{ trans('menu.admin managment.admin managment') }}</a>
+                @can('admins.index')
+                <li>
+                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
+                        {{ trans('menu.admin managment.admin managment') }}
+                    </a>
                 </li>
                 @endcan
             </ul>
         </li>
         @endcanany
         
-        @canany(['vendors.view', 'vendors.create'])
+        @canany(['vendors.index', 'vendors.create'])
         <li
             class="has-child {{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/vendors*') ? 'open' : '' }}">
             <a href="#"
@@ -259,19 +302,21 @@
                 <span class="toggle-icon"></span>
             </a>
             <ul class="px-0">
-                @can('vendors.view')
+                @can('vendors.index')
                 <li>
-                    <a href="{{ route('admin.vendors.index') }}">
-                        <span class="d-flex align-items-center justify-content-between w-100">
-                            <span>{{ trans('menu.vendors.all') }}</span>
-                            <span class="badge-circle badge-success ms-1">50</span>
-                        </span>
+                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.vendors.index') }}">
+                        {{ trans('menu.vendors.all') }}
+                        <span class="badge-circle badge-success ms-1">50</span>
                     </a>
                 </li>
                 @endcan
                 
                 @can('vendors.create')
-                <li><a href="{{ route('admin.vendors.create') }}">{{ trans('menu.vendors.create') }}</a></li>
+                <li>
+                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.vendors.create') }}">
+                        {{ trans('menu.vendors.create') }}
+                    </a>
+                </li>
                 @endcan
             </ul>
         </li>
@@ -312,7 +357,7 @@
         @endcan
 
         
-        @canany(['users.view', 'users.create'])
+        @canany(['users.index', 'users.create'])
         <li class="has-child">
             <a href="#" class="">
                 <span class="nav-icon uil uil-user"></span>
@@ -320,12 +365,19 @@
                 <span class="toggle-icon"></span>
             </a>
             <ul class="px-0">
-                @can('users.create')
-                <li><a href="{{ route('admin.dashboard') }}">{{ trans('menu.users.create') }}</a></li>
+                @can('users.index')
+                <li>
+                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
+                        {{ trans('menu.users.all') }}
+                    </a>
+                </li>
                 @endcan
-                
-                @can('users.view')
-                <li><a href="{{ route('admin.dashboard') }}">{{ trans('menu.users.all') }}</a></li>
+                @can('users.create')
+                <li>
+                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
+                        {{ trans('menu.users.create') }}
+                    </a>
+                </li>
                 @endcan
             </ul>
         </li>
@@ -333,7 +385,7 @@
 
 
         
-        @can('orders.view')
+        @canany(['orders.index', 'orders.create'])
         <li class="menu-title mt-30">
             <span>{{ trans('menu.sections.order and fulfillment') }}</span>
         </li>

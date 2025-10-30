@@ -1,0 +1,237 @@
+<?php
+
+namespace Modules\CatalogManagement\app\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use App\Services\LanguageService;
+use Illuminate\Http\Request;
+use Modules\CatalogManagement\app\Services\VariantsConfigurationService;
+use Modules\CatalogManagement\app\Actions\VariantsConfigurationAction;
+use Modules\CatalogManagement\app\Http\Requests\VariantsConfigurationRequest;
+use Modules\CatalogManagement\app\Http\Resources\VariantKeyTreeResource;
+use Modules\CatalogManagement\app\Http\Resources\VariantsConfigurationResource;
+use Modules\CatalogManagement\app\Models\VariantConfigurationKey;
+use Modules\CatalogManagement\app\Models\VariantsConfiguration;
+
+class VariantsConfigurationController extends Controller
+{
+
+    public function __construct(
+        protected VariantsConfigurationService $variantsConfigService,
+        protected VariantsConfigurationAction $variantsConfigAction,
+        protected LanguageService $languageService
+    ) {
+    }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
+    {
+        $languages = $this->languageService->getAll();
+        return view('catalogmanagement::variants-config.index', compact('languages'));
+    }
+
+    /**
+     * Display tree view of variants configurations
+     */
+    public function tree()
+    {
+        $languages = $this->languageService->getAll();
+        // Get all variants configurations with their relationships including key translations
+        $variantsConfigs = \Modules\CatalogManagement\app\Models\VariantsConfiguration::with([
+            'key.translations',
+            'parent_data',
+            'children.key.translations'
+        ])->orderBy('id', 'desc')->get();
+        // Build tree structure (only root items - children will be loaded via relationship)
+        $treeData = $variantsConfigs->whereNull('parent_id');
+        return view('catalogmanagement::variants-config.tree', compact('languages', 'treeData'));
+    }
+
+    /**
+     * Get datatable data
+     */
+    public function datatable(Request $request)
+    {
+        // Handle search parameter - could be string (custom input) or array (DataTables)
+        $search = $request->get('search');
+        if (is_array($search)) {
+            $searchValue = $search['value'] ?? null;
+        } else {
+            $searchValue = $search;
+        }
+        
+        $data = [
+            'page' => $request->get('page', 1),
+            'draw' => $request->get('draw', 1),
+            'start' => $request->get('start', 0),
+            'length' => $request->get('length', 10),
+            'per_page' => $request->get('per_page', 10),
+            'orderColumnIndex' => $request->get('order')[0]['column'] ?? 0,
+            'orderDirection' => $request->get('order')[0]['dir'] ?? 'desc',
+            'search' => $searchValue,
+            'created_date_from' => $request->get('created_date_from'),
+            'created_date_to' => $request->get('created_date_to'),
+        ];
+
+        try {
+            $response = $this->variantsConfigAction->getDataTable($data);
+            
+            \Illuminate\Support\Facades\Log::info('VariantsConfiguration Datatable Response', [
+                'data_count' => count($response['data']),
+                'totalRecords' => $response['totalRecords'],
+                'filteredRecords' => $response['filteredRecords']
+            ]);
+            
+            return response()->json([
+                'draw' => $data['draw'],
+                'data' => $response['data'],
+                'recordsTotal' => $response['totalRecords'],
+                'recordsFiltered' => $response['filteredRecords'],
+                'current_page' => $response['dataPaginated']->currentPage(),
+                'last_page' => $response['dataPaginated']->lastPage(),
+                'per_page' => $response['dataPaginated']->perPage(),
+                'total' => $response['dataPaginated']->total(),
+                'from' => $response['dataPaginated']->firstItem(),
+                'to' => $response['dataPaginated']->lastItem()
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('VariantsConfiguration Datatable Error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'draw' => $data['draw'],
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        $languages = $this->languageService->getAll();
+        $variantKeys = VariantConfigurationKey::with('translations')->get();
+        $variantKeys = VariantsConfigurationResource::collection($variantKeys)->resolve();
+        $allVariantsConfigs = $this->variantsConfigService->getAll();
+        return view('catalogmanagement::variants-config.form', compact('languages', 'variantKeys', 'allVariantsConfigs'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(VariantsConfigurationRequest $request)
+    {
+        $validated = $request->validated();
+        \Log::info('VariantsConfiguration Store Request', [
+            'validated' => $validated
+        ]);
+        try {
+            $variantKey = $this->variantsConfigService->create($validated);   
+            // Check if request is AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => __('variantsconfig.created_successfully'),
+                    'redirect' => route('admin.variants-configurations.index')
+                ]);
+            }
+            
+            return redirect()->route('admin.variants-configurations.index')
+                ->with('success', __('variantsconfig.created_successfully'));
+        } catch (\Exception $e) {
+            // Check if request is AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('variantsconfig.error_creating') . ': ' . $e->getMessage()
+                ], 422);
+            }
+            
+            return redirect()->back()
+                ->withInput()
+                ->with('error', __('variantsconfig.error_creating') . ': ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        $variantsConfig = VariantsConfiguration::with([
+            'key.translations',
+            'parent_data',
+            'children.key.translations'
+        ])->find($id);
+        $languages = $this->languageService->getAll();
+        
+        if (!$variantsConfig) {
+            return redirect()->route('admin.variants-configurations.index')
+                ->with('error', trans('catalogmanagement::variantsconfig.not_found'));
+        }
+
+        return view('catalogmanagement::variants-config.show', compact('variantsConfig', 'languages'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        $variantsConfig = VariantsConfiguration::with([
+            'translations',
+            'key.translations',
+            'parent_data',
+            'children'
+        ])->find($id);
+        $languages = $this->languageService->getAll();
+        $variantKeys = VariantConfigurationKey::with('translations')->get();
+        $variantKeys = VariantsConfigurationResource::collection($variantKeys)->resolve();
+        $allVariantsConfigs = $this->variantsConfigService->getAll();
+        
+        if (!$variantsConfig) {
+            return redirect()->route('admin.variants-configurations.index')
+                ->with('error', trans('catalogmanagement::variantsconfig.not_found'));
+        }
+
+        return view('catalogmanagement::variants-config.form', compact('variantsConfig', 'languages', 'variantKeys', 'allVariantsConfigs'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(VariantsConfigurationRequest $request, string $id)
+    {
+        $result = $this->variantsConfigAction->update($request, $id);
+        
+        if ($request->ajax() || $request->wantsJson()) {
+            if ($result['success']) {
+                $result['redirect'] = route('admin.variants-configurations.index');
+            }
+            return response()->json($result, $result['success'] ? 200 : 422);
+        }
+
+        if ($result['success']) {
+            return redirect()->route('admin.variants-configurations.index')
+                ->with('success', $result['message']);
+        }
+
+        return back()->with('error', $result['message'])->withInput();
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        $result = $this->variantsConfigAction->destroy($id);
+        return response()->json($result);
+    }
+}

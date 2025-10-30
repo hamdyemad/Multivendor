@@ -152,6 +152,47 @@
     font-weight: 500;
 }
 
+/* Tree Keys Container */
+.tree-keys-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #f8f9fa;
+    border: 1px solid #e3e6f0;
+    border-radius: 6px;
+}
+
+.tree-keys-label {
+    font-size: 12px;
+    color: #1976d2;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tree-key-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    background: #e3f2fd;
+    border: 1px solid #90caf9;
+    border-radius: 4px;
+    font-size: 11px;
+    color: #1976d2;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.tree-key-badge:hover {
+    background: #bbdefb;
+    border-color: #64b5f6;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(25, 118, 210, 0.2);
+}
+
 /* Tree Actions */
 .tree-actions {
     display: flex;
@@ -177,12 +218,12 @@
 
 .tree-actions .view {
     background: #e7f3ff;
-    color: #0d6efd;
+    color: var(--color-primary);
 }
 
 .tree-actions .view:hover {
-    background: #0d6efd;
-    color: white;
+    background-color: var(--color-primary);
+    color: #e7f3ff;
 }
 
 .tree-actions .edit {
@@ -245,6 +286,168 @@
     font-size: 11px;
     font-weight: 600;
     margin: 0px 8px;
+}
+
+/* Tree Key Node Styles */
+.tree-key-node > .tree-node-content {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    font-weight: 600;
+}
+
+.tree-key-node > .tree-node-content:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #63408a 100%);
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.tree-key-node .tree-toggle {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.tree-key-node .tree-toggle:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.tree-key-node .tree-id {
+    color: white;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.tree-key-node .tree-name-item {
+    background: rgba(255, 255, 255, 0.95);
+    color: #667eea;
+    font-weight: 600;
+    border: none;
+}
+
+.tree-key-node .children-count {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.tree-key-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    margin-right: 8px;
+}
+
+.tree-key-icon i {
+    font-size: 18px;
+    color: white;
+}
+
+/* Tree Variant Node Styles */
+.tree-variant-node > .tree-node-content {
+    background: #ffffff;
+    border: 2px solid #e3e6f0;
+}
+
+.tree-variant-node > .tree-node-content:hover {
+    background: #f8f9fa;
+    border-color: #8231D3;
+}
+
+.tree-variant-node .tree-id {
+    color: #667eea;
+    background: #f0f0f0;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.tree-variant-node .tree-name-item {
+    padding: 4px 12px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #495057;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.tree-variant-node .tree-name-item:hover {
+    border-color: #667eea;
+    background: #e7f0ff;
+    color: #667eea;
+}
+
+.tree-variant-node .tree-name-item[dir="rtl"] {
+    font-family: 'Cairo', sans-serif;
+}
+
+.tree-variant-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: #e3f2fd;
+    border-radius: 6px;
+    margin-right: 8px;
+}
+
+.tree-variant-icon i {
+    font-size: 16px;
+    color: #1976d2;
+}
+
+/* Tree Type Badge */
+.tree-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: #fff3e0;
+    border: 1px solid #ffb74d;
+    border-radius: 4px;
+    font-size: 11px;
+    color: #e65100;
+    font-weight: 500;
+}
+
+/* Tree Value Styles */
+.tree-text-value {
+    display: inline-flex;
+    padding: 4px 12px;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #424242;
+    font-weight: 500;
+}
+
+.tree-color-value {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #424242;
+    font-weight: 500;
+}
+
+.color-preview {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 2px solid white;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive Design */

@@ -18,7 +18,7 @@ class VariantsConfigurationService
         return $this->variantsConfigRepository->getAll();
     }
 
-    public function getById($id)
+    public function findById($id)
     {
         return $this->variantsConfigRepository->findById($id);
     }

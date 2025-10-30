@@ -113,19 +113,19 @@ class VariantsConfigurationAction
                             : $variantsConfigsCollection->sortByDesc('value');
                         break;
                         
-                    case 8: // Created At column
+                    case 6: // Created At column (updated index after removing parent and children_count columns)
                         $variantsConfigsCollection = $direction === 'asc'
                             ? $variantsConfigsCollection->sortBy('created_at')
                             : $variantsConfigsCollection->sortByDesc('created_at');
                         break;
                         
                     default:
-                        $variantsConfigsCollection = $variantsConfigsCollection->sortByDesc('id');
+                        $variantsConfigsCollection = $variantsConfigsCollection->sortByDesc('created_at');
                         break;
                 }
             } else {
-                // Default sorting
-                $variantsConfigsCollection = $variantsConfigsCollection->sortByDesc('id');
+                // Default sorting by created_at
+                $variantsConfigsCollection = $variantsConfigsCollection->sortByDesc('created_at');
             }
             
             // Manual pagination
@@ -169,8 +169,6 @@ class VariantsConfigurationAction
                     'type' => $variantsConfig->type ?? '',
                     'value' => $variantsConfig->value,
                     'key_name' => '-',
-                    'parent' => '-',
-                    'children_count' => $variantsConfig->children ? $variantsConfig->children->count() : 0,
                     'created_at' => $variantsConfig->created_at->format('Y-m-d H:i'),
                 ];
                 

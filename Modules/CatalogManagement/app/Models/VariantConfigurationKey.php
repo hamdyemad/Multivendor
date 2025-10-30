@@ -56,7 +56,11 @@ class VariantConfigurationKey extends Model
 
         // Parent filter
         if (isset($filters['parent_key_id']) && $filters['parent_key_id'] !== '') {
-            $builder->where('parent_key_id', $filters['parent_key_id']);
+            if($filters['parent_key_id'] == 'without') {
+                $builder->whereNull('parent_key_id');
+            } else {
+                $builder->where('parent_key_id', $filters['parent_key_id']);
+            }
         }
         
         // Date from filter

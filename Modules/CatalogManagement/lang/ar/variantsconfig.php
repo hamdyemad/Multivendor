@@ -11,7 +11,10 @@ return [
     'tree_view' => 'عرض الشجرة',
     'variants_configurations_tree' => 'شجرة تكوينات المتغيرات',
     'children_count' => 'عدد الأطفال',
+    'variants' => 'المتغيرات',
+    'variants_count' => 'عدد المتغيرات',
     'no_variants_configs_found' => 'لم يتم العثور على تكوينات متغيرة',
+    'no_variant_keys_found' => 'لم يتم العثور على مفاتيح المتغيرات',
     
     // Fields
     'type' => 'النوع',
@@ -22,6 +25,8 @@ return [
     'name' => 'الاسم',
     'enter_name' => 'أدخل الاسم',
     'key' => 'المفتاح',
+    'keys' => 'المفاتيح',
+    'related_keys' => 'المفاتيح المرتبطة',
     'parent' => 'التكوين الأب',
     'value' => 'القيمة',
     'all_parents' => 'جميع الآباء',

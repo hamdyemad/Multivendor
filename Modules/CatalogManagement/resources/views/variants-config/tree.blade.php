@@ -31,18 +31,18 @@
                     </div>
                 </div>
 
-                {{-- Tree View Container --}}
+                {{-- Tree View Container - Keys as Parents --}}
                 <div class="variant-configs-tree">
                     @if($treeData && $treeData->count() > 0)
                         <div class="tree-container">
-                            @foreach($treeData as $rootConfig)
-                                @include('catalogmanagement::variants-config.partials.tree-node', ['variantsConfig' => $rootConfig, 'level' => 0])
+                            @foreach($treeData as $rootKey)
+                                @include('catalogmanagement::variants-config.partials.tree-node', ['variantKey' => $rootKey, 'level' => 0])
                             @endforeach
                         </div>
                     @else
                         <div class="text-center py-5">
                             <i class="uil uil-folder-open" style="font-size: 64px; color: #ccc;"></i>
-                            <p class="text-muted mt-3">{{ trans('catalogmanagement::variantsconfig.no_variants_configs_found') }}</p>
+                            <p class="text-muted mt-3">{{ trans('catalogmanagement::variantsconfig.no_variant_keys_found') }}</p>
                         </div>
                     @endif
                 </div>

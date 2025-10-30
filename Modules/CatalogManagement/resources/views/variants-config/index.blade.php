@@ -113,12 +113,6 @@
                                         <span class="userDatatable-title">{{ trans('catalogmanagement::variantsconfig.key') }}</span>
                                     </th>
                                     <th>
-                                        <span class="userDatatable-title">{{ trans('catalogmanagement::variantsconfig.parent') }}</span>
-                                    </th>
-                                    <th>
-                                        <span class="userDatatable-title">{{ trans('catalogmanagement::variantsconfig.children_count') }}</span>
-                                    </th>
-                                    <th>
                                         <span class="userDatatable-title">{{ trans('common.created_at') }}</span>
                                     </th>
                                     <th>
@@ -246,20 +240,6 @@
                     orderable: false
                 },
                 { 
-                    data: 'parent',
-                    name: 'parent',
-                    orderable: false
-                },
-                { 
-                    data: 'children_count',
-                    name: 'children_count',
-                    orderable: false,
-                    searchable: false,
-                    render: function(data) {
-                        return '<span class="badge badge-primary">' + data + '</span>';
-                    }
-                },
-                { 
                     data: 'created_at',
                     name: 'created_at'
                 },
@@ -303,7 +283,7 @@
             pageLength: per_page,
             lengthChange: false,
             searching: false,
-            order: [[0, 'desc']]
+            order: [[6, 'desc']]  // Order by created_at column (index 6)
         });
 
         // Custom search input

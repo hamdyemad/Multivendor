@@ -113,8 +113,31 @@
                                     </div>
                                 @endforeach
 
+                                <!-- Variant Configuration Key -->
+                                <div class="col-md-6">
+                                    <div class="form-group mb-25">
+                                        <label for="key_id" class="il-gray fs-14 fw-500 mb-10">
+                                            {{ trans('catalogmanagement::variantsconfig.key') }} <span class="text-danger">*</span>
+                                        </label>
+                                        <select name="key_id" id="key_id" 
+                                                class="form-control select2 ih-medium ip-gray radius-xs b-light px-15 @error('key_id') is-invalid @enderror">
+                                            <option value="">-- {{ trans('common.select') }} --</option>
+                                            @if(isset($variantKeys))
+                                                @foreach($variantKeys as $key)
+                                                    <option value="{{ $key['id'] }}" 
+                                                        {{ (isset($variantsConfig) && $variantsConfig['key_id'] == $key['id']) ? 'selected' : (old('key_id') == $key['id'] ? 'selected' : '') }}>
+                                                        {{ $key['name'] }}
+                                                    </option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                        @error('key_id')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
                                 <!-- Type Selection -->
-                                <div class="col-md-12">
+                                <div class="col-md-6">
                                     <div class="form-group mb-25">
                                         <label for="type" class="il-gray fs-14 fw-500 mb-10">
                                             {{ trans('catalogmanagement::variantsconfig.type') }}
@@ -144,9 +167,10 @@
                                     </div>
                                 </div>
 
+                                
 
                                 <!-- Value - Color Picker (shown when type is 'color') -->
-                                <div class="col-md-12" id="colorValueContainer" style="display: none;">
+                                <div class="col-md-6" id="colorValueContainer" style="display: none;">
                                     <div class="form-group mb-25">
                                         <label for="value_color" class="il-gray fs-14 fw-500 mb-10">
                                             {{ trans('catalogmanagement::variantsconfig.value') }}
@@ -175,60 +199,8 @@
 
                                 <!-- Hidden input to store the actual value -->
                                 <input type="hidden" name="value" id="value" value="{{ isset($variantsConfig) ? $variantsConfig->value : old('value') }}">
-
-                                <!-- Variant Configuration Key -->
-                                <div class="col-md-6">
-                                    <div class="form-group mb-25">
-                                        <label for="key_id" class="il-gray fs-14 fw-500 mb-10">
-                                            {{ trans('catalogmanagement::variantsconfig.key') }} <span class="text-danger">*</span>
-                                        </label>
-                                        <select name="key_id" id="key_id" 
-                                                class="form-control select2 ih-medium ip-gray radius-xs b-light px-15 @error('key_id') is-invalid @enderror">
-                                            <option value="">-- {{ trans('common.select') }} --</option>
-                                            @if(isset($variantKeys))
-                                                @foreach($variantKeys as $key)
-                                                    <option value="{{ $key['id'] }}" 
-                                                        {{ (isset($variantsConfig) && $variantsConfig['id'] == $key['id']) ? 'selected' : (old('key_id') == $key['id'] ? 'selected' : '') }}>
-                                                        {{ $key['name'] }}
-                                                    </option>
-                                                @endforeach
-                                            @endif
-                                        </select>
-                                        @error('key_id')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <!-- Parent Configuration -->
-                                <div class="col-md-6">
-                                    <div class="form-group mb-25">
-                                        <label for="parent_id" class="il-gray fs-14 fw-500 mb-10">
-                                            {{ trans('catalogmanagement::variantsconfig.parent') }} 
-                                            <span class="text-muted">({{ trans('common.optional') }})</span>
-                                        </label>
-                                        <select name="parent_id" id="parent_id" 
-                                                class="form-control select2 ih-medium ip-gray radius-xs b-light px-15 @error('parent_id') is-invalid @enderror">
-                                            <option value="">-- {{ trans('catalogmanagement::variantsconfig.no_parent') }} --</option>
-                                            @if(isset($allVariantsConfigs))
-                                                @foreach($allVariantsConfigs as $config)
-                                                    @if(!isset($variantsConfig) || $config->id != $variantsConfig->id)
-                                                        <option value="{{ $config->id }}" 
-                                                            {{ (isset($variantsConfig) && $variantsConfig->parent_id == $config->id) ? 'selected' : (old('parent_id') == $config->id ? 'selected' : '') }}>
-                                                            {{ $config->value }}
-                                                        </option>
-                                                    @endif
-                                                @endforeach
-                                            @endif
-                                        </select>
-                                        @error('parent_id')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
                                 <div class="col-12">
-                                    <div class="button-group d-flex pt-25 gap-3">
+                                    <div class="button-group d-flex gap-3">
                                         <a href="{{ route('admin.variants-configurations.index') }}" 
                                            class="btn btn-light btn-default btn-squared fw-400 text-capitalize">
                                             <i class="uil uil-angle-left"></i> {{ trans('common.cancel') }}

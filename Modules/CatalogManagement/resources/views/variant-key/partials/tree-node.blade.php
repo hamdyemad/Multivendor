@@ -11,8 +11,6 @@
         @endif
         
         <div class="tree-info">
-            <span class="tree-id">#{{ $variantKey->id }}</span>
-            
             <div class="tree-names">
                 @foreach($languages as $language)
                     @php

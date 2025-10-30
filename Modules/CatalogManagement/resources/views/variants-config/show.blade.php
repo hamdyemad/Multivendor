@@ -34,11 +34,73 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-md-12">
+                                {{-- Variant Names --}}
+                                @foreach($languages as $language)
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-20">
+                                            <label class="il-gray fs-14 fw-500 mb-10 w-100" @if($language->code == 'ar')  dir="rtl" @endif>
+                                                @if($language->code == 'ar')
+                                                    الاسم ({{ $language->name }})
+                                                @else
+                                                    {{ trans('catalogmanagement::variantsconfig.name') }} ({{ $language->name }})
+                                                @endif
+                                            </label>
+                                            <div class="userDatatable-content" @if($language->code == 'ar')  dir="rtl" @endif>
+                                                <strong class="fs-16">{{ $variantsConfig->getTranslation('name', $language->code) ?? '-' }}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+
+                                {{-- Type --}}
+                                <div class="col-md-6">
+                                    <div class="form-group mb-20">
+                                        <label class="il-gray fs-14 fw-500 mb-10">{{ trans('catalogmanagement::variantsconfig.type') }}</label>
+                                        <div class="userDatatable-content">
+                                            @if($variantsConfig->type)
+                                                <span class="badge badge-{{ $variantsConfig->type == 'color' ? 'info' : 'secondary' }} badge-pill px-3 py-2">
+                                                    <i class="uil uil-{{ $variantsConfig->type == 'color' ? 'palette' : 'text' }}"></i>
+                                                    {{ trans('catalogmanagement::variantsconfig.' . $variantsConfig->type) }}
+                                                </span>
+                                            @else
+                                                <strong>-</strong>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Value --}}
+                                <div class="col-md-6">
                                     <div class="form-group mb-20">
                                         <label class="il-gray fs-14 fw-500 mb-10">{{ trans('catalogmanagement::variantsconfig.value') }}</label>
                                         <div class="userDatatable-content">
-                                            <strong class="fs-16">{{ $variantsConfig->value }}</strong>
+                                            @if($variantsConfig->value)
+                                                @if($variantsConfig->type == 'color')
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <span class="color-preview-large" style="background-color: {{ $variantsConfig->value }}; width: 40px; height: 40px; border-radius: 6px; border: 2px solid #dee2e6; display: inline-block;"></span>
+                                                        <strong class="fs-16">{{ $variantsConfig->value }}</strong>
+                                                    </div>
+                                                @else
+                                                    <strong class="fs-16">{{ $variantsConfig->value }}</strong>
+                                                @endif
+                                            @else
+                                                <strong>-</strong>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-20">
+                                        <label class="il-gray fs-14 fw-500 mb-10">{{ trans('catalogmanagement::variantsconfig.key') }}</label>
+                                        <div class="userDatatable-content">
+                                            @if($variantsConfig->key)
+                                                <span class="badge badge-primary badge-lg badge-round badge-pill px-3 py-2">
+                                                    <i class="uil uil-key-skeleton-alt"></i> 
+                                                    {{ $variantsConfig->key->getTranslation('name', app()->getLocale()) }}
+                                                </span>
+                                            @else
+                                                <strong>-</strong>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -46,53 +108,6 @@
                         </div>
                     </div>
 
-                    <!-- Related Information Card -->
-                    <div class="card border-0 shadow-sm mb-25">
-                        <div class="card-header bg-white border-bottom">
-                            <h5 class="mb-0 fw-500">{{ trans('common.relationships') }}</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group mb-20">
-                                        <label class="il-gray fs-14 fw-500 mb-10">{{ trans('catalogmanagement::variantsconfig.key') }}</label>
-                                        <div class="userDatatable-content">
-                                            <strong>
-                                                @if($variantsConfig->key)
-                                                    @php
-                                                        $keyTranslation = $variantsConfig->key->translations->where('lang_key', 'name')->first();
-                                                    @endphp
-                                                    <span class="badge badge-info badge-pill px-3 py-2">
-                                                        <i class="uil uil-key-skeleton-alt"></i> 
-                                                        {{ $keyTranslation ? $keyTranslation->lang_value : '-' }}
-                                                    </span>
-                                                @else
-                                                    -
-                                                @endif
-                                            </strong>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group mb-20">
-                                        <label class="il-gray fs-14 fw-500 mb-10">{{ trans('catalogmanagement::variantsconfig.parent') }}</label>
-                                        <div class="userDatatable-content">
-                                            <strong>
-                                                @if($variantsConfig->parent_data)
-                                                    <span class="badge badge-secondary badge-pill px-3 py-2">
-                                                        <i class="uil uil-sitemap"></i> 
-                                                        {{ $variantsConfig->parent_data->value }}
-                                                    </span>
-                                                @else
-                                                    {{ trans('catalogmanagement::variantsconfig.no_parent') }}
-                                                @endif
-                                            </strong>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Children Information Card -->
                     @if($variantsConfig->children && $variantsConfig->children->count() > 0)

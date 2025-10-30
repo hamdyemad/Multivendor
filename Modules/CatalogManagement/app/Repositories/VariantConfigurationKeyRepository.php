@@ -13,7 +13,14 @@ class VariantConfigurationKeyRepository implements VariantConfigurationKeyReposi
      */
     public function getAllVariantConfigurationKeys($filters, $perPage = 10)
     {
-        $query = VariantConfigurationKey::with('translations', 'parent')->filter($filters);
+        $query = VariantConfigurationKey::with(
+            'translations',
+            'variants.translations',
+            'variants.children.translations',
+            'childrenKeys.translations',
+            'childrenKeys.variants.translations',
+            'childrenKeys.variants.children.translations'
+        )->filter($filters);
         return ($perPage == 0) ? $query->get() : $query->paginate($perPage);
     }
 

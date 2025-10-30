@@ -32,7 +32,12 @@ class VariantsConfigurationRepository implements VariantsConfigurationRepository
      */
     public function findById(int $id)
     {
-        return VariantsConfiguration::with(['key', 'parent_data', 'children'])->find($id);
+        return VariantsConfiguration::with([
+            'translations',
+            'key.translations',
+            'parent_data',
+            'children'
+        ])->find($id);
     }
 
     /**

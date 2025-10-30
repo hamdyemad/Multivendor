@@ -12,12 +12,14 @@ use Modules\CatalogManagement\app\Http\Resources\VariantKeyTreeResource;
 use Modules\CatalogManagement\app\Http\Resources\VariantsConfigurationResource;
 use Modules\CatalogManagement\app\Models\VariantConfigurationKey;
 use Modules\CatalogManagement\app\Models\VariantsConfiguration;
+use Modules\CatalogManagement\app\Services\VariantConfigurationKeyService;
 
 class VariantsConfigurationController extends Controller
 {
 
     public function __construct(
         protected VariantsConfigurationService $variantsConfigService,
+        protected VariantConfigurationKeyService $variantConfigKeyService,
         protected VariantsConfigurationAction $variantsConfigAction,
         protected LanguageService $languageService
     ) {
@@ -33,19 +35,18 @@ class VariantsConfigurationController extends Controller
     }
 
     /**
-     * Display tree view of variants configurations
+     * Display tree view of variants configurations grouped by keys
      */
     public function tree()
     {
         $languages = $this->languageService->getAll();
-        // Get all variants configurations with their relationships including key translations
-        $variantsConfigs = \Modules\CatalogManagement\app\Models\VariantsConfiguration::with([
-            'key.translations',
-            'parent_data',
-            'children.key.translations'
-        ])->orderBy('id', 'desc')->get();
-        // Build tree structure (only root items - children will be loaded via relationship)
-        $treeData = $variantsConfigs->whereNull('parent_id');
+        // Get all parent keys (keys without parent_key_id) with their children keys and variant configurations
+        $filters = [
+            'parent_key_id' => 'without'
+        ];
+        $variantKeys = $this->variantConfigKeyService->getAllVariantConfigurationKeys($filters, 0);
+        // Transform through resource
+        $treeData = VariantKeyTreeResource::collection($variantKeys);
         return view('catalogmanagement::variants-config.tree', compact('languages', 'treeData'));
     }
 
@@ -165,11 +166,7 @@ class VariantsConfigurationController extends Controller
      */
     public function show(string $id)
     {
-        $variantsConfig = VariantsConfiguration::with([
-            'key.translations',
-            'parent_data',
-            'children.key.translations'
-        ])->find($id);
+        $variantsConfig = $this->variantsConfigService->getById($id);
         $languages = $this->languageService->getAll();
         
         if (!$variantsConfig) {
@@ -185,12 +182,7 @@ class VariantsConfigurationController extends Controller
      */
     public function edit(string $id)
     {
-        $variantsConfig = VariantsConfiguration::with([
-            'translations',
-            'key.translations',
-            'parent_data',
-            'children'
-        ])->find($id);
+        $variantsConfig = $this->variantsConfigService->findById($id);
         $languages = $this->languageService->getAll();
         $variantKeys = VariantConfigurationKey::with('translations')->get();
         $variantKeys = VariantsConfigurationResource::collection($variantKeys)->resolve();

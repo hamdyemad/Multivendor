@@ -34,6 +34,10 @@ class ActivityAction {
             $perPage = $data['per_page'] ?? $data['length'] ?? 10;
             $page = $data['page'] ?? 1;
             
+            // Get sorting parameters
+            $orderColumnIndex = $data['orderColumnIndex'] ?? 0;
+            $orderDirection = $data['orderDirection'] ?? 'desc';
+            
             // Get filter parameters
             $filters = [
                 'search' => $data['search'],
@@ -42,82 +46,63 @@ class ActivityAction {
                 'created_date_to' => $data['created_date_to'],
             ];
             
+            // Get languages
+            $languages = $this->languageService->getAll();
+            
             // Get total and filtered counts
             $totalRecords = $this->activityRepositoryInterface->getActivitiesQuery([])->count();
             $filteredRecords = $this->activityRepositoryInterface->getActivitiesQuery($filters)->count();
             
-            // Get activities with pagination
-            $activitiesQuery = $this->activityRepositoryInterface->getActivitiesQuery($filters);
+            // Determine sort column
+            $orderBy = null;
+            if ($orderColumnIndex == 0) {
+                $orderBy = 'id';
+            } elseif ($orderColumnIndex >= 1 && $orderColumnIndex <= count($languages)) {
+                // Sorting by translated name column
+                $languageIndex = $orderColumnIndex - 1;
+                $selectedLanguage = $languages->values()->get($languageIndex);
+                if ($selectedLanguage) {
+                    $orderBy = [
+                        'lang_id' => $selectedLanguage->id,
+                        'key' => 'name'
+                    ];
+                }
+            } elseif ($orderColumnIndex == count($languages) + 1) {
+                $orderBy = 'active';
+            } elseif ($orderColumnIndex == count($languages) + 2) {
+                $orderBy = 'created_at';
+            }
+            
+            // Get activities with pagination and sorting
+            $activitiesQuery = $this->activityRepositoryInterface->getActivitiesQuery($filters, $orderBy, $orderDirection);
             $activities = $activitiesQuery->paginate($perPage, ['*'], 'page', $page);
             
-            // Get languages
-            $languages = $this->languageService->getAll();
-            
-            // Format data for DataTables
+            // Return raw data - rendering will be handled by DataTables in the view
             $data = [];
-            foreach ($activities as $activity) {
-                $row = [];
+            foreach ($activities as $index => $activity) {
+                $rowData = [
+                    'id' => $index + 1,
+                    'translations' => [],
+                    'active' => $activity->active,
+                    'created_at' => $activity->created_at->format('Y-m-d H:i'),
+                ];
                 
-                // ID column
-                $row[] = $activity->id;
-                
-                // Name columns for each language
+                // Add translations for each language
                 foreach ($languages as $language) {
                     $translation = $activity->translations->where('lang_id', $language->id)
                         ->where('lang_key', 'name')
                         ->first();
-                    $name = $translation ? $translation->lang_value : '-';
-                    
-                    if ($language->rtl) {
-                        $row[] = '<span dir="rtl">' . e($name) . '</span>';
-                    } else {
-                        $row[] = e($name);
-                    }
+                    $rowData['translations'][$language->code] = [
+                        'name' => $translation ? $translation->lang_value : '-',
+                        'rtl' => $language->rtl
+                    ];
                 }
                 
-                // Active status column
-                $activeStatus = $activity->active 
-                    ? '<span class="badge badge-success">' . __('activity.active') . '</span>'
-                    : '<span class="badge badge-danger">' . __('activity.inactive') . '</span>';
-                $row[] = $activeStatus;
+                // Add first translation name for delete modal
+                $firstTranslation = $activity->translations->where('lang_key', 'name')->first();
+                $rowData['first_name'] = $firstTranslation ? $firstTranslation->lang_value : '';
                 
-                // Created at column
-                $row[] = $activity->created_at->format('Y-m-d H:i');
-                
-                // Actions
-                $actionsHtml = '
-                    <ul class="orderDatatable_actions mb-0 d-flex flex-wrap justify-content-start">
-                        <li>
-                            <a href="' . route('admin.category-management.activities.show', $activity->id) . '" 
-                            class="view" 
-                            title="' . e(trans('common.view')) . '">
-                                <i class="uil uil-eye"></i>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="' . route('admin.category-management.activities.edit', $activity->id) . '" 
-                            class="edit" 
-                            title="' . e(trans('common.edit')) . '">
-                                <i class="uil uil-edit"></i>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="javascript:void(0);" 
-                            class="remove delete-activity" 
-                            title="' . e(trans('common.delete')) . '"
-                            data-bs-toggle="modal" 
-                            data-bs-target="#modal-delete-activity"
-                            data-item-id="' . $activity->id . '"
-                            data-item-name="' . e($activity->translations->where("lang_key", "name")->first()->lang_value ?? "") . '"
-                            data-url="' . route('admin.category-management.activities.destroy', $activity->id) . '">
-                                <i class="uil uil-trash-alt"></i>
-                            </a>
-                        </li>
-                    </ul>';
-
-                $row[] = $actionsHtml;
-                
-                $data[] = $row;
+                $data[] = $rowData;
             }
             
             return [

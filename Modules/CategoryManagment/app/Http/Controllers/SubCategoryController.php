@@ -9,18 +9,26 @@ use Modules\CategoryManagment\app\Services\CategoryService;
 use App\Services\LanguageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Modules\CategoryManagment\app\Actions\SubCategoryAction;
 
 class SubCategoryController extends Controller
 {
     protected $subCategoryService;
     protected $categoryService;
     protected $languageService;
+    protected $subCategoryAction;
 
-    public function __construct(SubCategoryService $subCategoryService, CategoryService $categoryService, LanguageService $languageService)
+    public function __construct(
+        SubCategoryService $subCategoryService, 
+        CategoryService $categoryService, 
+        LanguageService $languageService,
+        SubCategoryAction $subCategoryAction
+    )
     {
         $this->subCategoryService = $subCategoryService;
         $this->categoryService = $categoryService;
         $this->languageService = $languageService;
+        $this->subCategoryAction = $subCategoryAction;
     }
 
     /**
@@ -29,126 +37,21 @@ class SubCategoryController extends Controller
     public function datatable(Request $request)
     {
         try {
-            // Get pagination parameters
-            $perPage = $request->get('per_page', $request->get('length', 10));
-            $page = $request->get('page', 1);
+            // Get datatable data from action
+            $result = $this->subCategoryAction->getDataTable($request->all());
             
-            // Get filter parameters
-            $filters = [
-                'search' => $request->get('search'),
-                'category_id' => $request->get('category_id'),
-                'active' => $request->get('active'),
-                'created_date_from' => $request->get('created_date_from'),
-                'created_date_to' => $request->get('created_date_to'),
-            ];
-
-            // Debug logging
-            Log::info('SubCategory Datatable Request:', [
-                'all_params' => $request->all(),
-                'filters' => $filters,
-                'per_page' => $perPage,
-                'page' => $page
-            ]);
-                
-            // Get total and filtered counts
-            $totalRecords = $this->subCategoryService->getSubCategoriesQuery([])->count();
-            $filteredRecords = $this->subCategoryService->getSubCategoriesQuery($filters)->count();
-            
-            // Get sub-categories with pagination
-            $subCategoriesQuery = $this->subCategoryService->getSubCategoriesQuery($filters);
-            $subCategories = $subCategoriesQuery->paginate($perPage, ['*'], 'page', $page);
-            
-            // Get languages
-            $languages = $this->languageService->getAll();
-            
-            // Format data for DataTables
-            $data = [];
-            foreach ($subCategories as $subCategory) {
-                $row = [];
-                
-                // ID column
-                $row[] = $subCategory->id;
-                
-                // Name columns for each language
-                foreach ($languages as $language) {
-                    $translation = $subCategory->translations->where('lang_id', $language->id)
-                        ->where('lang_key', 'name')
-                        ->first();
-                    $name = $translation ? $translation->lang_value : '-';
-                    
-                    if ($language->rtl) {
-                        $row[] = '<span dir="rtl">' . e($name) . '</span>';
-                    } else {
-                        $row[] = e($name);
-                    }
-                }
-                
-                // Category column
-                if ($subCategory->category) {
-                    $firstLang = $languages->first();
-                    $catTrans = $subCategory->category->translations->where('lang_id', $firstLang->id)
-                        ->where('lang_key', 'name')
-                        ->first();
-                    $row[] = '<span class="badge badge-round badge-primary badge-lg" data-category-id="' . $subCategory->category->id . '">' . e($catTrans->lang_value ?? '') . '</span>';
-                } else {
-                    $row[] = '-';
-                }
-                
-                // Active status column
-                $activeStatus = $subCategory->active 
-                    ? '<span class="badge badge-round badge-success badge-lg">' . __('subcategory.active') . '</span>'
-                    : '<span class="badge badge-round badge-danger badge-lg">' . __('subcategory.inactive') . '</span>';
-                $row[] = $activeStatus;
-                
-                // Created at column
-                $row[] = $subCategory->created_at->format('Y-m-d H:i');
-                
-                // Actions
-                $actionsHtml = '
-                    <ul class="orderDatatable_actions mb-0 d-flex flex-wrap justify-content-start">
-                        <li>
-                            <a href="' . route('admin.category-management.subcategories.show', $subCategory->id) . '" 
-                            class="view" 
-                            title="' . e(trans('common.view')) . '">
-                                <i class="uil uil-eye"></i>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="' . route('admin.category-management.subcategories.edit', $subCategory->id) . '" 
-                            class="edit" 
-                            title="' . e(trans('common.edit')) . '">
-                                <i class="uil uil-edit"></i>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="javascript:void(0);" 
-                            class="remove delete-subcategory" 
-                            title="' . e(trans('common.delete')) . '"
-                            data-bs-toggle="modal" 
-                            data-bs-target="#modal-delete-subcategory"
-                            data-item-id="' . $subCategory->id . '"
-                            data-item-name="' . e($subCategory->translations->where("lang_key", "name")->first()->lang_value ?? "") . '"
-                            data-url="' . route('admin.category-management.subcategories.destroy', $subCategory->id) . '">
-                                <i class="uil uil-trash-alt"></i>
-                            </a>
-                        </li>
-                    </ul>';
-
-                $row[] = $actionsHtml;
-                
-                $data[] = $row;
-            }
+            $dataPaginated = $result['dataPaginated'];
             
             return response()->json([
-                'data' => $data,
-                'recordsTotal' => $totalRecords,
-                'recordsFiltered' => $filteredRecords,
-                'current_page' => $subCategories->currentPage(),
-                'last_page' => $subCategories->lastPage(),
-                'per_page' => $subCategories->perPage(),
-                'total' => $subCategories->total(),
-                'from' => $subCategories->firstItem(),
-                'to' => $subCategories->lastItem()
+                'data' => $result['data'],
+                'recordsTotal' => $result['totalRecords'],
+                'recordsFiltered' => $result['filteredRecords'],
+                'current_page' => $dataPaginated->currentPage(),
+                'last_page' => $dataPaginated->lastPage(),
+                'per_page' => $dataPaginated->perPage(),
+                'total' => $dataPaginated->total(),
+                'from' => $dataPaginated->firstItem(),
+                'to' => $dataPaginated->lastItem()
             ]);
             
         } catch (\Exception $e) {

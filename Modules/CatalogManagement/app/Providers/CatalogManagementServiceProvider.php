@@ -1,9 +1,13 @@
 <?php
 
-namespace Modules\CatalogManagement\Providers;
+namespace Modules\CatalogManagement\app\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Modules\CatalogManagement\app\Interfaces\BrandRepositoryInterface;
+use Modules\CatalogManagement\app\Repositories\BrandRepository;
+use Modules\CatalogManagement\app\Interfaces\TaxRepositoryInterface;
+use Modules\CatalogManagement\app\Repositories\TaxRepository;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -36,6 +40,17 @@ class CatalogManagementServiceProvider extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
+
+        // Register repository bindings
+        $this->app->bind(
+            BrandRepositoryInterface::class,
+            BrandRepository::class
+        );
+        
+        $this->app->bind(
+            TaxRepositoryInterface::class,
+            TaxRepository::class
+        );
     }
 
     /**

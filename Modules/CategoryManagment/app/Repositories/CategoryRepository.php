@@ -4,7 +4,6 @@ namespace Modules\CategoryManagment\app\Repositories;
 
 use Modules\CategoryManagment\app\Interfaces\CategoryRepositoryInterface;
 use Modules\CategoryManagment\app\Models\Category;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
 class CategoryRepository implements CategoryRepositoryInterface
@@ -14,8 +13,7 @@ class CategoryRepository implements CategoryRepositoryInterface
      */
     public function getAllCategories(array $filters = [], int $perPage = 15)
     {
-        $query = Category::with(['translations', 'department']);
-
+        $query = Category::with('translations', 'department');
         // Search filter
         if (!empty($filters['search'])) {
             $search = $filters['search'];
@@ -26,14 +24,14 @@ class CategoryRepository implements CategoryRepositoryInterface
             });
         }
 
+        // Department Filter
+        if (isset($filters['department_id']) && $filters['department_id'] !== '') {
+            $query->where('department_id', $filters['department_id']);
+        }
+
         // Active filter
         if (isset($filters['active']) && $filters['active'] !== '') {
             $query->where('active', $filters['active']);
-        }
-
-        // Department filter
-        if (!empty($filters['department_id'])) {
-            $query->where('department_id', $filters['department_id']);
         }
 
         // Date from filter
@@ -48,6 +46,11 @@ class CategoryRepository implements CategoryRepositoryInterface
 
         // Order by latest
         $query->orderBy('created_at', 'desc');
+
+        // If perPage is 0, return all results without pagination (for dropdowns)
+        if ($perPage === 0) {
+            return $query->get();
+        }
 
         return $query->paginate($perPage);
     }
@@ -114,6 +117,7 @@ class CategoryRepository implements CategoryRepositoryInterface
         return $query;
     }
 
+    
     /**
      * Get all active categories
      */
@@ -136,7 +140,7 @@ class CategoryRepository implements CategoryRepositoryInterface
     public function createCategory(array $data)
     {
         $category = Category::create([
-            'slug' => Str::uuid(),
+            'slug' => \Str::uuid(),
             'department_id' => $data['department_id'],
             'active' => $data['active'] ?? 1,
         ]);

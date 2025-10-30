@@ -205,14 +205,85 @@
                 }
             },
             columns: [
-                { data: 0, name: 'id' }, // #
+                { data: 'id', name: 'id' }, // #
                 @foreach($languages as $language)
-                { data: {{ $loop->index + 1 }}, name: 'name_{{ $language->code }}', render: function(data) { return data; } },
+                {
+                    data: 'translations.{{ $language->code }}.name',
+                    name: 'name_{{ $language->code }}',
+                    render: function(data, type, row) {
+                        if (!data) return '-';
+                        @if($language->rtl)
+                        return '<span dir="rtl">' + data + '</span>';
+                        @else
+                        return data;
+                        @endif
+                    }
+                },
                 @endforeach
-                { data: {{ count($languages) + 1 }}, name: 'departments', render: function(data) { return data; } }, // Departments
-                { data: {{ count($languages) + 2 }}, name: 'active', render: function(data) { return data; } }, // Active Status
-                { data: {{ count($languages) + 3 }}, name: 'created_at', render: function(data) { return data; } }, // Created At
-                { data: {{ count($languages) + 4 }}, name: 'actions', orderable: false, searchable: false, render: function(data) { return data; } } // Actions
+                {
+                    data: 'department',
+                    name: 'department',
+                    render: function(data) {
+                        if (data && data.name) {
+                            return '<span class="badge badge-info badge-round badge-lg">' + data.name + '</span>';
+                        }
+                        return '-';
+                    }
+                },
+                {
+                    data: 'active',
+                    name: 'active',
+                    render: function(data) {
+                        if (data) {
+                            return '<span class="badge badge-success badge-round badge-lg">{{ trans('categorymanagment::category.active') }}</span>';
+                        } else {
+                            return '<span class="badge badge-danger badge-round badge-lg">{{ trans('categorymanagment::category.inactive') }}</span>';
+                        }
+                    }
+                },
+                { data: 'created_at', name: 'created_at' },
+                {
+                    data: null,
+                    name: 'actions',
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row) {
+                        const showUrl = '{{ url("admin/category-management/categories") }}/' + data.id;
+                        const editUrl = '{{ url("admin/category-management/categories") }}/' + data.id + '/edit';
+                        const destroyUrl = '{{ url("admin/category-management/categories") }}/' + data.id;
+                        
+                        return `
+                            <ul class="orderDatatable_actions mb-0 d-flex flex-wrap justify-content-start">
+                                <li>
+                                    <a href="${showUrl}" 
+                                       class="view" 
+                                       title="{{ trans('common.view') }}">
+                                        <i class="uil uil-eye"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="${editUrl}" 
+                                       class="edit" 
+                                       title="{{ trans('common.edit') }}">
+                                        <i class="uil uil-edit"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void(0);" 
+                                       class="remove delete-category" 
+                                       title="{{ trans('common.delete') }}"
+                                       data-bs-toggle="modal" 
+                                       data-bs-target="#modal-delete-category"
+                                       data-item-id="${row.id}"
+                                       data-item-name="${row.first_name || ''}"
+                                       data-url="${destroyUrl}">
+                                        <i class="uil uil-trash-alt"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        `;
+                    }
+                }
             ],
             pageLength: per_page,
             lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],

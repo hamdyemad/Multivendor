@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Modules\CategoryManagment\app\Http\Resources\ActivityResource;
 use Modules\CategoryManagment\app\Services\ActivityService;
+use Modules\CategoryManagment\app\Actions\DepartmentAction;
 
 class DepartmentController extends Controller
 {
@@ -18,6 +19,7 @@ class DepartmentController extends Controller
         protected DepartmentService $departmentService, 
         protected LanguageService $languageService,
         protected ActivityService $activityService,
+        protected DepartmentAction $departmentAction
     )
     {
     }
@@ -27,125 +29,42 @@ class DepartmentController extends Controller
      */
     public function datatable(Request $request)
     {
-        try {
-            // Get pagination parameters
-            $perPage = $request->get('per_page', $request->get('length', 10));
-            $page = $request->get('page', 1);
-            
-            // Get filter parameters
-            $filters = [
-                'search' => $request->get('search'),
-                'active' => $request->get('active'),
-                'created_date_from' => $request->get('created_date_from'),
-                'created_date_to' => $request->get('created_date_to'),
-            ];
-            
-            // Debug logging
-            \Log::info('Department Datatable Request:', [
-                'all_params' => $request->all(),
-                'filters' => $filters
-            ]);
-            
-            // Get total and filtered counts
-            $totalRecords = $this->departmentService->getDepartmentsQuery([])->count();
-            $filteredRecords = $this->departmentService->getDepartmentsQuery($filters)->count();
-            
-            // Get departments with pagination
-            $departmentsQuery = $this->departmentService->getDepartmentsQuery($filters);
-            $departments = $departmentsQuery->paginate($perPage, ['*'], 'page', $page);
-            
-            // Get languages
-            $languages = $this->languageService->getAll();
-            
-            // Format data for DataTables
-            $data = [];
-            foreach ($departments as $department) {
-                $row = [];
-                
-                // ID column
-                $row[] = $department->id;
-                
-                // Image column
-                if ($department->image) {
-                    $row[] = '<img src="' . asset('storage/' . $department->image) . '" alt="Department Image" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">';
-                } else {
-                    $row[] = '<span class="text-muted">-</span>';
-                }
-                
-                // Name columns for each language
-                foreach ($languages as $language) {
-                    $translation = $department->translations->where('lang_id', $language->id)
-                        ->where('lang_key', 'name')
-                        ->first();
-                    $name = $translation ? $translation->lang_value : '-';
-                    
-                    if ($language->rtl) {
-                        $row[] = '<span dir="rtl">' . e($name) . '</span>';
-                    } else {
-                        $row[] = e($name);
-                    }
-                }
-                
-                // Active status column
-                $activeStatus = $department->active 
-                    ? '<span class="badge badge-success">' . trans('categorymanagment::department.active') . '</span>'
-                    : '<span class="badge badge-danger">' . trans('categorymanagment::department.inactive') . '</span>';
-                $row[] = $activeStatus;
-                
-                // Created at column
-                $row[] = $department->created_at->format('Y-m-d H:i');
-                
-                // Actions
-                $actionsHtml = '
-                    <ul class="orderDatatable_actions mb-0 d-flex flex-wrap justify-content-start">
-                        <li>
-                            <a href="' . route('admin.category-management.departments.show', $department->id) . '" 
-                            class="view" 
-                            title="' . e(trans('common.view')) . '">
-                                <i class="uil uil-eye"></i>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="' . route('admin.category-management.departments.edit', $department->id) . '" 
-                            class="edit" 
-                            title="' . e(trans('common.edit')) . '">
-                                <i class="uil uil-edit"></i>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="javascript:void(0);" 
-                            class="remove delete-department" 
-                            title="' . e(trans('common.delete')) . '"
-                            data-bs-toggle="modal" 
-                            data-bs-target="#modal-delete-department"
-                            data-item-id="' . $department->id . '"
-                            data-item-name="' . e($department->translations->where("lang_key", "name")->first()->lang_value ?? "") . '"
-                            data-url="' . route('admin.category-management.departments.destroy', $department->id) . '">
-                                <i class="uil uil-trash-alt"></i>
-                            </a>
-                        </li>
-                    </ul>';
+        $data = [
+            'page' => $request->get('page', 1),
+            'draw' => $request->get('draw', 1),
+            'start' => $request->get('start', 0),
+            'length' => $request->get('length', 10),
+            'per_page' => $request->get('per_page', $request->get('length', 10)),
+            'orderColumnIndex' => $request->get('orderColumnIndex', 0),
+            'orderDirection' => $request->get('orderDirection', 'desc'),
+            'search' => $request->get('search'),
+            'active' => $request->get('active'),
+            'created_date_from' => $request->get('created_date_from'),
+            'created_date_to' => $request->get('created_date_to'),
+        ];
 
-                $row[] = $actionsHtml;
-                
-                $data[] = $row;
-            }
+        try {
+            $response = $this->departmentAction->getDataTable($data);
             
             return response()->json([
-                'data' => $data,
-                'recordsTotal' => $totalRecords,
-                'recordsFiltered' => $filteredRecords,
-                'current_page' => $departments->currentPage(),
-                'last_page' => $departments->lastPage(),
-                'per_page' => $departments->perPage(),
-                'total' => $departments->total(),
-                'from' => $departments->firstItem(),
-                'to' => $departments->lastItem()
+                'draw' => $data['draw'],
+                'data' => $response['data'],
+                'recordsTotal' => $response['totalRecords'],
+                'recordsFiltered' => $response['filteredRecords'],
+                'current_page' => $response['dataPaginated']->currentPage(),
+                'last_page' => $response['dataPaginated']->lastPage(),
+                'per_page' => $response['dataPaginated']->perPage(),
+                'total' => $response['dataPaginated']->total(),
+                'from' => $response['dataPaginated']->firstItem(),
+                'to' => $response['dataPaginated']->lastItem()
             ]);
-            
         } catch (\Exception $e) {
             return response()->json([
-                'error' => 'Error loading departments: ' . $e->getMessage()
+                'draw' => $data['draw'],
+                'data' => [],
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+                'error' => $e->getMessage()
             ], 500);
         }
     }

@@ -180,11 +180,19 @@
                     d.created_date_from = $('#created_date_from').val();
                     d.created_date_to = $('#created_date_to').val();
                     
+                    // Add sorting parameters
+                    if (d.order && d.order.length > 0) {
+                        d.orderColumnIndex = d.order[0].column;
+                        d.orderDirection = d.order[0].dir;
+                    }
+                    
                     console.log('📤 Sending to server:', {
                         search: d.search,
                         active: d.active,
                         created_date_from: d.created_date_from,
-                        created_date_to: d.created_date_to
+                        created_date_to: d.created_date_to,
+                        orderColumnIndex: d.orderColumnIndex,
+                        orderDirection: d.orderDirection
                     });
                     
                     return d;
@@ -201,13 +209,97 @@
                 }
             },
             columns: [
-                { data: 0, name: 'id' }, // #
+                // ID column
+                { 
+                    data: 'id', 
+                    name: 'id',
+                    render: function(data) {
+                        return data;
+                    }
+                },
+                // Name columns for each language
                 @foreach($languages as $language)
-                { data: {{ $loop->index + 1 }}, name: 'name_{{ $language->code }}', render: function(data) { return data; } },
+                { 
+                    data: 'translations.{{ $language->code }}.name',
+                    name: 'name_{{ $language->code }}',
+                    render: function(data, type, row) {
+                        // For sorting, return the raw text value
+                        if (type === 'sort' || type === 'type') {
+                            return row.translations && row.translations['{{ $language->code }}'] ? 
+                                   row.translations['{{ $language->code }}'].name : '-';
+                        }
+                        
+                        // For display, return formatted HTML
+                        if (row.translations && row.translations['{{ $language->code }}']) {
+                            const translation = row.translations['{{ $language->code }}'];
+                            const name = translation.name || '-';
+                            if (translation.rtl) {
+                                return '<span dir="rtl">' + $('<div>').text(name).html() + '</span>';
+                            }
+                            return $('<div>').text(name).html();
+                        }
+                        return '-';
+                    }
+                },
                 @endforeach
-                { data: {{ count($languages) + 1 }}, name: 'active', render: function(data) { return data; } }, // Active Status
-                { data: {{ count($languages) + 2 }}, name: 'created_at', render: function(data) { return data; } }, // Created At
-                { data: {{ count($languages) + 3 }}, name: 'actions', orderable: false, searchable: false, render: function(data) { return data; } } // Actions
+                // Active Status column
+                { 
+                    data: 'active',
+                    name: 'active',
+                    render: function(data) {
+                        if (data == 1) {
+                            return '<span class="badge badge-success badge-round badge-lg">{{ __('activity.active') }}</span>';
+                        } else {
+                            return '<span class="badge badge-danger badge-round badge-lg">{{ __('activity.inactive') }}</span>';
+                        }
+                    }
+                },
+                // Created At column
+                { 
+                    data: 'created_at',
+                    name: 'created_at',
+                    render: function(data) {
+                        return data;
+                    }
+                },
+                // Actions column
+                { 
+                    data: null,
+                    name: 'actions',
+                    orderable: false,
+                    searchable: false,
+                    render: function(data, type, row) {
+                        return `
+                            <ul class="orderDatatable_actions mb-0 d-flex flex-wrap justify-content-start">
+                                <li>
+                                    <a href="{{ url('admin/category-management/activities') }}/${row.id}" 
+                                    class="view" 
+                                    title="{{ trans('common.view') }}">
+                                        <i class="uil uil-eye"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ url('admin/category-management/activities') }}/${row.id}/edit" 
+                                    class="edit" 
+                                    title="{{ trans('common.edit') }}">
+                                        <i class="uil uil-edit"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void(0);" 
+                                    class="remove delete-activity" 
+                                    title="{{ trans('common.delete') }}"
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modal-delete-activity"
+                                    data-item-id="${row.id}"
+                                    data-item-name="${$('<div>').text(row.first_name).html()}"
+                                    data-url="{{ url('admin/category-management/activities') }}/${row.id}">
+                                        <i class="uil uil-trash-alt"></i>
+                                    </a>
+                                </li>
+                            </ul>`;
+                    }
+                }
             ],
             pageLength: per_page,
             lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],

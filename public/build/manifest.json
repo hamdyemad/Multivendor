@@ -1,4 +1,15 @@
 {
+  "Modules/Vendor/resources/assets/css/vendor-form.css": {
+    "file": "assets/vendor-form-D2jfhCbF.css",
+    "src": "Modules/Vendor/resources/assets/css/vendor-form.css",
+    "isEntry": true
+  },
+  "Modules/Vendor/resources/assets/js/vendor-form.js": {
+    "file": "assets/vendor-form-DYrX80y2.js",
+    "name": "vendor-form",
+    "src": "Modules/Vendor/resources/assets/js/vendor-form.js",
+    "isEntry": true
+  },
   "resources/js/app.js": {
     "file": "assets/app-Bs8SRQVP.js",
     "name": "app",
@@ -21,11 +32,6 @@
   "resources/scss/rtl-validation.scss": {
     "file": "assets/rtl-validation-DwCkCkrZ.css",
     "src": "resources/scss/rtl-validation.scss",
-    "isEntry": true
-  },
-  "resources/scss/vendor-form.scss": {
-    "file": "assets/vendor-form-CXSJsRT6.css",
-    "src": "resources/scss/vendor-form.scss",
     "isEntry": true
   }
 }

@@ -16,7 +16,9 @@ export default defineConfig({
             buildDirectory: 'build-catalogmanagement',
             input: [
                 __dirname + '/resources/assets/sass/app.scss',
-                __dirname + '/resources/assets/js/app.js'
+                __dirname + '/resources/assets/js/app.js',
+                __dirname + '/resources/assets/sass/product-form.scss',
+                __dirname + '/resources/assets/js/product-form.js'
             ],
             refresh: true,
         }),

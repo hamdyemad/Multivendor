@@ -169,8 +169,8 @@ $(document).ready(function() {
                 d.created_date_to = $('#created_date_to').val();
                 // Add sorting parameters
                 if (d.order && d.order.length > 0) {
-                    d.order_column = d.order[0].column;
-                    d.order_dir = d.order[0].dir;
+                    d.orderColumnIndex = d.order[0].column;
+                    d.orderDirection = d.order[0].dir;
                 }
                 console.log('📤 Sending request:', d);
                 return d;
@@ -203,13 +203,92 @@ $(document).ready(function() {
             }
         },
         columns: [
-            { data: 0, name: 'id', orderable: true }, // #
+            // Row Number column
+            { 
+                data: 'row_number', 
+                name: 'id', 
+                orderable: true,
+                render: function(data) {
+                    return data;
+                }
+            },
+            // Name columns for each language
             @foreach($languages as $language)
-            { data: {{ $loop->index + 1 }}, name: 'name_{{ $language->code }}', orderable: true, render: function(data) { return data; } },
+            { 
+                data: 'translations.{{ $language->code }}.name',
+                name: 'name_{{ $language->code }}',
+                orderable: true,
+                render: function(data, type, row) {
+                    // For sorting, return the raw text value
+                    if (type === 'sort' || type === 'type') {
+                        return row.translations && row.translations['{{ $language->code }}'] ? 
+                               row.translations['{{ $language->code }}'].name : '-';
+                    }
+                    
+                    // For display, return formatted HTML
+                    if (row.translations && row.translations['{{ $language->code }}']) {
+                        const translation = row.translations['{{ $language->code }}'];
+                        const name = translation.name || '-';
+                        if (translation.rtl) {
+                            return '<div class="userDatatable-content" dir="rtl"><strong>' + $('<div>').text(name).html() + '</strong></div>';
+                        }
+                        return '<div class="userDatatable-content"><strong>' + $('<div>').text(name).html() + '</strong></div>';
+                    }
+                    return '-';
+                }
+            },
             @endforeach
-            { data: {{ count($languages) + 1 }}, name: 'permissions', orderable: false, render: function(data) { return data; } }, // Permissions
-            { data: {{ count($languages) + 2 }}, name: 'created_at', orderable: true, render: function(data) { return data; } }, // Created At
-            { data: {{ count($languages) + 3 }}, name: 'actions', orderable: false, searchable: false, render: function(data) { return data; } } // Actions
+            // Permissions column
+            { 
+                data: 'permissions_count',
+                name: 'permissions',
+                orderable: false,
+                render: function(data) {
+                    return '<div class="userDatatable-content"><span class="badge badge-primary" style="border-radius: 6px; padding: 6px 12px;"><i class="uil uil-shield-check me-1"></i>' + data + ' {{ trans('roles.permissions') }}</span></div>';
+                }
+            },
+            // Created At column
+            { 
+                data: 'created_at',
+                name: 'created_at',
+                orderable: true,
+                render: function(data) {
+                    return '<div class="userDatatable-content">' + data + '</div>';
+                }
+            },
+            // Actions column
+            { 
+                data: null,
+                name: 'actions',
+                orderable: false,
+                searchable: false,
+                render: function(data, type, row) {
+                    return `
+                        <ul class="orderDatatable_actions mb-0 d-flex flex-wrap justify-content-start">
+                            <li>
+                                <a href="{{ url('admin/admin-management/roles') }}/${row.id}" class="view" title="{{ trans('common.view') }}">
+                                    <i class="uil uil-eye"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ url('admin/admin-management/roles') }}/${row.id}/edit" class="edit" title="{{ trans('common.edit') }}">
+                                    <i class="uil uil-edit"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0);" 
+                                   class="remove" 
+                                   title="{{ trans('common.delete') }}"
+                                   data-bs-toggle="modal" 
+                                   data-bs-target="#modal-delete-role"
+                                   data-item-id="${row.id}"
+                                   data-item-name="${$('<div>').text(row.name).html()}">
+                                    <i class="uil uil-trash-alt"></i>
+                                </a>
+                            </li>
+                        </ul>`;
+                }
+            }
         ],
         pageLength: per_page,
         lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],

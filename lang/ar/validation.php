@@ -13,6 +13,8 @@ return [
     |
     */
 
+    'success' => 'تم بنجاح',
+    'error' => 'فشل',
     'accepted' => 'يجب قبول :attribute.',
     'accepted_if' => 'يجب قبول :attribute عندما يكون :other هو :value.',
     'active_url' => ':attribute ليس عنوان URL صالحاً.',

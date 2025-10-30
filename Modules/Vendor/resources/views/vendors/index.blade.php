@@ -190,8 +190,8 @@ $(document).ready(function() {
                 d.created_date_to = $('#created_date_to').val();
                 // Add sorting parameters
                 if (d.order && d.order.length > 0) {
-                    d.order_column = d.order[0].column;
-                    d.order_dir = d.order[0].dir;
+                    d.orderColumnIndex = d.order[0].column;
+                    d.orderDirection = d.order[0].dir;
                 }
                 console.log('📤 Sending request:', d);
                 return d;
@@ -240,16 +240,123 @@ $(document).ready(function() {
             }
         },
         columns: [
-            { data: 0, name: 'id', orderable: true }, // #
+            // Row Number column
+            { 
+                data: 'row_number', 
+                name: 'id', 
+                orderable: true,
+                render: function(data) {
+                    return data;
+                }
+            },
+            // Name columns for each language
             @foreach($languages as $language)
-            { data: {{ $loop->index + 1 }}, name: 'name_{{ $language->code }}', orderable: true, render: function(data) { return data; } },
+            { 
+                data: 'translations.{{ $language->code }}.name',
+                name: 'name_{{ $language->code }}',
+                orderable: true,
+                render: function(data, type, row) {
+                    // For sorting, return the raw text value
+                    if (type === 'sort' || type === 'type') {
+                        return row.translations && row.translations['{{ $language->code }}'] ? 
+                               row.translations['{{ $language->code }}'].name : '-';
+                    }
+                    
+                    // For display, return formatted HTML
+                    if (row.translations && row.translations['{{ $language->code }}']) {
+                        const translation = row.translations['{{ $language->code }}'];
+                        const name = translation.name || '-';
+                        if (translation.rtl) {
+                            return '<div class="userDatatable-content" dir="rtl"><strong>' + $('<div>').text(name).html() + '</strong></div>';
+                        }
+                        return '<div class="userDatatable-content"><strong>' + $('<div>').text(name).html() + '</strong></div>';
+                    }
+                    return '-';
+                }
+            },
             @endforeach
-            { data: {{ count($languages) + 1 }}, name: 'email', orderable: true, render: function(data) { return data; } }, // Email
-            { data: {{ count($languages) + 2 }}, name: 'country', orderable: true, render: function(data) { return data; } }, // Country
-            { data: {{ count($languages) + 3 }}, name: 'commission', orderable: true, render: function(data) { return data; } }, // Commission
-            { data: {{ count($languages) + 4 }}, name: 'active', orderable: true, render: function(data) { return data; } }, // Active Status
-            { data: {{ count($languages) + 5 }}, name: 'created_at', orderable: true, render: function(data) { return data; } }, // Created At
-            { data: {{ count($languages) + 6 }}, name: 'actions', orderable: false, searchable: false, render: function(data) { return data; } } // Actions
+            // Email column
+            { 
+                data: 'email',
+                name: 'email',
+                orderable: true,
+                render: function(data) {
+                    return '<div class="userDatatable-content">' + $('<div>').text(data).html() + '</div>';
+                }
+            },
+            // Country column
+            { 
+                data: 'country_name',
+                name: 'country',
+                orderable: true,
+                render: function(data) {
+                    return '<div class="userDatatable-content">' + $('<div>').text(data).html() + '</div>';
+                }
+            },
+            // Commission column
+            { 
+                data: 'commission',
+                name: 'commission',
+                orderable: true,
+                render: function(data) {
+                    return '<div class="userDatatable-content"><span class="badge badge-info">' + data + '%</span></div>';
+                }
+            },
+            // Active Status column
+            { 
+                data: 'active',
+                name: 'active',
+                orderable: true,
+                render: function(data) {
+                    if (data == 1) {
+                        return '<div class="userDatatable-content"><span class="badge badge-success">{{ trans('vendor::vendor.active') }}</span></div>';
+                    } else {
+                        return '<div class="userDatatable-content"><span class="badge badge-danger">{{ trans('vendor::vendor.inactive') }}</span></div>';
+                    }
+                }
+            },
+            // Created At column
+            { 
+                data: 'created_at',
+                name: 'created_at',
+                orderable: true,
+                render: function(data) {
+                    return '<div class="userDatatable-content">' + data + '</div>';
+                }
+            },
+            // Actions column
+            { 
+                data: null,
+                name: 'actions',
+                orderable: false,
+                searchable: false,
+                render: function(data, type, row) {
+                    return `
+                        <ul class="orderDatatable_actions mb-0 d-flex flex-wrap justify-content-start">
+                            <li>
+                                <a href="{{ url('admin/vendors') }}/${row.id}" class="view" title="{{ trans('common.view') }}">
+                                    <i class="uil uil-eye"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ url('admin/vendors') }}/${row.id}/edit" class="edit" title="{{ trans('common.edit') }}">
+                                    <i class="uil uil-edit"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0);" 
+                                   class="remove" 
+                                   title="{{ trans('common.delete') }}"
+                                   data-bs-toggle="modal" 
+                                   data-bs-target="#modal-delete-vendor"
+                                   data-item-id="${row.id}"
+                                   data-item-name="${$('<div>').text(row.first_name).html()}">
+                                    <i class="uil uil-trash-alt"></i>
+                                </a>
+                            </li>
+                        </ul>`;
+                }
+            }
         ],
         pageLength: per_page,
         lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],

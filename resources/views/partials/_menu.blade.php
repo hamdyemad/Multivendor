@@ -160,7 +160,7 @@
             <ul class="px-0">
                 @can('taxes.view')
                 <li>
-                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
+                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.taxes.index') }}">
                         {{ trans('menu.taxes.all') }}
                         <span class="badge-circle badge-info ms-1">12</span>
                     </a>
@@ -168,7 +168,7 @@
                 @endcan
                 
                 @can('taxes.create')
-                <li><a href="{{ route('admin.dashboard') }}">{{ trans('menu.taxes.create') }}</a></li>
+                <li><a href="{{ route('admin.taxes.create') }}">{{ trans('menu.taxes.create') }}</a></li>
                 @endcan
             </ul>
         </li>

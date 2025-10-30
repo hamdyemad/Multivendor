@@ -1,8 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\CategoryManagment\Http\Controllers\CategoryManagmentController;
+use Modules\CategoryManagment\app\Http\Api\Controllers\CategoryController;
+use Modules\CategoryManagment\app\Http\Api\Controllers\SubCategoryController;
 
-Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
-    Route::apiResource('categorymanagments', CategoryManagmentController::class)->names('categorymanagment');
-});
+
+
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/sub-categories', [SubCategoryController::class, 'index']);

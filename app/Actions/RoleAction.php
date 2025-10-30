@@ -94,61 +94,28 @@ class RoleAction {
         $page = $data['page'];
         $roles = $query->with(['permessions', 'translations'])->paginate($perPage, ['*'], 'page', $page);
 
-        // Format data for DataTables
+        // Return raw data - rendering will be handled by DataTables in the view
         $data = [];
         foreach ($roles as $index => $role) {
-            $row = [];
+            $rowData = [
+                'row_number' => ($roles->currentPage() - 1) * $roles->perPage() + $index + 1,
+                'id' => $role->id,
+                'translations' => [],
+                'permissions_count' => $role->permessions->count(),
+                'created_at' => $role->created_at->format('Y-m-d H:i'),
+                'name' => $role->name,
+            ];
             
-            // Row number with pagination offset
-            $row[] = ($roles->currentPage() - 1) * $roles->perPage() + $index + 1;
-
-            // Role name for each language
+            // Add translations for each language
             foreach ($languages as $language) {
                 $name = $role->getTranslation('name', $language->code) ?? '-';
-                $row[] = '<div class="userDatatable-content" ' . ($language->rtl ? 'dir="rtl"' : '') . '>
-                            <strong>' . e($name) . '</strong>
-                          </div>';
+                $rowData['translations'][$language->code] = [
+                    'name' => $name,
+                    'rtl' => $language->rtl
+                ];
             }
 
-            // Permissions
-            $permissionsCount = $role->permessions->count();
-            $permissionsHtml = '<div class="userDatatable-content">
-                                    <span class="badge badge-primary" style="border-radius: 6px; padding: 6px 12px;">
-                                        <i class="uil uil-shield-check me-1"></i>' . $permissionsCount . ' ' . trans('roles.permissions') . '
-                                    </span>
-                                </div>';
-            $row[] = $permissionsHtml;
-
-            // Created at
-            $row[] = '<div class="userDatatable-content">' . e($role->created_at->format('Y-m-d H:i')) . '</div>';
-
-            // Actions
-            $actionsHtml = '<ul class="orderDatatable_actions mb-0 d-flex flex-wrap justify-content-start">
-                                <li>
-                                    <a href="' . route('admin.admin-management.roles.show', $role->id) . '" class="view" title="' . e(trans('common.view')) . '">
-                                        <i class="uil uil-eye"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="' . route('admin.admin-management.roles.edit', $role->id) . '" class="edit" title="' . e(trans('common.edit')) . '">
-                                        <i class="uil uil-edit"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="javascript:void(0);" 
-                                       class="remove" 
-                                       title="' . e(trans('common.delete')) . '"
-                                       data-bs-toggle="modal" 
-                                       data-bs-target="#modal-delete-role"
-                                       data-item-id="' . $role->id . '"
-                                       data-item-name="' . e($role->name) . '">
-                                        <i class="uil uil-trash-alt"></i>
-                                    </a>
-                                </li>
-                            </ul>';
-            $row[] = $actionsHtml;
-
-            $data[] = $row;
+            $data[] = $rowData;
         }
 
         return [

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\CatalogManagement\Providers;
+namespace Modules\CatalogManagement\app\Providers;
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 

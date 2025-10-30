@@ -11,6 +11,7 @@ use Modules\CategoryManagment\app\Http\Resources\ActivityResource;
 use App\Services\LanguageService;
 use Illuminate\Http\Request;
 use Modules\CategoryManagment\app\Http\Resources\DepartmentResource;
+use Modules\CategoryManagment\app\Actions\CategoryAction;
 
 class CategoryController extends Controller
 {
@@ -18,13 +19,21 @@ class CategoryController extends Controller
     protected $departmentService;
     protected $activityService;
     protected $languageService;
+    protected $categoryAction;
 
-    public function __construct(CategoryService $categoryService, DepartmentService $departmentService, ActivityService $activityService, LanguageService $languageService)
+    public function __construct(
+        CategoryService $categoryService, 
+        DepartmentService $departmentService, 
+        ActivityService $activityService, 
+        LanguageService $languageService,
+        CategoryAction $categoryAction
+    )
     {
         $this->categoryService = $categoryService;
         $this->departmentService = $departmentService;
         $this->activityService = $activityService;
         $this->languageService = $languageService;
+        $this->categoryAction = $categoryAction;
     }
 
     /**
@@ -33,121 +42,21 @@ class CategoryController extends Controller
     public function datatable(Request $request)
     {
         try {
-            // Get pagination parameters
-            $perPage = $request->get('per_page', $request->get('length', 10));
-            $page = $request->get('page', 1);
+            // Get datatable data from action
+            $result = $this->categoryAction->getDataTable($request->all());
             
-            // Get filter parameters
-            $filters = [
-                'search' => $request->get('search'),
-                'department_id' => $request->get('department_id'),
-                'active' => $request->get('active'),
-                'created_date_from' => $request->get('created_date_from'),
-                'created_date_to' => $request->get('created_date_to'),
-            ];
-            
-            // Debug logging
-            \Log::info('Category Datatable Request:', [
-                'all_params' => $request->all(),
-                'filters' => $filters
-            ]);
-            
-            // Get total and filtered counts
-            $totalRecords = $this->categoryService->getCategoriesQuery([])->count();
-            $filteredRecords = $this->categoryService->getCategoriesQuery($filters)->count();
-            
-            // Get categories with pagination
-            $categoriesQuery = $this->categoryService->getCategoriesQuery($filters);
-            $categories = $categoriesQuery->paginate($perPage, ['*'], 'page', $page);
-            
-            // Get languages
-            $languages = $this->languageService->getAll();
-            
-            // Format data for DataTables
-            $data = [];
-            foreach ($categories as $category) {
-                $row = [];
-                
-                // ID column
-                $row[] = $category->id;
-                
-                // Name columns for each language
-                foreach ($languages as $language) {
-                    $translation = $category->translations->where('lang_id', $language->id)
-                        ->where('lang_key', 'name')
-                        ->first();
-                    $name = $translation ? $translation->lang_value : '-';
-                    
-                    if ($language->rtl) {
-                        $row[] = '<span dir="rtl">' . e($name) . '</span>';
-                    } else {
-                        $row[] = e($name);
-                    }
-                }
-                
-                // Department column (changed from departments to department - belongsTo relationship)
-                if ($category->department) {
-                    $deptName = $category->department->getTranslation('name', app()->getLocale());
-                    $row[] = '<span class="badge badge-info">' . e($deptName) . '</span>';
-                } else {
-                    $row[] = '-';
-                }
-                
-                // Active status column
-                $activeStatus = $category->active 
-                    ? '<span class="badge badge-success">' . trans('categorymanagment::category.active') . '</span>'
-                    : '<span class="badge badge-danger">' . trans('categorymanagment::category.inactive') . '</span>';
-                $row[] = $activeStatus;
-                
-                // Created at column
-                $row[] = $category->created_at->format('Y-m-d H:i');
-                
-                // Actions
-                $actionsHtml = '
-                    <ul class="orderDatatable_actions mb-0 d-flex flex-wrap justify-content-start">
-                        <li>
-                            <a href="' . route('admin.category-management.categories.show', $category->id) . '" 
-                            class="view" 
-                            title="' . e(trans('common.view')) . '">
-                                <i class="uil uil-eye"></i>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="' . route('admin.category-management.categories.edit', $category->id) . '" 
-                            class="edit" 
-                            title="' . e(trans('common.edit')) . '">
-                                <i class="uil uil-edit"></i>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="javascript:void(0);" 
-                            class="remove delete-category" 
-                            title="' . e(trans('common.delete')) . '"
-                            data-bs-toggle="modal" 
-                            data-bs-target="#modal-delete-category"
-                            data-item-id="' . $category->id . '"
-                            data-item-name="' . e($category->translations->where("lang_key", "name")->first()->lang_value ?? "") . '"
-                            data-url="' . route('admin.category-management.categories.destroy', $category->id) . '">
-                                <i class="uil uil-trash-alt"></i>
-                            </a>
-                        </li>
-                    </ul>';
-
-                $row[] = $actionsHtml;
-                
-                $data[] = $row;
-            }
+            $dataPaginated = $result['dataPaginated'];
             
             return response()->json([
-                'data' => $data,
-                'recordsTotal' => $totalRecords,
-                'recordsFiltered' => $filteredRecords,
-                'current_page' => $categories->currentPage(),
-                'last_page' => $categories->lastPage(),
-                'per_page' => $categories->perPage(),
-                'total' => $categories->total(),
-                'from' => $categories->firstItem(),
-                'to' => $categories->lastItem()
+                'data' => $result['data'],
+                'recordsTotal' => $result['totalRecords'],
+                'recordsFiltered' => $result['filteredRecords'],
+                'current_page' => $dataPaginated->currentPage(),
+                'last_page' => $dataPaginated->lastPage(),
+                'per_page' => $dataPaginated->perPage(),
+                'total' => $dataPaginated->total(),
+                'from' => $dataPaginated->firstItem(),
+                'to' => $dataPaginated->lastItem()
             ]);
             
         } catch (\Exception $e) {

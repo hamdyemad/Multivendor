@@ -49,6 +49,11 @@ class SubCategoryRepository implements SubCategoryRepositoryInterface
         // Order by latest
         $query->orderBy('created_at', 'desc');
 
+        // If perPage is 0, return all results without pagination (for dropdowns)
+        if ($perPage === 0) {
+            return $query->get();
+        }
+
         return $query->paginate($perPage);
     }
 

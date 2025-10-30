@@ -72,5 +72,6 @@ class Kernel extends HttpKernel
         'localeViewPath'          => \Mcamara\LaravelLocalization\Middleware\LaravelLocalizationViewPath::class,
         'setLocaleFromUrl'        => \App\Http\Middleware\SetLocaleFromUrl::class,
         // End Localization
+        'lang' => \App\Http\Middleware\Api\LangMiddleware::class,
     ];
 }

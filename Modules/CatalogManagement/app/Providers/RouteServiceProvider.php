@@ -1,9 +1,10 @@
 <?php
 
-namespace Modules\CatalogManagement\Providers;
+namespace Modules\CatalogManagement\app\Providers;
 
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -35,7 +36,9 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapWebRoutes(): void
     {
-        Route::middleware('web')->group(module_path($this->name, '/routes/web.php'));
+        Route::middleware(['web', 'auth', 'localeSessionRedirect', 'localizationRedirect', 'localeViewPath', 'setLocaleFromUrl'])
+        ->prefix(LaravelLocalization::setLocale())
+        ->group(module_path($this->name, '/routes/web.php'));
     }
 
     /**

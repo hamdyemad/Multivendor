@@ -96,76 +96,34 @@ class VendorAction {
         $page = $data['page'];
         $vendors = $query->with(['translations', 'user', 'country', 'commission'])->paginate($perPage, ['*'], 'page', $page);
 
-        // Format data for DataTables
+        // Return raw data - rendering will be handled by DataTables in the view
         $tableData = [];
         foreach ($vendors as $index => $vendor) {
-            $row = [];
+            $rowData = [
+                'row_number' => ($vendors->currentPage() - 1) * $vendors->perPage() + $index + 1,
+                'id' => $vendor->id,
+                'translations' => [],
+                'email' => $vendor->user->email ?? '-',
+                'country_name' => $vendor->country ? $vendor->country->getTranslation('name', app()->getLocale()) : '-',
+                'commission' => ($vendor->commission) ? $vendor->commission->commission : 0,
+                'active' => $vendor->active,
+                'created_at' => $vendor->created_at->format('Y-m-d H:i'),
+            ];
             
-            // Row number with pagination offset
-            $row[] = ($vendors->currentPage() - 1) * $vendors->perPage() + $index + 1;
-
-            // Vendor name for each language
+            // Add translations for each language
             foreach ($languages as $language) {
                 $name = $vendor->getTranslation('name', $language->code) ?? '-';
-                $row[] = '<div class="userDatatable-content" ' . ($language->rtl ? 'dir="rtl"' : '') . '>
-                            <strong>' . e($name) . '</strong>
-                          </div>';
+                $rowData['translations'][$language->code] = [
+                    'name' => $name,
+                    'rtl' => $language->rtl
+                ];
             }
+            
+            // Add first translation name for delete modal
+            $firstTranslation = $vendor->translations->where('lang_key', 'name')->first();
+            $rowData['first_name'] = $firstTranslation ? $firstTranslation->lang_value : '';
 
-            // Email
-            $email = $vendor->user->email ?? '-';
-            $row[] = '<div class="userDatatable-content">' . e($email) . '</div>';
-
-            // Country
-            $countryName = $vendor->country ? $vendor->country->getTranslation('name', app()->getLocale()) : '-';
-            $row[] = '<div class="userDatatable-content">' . e($countryName) . '</div>';
-
-            // Commission
-            $commission = ($vendor->commission) ? $vendor->commission->commission : 0;
-            $row[] = '<div class="userDatatable-content">
-                        <span class="badge badge-info">' . e($commission) . '%</span>
-                      </div>';
-
-            // Active Status
-            $activeHtml = '<div class="userDatatable-content">';
-            if ($vendor->active) {
-                $activeHtml .= '<span class="badge badge-success">' . trans('vendor::vendor.active') . '</span>';
-            } else {
-                $activeHtml .= '<span class="badge badge-danger">' . trans('vendor::vendor.inactive') . '</span>';
-            }
-            $activeHtml .= '</div>';
-            $row[] = $activeHtml;
-
-            // Created at
-            $row[] = '<div class="userDatatable-content">' . e($vendor->created_at->format('Y-m-d H:i')) . '</div>';
-
-            // Actions
-            $actionsHtml = '<ul class="orderDatatable_actions mb-0 d-flex flex-wrap justify-content-start">
-                                <li>
-                                    <a href="' . route('admin.vendors.show', $vendor->id) . '" class="view" title="' . e(trans('common.view')) . '">
-                                        <i class="uil uil-eye"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="' . route('admin.vendors.edit', $vendor->id) . '" class="edit" title="' . e(trans('common.edit')) . '">
-                                        <i class="uil uil-edit"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="javascript:void(0);" 
-                                       class="remove" 
-                                       title="' . e(trans('common.delete')) . '"
-                                       data-bs-toggle="modal" 
-                                       data-bs-target="#modal-delete-vendor"
-                                       data-item-id="' . $vendor->id . '"
-                                       data-item-name="' . e($name) . '">
-                                        <i class="uil uil-trash-alt"></i>
-                                    </a>
-                                </li>
-                            </ul>';
-            $row[] = $actionsHtml;
-
-            $tableData[] = $row;
+            $tableData[] = $rowData;
         }
 
 

@@ -758,8 +758,11 @@ class PermessionSeeder extends Seeder
 
         foreach ($permissions as $permissionData) {
             // Create or update the permission
-            $permission = Permession::updateOrCreate([]);
-            (isset($permissionData['type'])) ? $permission->update('type', $permissionData['type']) : null;
+            $permission = Permession::updateOrCreate(
+                ['key' => $permissionData['key']],
+                ['type' => $permissionData['type'] ?? 'other']
+            );
+            
             // Add translations if available and languages exist
             if ($languages->isNotEmpty() && isset($permissionData['translations'])) {
                 foreach ($permissionData['translations']['name'] as $locale => $value) {

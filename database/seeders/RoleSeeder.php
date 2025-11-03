@@ -24,7 +24,7 @@ class RoleSeeder extends Seeder
 
         Role::query()->delete();
 
-        // Create Role For The Super Admin
+        // Define roles with translations
         $rolesData = [
             [
                 'type' => 'admin',
@@ -32,34 +32,45 @@ class RoleSeeder extends Seeder
                     'name' => ['en' => 'Super Admin Eramo', 'ar' => 'سوبر ادمن ايرامو'],
                 ]
             ],
-        ];
-
-        // Define roles with translations
-        $rolesData = [
             [
                 'type' => 'other',
                 'translations' => [
                     'name' => ['en' => 'Admin Eramo', 'ar' => 'ادمن ايرامو'],
-                ]
+                ],
+                'permissions' => []
             ],
         ];
 
         foreach ($rolesData as $roleData) {
             // Create or update the role
-            $role = Role::updateOrCreate([]);
+            $role = Role::create([
+                'type' => $roleData['type']
+            ]);
+            
             // Add translations if available and languages exist
             if ($languages->isNotEmpty() && isset($roleData['translations'])) {
                 foreach ($roleData['translations']['name'] as $locale => $value) {
                     $role->setTranslation('name', $locale, $value);
                 }
             }
-            if(isset($role['type']) && $role['type'] == 'admin') {
+            
+            // Assign permissions based on role type
+            if(isset($roleData['type']) && $roleData['type'] == 'admin') {
+                // Super admin gets all permissions
                 $permissions = Permession::all();
                 $role->permessions()->sync($permissions->pluck('id'));
+                
+                // Assign role to super admin user
                 $super_admin = User::where('user_type_id', UserType::SUPER_ADMIN_TYPE)->first();
-                $super_admin->roles()->sync($role);
+                if ($super_admin) {
+                    $super_admin->roles()->sync([$role->id]);
+                }
             } else {
-                $permissions = Permession::whereIn('key', $roleData['permissions'])->get();
+                // Other roles get specific permissions
+                if (isset($roleData['permissions']) && !empty($roleData['permissions'])) {
+                    $permissions = Permession::whereIn('key', $roleData['permissions'])->get();
+                    $role->permessions()->sync($permissions->pluck('id'));
+                }
             }
         }
     }

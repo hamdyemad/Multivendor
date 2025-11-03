@@ -38,6 +38,7 @@ class RouteServiceProvider extends ServiceProvider
     {
         Route::middleware(['web', 'auth', 'localeSessionRedirect', 'localizationRedirect', 'localeViewPath', 'setLocaleFromUrl'])
         ->prefix(LaravelLocalization::setLocale())
+        ->namespace('Modules\CatalogManagement\app\Http\Controllers')
         ->group(module_path($this->name, '/routes/web.php'));
     }
 

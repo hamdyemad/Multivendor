@@ -111,29 +111,10 @@
                             <thead>
                                 <tr class="userDatatable-header">
                                     <th>
-                                        <span class="userDatatable-title">#</span>
-                                    </th>
-                                    @foreach($languages as $language)
-                                        <th>
-                                            <span class="userDatatable-title" @if($language->rtl) dir="rtl" @endif>
-                                                {{ __('vendor::vendor.name') }} ({{ $language->name }})
-                                            </span>
-                                        </th>
-                                    @endforeach
-                                    <th>
-                                        <span class="userDatatable-title">{{ __('vendor::vendor.email') ?? 'Email' }}</span>
-                                    </th>
-                                    <th>
-                                        <span class="userDatatable-title">{{ __('vendor::vendor.country') }}</span>
+                                        <span class="userDatatable-title">{{ __('vendor::vendor.vendor_information') }}</span>
                                     </th>
                                     <th>
                                         <span class="userDatatable-title">{{ __('vendor::vendor.commission') }}</span>
-                                    </th>
-                                    <th>
-                                        <span class="userDatatable-title">{{ __('vendor::vendor.active') ?? 'Status' }}</span>
-                                    </th>
-                                    <th>
-                                        <span class="userDatatable-title">{{ __('vendor::vendor.created_at') ?? 'Created At' }}</span>
                                     </th>
                                     <th>
                                         <span class="userDatatable-title">{{ __('common.actions') }}</span>
@@ -240,57 +221,41 @@ $(document).ready(function() {
             }
         },
         columns: [
-            // Row Number column
+            // Vendor Information column (combined)
             { 
-                data: 'row_number', 
-                name: 'id', 
-                orderable: true,
-                render: function(data) {
-                    return data;
-                }
-            },
-            // Name columns for each language
-            @foreach($languages as $language)
-            { 
-                data: 'translations.{{ $language->code }}.name',
-                name: 'name_{{ $language->code }}',
-                orderable: true,
+                data: null,
+                name: 'vendor_info',
+                orderable: false,
                 render: function(data, type, row) {
-                    // For sorting, return the raw text value
-                    if (type === 'sort' || type === 'type') {
-                        return row.translations && row.translations['{{ $language->code }}'] ? 
-                               row.translations['{{ $language->code }}'].name : '-';
+                    let html = '<div class="userDatatable-content">';
+                    
+                    // Vendor Names (all languages)
+                    @foreach($languages as $index => $language)
+                        if (row.translations && row.translations['{{ $language->code }}']) {
+                            const name{{ $index }} = row.translations['{{ $language->code }}'].name || '-';
+                            @if($language->rtl)
+                            html += '<div dir="rtl"><strong>' + $('<div>').text(name{{ $index }}).html() + '</strong> <small class="text-muted">({{ $language->name }})</small></div>';
+                            @else
+                            html += '<div><strong>' + $('<div>').text(name{{ $index }}).html() + '</strong> <small class="text-muted">({{ $language->name }})</small></div>';
+                            @endif
+                        }
+                    @endforeach
+                    
+                    // Email
+                    html += '<div class="mt-1"><i class="uil uil-envelope"></i> ' + $('<div>').text(row.email).html() + '</div>';
+                    
+                    // Country
+                    html += '<div><i class="uil uil-map-marker"></i> ' + $('<div>').text(row.country_name).html() + '</div>';
+                    
+                    // Status Badge
+                    if (row.active == 1) {
+                        html += '<div class="mt-1"><span class="badge badge-success badge-round badge-lg">{{ trans('vendor::vendor.active') }}</span></div>';
+                    } else {
+                        html += '<div class="mt-1"><span class="badge badge-danger badge-round badge-lg">{{ trans('vendor::vendor.inactive') }}</span></div>';
                     }
                     
-                    // For display, return formatted HTML
-                    if (row.translations && row.translations['{{ $language->code }}']) {
-                        const translation = row.translations['{{ $language->code }}'];
-                        const name = translation.name || '-';
-                        if (translation.rtl) {
-                            return '<div class="userDatatable-content" dir="rtl"><strong>' + $('<div>').text(name).html() + '</strong></div>';
-                        }
-                        return '<div class="userDatatable-content"><strong>' + $('<div>').text(name).html() + '</strong></div>';
-                    }
-                    return '-';
-                }
-            },
-            @endforeach
-            // Email column
-            { 
-                data: 'email',
-                name: 'email',
-                orderable: true,
-                render: function(data) {
-                    return '<div class="userDatatable-content">' + $('<div>').text(data).html() + '</div>';
-                }
-            },
-            // Country column
-            { 
-                data: 'country_name',
-                name: 'country',
-                orderable: true,
-                render: function(data) {
-                    return '<div class="userDatatable-content">' + $('<div>').text(data).html() + '</div>';
+                    html += '</div>';
+                    return html;
                 }
             },
             // Commission column
@@ -299,29 +264,7 @@ $(document).ready(function() {
                 name: 'commission',
                 orderable: true,
                 render: function(data) {
-                    return '<div class="userDatatable-content"><span class="badge badge-info">' + data + '%</span></div>';
-                }
-            },
-            // Active Status column
-            { 
-                data: 'active',
-                name: 'active',
-                orderable: true,
-                render: function(data) {
-                    if (data == 1) {
-                        return '<div class="userDatatable-content"><span class="badge badge-success badge-lg badge-round">{{ trans('vendor::vendor.active') }}</span></div>';
-                    } else {
-                        return '<div class="userDatatable-content"><span class="badge badge-danger badge-lg badge-round">{{ trans('vendor::vendor.inactive') }}</span></div>';
-                    }
-                }
-            },
-            // Created At column
-            { 
-                data: 'created_at',
-                name: 'created_at',
-                orderable: true,
-                render: function(data) {
-                    return '<div class="userDatatable-content">' + data + '</div>';
+                    return '<div class="userDatatable-content text-center"><span class="badge badge-info badge-lg">' + data + '%</span></div>';
                 }
             },
             // Actions column

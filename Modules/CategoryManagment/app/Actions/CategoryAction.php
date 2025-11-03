@@ -32,6 +32,12 @@ class CategoryAction {
             $orderColumnIndex = $data['orderColumnIndex'] ?? 0;
             $orderDirection = $data['orderDirection'] ?? 'desc';
             
+            Log::info('CategoryAction - Sorting Parameters', [
+                'orderColumnIndex' => $orderColumnIndex,
+                'orderDirection' => $orderDirection,
+                'all_data' => $data
+            ]);
+            
             // Get filter parameters
             $filters = [
                 'search' => $data['search'] ?? null,
@@ -49,10 +55,11 @@ class CategoryAction {
             $filteredRecords = $this->categoryRepositoryInterface->getCategoriesQuery($filters)->count();
             
             // Determine sort column
+            // Column 0 is 'index' (row number) - not sortable
+            // Columns 1 to count($languages) are name translations
+            // Then: department, active, created_at
             $orderBy = null;
-            if ($orderColumnIndex == 0) {
-                $orderBy = 'id';
-            } elseif ($orderColumnIndex >= 1 && $orderColumnIndex <= count($languages)) {
+            if ($orderColumnIndex >= 1 && $orderColumnIndex <= count($languages)) {
                 // Sorting by translated name column
                 $languageIndex = $orderColumnIndex - 1;
                 $selectedLanguage = $languages->values()->get($languageIndex);
@@ -63,12 +70,21 @@ class CategoryAction {
                     ];
                 }
             } elseif ($orderColumnIndex == count($languages) + 1) {
-                $orderBy = 'department_id';
+                $orderBy = 'department';
             } elseif ($orderColumnIndex == count($languages) + 2) {
                 $orderBy = 'active';
             } elseif ($orderColumnIndex == count($languages) + 3) {
                 $orderBy = 'created_at';
+            } else {
+                // Default sorting
+                $orderBy = 'id';
             }
+            
+            Log::info('CategoryAction - Determined Sort', [
+                'orderBy' => $orderBy,
+                'orderDirection' => $orderDirection,
+                'languagesCount' => count($languages)
+            ]);
             
             // Get categories with pagination and sorting
             $categoriesQuery = $this->categoryRepositoryInterface->getCategoriesQuery($filters, $orderBy, $orderDirection);
@@ -78,7 +94,8 @@ class CategoryAction {
             $data = [];
             foreach ($categories as $index => $category) {
                 $rowData = [
-                    'id' => $index + 1,
+                    'index' => $index + 1,
+                    'id' => $category->id,
                     'translations' => [],
                     'department' => null,
                     'active' => $category->active,

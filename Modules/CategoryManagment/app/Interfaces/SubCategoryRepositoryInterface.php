@@ -12,7 +12,7 @@ interface SubCategoryRepositoryInterface
     /**
      * Get sub-categories query for DataTables
      */
-    public function getSubCategoriesQuery(array $filters = [], $orderBy = null, $orderDirection = 'asc');
+    public function getSubCategoriesQuery(array $filters = []);
 
     /**
      * Get all active sub-categories

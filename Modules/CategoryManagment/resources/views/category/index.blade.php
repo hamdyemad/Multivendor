@@ -175,6 +175,12 @@
                     d.per_page = d.length;
                     d.page = (d.start / d.length) + 1;
                     
+                    // Map sorting parameters
+                    if (d.order && d.order.length > 0) {
+                        d.orderColumnIndex = d.order[0].column;
+                        d.orderDirection = d.order[0].dir;
+                    }
+                    
                     // Add search parameter from custom input
                     d.search = $('#search').val();
                     
@@ -187,7 +193,9 @@
                         search: d.search,
                         active: d.active,
                         created_date_from: d.created_date_from,
-                        created_date_to: d.created_date_to
+                        created_date_to: d.created_date_to,
+                        orderColumnIndex: d.orderColumnIndex,
+                        orderDirection: d.orderDirection
                     });
                     
                     return d;
@@ -205,17 +213,23 @@
                 }
             },
             columns: [
-                { data: 'id', name: 'id' }, // #
+                { data: 'index', name: 'index', orderable: false }, // #
                 @foreach($languages as $language)
                 {
                     data: 'translations.{{ $language->code }}.name',
                     name: 'name_{{ $language->code }}',
                     render: function(data, type, row) {
+                        // For sorting, return raw text value
+                        if (type === 'sort' || type === 'type') {
+                            return data || '';
+                        }
+                        
+                        // For display, return formatted HTML
                         if (!data) return '-';
                         @if($language->rtl)
-                        return '<span dir="rtl">' + data + '</span>';
+                        return '<span dir="rtl">' + $('<div>').text(data).html() + '</span>';
                         @else
-                        return data;
+                        return $('<div>').text(data).html();
                         @endif
                     }
                 },
@@ -223,9 +237,15 @@
                 {
                     data: 'department',
                     name: 'department',
-                    render: function(data) {
+                    render: function(data, type, row) {
+                        // For sorting, return raw department name
+                        if (type === 'sort' || type === 'type') {
+                            return (data && data.name) ? data.name : '';
+                        }
+                        
+                        // For display, return formatted HTML
                         if (data && data.name) {
-                            return '<span class="badge badge-info badge-round badge-lg">' + data.name + '</span>';
+                            return '<span class="badge badge-info badge-round badge-lg">' + $('<div>').text(data.name).html() + '</span>';
                         }
                         return '-';
                     }
@@ -233,7 +253,13 @@
                 {
                     data: 'active',
                     name: 'active',
-                    render: function(data) {
+                    render: function(data, type, row) {
+                        // For sorting, return numeric value
+                        if (type === 'sort' || type === 'type') {
+                            return data ? 1 : 0;
+                        }
+                        
+                        // For display, return formatted HTML
                         if (data) {
                             return '<span class="badge badge-success badge-round badge-lg">{{ trans('categorymanagment::category.active') }}</span>';
                         } else {
@@ -287,7 +313,7 @@
             ],
             pageLength: per_page,
             lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
-            order: [[0, 'desc']],
+            order: [[{{ count($languages) + 3 }}, 'desc']], // Sort by created_at descending
             pagingType: 'full_numbers',
             dom: '<"row"<"col-sm-12"tr>>' +
                  '<"row mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',

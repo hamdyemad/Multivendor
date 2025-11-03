@@ -194,9 +194,13 @@
             },
             columns: [
                 { 
-                    data: 'id', 
-                    name: 'id',
-                    searchable: false
+                    data: 'index', 
+                    name: 'index',
+                    searchable: false,
+                    sortable: false,
+                    render: function(data) {
+                        return data;
+                    }
                 },
                 { 
                     data: 'name_en',

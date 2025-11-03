@@ -133,7 +133,7 @@ class ActivityRepository implements ActivityRepositoryInterface
      */
     public function getActivityById(int $id)
     {
-        return Activity::with('translations')->findOrFail($id);
+        return Activity::with('translations')->find($id);
     }
 
     /**

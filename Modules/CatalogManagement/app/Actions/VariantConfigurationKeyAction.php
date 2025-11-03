@@ -133,8 +133,9 @@ class VariantConfigurationKeyAction {
             
             // Build data array for DataTables
             $data = [];
-            foreach ($variantKeys as $variantKey) {
+            foreach ($variantKeys as $index => $variantKey) {
                 $rowData = [
+                    'index' => $index + 1,
                     'id' => $variantKey->id,
                     'translations' => [],
                     'parent' => null,

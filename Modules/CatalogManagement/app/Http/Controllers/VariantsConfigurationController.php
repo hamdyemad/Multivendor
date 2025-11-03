@@ -166,7 +166,7 @@ class VariantsConfigurationController extends Controller
      */
     public function show(string $id)
     {
-        $variantsConfig = $this->variantsConfigService->getById($id);
+        $variantsConfig = $this->variantsConfigService->findById($id);
         $languages = $this->languageService->getAll();
         
         if (!$variantsConfig) {
@@ -201,21 +201,31 @@ class VariantsConfigurationController extends Controller
      */
     public function update(VariantsConfigurationRequest $request, string $id)
     {
-        $result = $this->variantsConfigAction->update($request, $id);
-        
-        if ($request->ajax() || $request->wantsJson()) {
-            if ($result['success']) {
-                $result['redirect'] = route('admin.variants-configurations.index');
+        try {
+            $validated = $request->validated();
+            $variantKey = $this->variantsConfigService->update($id, $validated);   
+            if ($variantKey) {
+                return response()->json([
+                    'success' => true,
+                    'message' => __('variantsconfig.updated_successfully'),
+                    'redirect' => route('admin.variants-configurations.index')
+                ]);
             }
-            return response()->json($result, $result['success'] ? 200 : 422);
-        }
-
-        if ($result['success']) {
+            
             return redirect()->route('admin.variants-configurations.index')
-                ->with('success', $result['message']);
+                ->with('success', __('variantsconfig.updated_successfully'));
+        } catch (\Exception $e) {
+            // Check if request is AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('variantsconfig.error_updating') . ': ' . $e->getMessage()
+                ], 422);
+            }
+            return redirect()->back()
+                ->withInput()
+                ->with('error', __('variantsconfig.error_updating') . ': ' . $e->getMessage());
         }
-
-        return back()->with('error', $result['message'])->withInput();
     }
 
     /**
@@ -223,7 +233,18 @@ class VariantsConfigurationController extends Controller
      */
     public function destroy(string $id)
     {
-        $result = $this->variantsConfigAction->destroy($id);
-        return response()->json($result);
+        try {
+            $result = $this->variantsConfigService->delete($id);
+            return response()->json([
+                'success' => true,
+                'message' => __('variantsconfig.deleted_successfully'),
+                'redirect' => route('admin.variants-configurations.index')
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => __('variantsconfig.error_deleting') . ': ' . $e->getMessage()
+            ], 422);
+        }
     }
 }

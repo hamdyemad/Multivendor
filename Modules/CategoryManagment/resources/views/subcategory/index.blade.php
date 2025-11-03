@@ -193,12 +193,38 @@
                     d.created_date_from = $('#created_date_from').val();
                     d.created_date_to = $('#created_date_to').val();
                     
+                    // Add sorting parameters
+                    if (d.order && d.order.length > 0) {
+                        var columnIndex = d.order[0].column;
+                        var sortType = '';
+                        
+                        // Map column index to sort type
+                        if (columnIndex == 0) {
+                            sortType = 'id';
+                        } @foreach($languages as $index => $language)
+                        else if (columnIndex == {{ $index + 1 }}) {
+                            sortType = 'name_{{ $language->code }}';
+                        } @endforeach
+                        else if (columnIndex == {{ count($languages) + 1 }}) {
+                            sortType = 'category';
+                        } else if (columnIndex == {{ count($languages) + 2 }}) {
+                            sortType = 'active';
+                        } else if (columnIndex == {{ count($languages) + 3 }}) {
+                            sortType = 'created_at';
+                        }
+                        
+                        d.sort_type = sortType;
+                        d.sort_by = d.order[0].dir; // 'asc' or 'desc'
+                    }
+                    
                     console.log('📤 Sending to server:', {
                         search: d.search,
                         category_id: d.category_id,
                         active: d.active,
                         created_date_from: d.created_date_from,
-                        created_date_to: d.created_date_to
+                        created_date_to: d.created_date_to,
+                        sort_type: d.sort_type,
+                        sort_by: d.sort_by
                     });
                     
                     return d;
@@ -215,7 +241,7 @@
                 }
             },
             columns: [
-                { data: 'id', name: 'id' }, // #
+                { data: 'index', name: 'index' }, // #
                 @foreach($languages as $language)
                 {
                     data: 'translations.{{ $language->code }}.name',

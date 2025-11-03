@@ -143,7 +143,7 @@ class VariantsConfigurationAction
             
             // Build data array for DataTables
             $responseData = [];
-            foreach ($variantsConfigs as $variantsConfig) {
+            foreach ($variantsConfigs as $index => $variantsConfig) {
                 // Get name translations
                 $nameEn = '-';
                 $nameAr = '-';
@@ -163,6 +163,7 @@ class VariantsConfigurationAction
                 }
                 
                 $rowData = [
+                    'index' => $index + 1,
                     'id' => $variantsConfig->id,
                     'name_en' => $nameEn,
                     'name_ar' => $nameAr,

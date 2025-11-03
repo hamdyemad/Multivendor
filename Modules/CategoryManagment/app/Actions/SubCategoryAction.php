@@ -29,8 +29,8 @@ class SubCategoryAction {
             $page = $data['page'] ?? 1;
             
             // Get sorting parameters
-            $orderColumnIndex = $data['orderColumnIndex'] ?? 0;
-            $orderDirection = $data['orderDirection'] ?? 'desc';
+            $sortType = $data['sort_type'] ?? 'id';
+            $sortBy = $data['sort_by'] ?? 'desc';
             
             // Get filter parameters
             $filters = [
@@ -48,36 +48,39 @@ class SubCategoryAction {
             $totalRecords = $this->subCategoryRepositoryInterface->getSubCategoriesQuery([])->count();
             $filteredRecords = $this->subCategoryRepositoryInterface->getSubCategoriesQuery($filters)->count();
             
-            // Determine sort column
+            // Determine sort column based on sort_type
             $orderBy = null;
-            if ($orderColumnIndex == 0) {
+            if ($sortType == 'id') {
                 $orderBy = 'id';
-            } elseif ($orderColumnIndex >= 1 && $orderColumnIndex <= count($languages)) {
-                // Sorting by translated name column
-                $languageIndex = $orderColumnIndex - 1;
-                $selectedLanguage = $languages->values()->get($languageIndex);
+            } elseif (str_starts_with($sortType, 'name_')) {
+                // Sorting by translated name column (e.g., name_en, name_ar)
+                $languageCode = str_replace('name_', '', $sortType);
+                $selectedLanguage = $languages->firstWhere('code', $languageCode);
                 if ($selectedLanguage) {
                     $orderBy = [
                         'lang_id' => $selectedLanguage->id,
                         'key' => 'name'
                     ];
                 }
-            } elseif ($orderColumnIndex == count($languages) + 1) {
+            } elseif ($sortType == 'category') {
                 $orderBy = 'category_id';
-            } elseif ($orderColumnIndex == count($languages) + 2) {
+            } elseif ($sortType == 'active') {
                 $orderBy = 'active';
-            } elseif ($orderColumnIndex == count($languages) + 3) {
+            } elseif ($sortType == 'created_at') {
                 $orderBy = 'created_at';
             }
             
+            $filters['orderBy'] = $orderBy;
+            $filters['sortBy'] = $sortBy;            
             // Get subcategories with pagination and sorting
-            $subCategoriesQuery = $this->subCategoryRepositoryInterface->getSubCategoriesQuery($filters, $orderBy, $orderDirection);
+            $subCategoriesQuery = $this->subCategoryRepositoryInterface->getSubCategoriesQuery($filters);
             $subCategories = $subCategoriesQuery->paginate($perPage, ['*'], 'page', $page);
             
             // Return raw data - rendering will be handled by DataTables in the view
             $data = [];
             foreach ($subCategories as $index => $subCategory) {
                 $rowData = [
+                    'index' => $index + 1,
                     'id' => $subCategory->id,
                     'translations' => [],
                     'category' => null,

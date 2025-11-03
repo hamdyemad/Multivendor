@@ -60,7 +60,7 @@ class SubCategoryRepository implements SubCategoryRepositoryInterface
     /**
      * Get sub-categories query for DataTables
      */
-    public function getSubCategoriesQuery(array $filters = [], $orderBy = null, $orderDirection = 'asc')
+    public function getSubCategoriesQuery(array $filters = [])
     {
         $query = SubCategory::with(['translations', 'category']);
         
@@ -99,18 +99,23 @@ class SubCategoryRepository implements SubCategoryRepositoryInterface
         }
 
         // Apply sorting
-        if ($orderBy) {
-            if (is_array($orderBy) && isset($orderBy['lang_id'])) {
-                // Sort by translation
-                $query->join('translations as sct', 'sub_categories.id', '=', 'sct.translatable_id')
-                    ->where('sct.translatable_type', 'Modules\\CategoryManagment\\app\\Models\\SubCategory')
-                    ->where('sct.lang_id', $orderBy['lang_id'])
-                    ->where('sct.lang_key', 'name')
-                    ->orderBy('sct.lang_value', $orderDirection)
-                    ->select('sub_categories.*');
+        if(!empty($filters['orderBy'])) {
+            $sortBy = $filters['sortBy'] ?? 'desc';
+            if (is_array($filters['orderBy']) && isset($filters['orderBy']['lang_id'])) {
+                // Sort by translation using subquery to avoid duplicates
+                $langId = $filters['orderBy']['lang_id'];
+                $query->orderByRaw("(
+                    SELECT lang_value 
+                    FROM translations 
+                    WHERE translations.translatable_id = sub_categories.id 
+                    AND translations.translatable_type = 'Modules\\\\CategoryManagment\\\\app\\\\Models\\\\SubCategory'
+                    AND translations.lang_id = {$langId}
+                    AND translations.lang_key = 'name'
+                    LIMIT 1
+                ) {$sortBy}");
             } else {
                 // Sort by regular column
-                $query->orderBy($orderBy, $orderDirection);
+                $query->orderBy($filters['orderBy'], $sortBy);
             }
         } else {
             $query->orderBy('created_at', 'desc');

@@ -54,10 +54,11 @@ class ActivityAction {
             $filteredRecords = $this->activityRepositoryInterface->getActivitiesQuery($filters)->count();
             
             // Determine sort column
+            // Column 0 is 'index' (row number) - not sortable
+            // Columns 1 to count($languages) are name translations
+            // Then: active, created_at
             $orderBy = null;
-            if ($orderColumnIndex == 0) {
-                $orderBy = 'id';
-            } elseif ($orderColumnIndex >= 1 && $orderColumnIndex <= count($languages)) {
+            if ($orderColumnIndex >= 1 && $orderColumnIndex <= count($languages)) {
                 // Sorting by translated name column
                 $languageIndex = $orderColumnIndex - 1;
                 $selectedLanguage = $languages->values()->get($languageIndex);
@@ -71,6 +72,9 @@ class ActivityAction {
                 $orderBy = 'active';
             } elseif ($orderColumnIndex == count($languages) + 2) {
                 $orderBy = 'created_at';
+            } else {
+                // Default sorting
+                $orderBy = 'id';
             }
             
             // Get activities with pagination and sorting
@@ -81,7 +85,8 @@ class ActivityAction {
             $data = [];
             foreach ($activities as $index => $activity) {
                 $rowData = [
-                    'id' => $index + 1,
+                    'index' => $index + 1,
+                    'id' => $activity->id,
                     'translations' => [],
                     'active' => $activity->active,
                     'created_at' => $activity->created_at->format('Y-m-d H:i'),

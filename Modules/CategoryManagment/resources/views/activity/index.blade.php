@@ -160,6 +160,7 @@
     $(document).ready(function() {
         let per_page = 10;
 
+
         // Server-side processing with pagination
         var table = $('#activitiesDataTable').DataTable({
             processing: true,
@@ -211,8 +212,10 @@
             columns: [
                 // ID column
                 { 
-                    data: 'id', 
-                    name: 'id',
+                    data: 'index', 
+                    name: 'index',
+                    orderable: false,
+                    searchable: false,
                     render: function(data) {
                         return data;
                     }
@@ -246,7 +249,13 @@
                 { 
                     data: 'active',
                     name: 'active',
-                    render: function(data) {
+                    render: function(data, type, row) {
+                        // For sorting, return numeric value
+                        if (type === 'sort' || type === 'type') {
+                            return data ? 1 : 0;
+                        }
+                        
+                        // For display, return formatted HTML
                         if (data == 1) {
                             return '<span class="badge badge-success badge-round badge-lg">{{ __('activity.active') }}</span>';
                         } else {
@@ -269,17 +278,20 @@
                     orderable: false,
                     searchable: false,
                     render: function(data, type, row) {
+                        let viewRoute = '{{ route('admin.category-management.activities.show', ':id') }}',
+                            editRoute = '{{ route('admin.category-management.activities.edit', ':id') }}',
+                            deleteRoute = '{{ route('admin.category-management.activities.destroy', ':id') }}';
                         return `
                             <ul class="orderDatatable_actions mb-0 d-flex flex-wrap justify-content-start">
                                 <li>
-                                    <a href="{{ url('admin/category-management/activities') }}/${row.id}" 
+                                    <a href="${viewRoute.replace(':id', row.id)}" 
                                     class="view" 
                                     title="{{ trans('common.view') }}">
                                         <i class="uil uil-eye"></i>
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="{{ url('admin/category-management/activities') }}/${row.id}/edit" 
+                                    <a href="${editRoute.replace(':id', row.id)}" 
                                     class="edit" 
                                     title="{{ trans('common.edit') }}">
                                         <i class="uil uil-edit"></i>
@@ -293,7 +305,7 @@
                                     data-bs-target="#modal-delete-activity"
                                     data-item-id="${row.id}"
                                     data-item-name="${$('<div>').text(row.first_name).html()}"
-                                    data-url="{{ url('admin/category-management/activities') }}/${row.id}">
+                                    data-url="${deleteRoute.replace(':id', row.id)}">
                                         <i class="uil uil-trash-alt"></i>
                                     </a>
                                 </li>

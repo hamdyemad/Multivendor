@@ -292,7 +292,7 @@
                                 <li>
                                     <a href="javascript:void(0);" 
                                     class="remove delete-brand" 
-                                    title="{{ trans('common.delete')}}">
+                                    title="{{ trans('common.delete')}}"
                                     data-bs-toggle="modal" 
                                     data-bs-target="#modal-delete-brand"
                                     data-item-id="${row.id}"

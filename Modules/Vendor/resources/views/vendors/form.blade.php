@@ -230,53 +230,87 @@
                             <h5 class="mb-3 mt-4">{{ trans('vendor::vendor.seo_information') }}</h5>
                             
                             <div class="row">
-                                <!-- Meta Title -->
-                                <div class="col-md-12 mb-3">
+                                <!-- Meta Title Fields for each language -->
+                                @foreach($languages as $language)
+                                <div class="col-md-6 mb-3">
                                     <div class="form-group">
-                                        <label for="meta_title" class="form-label w-100">
-                                            {{ trans('vendor::vendor.meta_title') }}
+                                        <label for="meta_title_{{ $language->code }}" class="form-label w-100 {{ $language->rtl ? 'text-end' : '' }}">
+                                            @if($language->code == 'en')
+                                                {{ trans('vendor::vendor.meta_title') }} ({{ $language->name }})
+                                            @else
+                                                عنوان SEO باللغة العربية
+                                            @endif
                                         </label>
                                         <input 
                                             type="text" 
-                                            name="meta_title"
-                                            id="meta_title"
-                                            class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                            value="{{ isset($vendor) ? $vendor->meta_title : old('meta_title') }}"
+                                            name="translations[{{ $language->id }}][meta_title]"
+                                            id="meta_title_{{ $language->code }}"
+                                            class="form-control"
+                                            value="{{ isset($vendor) ? $vendor->getTranslation('meta_title', $language->code) : old('translations.'.$language->id.'.meta_title') }}"
+                                            {{ $language->rtl ? 'dir=rtl' : '' }}
                                         >
+                                        @error('translations.'.$language->id.'.meta_title')
+                                            <div class="text-danger mt-1">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
+                                @endforeach
+                            </div>
 
-                                <!-- Meta Description -->
-                                <div class="col-md-12 mb-3">
+                            <div class="row">
+                                <!-- Meta Description Fields for each language -->
+                                @foreach($languages as $language)
+                                <div class="col-md-6 mb-3">
                                     <div class="form-group">
-                                        <label for="meta_description" class="form-label w-100">
-                                            {{ trans('vendor::vendor.meta_description') }}
+                                        <label for="meta_description_{{ $language->code }}" class="form-label w-100 {{ $language->rtl ? 'text-end' : '' }}">
+                                            @if($language->code == 'en')
+                                                {{ trans('vendor::vendor.meta_description') }} ({{ $language->name }})
+                                            @else
+                                                وصف SEO باللغة العربية
+                                            @endif
                                         </label>
                                         <textarea 
-                                            name="meta_description"
-                                            id="meta_description"
-                                            class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                            name="translations[{{ $language->id }}][meta_description]"
+                                            id="meta_description_{{ $language->code }}"
+                                            class="form-control"
                                             rows="3"
-                                        >{{ isset($vendor) ? $vendor->meta_description : old('meta_description') }}</textarea>
+                                            {{ $language->rtl ? 'dir=rtl' : '' }}
+                                        >{{ isset($vendor) ? $vendor->getTranslation('meta_description', $language->code) : old('translations.'.$language->id.'.meta_description') }}</textarea>
+                                        @error('translations.'.$language->id.'.meta_description')
+                                            <div class="text-danger mt-1">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
+                                @endforeach
+                            </div>
 
-                                <!-- Meta Keywords -->
-                                <div class="col-md-12 mb-3">
+                            <div class="row">
+                                <!-- Meta Keywords Fields for each language -->
+                                @foreach($languages as $language)
+                                <div class="col-md-6 mb-3">
                                     <div class="form-group">
-                                        <label for="meta_keywords" class="form-label w-100">
-                                            {{ trans('vendor::vendor.meta_keywords') }}
+                                        <label for="meta_keywords_{{ $language->code }}" class="form-label w-100 {{ $language->rtl ? 'text-end' : '' }}">
+                                            @if($language->code == 'en')
+                                                {{ trans('vendor::vendor.meta_keywords') }} ({{ $language->name }})
+                                            @else
+                                                كلمات SEO المفتاحية باللغة العربية
+                                            @endif
                                         </label>
                                         <input 
                                             type="text" 
-                                            name="meta_keywords"
-                                            id="meta_keywords"
-                                            class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                            value="{{ isset($vendor) ? $vendor->meta_keywords : old('meta_keywords') }}"
+                                            name="translations[{{ $language->id }}][meta_keywords]"
+                                            id="meta_keywords_{{ $language->code }}"
+                                            class="form-control"
+                                            value="{{ isset($vendor) ? $vendor->getTranslation('meta_keywords', $language->code) : old('translations.'.$language->id.'.meta_keywords') }}"
+                                            {{ $language->rtl ? 'dir=rtl' : '' }}
                                         >
                                         <small class="text-muted">{{ trans('vendor::vendor.separate_keywords_commas') }}</small>
+                                        @error('translations.'.$language->id.'.meta_keywords')
+                                            <div class="text-danger mt-1">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
+                                @endforeach
                             </div>
                         </div>
 

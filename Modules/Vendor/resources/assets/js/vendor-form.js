@@ -413,12 +413,21 @@ function updateReview() {
         $('.review-banner').html(`<span class="text-muted">${config.noBannerUploaded}</span>`);
     }
 
-    // Update SEO
-    $('.review-seo').html(`
-        <div class="mb-2"><strong>${config.metaTitle}:</strong> ${$('#meta_title').val() || config.notProvided}</div>
-        <div class="mb-2"><strong>${config.metaDescription}:</strong> ${$('#meta_description').val() || config.notProvided}</div>
-        <div><strong>${config.metaKeywords}:</strong> ${$('#meta_keywords').val() || config.notProvided}</div>
-    `);
+    // Update SEO - for each language
+    let seoHtml = '';
+    config.languages.forEach((lang, index) => {
+        const metaTitle = $(`input[name="translations[${lang.id}][meta_title]"]`).val() || config.notProvided;
+        const metaDescription = $(`textarea[name="translations[${lang.id}][meta_description]"]`).val() || config.notProvided;
+        const metaKeywords = $(`input[name="translations[${lang.id}][meta_keywords]"]`).val() || config.notProvided;
+        
+        seoHtml += `<div class="${index > 0 ? 'mt-3 pt-3 border-top' : ''}">`;
+        seoHtml += `<h6 class="text-muted mb-2">${lang.name}</h6>`;
+        seoHtml += `<div class="mb-2"><strong>${config.metaTitle}:</strong> ${metaTitle}</div>`;
+        seoHtml += `<div class="mb-2"><strong>${config.metaDescription}:</strong> ${metaDescription}</div>`;
+        seoHtml += `<div><strong>${config.metaKeywords}:</strong> ${metaKeywords}</div>`;
+        seoHtml += '</div>';
+    });
+    $('.review-seo').html(seoHtml);
 
     // Update documents
     const documents = [];

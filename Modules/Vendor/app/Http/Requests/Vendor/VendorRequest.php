@@ -53,6 +53,9 @@ class VendorRequest extends FormRequest
             'translations' => 'required|array|min:1',
             'translations.*.name' => 'required|string|max:255',
             'translations.*.description' => 'nullable|string',
+            'translations.*.meta_title' => 'nullable|string|max:255',
+            'translations.*.meta_description' => 'nullable|string|max:500',
+            'translations.*.meta_keywords' => 'nullable|string|max:500',
             
             // Files
             'logo' => $logoRule,
@@ -68,11 +71,6 @@ class VendorRequest extends FormRequest
             
             // Commission
             'commission' => 'required|numeric|min:0|max:100',
-            
-            // SEO
-            'meta_title' => 'nullable|string|max:255',
-            'meta_description' => 'nullable|string|max:500',
-            'meta_keywords' => 'nullable|string|max:500',
             
             // Documents (using language IDs)
             'documents' => 'nullable|array',

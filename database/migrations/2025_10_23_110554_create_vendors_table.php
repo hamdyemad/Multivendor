@@ -18,9 +18,6 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->enum('type', ['product', 'booking','product_booking'])->default('product');
             $table->integer('active')->default(0);
-            $table->string('meta_title')->nullable();
-            $table->string('meta_description')->nullable();
-            $table->string('meta_keywords')->nullable();
             $table->foreign('country_id')->references('id')->on('countries')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();

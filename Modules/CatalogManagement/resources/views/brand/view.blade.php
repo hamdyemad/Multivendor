@@ -45,17 +45,17 @@
                                     @endphp
                                     <div class="col-md-6">
                                         <div class="form-group mb-20">
-                                            <label class="il-gray fs-14 fw-500 mb-10">{{ trans('catalogmanagement::brand.name') }} ({{ $language->name }})</label>
+                                            <label class="il-gray fs-14 fw-500 mb-10 w-100"  @if($language->rtl) dir="rtl" @endif>{{ trans('catalogmanagement::brand.name') }} ({{ $language->name }})</label>
                                             <div class="userDatatable-content" @if($language->rtl) dir="rtl" @endif>
-                                                <strong>{{ $name ? $name->lang_value : '-' }}</strong>
+                                                <strong>{{ $name ? $name->lang_value : '<span class="text-muted">-</span>' }}</strong>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-20">
-                                            <label class="il-gray fs-14 fw-500 mb-10">{{ trans('catalogmanagement::brand.description') }} ({{ $language->name }})</label>
+                                            <label class="il-gray fs-14 fw-500 mb-10 w-100"  @if($language->rtl) dir="rtl" @endif>{{ trans('catalogmanagement::brand.description') }} ({{ $language->name }})</label>
                                             <div class="userDatatable-content" @if($language->rtl) dir="rtl" @endif>
-                                                <strong>{{ $description ? $description->lang_value : '-' }}</strong>
+                                                <strong>{{ $description ? $description->lang_value : '<span class="text-muted">-</span>' }}</strong>
                                             </div>
                                         </div>
                                     </div>

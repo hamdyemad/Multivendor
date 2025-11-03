@@ -195,9 +195,10 @@
             },
             columns: [
                 { 
-                    data: 'id', 
-                    name: 'id',
+                    data: 'index', 
+                    name: 'index',
                     searchable: false,
+                    sortable: false,
                     render: function(data) {
                         return data;
                     }

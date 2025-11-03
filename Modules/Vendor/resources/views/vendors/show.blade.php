@@ -180,18 +180,32 @@
                                     <h5 class="mb-0">{{ trans('vendor::vendor.seo_information') }}</h5>
                                 </div>
                                 <div class="card-body">
-                                    <div class="mb-3">
-                                        <label class="fw-bold">{{ trans('vendor::vendor.meta_title') }}:</label>
-                                        <p class="mb-0">{{ $vendor->meta_title ?? '-' }}</p>
+                                    @foreach($languages as $language)
+                                    <div class="mb-4">
+                                        <h6 class="text-muted mb-3">{{ $language->name }}</h6>
+                                        <div class="mb-3">
+                                            <label class="fw-bold">{{ trans('vendor::vendor.meta_title') }}:</label>
+                                            <p class="mb-0 {{ $language->rtl ? 'text-end' : '' }}" {{ $language->rtl ? 'dir=rtl' : '' }}>
+                                                {{ $vendor->getTranslation('meta_title', $language->code) ?? '-' }}
+                                            </p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="fw-bold">{{ trans('vendor::vendor.meta_description') }}:</label>
+                                            <p class="mb-0 {{ $language->rtl ? 'text-end' : '' }}" {{ $language->rtl ? 'dir=rtl' : '' }}>
+                                                {{ $vendor->getTranslation('meta_description', $language->code) ?? '-' }}
+                                            </p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="fw-bold">{{ trans('vendor::vendor.meta_keywords') }}:</label>
+                                            <p class="mb-0 {{ $language->rtl ? 'text-end' : '' }}" {{ $language->rtl ? 'dir=rtl' : '' }}>
+                                                {{ $vendor->getTranslation('meta_keywords', $language->code) ?? '-' }}
+                                            </p>
+                                        </div>
+                                        @if(!$loop->last)
+                                        <hr>
+                                        @endif
                                     </div>
-                                    <div class="mb-3">
-                                        <label class="fw-bold">{{ trans('vendor::vendor.meta_description') }}:</label>
-                                        <p class="mb-0">{{ $vendor->meta_description ?? '-' }}</p>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="fw-bold">{{ trans('vendor::vendor.meta_keywords') }}:</label>
-                                        <p class="mb-0">{{ $vendor->meta_keywords ?? '-' }}</p>
-                                    </div>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>

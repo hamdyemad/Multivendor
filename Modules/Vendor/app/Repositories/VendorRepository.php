@@ -133,9 +133,6 @@ class VendorRepository implements VendorInterface
                 'user_id' => $user->id,
                 'country_id' => $data['country_id'],
                 'active' => $data['active'] ?? false,
-                'meta_title' => $data['meta_title'] ?? null,
-                'meta_description' => $data['meta_description'] ?? null,
-                'meta_keywords' => $data['meta_keywords'] ?? null,
             ]);
             // Handle logo upload
             if (isset($data['logo'])) {
@@ -215,9 +212,6 @@ class VendorRepository implements VendorInterface
             $vendor->update([
                 'country_id' => $data['country_id'],
                 'active' => $data['active'] ?? false,
-                'meta_title' => $data['meta_title'] ?? null,
-                'meta_description' => $data['meta_description'] ?? null,
-                'meta_keywords' => $data['meta_keywords'] ?? null,
             ]);
 
             // Sync activities (many-to-many relationship)
@@ -312,6 +306,33 @@ class VendorRepository implements VendorInterface
                         'lang_id' => $language->id,
                         'lang_key' => 'description',
                         'lang_value' => $fields['description'],
+                    ]);
+                }
+
+                // Store meta_title translation
+                if (!empty($fields['meta_title'])) {
+                    $vendor->translations()->create([
+                        'lang_id' => $language->id,
+                        'lang_key' => 'meta_title',
+                        'lang_value' => $fields['meta_title'],
+                    ]);
+                }
+
+                // Store meta_description translation
+                if (!empty($fields['meta_description'])) {
+                    $vendor->translations()->create([
+                        'lang_id' => $language->id,
+                        'lang_key' => 'meta_description',
+                        'lang_value' => $fields['meta_description'],
+                    ]);
+                }
+
+                // Store meta_keywords translation
+                if (!empty($fields['meta_keywords'])) {
+                    $vendor->translations()->create([
+                        'lang_id' => $language->id,
+                        'lang_key' => 'meta_keywords',
+                        'lang_value' => $fields['meta_keywords'],
                     ]);
                 }
             }

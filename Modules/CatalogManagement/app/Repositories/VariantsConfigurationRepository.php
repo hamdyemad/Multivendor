@@ -75,8 +75,12 @@ class VariantsConfigurationRepository implements VariantsConfigurationRepository
     public function update(int $id, array $data)
     {
         return DB::transaction(function () use ($id, $data) {
-            $variantKey = VariantsConfiguration::findOrFail($id);
-            $variantKey->update([
+            \Log::info('VariantsConfiguration Update Request', [
+                'id' => $id,
+                'data' => $data
+            ]);
+            $variant = VariantsConfiguration::findOrFail($id);
+            $variant->update([
                 'key_id' => $data['key_id'] ?? null,
                 'parent_id' => $data['parent_id'] ?? null,
                 'value' => $data['value'] ?? null,
@@ -87,15 +91,16 @@ class VariantsConfigurationRepository implements VariantsConfigurationRepository
             if (isset($data['translations']) && is_array($data['translations'])) {
                 foreach ($data['translations'] as $langId => $translation) {
                     if (isset($translation['name'])) {
-                        $variantKey->translations()->create([
+                        $variant->translations()->updateOrCreate([
                             'lang_id' => $langId,
                             'lang_key' => 'name',
+                        ], [
                             'lang_value' => $translation['name'],
                         ]);
                     }
                 }
             }
-            return $variantKey;
+            return $variant;
         });
     }
 

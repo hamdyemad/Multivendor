@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 03, 2025 at 10:35 AM
+-- Generation Time: Nov 03, 2025 at 10:42 AM
 -- Server version: 8.0.30
 -- PHP Version: 8.3.16
 
@@ -3229,7 +3229,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `user_type_id`, `vendor_id`, `uuid`, `email`, `reset_code_timestamp`, `reset_code`, `email_verified_at`, `password`, `active`, `block`, `remember_token`, `deleted_at`, `created_at`, `updated_at`) VALUES
-(13, 1, NULL, '2312f930-86df-4d90-b613-1940ff30ee50', 'super_admin@gmail.com', NULL, NULL, NULL, '$2y$10$BdNUvUDaHyWCVEA.u8ko8.h2m5ZCx53FldTilVP3xIAVkXAhaRi3K', 0, 0, NULL, NULL, '2025-11-03 07:03:39', '2025-11-03 07:03:39'),
+(13, 1, NULL, '2312f930-86df-4d90-b613-1940ff30ee50', 'super_admin@gmail.com', NULL, NULL, NULL, '$2y$10$BdNUvUDaHyWCVEA.u8ko8.h2m5ZCx53FldTilVP3xIAVkXAhaRi3K', 1, 1, NULL, NULL, '2025-11-03 07:03:39', '2025-11-03 07:03:39'),
 (14, 2, NULL, 'd9023a09-c2c3-403c-a3f8-6ed848d4c557', 'test@test.com', NULL, NULL, NULL, '$2y$10$1EEMRfNJ6pj5cdmdj0ZX5.6e.pnvBZLMfPi087JxdORqTssW2YuAG', 1, 0, NULL, NULL, '2025-11-03 07:57:20', '2025-11-03 07:57:20'),
 (15, 2, NULL, 'a18f2259-cb60-4718-b638-a24c872c6f3d', 'test2@test.com', NULL, NULL, NULL, '$2y$10$7rdpCLjySGWV5XLPxEaCuu2Jqdfw20ofHGHVLSyK/VCO2KxFAn4uu', 1, 0, NULL, NULL, '2025-11-03 07:57:53', '2025-11-03 07:57:53');
 

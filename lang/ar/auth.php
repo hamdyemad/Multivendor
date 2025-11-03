@@ -21,5 +21,8 @@ return [
     'Email Not Exists' => 'البريد الإلكتروني غير موجود',
     'reset code is ignored please reset again' => 'تم تجاهل رمز إعادة التعيين، يرجى إعادة التعيين مرة أخرى',
     'logout success' => 'تم تسجيل الخروج بنجاح',
+    'account_not_activated' => 'حسابك لم يتم تفعيله بعد. يرجى التواصل مع المسؤول.',
+    'account_blocked' => 'تم حظر حسابك. يرجى التواصل مع المسؤول.',
+    'invalid_credentials' => 'البريد الإلكتروني أو كلمة المرور غير صحيحة.',
 
 ];

@@ -11,7 +11,7 @@
         @endcan
         
         
-        @canany(['categories.departments.view', 'categories.main.view', 'categories.sub.view'])
+        @canany(['activities.index', 'categories.departments.view', 'categories.main.view', 'categories.sub.view'])
             <li class="menu-title mt-30">
                 <span>{{ trans('menu.sections.catalog management') }}</span>
             </li>
@@ -22,12 +22,15 @@
                     <span class="toggle-icon"></span>
                 </a>
                 <ul class="px-0">
+                    @can('activities.index')
                     <li>
                         <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.category-management.activities.index') }}">
                             {{ trans('menu.activities.title') }}
                             <span class="badge-circle badge-secondary ms-1">8</span>
                         </a>
                     </li>
+                    @endcan
+                    
                     @can('categories.departments.view')
                     <li>
                         <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.category-management.departments.index') }}">
@@ -283,7 +286,7 @@
                 
                 @can('admins.index')
                 <li>
-                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
+                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.admin-management.admins.index') }}">
                         {{ trans('menu.admin managment.admin managment') }}
                     </a>
                 </li>
@@ -323,7 +326,7 @@
         @endcanany
 
         
-        @can('vendors.requests.view')
+        @can('vendor_requests.new')
         <li class="has-child">
             <a href="#" class="">
                 <span class="nav-icon uil uil-clipboard-notes"></span>
@@ -385,7 +388,7 @@
 
 
         
-        @canany(['orders.index', 'orders.create'])
+        @canany(['orders.new', 'orders.inprogress', 'orders.delivered', 'orders.canceled', 'orders.refunded'])
         <li class="menu-title mt-30">
             <span>{{ trans('menu.sections.order and fulfillment') }}</span>
         </li>
@@ -433,9 +436,9 @@
                 </li>
             </ul>
         </li>
-        @endcan
+        @endcanany
 
-        @can('orders.stages.view')
+        @can('order_stages.index')
         <li>
             <a href="{{ route('admin.dashboard') }}">
                 <span class="d-flex align-items-center justify-content-between w-100">
@@ -449,7 +452,7 @@
         </li>
         @endcan
         
-        @can('orders.shipping.view')
+        @can('shipping_methods.index')
         <li>
             <a href="{{ route('admin.dashboard') }}">
                 <span class="d-flex align-items-center justify-content-between w-100">
@@ -464,7 +467,7 @@
         @endcan
 
         
-        @can('points.view')
+        @can('points.index')
         <li class="menu-title mt-30">
             <span>{{ trans('menu.sections.points system') }}</span>
         </li>
@@ -494,7 +497,7 @@
         @endcan
 
         
-        @can('advertisements.view')
+        @can('advertisements.index')
         <li class="has-child">
             <a href="#" class="">
                 <span class="nav-icon uil uil-trophy"></span>

@@ -21,5 +21,8 @@ return [
     'Email Not Exists' => 'Email Not Exists',
     'reset code is ignored please reset again' => 'reset code is ignored please reset again',
     'logout success' => 'logout success',
+    'account_not_activated' => 'Your account has not been activated yet. Please contact administrator.',
+    'account_blocked' => 'Your account has been blocked. Please contact administrator.',
+    'invalid_credentials' => 'Invalid email or password.',
 
 ];

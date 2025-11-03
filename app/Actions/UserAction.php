@@ -19,10 +19,23 @@ class UserAction {
     public function login($request) {
         $remember = $request->filled('remember');
         $user = User::where('email', $request->email)->first();
+        
+        if($user) {
+            // Check if user account is inactive
+            if(!$user->active) {
+                return $this->sendData(__('auth.account_not_activated'), false);
+            }
+            
+            // Check if user account is blocked
+            if($user->block) {
+                return $this->sendData(__('auth.account_blocked'), false);
+            }
+        }
+        
         if(Auth::attempt(['email'=>$request->email,'password'=>$request->password], $remember)){
             return $this->sendData('',true);
         }else{
-            return $this->sendData('',false);
+            return $this->sendData(__('auth.invalid_credentials'), false);
         }
     }
 

@@ -29,23 +29,23 @@ class PermessionSeeder extends Seeder
             // Catalog Management - Category Management
 
             // Start Activities Permessions
-            ['key' => 'activities.index', 'translations' => [
+            ['key' => 'activities.index', 'type' => 'admin','translations' => [
                 'name' => ['en' => 'All Activities', 'ar' => 'كل الانشطة'],
                 'group_by' => ['en' => 'Catalog Management', 'ar' => 'إدارة الكتالوج'],
             ]],
-            ['key' => 'activities.view', 'translations' => [
+            ['key' => 'activities.view', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'View Activities', 'ar' => 'عرض الانشطة'],
                 'group_by' => ['en' => 'Catalog Management', 'ar' => 'إدارة الكتالوج'],
             ]],
-            ['key' => 'activities.create', 'translations' => [
+            ['key' => 'activities.create', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'Create Activities', 'ar' => 'إنشاء الانشطة'],
                 'group_by' => ['en' => 'Catalog Management', 'ar' => 'إدارة الكتالوج'],
             ]],
-            ['key' => 'activities.edit', 'translations' => [
+            ['key' => 'activities.edit', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'Edit Activities', 'ar' => 'تعديل الانشطة'],
                 'group_by' => ['en' => 'Catalog Management', 'ar' => 'إدارة الكتالوج'],
             ]],
-            ['key' => 'activities.delete', 'translations' => [
+            ['key' => 'activities.delete', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'Delete Activities', 'ar' => 'ازالة الانشطة'],
                 'group_by' => ['en' => 'Catalog Management', 'ar' => 'إدارة الكتالوج'],
             ]],
@@ -191,7 +191,11 @@ class PermessionSeeder extends Seeder
                 'group_by' => ['en' => 'Products', 'ar' => 'منتجات'],
             ]],
 
-            // Taxes
+            // Start Taxes
+            ['key' => 'taxes.index', 'translations' => [
+                'name' => ['en' => 'All Taxes', 'ar' => 'كل الضرائب'],
+                'group_by' => ['en' => 'Taxes', 'ar' => 'ضرائب'],
+            ]],
             ['key' => 'taxes.view', 'translations' => [
                 'name' => ['en' => 'View Taxes', 'ar' => 'عرض الضرائب'],
                 'group_by' => ['en' => 'Taxes', 'ar' => 'ضرائب'],
@@ -208,8 +212,13 @@ class PermessionSeeder extends Seeder
                 'name' => ['en' => 'Delete Tax', 'ar' => 'حذف ضريبة'],
                 'group_by' => ['en' => 'Taxes', 'ar' => 'ضرائب'],
             ]],
+            // End Taxes
 
-            // Offers
+            // Start Offers
+            ['key' => 'offers.index', 'translations' => [
+                'name' => ['en' => 'All Offers', 'ar' => 'كل العروض'],
+                'group_by' => ['en' => 'Offers', 'ar' => 'عروض'],
+            ]],
             ['key' => 'offers.view', 'translations' => [
                 'name' => ['en' => 'View Offers', 'ar' => 'عرض العروض'],
                 'group_by' => ['en' => 'Offers', 'ar' => 'عروض'],
@@ -226,8 +235,13 @@ class PermessionSeeder extends Seeder
                 'name' => ['en' => 'Delete Offer', 'ar' => 'حذف عرض'],
                 'group_by' => ['en' => 'Offers', 'ar' => 'عروض'],
             ]],
+            // End Offers
 
             // Promocodes
+            ['key' => 'promocodes.index', 'translations' => [
+                'name' => ['en' => 'All Promocodes', 'ar' => 'كل الكودات'],
+                'group_by' => ['en' => 'Promocodes', 'ar' => 'كودات'],
+            ]],
             ['key' => 'promocodes.view', 'translations' => [
                 'name' => ['en' => 'View Promocodes', 'ar' => 'عرض الكودات'],
                 'group_by' => ['en' => 'Promocodes', 'ar' => 'كودات'],
@@ -245,49 +259,78 @@ class PermessionSeeder extends Seeder
                 'group_by' => ['en' => 'Promocodes', 'ar' => 'كودات'],
             ]],
 
-            // User Management - Admin Management
-            ['key' => 'admin.roles.view', 'translations' => [
+            // Start Roles
+            ['key' => 'roles.index', 'translations' => [
+                'name' => ['en' => 'All Roles', 'ar' => 'كل الأدوار'],
+                'group_by' => ['en' => 'Roles Management', 'ar' => 'إدارة الأدوار'],
+            ]],
+            ['key' => 'roles.view', 'translations' => [
                 'name' => ['en' => 'View Roles', 'ar' => 'عرض الأدوار'],
-                'group_by' => ['en' => 'Admin Management', 'ar' => 'إدارة الأدوار'],
+                'group_by' => ['en' => 'Roles Management', 'ar' => 'إدارة الأدوار'],
             ]],
-            ['key' => 'admin.roles.create', 'translations' => [
+            ['key' => 'roles.create', 'translations' => [
                 'name' => ['en' => 'Create Role', 'ar' => 'إنشاء دور'],
-                'group_by' => ['en' => 'Admin Management', 'ar' => 'إدارة الأدوار'],
+                'group_by' => ['en' => 'Roles Management', 'ar' => 'إدارة الأدوار'],
             ]],
-            ['key' => 'admin.roles.edit', 'translations' => [
+            ['key' => 'roles.edit', 'translations' => [
                 'name' => ['en' => 'Edit Role', 'ar' => 'تعديل دور'],
-                'group_by' => ['en' => 'Admin Management', 'ar' => 'إدارة الأدوار'],
+                'group_by' => ['en' => 'Roles Management', 'ar' => 'إدارة الأدوار'],
             ]],
-            ['key' => 'admin.roles.delete', 'translations' => [
+            ['key' => 'roles.delete', 'translations' => [
                 'name' => ['en' => 'Delete Role', 'ar' => 'حذف دور'],
-                'group_by' => ['en' => 'Admin Management', 'ar' => 'إدارة الأدوار'],
+                'group_by' => ['en' => 'Roles Management', 'ar' => 'إدارة الأدوار'],
             ]],
+            // End Roles
 
-            ['key' => 'admin.admins.view', 'translations' => [
+            // Start Admins
+            ['key' => 'admins.index', 'translations' => [
+                'name' => ['en' => 'All Admins', 'ar' => 'كل المسؤولين'],
+                'group_by' => ['en' => 'Admin Management', 'ar' => 'إدارة المسؤولين'],
+            ]],
+            ['key' => 'admins.view', 'translations' => [
                 'name' => ['en' => 'View Admins', 'ar' => 'عرض المسؤولين'],
                 'group_by' => ['en' => 'Admin Management', 'ar' => 'إدارة المسؤولين'],
             ]],
-            ['key' => 'admin.admins.create', 'translations' => [
+            ['key' => 'admins.create', 'translations' => [
                 'name' => ['en' => 'Create Admin', 'ar' => 'إنشاء المسؤول'],
                 'group_by' => ['en' => 'Admin Management', 'ar' => 'إدارة المسؤولين'],
             ]],
-            ['key' => 'admin.admins.edit', 'translations' => [
+            ['key' => 'admins.edit', 'translations' => [
                 'name' => ['en' => 'Edit Admin', 'ar' => 'تعديل المسؤول'],
                 'group_by' => ['en' => 'Admin Management', 'ar' => 'إدارة المسؤولين'],
             ]],
-            ['key' => 'admin.admins.delete', 'group_by' => 'Admin Management'],
+            ['key' => 'admins.delete', 'translations' => [
+                'name' => ['en' => 'Delete Admin', 'ar' => 'ازالة المسؤول'],
+                'group_by' => ['en' => 'Admin Management', 'ar' => 'إدارة المسؤولين'],
+            ]],
+            // End Admins
 
-            // Vendors
+
+            // Start Vendors
+            ['key' => 'vendors.index', 'translations' => [
+                'name' => ['en' => 'All Vendors', 'ar' => 'كل الموردين'],
+                'group_by' => ['en' => 'Vendors', 'ar' => 'الموردين'],
+            ]],
             ['key' => 'vendors.view', 'translations' => [
                 'name' => ['en' => 'View Vendors', 'ar' => 'عرض الموردين'],
                 'group_by' => ['en' => 'Vendors', 'ar' => 'الموردين'],
             ]],
-            ['key' => 'vendors.create', 'group_by' => 'Vendors'],
-            ['key' => 'vendors.edit', 'group_by' => 'Vendors'],
-            ['key' => 'vendors.delete', 'group_by' => 'Vendors'],
+            ['key' => 'vendors.create', 'translations' => [
+                'name' => ['en' => 'Create Vendors', 'ar' => 'انشاء الموردين'],
+                'group_by' => ['en' => 'Vendors', 'ar' => 'الموردين'],
+            ]],
+            ['key' => 'vendors.edit', 'translations' => [
+                'name' => ['en' => 'Edit Vendors', 'ar' => 'تعديل الموردين'],
+                'group_by' => ['en' => 'Vendors', 'ar' => 'الموردين'],
+            ]],
+            ['key' => 'vendors.delete', 'translations' => [
+                'name' => ['en' => 'Remove Vendors', 'ar' => 'ازالة الموردين'],
+                'group_by' => ['en' => 'Vendors', 'ar' => 'الموردين'],
+            ]],
+            // End Vendors
 
-            // Become a Vendor Requests
-            ['key' => 'vendor_requests.new.view', 'translations' => [
+            // Start Become a Vendor Requests
+            ['key' => 'vendor_requests.new', 'translations' => [
                 'name' => ['en' => 'View New Vendor Requests', 'ar' => 'عرض طلبات الموردين الجديدة'],
                 'group_by' => ['en' => 'Vendor Requests', 'ar' => 'طلبات الموردين'],
             ]],
@@ -299,55 +342,26 @@ class PermessionSeeder extends Seeder
                 'name' => ['en' => 'Reject Vendor Request', 'ar' => 'رفض طلب المورد'],
                 'group_by' => ['en' => 'Vendor Requests', 'ar' => 'طلبات الموردين'],
             ]],
-            ['key' => 'vendor_requests.accepted.view', 'translations' => [
-                'name' => ['en' => 'View Accepted Vendor Requests', 'ar' => 'عرض طلبات الموردين المقبولة'],
-                'group_by' => ['en' => 'Vendor Requests', 'ar' => 'طلبات الموردين'],
-            ]],
-            ['key' => 'vendor_requests.rejected.view', 'translations' => [
-                'name' => ['en' => 'View Rejected Vendor Requests', 'ar' => 'عرض طلبات الموردين الرفض'],
-                'group_by' => ['en' => 'Vendor Requests', 'ar' => 'طلبات الموردين'],
-            ]],
+            // End Become a Vendor Requests
 
-            // Users
-            ['key' => 'users.view', 'translations' => [
-                'name' => ['en' => 'View Users', 'ar' => 'عرض المستخدمين'],
-                'group_by' => ['en' => 'Users', 'ar' => 'المستخدمين'],
-            ]],
-            ['key' => 'users.create', 'translations' => [
-                'name' => ['en' => 'Create User', 'ar' => 'إنشاء مستخدم'],
-                'group_by' => ['en' => 'Users', 'ar' => 'المستخدمين'],
-            ]],
-            ['key' => 'users.edit', 'translations' => [
-                'name' => ['en' => 'Edit User', 'ar' => 'تعديل مستخدم'],
-                'group_by' => ['en' => 'Users', 'ar' => 'المستخدمين'],
-            ]],
-            ['key' => 'users.delete', 'translations' => [
-                'name' => ['en' => 'Delete User', 'ar' => 'حذف مستخدم'],
-                'group_by' => ['en' => 'Users', 'ar' => 'المستخدمين'],
-            ]],
-
-            // Orders
-            ['key' => 'orders.view', 'translations' => [
-                'name' => ['en' => 'View Orders', 'ar' => 'عرض الطلبات'],
-                'group_by' => ['en' => 'Orders', 'ar' => 'الطلبات'],
-            ]],
-            ['key' => 'orders.new.view', 'translations' => [
+            // Start Orders
+            ['key' => 'orders.new', 'translations' => [
                 'name' => ['en' => 'View New Orders', 'ar' => 'عرض الطلبات الجديدة'],
                 'group_by' => ['en' => 'Orders', 'ar' => 'الطلبات'],
             ]],
-            ['key' => 'orders.inprogress.view', 'translations' => [
+            ['key' => 'orders.inprogress', 'translations' => [
                 'name' => ['en' => 'View Inprogress Orders', 'ar' => 'عرض الطلبات المعلقة'],
                 'group_by' => ['en' => 'Orders', 'ar' => 'الطلبات'],
             ]],
-            ['key' => 'orders.delivered.view', 'translations' => [
+            ['key' => 'orders.delivered', 'translations' => [
                 'name' => ['en' => 'View Delivered Orders', 'ar' => 'عرض الطلبات المكتملة'],
                 'group_by' => ['en' => 'Orders', 'ar' => 'الطلبات'],
             ]],
-            ['key' => 'orders.canceled.view', 'translations' => [
+            ['key' => 'orders.canceled', 'translations' => [
                 'name' => ['en' => 'View Canceled Orders', 'ar' => 'عرض الطلبات الملغاة'],
                 'group_by' => ['en' => 'Orders', 'ar' => 'الطلبات'],
             ]],
-            ['key' => 'orders.refunded.view', 'translations' => [
+            ['key' => 'orders.refunded', 'translations' => [
                 'name' => ['en' => 'View Refunded Orders', 'ar' => 'عرض الطلبات المدفوعة'],
                 'group_by' => ['en' => 'Orders', 'ar' => 'الطلبات'],
             ]],
@@ -359,8 +373,13 @@ class PermessionSeeder extends Seeder
                 'name' => ['en' => 'Delete Order', 'ar' => 'حذف طلب'],
                 'group_by' => ['en' => 'Orders', 'ar' => 'الطلبات'],
             ]],
+            // End Orders
 
-            // Order Stages
+            // Start Order Stages
+            ['key' => 'order_stages.index', 'translations' => [
+                'name' => ['en' => 'All Order Stages', 'ar' => 'كل خطوات الطلب'],
+                'group_by' => ['en' => 'Order Settings', 'ar' => 'إعدادات الطلب'],
+            ]],
             ['key' => 'order_stages.view', 'translations' => [
                 'name' => ['en' => 'View Order Stages', 'ar' => 'عرض خطوات الطلب'],
                 'group_by' => ['en' => 'Order Settings', 'ar' => 'إعدادات الطلب'],
@@ -377,8 +396,13 @@ class PermessionSeeder extends Seeder
                 'name' => ['en' => 'Delete Order Stage', 'ar' => 'حذف خطوة طلب'],
                 'group_by' => ['en' => 'Order Settings', 'ar' => 'إعدادات الطلب'],
             ]],
+            // End Order Stages
 
-            // Shipping Methods
+            // Start Shipping Methods
+            ['key' => 'shipping_methods.index', 'translations' => [
+                'name' => ['en' => 'All Shipping Methods', 'ar' => 'كل طرق الشحن'],
+                'group_by' => ['en' => 'Order Settings', 'ar' => 'إعدادات الطلب'],
+            ]],
             ['key' => 'shipping_methods.view', 'translations' => [
                 'name' => ['en' => 'View Shipping Methods', 'ar' => 'عرض طرق الشحن'],
                 'group_by' => ['en' => 'Order Settings', 'ar' => 'إعدادات الطلب'],
@@ -395,8 +419,13 @@ class PermessionSeeder extends Seeder
                 'name' => ['en' => 'Delete Shipping Method', 'ar' => 'حذف طريقة شحن'],
                 'group_by' => ['en' => 'Order Settings', 'ar' => 'إعدادات الطلب'],
             ]],
+            // End Shipping Methods
 
-            // Points System
+            // Start Points System
+            ['key' => 'points.index', 'translations' => [
+                'name' => ['en' => 'All Points System', 'ar' => 'كل نظام النقاط'],
+                'group_by' => ['en' => 'Points System', 'ar' => 'نظام النقاط'],
+            ]],
             ['key' => 'points.view', 'translations' => [
                 'name' => ['en' => 'View Points System', 'ar' => 'عرض نظام النقاط'],
                 'group_by' => ['en' => 'Points System', 'ar' => 'نظام النقاط'],
@@ -413,12 +442,14 @@ class PermessionSeeder extends Seeder
                 'name' => ['en' => 'Delete Points System', 'ar' => 'حذف نظام نقاط'],
                 'group_by' => ['en' => 'Points System', 'ar' => 'نظام النقاط'],
             ]],
-            ['key' => 'points.users.view', 'translations' => [
-                'name' => ['en' => 'View Points Users', 'ar' => 'عرض مستخدمين النقاط'],
-                'group_by' => ['en' => 'Points System', 'ar' => 'نظام النقاط'],
-            ]],
+            // End Points System
 
-            // Advertisements
+
+            // Start advertisements
+            ['key' => 'advertisements.index', 'translations' => [
+                'name' => ['en' => 'All Advertisements', 'ar' => 'كل الإعلانات'],
+                'group_by' => ['en' => 'Advertisements', 'ar' => 'الإعلانات'],
+            ]],
             ['key' => 'advertisements.view', 'translations' => [
                 'name' => ['en' => 'View Advertisements', 'ar' => 'عرض الإعلانات'],
                 'group_by' => ['en' => 'Advertisements', 'ar' => 'الإعلانات'],
@@ -435,22 +466,31 @@ class PermessionSeeder extends Seeder
                 'name' => ['en' => 'Delete Advertisement', 'ar' => 'حذف إعلان'],
                 'group_by' => ['en' => 'Advertisements', 'ar' => 'الإعلانات'],
             ]],
-            ['key' => 'advertisements.positions.view', 'translations' => [
+            // End advertisements
+
+            // Start positions
+            ['key' => 'positions.index', 'translations' => [
+                'name' => ['en' => 'All Advertisement Positions', 'ar' => 'كل مواقع الإعلانات'],
+                'group_by' => ['en' => 'Advertisements', 'ar' => 'الإعلانات'],
+            ]],
+            ['key' => 'positions.view', 'translations' => [
                 'name' => ['en' => 'View Advertisement Positions', 'ar' => 'عرض مواقع الإعلانات'],
                 'group_by' => ['en' => 'Advertisements', 'ar' => 'الإعلانات'],
             ]],
-            ['key' => 'advertisements.positions.create', 'translations' => [
+            ['key' => 'positions.create', 'translations' => [
                 'name' => ['en' => 'Create Advertisement Position', 'ar' => 'إنشاء موقع إعلان'],
                 'group_by' => ['en' => 'Advertisements', 'ar' => 'الإعلانات'],
             ]],
-            ['key' => 'advertisements.positions.edit', 'translations' => [
+            ['key' => 'positions.edit', 'translations' => [
                 'name' => ['en' => 'Edit Advertisement Position', 'ar' => 'تعديل موقع إعلان'],
                 'group_by' => ['en' => 'Advertisements', 'ar' => 'الإعلانات'],
             ]],
-            ['key' => 'advertisements.positions.delete', 'translations' => [
+            ['key' => 'positions.delete', 'translations' => [
                 'name' => ['en' => 'Delete Advertisement Position', 'ar' => 'حذف موقع إعلان'],
                 'group_by' => ['en' => 'Advertisements', 'ar' => 'الإعلانات'],
             ]],
+            // End positions
+
 
             // Notifications
             ['key' => 'notifications.view', 'translations' => [
@@ -719,7 +759,7 @@ class PermessionSeeder extends Seeder
         foreach ($permissions as $permissionData) {
             // Create or update the permission
             $permission = Permession::updateOrCreate([]);
-
+            (isset($permissionData['type'])) ? $permission->update('type', $permissionData['type']) : null;
             // Add translations if available and languages exist
             if ($languages->isNotEmpty() && isset($permissionData['translations'])) {
                 foreach ($permissionData['translations']['name'] as $locale => $value) {

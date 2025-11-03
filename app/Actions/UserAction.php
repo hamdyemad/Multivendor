@@ -5,6 +5,7 @@ namespace App\Actions;
 use App\Interfaces\UserInterface;
 use App\Mail\ResetPasswordMail;
 use App\Models\User;
+use App\Models\UserType;
 use App\Traits\Res;
 use Carbon\Carbon;
 use Exception;
@@ -17,6 +18,7 @@ class UserAction {
     use Res;
     public function login($request) {
         $remember = $request->filled('remember');
+        $user = User::where('email', $request->email)->first();
         if(Auth::attempt(['email'=>$request->email,'password'=>$request->password], $remember)){
             return $this->sendData('',true);
         }else{

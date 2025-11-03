@@ -135,6 +135,8 @@ return [
     'no_banner_uploaded' => 'لم يتم تحميل بانر',
     'no_documents_uploaded' => 'لم يتم تحميل مستندات',
     'password_is_set' => 'تم تعيين كلمة المرور',
+    'leave_empty_to_keep_current_password' => 'اتركه فارغاً للحفاظ على كلمة المرور الحالية',
+    'password_will_be_updated_if_provided' => 'سيتم تحديث كلمة المرور إذا تم توفيرها',
     'please_review_info' => 'يرجى مراجعة معلوماتك قبل الإرسال. انقر على أي قسم للتعديل.',
     'validation_errors' => 'أخطاء التحقق',
     'please_fix_errors' => 'يرجى إصلاح الأخطاء التالية قبل الإرسال:',

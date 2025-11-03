@@ -356,14 +356,15 @@
                                 </div>
                             </div>
 
-                            @if(!isset($vendor))
                             <div class="row">
                                 <!-- Password -->
                                 <div class="col-md-6 mb-3">
                                     <div class="form-group">
                                         <label for="password" class="form-label">
                                             {{ trans('vendor::vendor.password') }} 
-                                            <span class="text-danger">*</span>
+                                            @if(!isset($vendor))
+                                                <span class="text-danger">*</span>
+                                            @endif
                                         </label>
                                         <input 
                                             type="password" 
@@ -372,7 +373,13 @@
                                             class="form-control"
                                             placeholder="{{ trans('vendor::vendor.enter_password') }}"
                                         >
-                                        <small class="text-muted">{{ trans('vendor::vendor.password_min_8') }}</small>
+                                        <small class="text-muted">
+                                            @if(isset($vendor))
+                                                {{ trans('vendor::vendor.leave_empty_to_keep_current_password') }}
+                                            @else
+                                                {{ trans('vendor::vendor.password_min_8') }}
+                                            @endif
+                                        </small>
                                         @error('password')
                                             <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
@@ -384,7 +391,9 @@
                                     <div class="form-group">
                                         <label for="password_confirmation" class="form-label">
                                             {{ trans('vendor::vendor.confirm_password') }} 
-                                            <span class="text-danger">*</span>
+                                            @if(!isset($vendor))
+                                                <span class="text-danger">*</span>
+                                            @endif
                                         </label>
                                         <input 
                                             type="password" 
@@ -399,11 +408,6 @@
                                     </div>
                                 </div>
                             </div>
-                            @else
-                            <div class="alert alert-info">
-                                <i class="uil uil-info-circle"></i> {{ trans('vendor::vendor.password_is_set') }}
-                            </div>
-                            @endif
                         </div>
 
                         <!-- Step 4: Review & Submit -->
@@ -527,12 +531,12 @@
                                             <strong>{{ trans('vendor::vendor.email') }}:</strong>
                                             <span class="review-email">-</span>
                                         </div>
-                                        @if(!isset($vendor))
                                         <div class="col-md-12">
                                             <strong>{{ trans('vendor::vendor.password') }}:</strong>
-                                            <span class="review-password text-muted">{{ trans('vendor::vendor.password_is_set') }}</span>
+                                            <span class="review-password text-muted">
+                                                {{ isset($vendor) ? trans('vendor::vendor.password_will_be_updated_if_provided') : trans('vendor::vendor.password_is_set') }}
+                                            </span>
                                         </div>
-                                        @endif
                                     </div>
                                 </div>
                             </div>

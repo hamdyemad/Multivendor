@@ -144,6 +144,8 @@ return [
     'no_banner_uploaded' => 'No banner uploaded',
     'no_documents_uploaded' => 'No documents uploaded',
     'password_is_set' => 'Password is set',
+    'leave_empty_to_keep_current_password' => 'Leave empty to keep current password',
+    'password_will_be_updated_if_provided' => 'Password will be updated if provided',
     'please_review_info' => 'Please review your information before submitting. Click on any section to edit.',
     'validation_errors' => 'Validation Errors',
     'please_fix_errors' => 'Please fix the following errors before submitting:',

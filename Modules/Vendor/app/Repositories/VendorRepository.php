@@ -182,6 +182,26 @@ class VendorRepository implements VendorInterface
         return DB::transaction(function () use ($id, $data) {
             $vendor = Vendor::findOrFail($id);
 
+            // Update user account (email and password)
+            if ($vendor->user) {
+                $userUpdateData = [];
+                
+                // Update email if provided
+                if (!empty($data['email'])) {
+                    $userUpdateData['email'] = $data['email'];
+                }
+                
+                // Update password if provided
+                if (!empty($data['password'])) {
+                    $userUpdateData['password'] = Hash::make($data['password']);
+                }
+                
+                // Update user if there's data to update
+                if (!empty($userUpdateData)) {
+                    $vendor->user->update($userUpdateData);
+                }
+            }
+
             // Handle logo upload
             if (isset($data['logo'])) {
                 if ($vendor->logo) {

@@ -15,9 +15,9 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // Seed users types
-        // $this->call(UserTypeSeeder::class);
+        $this->call(UserTypeSeeder::class);
 
-        // $this->call(UserSeeder::class);
+        $this->call(UserSeeder::class);
 
         // Seed languages first (required for translations)
         // $this->call(LanguageSeeder::class);

@@ -227,7 +227,7 @@ $(document).ready(function() {
                 name: 'vendor_info',
                 orderable: false,
                 render: function(data, type, row) {
-                    let html = '<div class="userDatatable-content">';
+                    let html = '<div class="userDatatable-content text-lowercase">';
                     
                     // Vendor Names (all languages)
                     @foreach($languages as $index => $language)

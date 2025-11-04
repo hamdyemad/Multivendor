@@ -36,7 +36,11 @@ class RoleController extends Controller
     public function index(Request $request)
     {
         $languages = $this->languageService->getAll();
-        return view('pages.admin_management.roles.index', compact('languages'));
+        $data = [
+            'languages' => $languages,
+            'title' => trans('menu.admin managment.roles managment'),
+        ];
+        return view('pages.admin_management.roles.index', $data);
     }
 
     /**
@@ -78,7 +82,12 @@ class RoleController extends Controller
     {
         $languages = $this->languageService->getAll();
         $groupedPermissions = $this->roleService->getGroupedPermissions();
-        return view('pages.admin_management.roles.form', compact('groupedPermissions', 'languages'));
+        $data = [
+            'languages' => $languages,
+            'groupedPermissions' => $groupedPermissions,
+            'title' => __('roles.create_role'),
+        ];
+        return view('pages.admin_management.roles.form', $data);
     }
 
     /**
@@ -109,8 +118,12 @@ class RoleController extends Controller
     {
         $languages = $this->languageService->getAll();
         $role = $this->roleService->getRoleById($role->id);
-        
-        return view('pages.admin_management.roles.show', compact('role', 'languages'));
+        $data = [
+            'role' => $role,
+            'languages' => $languages,
+            'title' => __('roles.show_role'),
+        ];        
+        return view('pages.admin_management.roles.show', $data);
     }
 
     /**
@@ -121,7 +134,13 @@ class RoleController extends Controller
         $role = $this->roleService->getRoleById($role->id);
         $languages = $this->languageService->getAll();
         $groupedPermissions = $this->roleService->getGroupedPermissions();
-        return view('pages.admin_management.roles.form', compact('role', 'groupedPermissions', 'languages'));
+        $data = [
+            'role' => $role,
+            'languages' => $languages,
+            'groupedPermissions' => $groupedPermissions,
+            'title' => __('roles.edit_role'),
+        ];
+        return view('pages.admin_management.roles.form', $data);
     }
 
     /**

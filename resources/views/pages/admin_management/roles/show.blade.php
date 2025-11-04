@@ -1,5 +1,6 @@
 @extends('layout.app')
 
+@section('title', $title)
 @section('content')
     {{-- Include Loading Overlay Component --}}
     <x-loading-overlay 

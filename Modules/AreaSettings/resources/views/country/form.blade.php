@@ -1,6 +1,8 @@
 @extends('layout.app')
 
-
+@section('title')
+{{ $title }}
+@endsection
 @section('content')
     <div class="container-fluid">
         <div class="row">
@@ -77,6 +79,24 @@
                                     </div>
                                 </div>
                                 
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="currency_id" class="form-label">{{ __('areasettings::country.currency') }} <span class="text-danger">*</span></label>
+                                        <select class="form-control" id="currency_id" name="currency_id">
+                                            <option value="">{{ __('areasettings::country.select_currency') }}</option>
+                                            @foreach($currencies as $currency)
+                                                <option value="{{ $currency->id }}" 
+                                                    {{ old('currency_id', isset($country) ? $country->currency_id : '') == $currency->id ? 'selected' : '' }}>
+                                                    {{ $currency->getTranslation('name', app()->getLocale()) }} ({{ $currency->code }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('currency_id')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                
                                 {{-- Active Status Switcher --}}
                                 <div class="col-md-6">
                                     <div class="form-group mb-25">
@@ -100,8 +120,7 @@
                                         @enderror
                                     </div>
                                 </div>
-                                {{-- <div class="col-md-6"></div> --}}
-                                <div class="col-md-6">
+                                <div class="col-md-12">
                                     <div class="form-group mt-4 d-flex align-items-center justify-content-end">
                                         <a href="{{ route('admin.area-settings.countries.index') }}" class="btn btn-light btn-default btn-squared text-capitalize">
                                             <i class="uil uil-arrow-left"></i> {{ __('areasettings::country.back_to_list') }}

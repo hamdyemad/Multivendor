@@ -8,6 +8,7 @@ use Modules\AreaSettings\app\Actions\CountryAction;
 use Modules\AreaSettings\app\Http\Requests\CountryRequest;
 use Modules\AreaSettings\app\Services\CountryService;
 use App\Services\LanguageService;
+use Modules\SystemSetting\app\Services\CurrencyService;
 
 class CountryController extends Controller
 {
@@ -15,7 +16,8 @@ class CountryController extends Controller
     public function __construct(
         protected CountryService $countryService, 
         protected LanguageService $languageService,
-        protected CountryAction $countryAction
+        protected CountryAction $countryAction,
+        protected CurrencyService $currencyService
     )
     {
         $this->middleware('can:area.country.index')->only(['index']);
@@ -32,7 +34,11 @@ class CountryController extends Controller
     {
         // Get languages for table headers
         $languages = $this->languageService->getAll();
-        return view('areasettings::country.index', compact('languages'));
+        $data = [
+            'languages' => $languages,
+            'title' => __('areasettings::country.countries_management'),
+        ];
+        return view('areasettings::country.index', $data);
     }
 
     /**
@@ -50,7 +56,13 @@ class CountryController extends Controller
     public function create()
     {
         $languages = $this->languageService->getAll();
-        return view('areasettings::country.form', compact('languages'));
+        $currencies = $this->currencyService->getActiveCurrencies();
+        $data = [
+            'languages' => $languages,
+            'currencies' => $currencies,
+            'title' => __('areasettings::country.add_country'),
+        ];
+        return view('areasettings::country.form', $data);
     }
 
     /**
@@ -97,7 +109,12 @@ class CountryController extends Controller
         try {
             $languages = $this->languageService->getAll();
             $country = $this->countryService->getCountryById($id);
-            return view('areasettings::country.view', compact('country', 'languages'));
+            $data = [
+                'country' => $country,
+                'languages' => $languages,
+                'title' => __('areasettings::country.view_country'),
+            ];
+            return view('areasettings::country.view', $data);
         } catch (\Exception $e) {
             return redirect()->route('admin.area-settings.countries.index')
                 ->with('error', __('Country not found'));
@@ -111,8 +128,15 @@ class CountryController extends Controller
     {
         try {
             $languages = $this->languageService->getAll();
+            $currencies = $this->currencyService->getActiveCurrencies();
             $country = $this->countryService->getCountryById($id);
-            return view('areasettings::country.form', compact('country', 'languages'));
+            $data = [
+                'country' => $country,
+                'languages' => $languages,
+                'currencies' => $currencies,
+                'title' => __('areasettings::country.edit_country'),
+            ];
+            return view('areasettings::country.form', $data);
         } catch (\Exception $e) {
             return redirect()->route('admin.area-settings.countries.index')
                 ->with('error', __('Country not found'));

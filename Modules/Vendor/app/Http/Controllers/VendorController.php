@@ -28,7 +28,11 @@ class VendorController extends Controller {
 
     public function index() {
         $languages = $this->languageService->getAll();
-        return view('vendor::vendors.index', compact('languages'));
+        $data = [
+            'title' => 'Vendors Management',
+            'languages' => $languages
+        ];
+        return view('vendor::vendors.index', $data);
     }
 
     public function datatable(Request $request)
@@ -74,13 +78,20 @@ class VendorController extends Controller {
         // Get languages for translations
         $languages = $this->languageService->getAll();
         
-        return view('vendor::vendors.form', compact('countries', 'activities', 'languages'));
+        $data = [
+            'title' => 'Create Vendor',
+            'countries' => $countries,
+            'activities' => $activities,
+            'languages' => $languages
+        ];
+        return view('vendor::vendors.form', $data);
     }
 
     public function store(VendorRequest $request)
     {
         try {
-            $vendor = $this->vendorService->createVendor($request->validated());
+            $data = $request->validated();
+            $vendor = $this->vendorService->createVendor($data);
             // Check if it's an AJAX request
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json([
@@ -122,7 +133,12 @@ class VendorController extends Controller {
     public function show($id) {
         $vendor = $this->vendorService->getVendorById($id);
         $languages = $this->languageService->getAll();
-        return view('vendor::vendors.show', compact('vendor', 'languages'));
+        $data = [
+            'title' => 'Vendor Details',
+            'vendor' => $vendor,
+            'languages' => $languages
+        ];
+        return view('vendor::vendors.show', $data);
     }
 
     public function edit($id) {
@@ -137,7 +153,14 @@ class VendorController extends Controller {
         $activities = $activitiesData;
         // Get languages for translations
         $languages = $this->languageService->getAll();
-        return view('vendor::vendors.form', compact('vendor', 'countries', 'activities', 'languages'));
+        $data = [
+            'title' => 'Edit Vendor',
+            'vendor' => $vendor,
+            'countries' => $countries,
+            'activities' => $activities,
+            'languages' => $languages
+        ];
+        return view('vendor::vendors.form', $data);
     }
 
     public function update(VendorRequest $request, $id) {

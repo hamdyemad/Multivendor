@@ -155,24 +155,6 @@ class PermessionSeeder extends Seeder
                 'group_by' => ['en' => 'Products', 'ar' => 'منتجات'],
             ]],
 
-            // Product Setup
-            ['key' => 'product_setup.view', 'translations' => [
-                'name' => ['en' => 'View Product Setup', 'ar' => 'عرض إعداد المنتج'],
-                'group_by' => ['en' => 'Products', 'ar' => 'منتجات'],
-            ]],
-            ['key' => 'product_setup.create', 'translations' => [
-                'name' => ['en' => 'Create Product Setup', 'ar' => 'إنشاء إعداد منتج'],
-                'group_by' => ['en' => 'Products', 'ar' => 'منتجات'],
-            ]],
-            ['key' => 'product_setup.edit', 'translations' => [
-                'name' => ['en' => 'Edit Product Setup', 'ar' => 'تعديل إعداد منتج'],
-                'group_by' => ['en' => 'Products', 'ar' => 'منتجات'],
-            ]],
-            ['key' => 'product_setup.delete', 'translations' => [
-                'name' => ['en' => 'Delete Product Setup', 'ar' => 'حذف إعداد منتج'],
-                'group_by' => ['en' => 'Products', 'ar' => 'منتجات'],
-            ]],
-
             // Product Reviews
             ['key' => 'product_reviews.view', 'translations' => [
                 'name' => ['en' => 'View Product Reviews', 'ar' => 'عرض تقييم المنتج'],
@@ -307,38 +289,38 @@ class PermessionSeeder extends Seeder
 
 
             // Start Vendors
-            ['key' => 'vendors.index', 'translations' => [
+            ['key' => 'vendors.index', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'All Vendors', 'ar' => 'كل الموردين'],
                 'group_by' => ['en' => 'Vendors', 'ar' => 'الموردين'],
             ]],
-            ['key' => 'vendors.view', 'translations' => [
+            ['key' => 'vendors.view', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'View Vendors', 'ar' => 'عرض الموردين'],
                 'group_by' => ['en' => 'Vendors', 'ar' => 'الموردين'],
             ]],
-            ['key' => 'vendors.create', 'translations' => [
+            ['key' => 'vendors.create', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'Create Vendors', 'ar' => 'انشاء الموردين'],
                 'group_by' => ['en' => 'Vendors', 'ar' => 'الموردين'],
             ]],
-            ['key' => 'vendors.edit', 'translations' => [
+            ['key' => 'vendors.edit', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'Edit Vendors', 'ar' => 'تعديل الموردين'],
                 'group_by' => ['en' => 'Vendors', 'ar' => 'الموردين'],
             ]],
-            ['key' => 'vendors.delete', 'translations' => [
+            ['key' => 'vendors.delete', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'Remove Vendors', 'ar' => 'ازالة الموردين'],
                 'group_by' => ['en' => 'Vendors', 'ar' => 'الموردين'],
             ]],
             // End Vendors
 
             // Start Become a Vendor Requests
-            ['key' => 'vendor_requests.new', 'translations' => [
+            ['key' => 'vendor_requests.new', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'View New Vendor Requests', 'ar' => 'عرض طلبات الموردين الجديدة'],
                 'group_by' => ['en' => 'Vendor Requests', 'ar' => 'طلبات الموردين'],
             ]],
-            ['key' => 'vendor_requests.accept', 'translations' => [
+            ['key' => 'vendor_requests.accept', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'Accept Vendor Request', 'ar' => 'قبول طلب المورد'],
                 'group_by' => ['en' => 'Vendor Requests', 'ar' => 'طلبات الموردين'],
             ]],
-            ['key' => 'vendor_requests.reject', 'translations' => [
+            ['key' => 'vendor_requests.reject', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'Reject Vendor Request', 'ar' => 'رفض طلب المورد'],
                 'group_by' => ['en' => 'Vendor Requests', 'ar' => 'طلبات الموردين'],
             ]],
@@ -645,87 +627,87 @@ class PermessionSeeder extends Seeder
             ]],
 
             // Area Settings
-            ['key' => 'area.country.index', 'translations' => [
+            ['key' => 'area.country.index', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'All Countries', 'ar' => 'كل البلاد'],
                 'group_by' => ['en' => 'Area Settings', 'ar' => 'إعدادات المنطقة'],
             ]],
-            ['key' => 'area.country.view', 'translations' => [
+            ['key' => 'area.country.view', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'View Country', 'ar' => 'عرض البلد'],
                 'group_by' => ['en' => 'Area Settings', 'ar' => 'إعدادات المنطقة'],
             ]],
-            ['key' => 'area.country.create', 'translations' => [
+            ['key' => 'area.country.create', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'Create Country', 'ar' => 'إنشاء بلد'],
                 'group_by' => ['en' => 'Area Settings', 'ar' => 'إعدادات المنطقة'],
             ]],
-            ['key' => 'area.country.edit', 'translations' => [
+            ['key' => 'area.country.edit', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'Edit Country', 'ar' => 'تعديل بلد'],
                 'group_by' => ['en' => 'Area Settings', 'ar' => 'إعدادات المنطقة'],
             ]],
-            ['key' => 'area.country.delete', 'translations' => [
+            ['key' => 'area.country.delete', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'Delete Country', 'ar' => 'حذف بلد'],
                 'group_by' => ['en' => 'Area Settings', 'ar' => 'إعدادات المنطقة'],
             ]],
 
             
-            ['key' => 'area.city.index', 'translations' => [
+            ['key' => 'area.city.index', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'All Cities', 'ar' => 'كل المدن'],
                 'group_by' => ['en' => 'Area Settings', 'ar' => 'إعدادات المنطقة'],
             ]],
-            ['key' => 'area.city.view', 'translations' => [
+            ['key' => 'area.city.view', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'View City', 'ar' => 'عرض المدينة'],
                 'group_by' => ['en' => 'Area Settings', 'ar' => 'إعدادات المنطقة'],
             ]],
-            ['key' => 'area.city.create', 'translations' => [
+            ['key' => 'area.city.create', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'Create City', 'ar' => 'إنشاء مدينة'],
                 'group_by' => ['en' => 'Area Settings', 'ar' => 'إعدادات المنطقة'],
             ]],
-            ['key' => 'area.city.edit', 'translations' => [
+            ['key' => 'area.city.edit', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'Edit City', 'ar' => 'تعديل مدينة'],
                 'group_by' => ['en' => 'Area Settings', 'ar' => 'إعدادات المنطقة'],
             ]],
-            ['key' => 'area.city.delete', 'translations' => [
+            ['key' => 'area.city.delete', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'Delete City', 'ar' => 'حذف مدينة'],
                 'group_by' => ['en' => 'Area Settings', 'ar' => 'إعدادات المنطقة'],
             ]],
 
-            ['key' => 'area.region.index', 'translations' => [
+            ['key' => 'area.region.index', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'All Regions', 'ar' => 'كل المناطق'],
                 'group_by' => ['en' => 'Area Settings', 'ar' => 'إعدادات المنطقة'],
             ]],
-            ['key' => 'area.region.view', 'translations' => [
+            ['key' => 'area.region.view', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'View Region', 'ar' => 'عرض المنطقة'],
                 'group_by' => ['en' => 'Area Settings', 'ar' => 'إعدادات المنطقة'],
             ]],
-            ['key' => 'area.region.create', 'translations' => [
+            ['key' => 'area.region.create', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'Create Region', 'ar' => 'إنشاء منطقة'],
                 'group_by' => ['en' => 'Area Settings', 'ar' => 'إعدادات المنطقة'],
             ]],
-            ['key' => 'area.region.edit', 'translations' => [
+            ['key' => 'area.region.edit', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'Edit Region', 'ar' => 'تعديل منطقة'],
                 'group_by' => ['en' => 'Area Settings', 'ar' => 'إعدادات المنطقة'],
             ]],
-            ['key' => 'area.region.delete', 'translations' => [
+            ['key' => 'area.region.delete', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'Delete Region', 'ar' => 'حذف منطقة'],
                 'group_by' => ['en' => 'Area Settings', 'ar' => 'إعدادات المنطقة'],
             ]],
 
-            ['key' => 'area.subregion.index', 'translations' => [
+            ['key' => 'area.subregion.index', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'All Subregions', 'ar' => 'كل المناطق الفرعية'],
                 'group_by' => ['en' => 'Area Settings', 'ar' => 'إعدادات المنطقة'],
             ]],
-            ['key' => 'area.subregion.view', 'translations' => [
+            ['key' => 'area.subregion.view', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'View Subregion', 'ar' => 'عرض المنطقة الفرعية'],
                 'group_by' => ['en' => 'Area Settings', 'ar' => 'إعدادات المنطقة'],
             ]],
-            ['key' => 'area.subregion.create', 'translations' => [
+            ['key' => 'area.subregion.create', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'Create Subregion', 'ar' => 'إنشاء منطقة فرعية'],
                 'group_by' => ['en' => 'Area Settings', 'ar' => 'إعدادات المنطقة'],
             ]],
-            ['key' => 'area.subregion.edit', 'translations' => [
+            ['key' => 'area.subregion.edit', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'Edit Subregion', 'ar' => 'تعديل منطقة فرعية'],
                 'group_by' => ['en' => 'Area Settings', 'ar' => 'إعدادات المنطقة'],
             ]],
-            ['key' => 'area.subregion.delete', 'translations' => [
+            ['key' => 'area.subregion.delete', 'type' => 'admin', 'translations' => [
                 'name' => ['en' => 'Delete Subregion', 'ar' => 'حذف منطقة فرعية'],
                 'group_by' => ['en' => 'Area Settings', 'ar' => 'إعدادات المنطقة'],
             ]],

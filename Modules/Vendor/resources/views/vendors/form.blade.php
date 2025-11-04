@@ -1,5 +1,8 @@
 @extends('layout.app')
 
+@section('title')
+{{ $title }}
+@endsection
 @push('styles')
 <!-- Vendor Form Custom CSS -->
 @vite(['Modules/Vendor/resources/assets/css/vendor-form.css'])
@@ -177,6 +180,31 @@
                                             placeholder="{{ trans('vendor::vendor.enter_commission') }}"
                                         >
                                         @error('commission')
+                                            <div class="text-danger mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <!-- Vendor Type -->
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-group">
+                                        <label for="type" class="form-label">
+                                            {{ trans('vendor::vendor.vendor_type') }} 
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <select name="type" id="type" class="form-control select2">
+                                            <option value="">{{ trans('vendor::vendor.select_vendor_type') }}</option>
+                                            <option value="product" {{ (isset($vendor) && $vendor->type == 'product') || old('type') == 'product' ? 'selected' : '' }}>
+                                                {{ trans('vendor::vendor.product') }}
+                                            </option>
+                                            <option value="booking" {{ (isset($vendor) && $vendor->type == 'booking') || old('type') == 'booking' ? 'selected' : '' }}>
+                                                {{ trans('vendor::vendor.booking') }}
+                                            </option>
+                                            <option value="product_booking" {{ (isset($vendor) && $vendor->type == 'product_booking') || old('type') == 'product_booking' ? 'selected' : '' }}>
+                                                {{ trans('vendor::vendor.product_booking') }}
+                                            </option>
+                                        </select>
+                                        @error('type')
                                             <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>

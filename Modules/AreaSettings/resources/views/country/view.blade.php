@@ -1,5 +1,7 @@
 @extends('layout.app')
-
+@section('title')
+{{ $title }}
+@endsection
 @section('content')
     <div class="container-fluid">
         <div class="row">
@@ -18,11 +20,11 @@
                     <div class="d-flex justify-content-between align-items-center mb-25">
                         <h4 class="mb-0 fw-500">{{ __('areasettings::country.country_details') }}</h4>
                         <div class="d-flex gap-2">
-                            <a href="{{ route('admin.area-settings.countries.edit', $country->id) }}" class="btn btn-primary btn-default btn-squared text-capitalize">
-                                <i class="uil uil-edit"></i> {{ __('areasettings::country.edit_country') }}
-                            </a>
                             <a href="{{ route('admin.area-settings.countries.index') }}" class="btn btn-light btn-default btn-squared text-capitalize">
                                 <i class="uil uil-arrow-left"></i> {{ __('areasettings::country.back_to_list') }}
+                            </a>
+                            <a href="{{ route('admin.area-settings.countries.edit', $country->id) }}" class="btn btn-primary btn-default btn-squared text-capitalize">
+                                <i class="uil uil-edit"></i> {{ __('areasettings::country.edit_country') }}
                             </a>
                         </div>
                     </div>
@@ -53,38 +55,20 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Translations Card -->
-                    <div class="card border-0 shadow-sm mb-25">
-                        <div class="card-header bg-white border-bottom">
-                            <h5 class="mb-0 fw-500">{{ __('areasettings::country.translations') }}</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                @foreach($languages as $language)
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-20">
-                                            <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::country.name') }} ({{ $language->name }})</label>
-                                            <div class="userDatatable-content" @if($language->rtl) dir="rtl" @endif>
-                                                <strong>{{ $country->translations->where('lang_id', $language->id)->first()->lang_value ?? '-' }}</strong>
-                                            </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-20">
+                                        <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::country.currency') }}</label>
+                                        <div class="userDatatable-content">
+                                            @if($country->currency)
+                                                <span class="badge badge-warning" style="border-radius: 6px; padding: 8px 12px; font-size: 14px;">
+                                                    {{ $country->currency->getTranslation('name', app()->getLocale()) }} ({{ $country->currency->code }})
+                                                </span>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
                                         </div>
                                     </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Status & Dates Card -->
-                    <div class="card border-0 shadow-sm mb-25">
-                        <div class="card-header bg-white border-bottom">
-                            <h5 class="mb-0 fw-500">{{ __('areasettings::country.active') }} & {{ __('areasettings::country.created_at') }}</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
+                                </div>
                                 <div class="col-md-6">
                                     <div class="form-group mb-20">
                                         <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::country.active') }}</label>
@@ -101,6 +85,38 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Translations Card -->
+                    <div class="card border-0 shadow-sm mb-25">
+                        <div class="card-header bg-white border-bottom">
+                            <h5 class="mb-0 fw-500">{{ __('areasettings::country.translations') }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                @foreach($languages as $language)
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-20">
+                                            <label class="il-gray fs-14 fw-500 mb-10 w-100" @if($language->rtl) dir="rtl" @endif>{{ __('areasettings::country.name') }} ({{ $language->name }})</label>
+                                            <div class="userDatatable-content" @if($language->rtl) dir="rtl" @endif>
+                                                <strong>{{ $country->translations->where('lang_id', $language->id)->first()->lang_value ?? '-' }}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Updated At Card -->
+                    <div class="card border-0 shadow-sm mb-25">
+                        <div class="card-header bg-white border-bottom">
+                            <h5 class="mb-0 fw-500">{{ __('common.timestamps') }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group mb-20">
                                         <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::country.created_at') }}</label>
@@ -110,18 +126,6 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    @if($country->updated_at)
-                    <!-- Updated At Card -->
-                    <div class="card border-0 shadow-sm mb-25">
-                        <div class="card-header bg-white border-bottom">
-                            <h5 class="mb-0 fw-500">{{ __('areasettings::country.updated_at') }}</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group mb-20">
                                         <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::country.updated_at') }}</label>
@@ -133,8 +137,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    @endif
                     </div>
                 </div>
             </div>

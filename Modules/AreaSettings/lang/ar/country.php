@@ -91,6 +91,8 @@ return [
         'phone_code_required' => 'كود الهاتف مطلوب',
         'phone_code_max' => 'كود الهاتف يجب ألا يتجاوز 10 أحرف',
         'phone_code_format' => 'كود الهاتف يجب أن يبدأ بعلامة الزائد (+)',
+        'currency_required' => 'العملة مطلوبة',
+        'currency_exists' => 'العملة المحددة غير صالحة',
     ],
 
     // Filters
@@ -107,6 +109,7 @@ return [
     'basic_information' => 'المعلومات الأساسية',
     'countries_list' => 'قائمة الدول',
     'currency' => 'العملة',
+    'select_currency' => 'اختر العملة',
     'view_cities' => 'عرض المدن',
     'add_city' => 'إضافة مدينة',
     'updated_at' => 'تاريخ التحديث',

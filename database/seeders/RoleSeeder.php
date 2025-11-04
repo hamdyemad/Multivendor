@@ -27,15 +27,29 @@ class RoleSeeder extends Seeder
         // Define roles with translations
         $rolesData = [
             [
-                'type' => 'admin',
+                'type' => 'super_admin',
                 'translations' => [
                     'name' => ['en' => 'Super Admin Eramo', 'ar' => 'سوبر ادمن ايرامو'],
                 ]
             ],
             [
-                'type' => 'other',
+                'type' => 'admin',
                 'translations' => [
                     'name' => ['en' => 'Admin Eramo', 'ar' => 'ادمن ايرامو'],
+                ],
+                'permissions' => []
+            ],
+            [
+                'type' => 'vendor',
+                'translations' => [
+                    'name' => ['en' => 'Vendor', 'ar' => 'تاجر'],
+                ],
+                'permissions' => []
+            ],
+            [
+                'type' => 'other',
+                'translations' => [
+                    'name' => ['en' => 'Other', 'ar' => 'أخرى'],
                 ],
                 'permissions' => []
             ],
@@ -55,7 +69,7 @@ class RoleSeeder extends Seeder
             }
             
             // Assign permissions based on role type
-            if(isset($roleData['type']) && $roleData['type'] == 'admin') {
+            if(isset($roleData['type']) && $roleData['type'] == 'super_admin') {
                 // Super admin gets all permissions
                 $permissions = Permession::all();
                 $role->permessions()->sync($permissions->pluck('id'));

@@ -176,4 +176,7 @@
             'variant config keys' => 'مفاتيح تكوين المتغيرات',
             'variant config' => 'تكوينات المتغيرات',
         ],
+        'currencies' => [
+            'title' => 'العملات',
+        ],
     ];

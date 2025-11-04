@@ -1,5 +1,8 @@
 @extends('layout.app')
 
+@section('title')
+{{ $title }}
+@endsection
 @section('content')
     <div class="crm mb-25">
         <div class="container-fluid">

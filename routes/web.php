@@ -31,3 +31,10 @@ Route::post('/logout',[AuthController::class,'logout'])->name('logout')->middlew
 
 Route::get('/lang/{lang}',[ LanguageController::class,'switchLang'])->name('switch_lang');
 // Route::get('/pagination-per-page/{per_page}',[ PaginationController::class,'set_pagination_per_page'])->name('pagination_per_page');
+
+
+// Permession Reset
+Route::get('/permissions/reset', function() {
+    permessions_reset();
+    return "done";
+});

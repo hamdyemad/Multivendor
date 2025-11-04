@@ -124,6 +124,7 @@ class VendorRepository implements VendorInterface
             $userData = [
                 'email' => $data['email'],
                 'password' => $data['password'],
+                'active' => $data['active'] ?? false,
             ];
             $user = $this->userService->createVendorAccount($userData);
 
@@ -132,6 +133,7 @@ class VendorRepository implements VendorInterface
                 'slug' => Str::uuid(),
                 'user_id' => $user->id,
                 'country_id' => $data['country_id'],
+                'type' => $data['type'],
                 'active' => $data['active'] ?? false,
             ]);
             // Handle logo upload
@@ -184,22 +186,23 @@ class VendorRepository implements VendorInterface
 
             // Update user account (email and password)
             if ($vendor->user) {
-                $userUpdateData = [];
-                
-                // Update email if provided
-                if (!empty($data['email'])) {
-                    $userUpdateData['email'] = $data['email'];
-                }
-                
+                $userUpdateData = [
+                    'id' => $vendor->user->id,
+                ];
                 // Update password if provided
                 if (!empty($data['password'])) {
                     $userUpdateData['password'] = Hash::make($data['password']);
                 }
-                
-                // Update user if there's data to update
-                if (!empty($userUpdateData)) {
-                    $vendor->user->update($userUpdateData);
+                // Update active status if provided
+                if (!empty($data['active'])) {
+                    $userUpdateData['active'] = $data['active'];
                 }
+                // Update email if provided
+                if (!empty($data['email'])) {
+                    $userUpdateData['email'] = $data['email'];
+                }
+                // Update user if there's data to update
+                $this->userService->updateVendorAccount($userUpdateData);
             }
 
             // Handle logo upload
@@ -231,6 +234,7 @@ class VendorRepository implements VendorInterface
             // Update vendor
             $vendor->update([
                 'country_id' => $data['country_id'],
+                'type' => $data['type'],
                 'active' => $data['active'] ?? false,
             ]);
 
@@ -262,27 +266,32 @@ class VendorRepository implements VendorInterface
     public function deleteVendor(int $id)
     {
         return DB::transaction(function () use ($id) {
-            $vendor = Vendor::with(['user', 'attachments'])->findOrFail($id);
-            
-            // Delete all attachments from storage
-            foreach ($vendor->attachments as $attachment) {
-                // Delete attachment translations
-                $attachment->translations()->delete();
-                
-                // Delete attachment record
-                $attachment->delete();
-            }
-            
-            // Delete vendor translations
-            $vendor->translations()->delete();
-            
-            // Detach activities (many-to-many)
-            $vendor->activities()->detach();
+            $vendor = Vendor::with(['user', 'attachments', 'commission'])->findOrFail($id);
             
             // Get user before deleting vendor
             $user = $vendor->user;
             
-            // Delete vendor
+            // Delete all attachments with force delete (they use soft delete)
+            foreach ($vendor->attachments as $attachment) {
+                // Delete attachment translations (hard delete)
+                $attachment->translations()->delete();
+                
+                // Force delete attachment record (bypass soft delete)
+                $attachment->delete();
+            }
+            
+            // Delete vendor translations (hard delete - translations don't use soft delete)
+            $vendor->translations()->delete();
+            
+            // Detach activities (many-to-many) - must be done before vendor deletion
+            $vendor->activities()->detach();
+            
+            // Force delete commission if exists (commission uses soft delete)
+            if ($vendor->commission) {
+                $vendor->commission()->delete();
+            }
+            
+            // Force delete vendor (bypass soft delete) to avoid foreign key constraint issues
             $vendor->delete();
             
             // Delete associated user account if exists

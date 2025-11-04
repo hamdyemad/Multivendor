@@ -1,5 +1,8 @@
 @extends('layout.app')
 
+@section('title')
+{{ $title }}
+@endsection
 @push('styles')
 <!-- Select2 CSS loaded via Vite -->
 @endpush

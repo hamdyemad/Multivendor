@@ -69,6 +69,9 @@ class VendorRequest extends FormRequest
             // Status
             'active' => 'nullable|boolean',
             
+            // Vendor Type
+            'type' => 'required|in:product,booking,product_booking',
+            
             // Commission
             'commission' => 'required|numeric|min:0|max:100',
             

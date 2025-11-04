@@ -31,7 +31,7 @@
                     <li>
                         <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.category-management.activities.index') }}">
                             {{ trans('menu.activities.title') }}
-                            <span class="badge-circle badge-secondary ms-1">8</span>
+                            <span class="badge badge-round badge-secondary ms-1">8</span>
                         </a>
                     </li>
                     @endcan
@@ -40,7 +40,7 @@
                     <li>
                         <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.category-management.departments.index') }}">
                             {{ trans('menu.category managment.department') }}
-                            <span class="badge-circle badge-primary ms-1">8</span>
+                            <span class="badge badge-round badge-primary ms-1">8</span>
                         </a>
                     </li>
                     @endcan
@@ -49,7 +49,7 @@
                     <li>
                         <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.category-management.categories.index') }}">
                             {{ trans('menu.category managment.main category') }}
-                            <span class="badge-circle badge-info ms-1">25</span>
+                            <span class="badge badge-round badge-info ms-1">25</span>
                         </a>
                     </li>
                     @endcan
@@ -58,7 +58,7 @@
                     <li>
                         <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.category-management.subcategories.index') }}">
                             {{ trans('menu.category managment.sub category') }}
-                            <span class="badge-circle badge-success ms-1">45</span>
+                            <span class="badge badge-round badge-success ms-1">45</span>
                         </a>
                     </li>
                     @endcan
@@ -86,19 +86,19 @@
                     <li>
                         <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
                             {{ trans('menu.products.all') }}
-                            <span class="badge-circle badge-primary ms-1">250</span>
+                            <span class="badge badge-round badge-primary ms-1">250</span>
                         </a>
                     </li>
                     <li>
                         <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
                             {{ trans('menu.products.in stock') }}
-                            <span class="badge-circle badge-success ms-1">200</span>
+                            <span class="badge badge-round badge-success ms-1">200</span>
                         </a>
                     </li>
                     <li>
                         <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
                             {{ trans('menu.products.out of stock') }}
-                            <span class="badge-circle badge-danger ms-1">50</span>
+                            <span class="badge badge-round badge-danger ms-1">50</span>
                         </a>
                     </li>
                     @endcan
@@ -117,47 +117,17 @@
                     <li>
                         <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.variant-keys.index') }}">
                             {{ trans('menu.variant configurations.variant config keys') }}
-                            <span class="badge-circle badge-primary ms-1">20</span>
+                            <span class="badge badge-round badge-primary ms-1">20</span>
                         </a>
                     </li>
                     <li>
                         <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.variants-configurations.index') }}">
                             {{ trans('menu.variant configurations.variant config') }}
-                            <span class="badge-circle badge-primary ms-1">10</span>
+                            <span class="badge badge-round badge-primary ms-1">10</span>
                         </a>
                     </li>
                 </ul>
             </li>
-        @endcanany
-        
-
-        
-        @canany(['product_setup.view', 'product_setup.create'])
-        <li class="has-child">
-            <a href="#" class="">
-                <span class="nav-icon uil uil-setting"></span>
-                <span class="menu-text">{{ trans('menu.products setup.title') }}</span>
-                <span class="toggle-icon"></span>
-            </a>
-            <ul class="px-0">
-                @can('product_setup.index')
-                <li>
-                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
-                        {{ trans('menu.products setup.all') }}
-                        <span class="badge-circle badge-primary ms-1">35</span>
-                    </a>
-                </li>
-                @endcan
-                
-                @can('product_setup.create')
-                <li>
-                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
-                        {{ trans('menu.products setup.create') }}
-                    </a>
-                </li>
-                @endcan
-            </ul>
-        </li>
         @endcanany
         
         @can('reviews.view')
@@ -171,19 +141,19 @@
                 <li>
                     <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.product reviews.all') }}
-                        <span class="badge-circle badge-primary ms-1">150</span>
+                        <span class="badge badge-round badge-primary ms-1">150</span>
                     </a>
                 </li>
                 <li>
                     <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.product reviews.accepted') }}
-                        <span class="badge-circle badge-success ms-1">120</span>
+                        <span class="badge badge-round badge-success ms-1">120</span>
                     </a>
                 </li>
                 <li>
                     <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.product reviews.rejected') }}
-                        <span class="badge-circle badge-danger ms-1">30</span>
+                        <span class="badge badge-round badge-danger ms-1">30</span>
                     </a>
                 </li>
             </ul>
@@ -203,7 +173,7 @@
                 <li>
                     <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.taxes.index') }}">
                         {{ trans('menu.taxes.all') }}
-                        <span class="badge-circle badge-info ms-1">12</span>
+                        <span class="badge badge-round badge-info ms-1">12</span>
                     </a>
                 </li>
                 @endcan
@@ -228,7 +198,7 @@
                 <li>
                     <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.offers.all') }}
-                        <span class="badge-circle badge-warning ms-1">8</span>
+                        <span class="badge badge-round badge-warning ms-1">8</span>
                     </a>
                 </li>
                 @endcan
@@ -252,7 +222,7 @@
                             <span class="nav-icon uil uil-ticket"></span>
                             <span class="menu-text">{{ trans('menu.brands.title') }}</span>
                         </span>
-                        <span class="badge-circle badge-success ms-1">20</span>
+                        <span class="badge badge-round badge-success ms-1">20</span>
                     </span>
                 </a>
             </li>
@@ -266,7 +236,7 @@
                         <span class="nav-icon uil uil-ticket"></span>
                         <span class="menu-text">{{ trans('menu.promocodes.title') }}</span>
                     </span>
-                    <span class="badge-circle badge-success ms-1">50</span>
+                    <span class="badge badge-round badge-success ms-1">50</span>
                 </span>
             </a>
         </li>
@@ -316,7 +286,7 @@
                 <li>
                     <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.vendors.index') }}">
                         {{ trans('menu.vendors.all') }}
-                        <span class="badge-circle badge-success ms-1">50</span>
+                        <span class="badge badge-round badge-success ms-1">50</span>
                     </a>
                 </li>
                 @endcan
@@ -345,21 +315,21 @@
                     <a class="d-flex align-items-center justify-content-between"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.become a vendor requests.new') }}
-                        <span class="badge-circle badge-primary ms-1">50</span>
+                        <span class="badge badge-round badge-primary ms-1">50</span>
                     </a>
                 </li>
                 <li>
                     <a class="d-flex align-items-center justify-content-between"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.become a vendor requests.accepted') }}
-                        <span class="badge-circle badge-success ms-1">50</span>
+                        <span class="badge badge-round badge-success ms-1">50</span>
                     </a>
                 </li>
                 <li>
                     <a class="d-flex align-items-center justify-content-between"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.become a vendor requests.rejected') }}
-                        <span class="badge-circle badge-danger ms-1">50</span>
+                        <span class="badge badge-round badge-danger ms-1">50</span>
                     </a>
                 </li>
             </ul>
@@ -381,35 +351,35 @@
                     <a class="d-flex align-items-center justify-content-between"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.orders.new') }}
-                        <span class="badge-circle badge-success ms-1">50</span>
+                        <span class="badge badge-round badge-success ms-1">50</span>
                     </a>
                 </li>
                 <li class="l_sidebar">
                     <a class="d-flex align-items-center justify-content-between"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.orders.inprogress') }}
-                        <span class="badge-circle badge-success ms-1">50</span>
+                        <span class="badge badge-round badge-success ms-1">50</span>
                     </a>
                 </li>
                 <li class="l_sidebar">
                     <a class="d-flex align-items-center justify-content-between"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.orders.delivered') }}
-                        <span class="badge-circle badge-success ms-1">50</span>
+                        <span class="badge badge-round badge-success ms-1">50</span>
                     </a>
                 </li>
                 <li class="l_sidebar">
                     <a class="d-flex align-items-center justify-content-between"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.orders.canceled') }}
-                        <span class="badge-circle badge-success ms-1">50</span>
+                        <span class="badge badge-round badge-success ms-1">50</span>
                     </a>
                 </li>
                 <li class="l_sidebar">
                     <a class="d-flex align-items-center justify-content-between"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.orders.refunded') }}
-                        <span class="badge-circle badge-success ms-1">50</span>
+                        <span class="badge badge-success badge-round ms-1">50</span>
                     </a>
                 </li>
             </ul>
@@ -424,7 +394,7 @@
                         <span class="nav-icon uil uil-process"></span>
                         <span class="menu-text">{{ trans('menu.orders.order stages') }}</span>
                     </span>
-                    <span class="badge-circle badge-success ms-1">50</span>
+                    <span class="badge badge-success badge-round ms-1">50000</span>
                 </span>
             </a>
         </li>
@@ -438,7 +408,7 @@
                         <span class="nav-icon uil uil-truck"></span>
                         <span class="menu-text">{{ trans('menu.orders.shipping methods') }}</span>
                     </span>
-                    <span class="badge-circle badge-success ms-1">50</span>
+                    <span class="badge badge-round badge-success ms-1">50</span>
                 </span>
             </a>
         </li>
@@ -460,14 +430,14 @@
                     <a class="d-flex align-items-center justify-content-between"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.point managment.title') }}
-                        <span class="badge-circle badge-success ms-1">50</span>
+                        <span class="badge badge-round badge-success ms-1">50</span>
                     </a>
                 </li>
                 <li>
                     <a class="d-flex align-items-center justify-content-between"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.point managment.users points') }}
-                        <span class="badge-circle badge-success ms-1">50</span>
+                        <span class="badge badge-round badge-success ms-1">50</span>
                     </a>
                 </li>
             </ul>
@@ -487,14 +457,14 @@
                     <a class="d-flex align-items-center justify-content-between"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.advertisements.title') }}
-                        <span class="badge-circle badge-success ms-1">50</span>
+                        <span class="badge badge-round badge-success ms-1">50</span>
                     </a>
                 </li>
                 <li>
                     <a class="d-flex align-items-center justify-content-between"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.advertisements.positions') }}
-                        <span class="badge-circle badge-success ms-1">50</span>
+                        <span class="badge badge-round badge-success ms-1">50</span>
                     </a>
                 </li>
             </ul>
@@ -648,7 +618,7 @@
                     <a class="d-flex align-items-center justify-content-between"
                         href="{{ route('admin.area-settings.countries.index') }}">
                         {{ trans('menu.area settings.country') }}
-                        <span class="badge-circle badge-success ms-1">15</span>
+                        <span class="badge badge-round badge-success ms-1">15</span>
                     </a>
                 </li>
                 @endcan
@@ -658,7 +628,7 @@
                     <a class="d-flex align-items-center justify-content-between"
                         href="{{ route('admin.area-settings.cities.index') }}">
                         {{ trans('menu.area settings.city') }}
-                        <span class="badge-circle badge-info ms-1">120</span>
+                        <span class="badge badge-round badge-info ms-1">120</span>
                     </a>
                 </li>
                 @endcan
@@ -668,7 +638,7 @@
                     <a class="d-flex align-items-center justify-content-between"
                         href="{{ route('admin.area-settings.regions.index') }}">
                         {{ trans('menu.area settings.region') }}
-                        <span class="badge-circle badge-warning ms-1">45</span>
+                        <span class="badge badge-round badge-warning ms-1">45</span>
                     </a>
                 </li>
                 @endcan
@@ -678,7 +648,7 @@
                     <a class="d-flex align-items-center justify-content-between"
                         href="{{ route('admin.area-settings.subregions.index') }}">
                         {{ trans('menu.area settings.subregion') }}
-                        <span class="badge-circle badge-secondary ms-1">80</span>
+                        <span class="badge badge-round badge-secondary ms-1">80</span>
                     </a>
                 </li>
                 @endcan
@@ -723,13 +693,26 @@
                             <span class="nav-icon uil uil-envelope"></span>
                             <span>{{ trans('menu.system settings.messages') }}</span>
                         </span>
-                        <span class="badge-circle badge-primary ms-1">25</span>
+                        <span class="badge badge-round badge-primary ms-1">25</span>
                     </a>
                 </li>
                 @endcan
             </ul>
         </li>
         @endcanany
+        
+        @can('system.currency.index')
+        <li>
+            <a href="{{ route('admin.system-settings.currencies.index') }}">
+                <span class="d-flex align-items-center justify-content-between w-100">
+                    <span class="d-flex align-items-center">
+                        <span class="nav-icon uil uil-dollar-alt"></span>
+                        <span class="menu-text">{{ trans('menu.currencies.title') }}</span>
+                    </span>
+                </span>
+            </a>
+        </li>
+        @endcan
         
         <li class="has-child">
             <a href="#" class="">

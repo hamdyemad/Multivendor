@@ -88,6 +88,8 @@ return [
         'phone_code_required' => 'The phone code is required',
         'phone_code_max' => 'The phone code must not exceed 10 characters',
         'phone_code_format' => 'The phone code must start with a plus sign (+)',
+        'currency_required' => 'The currency is required',
+        'currency_exists' => 'The selected currency is invalid',
     ],
 
     // Filters
@@ -104,6 +106,7 @@ return [
     'basic_information' => 'Basic Information',
     'countries_list' => 'Countries List',
     'currency' => 'Currency',
+    'select_currency' => 'Select Currency',
     'view_cities' => 'View Cities',
     'add_city' => 'Add City',
     'updated_at' => 'Updated At',

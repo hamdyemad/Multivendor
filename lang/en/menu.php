@@ -184,4 +184,7 @@
             'variant config keys' => 'Variant Configuration Keys',
             'variant config' => 'Variant Configurations',
         ],
+        'currencies' => [
+            'title' => 'Currencies',
+        ],
     ];

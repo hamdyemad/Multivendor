@@ -1,5 +1,9 @@
 @extends('layout.app')
 
+@section('title')
+{{ $title }}
+@endsection
+
 @section('content')
 <div class="container-fluid">
     <div class="row">

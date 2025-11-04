@@ -39,7 +39,16 @@ class UserRepository implements UserInterface {
             'uuid' => \Str::uuid(),
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
-            'user_type_id' => UserType::VENDOR_TYPE, // Vendor type
+            'user_type_id' => UserType::VENDOR_TYPE, // Vendor type,
+            'active' => $data['active'],
+        ]);
+        return $user;
+    }
+    public function updateVendorAccount($data) {
+        $user = User::find($data['id'])->update([
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'active' => $data['active'],
         ]);
         return $user;
     }

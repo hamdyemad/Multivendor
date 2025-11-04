@@ -34,6 +34,7 @@ class CountryRequest extends FormRequest
                     ->whereNull('deleted_at')
             ],
             'phone_code' => 'required|string|max:10|regex:/^\+/',
+            'currency_id' => 'required|exists:currencies,id',
             'translations' => 'required|array',
             'translations.*.name' => 'required|string|max:255',
             'active' => 'nullable|boolean',
@@ -52,6 +53,7 @@ class CountryRequest extends FormRequest
         $attributes = [
             'code' => __('areas/country.country_code'),
             'phone_code' => __('areas/country.phone_code'),
+            'currency_id' => __('areasettings::country.currency'),
         ];
 
         // Add dynamic attributes for each language
@@ -77,6 +79,8 @@ class CountryRequest extends FormRequest
             'phone_code.required' => __('areas/country.validation.phone_code_required'),
             'phone_code.max' => __('areas/country.validation.phone_code_max'),
             'phone_code.regex' => __('areas/country.validation.phone_code_format'),
+            'currency_id.required' => __('areasettings::country.validation.currency_required'),
+            'currency_id.exists' => __('areasettings::country.validation.currency_exists'),
         ];
 
         // Add dynamic messages for each language

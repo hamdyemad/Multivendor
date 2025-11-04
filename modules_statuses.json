@@ -3,5 +3,6 @@
     "CategoryManagment": true,
     "Vendor": true,
     "Brands": true,
-    "CatalogManagement": true
+    "CatalogManagement": true,
+    "SystemSetting": true
 }

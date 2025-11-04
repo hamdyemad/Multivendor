@@ -9,4 +9,5 @@ interface UserInterface {
     public function resetPassword($cred, $user);
     public function logout();
     public function createVendorAccount($data);
+    public function updateVendorAccount($data);
 }

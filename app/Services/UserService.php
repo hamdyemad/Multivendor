@@ -33,5 +33,8 @@ class UserService {
     public function createVendorAccount($data) {
         return $this->userInterface->createVendorAccount($data);
     }
+    public function updateVendorAccount($data) {
+        return $this->userInterface->updateVendorAccount($data);
+    }
 
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories\AdminManagement;
+namespace App\Repositories;
 
 use App\Models\User;
 use App\Models\UserType;
@@ -17,79 +17,9 @@ class AdminRepository
      * - Super Admin: sees all system admins
      * - Vendor: sees only their own users
      */
-    public function getAdminsQuery(array $filters = [], $orderBy = null, string $orderDirection = 'desc')
+    public function getAdminsQuery(array $filters = [])
     {
-        $query = User::with(['roles', 'translations']);
-
-        // Filter based on logged-in user type
-        $currentUser = Auth::user();
-        
-        if ($currentUser->user_type_id == UserType::SUPER_ADMIN_TYPE) {
-            // Super admin sees all admin users (user_type_id = 2, vendor_id = null)
-            $query->where('user_type_id', UserType::ADMIN_TYPE)
-                  ->whereNull('vendor_id');
-        } elseif ($currentUser->user_type_id == UserType::VENDOR_TYPE) {
-            // Vendor sees only users they created (with their vendor_id)
-            $query->where('vendor_id', $currentUser->id);
-        } else {
-            // Other user types shouldn't access this
-            $query->whereRaw('1 = 0'); // Return empty result
-        }
-
-        // Search filter
-        if (!empty($filters['search'])) {
-            $searchTerm = $filters['search'];
-            $query->where(function ($q) use ($searchTerm) {
-                $q->whereHas('translations', function ($query) use ($searchTerm) {
-                    $query->where('lang_key', 'name')
-                        ->where('lang_value', 'like', '%' . $searchTerm . '%');
-                })
-                ->orWhere('email', 'like', '%' . $searchTerm . '%');
-            });
-        }
-
-        // Active status filter
-        if (isset($filters['active']) && $filters['active'] !== '') {
-            $query->where('active', $filters['active']);
-        }
-
-        // Role filter
-        if (!empty($filters['role_id'])) {
-            $query->whereHas('roles', function ($q) use ($filters) {
-                $q->where('roles.id', $filters['role_id']);
-            });
-        }
-
-        // Date range filter
-        if (!empty($filters['created_date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['created_date_from']);
-        }
-        
-        if (!empty($filters['created_date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['created_date_to']);
-        }
-
-        // Apply sorting
-        if ($orderBy) {
-            if (is_array($orderBy) && isset($orderBy['lang_id'])) {
-                // Sort by translation
-                $languageId = $orderBy['lang_id'];
-                $query->leftJoin('translations', function ($join) use ($languageId) {
-                    $join->on('users.id', '=', 'translations.translatable_id')
-                        ->where('translations.translatable_type', '=', User::class)
-                        ->where('translations.lang_id', '=', $languageId)
-                        ->where('translations.lang_key', '=', 'name');
-                })
-                ->select('users.*')
-                ->orderBy('translations.lang_value', $orderDirection);
-            } else {
-                // Sort by regular column
-                $query->orderBy($orderBy, $orderDirection);
-            }
-        } else {
-            $query->latest();
-        }
-
+        $query = User::with(['roles', 'translations'])->filter($filters);
         return $query;
     }
 
@@ -118,6 +48,10 @@ class AdminRepository
                 // Vendor creates vendor users
                 $userTypeId = UserType::VENDOR_USER_TYPE;
                 $vendorId = $currentUser->id;
+            } else if($currentUser->user_type_id == UserType::ADMIN_TYPE) {
+                // Admin creates system admins
+                $userTypeId = UserType::ADMIN_TYPE;
+                $vendorId = null;
             } else {
                 throw new \Exception('Unauthorized to create users');
             }

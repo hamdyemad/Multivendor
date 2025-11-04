@@ -36,5 +36,6 @@ Route::get('/lang/{lang}',[ LanguageController::class,'switchLang'])->name('swit
 // Permession Reset
 Route::get('/permissions/reset', function() {
     permessions_reset();
+    roles_reset();
     return "done";
 });

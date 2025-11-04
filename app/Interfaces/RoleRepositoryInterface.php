@@ -48,4 +48,7 @@ interface RoleRepositoryInterface
      * Set translation for a role
      */
     public function setTranslation(Role $role, string $key, string $value, string $locale): void;
+
+
+    public function getVendorRole();
 }

@@ -24,14 +24,10 @@ class UpdateRoleRequest extends FormRequest
     {
         $rules = [
             'permissions' => 'nullable|array',
-            'permissions.*' => 'exists:permessions,id'
+            'permissions.*' => 'exists:permessions,id',
+            'translations' => 'required|array',
+            'translations.*.name' => 'required|string|max:255'
         ];
-
-        // Add dynamic validation rules for each language
-        $languages = Language::all();
-        foreach ($languages as $language) {
-            $rules['name_' . $language->code] = 'required|string|max:255';
-        }
 
         return $rules;
     }
@@ -43,12 +39,9 @@ class UpdateRoleRequest extends FormRequest
      */
     public function attributes(): array
     {
-        $attributes = [];
-        
-        $languages = Language::all();
-        foreach ($languages as $language) {
-            $attributes['name_' . $language->code] = __('Role Name') . ' (' . $language->name . ')';
-        }
+        $attributes = [
+            'translations.*.name' => __('Role Name')
+        ];
 
         return $attributes;
     }

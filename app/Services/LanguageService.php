@@ -19,4 +19,9 @@ class LanguageService
     {
         return $this->languageRepository->getAll();
     }
+
+    public function getById(int $id): ?Language
+    {
+        return $this->languageRepository->getById($id);
+    }
 }

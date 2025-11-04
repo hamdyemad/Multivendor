@@ -20,48 +20,12 @@ class RoleRepository implements RoleRepositoryInterface
      */
     public function getAll($filter = [], $per_page = 10)
     {
-        $query = Role::latest();
-        
-        if(isset($filter['with'])) {
-            $query->with($filter['with']);
-        }
-        
-        if(isset($filter['search']) && !empty($filter['search'])) {
-            $query->whereHas('translations', function($query) use ($filter) {
-                $query->where('lang_value', 'like', '%' . $filter['search'] . '%');
-            });
-        }
-
-        // Apply date range filter
-        if (isset($filter['created_date_from']) && !empty($filter['created_date_from'])) {
-            $query->whereDate('created_at', '>=', $filter['created_date_from']);
-        }
-        if (isset($filter['created_date_to']) && !empty($filter['created_date_to'])) {
-            $query->whereDate('created_at', '<=', $filter['created_date_to']);
-        }
-        
+        $query = Role::filter($filter)->latest();
         return $query->paginate($per_page);
     }
 
     public function getRolesQuery($filter = []) {
-        $query = Role::latest();
-        if(isset($filter['with'])) {
-            $query->with($filter['with']);
-        }
-        if(isset($filter['search']) && !empty($filter['search'])) {
-            $query->whereHas('translations', function($query) use ($filter) {
-                $query->where('lang_value', 'like', '%' . $filter['search'] . '%');
-            });
-        }
-
-        // Apply date range filter
-        if (isset($filter['created_date_from']) && !empty($filter['created_date_from'])) {
-            $query->whereDate('created_at', '>=', $filter['created_date_from']);
-        }
-        if (isset($filter['created_date_to']) && !empty($filter['created_date_to'])) {
-            $query->whereDate('created_at', '<=', $filter['created_date_to']);
-        }
-
+        $query = Role::filter($filter)->latest();
         return $query;
     }
 
@@ -92,17 +56,24 @@ class RoleRepository implements RoleRepositoryInterface
      */
     public function create(array $data)
     {
-        // Get all languages
-        $languages = $this->languageService->getAll();
-        $role = Role::create($data);
+        // Create role with type
+        $role = Role::create([
+            'type' => $data['type'] ?? 'other'
+        ]);
+        
         // Add translations for all languages
-        foreach ($languages as $language) {
-            if (isset($data['name_' . $language->code]) && !empty($data['name_' . $language->code])) {
-                $role->setTranslation(
-                    'name',
-                    $language->code,
-                    $data['name_' . $language->code]
-                );
+        if (isset($data['translations']) && is_array($data['translations'])) {
+            foreach ($data['translations'] as $languageId => $fields) {
+                // Get language
+                $language = $this->languageService->getById($languageId);
+                if (!$language) {
+                    continue;
+                }
+                
+                // Store name translation
+                if (!empty($fields['name'])) {
+                    $role->setTranslation('name', $language->code, $fields['name']);
+                }
             }
         }
 
@@ -110,8 +81,8 @@ class RoleRepository implements RoleRepositoryInterface
         if (isset($data['permissions']) && is_array($data['permissions'])) {
             $this->syncPermissions($role, $data['permissions']);
         }
+        
         return $role;
-
     }
 
     /**
@@ -167,5 +138,10 @@ class RoleRepository implements RoleRepositoryInterface
     public function setTranslation(Role $role, string $key, string $value, string $locale): void
     {
         $role->setTranslation($key, $value, $locale);
+    }
+
+    public function getVendorRole()
+    {
+        return Role::where('type', Role::$VENDOR_ROLE_TYPE)->first();
     }
 }

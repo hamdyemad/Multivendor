@@ -47,7 +47,7 @@
                                 @foreach($languages as $language)
                                     <div class="col-md-6 mb-25">
                                         <div class="form-group">
-                                            <label for="name_{{ $language->code }}" class="il-gray fs-14 fw-500 align-center mb-10" @if($language->code == 'ar') dir="rtl" @endif>
+                                            <label for="name_{{ $language->id }}" class="il-gray fs-14 fw-500 align-center mb-10" @if($language->code == 'ar') dir="rtl" @endif>
                                                 @if($language->code == 'ar')
                                                     اسم الدور ({{ $language->name }}) <span class="text-danger">*</span>
                                                 @else
@@ -55,14 +55,14 @@
                                                 @endif
                                             </label>
                                             <input type="text" 
-                                                   class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('name_' . $language->code) is-invalid @enderror" 
-                                                   id="name_{{ $language->code }}" 
-                                                   name="name_{{ $language->code }}"  
-                                                   value="{{ isset($role) ? ($role->getTranslation('name', $language->code) ?? '') : old('name_' . $language->code) }}"
+                                                   class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('translations.' . $language->id . '.name') is-invalid @enderror" 
+                                                   id="name_{{ $language->id }}" 
+                                                   name="translations[{{ $language->id }}][name]"  
+                                                   value="{{ isset($role) ? ($role->getTranslation('name', $language->code) ?? '') : old('translations.' . $language->id . '.name') }}"
                                                    placeholder="@if($language->code == 'ar')أدخل اسم الدور بالعربية@else{{ __('roles.enter_role_name_in') }} {{ $language->name }}@endif"
                                                    @if($language->code == 'ar') dir="rtl" @endif
                                                    >
-                                            @error('name_' . $language->code)
+                                            @error('translations.' . $language->id . '.name')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>

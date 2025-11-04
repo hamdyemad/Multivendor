@@ -5,7 +5,9 @@ namespace App\Actions;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Interfaces\UserInterface;
 use App\Mail\ResetPasswordMail;
+use App\Models\Role;
 use App\Models\User;
+use App\Models\UserType;
 use App\Services\LanguageService;
 use App\Traits\Res;
 use Carbon\Carbon;
@@ -92,8 +94,25 @@ class RoleAction {
         // Apply pagination
         $perPage = $data['length'];
         $page = $data['page'];
-        $roles = $query->with(['permessions', 'translations'])->paginate($perPage, ['*'], 'page', $page);
 
+        // Start Permessions for roles
+        switch (auth()->user()->user_type->id) {
+            case UserType::SUPER_ADMIN_TYPE:
+                $query->superAdminShowRoles();
+                break;
+            case UserType::ADMIN_TYPE:
+                $query->adminShowRoles();
+                break;
+            case UserType::VENDOR_TYPE:
+                $query->vendorShowRoles();
+                break;
+            case UserType::VENDOR_USER_TYPE:
+                $query->otherShowRoles();
+                break;
+        }
+        // End Permessions for roles
+
+        $roles = $query->with(['permessions', 'translations'])->paginate($perPage, ['*'], 'page', $page);
         // Return raw data - rendering will be handled by DataTables in the view
         $data = [];
         foreach ($roles as $index => $role) {

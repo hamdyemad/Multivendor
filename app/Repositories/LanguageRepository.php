@@ -15,4 +15,9 @@ class LanguageRepository implements LanguageRepositoryInterface
     {
         return Language::orderBy('id')->get();
     }
+
+    public function getById(int $id): ?Language
+    {
+        return Language::find($id);
+    }
 }

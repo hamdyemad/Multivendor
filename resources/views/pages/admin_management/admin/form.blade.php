@@ -89,7 +89,7 @@
                                             {{ __('admin.roles') }} 
                                             <span class="text-danger">*</span>
                                         </label>
-                                        <select class="form-control select2-multiple" id="role_ids" name="role_ids[]" multiple="multiple">
+                                        <select class="form-control select2" id="role_ids" name="role_ids[]" multiple="multiple">
                                             @foreach($roles as $role)
                                                 <option value="{{ $role->id }}" 
                                                     {{ (is_array(old('role_ids')) && in_array($role->id, old('role_ids'))) || (isset($admin) && $admin->roles->contains($role->id)) ? 'selected' : '' }}>

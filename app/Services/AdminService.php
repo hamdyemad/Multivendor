@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\AdminManagement;
+namespace App\Services;
 
-use App\Repositories\AdminManagement\AdminRepository;
+use App\Repositories\AdminRepository;
 
 class AdminService
 {
@@ -10,9 +10,9 @@ class AdminService
     {
     }
 
-    public function getAdminsQuery(array $filters = [], $orderBy = null, string $orderDirection = 'desc')
+    public function getAdminsQuery(array $filters = [])
     {
-        return $this->adminRepository->getAdminsQuery($filters, $orderBy, $orderDirection);
+        return $this->adminRepository->getAdminsQuery($filters);
     }
 
     public function getAdminById(int $id)

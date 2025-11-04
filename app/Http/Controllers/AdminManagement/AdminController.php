@@ -4,11 +4,10 @@ namespace App\Http\Controllers\AdminManagement;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AdminManagement\AdminRequest;
-use App\Services\AdminManagement\AdminService;
+use App\Services\AdminService;
 use App\Services\LanguageService;
 use App\Services\RoleService;
-use App\Actions\AdminManagement\AdminAction;
-use App\Models\User;
+use App\Actions\AdminAction;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller

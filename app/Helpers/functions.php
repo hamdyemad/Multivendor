@@ -2,6 +2,9 @@
 
 use App\Models\Language;
 use App\Models\Permession;
+use App\Models\Role;
+use App\Models\User;
+use App\Models\UserType;
 
 /**
  * Get Status Meta
@@ -121,15 +124,15 @@ function permessions_reset()
             'name' => ['en' => 'View Departments', 'ar' => 'عرض الأقسام'],
             'group_by' => ['en' => 'Catalog Management', 'ar' => 'إدارة الكتالوج'],
         ]],
-        ['key' => 'departments.create', 'translations' => [
+        ['key' => 'departments.create', 'type' => 'admin', 'translations' => [
             'name' => ['en' => 'Create Department', 'ar' => 'إنشاء قسم'],
             'group_by' => ['en' => 'Catalog Management', 'ar' => 'إدارة الكتالوج'],
         ]],
-        ['key' => 'departments.edit', 'translations' => [
+        ['key' => 'departments.edit', 'type' => 'admin', 'translations' => [
             'name' => ['en' => 'Edit Department', 'ar' => 'تعديل قسم'],
             'group_by' => ['en' => 'Catalog Management', 'ar' => 'إدارة الكتالوج'],
         ]],
-        ['key' => 'departments.delete', 'translations' => [
+        ['key' => 'departments.delete', 'type' => 'admin', 'translations' => [
             'name' => ['en' => 'Delete Department', 'ar' => 'حذف قسم'],
             'group_by' => ['en' => 'Catalog Management', 'ar' => 'إدارة الكتالوج'],
         ]],
@@ -144,15 +147,15 @@ function permessions_reset()
             'name' => ['en' => 'View Main Categories', 'ar' => 'عرض الأقسام الرئيسية'],
             'group_by' => ['en' => 'Catalog Management', 'ar' => 'إدارة الكتالوج'],
         ]],
-        ['key' => 'categories.create', 'translations' => [
+        ['key' => 'categories.create', 'type' => 'admin', 'translations' => [
             'name' => ['en' => 'Create Main Category', 'ar' => 'إنشاء قسم رئيسية'],
             'group_by' => ['en' => 'Catalog Management', 'ar' => 'إدارة الكتالوج'],
         ]],
-        ['key' => 'categories.edit', 'translations' => [
+        ['key' => 'categories.edit', 'type' => 'admin', 'translations' => [
             'name' => ['en' => 'Edit Main Category', 'ar' => 'تعديل قسم رئيسية'],
             'group_by' => ['en' => 'Catalog Management', 'ar' => 'إدارة الكتالوج'],
         ]],
-        ['key' => 'categories.delete', 'translations' => [
+        ['key' => 'categories.delete', 'type' => 'admin', 'translations' => [
             'name' => ['en' => 'Delete Main Category', 'ar' => 'حذف قسم رئيسية'],
             'group_by' => ['en' => 'Catalog Management', 'ar' => 'إدارة الكتالوج'],
         ]],
@@ -168,15 +171,15 @@ function permessions_reset()
             'name' => ['en' => 'View Sub Categories', 'ar' => 'عرض الأقسام الفرعية'],
             'group_by' => ['en' => 'Catalog Management', 'ar' => 'إدارة الكتالوج'],
         ]],
-        ['key' => 'sub_categories.create', 'translations' => [
+        ['key' => 'sub_categories.create', 'type' => 'admin', 'translations' => [
             'name' => ['en' => 'Create Sub Category', 'ar' => 'إنشاء قسم فرعي'],
             'group_by' => ['en' => 'Catalog Management', 'ar' => 'إدارة الكتالوج'],
         ]],
-        ['key' => 'sub_categories.edit', 'translations' => [
+        ['key' => 'sub_categories.edit', 'type' => 'admin', 'translations' => [
             'name' => ['en' => 'Edit Sub Category', 'ar' => 'تعديل قسم فرعي'],
             'group_by' => ['en' => 'Catalog Management', 'ar' => 'إدارة الكتالوج'],
         ]],
-        ['key' => 'sub_categories.delete', 'translations' => [
+        ['key' => 'sub_categories.delete', 'type' => 'admin', 'translations' => [
             'name' => ['en' => 'Delete Sub Category', 'ar' => 'حذف قسم فرعي'],
             'group_by' => ['en' => 'Catalog Management', 'ar' => 'إدارة الكتالوج'],
         ]],
@@ -242,15 +245,15 @@ function permessions_reset()
             'name' => ['en' => 'View Taxes', 'ar' => 'عرض الضرائب'],
             'group_by' => ['en' => 'Taxes', 'ar' => 'ضرائب'],
         ]],
-        ['key' => 'taxes.create', 'translations' => [
+        ['key' => 'taxes.create', 'type' => 'admin', 'translations' => [
             'name' => ['en' => 'Create Tax', 'ar' => 'إنشاء ضريبة'],
             'group_by' => ['en' => 'Taxes', 'ar' => 'ضرائب'],
         ]],
-        ['key' => 'taxes.edit', 'translations' => [
+        ['key' => 'taxes.edit', 'type' => 'admin', 'translations' => [
             'name' => ['en' => 'Edit Tax', 'ar' => 'تعديل ضريبة'],
             'group_by' => ['en' => 'Taxes', 'ar' => 'ضرائب'],
         ]],
-        ['key' => 'taxes.delete', 'translations' => [
+        ['key' => 'taxes.delete', 'type' => 'admin', 'translations' => [
             'name' => ['en' => 'Delete Tax', 'ar' => 'حذف ضريبة'],
             'group_by' => ['en' => 'Taxes', 'ar' => 'ضرائب'],
         ]],
@@ -836,8 +839,9 @@ function permessions_reset()
     }
 }
 
-function permession_maker($key, $type = 'other', $translations = []) {
-        // Get languages
+function permession_maker($key, $type = 'other', $translations = [])
+{
+    // Get languages
     $languages = Language::whereIn('code', ['en', 'ar'])->get()->keyBy('code');
 
     $permession = Permession::query()->where('key', $key)->first();
@@ -865,6 +869,61 @@ function permession_maker($key, $type = 'other', $translations = []) {
             foreach ($permissionData['translations']['group_by'] as $locale => $value) {
                 $permission->setTranslation('group_by', $locale, $value);
             }
+        }
+    }
+}
+
+function roles_reset()
+{
+    // Get languages
+    $languages = Language::whereIn('code', ['en', 'ar'])->get()->keyBy('code');
+
+    Role::query()->forceDelete();
+
+    // Define roles with translations
+    $rolesData = [
+        [
+            'type' => 'super_admin',
+            'translations' => [
+                'name' => ['en' => 'Super Admin Eramo', 'ar' => 'سوبر ادمن ايرامو'],
+            ]
+        ],
+        [
+            'type' => 'vendor',
+            'translations' => [
+                'name' => ['en' => 'Vendor', 'ar' => 'تاجر'],
+            ],
+        ],
+    ];
+
+    foreach ($rolesData as $roleData) {
+        // Create or update the role
+        $role = Role::create([
+            'type' => $roleData['type']
+        ]);
+
+        // Add translations if available and languages exist
+        if ($languages->isNotEmpty() && isset($roleData['translations'])) {
+            foreach ($roleData['translations']['name'] as $locale => $value) {
+                $role->setTranslation('name', $locale, $value);
+            }
+        }
+
+        // Assign permissions based on role type
+        if (isset($roleData['type']) && $roleData['type'] == 'super_admin') {
+            // Super admin gets all permissions
+            $permissions = Permession::all();
+            $role->permessions()->sync($permissions->pluck('id'));
+
+            // Assign role to super admin user
+            $super_admin = User::where('user_type_id', UserType::SUPER_ADMIN_TYPE)->first();
+            if ($super_admin) {
+                $super_admin->roles()->sync([$role->id]);
+            }
+        } else if ($roleData['type'] == 'vendor') {
+            // Vendor gets other permissions
+            $permissions = Permession::where('type', 'other')->get();
+            $role->permessions()->sync($permissions->pluck('id'));
         }
     }
 }

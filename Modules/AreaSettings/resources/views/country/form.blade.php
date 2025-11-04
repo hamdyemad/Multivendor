@@ -52,8 +52,8 @@
                                 @foreach($languages as $language)
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="name_{{ $language->id }}" class="form-label">{{ __('areasettings::country.name_' . ($language->code == 'ar' ? 'ar' : 'en')) }} <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="name_{{ $language->id }}" name="translations[{{ $language->id }}][name]" value="{{ old('translations.' . $language->id . '.name', isset($country) ? $country->translations->where('lang_id', $language->id)->first()->lang_value ?? '' : '') }}">
+                                            <label for="name_{{ $language->id }}" class="form-label w-100" @if($language->code == 'ar') dir="rtl" @endif>{{ __('areasettings::country.name_' . ($language->code == 'ar' ? 'ar' : 'en')) }} <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="name_{{ $language->id }}" @if($language->code == 'ar') dir="rtl" @endif name="translations[{{ $language->id }}][name]" value="{{ old('translations.' . $language->id . '.name', isset($country) ? $country->translations->where('lang_id', $language->id)->first()->lang_value ?? '' : '') }}">
                                             @error('translations.' . $language->id . '.name')
                                                 <div class="text-danger small mt-1">{{ $message }}</div>
                                             @enderror

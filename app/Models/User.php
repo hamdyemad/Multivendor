@@ -9,7 +9,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\HasApiTokens;
+use Modules\Vendor\app\Models\Vendor;
 
 class User extends Authenticatable
 {
@@ -92,6 +94,10 @@ class User extends Authenticatable
         return false;
     }
 
+    public function vendor() {
+        return $this->hasOne(Vendor::class, 'user_id');
+    }
+
 
     public function scopeActive(Builder $builder) {
         $builder->where('active', 1);
@@ -104,5 +110,54 @@ class User extends Authenticatable
     }
     public function scopeUnBlocked(Builder $builder) {
         $builder->where('block', 0);
+    }
+
+    public function scopeSuperAdminShow($query) {
+        return $query->whereIn('user_type_id', [UserType::ADMIN_TYPE, UserType::VENDOR_USER_TYPE]);
+    }
+    public function scopeAdminShow($query) {
+        return $query->whereIn('user_type_id', [UserType::ADMIN_TYPE, UserType::VENDOR_USER_TYPE]);
+    }
+    public function scopeVendorShow($query) {
+        return $query->whereIn('user_type_id', [UserType::VENDOR_USER_TYPE]);
+    }
+    public function scopeOtherShow($query) {
+        return $query->whereIn('user_type_id', [UserType::VENDOR_USER_TYPE]);
+    }
+
+
+    public function scopeFilter(Builder $query, array $filters) {
+        // Search filter
+        if (!empty($filters['search'])) {
+            $searchTerm = $filters['search'];
+            $query->where(function ($q) use ($searchTerm) {
+                $q->whereHas('translations', function ($query) use ($searchTerm) {
+                    $query->where('lang_key', 'name')
+                        ->where('lang_value', 'like', '%' . $searchTerm . '%');
+                })
+                ->orWhere('email', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        // Active status filter
+        if (isset($filters['active']) && $filters['active'] !== '') {
+            $query->where('active', $filters['active']);
+        }
+
+        // Role filter
+        if (!empty($filters['role_id'])) {
+            $query->whereHas('roles', function ($q) use ($filters) {
+                $q->where('roles.id', $filters['role_id']);
+            });
+        }
+
+        // Date range filter
+        if (!empty($filters['created_date_from'])) {
+            $query->whereDate('created_at', '>=', $filters['created_date_from']);
+        }
+        
+        if (!empty($filters['created_date_to'])) {
+            $query->whereDate('created_at', '<=', $filters['created_date_to']);
+        }
     }
 }

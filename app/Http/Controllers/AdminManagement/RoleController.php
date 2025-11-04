@@ -23,6 +23,11 @@ class RoleController extends Controller
         protected RoleAction $roleAction, 
         protected LanguageService $languageService)
     {
+        $this->middleware('can:roles.index')->only(['index']);
+        $this->middleware('can:roles.show')->only(['show']);
+        $this->middleware('can:roles.create')->only(['create', 'store']);
+        $this->middleware('can:roles.edit')->only(['edit', 'update']);
+        $this->middleware('can:roles.delete')->only(['destroy']);
     }
 
     /**
@@ -86,9 +91,15 @@ class RoleController extends Controller
 
         // Check if AJAX request
         if ($request->ajax() || $request->wantsJson()) {
-            return $this->sendRes(__('Role created successfully'), route('admin.admin-management.roles.index'));
-            
+            return response()->json([
+                'success' => true,
+                'message' => __('Role created successfully'),
+                'redirect' => route('admin.admin-management.roles.index')
+            ]);
         }
+
+        return redirect()->route('admin.admin-management.roles.index')
+                        ->with('success', __('Role created successfully'));
     }
 
     /**

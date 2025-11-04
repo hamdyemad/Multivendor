@@ -11,6 +11,12 @@ class Role extends Model
     use Translation, SoftDeletes;
     
     protected $guarded = [];
+
+    
+    public static $SUPER_ADMIN_ROLE_TYPE = 'super_admin';
+    public static $ADMIN_ROLE_TYPE = 'admin';
+    public static $VENDOR_ROLE_TYPE = 'vendor';
+    public static $OTHER_ROLE_TYPE = 'other';
     
     /**
      * The attributes that are translatable.
@@ -37,5 +43,40 @@ class Role extends Model
     {
         return $this->belongsToMany(Permession::class, 'role_permession', 'role_id', 'permession_id')
                     ->withTimestamps();
+    }
+
+    public function scopeSuperAdminShowRoles($query) {
+        return $query->whereIn('type', [Role::$ADMIN_ROLE_TYPE, Role::$VENDOR_ROLE_TYPE, Role::$OTHER_ROLE_TYPE]);
+    }
+    public function scopeAdminShowRoles($query) {
+        return $query->whereIn('type', [Role::$ADMIN_ROLE_TYPE,Role::$VENDOR_ROLE_TYPE, Role::$OTHER_ROLE_TYPE]);
+    }
+    public function scopeVendorShowRoles($query) {
+        return $query->whereIn('type', [Role::$OTHER_ROLE_TYPE]);
+    }
+    public function scopeOtherShowRoles($query) {
+        return $query->whereIn('type', [Role::$OTHER_ROLE_TYPE]);
+    }
+
+
+    public function scopeFilter($query, $filter = []) {
+        if(isset($filter['with'])) {
+            $query->with($filter['with']);
+        }
+        
+        if(isset($filter['search']) && !empty($filter['search'])) {
+            $query->whereHas('translations', function($query) use ($filter) {
+                $query->where('lang_value', 'like', '%' . $filter['search'] . '%');
+            });
+        }
+
+        // Apply date range filter
+        if (isset($filter['created_date_from']) && !empty($filter['created_date_from'])) {
+            $query->whereDate('created_at', '>=', $filter['created_date_from']);
+        }
+        if (isset($filter['created_date_to']) && !empty($filter['created_date_to'])) {
+            $query->whereDate('created_at', '<=', $filter['created_date_to']);
+        }
+        return $query;
     }
 }

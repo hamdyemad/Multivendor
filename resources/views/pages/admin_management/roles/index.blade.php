@@ -21,11 +21,13 @@
                 <div class="userDatatable global-shadow border-light-0 p-30 bg-white radius-xl w-100 mb-30">
                     <div class="d-flex justify-content-between align-items-center mb-25">
                         <h4 class="mb-0 fw-500">{{ trans('roles.roles_management') }}</h4>
+                        @can('roles.create')
                         <div class="d-flex gap-2">
                             <a href="{{ route('admin.admin-management.roles.create') }}" class="btn btn-primary btn-default btn-squared text-capitalize">
                                 <i class="uil uil-plus"></i> {{ trans('roles.create_role') }}
                             </a>
                         </div>
+                        @endcan
                     </div>
 
                     <!-- Filters Section -->
@@ -265,16 +267,21 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     return `
                         <ul class="orderDatatable_actions mb-0 d-flex flex-wrap justify-content-start">
+                            @can('roles.show')
                             <li>
                                 <a href="{{ url('admin/admin-management/roles') }}/${row.id}" class="view" title="{{ trans('common.view') }}">
                                     <i class="uil uil-eye"></i>
                                 </a>
                             </li>
+                            @endcan
+                            @can('roles.edit')
                             <li>
                                 <a href="{{ url('admin/admin-management/roles') }}/${row.id}/edit" class="edit" title="{{ trans('common.edit') }}">
                                     <i class="uil uil-edit"></i>
                                 </a>
                             </li>
+                            @endcan
+                            @can('roles.delete')
                             <li>
                                 <a href="javascript:void(0);" 
                                    class="remove" 
@@ -286,6 +293,7 @@ $(document).ready(function() {
                                     <i class="uil uil-trash-alt"></i>
                                 </a>
                             </li>
+                            @endcan
                         </ul>`;
                 }
             }

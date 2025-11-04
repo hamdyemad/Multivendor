@@ -184,8 +184,8 @@ class RoleService
      * Create a new role
      */
     public function createRole(array $data)
-    {
-        return $this->roleRepositoryInterface->create([]);
+    {        
+        return $this->roleRepositoryInterface->create($data);
     }
 
     /**
@@ -232,5 +232,10 @@ class RoleService
         $remainingPermissions = array_diff($currentPermissions, $permissionIds);
         
         $this->roleRepositoryInterface->syncPermissions($role, $remainingPermissions);
+    }
+
+    public function getVendorRole(): Role
+    {
+        return $this->roleRepositoryInterface->getVendorRole();
     }
 }

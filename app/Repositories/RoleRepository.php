@@ -5,6 +5,8 @@ namespace App\Repositories;
 use App\Interfaces\RoleRepositoryInterface;
 use App\Models\Permession;
 use App\Models\Role;
+use App\Models\User;
+use App\Models\UserType;
 use App\Services\LanguageService;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -21,7 +23,14 @@ class RoleRepository implements RoleRepositoryInterface
     public function getAll($filter = [], $per_page = 10)
     {
         $query = Role::filter($filter)->latest();
-        return $query->paginate($per_page);
+        if(auth()->user()->user_type_id == UserType::SUPER_ADMIN_TYPE) {
+            $query->superAdminShowRoles();
+        } else if(auth()->user()->user_type_id == UserType::ADMIN_TYPE) {
+            $query->adminShowRoles();
+        } else if(in_array(auth()->user()->user_type_id, [UserType::VENDOR_TYPE, UserType::VENDOR_USER_TYPE])) {
+            $query->vendorShowRoles();
+        }
+        return $per_page = 0 ? $query->get() : $query->paginate($per_page);
     }
 
     public function getRolesQuery($filter = []) {
@@ -35,7 +44,13 @@ class RoleRepository implements RoleRepositoryInterface
     public function getGroupedPermissions(): Collection
     {
         // Load permissions with their translations
-        $permissions = Permession::with('translations')->get();
+        $permissions = Permession::with('translations');
+        if(auth()->user()->user_type_id == UserType::SUPER_ADMIN_TYPE) {
+            $permissions = $permissions->get();
+        } else if(auth()->user()->user_type_id == UserType::VENDOR_TYPE) {
+            $permissions = $permissions->where('type', 'other');
+        }
+        $permissions = $permissions->get();
         // Group by translated group_by field
         return $permissions->groupBy(function($permission) {
             return $permission->getTranslation('group_by', app()->getLocale()) ?? 'Other';

@@ -1,7 +1,7 @@
 <div class="col-xxl-8 mb-25">
     <div class="card border-0 px-25">
         <div class="card-header px-0 border-0">
-            <h6>Top Selling Products</h6>
+            <h6>{{ trans('dashboard.top_selling_products') }}</h6>
         </div>
         <div class="card-body p-0">
             <div class="selling-table-wrap">
@@ -10,11 +10,11 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Product Name</th>
-                                <th>Sold Count</th>
-                                <th>Price</th>
-                                <th>Total</th>
-                                <th>Actions</th>
+                                <th>{{ trans('dashboard.product_name') }}</th>
+                                <th>{{ trans('dashboard.sold_count') }}</th>
+                                <th>{{ trans('dashboard.price') }}</th>
+                                <th>{{ trans('dashboard.total') }}</th>
+                                <th>{{ trans('dashboard.actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -30,7 +30,7 @@
                                 <td>
                                     <a href="#" class="btn btn-sm btn-light">
                                         <i class="uil uil-eye"></i>
-                                        <span>Show</span>
+                                        <span>{{ trans('dashboard.show') }}</span>
                                     </a>
                                 </td>
                             </tr>
@@ -46,7 +46,7 @@
                                 <td>
                                     <a href="#" class="btn btn-sm btn-light">
                                         <i class="uil uil-eye"></i>
-                                        <span>Show</span>
+                                        <span>{{ trans('dashboard.show') }}</span>
                                     </a>
                                 </td>
                             </tr>
@@ -62,7 +62,7 @@
                                 <td>
                                     <a href="#" class="btn btn-sm btn-light">
                                         <i class="uil uil-eye"></i>
-                                        <span>Show</span>
+                                        <span>{{ trans('dashboard.show') }}</span>
                                     </a>
                                 </td>
                             </tr>
@@ -78,7 +78,7 @@
                                 <td>
                                     <a href="#" class="btn btn-sm btn-light">
                                         <i class="uil uil-eye"></i>
-                                        <span>Show</span>
+                                        <span>{{ trans('dashboard.show') }}</span>
                                     </a>
                                 </td>
                             </tr>
@@ -94,7 +94,7 @@
                                 <td>
                                     <a href="#" class="btn btn-sm btn-light">
                                         <i class="uil uil-eye"></i>
-                                        <span>Show</span>
+                                        <span>{{ trans('dashboard.show') }}</span>
                                     </a>
                                 </td>
                             </tr>

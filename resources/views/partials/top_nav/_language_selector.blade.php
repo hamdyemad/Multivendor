@@ -32,7 +32,20 @@
                     @else
                         <img src="{{ asset('assets/img/eng.png') }}" alt="">
                     @endif
-                    {{ $lang->name }}
+                    
+                    @if($lang->code == 'ar')
+                        @if(app()->getLocale() == 'ar')
+                            عربى
+                        @else
+                            Arabic
+                        @endif
+                    @else
+                        @if(app()->getLocale() == 'ar')
+                            انجليزي
+                        @else
+                            English
+                        @endif
+                    @endif
                 </a>
             @endforeach
         </div>

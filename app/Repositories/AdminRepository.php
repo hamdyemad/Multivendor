@@ -44,15 +44,15 @@ class AdminRepository
                 // Super admin creates system admins
                 $userTypeId = UserType::ADMIN_TYPE;
                 $vendorId = null;
-            } elseif ($currentUser->user_type_id == UserType::VENDOR_TYPE) {
-                // Vendor creates vendor users
-                $userTypeId = UserType::VENDOR_USER_TYPE;
-                $vendorId = $currentUser->id;
-            } else if($currentUser->user_type_id == UserType::ADMIN_TYPE) {
+            }  else if($currentUser->user_type_id == UserType::ADMIN_TYPE) {
                 // Admin creates system admins
                 $userTypeId = UserType::ADMIN_TYPE;
                 $vendorId = null;
-            } else {
+            }  elseif ($currentUser->user_type_id == UserType::VENDOR_TYPE) {
+                // Vendor creates vendor users
+                $userTypeId = UserType::VENDOR_USER_TYPE;
+                $vendorId = $currentUser->id;
+            }else {
                 throw new \Exception('Unauthorized to create users');
             }
             

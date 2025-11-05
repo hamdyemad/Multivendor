@@ -82,6 +82,8 @@ class RoleController extends Controller
     {
         $languages = $this->languageService->getAll();
         $groupedPermissions = $this->roleService->getGroupedPermissions();
+        // return auth()->user()->roles;
+        // return $groupedPermissions;
         $data = [
             'languages' => $languages,
             'groupedPermissions' => $groupedPermissions,

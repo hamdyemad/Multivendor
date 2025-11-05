@@ -1,7 +1,7 @@
 <div class="col-xxl-8 mb-25">
     <div class="card border-0 px-25">
         <div class="card-header px-0 border-0">
-            <h6>Recent Activities</h6>
+            <h6>{{ trans('dashboard.recent_activities') }}</h6>
         </div>
         <div class="card-body p-0">
             <div class="selling-table-wrap">
@@ -10,9 +10,9 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Employee</th>
-                                <th>Activity</th>
-                                <th>Activity Date</th>
+                                <th>{{ trans('dashboard.employee') }}</th>
+                                <th>{{ trans('dashboard.activity') }}</th>
+                                <th>{{ trans('dashboard.activity_date') }}</th>
                             </tr>
                         </thead>
                         <tbody>

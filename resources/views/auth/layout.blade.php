@@ -11,7 +11,8 @@
     <link rel="stylesheet" href="{{ asset('assets/css/variables.css') }}">
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v3.0.0/css/line.css">
     <link rel="stylesheet" href="{{ asset('css/plugins/toastr.min.css') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/logo.ico') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/favicon-bnaia.png') }}">
+
     <style>
         :root {
             --color-primary: #0056B7;

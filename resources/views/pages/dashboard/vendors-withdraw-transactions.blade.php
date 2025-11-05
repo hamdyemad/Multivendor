@@ -1,7 +1,7 @@
 <div class="col-12">
     <div class="card mb-2">
-        <div class="card-body">
-            Vendors Withdraw Transactions
+        <div class="card-body fw-bold">
+            {{ trans('dashboard.vendors_withdraw_transactions') }}
         </div>
     </div>
     <div class="col-12">
@@ -12,7 +12,7 @@
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
                                 <h1>95,320.00 EGP</h1>
-                                <p>Total Vendors Balance</p>
+                                <p>{{ trans('dashboard.total_vendors_balance') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
                                 <div class="svg-icon order-bg-opacity-info color-info">
@@ -29,7 +29,7 @@
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
                                 <h1>58,750.00 EGP</h1>
-                                <p>Total Sent Money</p>
+                                <p>{{ trans('dashboard.total_sent_money') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
                                 <div class="svg-icon order-bg-opacity-primary color-primary">
@@ -46,7 +46,7 @@
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
                                 <h1>36,570.00 EGP</h1>
-                                <p>Total Remaining</p>
+                                <p>{{ trans('dashboard.total_remaining') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
                                 <div class="svg-icon order-bg-opacity-secondary color-secondary">

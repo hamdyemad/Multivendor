@@ -20,7 +20,7 @@
     @else
         <link rel="stylesheet" href="{{ asset('assets/css/style.min.css') }}">
     @endif
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/logo.ico') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/favicon-bnaia.png') }}">
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v3.0.0/css/line.css">
     <link rel="stylesheet" href="{{ asset('css/plugins/toastr.min.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">

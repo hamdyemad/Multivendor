@@ -41,7 +41,6 @@
         </div>
 
         <div class="row">
-            asdsa
             <div class="col-lg-12">
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white border-bottom py-20">

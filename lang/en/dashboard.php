@@ -14,11 +14,11 @@ return [
     'action' => 'Action',
     'another_action' => 'Another action',
     'something_else_here' => 'Something else here',
-    'sales overview this month' => 'Sales Overview This Month',
-    'orders and revenue statistics' => 'Orders and Revenue Statistics',
+    'sales_overview_this_month' => 'Sales Overview This Month',
+    'orders_and_revenue_statistics' => 'Orders and Revenue Statistics',
     'expenses' => 'Expenses',
     'income' => 'Income',
-    'net profit' => 'Net Profit',
+    'net_profit' => 'Net Profit',
     'revenue' => 'Revenue',
     'monthly_sales' => 'Monthly Sales',
     'monthly_earnings' => 'Monthly Earnings',
@@ -26,4 +26,94 @@ return [
     'today' => 'Today',
     'week' => 'Week',
     'month' => 'Month',
+    
+    // Withdraw Transactions
+    'withdraw_transactions' => 'Withdraw Transactions',
+    'total_money' => 'Total Money',
+    'bnaia_balance' => 'bnaia balance',
+    'vendors_balance' => 'Vendors Balance',
+    
+    // Vendors Withdraw Transactions
+    'vendors_withdraw_transactions' => 'Vendors Withdraw Transactions',
+    'total_vendors_balance' => 'Total Vendors Balance',
+    'total_sent_money' => 'Total Sent Money',
+    'total_remaining' => 'Total Remaining',
+    
+    // Sales Overview
+    'sales_overview' => 'Sales Overview',
+    
+    // Income & Expenses
+    'income_expense_daily' => 'Income & Expense Daily',
+    'income_expense_this_year' => 'Income & Expense this year',
+    
+    // Statistics Cards
+    'total_users' => 'Total Users',
+    'system_admins' => 'System Admins',
+    'total_vendors' => 'Total Vendors',
+    'become_vendor_requests' => 'Become Vendor Requests',
+    'accepted_vendors' => 'Accepted Vendors',
+    'rejected_vendors' => 'Rejected Vendors',
+    'new_vendors' => 'New Vendors',
+    'total_male_users' => 'Total Male Users',
+    'total_female_users' => 'Total Female Users',
+    'total_customers' => 'Total Customers',
+    'total_roles' => 'Total Roles',
+    'instock' => 'In Stock',
+    'out_of_stock' => 'Out of Stock',
+    'total_taxes' => 'Total Taxes',
+    'total_messages' => 'Total Messages',
+    'promocodes' => 'Promocodes',
+    'country' => 'Country',
+    'city' => 'City',
+    'region' => 'Region',
+    'subregion' => 'Subregion',
+    'total_offers' => 'Total Offers',
+    'all_products_reviews' => 'All Products Reviews',
+    'accept_products_reviews' => 'Accept Products Reviews',
+    'reject_products_reviews' => 'Reject Products Reviews',
+    'total_order_stages' => 'Total Order Stages',
+    'total_positions' => 'Total Positions',
+    'total_advertisments' => 'Total Advertisments',
+    
+    // Orders Overview
+    'orders_overview' => 'Orders Overview',
+    'new' => 'New',
+    'in_progress' => 'In Progress',
+    'delivered' => 'Delivered',
+    'cancelled' => 'Cancelled',
+    'want_to_return' => 'Want to Return',
+    'return_in_progress' => 'Return in Progress',
+    'refunded' => 'Refunded',
+    
+    // Top Selling Products
+    'top_selling_products' => 'Top Selling Products',
+    'product_name' => 'Product Name',
+    'sold_count' => 'Sold Count',
+    'price' => 'Price',
+    'total' => 'Total',
+    'actions' => 'Actions',
+    'show' => 'Show',
+    
+    // Latest Orders
+    'latest_orders' => 'Latest Orders',
+    'order_number' => 'Order Number',
+    'user' => 'User',
+    
+    // Best Customers
+    'best_customers' => 'Best Customers',
+    'name' => 'Name',
+    'orders_count' => 'Orders Count',
+    'joined_at' => 'Joined At',
+    
+    // Top Vendors
+    'top_vendors' => 'Top Vendors',
+    'vendor_name' => 'Vendor Name',
+    'commission' => 'Commission',
+    'total_selling' => 'Total Selling',
+    
+    // Recent Activities
+    'recent_activities' => 'Recent Activities',
+    'employee' => 'Employee',
+    'activity' => 'Activity',
+    'activity_date' => 'Activity Date',
 ];

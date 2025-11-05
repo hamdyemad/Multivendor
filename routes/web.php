@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\PaginationController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,6 +29,13 @@ Route::group(['prefix' => '/', 'middleware' => 'guest'], function() {
 });
 
 Route::post('/logout',[AuthController::class,'logout'])->name('logout')->middleware('auth');
+
+// Profile Routes
+Route::middleware('auth')->group(function() {
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+});
 
 Route::get('/lang/{lang}',[ LanguageController::class,'switchLang'])->name('switch_lang');
 // Route::get('/pagination-per-page/{per_page}',[ PaginationController::class,'set_pagination_per_page'])->name('pagination_per_page');

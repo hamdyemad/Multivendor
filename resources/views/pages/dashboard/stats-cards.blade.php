@@ -6,7 +6,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>98</h1>
-                            <p>total users</p>
+                            <p>{{ trans('dashboard.total_users') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-primary color-primary">
@@ -23,7 +23,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>9</h1>
-                            <p>system admins</p>
+                            <p>{{ trans('dashboard.system_admins') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-secondary color-secondary">
@@ -40,7 +40,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>20</h1>
-                            <p>total vendors</p>
+                            <p>{{ trans('dashboard.total_vendors') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-primary color-primary">
@@ -57,7 +57,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>6</h1>
-                            <p>become vendor requests</p>
+                            <p>{{ trans('dashboard.become_vendor_requests') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-secondary color-secondary">
@@ -74,7 +74,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>116</h1>
-                            <p>accepted vendors</p>
+                            <p>{{ trans('dashboard.accepted_vendors') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-primary color-primary">
@@ -91,7 +91,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>98</h1>
-                            <p>rejected vendors</p>
+                            <p>{{ trans('dashboard.rejected_vendors') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-secondary color-secondary">
@@ -108,7 +108,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>98</h1>
-                            <p>new vendors</p>
+                            <p>{{ trans('dashboard.new_vendors') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-primary color-primary">
@@ -125,7 +125,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>98</h1>
-                            <p>total male users</p>
+                            <p>{{ trans('dashboard.total_male_users') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-secondary color-secondary">
@@ -142,7 +142,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>12</h1>
-                            <p>total female users</p>
+                            <p>{{ trans('dashboard.total_female_users') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-primary color-primary">
@@ -159,7 +159,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>98</h1>
-                            <p>total customers</p>
+                            <p>{{ trans('dashboard.total_customers') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-secondary color-secondary">
@@ -176,7 +176,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>98</h1>
-                            <p>total roles</p>
+                            <p>{{ trans('dashboard.total_roles') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-primary color-primary">
@@ -193,7 +193,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>20</h1>
-                            <p>instock</p>
+                            <p>{{ trans('dashboard.instock') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-secondary color-secondary">
@@ -210,7 +210,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>2</h1>
-                            <p>out of stock</p>
+                            <p>{{ trans('dashboard.out_of_stock') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-primary color-primary">
@@ -227,7 +227,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>116</h1>
-                            <p>total orders</p>
+                            <p>{{ trans('dashboard.total_orders') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-secondary color-secondary">
@@ -244,7 +244,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>2</h1>
-                            <p>total taxes</p>
+                            <p>{{ trans('dashboard.total_taxes') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-primary color-primary">
@@ -261,7 +261,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>122</h1>
-                            <p>total messages</p>
+                            <p>{{ trans('dashboard.total_messages') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-secondary color-secondary">
@@ -278,7 +278,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>1</h1>
-                            <p>promocodes</p>
+                            <p>{{ trans('dashboard.promocodes') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">  
                             <div class="svg-icon order-bg-opacity-primary color-primary">
@@ -295,7 +295,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>98</h1>
-                            <p>country</p>
+                            <p>{{ trans('dashboard.country') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-secondary color-secondary">
@@ -312,7 +312,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>98</h1>
-                            <p>city</p>
+                            <p>{{ trans('dashboard.city') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-primary color-primary">
@@ -329,7 +329,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>98</h1>
-                            <p>region</p>
+                            <p>{{ trans('dashboard.region') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-secondary color-secondary">
@@ -346,7 +346,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>98</h1>
-                            <p>subregion</p>
+                            <p>{{ trans('dashboard.subregion') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-primary color-primary">
@@ -363,7 +363,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>98</h1>
-                            <p>total offers</p>
+                            <p>{{ trans('dashboard.total_offers') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-secondary color-secondary">
@@ -380,7 +380,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>98</h1>
-                            <p>all products reviews</p>
+                            <p>{{ trans('dashboard.all_products_reviews') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-primary color-primary">
@@ -397,7 +397,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>98</h1>
-                            <p>accept products reviews</p>
+                            <p>{{ trans('dashboard.accept_products_reviews') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-secondary color-secondary">
@@ -414,7 +414,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>98</h1>
-                            <p>reject products reviews</p>
+                            <p>{{ trans('dashboard.reject_products_reviews') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-primary color-primary">
@@ -431,7 +431,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>98</h1>
-                            <p>total order stages</p>
+                            <p>{{ trans('dashboard.total_order_stages') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-secondary color-secondary">
@@ -448,7 +448,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>98</h1>
-                            <p>total positions</p>
+                            <p>{{ trans('dashboard.total_positions') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-primary color-primary">
@@ -465,7 +465,7 @@
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
                             <h1>98</h1>
-                            <p>total advertisments</p>
+                            <p>{{ trans('dashboard.total_advertisments') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-secondary color-secondary">

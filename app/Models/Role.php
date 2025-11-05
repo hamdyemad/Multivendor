@@ -13,10 +13,11 @@ class Role extends Model
     protected $guarded = [];
 
     
-    public static $SUPER_ADMIN_ROLE_TYPE = 'super_admin';
-    public static $ADMIN_ROLE_TYPE = 'admin';
-    public static $VENDOR_ROLE_TYPE = 'vendor';
-    public static $OTHER_ROLE_TYPE = 'other';
+    const SUPER_ADMIN_ROLE_TYPE = 'super_admin';
+    const ADMIN_ROLE_TYPE = 'admin';
+    const VENDOR_ROLE_TYPE = 'vendor';
+    const OTHER_ROLE_TYPE = 'other';
+
     
     /**
      * The attributes that are translatable.
@@ -46,16 +47,13 @@ class Role extends Model
     }
 
     public function scopeSuperAdminShowRoles($query) {
-        return $query->whereIn('type', [Role::$ADMIN_ROLE_TYPE, Role::$VENDOR_ROLE_TYPE, Role::$OTHER_ROLE_TYPE]);
+        return $query->whereIn('type', [Role::ADMIN_ROLE_TYPE, Role::VENDOR_ROLE_TYPE, Role::OTHER_ROLE_TYPE]);
     }
     public function scopeAdminShowRoles($query) {
-        return $query->whereIn('type', [Role::$ADMIN_ROLE_TYPE,Role::$VENDOR_ROLE_TYPE, Role::$OTHER_ROLE_TYPE]);
+        return $query->whereIn('type', [Role::ADMIN_ROLE_TYPE,Role::VENDOR_ROLE_TYPE, Role::OTHER_ROLE_TYPE]);
     }
     public function scopeVendorShowRoles($query) {
-        return $query->whereIn('type', [Role::$OTHER_ROLE_TYPE]);
-    }
-    public function scopeOtherShowRoles($query) {
-        return $query->whereIn('type', [Role::$OTHER_ROLE_TYPE]);
+        return $query->whereIn('type', [Role::OTHER_ROLE_TYPE]);
     }
 
 

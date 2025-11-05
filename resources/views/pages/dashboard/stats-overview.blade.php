@@ -1,7 +1,7 @@
 <div class="col-12">
     <div class="card mb-2">
-        <div class="card-body">
-            Sales Overview
+        <div class="card-body fw-bold">
+            {{ trans('dashboard.sales_overview') }}
         </div>
     </div>
     <div class="col-12">
@@ -12,7 +12,7 @@
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
                                 <h1>3,250.00 EGP</h1>
-                                <p>Expenses</p>
+                                <p>{{ trans('dashboard.expenses') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
                                 <div class="svg-icon order-bg-opacity-danger color-danger">
@@ -29,7 +29,7 @@
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
                                 <h1>3,250.00 EGP</h1>
-                                <p>Income</p>
+                                <p>{{ trans('dashboard.income') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
                                 <div class="svg-icon order-bg-opacity-success color-success">
@@ -46,7 +46,7 @@
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
                                 <h1>3,250.00 EGP</h1>
-                                <p>Net Profit</p>
+                                <p>{{ trans('dashboard.net_profit') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
                                 <div class="svg-icon order-bg-opacity-secondary color-secondary">
@@ -62,8 +62,8 @@
 </div>
 <div class="col-12">
     <div class="card mb-2">
-        <div class="card-body">
-            Orders and Revenue statistics
+        <div class="card-body fw-bold">
+            {{ trans('dashboard.orders_and_revenue_statistics') }}
         </div>
     </div>
     <div class="col-12">
@@ -74,7 +74,7 @@
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
                                 <h1>3,250.00 EGP</h1>
-                                <p>Revenue</p>
+                                <p>{{ trans('dashboard.revenue') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
                                 <div class="svg-icon order-bg-opacity-info color-info">
@@ -91,7 +91,7 @@
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
                                 <h1>3,250.00 EGP</h1>
-                                <p>Orders</p>
+                                <p>{{ trans('dashboard.orders') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
                                 <div class="svg-icon order-bg-opacity-primary color-primary">
@@ -108,7 +108,7 @@
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
                                 <h1>3,250.00 EGP</h1>
-                                <p>Sales</p>
+                                <p>{{ trans('dashboard.sales') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
                                 <div class="svg-icon order-bg-opacity-secondary color-secondary">

@@ -24,7 +24,7 @@
             <div class="nav-author__options">
                 <ul>
                     <li>
-                        <a href="">
+                        <a href="{{ route('profile.index') }}">
                             <img src="{{ asset('assets/img/svg/user.svg') }}" alt="user" class="svg"> Profile</a>
                     </li>
                     <li>

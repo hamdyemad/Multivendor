@@ -1,7 +1,7 @@
 <div class="col-12">
     <div class="card mb-2">
-        <div class="card-body">
-            Withdraw Transactions
+        <div class="card-body fw-bold">
+            {{ trans('dashboard.withdraw_transactions') }}
         </div>
     </div>
     <div class="col-12">
@@ -12,7 +12,7 @@
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
                                 <h1>125,450.00 EGP</h1>
-                                <p>Total Money</p>
+                                <p>{{ trans('dashboard.total_money') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
                                 <div class="svg-icon order-bg-opacity-info color-info">
@@ -29,7 +29,7 @@
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
                                 <h1>45,890.00 EGP</h1>
-                                <p>e-RAMO Store Balance</p>
+                                <p>{{ trans('dashboard.bnaia_balance') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
                                 <div class="svg-icon order-bg-opacity-primary color-primary">
@@ -46,7 +46,7 @@
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
                                 <h1>79,560.00 EGP</h1>
-                                <p>Vendors Balance</p>
+                                <p>{{ trans('dashboard.vendors_balance') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
                                 <div class="svg-icon order-bg-opacity-secondary color-secondary">

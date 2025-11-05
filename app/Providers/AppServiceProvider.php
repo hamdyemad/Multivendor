@@ -12,6 +12,7 @@ use App\Repositories\LanguageRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\RoleRepository;
 use App\Repositories\VendorRepository;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider

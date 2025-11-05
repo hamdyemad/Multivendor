@@ -99,7 +99,7 @@ class ActivityService
     /**
      * Get activity by ID
      */
-    public function getActivityById(int $id)
+    public function getActivityById($id)
     {
         try {
             return $this->activityRepository->getActivityById($id);

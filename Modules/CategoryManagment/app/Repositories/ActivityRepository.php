@@ -131,7 +131,7 @@ class ActivityRepository implements ActivityRepositoryInterface
     /**
      * Get activity by ID
      */
-    public function getActivityById(int $id)
+    public function getActivityById($id)
     {
         return Activity::with('translations')->find($id);
     }

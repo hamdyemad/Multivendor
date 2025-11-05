@@ -22,7 +22,7 @@ interface ActivityRepositoryInterface
     /**
      * Get activity by ID
      */
-    public function getActivityById(int $id);
+    public function getActivityById($id);
 
     /**
      * Create a new activity

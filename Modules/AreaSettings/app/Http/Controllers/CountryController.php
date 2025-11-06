@@ -14,7 +14,7 @@ class CountryController extends Controller
 {
 
     public function __construct(
-        protected CountryService $countryService, 
+        protected CountryService $countryService,
         protected LanguageService $languageService,
         protected CountryAction $countryAction,
         protected CurrencyService $currencyService
@@ -74,7 +74,7 @@ class CountryController extends Controller
 
         try {
             $this->countryService->createCountry($validated);
-            
+
             // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -83,7 +83,7 @@ class CountryController extends Controller
                     'redirect' => route('admin.area-settings.countries.index')
                 ]);
             }
-            
+
             return redirect()->route('admin.area-settings.countries.index')
                 ->with('success', __('Country created successfully'));
         } catch (\Exception $e) {
@@ -94,7 +94,7 @@ class CountryController extends Controller
                     'message' => __('Error creating country: ') . $e->getMessage()
                 ], 422);
             }
-            
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', __('Error creating country: ') . $e->getMessage());
@@ -152,7 +152,7 @@ class CountryController extends Controller
 
         try {
             $this->countryService->updateCountry($id, $validated);
-            
+
             // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -161,7 +161,7 @@ class CountryController extends Controller
                     'redirect' => route('admin.area-settings.countries.index')
                 ]);
             }
-            
+
             return redirect()->route('admin.area-settings.countries.index')
                 ->with('success', __('Country updated successfully'));
         } catch (\Exception $e) {
@@ -172,7 +172,7 @@ class CountryController extends Controller
                     'message' => __('Error updating country: ') . $e->getMessage()
                 ], 422);
             }
-            
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', __('Error updating country: ') . $e->getMessage());
@@ -186,7 +186,7 @@ class CountryController extends Controller
     {
         try {
             $this->countryService->deleteCountry($id);
-            
+
             // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -195,7 +195,7 @@ class CountryController extends Controller
                     'redirect' => route('admin.area-settings.countries.index')
                 ]);
             }
-            
+
             return redirect()->route('admin.area-settings.countries.index')
                 ->with('success', __('Country deleted successfully'));
         } catch (\Exception $e) {
@@ -206,7 +206,7 @@ class CountryController extends Controller
                     'message' => __('Error deleting country: ') . $e->getMessage()
                 ], 422);
             }
-            
+
             return redirect()->route('admin.area-settings.countries.index')
                 ->with('error', __('Error deleting country: ') . $e->getMessage());
         }

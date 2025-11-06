@@ -15,7 +15,7 @@ class RoleRepository implements RoleRepositoryInterface
 
     public function __construct(protected LanguageService $languageService)
     {
-        
+
     }
     /**
      * Get all roles with their permissions
@@ -75,7 +75,7 @@ class RoleRepository implements RoleRepositoryInterface
         $role = Role::create([
             'type' => $data['type'] ?? 'other'
         ]);
-        
+
         // Add translations for all languages
         if (isset($data['translations']) && is_array($data['translations'])) {
             foreach ($data['translations'] as $languageId => $fields) {
@@ -84,7 +84,7 @@ class RoleRepository implements RoleRepositoryInterface
                 if (!$language) {
                     continue;
                 }
-                
+
                 // Store name translation
                 if (!empty($fields['name'])) {
                     $role->setTranslation('name', $language->code, $fields['name']);
@@ -96,7 +96,7 @@ class RoleRepository implements RoleRepositoryInterface
         if (isset($data['permissions']) && is_array($data['permissions'])) {
             $this->syncPermissions($role, $data['permissions']);
         }
-        
+
         return $role;
     }
 
@@ -157,6 +157,6 @@ class RoleRepository implements RoleRepositoryInterface
 
     public function getVendorRole()
     {
-        return Role::where('type', Role::$VENDOR_ROLE_TYPE)->first();
+        return Role::where('type', Role::VENDOR_ROLE_TYPE)->first();
     }
 }

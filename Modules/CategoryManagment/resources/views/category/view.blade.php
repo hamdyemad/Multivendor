@@ -29,15 +29,15 @@
                     <div class="card-body">
                         <div class="row">
                             {{-- Basic Information --}}
-                            <div class="col-12 mb-30">
-                                <h6 class="fw-500 color-dark border-bottom pb-15 mb-20">
-                                    <i class="uil uil-info-circle me-2"></i>{{ trans('common.basic_information') }}
+                            <div class="col-12">
+                                <h6 class="fw-500" style="background: #0056B7; color: white; padding: 12px 16px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+                                    <i class="uil uil-info-circle"></i>{{ trans('common.basic_information') }}
                                 </h6>
                             </div>
 
                             {{-- Dynamic Language Translations for Name --}}
                             @foreach($languages as $language)
-                                <div class="col-md-6 mb-25">
+                                <div class="col-md-6 mt-3">
                                     <div class="view-item">
                                         <label class="il-gray fs-14 fw-500 mb-10" @if($language->rtl) dir="rtl" style="text-align: right; display: block;" @endif>
                                             @if($language->code == 'ar')
@@ -56,15 +56,15 @@
                             @endforeach
 
                             {{-- Description Section --}}
-                            <div class="col-12 mb-30 mt-20">
-                                <h6 class="fw-500 color-dark border-bottom pb-15 mb-20">
-                                    <i class="uil uil-file-alt me-2"></i>{{ trans('categorymanagment::category.description') }}
+                            <div class="col-12">
+                                <h6 class="fw-500" style="background: #0056B7; color: white; padding: 12px 16px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+                                    <i class="uil uil-file-alt"></i>{{ trans('categorymanagment::category.description') }}
                                 </h6>
                             </div>
 
                             {{-- Dynamic Language Translations for Description --}}
                             @foreach($languages as $language)
-                                <div class="col-md-6 mb-25">
+                                <div class="col-md-6 mt-3">
                                     <div class="view-item">
                                         <label class="il-gray fs-14 fw-500 mb-10" @if($language->rtl) dir="rtl" style="text-align: right; display: block;" @endif>
                                             @if($language->code == 'ar')
@@ -90,7 +90,7 @@
                                     </label>
                                     <p class="fs-15 color-dark">
                                         @if($category->department)
-                                            <span class="badge badge-info">{{ $category->department->getTranslation('name', app()->getLocale()) }}</span>
+                                            <span class="badge badge-info badge-round badge-lg">{{ $category->department->getTranslation('name', app()->getLocale()) }}</span>
                                         @else
                                             <span class="text-muted">-</span>
                                         @endif
@@ -104,8 +104,8 @@
                                     <label class="il-gray fs-14 fw-500 mb-10">{{ trans('categorymanagment::category.image') }}</label>
                                     @if($category->image)
                                         <div class="mt-2">
-                                            <img src="{{ asset('storage/' . $category->image) }}" 
-                                                 alt="{{ $category->getTranslation('name', app()->getLocale()) }}" 
+                                            <img src="{{ asset('storage/' . $category->image) }}"
+                                                 alt="{{ $category->getTranslation('name', app()->getLocale()) }}"
                                                  class="img-fluid rounded shadow-sm"
                                                  style="max-width: 300px; height: auto; object-fit: cover;">
                                         </div>
@@ -120,29 +120,29 @@
                                     <label class="il-gray fs-14 fw-500 mb-10">{{ trans('categorymanagment::category.activation') }}</label>
                                     <p class="fs-15">
                                         @if($category->active)
-                                            <span class="badge bg-success">{{ trans('categorymanagment::category.active') }}</span>
+                                            <span class="badge bg-success badge-round badge-lg">{{ trans('categorymanagment::category.active') }}</span>
                                         @else
-                                            <span class="badge bg-danger">{{ trans('categorymanagment::category.inactive') }}</span>
+                                            <span class="badge bg-danger badge-round badge-lg">{{ trans('categorymanagment::category.inactive') }}</span>
                                         @endif
                                     </p>
                                 </div>
                             </div>
 
                             {{-- Timestamps --}}
-                            <div class="col-12 mb-30 mt-20">
-                                <h6 class="fw-500 color-dark border-bottom pb-15 mb-20">
-                                    <i class="uil uil-clock me-2"></i>{{ trans('common.timestamps') }}
+                            <div class="col-12">
+                                <h6 class="fw-500" style="background: #0056B7; color: white; padding: 12px 16px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+                                    <i class="uil uil-clock"></i>{{ trans('common.timestamps') }}
                                 </h6>
                             </div>
 
-                            <div class="col-md-6 mb-25">
+                            <div class="col-md-6 mt-3">
                                 <div class="view-item">
                                     <label class="il-gray fs-14 fw-500 mb-10">{{ trans('common.created_at') }}</label>
                                     <p class="fs-15 color-dark">{{ $category->created_at->format('Y-m-d H:i:s') }}</p>
                                 </div>
                             </div>
 
-                            <div class="col-md-6 mb-25">
+                            <div class="col-md-6">
                                 <div class="view-item">
                                     <label class="il-gray fs-14 fw-500 mb-10">{{ trans('common.updated_at') }}</label>
                                     <p class="fs-15 color-dark">{{ $category->updated_at->format('Y-m-d H:i:s') }}</p>

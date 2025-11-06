@@ -56,14 +56,14 @@
                                     <div class="form-group">
                                         <label for="name_{{ $language->code }}" class="form-label w-100 {{ $language->rtl ? 'text-end' : '' }}">
                                             @if($language->code == 'en')
-                                              {{ trans('vendor::vendor.name') }} ({{ $language->name }}) 
+                                              {{ trans('vendor::vendor.name') }} ({{ $language->name }})
                                             @else
                                                 الاسم باللغة العربية
                                             @endif
                                             <span class="text-danger">*</span>
                                         </label>
-                                        <input 
-                                            type="text" 
+                                        <input
+                                            type="text"
                                             name="translations[{{ $language->id }}][name]"
                                             id="name_{{ $language->code }}"
                                             class="form-control ih-medium ip-gray radius-xs b-light px-15"
@@ -85,14 +85,14 @@
                                 <div class="col-md-6 mb-3">
                                     <div class="form-group">
                                         <label for="description_{{ $language->code }}" class="form-label w-100 {{ $language->rtl ? 'text-end' : '' }}">
-                                            
+
                                             @if($language->code == 'en')
                                             {{ trans('vendor::vendor.description') }} ({{ $language->name }})
                                             @else
                                             الوصف باللغة العربية
                                             @endif
                                         </label>
-                                        <textarea 
+                                        <textarea
                                             name="translations[{{ $language->id }}][description]"
                                             id="description_{{ $language->code }}"
                                             class="form-control ih-medium ip-gray radius-xs b-light px-15"
@@ -113,7 +113,7 @@
                                 <i class="uil uil-palette" style="font-size: 22px;"></i>
                                 {{ trans('vendor::vendor.branding') }}
                             </h5>
-                            
+
                             <div class="row">
                                 <!-- Logo Upload -->
                                 <div class="col-md-6 mb-3">
@@ -151,13 +151,13 @@
                                 <div class="col-md-6 mb-3">
                                     <div class="form-group">
                                         <label for="country_id" class="form-label">
-                                            {{ trans('vendor::vendor.country') }} 
+                                            {{ trans('vendor::vendor.country') }}
                                             <span class="text-danger">*</span>
                                         </label>
                                         <select name="country_id" id="country_id" class="form-control select2">
                                             <option value="">{{ trans('vendor::vendor.select_country') }}</option>
                                             @foreach($countries as $country)
-                                                <option value="{{ $country['id'] }}" 
+                                                <option value="{{ $country['id'] }}"
                                                     {{ isset($vendor) && $vendor->country_id == $country['id'] ? 'selected' : '' }}>
                                                     {{ $country['name'] }}
                                                 </option>
@@ -176,8 +176,8 @@
                                             {{ trans('vendor::vendor.commission') }} (%)
                                             <span class="text-danger">*</span>
                                         </label>
-                                        <input 
-                                            type="number" 
+                                        <input
+                                            type="number"
                                             name="commission"
                                             id="commission"
                                             class="form-control ih-medium ip-gray radius-xs b-light px-15"
@@ -197,7 +197,7 @@
                                 <div class="col-md-6 mb-3">
                                     <div class="form-group">
                                         <label for="type" class="form-label">
-                                            {{ trans('vendor::vendor.vendor_type') }} 
+                                            {{ trans('vendor::vendor.vendor_type') }}
                                             <span class="text-danger">*</span>
                                         </label>
                                         <select name="type" id="type" class="form-control select2">
@@ -225,11 +225,11 @@
                                             {{ trans('vendor::vendor.active') }}
                                         </label>
                                         <div class="form-check form-switch form-switch-lg">
-                                            <input 
-                                                class="form-check-input" 
-                                                type="checkbox" 
-                                                role="switch" 
-                                                id="active" 
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                role="switch"
+                                                id="active"
                                                 name="active"
                                                 value="1"
                                                 {{ isset($vendor) && $vendor->active ? 'checked' : (!isset($vendor) ? 'checked' : '') }}
@@ -244,12 +244,12 @@
                                 <div class="col-md-12 mb-3">
                                     <div class="form-group">
                                         <label for="activities" class="form-label">
-                                            {{ trans('vendor::vendor.activities') }} 
+                                            {{ trans('vendor::vendor.activities') }}
                                             <span class="text-danger">*</span>
                                         </label>
                                         <select name="activity_ids[]" id="activities" class="form-control select2" multiple>
                                             @foreach($activities as $activity)
-                                                <option value="{{ $activity->id }}" 
+                                                <option value="{{ $activity->id }}"
                                                     {{ isset($vendor) && $vendor->activities->contains($activity->id) ? 'selected' : '' }}>
                                                     {{ $activity->getTranslation('name', app()->getLocale()) }}
                                                 </option>
@@ -267,7 +267,7 @@
                                 <i class="uil uil-search" style="font-size: 22px;"></i>
                                 {{ trans('vendor::vendor.seo_information') }}
                             </h5>
-                            
+
                             <div class="row">
                                 <!-- Meta Title Fields for each language -->
                                 @foreach($languages as $language)
@@ -280,8 +280,8 @@
                                                 عنوان SEO باللغة العربية
                                             @endif
                                         </label>
-                                        <input 
-                                            type="text" 
+                                        <input
+                                            type="text"
                                             name="translations[{{ $language->id }}][meta_title]"
                                             id="meta_title_{{ $language->code }}"
                                             class="form-control ih-medium ip-gray radius-xs b-light px-15"
@@ -309,7 +309,7 @@
                                                 وصف SEO باللغة العربية
                                             @endif
                                         </label>
-                                        <textarea 
+                                        <textarea
                                             name="translations[{{ $language->id }}][meta_description]"
                                             id="meta_description_{{ $language->code }}"
                                             class="form-control ih-medium ip-gray radius-xs b-light px-15"
@@ -337,8 +337,8 @@
                                                 كلمات SEO المفتاحية باللغة العربية
                                             @endif
                                         </label>
-                                        <input 
-                                            type="text" 
+                                        <input
+                                            type="text"
                                             name="translations[{{ $language->id }}][meta_keywords]"
                                             id="meta_keywords_{{ $language->code }}"
                                             class="form-control ih-medium ip-gray radius-xs b-light px-15"
@@ -370,8 +370,8 @@
                             <div id="documentsContainer">
                                 <!-- Documents will be added here dynamically -->
                             </div>
-                            
-                            
+
+
                         </div>
 
                         <!-- Step 3: Vendor Account Details -->
@@ -380,17 +380,17 @@
                                 <i class="uil uil-user-circle" style="font-size: 22px;"></i>
                                 {{ trans('vendor::vendor.vendor_account_details') }}
                             </h5>
-                            
+
                             <div class="row">
                                 <!-- Email -->
                                 <div class="col-md-12 mb-3">
                                     <div class="form-group">
                                         <label for="email" class="form-label">
-                                            {{ trans('vendor::vendor.email') }} 
+                                            {{ trans('vendor::vendor.email') }}
                                             <span class="text-danger">*</span>
                                         </label>
-                                        <input 
-                                            type="email" 
+                                        <input
+                                            type="email"
                                             name="email"
                                             id="email"
                                             class="form-control ih-medium ip-gray radius-xs b-light px-15"
@@ -409,13 +409,13 @@
                                 <div class="col-md-6 mb-3">
                                     <div class="form-group">
                                         <label for="password" class="form-label">
-                                            {{ trans('vendor::vendor.password') }} 
+                                            {{ trans('vendor::vendor.password') }}
                                             @if(!isset($vendor))
                                                 <span class="text-danger">*</span>
                                             @endif
                                         </label>
-                                        <input 
-                                            type="password" 
+                                        <input
+                                            type="password"
                                             name="password"
                                             id="password"
                                             class="form-control ih-medium ip-gray radius-xs b-light px-15"
@@ -438,13 +438,13 @@
                                 <div class="col-md-6 mb-3">
                                     <div class="form-group">
                                         <label for="password_confirmation" class="form-label">
-                                            {{ trans('vendor::vendor.confirm_password') }} 
+                                            {{ trans('vendor::vendor.confirm_password') }}
                                             @if(!isset($vendor))
                                                 <span class="text-danger">*</span>
                                             @endif
                                         </label>
-                                        <input 
-                                            type="password" 
+                                        <input
+                                            type="password"
                                             name="password_confirmation"
                                             id="password_confirmation"
                                             class="form-control ih-medium ip-gray radius-xs b-light px-15"
@@ -464,13 +464,13 @@
                                 <i class="uil uil-check-circle" style="font-size: 22px;"></i>
                                 {{ trans('vendor::vendor.review_submit') }}
                             </h5>
-                            
+
                             <!-- Validation Errors Alert -->
                             <div id="review-validation-errors" class="alert alert-danger" style="display: none; flex-direction: column;">
                                 <h6 class="alert-heading"><i class="uil uil-exclamation-triangle"></i> {{ trans('vendor::vendor.validation_errors') }}</h6>
                                 <div id="review-errors-list"></div>
                             </div>
-                            
+
                             <div class="alert alert-info">
                                 <i class="uil uil-info-circle"></i> {{ trans('vendor::vendor.please_review_info') }}
                             </div>
@@ -651,7 +651,7 @@
 </div>
 
 {{-- Loading Overlay Component --}}
-<x-loading-overlay 
+<x-loading-overlay
     loadingText="{{ trans('vendor::vendor.creating_vendor') }}"
     loadingSubtext="{{ trans('vendor::vendor.please_wait') }}"
 />
@@ -670,8 +670,8 @@
                             الاسم باللغة العربية
                         @endif
                     </label>
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         name="documents[__INDEX__][translations][{{ $language->id }}][name]"
                         class="form-control ih-medium ip-gray radius-xs b-light px-15"
                         placeholder="{{ trans('vendor::vendor.eg_business_license') }}"
@@ -680,7 +680,7 @@
                 </div>
             </div>
             @endforeach
-            
+
             <div class="col-md-12 mb-3">
                 <div class="form-group">
                     <label class="il-gray fs-14 fw-500 mb-10">{{ trans('vendor::vendor.document_file') }}</label>
@@ -700,17 +700,17 @@
                                 </button>
                             </div>
                         </div>
-                        <input type="file" 
-                               class="d-none image-file-input" 
-                               id="__UNIQUEID__" 
-                               name="documents[__INDEX__][file]" 
+                        <input type="file"
+                               class="d-none image-file-input"
+                               id="__UNIQUEID__"
+                               name="documents[__INDEX__][file]"
                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                                data-preview="__UNIQUEID__">
                     </div>
                 </div>
             </div>
         </div>
-        
+
         <div class="text-end">
             <button type="button" class="btn btn-danger btn-sm btn-squared remove-document-row">
                 <i class="uil uil-trash-alt"></i> {{ trans('vendor::vendor.remove') }}

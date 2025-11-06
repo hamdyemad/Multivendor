@@ -12,6 +12,7 @@ export default defineConfig({
         // Vendor Module Assets
         'Modules/Vendor/resources/assets/css/vendor-form.css',
         'Modules/Vendor/resources/assets/js/vendor-form.js',
+        'Modules/CatalogManagement/resources/css/tree-view.css',
       ],
       refresh: true,
     }),

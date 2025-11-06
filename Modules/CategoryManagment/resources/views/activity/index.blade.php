@@ -290,7 +290,7 @@ Activities | Bnaia
                                 @can('activities.show')
                                 <li>
                                     <a href="${viewRoute.replace(':id', row.id)}"
-                                    class="btn btn-warning table_action_father"
+                                    class="btn btn-warning table_action_father me-1"
                                     title="{{ trans('common.view') }}">
                                         <i class="uil uil-eye table_action_icon"></i>
                                     </a>
@@ -299,7 +299,7 @@ Activities | Bnaia
                                 @can('activities.edit')
                                 <li>
                                     <a href="${editRoute.replace(':id', row.id)}"
-                                    class="btn btn-info table_action_father"
+                                    class="btn btn-info table_action_father me-1"
                                     title="{{ trans('common.edit') }}">
                                         <i class="uil uil-edit table_action_icon"></i>
                                     </a>

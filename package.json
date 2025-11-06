@@ -2,7 +2,8 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "build:prod": "vite build && git add public/build/"
   },
   "type": "module",
   "devDependencies": {

@@ -1,4 +1,9 @@
 {
+  "Modules/CatalogManagement/resources/css/tree-view.css": {
+    "file": "assets/tree-view-BOY9Y-Ju.css",
+    "src": "Modules/CatalogManagement/resources/css/tree-view.css",
+    "isEntry": true
+  },
   "Modules/Vendor/resources/assets/css/vendor-form.css": {
     "file": "assets/vendor-form-D2jfhCbF.css",
     "src": "Modules/Vendor/resources/assets/css/vendor-form.css",

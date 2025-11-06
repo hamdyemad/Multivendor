@@ -216,6 +216,43 @@ class VendorController extends Controller {
         }
     }
 
-
+    /**
+     * Delete a vendor document
+     */
+    public function destroyDocument($vendorId, $documentId)
+    {
+        try {
+            $vendor = $this->vendorService->getVendorById($vendorId);
+            $document = $vendor->documents()->findOrFail($documentId);
+            
+            // Delete the file from storage if it exists
+            if ($document->path && \Storage::disk('public')->exists($document->path)) {
+                \Storage::disk('public')->delete($document->path);
+            }
+            
+            // Delete document translations
+            $document->translations()->delete();
+            
+            // Delete the document record
+            $document->delete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => trans('vendor::vendor.document_deleted_successfully') ?? 'Document deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Document deletion failed', [
+                'vendor_id' => $vendorId,
+                'document_id' => $documentId,
+                'error' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => trans('vendor::vendor.error_deleting_document') ?? 'Error deleting document',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 
 }

@@ -119,6 +119,8 @@ class VendorRepository implements VendorInterface
             'attachments.translations',
             'logo',
             'banner',
+            'documents',
+            'documents.translations',
             'commission'
         ])->findOrFail($id);
     }

@@ -93,6 +93,11 @@ return [
     'error_creating_vendor' => 'Error creating vendor',
     'error_updating_vendor' => 'Error updating vendor',
     'error_deleting_vendor' => 'Error deleting vendor',
+    'document_deleted_successfully' => 'Document deleted successfully',
+    'error_deleting_document' => 'Error deleting document',
+    'confirm_delete_document' => 'Confirm Delete Document',
+    'delete_document_confirmation' => 'Are you sure you want to delete this document? This action cannot be undone.',
+    'no_documents_uploaded' => 'No documents have been uploaded for this vendor yet.',
 
     // Table Headers
     'id' => 'ID',

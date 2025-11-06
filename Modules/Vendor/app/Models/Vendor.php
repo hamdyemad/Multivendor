@@ -49,7 +49,7 @@ class Vendor extends Model
     {
         return $this->belongsToMany(Activity::class, 'vendors_activities', 'vendor_id', 'activity_id');
     }
-    
+
     /**
      * Alias for attachments relationship
      */
@@ -66,6 +66,11 @@ class Vendor extends Model
     public function banner()
     {
         return $this->morphOne(Attachment::class, 'attachable')->where('type', 'banner');
+    }
+
+    public function documents()
+    {
+        return $this->morphMany(Attachment::class, 'attachable')->where('type', 'docs');
     }
 
     /**

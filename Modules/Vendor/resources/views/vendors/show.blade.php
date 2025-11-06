@@ -218,53 +218,77 @@
                         @endforeach
 
                         {{-- Documents --}}
-                        @if($vendor->attachments && $vendor->attachments->where('type', 'document')->count() > 0)
-                            <div class="col-12">
-                                <h6 class="fw-500" style="background: #0056B7; color: white; padding: 12px 16px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
-                                    <i class="uil uil-file"></i>{{ trans('vendor::vendor.vendor_documents') }}
-                                </h6>
-                            </div>
+                        <div class="col-12">
+                            <h6 class="fw-500" style="background: #0056B7; color: white; padding: 12px 16px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+                                <i class="uil uil-file"></i>{{ trans('vendor::vendor.vendor_documents') }}
+                                @if($vendor->documents && $vendor->documents->count() > 0)
+                                    <span class="badge bg-white text-primary ms-2">{{ $vendor->documents->count() }}</span>
+                                @endif
+                            </h6>
+                        </div>
 
+                        @if($vendor->documents && $vendor->documents->count() > 0)
                             <div class="col-12 mt-3">
                                 <div class="table-responsive">
-                                    <table class="table table-bordered">
+                                    <table class="table table-hover align-middle">
                                         <thead>
                                             <tr>
-                                                <th>#</th>
+                                                <th class="text-center" width="60">#</th>
                                                 <th>{{ trans('vendor::vendor.document_name') }}</th>
-                                                <th>{{ trans('vendor::vendor.document_file') }}</th>
-                                                <th>{{ trans('common.actions') }}</th>
+                                                <th width="200">{{ trans('common.actions') }}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach($vendor->attachments->where('type', 'document') as $index => $document)
+                                            @foreach($vendor->documents as $index => $document)
                                             <tr>
-                                                <td>{{ $index + 1 }}</td>
+                                                <td class="text-center">
+                                                    <span class="badge bg-secondary badge-round">{{ $index + 1 }}</span>
+                                                </td>
                                                 <td>
-                                                    @if($document->translations && $document->translations->first())
-                                                        {{ $document->translations->first()->lang_value }}
-                                                    @else
-                                                        {{ trans('vendor::vendor.document') }} {{ $index + 1 }}
-                                                    @endif
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="uil uil-file-alt fs-20 text-primary me-2"></i>
+                                                        <strong>
+                                                            @if($document->translations && $document->translations->first())
+                                                                {{ $document->translations->first()->lang_value }}
+                                                            @else
+                                                                {{ trans('vendor::vendor.document') }} {{ $index + 1 }}
+                                                            @endif
+                                                        </strong>
+                                                    </div>
                                                 </td>
                                                 <td>
                                                     @if($document->path)
-                                                        <span class="badge badge-info">{{ basename($document->path) }}</span>
-                                                    @else
-                                                        -
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if($document->path)
-                                                        <a href="{{ asset($document->path) }}" target="_blank" class="btn btn-sm btn-primary">
-                                                            <i class="uil uil-download-alt"></i> {{ trans('common.download') ?? 'Download' }}
-                                                        </a>
+                                                        <div class="d-flex justify-content-start">
+                                                            <a href="{{ asset('storage/' . $document->path) }}"
+                                                               target="_blank"
+                                                               class="btn btn-sm btn-outline-info me-1"
+                                                               title="{{ trans('common.view') ?? 'View' }}">
+                                                                <i class="uil uil-eye m-0"></i>
+                                                            </a>
+                                                            <button type="button"
+                                                                    class="btn btn-sm btn-outline-danger delete-document-btn"
+                                                                    data-id="{{ $document->id }}"
+                                                                    data-name="{{ $document->translations->first()->lang_value ?? 'Document ' . ($index + 1) }}"
+                                                                    data-url="{{ route('admin.vendors.documents.destroy', ['vendor' => $vendor->id, 'document' => $document->id]) }}"
+                                                                    title="{{ trans('common.delete') ?? 'Delete' }}">
+                                                                <i class="uil uil-trash-alt m-0"></i>
+                                                            </button>
+                                                        </div>
                                                     @endif
                                                 </td>
                                             </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
+                                </div>
+                            </div>
+                        @else
+                            <div class="col-12 mt-3">
+                                <div class="alert alert-info d-flex align-items-center" role="alert">
+                                    <i class="uil uil-info-circle fs-20 me-2"></i>
+                                    <div>
+                                        {{ trans('vendor::vendor.no_documents_uploaded') ?? 'No documents have been uploaded for this vendor yet.' }}
+                                    </div>
                                 </div>
                             </div>
                         @endif
@@ -274,6 +298,27 @@
         </div>
     </div>
 </div>
+
+{{-- Loading Overlay Component --}}
+<x-loading-overlay />
+
+{{-- Delete Document Confirmation Modal --}}
+<x-delete-with-loading
+    modalId="deleteDocumentModal"
+    deleteButtonClass="delete-document-btn"
+    title="{{ trans('vendor::vendor.confirm_delete_document') ?? 'Confirm Delete Document' }}"
+    message="{{ trans('vendor::vendor.delete_document_confirmation') ?? 'Are you sure you want to delete this document? This action cannot be undone.' }}"
+    itemNameId="delete-document-name"
+    confirmBtnId="confirmDeleteDocumentBtn"
+    cancelText="{{ trans('common.cancel') ?? 'Cancel' }}"
+    deleteText="{{ trans('common.delete') ?? 'Delete' }}"
+    loadingDeleting="{{ trans('loading.deleting') ?? 'Deleting...' }}"
+    loadingPleaseWait="{{ trans('loading.please_wait') ?? 'Please wait...' }}"
+    loadingDeletedSuccessfully="{{ trans('loading.deleted_successfully') ?? 'Deleted Successfully!' }}"
+    loadingRefreshing="{{ trans('loading.refreshing') ?? 'Refreshing...' }}"
+    errorDeleting="{{ trans('vendor::vendor.error_deleting_document') ?? 'Error deleting document' }}"
+/>
+
 @endsection
 
 @push('styles')
@@ -287,4 +332,65 @@
         font-weight: 500;
     }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    let deletedDocumentRow = null;
+
+    // Store row reference when delete button is clicked
+    $(document).on('click', '.delete-document-btn', function() {
+        deletedDocumentRow = $(this).closest('tr');
+        console.log('Delete button clicked, row stored:', deletedDocumentRow);
+    });
+
+    // Remove the document row after successful deletion
+    $(document).on('itemDeleted', function(event, response) {
+        console.log('Item deleted event triggered', response);
+
+        if (deletedDocumentRow && deletedDocumentRow.length > 0) {
+            console.log('Removing row...');
+
+            // Remove the row with fade animation
+            deletedDocumentRow.fadeOut(400, function() {
+                $(this).remove();
+                console.log('Row removed');
+
+                // Update row numbers for remaining rows
+                $('table tbody tr:visible').each(function(index) {
+                    $(this).find('td:first .badge').text(index + 1);
+                });
+
+                // Check if table is empty
+                const remainingRows = $('table tbody tr:visible').length;
+                console.log('Remaining rows:', remainingRows);
+
+                if (remainingRows === 0) {
+                    // Reload page to show "no documents" message
+                    console.log('No more rows, reloading page...');
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 500);
+                } else {
+                    // Update document count in header badge
+                    const countBadge = $('.badge.bg-white.text-primary');
+                    if (countBadge.length > 0) {
+                        const currentCount = parseInt(countBadge.text()) || 0;
+                        if (currentCount > 0) {
+                            countBadge.text(currentCount - 1);
+                            console.log('Updated count badge to:', currentCount - 1);
+                        }
+                    }
+                }
+            });
+        } else {
+            console.log('No row found to delete');
+        }
+
+        // Clear the reference
+        deletedDocumentRow = null;
+    });
+});
+</script>
 @endpush

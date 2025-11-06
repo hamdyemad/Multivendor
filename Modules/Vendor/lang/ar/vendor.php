@@ -82,6 +82,11 @@ return [
     'error_creating_vendor' => 'خطأ في إنشاء المورد',
     'error_updating_vendor' => 'خطأ في تحديث المورد',
     'error_deleting_vendor' => 'خطأ في حذف المورد',
+    'document_deleted_successfully' => 'تم حذف المستند بنجاح',
+    'error_deleting_document' => 'خطأ في حذف المستند',
+    'confirm_delete_document' => 'تأكيد حذف المستند',
+    'delete_document_confirmation' => 'هل أنت متأكد من رغبتك في حذف هذا المستند؟ لا يمكن التراجع عن هذا الإجراء.',
+    'no_documents_uploaded' => 'لم يتم تحميل أي مستندات لهذا المورد بعد.',
     
     // Table Headers
     'id' => 'الرقم',

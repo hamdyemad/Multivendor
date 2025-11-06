@@ -12,6 +12,7 @@ return [
     'name' => 'الاسم',
     'name_english' => 'الاسم',
     'name_arabic' => 'الاسم',
+    'country' => 'الدولة',
     'city' => 'المدينة',
     'activation' => 'التفعيل',
     'status' => 'الحالة',
@@ -33,6 +34,7 @@ return [
     'name_en' => 'الاسم (إنجليزي)',
     'name_ar' => 'الاسم (عربي)',
     'created_at' => 'تاريخ الإنشاء',
+    'updated_at' => 'تاريخ التحديث',
 
     // Buttons
     'add_region' => 'إضافة منطقة',

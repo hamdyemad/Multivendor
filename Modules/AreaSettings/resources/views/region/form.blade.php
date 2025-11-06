@@ -1,5 +1,6 @@
 @extends('layout.app')
 
+@section('title', isset($region) ? __('areasettings::region.edit_region') : __('areasettings::region.create_region'))
 
 @section('content')
     <div class="container-fluid">

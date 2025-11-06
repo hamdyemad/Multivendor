@@ -9,6 +9,7 @@ return [
     'city_details' => 'تفاصيل المدينة',
 
     // Form Fields
+    'id' => 'الرقم',
     'name' => 'الاسم',
     'name_english' => 'الاسم',
     'name_arabic' => 'الاسم',
@@ -33,6 +34,7 @@ return [
     'name_en' => 'الاسم (إنجليزي)',
     'name_ar' => 'الاسم (عربي)',
     'created_at' => 'تاريخ الإنشاء',
+    'updated_at' => 'تاريخ التحديث',
 
     // Buttons
     'add_city' => 'إضافة مدينة',

@@ -62,7 +62,7 @@ class SubRegionController extends Controller
             $languages = $this->languageService->getAll();
             $selectedRegionId = $request->get('region_id');
             $regions = RegionResource::collection($this->regionService->getAllRegions())->resolve();
-            
+
             return view('areasettings::subregion.form', compact('languages', 'regions', 'selectedRegionId'));
         } catch (\Exception $e) {
             return redirect()->route('admin.area-settings.subregions.index')
@@ -79,7 +79,7 @@ class SubRegionController extends Controller
 
         try {
             $this->subregionService->createSubRegion($validated);
-            
+
             // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -88,7 +88,7 @@ class SubRegionController extends Controller
                     'redirect' => route('admin.area-settings.subregions.index')
                 ]);
             }
-            
+
             return redirect()->route('admin.area-settings.subregions.index')
                 ->with('success', __('areasettings::subregion.subregion_created'));
         } catch (\Exception $e) {
@@ -99,7 +99,7 @@ class SubRegionController extends Controller
                     'message' => __('areasettings::subregion.error_creating_subregion') . ': ' . $e->getMessage()
                 ], 422);
             }
-            
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', __('areasettings::subregion.error_creating_subregion') . ': ' . $e->getMessage());
@@ -113,7 +113,8 @@ class SubRegionController extends Controller
     {
         try {
             $subregion = $this->subregionService->getSubRegionById($id);
-            return view('areasettings::subregion.view', compact('subregion'));
+            $languages = $this->languageService->getAll();
+            return view('areasettings::subregion.view', compact('subregion', 'languages'));
         } catch (\Exception $e) {
             return redirect()->route('admin.area-settings.subregions.index')
                 ->with('error', __('areasettings::subregion.subregion_not_found'));
@@ -145,7 +146,7 @@ class SubRegionController extends Controller
 
         try {
             $this->subregionService->updateSubRegion($id, $validated);
-            
+
             // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -154,7 +155,7 @@ class SubRegionController extends Controller
                     'redirect' => route('admin.area-settings.subregions.index')
                 ]);
             }
-            
+
             return redirect()->route('admin.area-settings.subregions.index')
                 ->with('success', __('areasettings::subregion.subregion_updated'));
         } catch (\Exception $e) {
@@ -165,7 +166,7 @@ class SubRegionController extends Controller
                     'message' => __('areasettings::subregion.error_updating_subregion') . ': ' . $e->getMessage()
                 ], 422);
             }
-            
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', __('areasettings::subregion.error_updating_subregion') . ': ' . $e->getMessage());
@@ -179,7 +180,7 @@ class SubRegionController extends Controller
     {
         try {
             $this->subregionService->deleteSubRegion($id);
-            
+
             // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -188,7 +189,7 @@ class SubRegionController extends Controller
                     'redirect' => route('admin.area-settings.subregions.index')
                 ]);
             }
-            
+
             return redirect()->route('admin.area-settings.subregions.index')
                 ->with('success', __('areasettings::subregion.subregion_deleted'));
         } catch (\Exception $e) {
@@ -199,7 +200,7 @@ class SubRegionController extends Controller
                     'message' => __('areasettings::subregion.error_deleting_subregion') . ': ' . $e->getMessage()
                 ], 422);
             }
-            
+
             return redirect()->route('admin.area-settings.subregions.index')
                 ->with('error', __('areasettings::subregion.error_deleting_subregion') . ': ' . $e->getMessage());
         }

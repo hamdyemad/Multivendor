@@ -43,7 +43,7 @@ class RegionController extends Controller
         $search = null;
         $dateFrom = null;
         $dateTo = null;
-        
+
         // Empty paginated result for backward compatibility
         $regions = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
 
@@ -77,7 +77,7 @@ class RegionController extends Controller
         try {
             $languages = $this->languageService->getAll();
             $selectedCityId = $request->get('city_id');
-            
+
             return view('areasettings::region.form', compact('languages', 'cities', 'selectedCityId'));
         } catch (\Exception $e) {
             return redirect()->route('admin.area-settings.regions.index')
@@ -94,7 +94,7 @@ class RegionController extends Controller
 
         try {
             $this->regionService->createRegion($validated);
-            
+
             // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -103,7 +103,7 @@ class RegionController extends Controller
                     'redirect' => route('admin.area-settings.regions.index')
                 ]);
             }
-            
+
             return redirect()->route('admin.area-settings.regions.index')
                 ->with('success', __('Region created successfully'));
         } catch (\Exception $e) {
@@ -114,7 +114,7 @@ class RegionController extends Controller
                     'message' => __('Error creating region: ') . $e->getMessage()
                 ], 422);
             }
-            
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', __('Error creating region: ') . $e->getMessage());
@@ -128,7 +128,8 @@ class RegionController extends Controller
     {
         try {
             $region = $this->regionService->getRegionById($id);
-            return view('areasettings::region.view', compact('region'));
+            $languages = $this->languageService->getAll();
+            return view('areasettings::region.view', compact('region', 'languages'));
         } catch (\Exception $e) {
             return redirect()->route('admin.area-settings.regions.index')
                 ->with('error', __('Region not found'));
@@ -160,7 +161,7 @@ class RegionController extends Controller
 
         try {
             $this->regionService->updateRegion($id, $validated);
-            
+
             // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -169,7 +170,7 @@ class RegionController extends Controller
                     'redirect' => route('admin.area-settings.regions.index')
                 ]);
             }
-            
+
             return redirect()->route('admin.area-settings.regions.index')
                 ->with('success', __('Region updated successfully'));
         } catch (\Exception $e) {
@@ -180,7 +181,7 @@ class RegionController extends Controller
                     'message' => __('Error updating region: ') . $e->getMessage()
                 ], 422);
             }
-            
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', __('Error updating region: ') . $e->getMessage());
@@ -194,7 +195,7 @@ class RegionController extends Controller
     {
         try {
             $this->regionService->deleteRegion($id);
-            
+
             // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -203,7 +204,7 @@ class RegionController extends Controller
                     'redirect' => route('admin.area-settings.regions.index')
                 ]);
             }
-            
+
             return redirect()->route('admin.area-settings.regions.index')
                 ->with('success', __('Region deleted successfully'));
         } catch (\Exception $e) {
@@ -214,7 +215,7 @@ class RegionController extends Controller
                     'message' => __('Error deleting region: ') . $e->getMessage()
                 ], 422);
             }
-            
+
             return redirect()->route('admin.area-settings.regions.index')
                 ->with('error', __('Error deleting region: ') . $e->getMessage());
         }

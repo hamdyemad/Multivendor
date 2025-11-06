@@ -1,5 +1,7 @@
 @extends('layout.app')
 
+@section('title', __('areasettings::city.cities_management'))
+
 @push('styles')
 <!-- Select2 CSS loaded via Vite -->
 @endpush

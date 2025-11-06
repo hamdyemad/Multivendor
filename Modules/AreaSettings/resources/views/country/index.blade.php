@@ -1,8 +1,6 @@
 @extends('layout.app')
 
-@section('title')
-{{ $title }}
-@endsection
+@section('title', __('areasettings::country.countries_management'))
 @push('styles')
 <!-- Select2 CSS loaded via Vite -->
 @endpush

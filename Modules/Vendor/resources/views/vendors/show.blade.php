@@ -60,7 +60,9 @@
                                 <label class="il-gray fs-14 fw-500 mb-10">{{ trans('vendor::vendor.country') }}</label>
                                 <p class="fs-15 color-dark">
                                     @if($vendor->country)
-                                        {{ $vendor->country->getTranslation('name', app()->getLocale()) ?? $vendor->country->code }}
+                                        <span class="badge badge-primary badge-round badge-lg me-1">
+                                            {{ $vendor->country->getTranslation('name', app()->getLocale()) ?? $vendor->country->code }}
+                                        </span>
                                     @else
                                         -
                                     @endif

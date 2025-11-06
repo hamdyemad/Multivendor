@@ -15,7 +15,7 @@ class CityController extends Controller
 {
 
     public function __construct(
-        protected CityService $cityService, 
+        protected CityService $cityService,
         protected CountryService $countryService,
         protected LanguageService $languageService,
         protected CityAction $cityAction
@@ -34,20 +34,20 @@ class CityController extends Controller
     {
         // Get languages for table headers
         $languages = $this->languageService->getAll();
-        
+
         // Get countries for filter dropdown
         $countries = $this->countryService->getAllCountries();
-        
+
         // Initialize filter parameters for view (to prevent undefined variable errors)
         $countryId = null;
         $active = null;
         $search = null;
         $dateFrom = null;
         $dateTo = null;
-        
+
         // Empty paginated result for backward compatibility (DataTables will populate via AJAX)
         $cities = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
-        
+
         return view('areasettings::city.index', compact('languages', 'countries', 'countryId', 'active', 'search', 'dateFrom', 'dateTo', 'cities'));
     }
 
@@ -81,7 +81,7 @@ class CityController extends Controller
 
         try {
             $this->cityService->createCity($validated);
-            
+
             // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -90,7 +90,7 @@ class CityController extends Controller
                     'redirect' => route('admin.area-settings.cities.index')
                 ]);
             }
-            
+
             return redirect()->route('admin.area-settings.cities.index')
                 ->with('success', __('City created successfully'));
         } catch (\Exception $e) {
@@ -101,7 +101,7 @@ class CityController extends Controller
                     'message' => __('Error creating city: ') . $e->getMessage()
                 ], 422);
             }
-            
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', __('Error creating city: ') . $e->getMessage());
@@ -115,7 +115,8 @@ class CityController extends Controller
     {
         try {
             $city = $this->cityService->getCityById($id);
-            return view('areasettings::city.view', compact('city'));
+            $languages = $this->languageService->getAll();
+            return view('areasettings::city.view', compact('city', 'languages'));
         } catch (\Exception $e) {
             return redirect()->route('admin.area-settings.cities.index')
                 ->with('error', __('City not found'));
@@ -144,12 +145,12 @@ class CityController extends Controller
     public function update(CityRequest $request, string $id)
     {
         $validated = $request->validated();
-        
+
         \Log::info('Validated data', ['validated' => $validated]);
 
         try {
             $this->cityService->updateCity($id, $validated);
-            
+
             // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -158,7 +159,7 @@ class CityController extends Controller
                     'redirect' => route('admin.area-settings.cities.index')
                 ]);
             }
-            
+
             return redirect()->route('admin.area-settings.cities.index')
                 ->with('success', __('City updated successfully'));
         } catch (\Exception $e) {
@@ -169,7 +170,7 @@ class CityController extends Controller
                     'message' => __('Error updating city: ') . $e->getMessage()
                 ], 422);
             }
-            
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', __('Error updating city: ') . $e->getMessage());
@@ -183,7 +184,7 @@ class CityController extends Controller
     {
         try {
             $this->cityService->deleteCity($id);
-            
+
             // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -192,7 +193,7 @@ class CityController extends Controller
                     'redirect' => route('admin.area-settings.cities.index')
                 ]);
             }
-            
+
             return redirect()->route('admin.area-settings.cities.index')
                 ->with('success', __('City deleted successfully'));
         } catch (\Exception $e) {
@@ -203,7 +204,7 @@ class CityController extends Controller
                     'message' => __('Error deleting city: ') . $e->getMessage()
                 ], 422);
             }
-            
+
             return redirect()->route('admin.area-settings.cities.index')
                 ->with('error', __('Error deleting city: ') . $e->getMessage());
         }

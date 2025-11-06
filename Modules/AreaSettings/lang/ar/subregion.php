@@ -9,9 +9,11 @@ return [
     'subregion_details' => 'تفاصيل المنطقة الفرعية',
 
     // Form Fields
+    'id' => 'الرقم',
     'name' => 'الاسم',
     'name_english' => 'الاسم',
     'name_arabic' => 'الاسم',
+    'country' => 'الدولة',
     'region' => 'المنطقة',
     'city' => 'المدينة',
     'activation' => 'التفعيل',
@@ -19,6 +21,7 @@ return [
     'active' => 'نشط',
     'inactive' => 'غير نشط',
     'translations' => 'الترجمات',
+    'hierarchy_navigation' => 'التنقل الهرمي',
 
     // Placeholders
     'enter_subregion_name_english' => 'أدخل اسم المنطقة الفرعية بالإنجليزية',
@@ -34,6 +37,8 @@ return [
     'name_en' => 'الاسم (إنجليزي)',
     'name_ar' => 'الاسم (عربي)',
     'created_at' => 'تاريخ الإنشاء',
+    'updated_at' => 'تاريخ التحديث',
+    'action' => 'الإجراءات',
 
     // Buttons
     'add_subregion' => 'إضافة منطقة فرعية',

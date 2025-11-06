@@ -1,5 +1,7 @@
 @extends('layout.app')
 
+@section('title', __('areasettings::region.view_region'))
+
 @section('content')
     <div class="container-fluid">
         <div class="row">
@@ -14,143 +16,124 @@
 
         <div class="row">
             <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title">{{ __('areasettings::region.region_details') }}</h4>
-                        <div class="card-extra">
-                            <a href="{{ route('admin.area-settings.regions.edit', $region->id) }}" class="btn btn-primary btn-sm">
-                                <i class="uil uil-edit"></i> {{ __('areasettings::region.edit_region') }}
-                            </a>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom py-20 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-500">{{ __('areasettings::region.region_details') }}</h5>
+                        <div class="d-flex gap-10">
                             <a href="{{ route('admin.area-settings.regions.index') }}" class="btn btn-light btn-sm">
-                                <i class="uil uil-arrow-left"></i> {{ __('areasettings::region.back_to_list') }}
+                                <i class="uil uil-arrow-left me-2"></i>{{ __('areasettings::region.back_to_list') }}
+                            </a>
+                            <a href="{{ route('admin.area-settings.regions.edit', $region->id) }}" class="btn btn-primary btn-sm">
+                                <i class="uil uil-edit me-2"></i>{{ __('areasettings::region.edit_region') }}
                             </a>
                         </div>
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <!-- Basic Information -->
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="card-title">{{ __('areasettings::region.basic_information') }}</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <table class="table table-borderless">
-                                            <tr>
-                                                <td><strong>{{ __('areasettings::region.id') }}:</strong></td>
-                                                <td>{{ $region->id }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>{{ __('areasettings::region.country') }}:</strong></td>
-                                                <td>{{ $region->city && $region->city->country ? $region->city->country->getTranslation('name', app()->getLocale()) ?? $region->city->country->code : '-' }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>{{ __('areasettings::region.city') }}:</strong></td>
-                                                <td>{{ $region->city ? $region->city->getTranslation('name', app()->getLocale()) ?? $region->city->id : '-' }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>{{ __('areasettings::region.status') }}:</strong></td>
-                                                <td>
-                                                    @if($region->active)
-                                                        <span class="badge badge-success">
-                                                            <i class="uil uil-check"></i> {{ __('areasettings::region.active') }}
-                                                        </span>
-                                                    @else
-                                                        <span class="badge badge-danger">
-                                                            <i class="uil uil-times"></i> {{ __('areasettings::region.inactive') }}
-                                                        </span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>{{ __('areasettings::region.created_at') }}:</strong></td>
-                                                <td>{{ $region->created_at->format('Y-m-d H:i:s') }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>{{ __('areasettings::region.updated_at') }}:</strong></td>
-                                                <td>{{ $region->updated_at->format('Y-m-d H:i:s') }}</td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Translations -->
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="card-title">{{ __('areasettings::region.translations') }}</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <table class="table table-borderless">
-                                            @foreach($languages as $language)
-                                                <tr>
-                                                    <td><strong>{{ __('areasettings::region.name') }} ({{ $language->name }}):</strong></td>
-                                                    <td {{ $language->rtl ? 'dir=rtl' : '' }}>
-                                                        {{ $region->getTranslation('name', $language->code) ?? '-' }}
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Related Data -->
-                        @if($region->subRegions && $region->subRegions->count() > 0)
-                        <div class="row mt-4">
+                            {{-- Basic Information Section --}}
                             <div class="col-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="card-title">{{ __('areasettings::region.subregions') }} ({{ $region->subRegions->count() }})</h5>
+                                <h6 class="fw-500" style="background: #0056B7; color: white; padding: 12px 16px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+                                    <i class="uil uil-info-circle"></i>{{ __('areasettings::region.basic_information') }}
+                                </h6>
+                            </div>
+                            @foreach($languages as $language)
+                                <div class="col-md-6 mt-3">
+                                    <div class="view-item">
+                                        <label class="il-gray fs-14 fw-500 mb-10" @if($language->rtl) dir="rtl" style="text-align: right; display: block;" @endif>
+                                            {{ __('areasettings::region.name') }} ({{ $language->name }})
+                                        </label>
+                                        <p class="fs-15 color-dark fw-500" @if($language->rtl) dir="rtl" style="text-align: right;" @endif>
+                                            {{ $region->getTranslation('name', $language->code) ?? '-' }}
+                                        </p>
                                     </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table class="table table-striped">
-                                                <thead>
-                                                    <tr>
-                                                        <th>{{ __('areasettings::subregion.id') }}</th>
-                                                        <th>{{ __('areasettings::subregion.name') }}</th>
-                                                        <th>{{ __('areasettings::subregion.status') }}</th>
-                                                        <th>{{ __('areasettings::subregion.created_at') }}</th>
-                                                        <th>{{ __('areasettings::subregion.action') }}</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @foreach($region->subRegions as $subRegion)
-                                                        <tr>
-                                                            <td>{{ $subRegion->id }}</td>
-                                                            <td>{{ $subRegion->getTranslation('name', app()->getLocale()) ?? '-' }}</td>
-                                                            <td>
-                                                                @if($subRegion->active)
-                                                                    <span class="badge badge-success">{{ __('areasettings::subregion.active') }}</span>
-                                                                @else
-                                                                    <span class="badge badge-danger">{{ __('areasettings::subregion.inactive') }}</span>
-                                                                @endif
-                                                            </td>
-                                                            <td>{{ $subRegion->created_at->format('Y-m-d') }}</td>
-                                                            <td>
-                                                                <a href="{{ route('admin.area-settings.subregions.show', $subRegion->id) }}" class="btn btn-sm btn-info">
-                                                                    <i class="uil uil-eye"></i>
-                                                                </a>
-                                                                <a href="{{ route('admin.area-settings.subregions.edit', $subRegion->id) }}" class="btn btn-sm btn-warning">
-                                                                    <i class="uil uil-edit"></i>
-                                                                </a>
-                                                            </td>
-                                                        </tr>
-                                                    @endforeach
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
+                                </div>
+                            @endforeach
+
+                            <div class="col-md-6 mt-3">
+                                <div class="view-item">
+                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::region.country') }}</label>
+                                    <p class="fs-15 color-dark">
+                                        @if($region->city && $region->city->country)
+                                            <span class="badge badge-primary badge-round badge-lg me-1">
+                                                {{ $region->city->country->getTranslation('name', app()->getLocale()) ?? $region->city->country->code }}
+                                            </span>
+                                        @else
+                                            -
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mt-3">
+                                <div class="view-item">
+                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::region.city') }}</label>
+                                    <p class="fs-15 color-dark">
+                                        @if($region->city)
+                                            <span class="badge badge-info badge-round badge-lg me-1">
+                                                {{ $region->city->getTranslation('name', app()->getLocale()) ?? $region->city->id }}
+                                            </span>
+                                        @else
+                                            -
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mt-3">
+                                <div class="view-item">
+                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::region.status') }}</label>
+                                    <p class="fs-15">
+                                        @if($region->active)
+                                            <span class="badge bg-success badge-round badge-lg">
+                                                <i class="uil uil-check me-1"></i>{{ __('areasettings::region.active') }}
+                                            </span>
+                                        @else
+                                            <span class="badge bg-danger badge-round badge-lg">
+                                                <i class="uil uil-times me-1"></i>{{ __('areasettings::region.inactive') }}
+                                            </span>
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
+
+
+
+                            {{-- Timestamps Section --}}
+                            <div class="col-12">
+                                <h6 class="fw-500" style="background: #0056B7; color: white; padding: 12px 16px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+                                    <i class="uil uil-clock"></i>{{ __('common.timestamps') }}</h6>
+                            </div>
+
+                            <div class="col-md-6 mt-3">
+                                <div class="view-item">
+                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::region.created_at') }}</label>
+                                    <p class="fs-15 color-dark">{{ $region->created_at ? $region->created_at->format('Y-m-d H:i:s') : '-' }}</p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mt-3">
+                                <div class="view-item">
+                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::region.updated_at') }}</label>
+                                    <p class="fs-15 color-dark">{{ $region->updated_at ? $region->updated_at->format('Y-m-d H:i:s') : '-' }}</p>
                                 </div>
                             </div>
                         </div>
-                        @endif
                     </div>
                 </div>
             </div>
         </div>
     </div>
 @endsection
+
+@push('styles')
+<style>
+    .view-item label {
+        color: #9299b8;
+        margin-bottom: 8px;
+    }
+    .view-item p {
+        margin-bottom: 0;
+        font-weight: 500;
+    }
+</style>
+@endpush

@@ -50,11 +50,11 @@
                                 @foreach($languages as $language)
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label for="name_{{ $language->id }}" class="form-label">{{ __('systemsetting::currency.name_' . ($language->code == 'ar' ? 'arabic' : 'english')) }} <span class="text-danger">*</span></label>
-                                            <input type="text" 
-                                                   class="form-control ih-medium ip-gray radius-xs b-light px-15" 
-                                                   id="name_{{ $language->id }}" 
-                                                   name="translations[{{ $language->id }}][name]" 
+                                            <label for="name_{{ $language->id }}" class="form-label w-100" @if($language->code == 'ar') dir="rtl" @endif>{{ __('systemsetting::currency.name_' . ($language->code == 'ar' ? 'arabic' : 'english')) }} <span class="text-danger">*</span></label>
+                                            <input type="text"
+                                                   class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                                   id="name_{{ $language->id }}"
+                                                   name="translations[{{ $language->id }}][name]"
                                                    value="{{ old('translations.' . $language->id . '.name', isset($currency) ? $currency->translations->where('lang_id', $language->id)->first()->lang_value ?? '' : '') }}"
                                                    @if($language->rtl) dir="rtl" @endif
                                                    placeholder="{{ $language->code == 'ar' ? 'أدخل اسم العملة' : 'e.g., US Dollar, Saudi Riyal' }}">
@@ -64,15 +64,15 @@
                                         </div>
                                     </div>
                                 @endforeach
-                                
+
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
                                         <label for="code" class="form-label">{{ __('systemsetting::currency.currency_code') }} <span class="text-danger">*</span></label>
-                                        <input type="text" 
-                                               class="form-control ih-medium ip-gray radius-xs b-light px-15 text-uppercase" 
-                                               id="code" 
-                                               name="code" 
-                                               value="{{ old('code', isset($currency) ? $currency->code : '') }}" 
+                                        <input type="text"
+                                               class="form-control ih-medium ip-gray radius-xs b-light px-15 text-uppercase"
+                                               id="code"
+                                               name="code"
+                                               value="{{ old('code', isset($currency) ? $currency->code : '') }}"
                                                maxlength="3"
                                                placeholder="e.g., USD, SAR, EUR">
                                         @error('code')
@@ -80,15 +80,15 @@
                                         @enderror
                                     </div>
                                 </div>
-                                
+
                                 <div class="col-md-6">
                                     <div class="form-group mb-3">
                                         <label for="symbol" class="form-label">{{ __('systemsetting::currency.currency_symbol') }} <span class="text-danger">*</span></label>
-                                        <input type="text" 
-                                               class="form-control ih-medium ip-gray radius-xs b-light px-15" 
-                                               id="symbol" 
-                                               name="symbol" 
-                                               value="{{ old('symbol', isset($currency) ? $currency->symbol : '') }}" 
+                                        <input type="text"
+                                               class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                               id="symbol"
+                                               name="symbol"
+                                               value="{{ old('symbol', isset($currency) ? $currency->symbol : '') }}"
                                                maxlength="10"
                                                placeholder="e.g., $, ﷼, €">
                                         @error('symbol')
@@ -96,7 +96,7 @@
                                         @enderror
                                     </div>
                                 </div>
-                                
+
                                 {{-- Active Status Switcher --}}
                                 <div class="col-md-6">
                                     <div class="form-group mb-25">
@@ -106,10 +106,10 @@
                                         <div class="dm-switch-wrap d-flex align-items-center">
                                             <div class="form-check form-switch form-switch-primary form-switch-md">
                                                 <input type="hidden" name="active" value="0">
-                                                <input type="checkbox" 
-                                                       class="form-check-input" 
-                                                       id="active" 
-                                                       name="active" 
+                                                <input type="checkbox"
+                                                       class="form-check-input"
+                                                       id="active"
+                                                       name="active"
                                                        value="1"
                                                        {{ old('active', isset($currency) ? $currency->active : 1) == 1 ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="active"></label>
@@ -120,7 +120,7 @@
                                         @enderror
                                     </div>
                                 </div>
-                                
+
                                 <div class="col-md-6">
                                     <div class="form-group mt-4 d-flex align-items-center justify-content-end">
                                         <a href="{{ route('admin.system-settings.currencies.index') }}" class="btn btn-light btn-default btn-squared text-capitalize">
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
             overlay.querySelector('.loading-text').textContent = loadingText;
             overlay.querySelector('.loading-subtext').textContent = loadingSubtext;
         }
-        
+
         LoadingOverlay.show();
         alertContainer.innerHTML = '';
 
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => {
             LoadingOverlay.animateProgressBar(60, 200);
-            
+
             if (!response.ok) {
                 return response.json().then(data => {
                     throw data;
@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     successMessage,
                     '{{ trans("loading.redirecting") }}'
                 );
-                
+
                 setTimeout(() => {
                     window.location.href = data.redirect || '{{ route("admin.system-settings.currencies.index") }}';
                 }, 1500);
@@ -213,18 +213,18 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             LoadingOverlay.hide();
-            
+
             if (error.errors) {
                 Object.keys(error.errors).forEach(key => {
                     let input = null;
-                    
+
                     input = document.querySelector(`[name="${key}"]`);
-                    
+
                     if (!input && key.includes('.')) {
                         const bracketKey = key.replace(/^([^.]+)\.(\d+)\.([^.]+)$/, '$1[$2][$3]');
                         input = document.querySelector(`[name="${bracketKey}"]`);
                     }
-                    
+
                     if (input) {
                         input.classList.add('is-invalid');
                         const feedback = document.createElement('div');
@@ -233,13 +233,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         input.parentNode.appendChild(feedback);
                     }
                 });
-                
+
                 const firstError = document.querySelector('.is-invalid');
                 if (firstError) {
                     firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             }
-            
+
             const errorMessage = error.message || '{{ __("common.error_occurred") ?? "An error occurred" }}';
             alertContainer.innerHTML = `
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -247,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             `;
-            
+
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalBtnHtml;
         });

@@ -12,6 +12,7 @@ return [
     'name' => 'Name',
     'name_english' => 'Name',
     'name_arabic' => 'Name',
+    'country' => 'Country',
     'city' => 'City',
     'activation' => 'Activation',
     'status' => 'Status',
@@ -33,6 +34,7 @@ return [
     'name_en' => 'Name (English)',
     'name_ar' => 'الاسم باللغه العربيه',
     'created_at' => 'Created At',
+    'updated_at' => 'Updated At',
 
     // Buttons
     'add_region' => 'Add Region',

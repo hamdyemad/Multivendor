@@ -1,5 +1,7 @@
 @extends('layout.app')
 
+@section('title', isset($city) ? __('areasettings::city.edit_city') : __('areasettings::city.create_city'))
+
 @push('styles')
 <!-- Select2 CSS loaded via Vite -->
 @endpush

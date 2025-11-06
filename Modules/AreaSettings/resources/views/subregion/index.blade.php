@@ -1,5 +1,7 @@
 @extends('layout.app')
 
+@section('title', __('areasettings::subregion.subregions_management'))
+
 @push('styles')
 <!-- Select2 CSS loaded via Vite -->
 @endpush

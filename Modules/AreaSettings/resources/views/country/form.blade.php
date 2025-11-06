@@ -1,8 +1,6 @@
 @extends('layout.app')
 
-@section('title')
-{{ $title }}
-@endsection
+@section('title', isset($country) ? __('areasettings::country.edit_country') : __('areasettings::country.create_country'))
 @section('content')
     <div class="container-fluid">
         <div class="row">

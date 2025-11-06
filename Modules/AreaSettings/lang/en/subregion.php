@@ -9,9 +9,11 @@ return [
     'subregion_details' => 'Sub-Region Details',
 
     // Form Fields
+    'id' => 'ID',
     'name' => 'Name',
     'name_english' => 'Name',
     'name_arabic' => 'Name',
+    'country' => 'Country',
     'region' => 'Region',
     'city' => 'City',
     'activation' => 'Activation',
@@ -19,6 +21,7 @@ return [
     'active' => 'Active',
     'inactive' => 'Inactive',
     'translations' => 'Translations',
+    'hierarchy_navigation' => 'Hierarchy Navigation',
 
     // Placeholders
     'enter_subregion_name_english' => 'Enter sub-region name in English',
@@ -34,6 +37,8 @@ return [
     'name_en' => 'Name (English)',
     'name_ar' => 'الاسم باللغه العربيه',
     'created_at' => 'Created At',
+    'updated_at' => 'Updated At',
+    'action' => 'Actions',
 
     // Buttons
     'add_subregion' => 'Add Sub-Region',

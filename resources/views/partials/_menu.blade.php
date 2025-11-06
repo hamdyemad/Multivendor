@@ -9,12 +9,12 @@
                 </a>
             </li>
         @endcan
-        
-        
+
+
         @canany([
-            'activities.index', 
+            'activities.index',
             'departments.index',
-            'categories.index', 
+            'categories.index',
             'sub_categories.index',
         ])
             <li class="menu-title mt-30">
@@ -35,7 +35,7 @@
                         </a>
                     </li>
                     @endcan
-                    
+
                     @can('departments.index')
                     <li>
                         <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.category-management.departments.index') }}">
@@ -44,7 +44,7 @@
                         </a>
                     </li>
                     @endcan
-                    
+
                     @can('categories.index')
                     <li>
                         <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.category-management.categories.index') }}">
@@ -53,7 +53,7 @@
                         </a>
                     </li>
                     @endcan
-                    
+
                     @can('sub_categories.index')
                     <li>
                         <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.category-management.subcategories.index') }}">
@@ -65,7 +65,7 @@
                 </ul>
             </li>
         @endcanany
-        
+
         @canany(['products.view', 'products.create'])
             <li class="has-child">
                 <a href="#" class="">
@@ -81,7 +81,7 @@
                         </a>
                     </li>
                     @endcan
-                    
+
                     @can('products.view')
                     <li>
                         <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
@@ -129,7 +129,7 @@
                 </ul>
             </li>
         @endcanany
-        
+
         @can('reviews.view')
         <li class="has-child">
             <a href="#" class="">
@@ -160,7 +160,7 @@
         </li>
         @endcan
 
-        
+
         @canany(['taxes.view', 'taxes.create'])
         <li class="has-child">
             <a href="#" class="">
@@ -177,7 +177,7 @@
                     </a>
                 </li>
                 @endcan
-                
+
                 @can('taxes.create')
                 <li><a href="{{ route('admin.taxes.create') }}">{{ trans('menu.taxes.create') }}</a></li>
                 @endcan
@@ -185,7 +185,7 @@
         </li>
         @endcanany
 
-        
+
         @canany(['offers.view', 'offers.create'])
         <li class="has-child">
             <a href="#" class="">
@@ -202,7 +202,7 @@
                     </a>
                 </li>
                 @endcan
-                
+
                 @can('offers.create')
                 <li>
                     <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
@@ -241,7 +241,7 @@
             </a>
         </li>
         @endcan
-        
+
         @canany(['roles.index', 'admins.index'])
         <li class="menu-title mt-30">
             <span>{{ trans('menu.sections.user management') }}</span>
@@ -260,7 +260,7 @@
                     </a>
                 </li>
                 @endcan
-                
+
                 @can('admins.index')
                 <li>
                     <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.admin-management.admins.index') }}">
@@ -271,7 +271,7 @@
             </ul>
         </li>
         @endcanany
-        
+
         @canany(['vendors.index', 'vendors.create'])
         <li
             class="has-child {{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/vendors*') ? 'open' : '' }}">
@@ -290,7 +290,7 @@
                     </a>
                 </li>
                 @endcan
-                
+
                 @can('vendors.create')
                 <li>
                     <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.vendors.create') }}">
@@ -302,7 +302,7 @@
         </li>
         @endcanany
 
-        
+
         @can('vendor_requests.new')
         <li class="has-child">
             <a href="#" class="">
@@ -335,7 +335,7 @@
             </ul>
         </li>
         @endcan
-    
+
         @canany(['orders.new', 'orders.inprogress', 'orders.delivered', 'orders.canceled', 'orders.refunded'])
         <li class="menu-title mt-30">
             <span>{{ trans('menu.sections.order and fulfillment') }}</span>
@@ -399,7 +399,7 @@
             </a>
         </li>
         @endcan
-        
+
         @can('shipping_methods.index')
         <li>
             <a href="{{ route('admin.dashboard') }}">
@@ -414,7 +414,7 @@
         </li>
         @endcan
 
-        
+
         @can('points.index')
         <li class="menu-title mt-30">
             <span>{{ trans('menu.sections.points system') }}</span>
@@ -430,21 +430,21 @@
                     <a class="d-flex align-items-center justify-content-between"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.point managment.title') }}
-                        <span class="badge badge-round badge-success ms-1">50</span>
+                        {{-- <span class="badge badge-round badge-success ms-1">50</span> --}}
                     </a>
                 </li>
                 <li>
                     <a class="d-flex align-items-center justify-content-between"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.point managment.users points') }}
-                        <span class="badge badge-round badge-success ms-1">50</span>
+                        {{-- <span class="badge badge-round badge-success ms-1">50</span> --}}
                     </a>
                 </li>
             </ul>
         </li>
         @endcan
 
-        
+
         @can('advertisements.index')
         <li class="has-child">
             <a href="#" class="">
@@ -470,7 +470,7 @@
             </ul>
         </li>
         @endcan
-        
+
         @canany(['notifications.send', 'notifications.view'])
         <li class="has-child">
             <a href="#" class="">
@@ -483,7 +483,7 @@
                 <li><a href="{{ route('admin.dashboard') }}">{{ trans('menu.notifications.send notification') }}</a>
                 </li>
                 @endcan
-                
+
                 @can('notifications.view')
                 <li><a href="{{ route('admin.dashboard') }}">{{ trans('menu.notifications.all notification') }}</a>
                 </li>
@@ -492,7 +492,7 @@
         </li>
         @endcanany
 
-        
+
         @can('accounting.view')
         <li class="menu-title mt-30">
             <span>{{ trans('menu.sections.financials') }}</span>
@@ -514,7 +514,7 @@
             </ul>
         </li>
         @endcan
-        
+
         @can('withdraw.view')
         <li class="has-child">
             <a href="#" class="">
@@ -542,7 +542,7 @@
         </li>
         @endcan
 
-        
+
         @can('blog.view')
         <li class="menu-title mt-30">
             <span>{{ trans('menu.sections.content and engagement') }}</span>
@@ -564,7 +564,7 @@
 
 
 
-        
+
         @can('reports.view')
         <li class="menu-title mt-30">
             <span>{{ trans('menu.sections.reports') }}</span>
@@ -584,13 +584,13 @@
             </ul>
         </li>
         @endcan
-        
+
         @can('settings.view')
         <li class="menu-title mt-30">
             <span>{{ trans('menu.sections.settings') }}</span>
         </li>
         @endcan
-        
+
         @can('settings.logs.view')
         <li>
             <a href="{{ route('admin.dashboard') }}">
@@ -599,11 +599,11 @@
             </a>
         </li>
         @endcan
-        
+
         @canany([
-        'area.country.index', 
-        'area.city.index', 
-        'area.region.index', 
+        'area.country.index',
+        'area.city.index',
+        'area.region.index',
         'area.subregion.index'
         ])
         <li class="has-child">
@@ -622,7 +622,7 @@
                     </a>
                 </li>
                 @endcan
-                
+
                 @can('area.city.index')
                 <li>
                     <a class="d-flex align-items-center justify-content-between"
@@ -632,7 +632,7 @@
                     </a>
                 </li>
                 @endcan
-                
+
                 @can('area.region.index')
                 <li>
                     <a class="d-flex align-items-center justify-content-between"
@@ -642,7 +642,7 @@
                     </a>
                 </li>
                 @endcan
-                
+
                 @can('area.subregion.index')
                 <li>
                     <a class="d-flex align-items-center justify-content-between"
@@ -655,7 +655,7 @@
             </ul>
         </li>
         @endcanany
-        
+
         @canany(['settings.terms.view', 'settings.privacy.view', 'settings.about.view', 'settings.contact.view', 'settings.messages.view'])
         <li class="has-child">
             <a href="#" class="">
@@ -669,22 +669,22 @@
                             class="nav-icon uil uil-file-contract-dollar"></span>
                         {{ trans('menu.system settings.terms and conditions') }}</a></li>
                 @endcan
-                
+
                 @can('settings.privacy.view')
                 <li><a href="{{ route('admin.dashboard') }}"><span class="nav-icon uil uil-shield-check"></span>
                         {{ trans('menu.system settings.privacy policy') }}</a></li>
                 @endcan
-                
+
                 @can('settings.about.view')
                 <li><a href="{{ route('admin.dashboard') }}"><span class="nav-icon uil uil-info-circle"></span>
                         {{ trans('menu.system settings.about us') }}</a></li>
                 @endcan
-                
+
                 @can('settings.contact.view')
                 <li><a href="{{ route('admin.dashboard') }}"><span class="nav-icon uil uil-phone"></span>
                         {{ trans('menu.system settings.contact us') }}</a></li>
                 @endcan
-                
+
                 @can('settings.messages.view')
                 <li>
                     <a class="d-flex align-items-center justify-content-between"
@@ -700,7 +700,7 @@
             </ul>
         </li>
         @endcanany
-        
+
         @can('system.currency.index')
         <li>
             <a href="{{ route('admin.system-settings.currencies.index') }}">
@@ -713,7 +713,7 @@
             </a>
         </li>
         @endcan
-        
+
         <li class="has-child">
             <a href="#" class="">
                 <span class="nav-icon uil uil-window-section"></span>

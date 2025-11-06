@@ -1,7 +1,7 @@
 @extends('layout.app')
 
 @section('title')
-{{ $title }}
+    Vendors | Bnaia
 @endsection
 @push('styles')
 <!-- Select2 CSS loaded via Vite -->

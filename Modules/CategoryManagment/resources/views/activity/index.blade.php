@@ -5,8 +5,12 @@
         <div class="row">
             <div class="col-lg-12">
                 <x-breadcrumb :items="[
-                    ['title' => trans('dashboard.title'), 'url' => route('admin.dashboard'), 'icon' => 'uil uil-estate'],
-                    ['title' => __('activity.activities_management')]
+                    [
+                        'title' => trans('dashboard.title'),
+                        'url' => route('admin.dashboard'),
+                        'icon' => 'uil uil-estate',
+                    ],
+                    ['title' => __('activity.activities_management')],
                 ]" />
             </div>
         </div>
@@ -19,69 +23,79 @@
                         <h4 class="mb-0 fw-500">{{ __('activity.activities_management') }}</h4>
                         @can('activities.create')
                             <div class="d-flex gap-2">
-                                <a href="{{ route('admin.category-management.activities.create') }}" class="btn btn-primary btn-default btn-squared text-capitalize">
+                                <a href="{{ route('admin.category-management.activities.create') }}"
+                                    class="btn btn-primary btn-default btn-squared text-capitalize">
                                     <i class="uil uil-plus"></i> {{ __('activity.add_activity') }}
                                 </a>
                             </div>
                         @endcan
                     </div>
-
+                    <div class="alert alert-info" role="alert">
+                        As soon as you type anything, the search will be performed instantly (live search).
+                    </div>
                     {{-- Search and Filter --}}
                     <div class="mb-25">
                         <div class="card border-0 shadow-sm">
                             <div class="card-body">
                                 <div class="row g-3 align-items-end">
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-                                                <label for="search" class="il-gray fs-14 fw-500 mb-10">{{ __('common.search') }}</label>
-                                                <input type="text"
-                                                       class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                       id="search"
-                                                       placeholder="{{ __('activity.search_by_name') }}"
-                                                       autocomplete="off">
-                                            </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="search"
+                                                class="il-gray fs-14 fw-500 mb-10">{{ __('common.search') }}</label>
+                                            <input type="text"
+                                                class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                                id="search" placeholder="{{ __('activity.search_by_name') }}"
+                                                autocomplete="off">
                                         </div>
-                                        <div class="col-md-2">
-                                            <div class="form-group">
-                                                <label for="active" class="il-gray fs-14 fw-500 mb-10">{{ __('activity.activation') }}</label>
-                                                <select class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                        id="active">
-                                                    <option value="">{{ __('activity.all') }}</option>
-                                                    <option value="1">{{ __('activity.active') }}</option>
-                                                    <option value="0">{{ __('activity.inactive') }}</option>
-                                                </select>
-                                            </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="active"
+                                                class="il-gray fs-14 fw-500 mb-10">{{ __('activity.activation') }}</label>
+                                            <select
+                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                id="active">
+                                                <option value="">{{ __('activity.all') }}</option>
+                                                <option value="1">{{ __('activity.active') }}</option>
+                                                <option value="0">{{ __('activity.inactive') }}</option>
+                                            </select>
                                         </div>
-                                        <div class="col-md-2">
-                                            <div class="form-group">
-                                                <label for="created_date_from" class="il-gray fs-14 fw-500 mb-10">{{ __('common.created_date_from') }}</label>
-                                                <input type="date"
-                                                       class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                       id="created_date_from">
-                                            </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="created_date_from"
+                                                class="il-gray fs-14 fw-500 mb-10">{{ __('common.created_date_from') }}</label>
+                                            <input type="date"
+                                                class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                                id="created_date_from">
                                         </div>
-                                        <div class="col-md-2">
-                                            <div class="form-group">
-                                                <label for="created_date_to" class="il-gray fs-14 fw-500 mb-10">{{ __('common.created_date_to') }}</label>
-                                                <input type="date"
-                                                       class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                       id="created_date_to">
-                                            </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="created_date_to"
+                                                class="il-gray fs-14 fw-500 mb-10">{{ __('common.created_date_to') }}</label>
+                                            <input type="date"
+                                                class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                                id="created_date_to">
                                         </div>
-                                        <div class="col-md-2 d-flex align-items-center">
-                                            <div class="form-group me-2">
-                                                <label class="il-gray fs-14 fw-500 mb-10">&nbsp;</label>
-                                                <button type="button" id="exportExcel" class="btn btn-primary btn-default btn-squared" title="{{ __('common.excel') }}">
-                                                    <i class="uil uil-file-download-alt m-0"></i>
-                                                </button>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="il-gray fs-14 fw-500 mb-10">&nbsp;</label>
-                                                <button type="button" id="resetFilters" class="btn btn-warning btn-default btn-squared" title="{{ __('common.reset') ?? 'Reset' }}">
-                                                    <i class="uil uil-redo m-0"></i>
-                                                </button>
-                                            </div>
-                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button type="button" id="exportExcel" style="width: 100%;"
+                                            class="btn btn-primary btn-default btn-squared"
+                                            title="{{ __('common.excel') }}">
+                                            <i class="uil uil-file-download-alt m-0"></i> Export Excel Sheet
+                                        </button>
+
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <button type="button" id="resetFilters" style="width: 100%;"
+                                            class="btn btn-warning btn-default btn-squared"
+                                            title="{{ __('common.reset') ?? 'Reset' }}">
+                                            <i class="uil uil-redo m-0"></i>
+                                            Reset Search Form
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -102,32 +116,24 @@
                     </div>
 
                     <div class="table-responsive">
-                        <table id="activitiesDataTable" class="table mb-0 table-bordered table-hover" style="width:100%">
+                        <table id="activitiesDataTable" class="table mb-0 table-bordered custom-table" style="width:100%">
                             <thead>
                                 <tr class="userDatatable-header">
-                                    <th>
-                                        <span class="userDatatable-title">#</span>
-                                    </th>
-                                    @foreach($languages as $language)
+                                    <th><span class="userDatatable-title">#</span></th>
+                                    @foreach ($languages as $language)
                                         <th>
-                                            <span class="userDatatable-title" @if($language->rtl) dir="rtl" @endif>
+                                            <span class="userDatatable-title"
+                                                @if ($language->rtl) dir="rtl" @endif>
                                                 {{ __('activity.name') }} ({{ $language->name }})
                                             </span>
                                         </th>
                                     @endforeach
-                                    <th>
-                                        <span class="userDatatable-title">{{ __('activity.activation') }}</span>
-                                    </th>
-                                    <th>
-                                        <span class="userDatatable-title">{{ __('activity.created_at') }}</span>
-                                    </th>
-                                    <th>
-                                        <span class="userDatatable-title">{{ __('common.actions') }}</span>
-                                    </th>
+                                    <th><span class="userDatatable-title">{{ __('activity.activation') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ __('activity.created_at') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ __('common.actions') }}</span></th>
                                 </tr>
                             </thead>
-                            <tbody>
-                            </tbody>
+                            <tbody></tbody>
                         </table>
                     </div>
                 </div>
@@ -135,22 +141,10 @@
         </div>
     </div>
     {{-- Delete Confirmation Modal with Loading Component --}}
-    <x-delete-with-loading
-        modalId="modal-delete-activity"
-        tableId="activitiesDataTable"
-        deleteButtonClass="delete-activity"
-        :title="__('main.confirm delete')"
-        :message="__('main.are you sure you want to delete this')"
-        itemNameId="delete-activity-name"
-        confirmBtnId="confirmDeleteBtn"
-        :cancelText="__('main.cancel')"
-        :deleteText="__('main.delete')"
-        :loadingDeleting="trans('main.deleting') ?? 'Deleting...'"
-        :loadingPleaseWait="trans('main.please wait') ?? 'Please wait...'"
-        :loadingDeletedSuccessfully="trans('main.deleted success') ?? 'Deleted Successfully!'"
-        :loadingRefreshing="trans('main.refreshing') ?? 'Refreshing...'"
-        :errorDeleting="__('main.error on delete')"
-    />
+    <x-delete-with-loading modalId="modal-delete-activity" tableId="activitiesDataTable" deleteButtonClass="delete-activity"
+        :title="__('main.confirm delete')" :message="__('main.are you sure you want to delete this')" itemNameId="delete-activity-name" confirmBtnId="confirmDeleteBtn"
+        :cancelText="__('main.cancel')" :deleteText="__('main.delete')" :loadingDeleting="trans('main.deleting') ?? 'Deleting...'" :loadingPleaseWait="trans('main.please wait') ?? 'Please wait...'" :loadingDeletedSuccessfully="trans('main.deleted success') ?? 'Deleted Successfully!'" :loadingRefreshing="trans('main.refreshing') ?? 'Refreshing...'"
+        :errorDeleting="__('main.error on delete')" />
 @endsection
 
 @push('after-body')
@@ -158,324 +152,334 @@
 @endpush
 
 @push('scripts')
-<script>
-    $(document).ready(function() {
-        let per_page = 10;
+    <script>
+        $(document).ready(function() {
+            let per_page = 10;
 
 
-        // Server-side processing with pagination
-        var table = $('#activitiesDataTable').DataTable({
-            processing: true,
-            serverSide: true, // Server-side processing
-            ajax: {
-                url: '{{ route('admin.category-management.activities.datatable') }}',
-                type: 'GET',
-                data: function(d) {
-                    // Map DataTables parameters to backend parameters
-                    d.per_page = d.length;
-                    d.page = (d.start / d.length) + 1;
+            // Server-side processing with pagination
+            var table = $('#activitiesDataTable').DataTable({
+                processing: true,
+                serverSide: true, // Server-side processing
+                ajax: {
+                    url: '{{ route('admin.category-management.activities.datatable') }}',
+                    type: 'GET',
+                    data: function(d) {
+                        // Map DataTables parameters to backend parameters
+                        d.per_page = d.length;
+                        d.page = (d.start / d.length) + 1;
 
-                    // Add search parameter from custom input
-                    d.search = $('#search').val();
+                        // Add search parameter from custom input
+                        d.search = $('#search').val();
 
-                    // Add filter parameters
-                    d.active = $('#active').val();
-                    d.created_date_from = $('#created_date_from').val();
-                    d.created_date_to = $('#created_date_to').val();
+                        // Add filter parameters
+                        d.active = $('#active').val();
+                        d.created_date_from = $('#created_date_from').val();
+                        d.created_date_to = $('#created_date_to').val();
 
-                    // Add sorting parameters
-                    if (d.order && d.order.length > 0) {
-                        d.orderColumnIndex = d.order[0].column;
-                        d.orderDirection = d.order[0].dir;
-                    }
-
-                    console.log('📤 Sending to server:', {
-                        search: d.search,
-                        active: d.active,
-                        created_date_from: d.created_date_from,
-                        created_date_to: d.created_date_to,
-                        orderColumnIndex: d.orderColumnIndex,
-                        orderDirection: d.orderDirection
-                    });
-
-                    return d;
-                },
-                dataSrc: function(json) {
-                    // Map backend response to DataTables format
-                    json.recordsTotal = json.total || json.recordsTotal || 0;
-                    json.recordsFiltered = json.recordsFiltered || json.total || 0;
-                    return json.data || [];
-                },
-                error: function(xhr, error, code) {
-                    console.log('DataTables Error:', xhr, error, code);
-                    alert('Error loading data. Please check console for details.');
-                }
-            },
-            columns: [
-                // ID column
-                {
-                    data: 'index',
-                    name: 'index',
-                    orderable: false,
-                    searchable: false,
-                    render: function(data) {
-                        return data;
-                    }
-                },
-                // Name columns for each language
-                @foreach($languages as $language)
-                {
-                    data: 'translations.{{ $language->code }}.name',
-                    name: 'name_{{ $language->code }}',
-                    render: function(data, type, row) {
-                        // For sorting, return the raw text value
-                        if (type === 'sort' || type === 'type') {
-                            return row.translations && row.translations['{{ $language->code }}'] ?
-                                   row.translations['{{ $language->code }}'].name : '-';
+                        // Add sorting parameters
+                        if (d.order && d.order.length > 0) {
+                            d.orderColumnIndex = d.order[0].column;
+                            d.orderDirection = d.order[0].dir;
                         }
 
-                        // For display, return formatted HTML
-                        if (row.translations && row.translations['{{ $language->code }}']) {
-                            const translation = row.translations['{{ $language->code }}'];
-                            const name = translation.name || '-';
-                            if (translation.rtl) {
-                                return '<span dir="rtl">' + $('<div>').text(name).html() + '</span>';
+                        console.log('📤 Sending to server:', {
+                            search: d.search,
+                            active: d.active,
+                            created_date_from: d.created_date_from,
+                            created_date_to: d.created_date_to,
+                            orderColumnIndex: d.orderColumnIndex,
+                            orderDirection: d.orderDirection
+                        });
+
+                        return d;
+                    },
+                    dataSrc: function(json) {
+                        // Map backend response to DataTables format
+                        json.recordsTotal = json.total || json.recordsTotal || 0;
+                        json.recordsFiltered = json.recordsFiltered || json.total || 0;
+                        return json.data || [];
+                    },
+                    error: function(xhr, error, code) {
+                        console.log('DataTables Error:', xhr, error, code);
+                        alert('Error loading data. Please check console for details.');
+                    }
+                },
+                columns: [
+                    // ID column
+                    {
+                        data: 'index',
+                        name: 'index',
+                        orderable: false,
+                        searchable: false,
+                        render: function(data) {
+                            return data;
+                        }
+                    },
+                    // Name columns for each language
+                    @foreach ($languages as $language)
+                        {
+                            data: 'translations.{{ $language->code }}.name',
+                            name: 'name_{{ $language->code }}',
+                            render: function(data, type, row) {
+                                // For sorting, return the raw text value
+                                if (type === 'sort' || type === 'type') {
+                                    return row.translations && row.translations[
+                                            '{{ $language->code }}'] ?
+                                        row.translations['{{ $language->code }}'].name : '-';
+                                }
+
+                                // For display, return formatted HTML
+                                if (row.translations && row.translations[
+                                        '{{ $language->code }}']) {
+                                    const translation = row.translations['{{ $language->code }}'];
+                                    const name = translation.name || '-';
+                                    if (translation.rtl) {
+                                        return '<span dir="rtl">' + $('<div>').text(name).html() +
+                                            '</span>';
+                                    }
+                                    return $('<div>').text(name).html();
+                                }
+                                return '-';
                             }
-                            return $('<div>').text(name).html();
-                        }
-                        return '-';
-                    }
-                },
-                @endforeach
-                // Active Status column
-                {
-                    data: 'active',
-                    name: 'active',
-                    render: function(data, type, row) {
-                        // For sorting, return numeric value
-                        if (type === 'sort' || type === 'type') {
-                            return data ? 1 : 0;
-                        }
+                        },
+                    @endforeach
+                    // Active Status column
+                    {
+                        data: 'active',
+                        name: 'active',
+                        render: function(data, type, row) {
+                            // For sorting, return numeric value
+                            if (type === 'sort' || type === 'type') {
+                                return data ? 1 : 0;
+                            }
 
-                        // For display, return formatted HTML
-                        if (data == 1) {
-                            return '<span class="badge badge-success badge-round badge-lg">{{ __('activity.active') }}</span>';
-                        } else {
-                            return '<span class="badge badge-danger badge-round badge-lg">{{ __('activity.inactive') }}</span>';
+                            // For display, return formatted HTML
+                            if (data == 1) {
+                                return '<span class="badge badge-success badge-round badge-lg">{{ __('activity.active') }}</span>';
+                            } else {
+                                return '<span class="badge badge-danger badge-round badge-lg">{{ __('activity.inactive') }}</span>';
+                            }
                         }
-                    }
-                },
-                // Created At column
-                {
-                    data: 'created_at',
-                    name: 'created_at',
-                    render: function(data) {
-                        return data;
-                    }
-                },
-                // Actions column
-                {
-                    data: null,
-                    name: 'actions',
-                    orderable: false,
-                    searchable: false,
-                    render: function(data, type, row) {
-                        let viewRoute = '{{ route('admin.category-management.activities.show', ':id') }}',
-                            editRoute = '{{ route('admin.category-management.activities.edit', ':id') }}',
-                            deleteRoute = '{{ route('admin.category-management.activities.destroy', ':id') }}';
-                        return `
-                            <ul class="orderDatatable_actions mb-0 d-flex flex-wrap justify-content-start">
+                    },
+                    // Created At column
+                    {
+                        data: 'created_at',
+                        name: 'created_at',
+                        render: function(data) {
+                            return data;
+                        }
+                    },
+                    // Actions column
+                    {
+                        data: null,
+                        name: 'actions',
+                        orderable: false,
+                        searchable: false,
+                        render: function(data, type, row) {
+                            let viewRoute =
+                                '{{ route('admin.category-management.activities.show', ':id') }}',
+                                editRoute =
+                                '{{ route('admin.category-management.activities.edit', ':id') }}',
+                                deleteRoute =
+                                '{{ route('admin.category-management.activities.destroy', ':id') }}';
+                            return `
+                            <ul class="mb-0 d-flex flex-wrap justify-content-start">
                                 @can('activities.show')
                                 <li>
                                     <a href="${viewRoute.replace(':id', row.id)}"
-                                    class="view"
+                                    class="btn btn-warning"
                                     title="{{ trans('common.view') }}">
-                                        <i class="uil uil-eye"></i>
+                                        <i class="uil uil-eye" style="font-size:20px;"></i>
                                     </a>
                                 </li>
                                 @endcan
                                 @can('activities.edit')
                                 <li>
                                     <a href="${editRoute.replace(':id', row.id)}"
-                                    class="edit"
+                                    class="btn btn-info"
                                     title="{{ trans('common.edit') }}">
-                                        <i class="uil uil-edit"></i>
+                                        <i class="uil uil-edit" style="font-size:20px;"></i>
                                     </a>
                                 </li>
                                 @endcan
                                 @can('activities.delete')
                                 <li>
                                     <a href="javascript:void(0);"
-                                    class="remove delete-activity"
+                                    class="btn btn-danger delete-activity"
                                     title="{{ trans('common.delete') }}"
                                     data-bs-toggle="modal"
                                     data-bs-target="#modal-delete-activity"
                                     data-item-id="${row.id}"
                                     data-item-name="${$('<div>').text(row.first_name).html()}"
                                     data-url="${deleteRoute.replace(':id', row.id)}">
-                                        <i class="uil uil-trash-alt"></i>
+                                        <i class="uil uil-trash-alt" style="font-size:20px;"></i>
                                     </a>
                                 </li>
                                 @endcan
                             </ul>`;
+                        }
                     }
-                }
-            ],
-            pageLength: per_page,
-            lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
-            order: [[0, 'desc']],
-            pagingType: 'full_numbers',
-            dom: '<"row"<"col-sm-12"tr>>' +
-                 '<"row mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
-            buttons: [
-                {
+                ],
+                pageLength: per_page,
+                lengthMenu: [
+                    [10, 25, 50, 100],
+                    [10, 25, 50, 100]
+                ],
+                order: [
+                    [0, 'desc']
+                ],
+                pagingType: 'full_numbers',
+                dom: '<"row"<"col-sm-12"tr>>' +
+                    '<"row mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                buttons: [{
                     extend: 'excel',
                     exportOptions: {
                         columns: ':not(:last-child)'
                     },
                     title: '{{ __('activity.activities_management') }}'
+                }],
+                searching: true, // Enable built-in search
+                language: {
+                    lengthMenu: "{{ __('common.show') ?? 'Show' }} _MENU_",
+                    info: "{{ __('common.showing') ?? 'Showing' }} _START_ {{ __('common.to') ?? 'to' }} _END_ {{ __('common.of') ?? 'of' }} _TOTAL_ {{ __('common.entries') ?? 'entries' }}",
+                    infoEmpty: "{{ __('common.showing') ?? 'Showing' }} 0 {{ __('common.to') ?? 'to' }} 0 {{ __('common.of') ?? 'of' }} 0 {{ __('common.entries') ?? 'entries' }}",
+                    infoFiltered: "({{ __('common.filtered_from') ?? 'filtered from' }} _MAX_ {{ __('common.total_entries') ?? 'total entries' }})",
+                    zeroRecords: "{{ __('activity.no_activities_found') ?? 'No activities found' }}",
+                    emptyTable: "{{ __('activity.no_activities_found') ?? 'No activities found' }}",
+                    loadingRecords: "{{ __('common.loading') ?? 'Loading' }}...",
+                    processing: "{{ __('common.processing') ?? 'Processing' }}...",
+                    search: "{{ __('common.search') ?? 'Search' }}:",
+                    paginate: {
+                        first: '{{ __('common.first') ?? 'First' }}',
+                        last: '{{ __('common.last') ?? 'Last' }}',
+                        next: '{{ __('common.next') ?? 'Next' }}',
+                        previous: '{{ __('common.previous') ?? 'Previous' }}'
+                    },
+                    aria: {
+                        sortAscending: ": {{ __('common.sort_ascending') ?? 'activate to sort column ascending' }}",
+                        sortDescending: ": {{ __('common.sort_descending') ?? 'activate to sort column descending' }}"
+                    }
                 }
-            ],
-            searching: true, // Enable built-in search
-            language: {
-                lengthMenu: "{{ __('common.show') ?? 'Show' }} _MENU_",
-                info: "{{ __('common.showing') ?? 'Showing' }} _START_ {{ __('common.to') ?? 'to' }} _END_ {{ __('common.of') ?? 'of' }} _TOTAL_ {{ __('common.entries') ?? 'entries' }}",
-                infoEmpty: "{{ __('common.showing') ?? 'Showing' }} 0 {{ __('common.to') ?? 'to' }} 0 {{ __('common.of') ?? 'of' }} 0 {{ __('common.entries') ?? 'entries' }}",
-                infoFiltered: "({{ __('common.filtered_from') ?? 'filtered from' }} _MAX_ {{ __('common.total_entries') ?? 'total entries' }})",
-                zeroRecords: "{{ __('activity.no_activities_found') ?? 'No activities found' }}",
-                emptyTable: "{{ __('activity.no_activities_found') ?? 'No activities found' }}",
-                loadingRecords: "{{ __('common.loading') ?? 'Loading' }}...",
-                processing: "{{ __('common.processing') ?? 'Processing' }}...",
-                search: "{{ __('common.search') ?? 'Search' }}:",
-                paginate: {
-                    first: '{{ __('common.first') ?? 'First' }}',
-                    last: '{{ __('common.last') ?? 'Last' }}',
-                    next: '{{ __('common.next') ?? 'Next' }}',
-                    previous: '{{ __('common.previous') ?? 'Previous' }}'
-                },
-                aria: {
-                    sortAscending: ": {{ __('common.sort_ascending') ?? 'activate to sort column ascending' }}",
-                    sortDescending: ": {{ __('common.sort_descending') ?? 'activate to sort column descending' }}"
-                }
-            }
-        });
-
-        // Initialize Select2 on custom entries select
-        if ($.fn.select2) {
-            $('#entriesSelect').select2({
-                theme: 'bootstrap-5',
-                minimumResultsForSearch: Infinity,
-                width: 'auto'
             });
-        }
 
-        // Handle entries select change
-        $('#entriesSelect').on('change', function() {
-            table.page.len($(this).val()).draw();
-        });
+            // Initialize Select2 on custom entries select
+            if ($.fn.select2) {
+                $('#entriesSelect').select2({
+                    theme: 'bootstrap-5',
+                    minimumResultsForSearch: Infinity,
+                    width: 'auto'
+                });
+            }
 
-        // Handle Excel export button
-        $('#exportExcel').on('click', function() {
-            table.button('.buttons-excel').trigger();
-        });
+            // Handle entries select change
+            $('#entriesSelect').on('change', function() {
+                table.page.len($(this).val()).draw();
+            });
 
-        // Search with server-side processing and debounce
-        let searchTimer;
-        $('#search').on('keyup', function() {
-            clearTimeout(searchTimer);
-            searchTimer = setTimeout(function() {
-                console.log('🔍 Search triggered:', $('#search').val());
-                table.ajax.reload(); // Reload data from server with new search value
-            }, 500);
-        });
+            // Handle Excel export button
+            $('#exportExcel').on('click', function() {
+                table.button('.buttons-excel').trigger();
+            });
 
-        $('#search').on('change', function() {
-            clearTimeout(searchTimer);
-            console.log('🔍 Search changed:', $(this).val());
-            table.ajax.reload();
-        });
+            // Search with server-side processing and debounce
+            let searchTimer;
+            $('#search').on('keyup', function() {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(function() {
+                    console.log('🔍 Search triggered:', $('#search').val());
+                    table.ajax.reload(); // Reload data from server with new search value
+                }, 500);
+            });
 
-        // Custom filter function for active status and dates on cached data
-        $.fn.dataTable.ext.search.push(
-            function(settings, data, dataIndex) {
-                // Only apply to activities table
-                if (settings.nTable.id !== 'activitiesDataTable') {
+            $('#search').on('change', function() {
+                clearTimeout(searchTimer);
+                console.log('🔍 Search changed:', $(this).val());
+                table.ajax.reload();
+            });
+
+            // Custom filter function for active status and dates on cached data
+            $.fn.dataTable.ext.search.push(
+                function(settings, data, dataIndex) {
+                    // Only apply to activities table
+                    if (settings.nTable.id !== 'activitiesDataTable') {
+                        return true;
+                    }
+
+                    var activeFilter = $('#active').val();
+                    var dateFrom = $('#created_date_from').val();
+                    var dateTo = $('#created_date_to').val();
+
+                    // Active filter (column {{ count($languages) + 1 }})
+                    if (activeFilter && activeFilter !== '') {
+                        var colIndex = {{ count($languages) + 1 }};
+
+                        // Get the actual rendered cell content (with HTML)
+                        var rowNode = table.row(dataIndex).node();
+                        if (!rowNode) {
+                            return true;
+                        }
+
+                        var cells = $(rowNode).find('td');
+                        if (cells.length <= colIndex) {
+                            return true;
+                        }
+
+                        // Get the HTML content of the cell
+                        var cellHtml = $(cells[colIndex]).html();
+
+                        if (!cellHtml) {
+                            return true;
+                        }
+
+                        // Check if the cell contains the success badge (active) or danger badge (inactive)
+                        var isActiveRow = cellHtml.indexOf('badge-success') > -1;
+                        var isInactiveRow = cellHtml.indexOf('badge-danger') > -1;
+
+                        // Filter logic
+                        if (activeFilter === '1') {
+                            // Show only active rows (must have badge-success)
+                            return isActiveRow;
+                        } else if (activeFilter === '0') {
+                            // Show only inactive rows (must have badge-danger)
+                            return isInactiveRow;
+                        }
+                    }
+
+                    // Date filters (column {{ count($languages) + 2 }})
+                    if (dateFrom || dateTo) {
+                        var dateColumn = data[{{ count($languages) + 2 }}];
+                        if (dateColumn) {
+                            var rowDate = dateColumn.replace(/<[^>]*>/g, '').trim().split(' ')[
+                                0]; // Extract YYYY-MM-DD
+                            if (dateFrom && rowDate < dateFrom) return false;
+                            if (dateTo && rowDate > dateTo) return false;
+                        }
+                    }
+
                     return true;
                 }
+            );
 
-                var activeFilter = $('#active').val();
-                var dateFrom = $('#created_date_from').val();
-                var dateTo = $('#created_date_to').val();
+            // Server-side filter event listeners - reload data when filters change
+            $('#active, #created_date_from, #created_date_to').on('change', function() {
+                console.log('Filter changed:', $(this).attr('id'), '=', $(this).val());
+                table.ajax.reload();
+            });
 
-                // Active filter (column {{ count($languages) + 1 }})
-                if (activeFilter && activeFilter !== '') {
-                    var colIndex = {{ count($languages) + 1 }};
+            // Reset filters button
+            $('#resetFilters').on('click', function() {
+                console.log('Resetting all filters...');
+                // Clear all filter inputs
+                $('#search').val('');
+                $('#active').val('');
+                $('#created_date_from').val('');
+                $('#created_date_to').val('');
+                // Clear search and reload table
+                table.search('').ajax.reload();
+            });
 
-                    // Get the actual rendered cell content (with HTML)
-                    var rowNode = table.row(dataIndex).node();
-                    if (!rowNode) {
-                        return true;
-                    }
-
-                    var cells = $(rowNode).find('td');
-                    if (cells.length <= colIndex) {
-                        return true;
-                    }
-
-                    // Get the HTML content of the cell
-                    var cellHtml = $(cells[colIndex]).html();
-
-                    if (!cellHtml) {
-                        return true;
-                    }
-
-                    // Check if the cell contains the success badge (active) or danger badge (inactive)
-                    var isActiveRow = cellHtml.indexOf('badge-success') > -1;
-                    var isInactiveRow = cellHtml.indexOf('badge-danger') > -1;
-
-                    // Filter logic
-                    if (activeFilter === '1') {
-                        // Show only active rows (must have badge-success)
-                        return isActiveRow;
-                    } else if (activeFilter === '0') {
-                        // Show only inactive rows (must have badge-danger)
-                        return isInactiveRow;
-                    }
-                }
-
-                // Date filters (column {{ count($languages) + 2 }})
-                if (dateFrom || dateTo) {
-                    var dateColumn = data[{{ count($languages) + 2 }}];
-                    if (dateColumn) {
-                        var rowDate = dateColumn.replace(/<[^>]*>/g, '').trim().split(' ')[0]; // Extract YYYY-MM-DD
-                        if (dateFrom && rowDate < dateFrom) return false;
-                        if (dateTo && rowDate > dateTo) return false;
-                    }
-                }
-
-                return true;
-            }
-        );
-
-        // Server-side filter event listeners - reload data when filters change
-        $('#active, #created_date_from, #created_date_to').on('change', function() {
-            console.log('Filter changed:', $(this).attr('id'), '=', $(this).val());
-            table.ajax.reload();
+            // Delete functionality is now handled by the delete-with-loading component
         });
-
-        // Reset filters button
-        $('#resetFilters').on('click', function() {
-            console.log('Resetting all filters...');
-            // Clear all filter inputs
-            $('#search').val('');
-            $('#active').val('');
-            $('#created_date_from').val('');
-            $('#created_date_to').val('');
-            // Clear search and reload table
-            table.search('').ajax.reload();
-        });
-
-        // Delete functionality is now handled by the delete-with-loading component
-    });
-</script>
+    </script>
 @endpush

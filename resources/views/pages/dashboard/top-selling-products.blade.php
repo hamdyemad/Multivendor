@@ -47,7 +47,7 @@
                                 <td>
                                     <a href="#" class="btn btn-sm btn-light">
                                         <i class="uil uil-eye"></i>
-                                        <span>{{ trans('dashboard.show') }}</span>
+                                        
                                     </a>
                                 </td>
                             </tr>
@@ -75,7 +75,7 @@
                                 <td>
                                     <a href="#" class="btn btn-sm btn-light">
                                         <i class="uil uil-eye"></i>
-                                        <span>{{ trans('dashboard.show') }}</span>
+
                                     </a>
                                 </td>
                             </tr>
@@ -103,7 +103,7 @@
                                 <td>
                                     <a href="#" class="btn btn-sm btn-light">
                                         <i class="uil uil-eye"></i>
-                                        <span>{{ trans('dashboard.show') }}</span>
+
                                     </a>
                                 </td>
                             </tr>
@@ -131,7 +131,7 @@
                                 <td>
                                     <a href="#" class="btn btn-sm btn-light">
                                         <i class="uil uil-eye"></i>
-                                        <span>{{ trans('dashboard.show') }}</span>
+
                                     </a>
                                 </td>
                             </tr>
@@ -159,7 +159,7 @@
                                 <td>
                                     <a href="#" class="btn btn-sm btn-light">
                                         <i class="uil uil-eye"></i>
-                                        <span>{{ trans('dashboard.show') }}</span>
+
                                     </a>
                                 </td>
                             </tr>

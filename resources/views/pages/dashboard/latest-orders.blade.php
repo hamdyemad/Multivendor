@@ -28,7 +28,7 @@
                                     <a href="">
                                         <img class="rounded-circle"
                                             src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Fresh_Electric.jpg"
-                                            alt="product" style="width: 40px; height: 40px; object-fit: cover;">
+                                            alt="product" style="width: 20px; height: 20px; object-fit: cover;">
                                         <span class="ms-3">Fresh</span>
                                     </a>
                                 </td>
@@ -40,7 +40,7 @@
                                 <td>
                                     <a href="#" class="btn btn-sm btn-light">
                                         <i class="uil uil-eye"></i>
-                                        <span>{{ trans('dashboard.show') }}</span>
+
                                     </a>
                                 </td>
                             </tr>
@@ -51,7 +51,7 @@
                                     <a href="">
                                         <img class="rounded-circle"
                                             src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Fresh_Electric.jpg"
-                                            alt="product" style="width: 40px; height: 40px; object-fit: cover;">
+                                            alt="product" style="width: 20px; height: 20px; object-fit: cover;">
                                         <span class="ms-3">Fresh</span>
                                     </a>
                                 </td>
@@ -63,7 +63,7 @@
                                 <td>
                                     <a href="#" class="btn btn-sm btn-light">
                                         <i class="uil uil-eye"></i>
-                                        <span>{{ trans('dashboard.show') }}</span>
+
                                     </a>
                                 </td>
                             </tr>
@@ -74,7 +74,7 @@
                                     <a href="">
                                         <img class="rounded-circle"
                                             src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Fresh_Electric.jpg"
-                                            alt="product" style="width: 40px; height: 40px; object-fit: cover;">
+                                            alt="product" style="width: 20px; height: 20px; object-fit: cover;">
                                         <span class="ms-3">Fresh</span>
                                     </a>
                                 </td>
@@ -86,7 +86,7 @@
                                 <td>
                                     <a href="#" class="btn btn-sm btn-light">
                                         <i class="uil uil-eye"></i>
-                                        <span>{{ trans('dashboard.show') }}</span>
+
                                     </a>
                                 </td>
                             </tr>
@@ -97,7 +97,7 @@
                                     <a href="">
                                         <img class="rounded-circle"
                                             src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Fresh_Electric.jpg"
-                                            alt="product" style="width: 40px; height: 40px; object-fit: cover;">
+                                            alt="product" style="width: 20px; height: 20px; object-fit: cover;">
                                         <span class="ms-3">Fresh</span>
                                     </a>
                                 </td>
@@ -109,7 +109,7 @@
                                 <td>
                                     <a href="#" class="btn btn-sm btn-light">
                                         <i class="uil uil-eye"></i>
-                                        <span>{{ trans('dashboard.show') }}</span>
+
                                     </a>
                                 </td>
                             </tr>
@@ -120,7 +120,7 @@
                                     <a href="">
                                         <img class="rounded-circle"
                                             src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Fresh_Electric.jpg"
-                                            alt="product" style="width: 40px; height: 40px; object-fit: cover;">
+                                            alt="product" style="width: 20px; height: 20px; object-fit: cover;">
                                         <span class="ms-3">Fresh</span>
                                     </a>
                                 </td>
@@ -132,7 +132,7 @@
                                 <td>
                                     <a href="#" class="btn btn-sm btn-light">
                                         <i class="uil uil-eye"></i>
-                                        <span>{{ trans('dashboard.show') }}</span>
+
                                     </a>
                                 </td>
                             </tr>

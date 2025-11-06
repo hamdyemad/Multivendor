@@ -1,6 +1,64 @@
- .crm .selling-table-wrap table thead tr{
-                background-color: #0157b7 !important;
-            }
-            .table>:not(:last-child)>:last-child>*{
-                color: #fff !important;
-            }
+ .crm .selling-table-wrap table thead tr {
+     background-color: #0157b7 !important;
+     color: #fff !important;
+ }
+
+ .table>:not(:last-child)>:last-child>* {
+     color: #fff !important;
+ }
+
+ .userDatatable table{
+    border-collapse: collapse;
+ }
+
+ .userDatatable table thead tr:not(.footable-filtering) th {
+     background-color: #0157b7;
+ }
+
+
+ .userDatatable-title {
+     color: #fff;
+     ;
+ }
+
+ .custom-table tbody tr {
+     border-bottom: 1px solid #ddd;
+     /* خط خفيف بين الصفوف */
+ }
+
+ .custom-table td,
+ .custom-table th {
+     color: #000 !important;
+     /* يجعل النص أسود */
+     vertical-align: middle;
+ }
+
+ .custom-table thead th {
+     background-color: #f8f9fa;
+     /* لون خفيف للرأس */
+     font-weight: 600;
+ }
+
+ .table>:not(:last-child)>:last-child>*{
+    color: #ffffff !important;
+ }
+.custom-table tbody tr{
+    border-bottom: 1px solid #a9a9a9 !important;
+}
+
+.custom-table tbody tr:nth-child(odd) {
+    background-color: #f9f9f9; /* لون الصف الفردي */
+}
+
+.custom-table tbody tr:nth-child(even) {
+    background-color: #ffffff; /* لون الصف الزوجي */
+}
+
+.orderDatatable_actions li a{
+    border-radius: 0px !important;
+}
+
+.orderDatatable_actions li a{
+    width: auto;
+    height: auto;
+}

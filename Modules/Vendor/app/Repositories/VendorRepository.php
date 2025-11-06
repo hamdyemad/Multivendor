@@ -197,15 +197,15 @@ class VendorRepository implements VendorInterface
                     'id' => $vendor->user->id,
                 ];
                 // Update password if provided
-                if (!empty($data['password'])) {
+                if (isset($data['password']) && !empty($data['password'])) {
                     $userUpdateData['password'] = Hash::make($data['password']);
                 }
                 // Update active status if provided
-                if (!empty($data['active'])) {
+                if (isset($data['active'])) {
                     $userUpdateData['active'] = $data['active'];
                 }
                 // Update email if provided
-                if (!empty($data['email'])) {
+                if (isset($data['email']) && !empty($data['email'])) {
                     $userUpdateData['email'] = $data['email'];
                 }
                 // Update user if there's data to update

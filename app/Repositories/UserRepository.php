@@ -45,11 +45,27 @@ class UserRepository implements UserInterface {
         return $user;
     }
     public function updateVendorAccount($data) {
-        $user = User::find($data['id'])->update([
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'active' => $data['active'],
-        ]);
+        $user = User::find($data['id']);
+        
+        $updateData = [];
+        
+        // Only update fields that are present in the data array
+        if (isset($data['email'])) {
+            $updateData['email'] = $data['email'];
+        }
+        
+        if (isset($data['password'])) {
+            $updateData['password'] = $data['password']; // Already hashed in VendorRepository
+        }
+        
+        if (isset($data['active'])) {
+            $updateData['active'] = $data['active'];
+        }
+        
+        if (!empty($updateData)) {
+            $user->update($updateData);
+        }
+        
         return $user;
     }
 

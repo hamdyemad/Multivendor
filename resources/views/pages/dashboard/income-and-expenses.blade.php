@@ -2,7 +2,8 @@
     <div class="card chart-card">
         <div class="card-body fw-bold">
             <h5 class="header-title pb-2 mt-0" style="font-size: 1.1rem; color: #495057; margin-bottom: 1rem;">
-                {{ trans('dashboard.income_expense_daily') }}
+                {{ trans('dashboard.income_expense_this_month') }}
+                ( {{ date('m') . "-" . date('Y') }} )
             </h5>
 
 
@@ -10,6 +11,8 @@
                 {{ trans('dashboard.income') }}: <span style="color: #28a745; font-weight: 600;">3,250.0</span>
                 EGP |
                 {{ trans('dashboard.expenses') }}: <span style="color: #dc3545; font-weight: 600;">0.0</span>
+                EGP |
+                {{ trans('dashboard.profit') }}: <span style="color: #dc3545; font-weight: 600;">3,250.0</span>
                 EGP
             </div>
 
@@ -40,10 +43,12 @@
             </h5>
 
 
-            <div class="text-center mb-3" style="font-size: 0.75rem; color: #555;">
+            <div class="text-center mb-3" style="font-size: 0.60rem; color: #555;">
                 {{ trans('dashboard.income') }}: <span style="color: #28a745; font-weight: 600;">123,725.1</span>
                 EGP |
                 {{ trans('dashboard.expenses') }}: <span style="color: #dc3545; font-weight: 600;">1,502,585.1</span>
+                EGP |
+                {{ trans('dashboard.profit') }}: <span style="color: #dc3545; font-weight: 600;">-1,378,860.1</span>
                 EGP
             </div>
 

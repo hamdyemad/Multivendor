@@ -1,4 +1,4 @@
-<div class="col-xxl-8 mb-25">
+<div class="col-xxl-12 mb-25">
     <div class="card border-0 px-25">
         <div class="card-header px-0 border-0">
             <h6>{{ trans('dashboard.best_customers') }}</h6>
@@ -8,7 +8,7 @@
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
-                            <tr>
+                            <tr style="background-color: #0157b7; color: #fff;">
                                 <th>#</th>
                                 <th>{{ trans('dashboard.name') }}</th>
                                 <th>{{ trans('dashboard.orders_count') }}</th>

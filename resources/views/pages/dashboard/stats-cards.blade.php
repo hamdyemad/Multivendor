@@ -1,11 +1,11 @@
 <div class="col-12">
     <div class="row">
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>98</h1>
+                            <h1 style="font-size: 20px;">98</h1>
                             <p>{{ trans('dashboard.total_users') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -17,12 +17,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>9</h1>
+                            <h1 style="font-size: 20px;">9</h1>
                             <p>{{ trans('dashboard.system_admins') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -34,12 +34,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>20</h1>
+                            <h1 style="font-size: 20px;">20</h1>
                             <p>{{ trans('dashboard.total_vendors') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -51,12 +51,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>6</h1>
+                            <h1 style="font-size: 20px;">6</h1>
                             <p>{{ trans('dashboard.become_vendor_requests') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -68,12 +68,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>116</h1>
+                            <h1 style="font-size: 20px;">116</h1>
                             <p>{{ trans('dashboard.accepted_vendors') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -85,12 +85,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>98</h1>
+                            <h1 style="font-size: 20px;">98</h1>
                             <p>{{ trans('dashboard.rejected_vendors') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -102,12 +102,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>98</h1>
+                            <h1 style="font-size: 20px;">98</h1>
                             <p>{{ trans('dashboard.new_vendors') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -119,12 +119,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>98</h1>
+                            <h1 style="font-size: 20px;">98</h1>
                             <p>{{ trans('dashboard.total_male_users') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -136,12 +136,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>12</h1>
+                            <h1 style="font-size: 20px;">12</h1>
                             <p>{{ trans('dashboard.total_female_users') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -153,12 +153,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>98</h1>
+                            <h1 style="font-size: 20px;">98</h1>
                             <p>{{ trans('dashboard.total_customers') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -170,12 +170,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>98</h1>
+                            <h1 style="font-size: 20px;">98</h1>
                             <p>{{ trans('dashboard.total_roles') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -187,12 +187,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>20</h1>
+                            <h1 style="font-size: 20px;">20</h1>
                             <p>{{ trans('dashboard.instock') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -204,12 +204,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>2</h1>
+                            <h1 style="font-size: 20px;">2</h1>
                             <p>{{ trans('dashboard.out_of_stock') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -221,12 +221,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>116</h1>
+                            <h1 style="font-size: 20px;">116</h1>
                             <p>{{ trans('dashboard.total_orders') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -238,12 +238,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>2</h1>
+                            <h1 style="font-size: 20px;">2</h1>
                             <p>{{ trans('dashboard.total_taxes') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -255,12 +255,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>122</h1>
+                            <h1 style="font-size: 20px;">122</h1>
                             <p>{{ trans('dashboard.total_messages') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -272,15 +272,15 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>1</h1>
+                            <h1 style="font-size: 20px;">1</h1>
                             <p>{{ trans('dashboard.promocodes') }}</p>
                         </div>
-                        <div class="ap-po-details__icon-area">  
+                        <div class="ap-po-details__icon-area">
                             <div class="svg-icon order-bg-opacity-primary color-primary">
                                 <i class="uil uil-tag-alt"></i>
                             </div>
@@ -289,12 +289,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>98</h1>
+                            <h1 style="font-size: 20px;">98</h1>
                             <p>{{ trans('dashboard.country') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -306,12 +306,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>98</h1>
+                            <h1 style="font-size: 20px;">98</h1>
                             <p>{{ trans('dashboard.city') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -323,12 +323,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>98</h1>
+                            <h1 style="font-size: 20px;">98</h1>
                             <p>{{ trans('dashboard.region') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -340,12 +340,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>98</h1>
+                            <h1 style="font-size: 20px;">98</h1>
                             <p>{{ trans('dashboard.subregion') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -357,12 +357,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>98</h1>
+                            <h1 style="font-size: 20px;">98</h1>
                             <p>{{ trans('dashboard.total_offers') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -374,12 +374,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>98</h1>
+                            <h1 style="font-size: 20px;">98</h1>
                             <p>{{ trans('dashboard.all_products_reviews') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -391,12 +391,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>98</h1>
+                            <h1 style="font-size: 20px;">98</h1>
                             <p>{{ trans('dashboard.accept_products_reviews') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -408,12 +408,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>98</h1>
+                            <h1 style="font-size: 20px;">98</h1>
                             <p>{{ trans('dashboard.reject_products_reviews') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -425,12 +425,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>98</h1>
+                            <h1 style="font-size: 20px;">98</h1>
                             <p>{{ trans('dashboard.total_order_stages') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -442,12 +442,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>98</h1>
+                            <h1 style="font-size: 20px;">98</h1>
                             <p>{{ trans('dashboard.total_positions') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">
@@ -459,12 +459,12 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-3 mb-25">
+        <div class="col-12 col-md-4 mb-25">
             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                 <div class="overview-content w-100">
                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                         <div class="ap-po-details__titlebar">
-                            <h1>98</h1>
+                            <h1 style="font-size: 20px;">98</h1>
                             <p>{{ trans('dashboard.total_advertisments') }}</p>
                         </div>
                         <div class="ap-po-details__icon-area">

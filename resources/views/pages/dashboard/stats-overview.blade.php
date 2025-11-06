@@ -11,7 +11,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1>3,250.00 EGP</h1>
+                                <h1 style="font-size: 20px;">3,250.00 EGP</h1>
                                 <p>{{ trans('dashboard.expenses') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
@@ -28,7 +28,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1>3,250.00 EGP</h1>
+                                <h1 style="font-size: 20px;">3,250.00 EGP</h1>
                                 <p>{{ trans('dashboard.income') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
@@ -45,7 +45,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1>3,250.00 EGP</h1>
+                                <h1 style="font-size: 20px;">3,250.00 EGP</h1>
                                 <p>{{ trans('dashboard.net_profit') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
@@ -73,7 +73,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1>3,250.00 EGP</h1>
+                                <h1 style="font-size: 20px;">3,250.00 EGP</h1>
                                 <p>{{ trans('dashboard.revenue') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
@@ -90,7 +90,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1>3,250.00 EGP</h1>
+                                <h1 style="font-size: 20px;">3,250.00 EGP</h1>
                                 <p>{{ trans('dashboard.orders') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
@@ -107,7 +107,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1>3,250.00 EGP</h1>
+                                <h1 style="font-size: 20px;">3,250.00 EGP</h1>
                                 <p>{{ trans('dashboard.sales') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">

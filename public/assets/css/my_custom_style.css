@@ -1,0 +1,6 @@
+ .crm .selling-table-wrap table thead tr{
+                background-color: #0157b7 !important;
+            }
+            .table>:not(:last-child)>:last-child>*{
+                color: #fff !important;
+            }

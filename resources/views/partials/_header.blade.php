@@ -37,25 +37,27 @@
             overflow-y: auto !important;
             overflow-x: hidden !important;
         }
-        
+
         /* Custom scrollbar styling */
         .sidebar-collapse .sidebar__menu-group .has-child:hover > ul::-webkit-scrollbar {
             width: 6px;
         }
-        
+
         .sidebar-collapse .sidebar__menu-group .has-child:hover > ul::-webkit-scrollbar-track {
             background: #f1f1f1;
             border-radius: 10px;
         }
-        
+
         .sidebar-collapse .sidebar__menu-group .has-child:hover > ul::-webkit-scrollbar-thumb {
             background: #888;
             border-radius: 10px;
         }
-        
+
         .sidebar-collapse .sidebar__menu-group .has-child:hover > ul::-webkit-scrollbar-thumb:hover {
             background: #555;
         }
     </style>
+
+    
 
 </head>

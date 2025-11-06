@@ -11,7 +11,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1>95,320.00 EGP</h1>
+                                <h1 style="font-size: 20px;">95,320.00 EGP</h1>
                                 <p>{{ trans('dashboard.total_vendors_balance') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
@@ -28,7 +28,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1>58,750.00 EGP</h1>
+                                <h1 style="font-size: 20px;">58,750.00 EGP</h1>
                                 <p>{{ trans('dashboard.total_sent_money') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
@@ -45,7 +45,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1>36,570.00 EGP</h1>
+                                <h1 style="font-size: 20px;">36,570.00 EGP</h1>
                                 <p>{{ trans('dashboard.total_remaining') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">

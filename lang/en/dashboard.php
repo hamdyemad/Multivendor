@@ -17,6 +17,7 @@ return [
     'sales_overview_this_month' => 'Sales Overview This Month',
     'orders_and_revenue_statistics' => 'Orders and Revenue Statistics',
     'expenses' => 'Expenses',
+    'profit' => 'Profit',
     'income' => 'Income',
     'net_profit' => 'Net Profit',
     'revenue' => 'Revenue',
@@ -26,26 +27,26 @@ return [
     'today' => 'Today',
     'week' => 'Week',
     'month' => 'Month',
-    
+
     // Withdraw Transactions
     'withdraw_transactions' => 'Withdraw Transactions',
     'total_money' => 'Total Money',
     'bnaia_balance' => 'bnaia balance',
     'vendors_balance' => 'Vendors Balance',
-    
+
     // Vendors Withdraw Transactions
     'vendors_withdraw_transactions' => 'Vendors Withdraw Transactions',
     'total_vendors_balance' => 'Total Vendors Balance',
     'total_sent_money' => 'Total Sent Money',
     'total_remaining' => 'Total Remaining',
-    
+
     // Sales Overview
     'sales_overview' => 'Sales Overview',
-    
+
     // Income & Expenses
-    'income_expense_daily' => 'Income & Expense Daily',
+    'income_expense_this_month' => 'Income & Expense This Month',
     'income_expense_this_year' => 'Income & Expense this year',
-    
+
     // Statistics Cards
     'total_users' => 'Total Users',
     'system_admins' => 'System Admins',
@@ -74,7 +75,7 @@ return [
     'total_order_stages' => 'Total Order Stages',
     'total_positions' => 'Total Positions',
     'total_advertisments' => 'Total Advertisments',
-    
+
     // Orders Overview
     'orders_overview' => 'Orders Overview',
     'new' => 'New',
@@ -84,7 +85,7 @@ return [
     'want_to_return' => 'Want to Return',
     'return_in_progress' => 'Return in Progress',
     'refunded' => 'Refunded',
-    
+
     // Top Selling Products
     'top_selling_products' => 'Top Selling Products',
     'product_name' => 'Product Name',
@@ -93,24 +94,24 @@ return [
     'total' => 'Total',
     'actions' => 'Actions',
     'show' => 'Show',
-    
+
     // Latest Orders
     'latest_orders' => 'Latest Orders',
     'order_number' => 'Order Number',
     'user' => 'User',
-    
+
     // Best Customers
     'best_customers' => 'Best Customers',
     'name' => 'Name',
     'orders_count' => 'Orders Count',
     'joined_at' => 'Joined At',
-    
+
     // Top Vendors
     'top_vendors' => 'Top Vendors',
     'vendor_name' => 'Vendor Name',
     'commission' => 'Commission',
     'total_selling' => 'Total Selling',
-    
+
     // Recent Activities
     'recent_activities' => 'Recent Activities',
     'employee' => 'Employee',

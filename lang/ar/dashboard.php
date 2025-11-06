@@ -17,6 +17,7 @@ return [
     'sales_overview_this_month' => 'نظرة عامة على المبيعات هذا الشهر',
     'orders_and_revenue_statistics' => 'إحصائيات الطلبات والإيرادات',
     'expenses' => 'المصروفات',
+    'profit' => 'الربح',
     'income' => 'الدخل',
     'net_profit' => 'صافي الربح',
     'revenue' => 'الإيرادات',
@@ -26,26 +27,26 @@ return [
     'today' => 'اليوم',
     'week' => 'الأسبوع',
     'month' => 'الشهر',
-    
+
     // Withdraw Transactions
     'withdraw_transactions' => 'معاملات السحب',
     'total_money' => 'إجمالي المبلغ',
     'bnaia_balance' => 'رصيد بنايا',
     'vendors_balance' => 'رصيد التجار',
-    
+
     // Vendors Withdraw Transactions
     'vendors_withdraw_transactions' => 'معاملات سحب التجار',
     'total_vendors_balance' => 'إجمالي رصيد التجار',
     'total_sent_money' => 'إجمالي المبالغ المرسلة',
     'total_remaining' => 'إجمالي المتبقي',
-    
+
     // Sales Overview
     'sales_overview' => 'نظرة عامة على المبيعات',
-    
+
     // Income & Expenses
-    'income_expense_daily' => 'الدخل والمصروفات اليومية',
+    'income_expense_this_month' => 'الدخل والمصروفات الشهر الحالى',
     'income_expense_this_year' => 'الدخل والمصروفات لهذا العام',
-    
+
     // Statistics Cards
     'total_users' => 'إجمالي المستخدمين',
     'system_admins' => 'مسؤولو النظام',
@@ -74,7 +75,7 @@ return [
     'total_order_stages' => 'إجمالي مراحل الطلب',
     'total_positions' => 'إجمالي المناصب',
     'total_advertisments' => 'إجمالي الإعلانات',
-    
+
     // Orders Overview
     'orders_overview' => 'نظرة عامة على الطلبات',
     'new' => 'جديد',
@@ -84,7 +85,7 @@ return [
     'want_to_return' => 'يرغب في الإرجاع',
     'return_in_progress' => 'الإرجاع قيد التنفيذ',
     'refunded' => 'تم الاسترداد',
-    
+
     // Top Selling Products
     'top_selling_products' => 'المنتجات الأكثر مبيعاً',
     'product_name' => 'اسم المنتج',
@@ -93,24 +94,24 @@ return [
     'total' => 'الإجمالي',
     'actions' => 'الإجراءات',
     'show' => 'عرض',
-    
+
     // Latest Orders
     'latest_orders' => 'أحدث الطلبات',
     'order_number' => 'رقم الطلب',
     'user' => 'المستخدم',
-    
+
     // Best Customers
     'best_customers' => 'أفضل العملاء',
     'name' => 'الاسم',
     'orders_count' => 'عدد الطلبات',
     'joined_at' => 'تاريخ الانضمام',
-    
+
     // Top Vendors
     'top_vendors' => 'أفضل التجار',
     'vendor_name' => 'اسم التاجر',
     'commission' => 'العمولة',
     'total_selling' => 'إجمالي المبيعات',
-    
+
     // Recent Activities
     'recent_activities' => 'الأنشطة الأخيرة',
     'employee' => 'الموظف',

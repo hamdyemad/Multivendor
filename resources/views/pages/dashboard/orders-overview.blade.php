@@ -1,63 +1,81 @@
-<div class="col-xxl-6 mb-25">
-    <div class="card border-0 px-25 h-100">
-        <div class="card-header px-0 border-0">
+<div class="col-12 mb-4">
+    <div class="card border-0 p-3 h-100">
+        <div class="card-header border-0 pb-0">
             <h6>{{ trans('dashboard.orders_overview') }}</h6>
         </div>
-        <div class="p-0 card-body">
-            <div class="revenueSourceChart px-0">
-                <div class="parentContainer position-relative" style="height: 300px;">
+
+        <style>
+            .chart-content__details {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+
+            .chart-content__single {
+                background: #fafafa;
+                border-radius: 10px;
+                padding: 0.20rem;
+            }
+
+            @media (max-width: 576px) {
+                .parentContainer {
+                    height: 200px !important;
+                }
+            }
+        </style>
+
+        <div class="card-body p-0">
+            <div class="revenueSourceChart">
+                <div class="parentContainer position-relative" style="height: 200px;">
                     <canvas id="ordersOverviewChart"></canvas>
                 </div>
-                <div class="chart-content__details mt-3">
-                    <div class="chart-content__single">
-                        <span class="icon" style="background-color: rgba(91, 105, 255, 0.2);">
+
+                <div class="chart-content__details mt-3 d-flex flex-wrap gap-3">
+                    <div class="chart-content__single d-flex align-items-center flex-grow-1 flex-sm-fill">
+                        <span class="icon d-flex align-items-center justify-content-center rounded-circle me-2"
+                            style="background-color: rgba(91, 105, 255, 0.2); width: 36px; height: 36px;">
                             <span class="uil uil-shopping-bag" style="color: #5b69ff;"></span>
                         </span>
-                        <span class="label">{{ trans('dashboard.new') }}</span>
-                        <span class="data">2</span>
+                        <div>
+                            <span class="label d-block small">{{ trans('dashboard.new') }}</span>
+                            <span class="data fw-bold">2</span>
+                        </div>
                     </div>
-                    <div class="chart-content__single">
-                        <span class="icon" style="background-color: rgba(255, 193, 7, 0.2);">
+
+                    <div class="chart-content__single d-flex align-items-center flex-grow-1 flex-sm-fill">
+                        <span class="icon d-flex align-items-center justify-content-center rounded-circle me-2"
+                            style="background-color: rgba(255, 193, 7, 0.2); width: 36px; height: 36px;">
                             <span class="uil uil-clock" style="color: #ffc107;"></span>
                         </span>
-                        <span class="label">{{ trans('dashboard.in_progress') }}</span>
-                        <span class="data">2</span>
+                        <div>
+                            <span class="label d-block small">{{ trans('dashboard.in_progress') }}</span>
+                            <span class="data fw-bold">2</span>
+                        </div>
                     </div>
-                    <div class="chart-content__single">
-                        <span class="icon" style="background-color: rgba(32, 201, 151, 0.2);">
+
+                    <div class="chart-content__single d-flex align-items-center flex-grow-1 flex-sm-fill">
+                        <span class="icon d-flex align-items-center justify-content-center rounded-circle me-2"
+                            style="background-color: rgba(32, 201, 151, 0.2); width: 36px; height: 36px;">
                             <span class="uil uil-check-circle" style="color: #20c997;"></span>
                         </span>
-                        <span class="label">{{ trans('dashboard.delivered') }}</span>
-                        <span class="data">2</span>
+                        <div>
+                            <span class="label d-block small">{{ trans('dashboard.delivered') }}</span>
+                            <span class="data fw-bold">2</span>
+                        </div>
                     </div>
-                    <div class="chart-content__single">
-                        <span class="icon" style="background-color: rgba(255, 76, 81, 0.2);">
+
+                    <div class="chart-content__single d-flex align-items-center flex-grow-1 flex-sm-fill">
+                        <span class="icon d-flex align-items-center justify-content-center rounded-circle me-2"
+                            style="background-color: rgba(255, 76, 81, 0.2); width: 36px; height: 36px;">
                             <span class="uil uil-times-circle" style="color: #ff4c51;"></span>
                         </span>
-                        <span class="label">{{ trans('dashboard.cancelled') }}</span>
-                        <span class="data">3</span>
+                        <div>
+                            <span class="label d-block small">{{ trans('dashboard.cancelled') }}</span>
+                            <span class="data fw-bold">3</span>
+                        </div>
                     </div>
-                    <div class="chart-content__single">
-                        <span class="icon" style="background-color: rgba(255, 152, 0, 0.2);">
-                            <span class="uil uil-redo" style="color: #ff9800;"></span>
-                        </span>
-                        <span class="label">{{ trans('dashboard.want_to_return') }}</span>
-                        <span class="data">0</span>
-                    </div>
-                    <div class="chart-content__single">
-                        <span class="icon" style="background-color: rgba(156, 39, 176, 0.2);">
-                            <span class="uil uil-sync" style="color: #9c27b0;"></span>
-                        </span>
-                        <span class="label">{{ trans('dashboard.return_in_progress') }}</span>
-                        <span class="data">0</span>
-                    </div>
-                    <div class="chart-content__single">
-                        <span class="icon" style="background-color: rgba(103, 58, 183, 0.2);">
-                            <span class="uil uil-money-bill" style="color: #673ab7;"></span>
-                        </span>
-                        <span class="label">{{ trans('dashboard.refunded') }}</span>
-                        <span class="data">1</span>
-                    </div>
+
+                    <!-- باقي العناصر -->
                 </div>
             </div>
         </div>

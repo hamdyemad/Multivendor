@@ -1,4 +1,6 @@
 @include('partials._header')
+
+<link rel="stylesheet" href="{{ asset('assets/css/my_custom_style.css') }}">
 <body class="layout-light side-menu">
     {{-- <div class="mobile-search">
         <form action="/" class="search-form">
@@ -23,16 +25,16 @@
             @include('partials._footer')
         </footer>
     </main>
-    
+
     {{-- WhatsApp Floating Button --}}
     @include('partials.whatsapp-button')
-    
+
     {{-- Message Wrapper for Notifications --}}
     <div class="message-wrapper"></div>
-    
+
     {{-- Loading Overlay Stack --}}
     @stack('after-body')
-    
+
     <div id="overlayer">
         <span class="loader-overlay">
             <div class="dm-spin-dots spin-lg">
@@ -55,7 +57,7 @@
         }
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDduF2tLXicDEPDMAtC6-NLOekX0A5vlnY"></script>
-    
+
     <script src="{{ asset('assets/js/plugins.min.js') }}"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -74,7 +76,7 @@
             }
         }
     </script>
-    
+
     <script src="{{ asset('assets/js/script.min.js') }}"></script>
     <script src="{{ asset('js/app.min.js') }}"></script>
     @vite('resources/js/app.js')
@@ -92,7 +94,7 @@
 
             const messageId = 'msg-' + Date.now();
             const iconClass = icon;
-            
+
             const messageHTML = `
                 <div id="${messageId}" class="alert-message alert alert-${type} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideInRight 0.3s ease;">
                     <div class="alert-content d-flex align-items-center">
@@ -102,9 +104,9 @@
                     </div>
                 </div>
             `;
-            
+
             messageWrapper.insertAdjacentHTML('beforeend', messageHTML);
-            
+
             // Auto remove after duration
             setTimeout(() => {
                 const msgElement = document.getElementById(messageId);
@@ -138,7 +140,7 @@
                 opacity: 1;
             }
         }
-        
+
         @keyframes slideOutRight {
             from {
                 transform: translateX(0);

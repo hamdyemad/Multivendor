@@ -1,4 +1,4 @@
-<div class="col-xxl-8 mb-25">
+<div class="col-xxl-12 mb-25">
     <div class="card border-0 px-25">
         <div class="card-header px-0 border-0">
             <h6>{{ trans('dashboard.recent_activities') }}</h6>

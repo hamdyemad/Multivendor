@@ -308,7 +308,7 @@ Departments | Bnaia
                                 @can('departments.view')
                                 <li>
                                     <a href="{{ url('admin/category-management/departments') }}/${row.department_id}"
-                                    class="view table_action_father btn btn-warning"
+                                    class="view table_action_father btn btn-warning me-1"
                                     title="{{ trans('common.view') }}">
                                         <i class="uil uil-eye table_action_icon"></i>
                                     </a>
@@ -317,7 +317,7 @@ Departments | Bnaia
                                 @can('departments.edit')
                                 <li>
                                     <a href="{{ url('admin/category-management/departments') }}/${row.department_id}/edit"
-                                    class="edit table_action_father btn btn-info"
+                                    class="edit table_action_father btn btn-info me-1"
                                     title="{{ trans('common.edit') }}">
                                         <i class="uil uil-edit table_action_icon"></i>
                                     </a>

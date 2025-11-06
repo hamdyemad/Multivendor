@@ -118,3 +118,7 @@ textarea.form-control.ih-medium {
 .image-preview-container.logo-preview-container {
     height: 48px !important;
 }
+
+label {
+    font-weight: bold !important;
+}

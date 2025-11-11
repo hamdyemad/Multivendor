@@ -62,7 +62,7 @@
                                                 <span class="text-danger">*</span>
                                             </label>
                                             <input type="text" name="translations[{{ $language->id }}][title]" id="title_{{ $language->code }}"
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15" 
+                                                class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                 placeholder="{{ $language->code == 'ar' ? 'أدخل عنوان المنتج' : 'Enter product title' }}"
                                                 {{ $language->rtl ? 'dir=rtl' : '' }}>
                                         </div>
@@ -272,12 +272,12 @@
                                 <i class="uil uil-check-circle" style="font-size: 22px;"></i>
                                 Review & Submit
                             </h5>
-                            
+
                             <div id="review-validation-errors" class="alert alert-danger" style="display: none;">
                                 <h6 class="alert-heading"><i class="uil uil-exclamation-triangle"></i> Validation Errors</h6>
                                 <div id="review-errors-list"></div>
                             </div>
-                            
+
                             <div class="alert alert-info">
                                 <i class="uil uil-info-circle"></i> Please review your information before submitting
                             </div>
@@ -359,6 +359,7 @@
 
 @push('scripts')
 <script>
+// Product form configuration
 window.productFormConfig = {
     categoriesRoute: '/api/categories',
     subCategoriesRoute: '/api/sub-categories',

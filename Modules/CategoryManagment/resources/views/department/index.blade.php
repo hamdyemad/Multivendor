@@ -34,7 +34,7 @@ Departments | Bnaia
                         @endcan
                     </div>
                     <div class="alert alert-info glowing-alert" role="alert">
-                        As soon as you type anything, the search will be performed instantly (live search).
+                        {{ __('common.live_search_info') }}
                     </div>
 
                     {{-- Search and Filter --}}
@@ -87,18 +87,16 @@ Departments | Bnaia
                                                 id="created_date_to">
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <button type="button" id="exportExcel" style="width: 100%;"
-                                            class="btn btn-primary btn-default btn-squared"
+                                    <div class="col-md-12 d-flex">
+                                        <button type="button" id="exportExcel"
+                                            class="btn btn-primary btn-default btn-squared me-1"
                                             title="{{ __('common.excel') }}">
-                                            <i class="uil uil-file-download-alt m-0"></i> Export Excel Sheet
+                                            <i class="uil uil-file-download-alt me-1"></i> {{ __('common.export_excel') }}
                                         </button>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <button type="button" id="resetFilters" style="width: 100%;"
+                                        <button type="button" id="resetFilters"
                                             class="btn btn-warning btn-default btn-squared"
-                                            title="{{ __('common.reset') ?? 'Reset' }}">
-                                            <i class="uil uil-redo m-0"></i> Reset Search Form
+                                            title="{{ __('common.reset') }}">
+                                            <i class="uil uil-redo me-1"></i> {{ __('common.reset_filters') }}
                                         </button>
                                     </div>
                                 </div>
@@ -126,10 +124,6 @@ Departments | Bnaia
                                 <tr class="userDatatable-header">
                                     <th>
                                         <span class="userDatatable-title">#</span>
-                                    </th>
-                                    <th>
-                                        <span
-                                            class="userDatatable-title">{{ trans('categorymanagment::department.image') }}</span>
                                     </th>
                                     @foreach ($languages as $language)
                                         <th>
@@ -234,20 +228,6 @@ Departments | Bnaia
                             return data;
                         }
                     },
-                    // Image column
-                    {
-                        data: 'image',
-                        name: 'image',
-                        orderable: false,
-                        searchable: false,
-                        render: function(data) {
-                            if (data) {
-                                return '<img src="{{ asset('storage/') }}/' + data +
-                                    '" alt="Department Image" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">';
-                            }
-                            return '<span class="text-muted">-</span>';
-                        }
-                    },
                     // Name columns for each language
                     @foreach ($languages as $language)
                         {
@@ -308,7 +288,7 @@ Departments | Bnaia
                                 @can('departments.view')
                                 <li>
                                     <a href="{{ url('admin/category-management/departments') }}/${row.department_id}"
-                                    class="view table_action_father btn btn-warning me-1"
+                                    class="view table_action_father btn btn-primary me-1"
                                     title="{{ trans('common.view') }}">
                                         <i class="uil uil-eye table_action_icon"></i>
                                     </a>
@@ -317,7 +297,7 @@ Departments | Bnaia
                                 @can('departments.edit')
                                 <li>
                                     <a href="{{ url('admin/category-management/departments') }}/${row.department_id}/edit"
-                                    class="edit table_action_father btn btn-info me-1"
+                                    class="edit table_action_father btn btn-warning me-1"
                                     title="{{ trans('common.edit') }}">
                                         <i class="uil uil-edit table_action_icon"></i>
                                     </a>

@@ -47,7 +47,7 @@
         font-size: 16px;
         font-weight: 500;
         margin-left: -70px;
-        transition: opacity 0.3s ease, margin-left 0.3s ease;
+        transition: opacity 0.3s ease, margin-left 0.3s ease, margin-right 0.3s ease;
         transform: translateX(-10px);
     }
 
@@ -85,7 +85,7 @@
     }
 
     [dir="rtl"] .whatsapp-float i {
-        margin-left: 8px;
+        margin-left: 0;
         margin-right: 0;
     }
 
@@ -96,11 +96,14 @@
 
     [dir="rtl"] .whatsapp-float .whatsapp-text {
         margin-left: 0;
-        margin-right: 8px;
+        margin-right: -70px;
+        transform: translateX(10px);
     }
 
     [dir="rtl"] .whatsapp-float:hover .whatsapp-text {
+        margin-left: 0;
         margin-right: 8px;
+        transform: translateX(0);
     }
 
     /* Responsive */

@@ -1,6 +1,6 @@
 {
   "Modules/CatalogManagement/resources/assets/js/product-form.js": {
-    "file": "assets/product-form-Dz7e8yxU.js",
+    "file": "assets/product-form-B-aG9h3j.js",
     "name": "product-form",
     "src": "Modules/CatalogManagement/resources/assets/js/product-form.js",
     "isEntry": true
@@ -36,12 +36,12 @@
     ]
   },
   "resources/scss/app.scss": {
-    "file": "assets/app-CMflWtKl.css",
+    "file": "assets/app-qe5YeA2m.css",
     "src": "resources/scss/app.scss",
     "isEntry": true
   },
   "resources/scss/progress-bar.scss": {
-    "file": "assets/progress-bar-DnrNSN-T.css",
+    "file": "assets/progress-bar-Beg3Z42P.css",
     "src": "resources/scss/progress-bar.scss",
     "isEntry": true
   },

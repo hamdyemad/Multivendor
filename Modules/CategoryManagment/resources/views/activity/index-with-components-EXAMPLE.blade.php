@@ -18,8 +18,8 @@
 
         <div class="row">
             <div class="col-lg-12">
-
                 <div class="userDatatable global-shadow border-light-0 p-30 bg-white radius-xl w-100 mb-30">
+                    {{-- Header with Add Button --}}
                     <div class="d-flex justify-content-between align-items-center mb-25">
                         <h4 class="mb-0 fw-500">{{ __('activity.activities_management') }}</h4>
                         @can('activities.create')
@@ -31,117 +31,53 @@
                             </div>
                         @endcan
                     </div>
-                    <div class="alert alert-info  glowing-alert" role="alert">
-                        {{ __('common.live_search_info') }}
-                    </div>
-                    {{-- Search and Filter --}}
-                    <div class="mb-25">
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-body">
-                                <div class="row g-3 align-items-end">
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="search"
-                                                class="il-gray fs-14 fw-500 mb-10">{{ __('common.search') }}</label>
-                                            <input type="text"
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                id="search" placeholder="{{ __('activity.search_by_name') }}"
-                                                autocomplete="off">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="active"
-                                                class="il-gray fs-14 fw-500 mb-10">{{ __('activity.activation') }}</label>
-                                            <select
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="active">
-                                                <option value="">{{ __('activity.all') }}</option>
-                                                <option value="1">{{ __('activity.active') }}</option>
-                                                <option value="0">{{ __('activity.inactive') }}</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="created_date_from"
-                                                class="il-gray fs-14 fw-500 mb-10">{{ __('common.created_date_from') }}</label>
-                                            <input type="date"
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                id="created_date_from">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="created_date_to"
-                                                class="il-gray fs-14 fw-500 mb-10">{{ __('common.created_date_to') }}</label>
-                                            <input type="date"
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                id="created_date_to">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12 d-flex align-items-center">
-                                        <button type="button" id="exportExcel"
-                                            class="btn btn-primary btn-default btn-squared me-1"
-                                            title="{{ __('common.excel') }}">
-                                            <i class="uil uil-file-download-alt me-1"></i> {{ __('common.export_excel') }}
-                                        </button>
-                                        <button type="button" id="resetFilters"
-                                            class="btn btn-warning btn-default btn-squared"
-                                            title="{{ __('common.reset') }}">
-                                            <i class="uil uil-redo me-1"></i>
-                                            {{ __('common.reset_filters') }}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    {{-- Entries Per Page Selector --}}
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="d-flex align-items-center">
-                            <label class="me-2 mb-0">{{ __('common.show') ?? 'Show' }}</label>
-                            <select id="entriesSelect" class="form-select form-select-sm" style="width: auto;">
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                            </select>
-                            <label class="ms-2 mb-0">{{ __('common.entries') ?? 'entries' }}</label>
-                        </div>
-                    </div>
+                    {{-- Filters Component --}}
+                    <x-datatable-filters 
+                        :searchPlaceholder="__('activity.search_by_name')"
+                        :showActiveFilter="true"
+                        :activeOptions="[
+                            'label' => __('activity.activation'),
+                            'all' => __('activity.all'),
+                            'active' => __('activity.active'),
+                            'inactive' => __('activity.inactive')
+                        ]"
+                    />
 
-                    <div class="table-responsive">
-                        <table id="activitiesDataTable" class="table mb-0 table-bordered table-hover" style="width:100%">
-                            <thead>
-                                <tr class="userDatatable-header">
-                                    <th><span class="userDatatable-title">#</span></th>
-                                    @foreach ($languages as $language)
-                                        <th>
-                                            <span class="userDatatable-title"
-                                                @if ($language->rtl) dir="rtl" @endif>
-                                                {{ __('activity.name') }} ({{ $language->name }})
-                                            </span>
-                                        </th>
-                                    @endforeach
-                                    <th><span class="userDatatable-title">{{ __('activity.activation') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('activity.created_at') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('common.actions') }}</span></th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
+                    {{-- Table Component --}}
+                    <x-datatable-table 
+                        tableId="activitiesDataTable"
+                        :languages="$languages"
+                        :columns="[
+                            'nameLabel' => __('activity.name'),
+                            'additional' => [
+                                __('activity.activation'),
+                                __('activity.created_at')
+                            ]
+                        ]"
+                    />
                 </div>
             </div>
         </div>
     </div>
+
     {{-- Delete Confirmation Modal with Loading Component --}}
-    <x-delete-with-loading modalId="modal-delete-activity" tableId="activitiesDataTable" deleteButtonClass="delete-activity"
-        :title="__('main.confirm delete')" :message="__('main.are you sure you want to delete this')" itemNameId="delete-activity-name" confirmBtnId="confirmDeleteBtn"
-        :cancelText="__('main.cancel')" :deleteText="__('main.delete')" :loadingDeleting="trans('main.deleting') ?? 'Deleting...'" :loadingPleaseWait="trans('main.please wait') ?? 'Please wait...'" :loadingDeletedSuccessfully="trans('main.deleted success') ?? 'Deleted Successfully!'" :loadingRefreshing="trans('main.refreshing') ?? 'Refreshing...'"
-        :errorDeleting="__('main.error on delete')" />
+    <x-delete-with-loading 
+        modalId="modal-delete-activity" 
+        tableId="activitiesDataTable" 
+        deleteButtonClass="delete-activity"
+        :title="__('main.confirm delete')" 
+        :message="__('main.are you sure you want to delete this')" 
+        itemNameId="delete-activity-name" 
+        confirmBtnId="confirmDeleteBtn"
+        :cancelText="__('main.cancel')" 
+        :deleteText="__('main.delete')" 
+        :loadingDeleting="trans('main.deleting') ?? 'Deleting...'" 
+        :loadingPleaseWait="trans('main.please wait') ?? 'Please wait...'" 
+        :loadingDeletedSuccessfully="trans('main.deleted success') ?? 'Deleted Successfully!'" 
+        :loadingRefreshing="trans('main.refreshing') ?? 'Refreshing...'"
+        :errorDeleting="__('main.error on delete')" 
+    />
 @endsection
 
 @push('after-body')
@@ -153,28 +89,21 @@
         $(document).ready(function() {
             let per_page = 10;
 
-
             // Server-side processing with pagination
             var table = $('#activitiesDataTable').DataTable({
                 processing: true,
-                serverSide: true, // Server-side processing
+                serverSide: true,
                 ajax: {
                     url: '{{ route('admin.category-management.activities.datatable') }}',
                     type: 'GET',
                     data: function(d) {
-                        // Map DataTables parameters to backend parameters
                         d.per_page = d.length;
                         d.page = (d.start / d.length) + 1;
-
-                        // Add search parameter from custom input
                         d.search = $('#search').val();
-
-                        // Add filter parameters
                         d.active = $('#active').val();
                         d.created_date_from = $('#created_date_from').val();
                         d.created_date_to = $('#created_date_to').val();
 
-                        // Add sorting parameters
                         if (d.order && d.order.length > 0) {
                             d.orderColumnIndex = d.order[0].column;
                             d.orderDirection = d.order[0].dir;
@@ -192,7 +121,6 @@
                         return d;
                     },
                     dataSrc: function(json) {
-                        // Map backend response to DataTables format
                         json.recordsTotal = json.total || json.recordsTotal || 0;
                         json.recordsFiltered = json.recordsFiltered || json.total || 0;
                         return json.data || [];
@@ -203,7 +131,6 @@
                     }
                 },
                 columns: [
-                    // ID column
                     {
                         data: 'index',
                         name: 'index',
@@ -213,27 +140,21 @@
                             return data;
                         }
                     },
-                    // Name columns for each language
                     @foreach ($languages as $language)
                         {
                             data: 'translations.{{ $language->code }}.name',
                             name: 'name_{{ $language->code }}',
                             render: function(data, type, row) {
-                                // For sorting, return the raw text value
                                 if (type === 'sort' || type === 'type') {
-                                    return row.translations && row.translations[
-                                            '{{ $language->code }}'] ?
+                                    return row.translations && row.translations['{{ $language->code }}'] ?
                                         row.translations['{{ $language->code }}'].name : '-';
                                 }
 
-                                // For display, return formatted HTML
-                                if (row.translations && row.translations[
-                                        '{{ $language->code }}']) {
+                                if (row.translations && row.translations['{{ $language->code }}']) {
                                     const translation = row.translations['{{ $language->code }}'];
                                     const name = translation.name || '-';
                                     if (translation.rtl) {
-                                        return '<span dir="rtl">' + $('<div>').text(name).html() +
-                                            '</span>';
+                                        return '<span dir="rtl">' + $('<div>').text(name).html() + '</span>';
                                     }
                                     return $('<div>').text(name).html();
                                 }
@@ -241,17 +162,14 @@
                             }
                         },
                     @endforeach
-                    // Active Status column
                     {
                         data: 'active',
                         name: 'active',
                         render: function(data, type, row) {
-                            // For sorting, return numeric value
                             if (type === 'sort' || type === 'type') {
                                 return data ? 1 : 0;
                             }
 
-                            // For display, return formatted HTML
                             if (data == 1) {
                                 return '<span class="badge badge-success badge-round badge-lg">{{ __('activity.active') }}</span>';
                             } else {
@@ -259,7 +177,6 @@
                             }
                         }
                     },
-                    // Created At column
                     {
                         data: 'created_at',
                         name: 'created_at',
@@ -267,19 +184,15 @@
                             return data;
                         }
                     },
-                    // Actions column
                     {
                         data: null,
                         name: 'actions',
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            let viewRoute =
-                                '{{ route('admin.category-management.activities.show', ':id') }}',
-                                editRoute =
-                                '{{ route('admin.category-management.activities.edit', ':id') }}',
-                                deleteRoute =
-                                '{{ route('admin.category-management.activities.destroy', ':id') }}';
+                            let viewRoute = '{{ route('admin.category-management.activities.show', ':id') }}',
+                                editRoute = '{{ route('admin.category-management.activities.edit', ':id') }}',
+                                deleteRoute = '{{ route('admin.category-management.activities.destroy', ':id') }}';
                             return `
                             <ul class="mb-0 d-flex flex-wrap justify-content-start">
                                 @can('activities.show')
@@ -319,13 +232,8 @@
                     }
                 ],
                 pageLength: per_page,
-                lengthMenu: [
-                    [10, 25, 50, 100],
-                    [10, 25, 50, 100]
-                ],
-                order: [
-                    [0, 'desc']
-                ],
+                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+                order: [[0, 'desc']],
                 pagingType: 'full_numbers',
                 dom: '<"row"<"col-sm-12"tr>>' +
                     '<"row mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
@@ -336,7 +244,7 @@
                     },
                     title: '{{ __('activity.activities_management') }}'
                 }],
-                searching: true, // Enable built-in search
+                searching: true,
                 language: {
                     lengthMenu: "{{ __('common.show') ?? 'Show' }} _MENU_",
                     info: "{{ __('common.showing') ?? 'Showing' }} _START_ {{ __('common.to') ?? 'to' }} _END_ {{ __('common.of') ?? 'of' }} _TOTAL_ {{ __('common.entries') ?? 'entries' }}",
@@ -385,7 +293,7 @@
                 clearTimeout(searchTimer);
                 searchTimer = setTimeout(function() {
                     console.log('🔍 Search triggered:', $('#search').val());
-                    table.ajax.reload(); // Reload data from server with new search value
+                    table.ajax.reload();
                 }, 500);
             });
 
@@ -398,7 +306,6 @@
             // Custom filter function for active status and dates on cached data
             $.fn.dataTable.ext.search.push(
                 function(settings, data, dataIndex) {
-                    // Only apply to activities table
                     if (settings.nTable.id !== 'activitiesDataTable') {
                         return true;
                     }
@@ -407,11 +314,8 @@
                     var dateFrom = $('#created_date_from').val();
                     var dateTo = $('#created_date_to').val();
 
-                    // Active filter (column {{ count($languages) + 1 }})
                     if (activeFilter && activeFilter !== '') {
                         var colIndex = {{ count($languages) + 1 }};
-
-                        // Get the actual rendered cell content (with HTML)
                         var rowNode = table.row(dataIndex).node();
                         if (!rowNode) {
                             return true;
@@ -422,33 +326,25 @@
                             return true;
                         }
 
-                        // Get the HTML content of the cell
                         var cellHtml = $(cells[colIndex]).html();
-
                         if (!cellHtml) {
                             return true;
                         }
 
-                        // Check if the cell contains the success badge (active) or danger badge (inactive)
                         var isActiveRow = cellHtml.indexOf('badge-success') > -1;
                         var isInactiveRow = cellHtml.indexOf('badge-danger') > -1;
 
-                        // Filter logic
                         if (activeFilter === '1') {
-                            // Show only active rows (must have badge-success)
                             return isActiveRow;
                         } else if (activeFilter === '0') {
-                            // Show only inactive rows (must have badge-danger)
                             return isInactiveRow;
                         }
                     }
 
-                    // Date filters (column {{ count($languages) + 2 }})
                     if (dateFrom || dateTo) {
                         var dateColumn = data[{{ count($languages) + 2 }}];
                         if (dateColumn) {
-                            var rowDate = dateColumn.replace(/<[^>]*>/g, '').trim().split(' ')[
-                                0]; // Extract YYYY-MM-DD
+                            var rowDate = dateColumn.replace(/<[^>]*>/g, '').trim().split(' ')[0];
                             if (dateFrom && rowDate < dateFrom) return false;
                             if (dateTo && rowDate > dateTo) return false;
                         }
@@ -458,7 +354,7 @@
                 }
             );
 
-            // Server-side filter event listeners - reload data when filters change
+            // Server-side filter event listeners
             $('#active, #created_date_from, #created_date_to').on('change', function() {
                 console.log('Filter changed:', $(this).attr('id'), '=', $(this).val());
                 table.ajax.reload();
@@ -467,16 +363,12 @@
             // Reset filters button
             $('#resetFilters').on('click', function() {
                 console.log('Resetting all filters...');
-                // Clear all filter inputs
                 $('#search').val('');
                 $('#active').val('');
                 $('#created_date_from').val('');
                 $('#created_date_to').val('');
-                // Clear search and reload table
                 table.search('').ajax.reload();
             });
-
-            // Delete functionality is now handled by the delete-with-loading component
         });
     </script>
 @endpush

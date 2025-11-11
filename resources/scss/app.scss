@@ -1,5 +1,8 @@
 @use "variables" as *;
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap');
+
 /* Bootstrap-styled pagination - smaller and cleaner */
+
 
 .pagination {
     justify-content: end;
@@ -24,4 +27,48 @@
 
 label {
     font-weight: bold !important;
+}
+
+
+.btn-danger, .btn-danger:focus {
+    background-color: var(--second-primary);
+    &:hover {
+        opacity: 0.6;
+    }
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--color-primary);
+}
+
+.table.dataTable thead th, table.dataTable thead td, table.dataTable tfoot th, table.dataTable tfoot td {
+    text-align: left;
+}
+
+
+// Cards
+
+.card {
+    padding: 0;
+    .card-header {
+        background: linear-gradient(to right, var(--color-primary), var(--second-primary));
+        // color: white;
+        h3 {
+            color: white;
+        }
+    }
+}
+
+html[dir="rtl"] {
+    body,.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
+        font-family: "Cairo", sans-serif !important;
+    }
+    .card {
+        .card-header {
+            background: linear-gradient(to left, var(--color-primary), var(--second-primary));
+        }
+    }
+    .table.dataTable thead th, table.dataTable thead td, table.dataTable tfoot th, table.dataTable tfoot td {
+        text-align: right;
+    }
 }

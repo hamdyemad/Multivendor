@@ -57,10 +57,9 @@
         }
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDduF2tLXicDEPDMAtC6-NLOekX0A5vlnY"></script>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
     <script src="{{ asset('assets/js/plugins.min.js') }}"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     {{-- Add stub functions for missing plugins to prevent console errors --}}
     <script>
@@ -82,9 +81,37 @@
     @vite('resources/js/app.js')
 
     <script>
-        $('.select2').select2({
-            theme: 'bootstrap-5',
-            width: '100%'
+        // Wait for everything to load, then dynamically load select2
+        window.addEventListener('load', function() {
+            console.log('Page fully loaded');
+            console.log('jQuery available:', typeof $ !== 'undefined');
+            
+            // Dynamically load select2
+            var select2Script = document.createElement('script');
+            select2Script.src = 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js';
+            select2Script.onload = function() {
+                console.log('Select2 script loaded');
+                console.log('Select2 loaded:', typeof $.fn.select2 !== 'undefined');
+                console.log('Select2 elements found:', $('.select2').length);
+                
+                // Initialize all select2 elements
+                if (typeof $.fn.select2 !== 'undefined') {
+                    $('.select2').each(function() {
+                        $(this).select2({
+                            width: '100%',
+                            placeholder: $(this).data('placeholder') || 'Select an option',
+                            allowClear: true
+                        });
+                    });
+                    console.log('Select2 initialized successfully');
+                } else {
+                    console.error('Select2 is not loaded!');
+                }
+            };
+            select2Script.onerror = function() {
+                console.error('Failed to load Select2 script');
+            };
+            document.head.appendChild(select2Script);
         });
 
         // Custom message function using utilities message system
@@ -172,6 +199,62 @@
             }
         }
     </style>
+
+    {{-- Make date inputs fully clickable --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to make date inputs clickable
+            function makeDateInputsClickable() {
+                const dateInputs = document.querySelectorAll('input[type="date"]');
+                
+                dateInputs.forEach(function(input) {
+                    // Remove any existing click listeners to avoid duplicates
+                    input.removeEventListener('click', openDatePicker);
+                    
+                    // Add click event to open date picker
+                    input.addEventListener('click', openDatePicker);
+                    
+                    // Also handle focus event
+                    input.addEventListener('focus', openDatePicker);
+                });
+            }
+            
+            // Function to open the date picker
+            function openDatePicker(event) {
+                const input = event.target;
+                
+                // Try modern showPicker() API first (supported in newer browsers)
+                if (typeof input.showPicker === 'function') {
+                    try {
+                        input.showPicker();
+                    } catch (error) {
+                        // Fallback for browsers that don't support showPicker
+                        console.log('showPicker not supported, using fallback');
+                    }
+                }
+            }
+            
+            // Initialize on page load
+            makeDateInputsClickable();
+            
+            // Re-initialize when new content is dynamically loaded
+            // Watch for DOM changes (useful for AJAX-loaded content)
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.addedNodes.length) {
+                        makeDateInputsClickable();
+                    }
+                });
+            });
+            
+            // Start observing the document body for changes
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        });
+    </script>
+
     @stack('scripts')
 
 </body>

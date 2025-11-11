@@ -39,7 +39,7 @@
 
                     {{-- Alert --}}
                     <div class="alert alert-info glowing-alert" role="alert">
-                        As soon as you type anything, the search will be performed instantly (live search).
+                        {{ __('common.live_search_info') }}
                     </div>
 
                     {{-- Search & Filters --}}

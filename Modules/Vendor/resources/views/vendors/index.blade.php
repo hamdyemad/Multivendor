@@ -37,7 +37,7 @@
                     </div>
 
                     <div class="alert alert-info glowing-alert" role="alert">
-                        As soon as you type anything, the search will be performed instantly (live search).
+                        {{ __('common.live_search_info') }}
                     </div>
 
                     {{-- Search & Filters --}}
@@ -106,15 +106,15 @@
                                         <button type="button" id="exportExcel"
                                             class="btn btn-primary btn-default btn-squared w-100"
                                             title="{{ __('common.excel') }}">
-                                            <i class="uil uil-file-download-alt m-0"></i> Export Excel Sheet
+                                            <i class="uil uil-file-download-alt me-1"></i> {{ __('common.export_excel') }}
                                         </button>
                                     </div>
 
                                     <div class="col-md-6">
                                         <button type="button" id="resetFilters"
                                             class="btn btn-warning btn-default btn-squared w-100"
-                                            title="{{ __('common.reset') ?? 'Reset' }}">
-                                            <i class="uil uil-redo m-0"></i> Reset Search Form
+                                            title="{{ __('common.reset') }}">
+                                            <i class="uil uil-redo me-1"></i> {{ __('common.reset_filters') }}
                                         </button>
                                     </div>
 

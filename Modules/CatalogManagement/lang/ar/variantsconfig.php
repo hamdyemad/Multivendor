@@ -11,6 +11,7 @@ return [
     'tree_view' => 'عرض الشجرة',
     'variants_configurations_tree' => 'شجرة تكوينات المتغيرات',
     'children_count' => 'عدد الأطفال',
+    'children' => 'الأطفال',
     'variants' => 'المتغيرات',
     'variants_count' => 'عدد المتغيرات',
     'no_variants_configs_found' => 'لم يتم العثور على تكوينات متغيرة',

@@ -1,7 +1,6 @@
 @extends('layout.app')
-@section('title')
-    Admins | Bnaia
-@endsection
+@section('title', trans('admin.admins_management'))
+
 @section('content')
     <div class="container-fluid">
         <div class="row">
@@ -33,7 +32,7 @@
 
                     {{-- Alert --}}
                     <div class="alert alert-info glowing-alert" role="alert">
-                        As soon as you type anything, the search will be performed instantly (live search).
+                        {{ __('common.live_search_info') }}
                     </div>
 
                     {{-- Search & Filters --}}
@@ -98,24 +97,18 @@
                                         </div>
                                     </div>
 
-                                    {{-- Excel Export --}}
-                                    <div class="col-md-6">
+                                    <div class="col-md-12 d-flex">
                                         <button type="button" id="exportExcel"
-                                            class="btn btn-primary btn-default btn-squared w-100"
-                                            title="{{ trans('common.excel') }}">
-                                            <i class="uil uil-file-download-alt m-0"></i> {{ trans('common.excel') }}
+                                            class="btn btn-primary btn-default btn-squared me-1"
+                                            title="{{ __('common.excel') }}">
+                                            <i class="uil uil-file-download-alt me-1"></i> {{ __('common.export_excel') }}
                                         </button>
-                                    </div>
-
-                                    {{-- Reset Filters --}}
-                                    <div class="col-md-6">
                                         <button type="button" id="resetFilters"
-                                            class="btn btn-warning btn-default btn-squared w-100"
-                                            title="{{ trans('common.reset') }}">
-                                            <i class="uil uil-redo m-0"></i> {{ trans('common.reset') }}
+                                            class="btn btn-warning btn-default btn-squared"
+                                            title="{{ __('common.reset') }}">
+                                            <i class="uil uil-redo me-1"></i> {{ __('common.reset_filters') }}
                                         </button>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
@@ -284,7 +277,7 @@
                                 <div class="orderDatatable_actions d-inline-flex gap-1">
                                     @can('admins.show')
                                     <a href="{{ route('admin.admin-management.admins.index') }}/${row.id}"
-                                    class="view btn btn-warning table_action_father"
+                                    class="view btn btn-primary table_action_father"
                                     title="{{ trans('common.view') }}">
                                         <i class="uil uil-eye table_action_icon"></i>
                                     </a>
@@ -292,7 +285,7 @@
 
                                     @can('admins.edit')
                                     <a href="{{ route('admin.admin-management.admins.index') }}/${row.id}/edit"
-                                    class="edit btn btn-info table_action_father"
+                                    class="edit btn btn-warning table_action_father"
                                     title="{{ trans('common.edit') }}">
                                         <i class="uil uil-edit table_action_icon"></i>
                                     </a>

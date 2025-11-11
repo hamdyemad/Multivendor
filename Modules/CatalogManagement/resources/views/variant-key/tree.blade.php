@@ -1,4 +1,5 @@
 @extends('layout.app')
+@section('title', trans('catalogmanagement::variantkey.tree_view'))
 
 @section('styles')
     @vite(['Modules/CatalogManagement/resources/css/tree-view.css'])

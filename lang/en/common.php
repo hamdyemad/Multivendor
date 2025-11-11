@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'project_name' => 'Bnaia',
     'actions' => 'Actions',
     'view' => 'View',
     'edit' => 'Edit',

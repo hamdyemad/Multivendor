@@ -2,23 +2,24 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HumanDates;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Translation;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Role extends Model
 {
-    use Translation, SoftDeletes;
-    
+    use Translation, SoftDeletes, HumanDates;
+
     protected $guarded = [];
 
-    
+
     const SUPER_ADMIN_ROLE_TYPE = 'super_admin';
     const ADMIN_ROLE_TYPE = 'admin';
     const VENDOR_ROLE_TYPE = 'vendor';
     const OTHER_ROLE_TYPE = 'other';
 
-    
+
     /**
      * The attributes that are translatable.
      *
@@ -32,7 +33,7 @@ class Role extends Model
      */
     public function getNameAttribute()
     {
-        return $this->getTranslation('name', app()->getLocale()) 
+        return $this->getTranslation('name', app()->getLocale())
                ?? $this->getTranslation('name', config('app.fallback_locale'))
                ?? 'Unnamed Role';
     }
@@ -61,7 +62,7 @@ class Role extends Model
         if(isset($filter['with'])) {
             $query->with($filter['with']);
         }
-        
+
         if(isset($filter['search']) && !empty($filter['search'])) {
             $query->whereHas('translations', function($query) use ($filter) {
                 $query->where('lang_value', 'like', '%' . $filter['search'] . '%');

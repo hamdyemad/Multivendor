@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HumanDates;
 use App\Traits\Translation;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,7 +16,7 @@ use Modules\Vendor\app\Models\Vendor;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, Translation, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, Translation, SoftDeletes, HumanDates;
 
     /**
      * The relationships that should always be loaded.
@@ -155,7 +156,7 @@ class User extends Authenticatable
         if (!empty($filters['created_date_from'])) {
             $query->whereDate('created_at', '>=', $filters['created_date_from']);
         }
-        
+
         if (!empty($filters['created_date_to'])) {
             $query->whereDate('created_at', '<=', $filters['created_date_to']);
         }

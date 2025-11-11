@@ -23,13 +23,13 @@ class AdminAction
         $draw = $request->get('draw', 1);
         $start = $request->get('start', 0);
         $length = $request->get('length', 10);
-        
+
         // Get search value
         $searchValue = $request->get('search');
         if (is_array($searchValue)) {
             $searchValue = $searchValue['value'] ?? '';
         }
-        
+
         $orderColumnIndex = $request->get('order')[0]['column'] ?? 0;
         $orderDirection = $request->get('order')[0]['dir'] ?? 'desc';
 
@@ -64,7 +64,7 @@ class AdminAction
 
         // Get admins with sorting applied
         $query = $this->adminService->getAdminsQuery($filters, $orderBy, $orderDirection);
-        
+
         // Apply pagination
         $perPage = $request->get('per_page', 10);
         $page = $request->get('page', 1);
@@ -111,7 +111,7 @@ class AdminAction
     {
         $orderBy = null;
         $sortBy = $request->get('sort_by');
-        
+
         if ($sortBy) {
             if (strpos($sortBy, 'name_') === 0) {
                 $languageId = str_replace('name_', '', $sortBy);
@@ -147,13 +147,13 @@ class AdminAction
     protected function formatDataForDataTables($admins, $languages)
     {
         $data = [];
-        
+
         foreach ($admins as $admin) {
             $row = [];
-            
+
             // ID
             $row['id'] = $admin->id;
-            
+
             // Names for each language
             $row['names'] = [];
             foreach ($languages as $language) {
@@ -161,33 +161,33 @@ class AdminAction
                     ->where('lang_id', $language->id)
                     ->where('lang_key', 'name')
                     ->first();
-                
+
                 $row['names'][$language->id] = [
                     'value' => $translation ? $translation->lang_value : '-',
                     'rtl' => $language->rtl
                 ];
             }
-            
+
             // Email
             $row['email'] = $admin->email;
-            
+
             // Role
-            $row['role'] = $admin->roles->isNotEmpty() 
-                ? $admin->roles->first()->getTranslation('name', app()->getLocale()) 
+            $row['role'] = $admin->roles->isNotEmpty()
+                ? $admin->roles->first()->getTranslation('name', app()->getLocale())
                 : '-';
-            
+
             // Active Status
             $row['active'] = $admin->active ?? true;
-            
+
             // Created At
-            $row['created_at'] = $admin->created_at ? $admin->created_at->format('Y-m-d H:i') : '-';
-            
+            $row['created_at'] = $admin->created_at ? $admin->created_at : '-';
+
             // Admin name for delete modal
             $nameTranslation = $admin->translations()->where('lang_key', 'name')->first();
-            $row['display_name'] = $nameTranslation && $nameTranslation->lang_value 
-                ? $nameTranslation->lang_value 
+            $row['display_name'] = $nameTranslation && $nameTranslation->lang_value
+                ? $nameTranslation->lang_value
                 : 'Admin';
-            
+
             $data[] = $row;
         }
 

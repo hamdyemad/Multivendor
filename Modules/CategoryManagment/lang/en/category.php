@@ -10,7 +10,7 @@ return [
 
     // Form Fields
     'name' => 'Name',
-    'name_english' => 'Name (English)',
+    'name_english' => 'Name',
     'name_arabic' => 'الاسم باللغه العربيه',
     'description' => 'Description',
     'description_english' => 'Description (English)',

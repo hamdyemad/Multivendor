@@ -25,19 +25,19 @@ class RoleAction {
         protected RoleRepositoryInterface $roleRepositoryInterface
         )
     {
-        
+
     }
    public function getDataTable($data) {
         $draw = $data['draw'];
         $start = $data['start'];
         $length = $data['length'];
-        
+
         // Get search value from custom parameter or DataTables default
         $searchValue = $data['search'];
         if (is_array($searchValue)) {
             $searchValue = $searchValue['value'] ?? '';
         }
-        
+
         $orderColumnIndex = $data['orderColumnIndex'];
         $orderDirection = $data['orderDirection'];
 
@@ -58,17 +58,17 @@ class RoleAction {
         $filteredRecords = clone($baseQuery);
         $filteredRecords = $filteredRecords->count();
         $query = $baseQuery;
-        
+
         // Clear existing orders to prevent conflicts with latest() in base query
         $query->reorder();
-        
+
         // Apply sorting
         // Check if sorting by name column (columns 1 to count($languages))
         if ($orderColumnIndex >= 1 && $orderColumnIndex <= count($languages)) {
             // Get the language for this column
             $languageIndex = $orderColumnIndex - 1;
             $selectedLanguage = $languages->values()->get($languageIndex);
-            
+
             // Join with translations table to sort by translated name
             $query->leftJoin('translations as trans_sort', function($join) use ($selectedLanguage) {
                 $join->on('roles.id', '=', 'trans_sort.translatable_id')
@@ -121,10 +121,10 @@ class RoleAction {
                 'id' => $role->id,
                 'translations' => [],
                 'permissions_count' => $role->permessions->count(),
-                'created_at' => $role->created_at->format('Y-m-d H:i'),
+                'created_at' => $role->created_at,
                 'name' => $role->name,
             ];
-            
+
             // Add translations for each language
             foreach ($languages as $language) {
                 $name = $role->getTranslation('name', $language->code) ?? '-';

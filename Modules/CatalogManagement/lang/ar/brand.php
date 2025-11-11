@@ -4,6 +4,7 @@ return [
     // Module titles
     'brands_management' => 'إدارة العلامات التجارية',
     'add_brand' => 'إضافة علامة تجارية',
+    'create_brand' => 'إنشاء علامة تجارية',
     'edit_brand' => 'تعديل علامة تجارية',
     'update_brand' => 'تحديث العلامة التجارية',
     'view_brand' => 'عرض علامة تجارية',

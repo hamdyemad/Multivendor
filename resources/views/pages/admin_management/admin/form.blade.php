@@ -1,4 +1,5 @@
 @extends('layout.app')
+@section('title', (isset($admin)) ? trans('admin.edit_admin') : trans('admin.create_admin'))
 
 @section('content')
     <div class="container-fluid">

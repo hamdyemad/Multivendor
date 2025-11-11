@@ -10,10 +10,10 @@ return [
     'activities' => 'الأنشطة',
     // Form Fields
     'name' => 'الاسم',
-    'name_english' => 'الاسم',
-    'name_arabic' => 'الاسم',
+    'name_english' => 'الاسم بالانجليزية',
+    'name_arabic' => 'الاسم بالعربية',
     'description' => 'الوصف',
-    'description_english' => 'الوصف',
+    'description_english' => 'الوصف بالانجليزية',
     'department_code' => 'رمز القسم',
     'activation' => 'التفعيل',
     'status' => 'الحالة',

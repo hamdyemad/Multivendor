@@ -45,12 +45,13 @@ class RoleRepository implements RoleRepositoryInterface
     {
         // Load permissions with their translations
         $permissions = Permession::with('translations');
-        if(auth()->user()->user_type_id == UserType::SUPER_ADMIN_TYPE) {
-            $permissions = $permissions->get();
-        } else if(auth()->user()->user_type_id == UserType::VENDOR_TYPE) {
+        
+        if(auth()->user()->user_type_id == UserType::VENDOR_TYPE) {
             $permissions = $permissions->where('type', 'other');
         }
+        
         $permissions = $permissions->get();
+        
         // Group by translated group_by field
         return $permissions->groupBy(function($permission) {
             return $permission->getTranslation('group_by', app()->getLocale()) ?? 'Other';

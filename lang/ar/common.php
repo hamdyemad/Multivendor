@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'project_name' => 'بنايه',
     'actions' => 'الإجراءات',
     'view' => 'عرض',
     'edit' => 'تعديل',
@@ -60,7 +61,7 @@ return [
     'id' => 'الرقم التعريفي',
     'language' => 'اللغة',
     'translations' => 'الترجمات',
-    
+
     // DataTables
     'entries' => 'سجل',
     'show' => 'عرض',

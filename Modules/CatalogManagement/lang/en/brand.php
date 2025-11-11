@@ -4,6 +4,7 @@ return [
     // Module titles
     'brands_management' => 'Brands Management',
     'add_brand' => 'Add Brand',
+    'create_brand' => 'Create Brand',
     'edit_brand' => 'Edit Brand',
     'update_brand' => 'Update Brand',
     'view_brand' => 'View Brand',

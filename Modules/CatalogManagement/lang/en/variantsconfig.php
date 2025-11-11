@@ -11,6 +11,7 @@ return [
     'tree_view' => 'Tree View',
     'variants_configurations_tree' => 'Variants Configurations Tree',
     'children_count' => 'Children Count',
+    'children' => 'Children',
     'variants' => 'Variants',
     'variants_count' => 'Variants Count',
     'no_variants_configs_found' => 'No variants configurations found',

@@ -1,5 +1,7 @@
 @extends('layout.app')
 
+@section('title', trans('categorymanagment::department.view_department'))
+
 @section('content')
     <div class="container-fluid">
         <div class="row">
@@ -14,7 +16,7 @@
 
         <div class="row">
             <div class="col-lg-12">
-                <div class="card border-0 shadow-sm">
+                <div class="card border-0 shadow-sm mb-3">
                     <div class="card-header bg-white border-bottom py-20 d-flex justify-content-between align-items-center">
                         <h5 class="mb-0 fw-500">{{ trans('categorymanagment::department.department_details') }}</h5>
                         <div class="d-flex gap-10">
@@ -28,140 +30,137 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            {{-- Basic Information --}}
-                            <div class="col-12">
-                                <h6 class="fw-500" style="background: #0056B7; color: white; padding: 12px 16px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
-                                    <i class="uil uil-info-circle"></i>{{ trans('common.basic_information') }}
-                                </h6>
-                            </div>
-
-                            {{-- Dynamic Language Translations for Name --}}
-                            @foreach($languages as $language)
-                                <div class="col-md-6 mt-3">
-                                    <div class="view-item">
-                                        <label class="il-gray fs-14 fw-500 mb-10" @if($language->rtl) dir="rtl" style="text-align: right; display: block;" @endif>
-                                            @if($language->code == 'ar')
-                                                الاسم بالعربية
-                                            @elseif($language->code == 'en')
-                                                {{ trans('categorymanagment::department.name_english') }}
-                                            @else
-                                                {{ trans('categorymanagment::department.name') }} ({{ $language->name }})
-                                            @endif
-                                        </label>
-                                        <p class="fs-15 color-dark fw-500" @if($language->rtl) dir="rtl" style="text-align: right;" @endif>
-                                            {{ $department->getTranslation('name', $language->code) ?? '-' }}
-                                        </p>
+                            <div class="col-md-8 order-2 order-md-1">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3>
+                                            <i class="uil uil-info-circle me-1"></i>{{ trans('common.basic_information') }}
+                                        </h3>
                                     </div>
-                                </div>
-                            @endforeach
-
-                            {{-- Description Section --}}
-                            <div class="col-12">
-                                <h6 class="fw-500" style="background: #0056B7; color: white; padding: 12px 16px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
-                                    <i class="uil uil-file-alt"></i>{{ trans('categorymanagment::department.description') }}
-                                </h6>
-                            </div>
-
-                            {{-- Dynamic Language Translations for Description --}}
-                            @foreach($languages as $language)
-                                <div class="col-md-6 mt-3">
-                                    <div class="view-item">
-                                        <label class="il-gray fs-14 fw-500 mb-10" @if($language->rtl) dir="rtl" style="text-align: right; display: block;" @endif>
-                                            @if($language->code == 'ar')
-                                                الوصف بالعربية
-                                            @elseif($language->code == 'en')
-                                                {{ trans('categorymanagment::department.description') }}
-                                            @else
-                                                {{ trans('categorymanagment::department.description') }} ({{ $language->name }})
-                                            @endif
-                                        </label>
-                                        <p class="fs-15 color-dark" @if($language->rtl) dir="rtl" style="text-align: right;" @endif>
-                                            {{ $department->getTranslation('description', $language->code) ?? '-' }}
-                                        </p>
-                                    </div>
-                                </div>
-                            @endforeach
-
-                            <div class="col-md-12 mb-25">
-                                <div class="view-item">
-                                    <label class="il-gray fs-14 fw-500 mb-10">
-                                        {{ trans('categorymanagment::department.activities') }}
-                                    </label>
-                                    <p class="fs-15 color-dark">
-                                        @foreach ($department->activities as $activity)
-                                            <span class="badge badge-primary">{{ $activity->getTranslation('name', app()->getLocale()) }}</span>
-                                        @endforeach
-                                    </p>
-                                </div>
-                            </div>
-
-                            {{-- Department Image --}}
-                            <div class="col-md-6 mb-25">
-                                <div class="view-item">
-                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('categorymanagment::department.image') }}</label>
-                                    @if($department->image)
-                                        <div class="mt-2">
-                                            <img src="{{ asset('storage/' . $department->image) }}"
-                                                 alt="{{ $department->getTranslation('name', app()->getLocale()) }}"
-                                                 class="img-fluid rounded shadow-sm"
-                                                 style="max-width: 300px; height: auto; object-fit: cover;">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            {{-- Dynamic Language Translations for Name --}}
+                                            @foreach($languages as $language)
+                                                <div class="col-md-6">
+                                                    <div class="view-item">
+                                                        <label class="il-gray fs-14 fw-500 mb-10" @if($language->rtl) dir="rtl" style="text-align: right; display: block;" @endif>
+                                                            @if($language->code == 'ar')
+                                                                الاسم بالعربية
+                                                            @elseif($language->code == 'en')
+                                                                {{ trans('categorymanagment::department.name_english') }}
+                                                            @else
+                                                                {{ trans('categorymanagment::department.name') }} ({{ $language->name }})
+                                                            @endif
+                                                        </label>
+                                                        <p class="fs-15 color-dark fw-500" @if($language->rtl) dir="rtl" style="text-align: right;" @endif>
+                                                            {{ $department->getTranslation('name', $language->code) ?? '-' }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                            {{-- Dynamic Language Translations for Description --}}
+                                            @foreach($languages as $language)
+                                                <div class="col-md-6">
+                                                    <div class="view-item">
+                                                        <label class="il-gray fs-14 fw-500 mb-10" @if($language->rtl) dir="rtl" style="text-align: right; display: block;" @endif>
+                                                            @if($language->code == 'ar')
+                                                                الوصف بالعربية
+                                                            @elseif($language->code == 'en')
+                                                                {{ trans('categorymanagment::department.description_english') }}
+                                                            @else
+                                                                {{ trans('categorymanagment::department.description') }} ({{ $language->name }})
+                                                            @endif
+                                                        </label>
+                                                        <p class="fs-15 color-dark" @if($language->rtl) dir="rtl" style="text-align: right;" @endif>
+                                                            {{ $department->getTranslation('description', $language->code) ?? '-' }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                            {{-- Department Activities --}}
+                                            <div class="col-md-6">
+                                                <div class="view-item">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('categorymanagment::department.activities') }}</label>
+                                                    <p class="fs-15 color-dark">
+                                                        @if($department->activities && $department->activities->count() > 0)
+                                                            @foreach ($department->activities as $activity)
+                                                                <span class="badge badge-primary badge-round badge-lg">{{ $activity->getTranslation('name', app()->getLocale()) }}</span>
+                                                            @endforeach
+                                                        @else
+                                                            <span class="text-muted">-</span>
+                                                        @endif
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            {{-- Activation Status --}}
+                                            <div class="col-md-6">
+                                                <div class="view-item">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('categorymanagment::department.activation') }}</label>
+                                                    <p class="fs-15">
+                                                        @if($department->active)
+                                                            <span class="badge badge-success badge-round badge-lg">{{ trans('categorymanagment::department.active') }}</span>
+                                                        @else
+                                                            <span class="badge badge-danger badge-round badge-lg">{{ trans('categorymanagment::department.inactive') }}</span>
+                                                        @endif
+                                                    </p>
+                                                </div>
+                                            </div>
                                         </div>
-                                    @else
-                                        <p class="fs-15 color-light fst-italic">{{ trans('common.no_image') ?? 'No image uploaded' }}</p>
-                                    @endif
+                                    </div>
+                                </div>
+                                <div class="card mt-3">
+                                    <div class="card-header">
+                                        <h3>
+                                            <i class="uil uil-clock me-1"></i>{{ trans('common.timestamps') }}
+                                        </h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="view-item">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('common.created_at') }}</label>
+                                                    <p class="fs-15 color-dark">{{ $department->created_at->format('d M, Y h:i A') }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="view-item">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('common.updated_at') }}</label>
+                                                    <p class="fs-15 color-dark">{{ $department->updated_at->format('d M, Y h:i A') }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="col-md-6 mb-25">
-                                <div class="view-item">
-                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('categorymanagment::department.activation') }}</label>
-                                    <p class="fs-15">
-                                        @if($department->active)
-                                            <span class="badge bg-success">{{ trans('categorymanagment::department.active') }}</span>
+                            {{-- Department Image --}}
+                            <div class="col-md-4 order-1 order-md-2">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3>
+                                            <i class="uil uil-image me-1"></i>{{ trans('categorymanagment::department.image') }}
+                                        </h3>
+                                    </div>
+                                    <div class="card-body text-center">
+                                        @if($department->image)
+                                            <div class="image-wrapper">
+                                                <img src="{{ asset('storage/' . $department->image) }}"
+                                                alt="{{ $department->getTranslation('name', app()->getLocale()) }}"
+                                                class="department-image img-fluid">
+                                            </div>
                                         @else
-                                            <span class="badge bg-danger">{{ trans('categorymanagment::department.inactive') }}</span>
+                                            <p class="fs-15 color-light fst-italic">{{ trans('common.no_image') ?? 'No image uploaded' }}</p>
                                         @endif
-                                    </p>
+                                    </div>
                                 </div>
                             </div>
 
-                            {{-- Timestamps --}}
-                            <div class="col-12">
-                                <h6 class="fw-500" style="background: #0056B7; color: white; padding: 12px 16px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
-                                    <i class="uil uil-clock"></i>{{ trans('common.timestamps') }}
-                                </h6>
-                            </div>
-
-                            <div class="col-md-6 mt-3">
-                                <div class="view-item">
-                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('common.created_at') }}</label>
-                                    <p class="fs-15 color-dark">{{ $department->created_at->format('Y-m-d H:i:s') }}</p>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 mt-3">
-                                <div class="view-item">
-                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('common.updated_at') }}</label>
-                                    <p class="fs-15 color-dark">{{ $department->updated_at->format('Y-m-d H:i:s') }}</p>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    {{-- Image Modal Component --}}
+    <x-image-modal />
 @endsection
 
-@push('styles')
-<style>
-    .view-item label {
-        color: #9299b8;
-        margin-bottom: 8px;
-    }
-    .view-item p {
-        margin-bottom: 0;
-        font-weight: 500;
-    }
-</style>
-@endpush

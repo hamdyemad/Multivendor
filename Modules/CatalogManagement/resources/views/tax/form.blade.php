@@ -1,51 +1,5 @@
 @extends('layout.app')
-
-@push('styles')
-<style>
-    /* Validation styles */
-    .invalid-feedback {
-        display: block !important;
-        font-size: 0.875rem;
-        margin-top: 0.5rem;
-        color: #dc3545;
-        font-weight: 500;
-    }
-    
-    .invalid-feedback.d-block {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-    }
-    
-    input[data-lang="ar"] + .invalid-feedback,
-    textarea[data-lang="ar"] + .invalid-feedback {
-        direction: rtl;
-        text-align: right;
-    }
-    
-    .is-invalid {
-        border-color: #dc3545 !important;
-        background-color: #fff5f5;
-    }
-    
-    .is-invalid:focus {
-        border-color: #dc3545 !important;
-        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
-    }
-    
-    .form-control {
-        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    }
-    
-    /* Error icon for invalid inputs */
-    .form-group.has-error .form-control {
-        padding-right: 2.5rem;
-        background-repeat: no-repeat;
-        background-position: right calc(0.375em + 0.1875rem) center;
-        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-    }
-</style>
-@endpush
+@section('title', (isset($tax)) ? trans('catalogmanagement::tax.edit_tax') : trans('catalogmanagement::tax.add_tax'))
 
 @section('content')
     <div class="container-fluid">
@@ -71,8 +25,8 @@
                         <!-- Alert Container -->
                         <div id="alertContainer"></div>
 
-                        <form id="taxForm" 
-                              action="{{ isset($tax) ? route('admin.taxes.update', $tax->id) : route('admin.taxes.store') }}" 
+                        <form id="taxForm"
+                              action="{{ isset($tax) ? route('admin.taxes.update', $tax->id) : route('admin.taxes.store') }}"
                               method="POST">
                             @csrf
                             @if(isset($tax))
@@ -91,10 +45,10 @@
                                                     {{ trans('catalogmanagement::tax.name') }} ({{ $language->name }}) <span class="text-danger">*</span>
                                                 @endif
                                             </label>
-                                            <input type="text" 
-                                                   class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('translations.' . $language->id . '.name') is-invalid @enderror" 
-                                                   id="translation_{{ $language->id }}_name" 
-                                                   name="translations[{{ $language->id }}][name]"  
+                                            <input type="text"
+                                                   class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('translations.' . $language->id . '.name') is-invalid @enderror"
+                                                   id="translation_{{ $language->id }}_name"
+                                                   name="translations[{{ $language->id }}][name]"
                                                    value="{{ isset($tax) ? ($tax->getTranslation('name', $language->code) ?? '') : old('translations.' . $language->id . '.name') }}"
                                                    placeholder="@if($language->code == 'ar')أدخل اسم الضريبة@else{{ trans('catalogmanagement::tax.enter_tax_name') }}@endif"
                                                    @if($language->rtl) dir="rtl" @endif
@@ -113,10 +67,10 @@
                                             {{ trans('catalogmanagement::tax.tax_rate') }} <span class="text-danger">*</span>
                                         </label>
                                         <div class="input-group">
-                                            <input type="number" 
-                                                   class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('tax_rate') is-invalid @enderror" 
-                                                   id="tax_rate" 
-                                                   name="tax_rate"  
+                                            <input type="number"
+                                                   class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('tax_rate') is-invalid @enderror"
+                                                   id="tax_rate"
+                                                   name="tax_rate"
                                                    value="{{ old('tax_rate', $tax->tax_rate ?? '') }}"
                                                    step="0.01"
                                                    min="0"
@@ -139,10 +93,10 @@
                                         <div class="dm-switch-wrap d-flex align-items-center">
                                             <div class="form-check form-switch form-switch-primary form-switch-md">
                                                 <input type="hidden" name="active" value="0">
-                                                <input type="checkbox" 
-                                                       class="form-check-input" 
-                                                       id="active" 
-                                                       name="active" 
+                                                <input type="checkbox"
+                                                       class="form-check-input"
+                                                       id="active"
+                                                       name="active"
                                                        value="1"
                                                        {{ old('active', $tax->active ?? 1) == 1 ? 'checked' : '' }}>
                                             </div>
@@ -155,13 +109,13 @@
                             </div>
 
                             <div class="d-flex justify-content-end gap-15 mt-30">
-                                <a href="{{ route('admin.taxes.index') }}" 
+                                <a href="{{ route('admin.taxes.index') }}"
                                    class="btn btn-light btn-default btn-squared fw-400 text-capitalize">
                                     <i class="uil uil-angle-left"></i> {{ trans('common.cancel') }}
                                 </a>
-                                <button type="submit" id="submitBtn" 
+                                <button type="submit" id="submitBtn"
                                         class="btn btn-primary btn-default btn-squared text-capitalize">
-                                    <i class="uil uil-check"></i> 
+                                    <i class="uil uil-check"></i>
                                     <span>{{ isset($tax) ? trans('catalogmanagement::tax.update_tax') : trans('catalogmanagement::tax.add_tax') }}</span>
                                     <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                                 </button>
@@ -175,9 +129,9 @@
 @endsection
 
 @push('after-body')
-    <x-loading-overlay 
-        :loadingText="trans('loading.processing')" 
-        :loadingSubtext="trans('loading.please_wait')" 
+    <x-loading-overlay
+        :loadingText="trans('loading.processing')"
+        :loadingSubtext="trans('loading.please_wait')"
     />
 @endpush
 
@@ -187,12 +141,12 @@
         // Form submission with AJAX
         $('#taxForm').on('submit', function(e) {
             e.preventDefault();
-            
+
             const taxForm = this;
             const $submitBtn = $('#submitBtn');
             const $spinner = $submitBtn.find('.spinner-border');
             const alertContainer = document.getElementById('alertContainer');
-            
+
             // Disable button and show spinner
             $submitBtn.prop('disabled', true);
             $spinner.removeClass('d-none');
@@ -206,7 +160,7 @@
                 if (loadingTextEl) loadingTextEl.textContent = loadingText;
                 if (loadingSubtextEl) loadingSubtextEl.textContent = '{{ trans("loading.please_wait") }}';
             }
-            
+
             // Show loading overlay
             if (window.LoadingOverlay) {
                 LoadingOverlay.show();
@@ -214,7 +168,7 @@
 
             // Clear previous alerts
             alertContainer.innerHTML = '';
-            
+
             // Clear previous errors
             $('.is-invalid').removeClass('is-invalid');
             $('.invalid-feedback').remove();
@@ -237,7 +191,7 @@
             .then(response => {
                 // Progress to 60%
                 LoadingOverlay.animateProgressBar(60, 200);
-                
+
                 if (!response.ok) {
                     return response.json().then(data => {
                         throw data;
@@ -258,7 +212,7 @@
                         successMessage,
                         '{{ trans("loading.redirecting") }}'
                     );
-                    
+
                     // Redirect after 1.5 seconds
                     setTimeout(() => {
                         window.location.href = data.redirect || '{{ route("admin.taxes.index") }}';
@@ -268,57 +222,57 @@
             .catch(error => {
                 // Hide loading overlay
                 LoadingOverlay.hide();
-                
+
                 // Re-enable button
                 $submitBtn.prop('disabled', false);
                 $spinner.addClass('d-none');
-                
+
                 // Clear previous errors first
                 $('.is-invalid').removeClass('is-invalid');
                 $('.invalid-feedback').remove();
-                
+
                 // Handle validation errors
                 if (error.errors) {
                     console.log('Validation errors received:', error.errors);
-                    
+
                     Object.keys(error.errors).forEach(field => {
                         console.log('Processing field:', field);
-                        
+
                         // Convert dot notation to bracket notation
                         // e.g., "translations.1.name" -> "translations[1][name]"
                         let parts = field.split('.');
                         let fieldName = parts[0]; // Start with first part
-                        
+
                         for (let i = 1; i < parts.length; i++) {
                             fieldName += '[' + parts[i] + ']';
                         }
-                        
+
                         console.log('Converted to:', fieldName);
-                        
+
                         // Try to find the field with bracket notation first
                         let $field = $('input[name="' + fieldName + '"], textarea[name="' + fieldName + '"], select[name="' + fieldName + '"]');
-                        
+
                         console.log('Found field:', $field.length);
-                        
+
                         // If not found, try with original dot notation
                         if ($field.length === 0) {
                             $field = $('input[name="' + field + '"], textarea[name="' + field + '"], select[name="' + field + '"]');
                             console.log('Tried original notation, found:', $field.length);
                         }
-                        
+
                         if ($field.length > 0) {
                             $field.addClass('is-invalid');
-                            
+
                             // Insert error message after the input
                             const errorHtml = '<div class="invalid-feedback d-block" style="display: block !important; color: #dc3545; font-weight: 500; margin-top: 0.5rem;">' + error.errors[field][0] + '</div>';
                             $field.after(errorHtml);
-                            
+
                             console.log('Added error for:', field);
                         } else {
                             console.error('Could not find field for:', field);
                         }
                     });
-                    
+
                     // Show error alert
                     alertContainer.innerHTML = `
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -335,7 +289,7 @@
                         </div>
                     `;
                 }
-                
+
                 // Scroll to top
                 $('html, body').animate({ scrollTop: 0 }, 500);
             });

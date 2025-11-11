@@ -1,51 +1,5 @@
 @extends('layout.app')
-
-@push('styles')
-<style>
-    /* Validation styles */
-    .invalid-feedback {
-        display: block !important;
-        font-size: 0.875rem;
-        margin-top: 0.5rem;
-        color: #dc3545;
-        font-weight: 500;
-    }
-    
-    .invalid-feedback.d-block {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-    }
-    
-    input[data-lang="ar"] + .invalid-feedback,
-    textarea[data-lang="ar"] + .invalid-feedback {
-        direction: rtl;
-        text-align: right;
-    }
-    
-    .is-invalid {
-        border-color: #dc3545 !important;
-        background-color: #fff5f5;
-    }
-    
-    .is-invalid:focus {
-        border-color: #dc3545 !important;
-        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
-    }
-    
-    .form-control {
-        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    }
-    
-    /* Error icon for invalid inputs */
-    .form-group.has-error .form-control {
-        padding-right: 2.5rem;
-        background-repeat: no-repeat;
-        background-position: right calc(0.375em + 0.1875rem) center;
-        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-    }
-</style>
-@endpush
+@section('title', (isset($brand)) ? trans('catalogmanagement::brand.edit_brand') : trans('catalogmanagement::brand.create_brand'))
 
 @section('content')
     <div class="container-fluid">
@@ -71,8 +25,8 @@
                         <!-- Alert Container -->
                         <div id="alertContainer"></div>
 
-                        <form id="brandForm" 
-                              action="{{ isset($brand) ? route('admin.brands.update', $brand->id) : route('admin.brands.store') }}" 
+                        <form id="brandForm"
+                              action="{{ isset($brand) ? route('admin.brands.update', $brand->id) : route('admin.brands.store') }}"
                               method="POST"
                               enctype="multipart/form-data">
                             @csrf
@@ -92,10 +46,10 @@
                                                     {{ trans('catalogmanagement::brand.name') }} ({{ $language->name }}) <span class="text-danger">*</span>
                                                 @endif
                                             </label>
-                                            <input type="text" 
-                                                   class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('translations.' . $language->id . '.name') is-invalid @enderror" 
-                                                   id="translation_{{ $language->id }}_name" 
-                                                   name="translations[{{ $language->id }}][name]"  
+                                            <input type="text"
+                                                   class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('translations.' . $language->id . '.name') is-invalid @enderror"
+                                                   id="translation_{{ $language->id }}_name"
+                                                   name="translations[{{ $language->id }}][name]"
                                                    value="{{ isset($brand) ? ($brand->getTranslation('name', $language->code) ?? '') : old('translations.' . $language->id . '.name') }}"
                                                    placeholder="@if($language->code == 'ar')أدخل اسم العلامة التجارية@else{{ trans('catalogmanagement::brand.enter_brand_name') }}@endif"
                                                    @if($language->rtl) dir="rtl" @endif
@@ -118,10 +72,10 @@
                                                     {{ trans('catalogmanagement::brand.description') }} ({{ $language->name }})
                                                 @endif
                                             </label>
-                                            <textarea 
-                                                   class="form-control ip-gray radius-xs b-light px-15 @error('translations.' . $language->id . '.description') is-invalid @enderror" 
-                                                   id="translation_{{ $language->id }}_description" 
-                                                   name="translations[{{ $language->id }}][description]"  
+                                            <textarea
+                                                   class="form-control ip-gray radius-xs b-light px-15 @error('translations.' . $language->id . '.description') is-invalid @enderror"
+                                                   id="translation_{{ $language->id }}_description"
+                                                   name="translations[{{ $language->id }}][description]"
                                                    rows="4"
                                                    placeholder="@if($language->code == 'ar')أدخل وصف العلامة التجارية@else{{ trans('catalogmanagement::brand.enter_brand_description') }}@endif"
                                                    @if($language->rtl) dir="rtl" @endif
@@ -135,7 +89,7 @@
 
                                 {{-- Logo Upload --}}
                                 <div class="col-md-6 mb-25">
-                                    <x-image-upload 
+                                    <x-image-upload
                                         id="logo"
                                         name="logo"
                                         :label="trans('catalogmanagement::brand.logo')"
@@ -148,7 +102,7 @@
 
                                 {{-- Cover Upload --}}
                                 <div class="col-md-6 mb-25">
-                                    <x-image-upload 
+                                    <x-image-upload
                                         id="cover"
                                         name="cover"
                                         :label="trans('catalogmanagement::brand.cover')"
@@ -170,10 +124,10 @@
                                         <label for="facebook_url" class="il-gray fs-14 fw-500 mb-10">
                                             {{ trans('catalogmanagement::brand.facebook_url') }}
                                         </label>
-                                        <input type="url" 
-                                               class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('facebook_url') is-invalid @enderror" 
-                                               id="facebook_url" 
-                                               name="facebook_url"  
+                                        <input type="url"
+                                               class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('facebook_url') is-invalid @enderror"
+                                               id="facebook_url"
+                                               name="facebook_url"
                                                value="{{ old('facebook_url', $brand->facebook_url ?? '') }}"
                                                placeholder="https://facebook.com/your-brand">
                                         @error('facebook_url')
@@ -188,10 +142,10 @@
                                         <label for="twitter_url" class="il-gray fs-14 fw-500 mb-10">
                                             {{ trans('catalogmanagement::brand.twitter_url') }}
                                         </label>
-                                        <input type="url" 
-                                               class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('twitter_url') is-invalid @enderror" 
-                                               id="twitter_url" 
-                                               name="twitter_url"  
+                                        <input type="url"
+                                               class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('twitter_url') is-invalid @enderror"
+                                               id="twitter_url"
+                                               name="twitter_url"
                                                value="{{ old('twitter_url', $brand->twitter_url ?? '') }}"
                                                placeholder="https://twitter.com/your-brand">
                                         @error('twitter_url')
@@ -206,10 +160,10 @@
                                         <label for="instagram_url" class="il-gray fs-14 fw-500 mb-10">
                                             {{ trans('catalogmanagement::brand.instagram_url') }}
                                         </label>
-                                        <input type="url" 
-                                               class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('instagram_url') is-invalid @enderror" 
-                                               id="instagram_url" 
-                                               name="instagram_url"  
+                                        <input type="url"
+                                               class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('instagram_url') is-invalid @enderror"
+                                               id="instagram_url"
+                                               name="instagram_url"
                                                value="{{ old('instagram_url', $brand->instagram_url ?? '') }}"
                                                placeholder="https://instagram.com/your-brand">
                                         @error('instagram_url')
@@ -224,10 +178,10 @@
                                         <label for="linkedin_url" class="il-gray fs-14 fw-500 mb-10">
                                             {{ trans('catalogmanagement::brand.linkedin_url') }}
                                         </label>
-                                        <input type="url" 
-                                               class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('linkedin_url') is-invalid @enderror" 
-                                               id="linkedin_url" 
-                                               name="linkedin_url"  
+                                        <input type="url"
+                                               class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('linkedin_url') is-invalid @enderror"
+                                               id="linkedin_url"
+                                               name="linkedin_url"
                                                value="{{ old('linkedin_url', $brand->linkedin_url ?? '') }}"
                                                placeholder="https://linkedin.com/company/your-brand">
                                         @error('linkedin_url')
@@ -242,10 +196,10 @@
                                         <label for="pinterest_url" class="il-gray fs-14 fw-500 mb-10">
                                             {{ trans('catalogmanagement::brand.pinterest_url') }}
                                         </label>
-                                        <input type="url" 
-                                               class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('pinterest_url') is-invalid @enderror" 
-                                               id="pinterest_url" 
-                                               name="pinterest_url"  
+                                        <input type="url"
+                                               class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('pinterest_url') is-invalid @enderror"
+                                               id="pinterest_url"
+                                               name="pinterest_url"
                                                value="{{ old('pinterest_url', $brand->pinterest_url ?? '') }}"
                                                placeholder="https://pinterest.com/your-brand">
                                         @error('pinterest_url')
@@ -263,10 +217,10 @@
                                         <div class="dm-switch-wrap d-flex align-items-center">
                                             <div class="form-check form-switch form-switch-primary form-switch-md">
                                                 <input type="hidden" name="active" value="0">
-                                                <input type="checkbox" 
-                                                       class="form-check-input" 
-                                                       id="active" 
-                                                       name="active" 
+                                                <input type="checkbox"
+                                                       class="form-check-input"
+                                                       id="active"
+                                                       name="active"
                                                        value="1"
                                                        {{ old('active', $brand->active ?? 1) == 1 ? 'checked' : '' }}>
                                             </div>
@@ -279,13 +233,13 @@
                             </div>
 
                             <div class="d-flex justify-content-end gap-15 mt-30">
-                                <a href="{{ route('admin.brands.index') }}" 
+                                <a href="{{ route('admin.brands.index') }}"
                                    class="btn btn-light btn-default btn-squared fw-400 text-capitalize">
                                     <i class="uil uil-angle-left"></i> {{ trans('common.cancel') }}
                                 </a>
-                                <button type="submit" id="submitBtn" 
+                                <button type="submit" id="submitBtn"
                                         class="btn btn-primary btn-default btn-squared text-capitalize">
-                                    <i class="uil uil-check"></i> 
+                                    <i class="uil uil-check"></i>
                                     <span>{{ isset($brand) ? trans('catalogmanagement::brand.update_brand') : trans('catalogmanagement::brand.add_brand') }}</span>
                                     <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                                 </button>
@@ -299,9 +253,9 @@
 @endsection
 
 @push('after-body')
-    <x-loading-overlay 
-        :loadingText="trans('loading.processing')" 
-        :loadingSubtext="trans('loading.please_wait')" 
+    <x-loading-overlay
+        :loadingText="trans('loading.processing')"
+        :loadingSubtext="trans('loading.please_wait')"
     />
 @endpush
 
@@ -311,12 +265,12 @@
         // Form submission with AJAX
         $('#brandForm').on('submit', function(e) {
             e.preventDefault();
-            
+
             const brandForm = this;
             const $submitBtn = $('#submitBtn');
             const $spinner = $submitBtn.find('.spinner-border');
             const alertContainer = document.getElementById('alertContainer');
-            
+
             // Disable button and show spinner
             $submitBtn.prop('disabled', true);
             $spinner.removeClass('d-none');
@@ -330,7 +284,7 @@
                 if (loadingTextEl) loadingTextEl.textContent = loadingText;
                 if (loadingSubtextEl) loadingSubtextEl.textContent = '{{ trans("loading.please_wait") }}';
             }
-            
+
             // Show loading overlay
             if (window.LoadingOverlay) {
                 LoadingOverlay.show();
@@ -338,7 +292,7 @@
 
             // Clear previous alerts
             alertContainer.innerHTML = '';
-            
+
             // Clear previous errors
             $('.is-invalid').removeClass('is-invalid');
             $('.invalid-feedback').remove();
@@ -361,7 +315,7 @@
             .then(response => {
                 // Progress to 60%
                 LoadingOverlay.animateProgressBar(60, 200);
-                
+
                 if (!response.ok) {
                     return response.json().then(data => {
                         throw data;
@@ -382,7 +336,7 @@
                         successMessage,
                         '{{ trans("loading.redirecting") }}'
                     );
-                    
+
                     // Redirect after 1.5 seconds
                     setTimeout(() => {
                         window.location.href = data.redirect || '{{ route("admin.brands.index") }}';
@@ -392,57 +346,57 @@
             .catch(error => {
                 // Hide loading overlay
                 LoadingOverlay.hide();
-                
+
                 // Re-enable button
                 $submitBtn.prop('disabled', false);
                 $spinner.addClass('d-none');
-                
+
                 // Clear previous errors first
                 $('.is-invalid').removeClass('is-invalid');
                 $('.invalid-feedback').remove();
-                
+
                 // Handle validation errors
                 if (error.errors) {
                     console.log('Validation errors received:', error.errors);
-                    
+
                     Object.keys(error.errors).forEach(field => {
                         console.log('Processing field:', field);
-                        
+
                         // Convert dot notation to bracket notation
                         // e.g., "translations.1.name" -> "translations[1][name]"
                         let parts = field.split('.');
                         let fieldName = parts[0]; // Start with first part
-                        
+
                         for (let i = 1; i < parts.length; i++) {
                             fieldName += '[' + parts[i] + ']';
                         }
-                        
+
                         console.log('Converted to:', fieldName);
-                        
+
                         // Try to find the field with bracket notation first
                         let $field = $('input[name="' + fieldName + '"], textarea[name="' + fieldName + '"], select[name="' + fieldName + '"]');
-                        
+
                         console.log('Found field:', $field.length);
-                        
+
                         // If not found, try with original dot notation
                         if ($field.length === 0) {
                             $field = $('input[name="' + field + '"], textarea[name="' + field + '"], select[name="' + field + '"]');
                             console.log('Tried original notation, found:', $field.length);
                         }
-                        
+
                         if ($field.length > 0) {
                             $field.addClass('is-invalid');
-                            
+
                             // Insert error message after the input
                             const errorHtml = '<div class="invalid-feedback d-block" style="display: block !important; color: #dc3545; font-weight: 500; margin-top: 0.5rem;">' + error.errors[field][0] + '</div>';
                             $field.after(errorHtml);
-                            
+
                             console.log('Added error for:', field);
                         } else {
                             console.error('Could not find field for:', field);
                         }
                     });
-                    
+
                     // Show error alert
                     alertContainer.innerHTML = `
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -459,7 +413,7 @@
                         </div>
                     `;
                 }
-                
+
                 // Scroll to top
                 $('html, body').animate({ scrollTop: 0 }, 500);
             });

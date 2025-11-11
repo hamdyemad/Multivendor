@@ -10,10 +10,10 @@ return [
     'activities' => 'activities',
     // Form Fields
     'name' => 'Name',
-    'name_english' => 'Name',
-    'name_arabic' => 'Name',
+    'name_english' => 'Name in english',
+    'name_arabic' => 'Name in arabic',
     'description' => 'Description',
-    'description_english' => 'Description',
+    'description_english' => 'Description in english',
     'department_code' => 'Department Code',
     'activation' => 'Activation',
     'status' => 'Status',

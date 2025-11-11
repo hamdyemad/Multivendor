@@ -33,14 +33,14 @@
                         </span>
                     </div>
                     <div class="card-body p-25">
-                        <form id="roleForm" 
-                              action="{{ isset($role) ? route('admin.admin-management.roles.update', $role->id) : route('admin.admin-management.roles.store') }}" 
+                        <form id="roleForm"
+                              action="{{ isset($role) ? route('admin.admin-management.roles.update', $role->id) : route('admin.admin-management.roles.store') }}"
                               method="POST">
                             @csrf
                             @if(isset($role))
                                 @method('PUT')
                             @endif
-                            
+
                             <!-- Alert Container -->
                             <div id="alertContainer"></div>
 
@@ -55,10 +55,10 @@
                                                     {{ __('roles.name') }} ({{ $language->name }}) <span class="text-danger">*</span>
                                                 @endif
                                             </label>
-                                            <input type="text" 
-                                                   class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('translations.' . $language->id . '.name') is-invalid @enderror" 
-                                                   id="name_{{ $language->id }}" 
-                                                   name="translations[{{ $language->id }}][name]"  
+                                            <input type="text"
+                                                   class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('translations.' . $language->id . '.name') is-invalid @enderror"
+                                                   id="name_{{ $language->id }}"
+                                                   name="translations[{{ $language->id }}][name]"
                                                    value="{{ isset($role) ? ($role->getTranslation('name', $language->code) ?? '') : old('translations.' . $language->id . '.name') }}"
                                                    placeholder="@if($language->code == 'ar')أدخل اسم الدور بالعربية@else{{ __('roles.enter_role_name_in') }} {{ $language->name }}@endif"
                                                    @if($language->code == 'ar') dir="rtl" @endif
@@ -76,15 +76,15 @@
                                 <div class="col-12 mb-25">
                                     <div class="dm-tag-wrap">
                                         <h6 class="mb-20 fw-500 color-dark">{{ __('roles.assign_permissions') }}</h6>
-                                        
+
                                         <!-- Select All Checkbox -->
                                         <div class="card border-0 mb-25 shadow-sm">
                                             <div class="card-body p-20 bg-primary-transparent">
                                                 <div class="checkbox-theme-default custom-checkbox checkbox-primary">
-                                                    <input class="checkbox" 
-                                                           type="checkbox" 
+                                                    <input class="checkbox"
+                                                           type="checkbox"
                                                            id="select_all_permissions">
-                                                    <label for="select_all_permissions" class="fs-15 fw-500 color-primary">
+                                                    <label for="select_all_permissions" class="fs-15 fw-500">
                                                         <span class="checkbox-text">
                                                             <i class="uil uil-check-circle me-2"></i>{{ __('roles.select_all_permissions') }}
                                                         </span>
@@ -97,10 +97,10 @@
                                         <div class="permissions-container">
                                             @foreach($groupedPermissions as $groupName => $permissions)
                                                 <div class="card border-0 mb-20 shadow-sm">
-                                                    <div class="card-header bg-normal py-15 px-20 border-bottom">
+                                                    <div class="card-body bg-normal py-15 px-20 border-bottom">
                                                         <div class="checkbox-theme-default custom-checkbox">
-                                                            <input class="checkbox group-checkbox" 
-                                                                   type="checkbox" 
+                                                            <input class="checkbox group-checkbox"
+                                                                   type="checkbox"
                                                                    id="group_{{ Str::slug($groupName) }}"
                                                                    data-group="{{ Str::slug($groupName) }}">
                                                             <label for="group_{{ Str::slug($groupName) }}" class="fs-15 fw-500">
@@ -113,10 +113,10 @@
                                                             @foreach($permissions as $permission)
                                                                 <div class="col-md-4 col-lg-3 mb-15">
                                                                     <div class="checkbox-theme-default custom-checkbox">
-                                                                        <input class="checkbox permission-checkbox" 
-                                                                               type="checkbox" 
-                                                                               name="permissions[]" 
-                                                                               value="{{ $permission->id }}" 
+                                                                        <input class="checkbox permission-checkbox"
+                                                                               type="checkbox"
+                                                                               name="permissions[]"
+                                                                               value="{{ $permission->id }}"
                                                                                id="permission_{{ $permission->id }}"
                                                                                data-group="{{ Str::slug($groupName) }}"
                                                                                {{ isset($role) && $role->permessions->contains($permission->id) ? 'checked' : '' }}>
@@ -137,17 +137,17 @@
 
                             <!-- Form Actions -->
                             <div class="row">
-                                <div class="col-12">    
+                                <div class="col-12">
                                     <div class="button-group d-flex pt-25 justify-content-end" style="gap: 10px;">
-                                        <a href="{{ route('admin.admin-management.roles.index') }}" 
+                                        <a href="{{ route('admin.admin-management.roles.index') }}"
                                            class="btn btn-light btn-default btn-squared fw-400 text-capitalize"
                                            style="white-space: nowrap;">
                                             <i class="uil uil-angle-left"></i> {{ __('common.cancel') }}
                                         </a>
-                                        <button type="submit" id="submitBtn" 
+                                        <button type="submit" id="submitBtn"
                                                 class="btn btn-primary btn-default btn-squared text-capitalize"
                                                 style="white-space: nowrap; display: inline-flex; align-items: center; justify-content: center;">
-                                                <i class="uil uil-check"></i> 
+                                                <i class="uil uil-check"></i>
                                                 <span>{{ isset($role) ? __('roles.update_role') : __('roles.create_role') }}</span>
                                             <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                                         </button>
@@ -203,7 +203,7 @@
                     if (loadingTextEl) loadingTextEl.textContent = loadingText;
                     if (loadingSubtextEl) loadingSubtextEl.textContent = '{{ trans("loading.please_wait") }}';
                 }
-                
+
                 // Show loading overlay
                 if (window.LoadingOverlay) {
                     LoadingOverlay.show();
@@ -234,7 +234,7 @@
                 .then(response => {
                     // Progress to 60%
                     LoadingOverlay.animateProgressBar(60, 200);
-                    
+
                     if (!response.ok) {
                         return response.json().then(data => {
                             throw data;
@@ -255,7 +255,7 @@
                             successMessage,
                             '{{ trans("loading.redirecting") }}'
                         );
-                        
+
                         // Redirect after 1.5 seconds
                         setTimeout(() => {
                             window.location.href = data.redirect || '{{ route("admin.admin-management.roles.index") }}';
@@ -265,7 +265,7 @@
                 .catch(error => {
                     // Hide loading overlay
                     LoadingOverlay.hide();
-                    
+
                     // Handle validation errors
                     if (error.errors) {
                         Object.keys(error.errors).forEach(key => {
@@ -282,7 +282,7 @@
                     } else {
                         showAlert('danger', error.message || '{{ __("An error occurred") }}');
                     }
-                    
+
                     // Re-enable submit button
                     submitBtn.disabled = false;
                     const btnIcon = submitBtn.querySelector('i');
@@ -314,7 +314,7 @@
                     const groupName = this.dataset.group;
                     const isChecked = this.checked;
                     const groupPermissions = document.querySelectorAll(`.permission-checkbox[data-group="${groupName}"]`);
-                    
+
                     groupPermissions.forEach(checkbox => {
                         checkbox.checked = isChecked;
                     });
@@ -353,7 +353,7 @@
             // Update select all state
             function updateSelectAllState() {
                 const checkedPermissions = document.querySelectorAll('.permission-checkbox:checked');
-                
+
                 if (checkedPermissions.length === 0) {
                     selectAllCheckbox.checked = false;
                     selectAllCheckbox.indeterminate = false;
@@ -379,8 +379,8 @@
 
 {{-- Include Loading Overlay Component outside content section --}}
 @push('after-body')
-    <x-loading-overlay 
-        :loadingText="trans('loading.processing')" 
-        :loadingSubtext="trans('loading.please_wait')" 
+    <x-loading-overlay
+        :loadingText="trans('loading.processing')"
+        :loadingSubtext="trans('loading.please_wait')"
     />
 @endpush

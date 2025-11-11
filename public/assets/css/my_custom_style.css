@@ -3,13 +3,13 @@
      color: #fff !important;
  }
 
- .userDatatable table {
+ /* .userDatatable table {
      border-collapse: collapse;
- }
+ } */
 
- .userDatatable table thead tr:not(.footable-filtering) th {
+ /* .userDatatable table thead tr:not(.footable-filtering) th {
      background-color: #0157b7;
- }
+ } */
 
 
  .userDatatable-title {
@@ -24,7 +24,6 @@
 
  .custom-table td,
  .custom-table th {
-     color: #000 !important;
      /* يجعل النص أسود */
      vertical-align: middle;
  }
@@ -35,9 +34,6 @@
      font-weight: 600;
  }
 
- .table>:not(:last-child)>:last-child>* {
-     color: #000000 !important;
- }
 
  .custom-table tbody tr {
      border-bottom: 1px solid #a9a9a9 !important;

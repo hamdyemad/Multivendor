@@ -714,7 +714,7 @@
         </li>
         @endcan
 
-        <li class="has-child">
+        {{-- <li class="has-child">
             <a href="#" class="">
                 <span class="nav-icon uil uil-window-section"></span>
                 <span class="menu-text">{{ trans('menu.layouts.title') }}</span>
@@ -726,6 +726,6 @@
                 <li class="l_sidebar"><a href="#"
                         data-layout="dark">{{ trans('menu.layouts.dark mode') }}</a></li>
             </ul>
-        </li>
+        </li> --}}
     </ul>
 </div>

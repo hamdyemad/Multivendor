@@ -16,7 +16,7 @@ class DepartmentController extends Controller
 {
 
     public function __construct(
-        protected DepartmentService $departmentService, 
+        protected DepartmentService $departmentService,
         protected LanguageService $languageService,
         protected ActivityService $activityService,
         protected DepartmentAction $departmentAction
@@ -50,7 +50,7 @@ class DepartmentController extends Controller
 
         try {
             $response = $this->departmentAction->getDataTable($data);
-            
+
             return response()->json([
                 'draw' => $data['draw'],
                 'data' => $response['data'],
@@ -86,7 +86,7 @@ class DepartmentController extends Controller
             return redirect()->back()->with('error', trans('categorymanagment::department.error_loading_departments'));
         }
     }
-    
+
     /**
      * Show the form for creating a new resource.
      */
@@ -94,7 +94,8 @@ class DepartmentController extends Controller
     {
         try {
             $languages = $this->languageService->getAll();
-            return view('categorymanagment::department.form', compact('languages'));
+            $activities = $this->activityService->getAllActivities([], 0);
+            return view('categorymanagment::department.form', compact('languages', 'activities'));
         } catch (\Exception $e) {
             return redirect()->route('admin.category-management.departments.index')
                 ->with('error', trans('categorymanagment::department.error_loading_form'));
@@ -112,7 +113,7 @@ class DepartmentController extends Controller
 
         try {
             $this->departmentService->createDepartment($validated);
-            
+
             // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -160,8 +161,9 @@ class DepartmentController extends Controller
     {
         try {
             $languages = $this->languageService->getAll();
+            $activities = $this->activityService->getAllActivities([], 0);
             $department = $this->departmentService->getDepartmentById($id);
-            return view('categorymanagment::department.form', compact('department', 'languages'));
+            return view('categorymanagment::department.form', compact('department', 'languages', 'activities'));
         } catch (\Exception $e) {
             return redirect()->route('admin.category-management.departments.index')
                 ->with('error', trans('categorymanagment::department.department_not_found'));
@@ -177,7 +179,7 @@ class DepartmentController extends Controller
 
         try {
             $this->departmentService->updateDepartment($id, $validated);
-            
+
             // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([

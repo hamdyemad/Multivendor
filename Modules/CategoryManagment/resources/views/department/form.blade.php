@@ -124,12 +124,14 @@
                                         <label for="activities" class="il-gray fs-14 fw-500 mb-10">
                                             {{ trans('categorymanagment::department.activities') }} <span class="text-danger">*</span>
                                         </label>
-                                        <select id="activities" class="form-control select2-ajax @error('activities') is-invalid @enderror" multiple name="activities[]" data-ajax-url="{{ route('admin.category-management.activities.search') }}">
-                                            @if(isset($department))
-                                                @foreach ($department->activities as $activity)
-                                                    <option value="{{ $activity->id }}" selected>{{ $activity->getTranslation('name', app()->getLocale()) }}</option>
-                                                @endforeach
-                                            @endif
+                                        <select id="activities" class="form-control select2 @error('activities') is-invalid @enderror" multiple name="activities[]">
+                                            <option value="">{{ trans('categorymanagment::department.select_activities') }}</option>
+                                            @foreach($activities as $activity)
+                                                <option value="{{ $activity->id }}" 
+                                                    {{ isset($department) && $department->activities->contains($activity->id) ? 'selected' : '' }}>
+                                                    {{ $activity->getTranslation('name', app()->getLocale()) }}
+                                                </option>
+                                            @endforeach
                                         </select>
                                         @error('activities')
                                             <div class="invalid-feedback d-block" style="display: block !important;">{{ $message }}</div>

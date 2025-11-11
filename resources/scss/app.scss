@@ -1,6 +1,9 @@
 @use "variables" as *;
 @import url("https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap");
 
+/* Import Wizard Styles Globally */
+@import "wizard-styles";
+
 /* Bootstrap-styled pagination - smaller and cleaner */
 
 .pagination {
@@ -17,6 +20,9 @@
     }
 }
 
+.select2-selection__choice__display {
+    color: white;
+}
 .navbar-brand img {
     width: 120px !important;
     height: 50px !important;
@@ -44,9 +50,14 @@ label {
 table.dataTable thead td,
 table.dataTable tfoot th,
 table.dataTable tfoot td {
-    text-align: left;
+    text-align: center;
 }
 
+table  th,
+table  td{
+    text-align: center;
+    justify-content: center;
+}
 // Cards
 
 .card.card-holder {

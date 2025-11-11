@@ -129,6 +129,7 @@ return [
     'activities' => 'الأنشطة',
     'vendor_type' => 'نوع المورد',
     'select_vendor_type' => 'اختر نوع المورد',
+    'select_option' => 'اختر خياراً',
     'product' => 'منتجات',
     'booking' => 'حجوزات',
     'product_booking' => 'منتجات وحجوزات',
@@ -174,6 +175,8 @@ return [
     'email_required' => 'عنوان البريد الإلكتروني مطلوب.',
     'email_valid' => 'يرجى إدخال عنوان بريد إلكتروني صالح.',
     'email_already_registered' => 'عنوان البريد الإلكتروني هذا مسجل بالفعل.',
+    'validation_error' => 'يرجى ملء جميع الحقول المطلوبة قبل الانتقال إلى الخطوة التالية.',
+    'error' => 'خطأ',
     'password_required' => 'كلمة المرور مطلوبة.',
     'password_min_8' => 'يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.',
     'password_confirmation_mismatch' => 'تأكيد كلمة المرور غير متطابق.',
@@ -190,4 +193,10 @@ return [
     'document_file_required' => 'ملف المستند مطلوب.',
     'document_file_types' => 'يجب أن يكون المستند من نوع: pdf, doc, docx, jpg, jpeg, png.',
     'document_max_size' => 'يجب ألا يتجاوز حجم المستند 5 ميجابايت.',
+    
+    // Money Transactions
+    'money_transactions' => 'المعاملات المالية',
+    'total_vendors_balance' => 'إجمالي رصيد المورد',
+    'total_sent_money' => 'إجمالي الأموال المرسلة',
+    'total_remaining' => 'إجمالي المتبقي',
 ];

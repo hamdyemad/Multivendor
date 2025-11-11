@@ -171,6 +171,8 @@ return [
         'document_name' => 'اسم المستند',
         'document_file' => 'ملف المستند',
         'translations.*.name' => 'الاسم',
+        'commission' => 'العمولة',
+        'type' => 'النوع',
     ],
 
 ];

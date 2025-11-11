@@ -183,6 +183,120 @@ jQuery(document).ready(function($) {
     
     // Start checking for Select2 initialization after a short delay
     setTimeout(waitForSelect2AndAttach, 200);
+
+    // Initialize wizard on page load
+    showStep(currentStep);
+
+    // Next button
+    $('#nextBtn').on('click', function() {
+        console.log('📍 Next button clicked. Current step:', currentStep);
+
+        // Clear previous errors
+        clearAllErrors();
+
+        // Proceed to next step
+        currentStep++;
+        if (currentStep > totalSteps) currentStep = totalSteps;
+        showStep(currentStep);
+
+        // Update review when going to step 4
+        if (currentStep === 4) {
+            updateReview();
+        }
+    });
+
+    // Previous button
+    $('#prevBtn').on('click', function() {
+        currentStep--;
+        if (currentStep < 1) currentStep = 1;
+        showStep(currentStep);
+    });
+
+    // Click on wizard step navigation
+    $('.wizard-step-nav').on('click', function() {
+        console.log('🖱️ Wizard step clicked!');
+        const targetStep = parseInt($(this).data('step'));
+        console.log('Clicked step:', targetStep);
+
+        // Clear errors when navigating
+        clearAllErrors();
+
+        currentStep = targetStep;
+        showStep(currentStep);
+
+        // Update review when going to step 4
+        if (currentStep === 4) {
+            updateReview();
+        }
+    });
+
+    // Edit button in review page
+    $(document).on('click', '.edit-step', function() {
+        const targetStep = parseInt($(this).data('step'));
+
+        // Clear any existing errors when editing
+        clearAllErrors();
+
+        currentStep = targetStep;
+        showStep(currentStep);
+
+        // Scroll to top of form
+        $('html, body').animate({
+            scrollTop: $('.card').offset().top - 100
+        }, 300);
+    });
+
+    // Form submission handler
+    $('#productForm').on('submit', handleFormSubmission);
+
+    // Configuration Type Toggle
+    $('#configuration_type').on('change', function() {
+        const selectedType = $(this).val();
+        
+        if (selectedType === 'simple') {
+            $('#simple-product-section').show();
+            $('#variants-section').hide();
+        } else if (selectedType === 'variants') {
+            $('#simple-product-section').hide();
+            $('#variants-section').show();
+        } else {
+            // No selection - hide both sections
+            $('#simple-product-section').hide();
+            $('#variants-section').hide();
+        }
+    });
+
+    // Discount Checkbox Toggle
+    $('#has_discount').on('change', function() {
+        if ($(this).is(':checked')) {
+            $('#discount-fields').slideDown();
+        } else {
+            $('#discount-fields').slideUp();
+            $('#price_before_discount').val('');
+            $('#offer_end_date').val('');
+        }
+    });
+
+    // Stock Row Index
+    let stockRowIndex = 0;
+
+    // Add Stock Row
+    $('#add-stock-row').on('click', function() {
+        addStockRow();
+    });
+
+    // Remove Stock Row (Event Delegation)
+    $(document).on('click', '.remove-stock-row', function() {
+        $(this).closest('tr').remove();
+        calculateTotalStock();
+    });
+
+    // Calculate Total Stock on Input Change
+    $(document).on('input', '.stock-quantity', function() {
+        calculateTotalStock();
+    });
+
+    console.log('✅ Product form navigation initialized');
 });
 /**
  * Show/Hide wizard steps
@@ -441,4 +555,64 @@ function handleFormSubmission(e) {
             }
         }
     });
+}
+
+/**
+ * Add Stock Row to Table
+ */
+function addStockRow() {
+    const config = window.productFormConfig;
+    if (!config || !config.regions) {
+        console.error('Regions data not available');
+        return;
+    }
+
+    const rowIndex = $('.stock-row').length;
+    
+    let regionOptions = '<option value="">Select Region</option>';
+    config.regions.forEach(region => {
+        regionOptions += `<option value="${region.id}">${region.name}</option>`;
+    });
+
+    const rowHtml = `
+        <tr class="stock-row">
+            <td>
+                <select name="stocks[${rowIndex}][region_id]" class="form-control select2-stock" required>
+                    ${regionOptions}
+                </select>
+            </td>
+            <td>
+                <input type="number" name="stocks[${rowIndex}][quantity]" class="form-control stock-quantity" min="0" value="0" required>
+            </td>
+            <td class="text-center">
+                <button type="button" class="btn btn-sm btn-danger remove-stock-row">
+                    <i class="uil uil-trash-alt"></i>
+                </button>
+            </td>
+        </tr>
+    `;
+
+    $('#stock-rows').append(rowHtml);
+    
+    // Initialize Select2 for the new row
+    $('.select2-stock').select2({
+        theme: 'bootstrap-5',
+        width: '100%'
+    });
+
+    calculateTotalStock();
+}
+
+/**
+ * Calculate Total Stock
+ */
+function calculateTotalStock() {
+    let total = 0;
+    
+    $('.stock-quantity').each(function() {
+        const value = parseInt($(this).val()) || 0;
+        total += value;
+    });
+    
+    $('#total-stock').text(total);
 }

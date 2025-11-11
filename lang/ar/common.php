@@ -94,4 +94,6 @@ return [
     'optional' => 'اختياري',
     'please_fix_errors' => 'يرجى إصلاح الأخطاء أدناه',
     'error_occurred' => 'حدث خطأ',
+    'egp' => 'جنيه',
+    'country' => 'الدولة',
 ];

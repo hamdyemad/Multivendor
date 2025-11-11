@@ -1,25 +1,22 @@
 <div class="col-xxl-12 mb-25">
-    <div class="card border-0 px-25">
-        <div class="card-header px-0 border-0">
-            <h6>{{ trans('dashboard.latest_orders') }}</h6>
+    <div class="userDatatable global-shadow border-light-0 p-30 bg-white radius-xl w-100 mb-30">
+        <div class="d-flex justify-content-between align-items-center mb-25">
+            <h4 class="mb-0 fw-500">{{ trans('dashboard.latest_orders') }}</h4>
         </div>
-        <div class="card-body p-0">
-            <div class="selling-table-wrap">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th style="color: #fff !important;">#</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.order_number') }}</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.vendor_name') }}</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.user') }}</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.price') }}</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.total') }}</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.commission') }} %</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.commission') }} EGP</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.actions') }}</th>
-                            </tr>
-                        </thead>
+        <div class="table-responsive">
+            <table class="table mb-0 table-bordered table-hover" style="width:100%">
+                <thead>
+                    <tr class="userDatatable-header">
+                        <th><span class="userDatatable-title">#</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.order_number') }}</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.vendor_name') }}</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.price') }}</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.total') }}</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.commission') }} %</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.commission') }} EGP</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.actions') }}</span></th>
+                    </tr>
+                </thead>
                         <tbody>
                             <tr>
                                 <td>1</td>
@@ -32,15 +29,14 @@
                                         <span class="ms-3">Fresh</span>
                                     </a>
                                 </td>
-                                <td>John Smith</td>
                                 <td class="fw-bold text-primary">299.00 EGP</td>
                                 <td class="fw-bold text-success">299.00 EGP</td>
                                 <td class="fw-bold text-success">10%</td>
                                 <td class="fw-bold text-success">29.90 EGP</td>
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-light">
-                                        <i class="uil uil-eye"></i>
-                                        Show
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        <i class="uil uil-eye m-0"></i>
+
                                     </a>
                                 </td>
                             </tr>
@@ -55,15 +51,14 @@
                                         <span class="ms-3">Fresh</span>
                                     </a>
                                 </td>
-                                <td>Sarah Johnson</td>
                                 <td class="fw-bold text-primary">89.99 EGP</td>
                                 <td class="fw-bold text-success">179.98 EGP</td>
                                 <td class="fw-bold text-success">10%</td>
                                 <td class="fw-bold text-success">18.00 EGP</td>
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-light">
-                                        <i class="uil uil-eye"></i>
-                                        Show
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        <i class="uil uil-eye m-0"></i>
+
                                     </a>
                                 </td>
                             </tr>
@@ -78,15 +73,14 @@
                                         <span class="ms-3">Fresh</span>
                                     </a>
                                 </td>
-                                <td>Michael Brown</td>
                                 <td class="fw-bold text-primary">45.50 EGP</td>
                                 <td class="fw-bold text-success">136.50 EGP</td>
                                 <td class="fw-bold text-success">10%</td>
                                 <td class="fw-bold text-success">13.65 EGP</td>
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-light">
-                                        <i class="uil uil-eye"></i>
-                                        Show
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        <i class="uil uil-eye m-0"></i>
+
                                     </a>
                                 </td>
                             </tr>
@@ -101,15 +95,14 @@
                                         <span class="ms-3">Fresh</span>
                                     </a>
                                 </td>
-                                <td>Emily Davis</td>
                                 <td class="fw-bold text-primary">19.99 EGP</td>
                                 <td class="fw-bold text-success">79.96 EGP</td>
                                 <td class="fw-bold text-success">10%</td>
                                 <td class="fw-bold text-success">8.00 EGP</td>
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-light">
-                                        <i class="uil uil-eye"></i>
-                                        Show
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        <i class="uil uil-eye m-0"></i>
+
                                     </a>
                                 </td>
                             </tr>
@@ -124,22 +117,18 @@
                                         <span class="ms-3">Fresh</span>
                                     </a>
                                 </td>
-                                <td>David Wilson</td>
                                 <td class="fw-bold text-primary">129.99 EGP</td>
                                 <td class="fw-bold text-success">259.98 EGP</td>
                                 <td class="fw-bold text-success">10%</td>
                                 <td class="fw-bold text-success">26.00 EGP</td>
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-light">
-                                        <i class="uil uil-eye"></i>
-                                        Show
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        <i class="uil uil-eye m-0 m-0 m-0"></i>
                                     </a>
                                 </td>
                             </tr>
                         </tbody>
-                    </table>
-                </div>
-            </div>
+            </table>
         </div>
     </div>
 </div>

@@ -9,14 +9,7 @@ export default defineConfig({
         'resources/scss/rtl-validation.scss',
         'resources/js/app.js',
         'resources/scss/app.scss',
-        // Vendor Module Assets
-        'Modules/Vendor/resources/assets/css/vendor-form.css',
-        'Modules/Vendor/resources/assets/js/vendor-form.js',
 
-        // CatalogManagement Module Assets
-        'Modules/CatalogManagement/resources/css/tree-view.css',
-        'Modules/CatalogManagement/resources/assets/sass/product-form.scss',
-        'Modules/CatalogManagement/resources/assets/js/product-form.js',
       ],
       refresh: true,
     }),

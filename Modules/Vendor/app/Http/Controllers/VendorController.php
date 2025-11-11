@@ -28,7 +28,7 @@ class VendorController extends Controller {
 
     public function index() {
         $languages = $this->languageService->getAll();
-        
+
         $data = [
             'title' => 'Vendors Management',
             'languages' => $languages
@@ -80,7 +80,7 @@ class VendorController extends Controller {
         $languages = $this->languageService->getAll();
 
         $data = [
-            'title' => 'Create Vendor',
+            'title' => __('vendor::vendor.add_vendor'),
             'countries' => $countries,
             'activities' => $activities,
             'languages' => $languages
@@ -135,7 +135,7 @@ class VendorController extends Controller {
         $vendor = $this->vendorService->getVendorById($id);
         $languages = $this->languageService->getAll();
         $data = [
-            'title' => 'Vendor Details',
+            'title' => __('vendor::vendor.vendor_details'),
             'vendor' => $vendor,
             'languages' => $languages
         ];
@@ -155,7 +155,7 @@ class VendorController extends Controller {
         // Get languages for translations
         $languages = $this->languageService->getAll();
         $data = [
-            'title' => 'Edit Vendor',
+            'title' => __('vendor::vendor.edit_vendor'),
             'vendor' => $vendor,
             'countries' => $countries,
             'activities' => $activities,
@@ -224,18 +224,18 @@ class VendorController extends Controller {
         try {
             $vendor = $this->vendorService->getVendorById($vendorId);
             $document = $vendor->documents()->findOrFail($documentId);
-            
+
             // Delete the file from storage if it exists
             if ($document->path && \Storage::disk('public')->exists($document->path)) {
                 \Storage::disk('public')->delete($document->path);
             }
-            
+
             // Delete document translations
             $document->translations()->delete();
-            
+
             // Delete the document record
             $document->delete();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => trans('vendor::vendor.document_deleted_successfully') ?? 'Document deleted successfully'
@@ -246,7 +246,7 @@ class VendorController extends Controller {
                 'document_id' => $documentId,
                 'error' => $e->getMessage()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => trans('vendor::vendor.error_deleting_document') ?? 'Error deleting document',

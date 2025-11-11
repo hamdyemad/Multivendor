@@ -1,23 +1,21 @@
 <div class="col-xxl-12 mb-25">
-    <div class="card border-0 px-25">
-        <div class="card-header px-0 border-0">
-            <h6>{{ trans('dashboard.top_vendors') }}</h6>
+    <div class="userDatatable global-shadow border-light-0 p-30 bg-white radius-xl w-100 mb-30">
+        <div class="d-flex justify-content-between align-items-center mb-25">
+            <h4 class="mb-0 fw-500">{{ trans('dashboard.top_vendors') }}</h4>
         </div>
-        <div class="card-body p-0">
-            <div class="selling-table-wrap">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th style="color: #fff !important;">#</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.vendor_name') }}</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.total_selling') }}</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.commission') }} %</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.commission') }} EGP</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.joined_at') }}</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.actions') }}</th>
-                            </tr>
-                        </thead>
+        <div class="table-responsive">
+            <table class="table mb-0 table-bordered table-hover" style="width:100%">
+                <thead>
+                    <tr class="userDatatable-header">
+                        <th><span class="userDatatable-title">#</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.vendor_name') }}</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.total_selling') }}</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.commission') }} %</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.commission') }} EGP</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.joined_at') }}</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.actions') }}</span></th>
+                    </tr>
+                </thead>
                         <tbody>
                             <tr>
                                 <td>1</td>
@@ -34,9 +32,9 @@
                                 <td class="fw-bold text-success">8,545.00 EGP</td>
                                 <td>Jan 10, 2024</td>
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-light">
-                                        <i class="uil uil-eye"></i>
-                                        <span>{{ trans('dashboard.show') }}</span>
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        <i class="uil uil-eye m-0"></i>
+
                                     </a>
                                 </td>
                             </tr>
@@ -55,9 +53,9 @@
                                 <td class="fw-bold text-success">7,289.00 EGP</td>
                                 <td>Feb 15, 2024</td>
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-light">
-                                        <i class="uil uil-eye"></i>
-                                        <span>{{ trans('dashboard.show') }}</span>
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        <i class="uil uil-eye m-0"></i>
+
                                     </a>
                                 </td>
                             </tr>
@@ -76,9 +74,9 @@
                                 <td class="fw-bold text-success">6,532.00 EGP</td>
                                 <td>Mar 20, 2024</td>
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-light">
-                                        <i class="uil uil-eye"></i>
-                                        <span>{{ trans('dashboard.show') }}</span>
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        <i class="uil uil-eye m-0"></i>
+
                                     </a>
                                 </td>
                             </tr>
@@ -97,9 +95,9 @@
                                 <td class="fw-bold text-success">5,875.00 EGP</td>
                                 <td>Apr 12, 2024</td>
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-light">
-                                        <i class="uil uil-eye"></i>
-                                        <span>{{ trans('dashboard.show') }}</span>
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        <i class="uil uil-eye m-0"></i>
+
                                     </a>
                                 </td>
                             </tr>
@@ -118,16 +116,14 @@
                                 <td class="fw-bold text-success">5,218.00 EGP</td>
                                 <td>May 08, 2024</td>
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-light">
-                                        <i class="uil uil-eye"></i>
-                                        <span>{{ trans('dashboard.show') }}</span>
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        <i class="uil uil-eye m-0"></i>
+
                                     </a>
                                 </td>
                             </tr>
                         </tbody>
-                    </table>
-                </div>
-            </div>
+            </table>
         </div>
     </div>
 </div>

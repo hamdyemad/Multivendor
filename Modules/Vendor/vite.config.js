@@ -16,7 +16,9 @@ export default defineConfig({
             buildDirectory: 'build-vendor',
             input: [
                 __dirname + '/resources/assets/sass/app.scss',
-                __dirname + '/resources/assets/js/app.js'
+                __dirname + '/resources/assets/js/app.js',
+                __dirname + '/resources/assets/scss/vendor-form.scss',
+                __dirname + '/resources/assets/js/vendor-form.js',
             ],
             refresh: true,
         }),

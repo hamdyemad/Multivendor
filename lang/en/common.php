@@ -95,4 +95,6 @@ return [
     'optional' => 'Optional',
     'please_fix_errors' => 'Please fix the errors below',
     'error_occurred' => 'An error occurred',
+    'egp' => 'EGP',
+    'country' => 'Country',
 ];

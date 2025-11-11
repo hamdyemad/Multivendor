@@ -1,20 +1,18 @@
 <div class="col-xxl-12 mb-25">
-    <div class="card border-0 px-25">
-        <div class="card-header px-0 border-0">
-            <h6>{{ trans('dashboard.recent_activities') }}</h6>
+    <div class="userDatatable global-shadow border-light-0 p-30 bg-white radius-xl w-100 mb-30">
+        <div class="d-flex justify-content-between align-items-center mb-25">
+            <h4 class="mb-0 fw-500">{{ trans('dashboard.recent_activities') }}</h4>
         </div>
-        <div class="card-body p-0">
-            <div class="selling-table-wrap">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th style="color: #fff !important;">#</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.employee') }}</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.activity') }}</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.activity_date') }}</th>
-                            </tr>
-                        </thead>
+        <div class="table-responsive">
+            <table class="table mb-0 table-bordered table-hover" style="width:100%">
+                <thead>
+                    <tr class="userDatatable-header">
+                        <th><span class="userDatatable-title">#</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.employee') }}</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.activity') }}</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.activity_date') }}</span></th>
+                    </tr>
+                </thead>
                         <tbody>
                             <tr>
                                 <td>1</td>
@@ -62,9 +60,7 @@
                                 <td>Oct 20, 2025 11:50 PM</td>
                             </tr>
                         </tbody>
-                    </table>
-                </div>
-            </div>
+            </table>
         </div>
     </div>
 </div>

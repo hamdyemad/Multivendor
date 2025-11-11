@@ -1,25 +1,22 @@
 <div class="col-xxl-12 mb-25">
-    <div class="card border-0 px-25">
-        <div class="card-header px-0 border-0">
-            <h6>{{ trans('dashboard.top_selling_products') }}</h6>
+    <div class="userDatatable global-shadow border-light-0 p-30 bg-white radius-xl w-100 mb-30">
+        <div class="d-flex justify-content-between align-items-center mb-25">
+            <h4 class="mb-0 fw-500">{{ trans('dashboard.top_selling_products') }}</h4>
         </div>
-        <div class="card-body p-0">
-            <div class="selling-table-wrap">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th style="color: #fff !important;">#</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.product_name') }}</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.vendor_name') }}</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.sold_count') }}</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.price') }}</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.total') }}</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.commission') }} %</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.commission') }} EGP</th>
-                                <th style="color: #fff !important;">{{ trans('dashboard.actions') }}</th>
-                            </tr>
-                        </thead>
+        <div class="table-responsive">
+            <table class="table mb-0 table-bordered table-hover" style="width:100%">
+                <thead>
+                    <tr class="userDatatable-header">
+                        <th><span class="userDatatable-title">#</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.product_name') }}</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.vendor_name') }}</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.sold_count') }}</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.price') }}</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.total') }}</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.commission') }} EGP</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.actions') }}</span></th>
+                    </tr>
+                </thead>
                         <tbody>
                             <tr>
                                 <td>1</td>
@@ -42,12 +39,11 @@
                                 <td>156</td>
                                 <td>89.99 EGP</td>
                                 <td class="fw-bold text-success">14,038.44 EGP</td>
-                                <td class="fw-bold text-success">10%</td>
                                 <td class="fw-bold text-success">1,403.844 EGP</td>
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-light">
-                                        <i class="uil uil-eye"></i>
-                                        Show
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        <i class="uil uil-eye m-0"></i>
+
                                     </a>
                                 </td>
                             </tr>
@@ -70,12 +66,11 @@
                                 <td>234</td>
                                 <td>299.00 EGP</td>
                                 <td class="fw-bold text-success">69,966.00 EGP</td>
-                                <td class="fw-bold text-success">10%</td>
                                 <td class="fw-bold text-success">6,996.6 EGP</td>
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-light">
-                                        <i class="uil uil-eye"></i>
-                                        Show
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        <i class="uil uil-eye m-0"></i>
+
                                     </a>
                                 </td>
                             </tr>
@@ -98,12 +93,11 @@
                                 <td>189</td>
                                 <td>45.50 EGP</td>
                                 <td class="fw-bold text-success">8,599.50 EGP</td>
-                                <td class="fw-bold text-success">10%</td>
                                 <td class="fw-bold text-success">859.95 EGP</td>
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-light">
-                                        <i class="uil uil-eye"></i>
-                                        Show
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        <i class="uil uil-eye m-0"></i>
+
                                     </a>
                                 </td>
                             </tr>
@@ -126,12 +120,11 @@
                                 <td>445</td>
                                 <td>19.99 EGP</td>
                                 <td class="fw-bold text-success">8,895.55 EGP</td>
-                                <td class="fw-bold text-success">10%</td>
                                 <td class="fw-bold text-success">889.555 EGP</td>
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-light">
-                                        <i class="uil uil-eye"></i>
-                                        Show
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        <i class="uil uil-eye m-0"></i>
+
                                     </a>
                                 </td>
                             </tr>
@@ -154,19 +147,16 @@
                                 <td>98</td>
                                 <td>129.99 EGP</td>
                                 <td class="fw-bold text-success">12,739.02 EGP</td>
-                                <td class="fw-bold text-success">10%</td>
                                 <td class="fw-bold text-success">1,273.902 EGP</td>
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-light">
-                                        <i class="uil uil-eye"></i>
-                                        Show
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        <i class="uil uil-eye m-0"></i>
+
                                     </a>
                                 </td>
                             </tr>
                         </tbody>
-                    </table>
-                </div>
-            </div>
+            </table>
         </div>
     </div>
 </div>

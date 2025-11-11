@@ -1,0 +1,31 @@
+{
+  "resources/assets/js/app.js": {
+    "file": "assets/app-l0sNRNKZ.js",
+    "name": "app",
+    "src": "resources/assets/js/app.js",
+    "isEntry": true
+  },
+  "resources/assets/js/product-form.js": {
+    "file": "assets/product-form-B-aG9h3j.js",
+    "name": "product-form",
+    "src": "resources/assets/js/product-form.js",
+    "isEntry": true
+  },
+  "resources/assets/sass/app.scss": {
+    "file": "assets/app-DP2rzg_V.js",
+    "name": "app",
+    "src": "resources/assets/sass/app.scss",
+    "isEntry": true
+  },
+  "resources/assets/sass/product-form.scss": {
+    "file": "assets/product-form-l0sNRNKZ.js",
+    "name": "product-form",
+    "src": "resources/assets/sass/product-form.scss",
+    "isEntry": true
+  },
+  "resources/css/tree-view.css": {
+    "file": "assets/tree-view-BOY9Y-Ju.css",
+    "src": "resources/css/tree-view.css",
+    "isEntry": true
+  }
+}

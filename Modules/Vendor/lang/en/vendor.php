@@ -140,6 +140,7 @@ return [
     'activities' => 'Activities',
     'vendor_type' => 'Vendor Type',
     'select_vendor_type' => 'Select Vendor Type',
+    'select_option' => 'Select An Option',
     'product' => 'Product',
     'booking' => 'Booking',
     'product_booking' => 'Product & Booking',
@@ -184,6 +185,8 @@ return [
     'email_required' => 'Email address is required.',
     'email_valid' => 'Please enter a valid email address.',
     'email_already_registered' => 'This email address is already registered.',
+    'validation_error' => 'Please fill in all required fields before proceeding to the next step.',
+    'error' => 'Error',
     'password_required' => 'Password is required.',
     'password_min_8' => 'Password must be at least 8 characters.',
     'password_confirmation_mismatch' => 'Password confirmation does not match.',
@@ -200,4 +203,10 @@ return [
     'document_file_required' => 'Document file is required.',
     'document_file_types' => 'Document must be a file of type: pdf, doc, docx, jpg, jpeg, png.',
     'document_max_size' => 'Document size must not exceed 5MB.',
+    
+    // Money Transactions
+    'money_transactions' => 'Money Transactions',
+    'total_vendors_balance' => 'Total Vendors Balance',
+    'total_sent_money' => 'Total Sent Money',
+    'total_remaining' => 'Total Remaining',
 ];

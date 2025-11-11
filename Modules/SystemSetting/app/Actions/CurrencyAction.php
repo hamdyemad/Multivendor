@@ -22,13 +22,13 @@ class CurrencyAction
         $draw = $request->get('draw', 1);
         $start = $request->get('start', 0);
         $length = $request->get('length', 10);
-        
+
         // Get search value
         $searchValue = $request->get('search');
         if (is_array($searchValue)) {
             $searchValue = $searchValue['value'] ?? '';
         }
-        
+
         $orderColumnIndex = $request->get('order')[0]['column'] ?? 0;
         $orderDirection = $request->get('order')[0]['dir'] ?? 'asc';
 
@@ -61,7 +61,7 @@ class CurrencyAction
 
         // Get currencies with sorting applied
         $sortedQuery = $this->currencyService->getCurrenciesQuery($filters, $orderBy, $orderDirection);
-        
+
         // Apply pagination
         $perPage = $request->get('per_page', 10);
         $page = $request->get('page', 1);
@@ -90,9 +90,9 @@ class CurrencyAction
     {
         $orderBy = null;
         $sortBy = $request->get('sort_by');
-        
+
         $languagesArray = $languages->values()->all();
-        
+
         if ($sortBy) {
             if (strpos($sortBy, 'name_') === 0) {
                 $languageId = str_replace('name_', '', $sortBy);
@@ -132,37 +132,36 @@ class CurrencyAction
     {
         $data = [];
         $startIndex = ($currencies->currentPage() - 1) * $currencies->perPage();
-        
+
         foreach ($currencies as $index => $currency) {
             $row = [
                 'index' => $startIndex + $index + 1,
                 'id' => $currency->id,
                 'names' => [],
                 'code' => $currency->code,
-                'symbol' => $currency->symbol,
                 'active' => $currency->active ?? true,
-                'created_at' => $currency->created_at ? $currency->created_at->format('Y-m-d H:i') : '-',
+                'created_at' =>  $currency->created_at,
                 'display_name' => ''
             ];
-            
+
             // Get names for each language
             foreach ($languages as $language) {
                 $translation = $currency->translations()
                     ->where('lang_id', $language->id)
                     ->where('lang_key', 'name')
                     ->first();
-                
+
                 $name = $translation ? $translation->lang_value : '-';
                 $row['names'][$language->id] = [
                     'value' => $name,
                     'rtl' => $language->rtl
                 ];
-                
+
                 if (!$row['display_name'] && $name !== '-') {
                     $row['display_name'] = $name;
                 }
             }
-            
+
             $data[] = $row;
         }
 

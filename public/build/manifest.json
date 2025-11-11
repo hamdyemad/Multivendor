@@ -1,31 +1,4 @@
 {
-  "Modules/CatalogManagement/resources/assets/js/product-form.js": {
-    "file": "assets/product-form-B-aG9h3j.js",
-    "name": "product-form",
-    "src": "Modules/CatalogManagement/resources/assets/js/product-form.js",
-    "isEntry": true
-  },
-  "Modules/CatalogManagement/resources/assets/sass/product-form.scss": {
-    "file": "assets/product-form-CvUEfgPx.css",
-    "src": "Modules/CatalogManagement/resources/assets/sass/product-form.scss",
-    "isEntry": true
-  },
-  "Modules/CatalogManagement/resources/css/tree-view.css": {
-    "file": "assets/tree-view-BOY9Y-Ju.css",
-    "src": "Modules/CatalogManagement/resources/css/tree-view.css",
-    "isEntry": true
-  },
-  "Modules/Vendor/resources/assets/css/vendor-form.css": {
-    "file": "assets/vendor-form-D2jfhCbF.css",
-    "src": "Modules/Vendor/resources/assets/css/vendor-form.css",
-    "isEntry": true
-  },
-  "Modules/Vendor/resources/assets/js/vendor-form.js": {
-    "file": "assets/vendor-form-Bkt25EKX.js",
-    "name": "vendor-form",
-    "src": "Modules/Vendor/resources/assets/js/vendor-form.js",
-    "isEntry": true
-  },
   "resources/js/app.js": {
     "file": "assets/app-Bs8SRQVP.js",
     "name": "app",
@@ -36,7 +9,7 @@
     ]
   },
   "resources/scss/app.scss": {
-    "file": "assets/app-BjmpS6__.css",
+    "file": "assets/app-DJh_6Jun.css",
     "src": "resources/scss/app.scss",
     "isEntry": true
   },

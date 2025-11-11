@@ -22,17 +22,17 @@ class SubRegionAction
         $draw = $request->get('draw', 1);
         $start = $request->get('start', 0);
         $length = $request->get('length', 10);
-        
+
         // Get search value from custom parameter or DataTables default
         $searchValue = $request->get('search');
         if (is_array($searchValue)) {
             $searchValue = $searchValue['value'] ?? '';
         }
-        
+
         // Get sorting parameters - handle both DataTables default format and custom parameters
         $orderColumnIndex = $request->get('order_column');
         $orderDirection = $request->get('order_dir', 'desc');
-        
+
         if ($orderColumnIndex === null && $request->has('order')) {
             $orderData = $request->get('order');
             if (is_array($orderData) && isset($orderData[0])) {
@@ -40,7 +40,7 @@ class SubRegionAction
                 $orderDirection = $orderData[0]['dir'] ?? 'desc';
             }
         }
-        
+
         $orderColumnIndex = $orderColumnIndex ?? 0;
 
         // Get filter parameters
@@ -81,7 +81,7 @@ class SubRegionAction
 
         // Get sub-regions with sorting applied
         $sortedQuery = $this->subregionService->getSubRegionsQuery($filters, $orderBy, $orderDirection);
-        
+
         // Apply pagination
         $perPage = $request->get('per_page', $request->get('length', 15));
         $page = $request->get('page', 1);
@@ -110,7 +110,7 @@ class SubRegionAction
     {
         $orderBy = null;
         $languagesArray = $languages->values()->all();
-        
+
         // Check if sorting by name column (columns 1 to count($languages))
         // Note: Column 0 is 'index', so names start at column 1
         if ($orderColumnIndex >= 1 && $orderColumnIndex <= count($languagesArray)) {
@@ -149,7 +149,7 @@ class SubRegionAction
     {
         $data = [];
         $startIndex = ($subregions->currentPage() - 1) * $subregions->perPage();
-        
+
         foreach ($subregions as $index => $subregion) {
             $row = [
                 'index' => $startIndex + $index + 1,
@@ -160,10 +160,10 @@ class SubRegionAction
                     'name' => $subregion->region ? $subregion->region->getTranslation('name', app()->getLocale()) : '-'
                 ],
                 'active' => $subregion->active ?? true,
-                'created_at' => $subregion->created_at ? $subregion->created_at->format('Y-m-d H:i') : '-',
+                'created_at' => $subregion->created_at,
                 'display_name' => ''
             ];
-            
+
             // Get names for each language
             foreach ($languages as $language) {
                 $name = $subregion->getTranslation('name', $language->code) ?? '-';
@@ -171,13 +171,13 @@ class SubRegionAction
                     'value' => $name,
                     'rtl' => $language->rtl
                 ];
-                
+
                 // Set display name (first available translation)
                 if (!$row['display_name'] && $name !== '-') {
                     $row['display_name'] = $name;
                 }
             }
-            
+
             $data[] = $row;
         }
 

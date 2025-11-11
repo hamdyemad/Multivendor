@@ -30,118 +30,130 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            {{-- Basic Information Section --}}
-                            <div class="col-12">
-                                <h6 class="fw-500" style="background: #0056B7; color: white; padding: 12px 16px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
-                                    <i class="uil uil-info-circle"></i>{{ __('areasettings::subregion.basic_information') }}
-                                </h6>
-                            </div>
-                            @foreach($languages as $language)
-                                <div class="col-md-6 mt-3">
-                                    <div class="view-item">
-                                        <label class="il-gray fs-14 fw-500 mb-10" @if($language->rtl) dir="rtl" style="text-align: right; display: block;" @endif>
-                                            {{ __('areasettings::subregion.name') }} ({{ $language->name }})
-                                        </label>
-                                        <p class="fs-15 color-dark fw-500" @if($language->rtl) dir="rtl" style="text-align: right;" @endif>
-                                            {{ $subregion->getTranslation('name', $language->code) ?? '-' }}
-                                        </p>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3>
+                                            <i class="uil uil-info-circle me-1"></i>{{ __('common.basic_information') }}
+                                        </h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            {{-- Dynamic Language Translations for Name --}}
+                                            @foreach($languages as $language)
+                                                <div class="col-md-6">
+                                                    <div class="view-item">
+                                                        <label class="il-gray fs-14 fw-500 mb-10" @if($language->rtl) dir="rtl" style="text-align: right; display: block;" @endif>
+                                                            @if($language->code == 'ar')
+                                                                الاسم بالعربية
+                                                            @elseif($language->code == 'en')
+                                                                {{ __('areasettings::subregion.name_english') }}
+                                                            @else
+                                                                {{ __('areasettings::subregion.name') }} ({{ $language->name }})
+                                                            @endif
+                                                        </label>
+                                                        <p class="fs-15 color-dark fw-500" @if($language->rtl) dir="rtl" style="text-align: right;" @endif>
+                                                            {{ $subregion->getTranslation('name', $language->code) ?? '-' }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                            <div class="col-md-6">
+                                                <div class="view-item">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::subregion.country') }}</label>
+                                                    <p class="fs-15 color-dark">
+                                                        @if($subregion->region && $subregion->region->city && $subregion->region->city->country)
+                                                            <span class="badge badge-primary badge-round badge-lg">
+                                                                {{ $subregion->region->city->country->getTranslation('name', app()->getLocale()) ?? $subregion->region->city->country->code }}
+                                                            </span>
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="view-item">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::subregion.city') }}</label>
+                                                    <p class="fs-15 color-dark">
+                                                        @if($subregion->region && $subregion->region->city)
+                                                            <span class="badge badge-info badge-round badge-lg">
+                                                                {{ $subregion->region->city->getTranslation('name', app()->getLocale()) ?? $subregion->region->city->id }}
+                                                            </span>
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="view-item">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::subregion.region') }}</label>
+                                                    <p class="fs-15 color-dark">
+                                                        @if($subregion->region)
+                                                            <span class="badge badge-warning badge-round badge-lg">
+                                                                {{ $subregion->region->getTranslation('name', app()->getLocale()) ?? $subregion->region->id }}
+                                                            </span>
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="view-item">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::subregion.activation') }}</label>
+                                                    <p class="fs-15">
+                                                        @if($subregion->active)
+                                                            <span class="badge badge-success badge-round badge-lg">{{ __('areasettings::subregion.active') }}</span>
+                                                        @else
+                                                            <span class="badge badge-danger badge-round badge-lg">{{ __('areasettings::subregion.inactive') }}</span>
+                                                        @endif
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            @endforeach
-
-                            <div class="col-md-6 mt-3">
-                                <div class="view-item">
-                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::subregion.country') }}</label>
-                                    <p class="fs-15 color-dark">
-                                        @if($subregion->region && $subregion->region->city && $subregion->region->city->country)
-                                            <span class="badge badge-primary badge-round badge-lg me-1">
-                                                {{ $subregion->region->city->country->getTranslation('name', app()->getLocale()) ?? $subregion->region->city->country->code }}
-                                            </span>
-                                        @else
-                                            -
-                                        @endif
-                                    </p>
-                                </div>
                             </div>
-
-                            <div class="col-md-6 mt-3">
-                                <div class="view-item">
-                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::subregion.city') }}</label>
-                                    <p class="fs-15 color-dark">
-                                        @if($subregion->region && $subregion->region->city)
-                                            <span class="badge badge-info badge-round badge-lg me-1">
-                                                {{ $subregion->region->city->getTranslation('name', app()->getLocale()) ?? $subregion->region->city->id }}
-                                            </span>
-                                        @else
-                                            -
-                                        @endif
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 mt-3">
-                                <div class="view-item">
-                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::subregion.region') }}</label>
-                                    <p class="fs-15 color-dark">
-                                        @if($subregion->region)
-                                            <span class="badge badge-warning badge-round badge-lg me-1">
-                                                {{ $subregion->region->getTranslation('name', app()->getLocale()) ?? $subregion->region->id }}
-                                            </span>
-                                        @else
-                                            -
-                                        @endif
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 mt-3">
-                                <div class="view-item">
-                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::subregion.status') }}</label>
-                                    <p class="fs-15">
-                                        @if($subregion->active)
-                                            <span class="badge bg-success badge-round badge-lg">
-                                                <i class="uil uil-check me-1"></i>{{ __('areasettings::subregion.active') }}
-                                            </span>
-                                        @else
-                                            <span class="badge bg-danger badge-round badge-lg">
-                                                <i class="uil uil-times me-1"></i>{{ __('areasettings::subregion.inactive') }}
-                                            </span>
-                                        @endif
-                                    </p>
-                                </div>
-                            </div>
-
-
-
-                            {{-- Timestamps Section --}}
-                            <div class="col-12">
-                                <h6 class="fw-500" style="background: #0056B7; color: white; padding: 12px 16px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
-                                    <i class="uil uil-clock"></i>{{ __('common.timestamps') }}</h6>
-                            </div>
-
-                            <div class="col-md-6 mt-3">
-                                <div class="view-item">
-                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::subregion.created_at') }}</label>
-                                    <p class="fs-15 color-dark">{{ $subregion->created_at ? $subregion->created_at->format('Y-m-d H:i:s') : '-' }}</p>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 mt-3">
-                                <div class="view-item">
-                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::subregion.updated_at') }}</label>
-                                    <p class="fs-15 color-dark">{{ $subregion->updated_at ? $subregion->updated_at->format('Y-m-d H:i:s') : '-' }}</p>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3>
+                                            <i class="uil uil-clock me-1"></i>{{ __('common.timestamps') }}
+                                        </h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="view-item">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('common.created_at') }}</label>
+                                                    <p class="fs-15 color-dark">{{ $subregion->created_at->format('d M, Y h:i A') }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="view-item">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('common.updated_at') }}</label>
+                                                    <p class="fs-15 color-dark">{{ $subregion->updated_at->format('d M, Y h:i A') }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         {{-- Hierarchy Navigation --}}
-                            <div class="col-12">
-                                <h6 class="fw-500" style="background: #0056B7; color: white; padding: 12px 16px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
-                                    <i class="uil uil-sitemap"></i>{{ __('areasettings::subregion.hierarchy_navigation') }}
-                                </h6>
-                            </div>
-                            <div class="col-12 mt-3">
-                                <nav aria-label="breadcrumb">
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3>
+                                            <i class="uil uil-sitemap me-1"></i>{{ __('areasettings::subregion.hierarchy_navigation') }}
+                                        </h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <nav aria-label="breadcrumb">
                                             <ol class="breadcrumb">
                                                 @if($subregion->region && $subregion->region->city && $subregion->region->city->country)
                                                     <li class="breadcrumb-item">
@@ -168,8 +180,11 @@
                                                     <i class="uil uil-location-point"></i> {{ $subregion->getTranslation('name', app()->getLocale()) ?? $subregion->id }}
                                                 </li>
                                             </ol>
-                                </nav>
+                                        </nav>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
                     </div>
                 </div>
             </div>

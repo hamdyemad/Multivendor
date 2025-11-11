@@ -2,6 +2,7 @@
 
 namespace Modules\CategoryManagment\app\Models;
 
+use App\Models\Traits\HumanDates;
 use App\Traits\Translation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,8 +10,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Activity extends Model
 {
-    use HasFactory, Translation, SoftDeletes;
-    
+    use HasFactory, Translation, SoftDeletes, HumanDates;
+
     protected $table = 'activities';
     protected $guarded = [];
 

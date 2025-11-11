@@ -99,7 +99,7 @@ class CategoryAction {
                     'translations' => [],
                     'department' => null,
                     'active' => $category->active,
-                    'created_at' => $category->created_at->format('Y-m-d H:i'),
+                    'created_at' => $category->created_at,
                 ];
 
                 // Add translations for each language

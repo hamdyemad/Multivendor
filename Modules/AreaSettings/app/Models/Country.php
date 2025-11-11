@@ -2,6 +2,7 @@
 
 namespace Modules\AreaSettings\app\Models;
 
+use App\Models\Traits\HumanDates;
 use App\Traits\Translation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -10,8 +11,8 @@ use Modules\SystemSetting\app\Models\Currency;
 
 class Country extends Model
 {
-    use Translation, SoftDeletes;
-    
+    use Translation, SoftDeletes, HumanDates;
+
     protected $table = 'countries';
     protected $guarded = [];
 

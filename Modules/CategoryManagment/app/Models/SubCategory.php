@@ -3,6 +3,7 @@
 namespace Modules\CategoryManagment\app\Models;
 
 use App\Models\Attachment;
+use App\Models\Traits\HumanDates;
 use App\Traits\Translation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SubCategory extends Model
 {
-    use HasFactory, SoftDeletes, Translation;
+    use HasFactory, SoftDeletes, Translation, HumanDates;
 
     protected $guarded = [];
 

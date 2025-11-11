@@ -30,89 +30,103 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            {{-- Basic Information Section --}}
-                            <div class="col-12">
-                                <h6 class="fw-500" style="background: #0056B7; color: white; padding: 12px 16px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
-                                    <i class="uil uil-info-circle"></i>{{ __('areasettings::country.basic_information') }}
-                                </h6>
-                            </div>
-                            @foreach($languages as $language)
-                                <div class="col-md-6 mt-3">
-                                    <div class="view-item">
-                                        <label class="il-gray fs-14 fw-500 mb-10" @if($language->rtl) dir="rtl" style="text-align: right; display: block;" @endif>
-                                            {{ __('areasettings::country.name') }} ({{ $language->name }})
-                                        </label>
-                                        <p class="fs-15 color-dark fw-500" @if($language->rtl) dir="rtl" style="text-align: right;" @endif>
-                                            {{ $country->translations->where('lang_id', $language->id)->first()->lang_value ?? '-' }}
-                                        </p>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3>
+                                            <i class="uil uil-info-circle me-1"></i>{{ __('common.basic_information') }}
+                                        </h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            {{-- Dynamic Language Translations for Name --}}
+                                            @foreach($languages as $language)
+                                                <div class="col-md-6">
+                                                    <div class="view-item">
+                                                        <label class="il-gray fs-14 fw-500 mb-10" @if($language->rtl) dir="rtl" style="text-align: right; display: block;" @endif>
+                                                            @if($language->code == 'ar')
+                                                                الاسم بالعربية
+                                                            @elseif($language->code == 'en')
+                                                                {{ __('areasettings::country.name_english') }}
+                                                            @else
+                                                                {{ __('areasettings::country.name') }} ({{ $language->name }})
+                                                            @endif
+                                                        </label>
+                                                        <p class="fs-15 color-dark fw-500" @if($language->rtl) dir="rtl" style="text-align: right;" @endif>
+                                                            {{ $country->getTranslation('name', $language->code) ?? '-' }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                            <div class="col-md-6">
+                                                <div class="view-item">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::country.country_code') }}</label>
+                                                    <p class="fs-15 color-dark">
+                                                        <span class="badge badge-primary badge-round badge-lg">{{ $country->code }}</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="view-item">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::country.phone_code') }}</label>
+                                                    <p class="fs-15 color-dark">
+                                                        <span class="badge badge-info badge-round badge-lg">{{ $country->phone_code }}</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="view-item">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::country.currency') }}</label>
+                                                    <p class="fs-15 color-dark">
+                                                        @if($country->currency)
+                                                            <span class="badge badge-warning badge-round badge-lg">
+                                                                {{ $country->currency->getTranslation('name', app()->getLocale()) }} ({{ $country->currency->code }})
+                                                            </span>
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="view-item">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::country.activation') }}</label>
+                                                    <p class="fs-15">
+                                                        @if($country->active)
+                                                            <span class="badge badge-success badge-round badge-lg">{{ __('areasettings::country.active') }}</span>
+                                                        @else
+                                                            <span class="badge badge-danger badge-round badge-lg">{{ __('areasettings::country.inactive') }}</span>
+                                                        @endif
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            @endforeach
-                            <div class="col-md-6 mt-3">
-                                <div class="view-item">
-                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::country.country_code') }}</label>
-                                    <p class="fs-15 color-dark">
-                                        <span class="badge badge-primary badge-round badge-lg">{{ $country->code }}</span>
-                                    </p>
-                                </div>
                             </div>
-                            <div class="col-md-6 mt-3">
-                                <div class="view-item">
-                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::country.phone_code') }}</label>
-                                    <p class="fs-15 color-dark">
-                                        <span class="badge badge-info badge-round badge-lg">{{ $country->phone_code }}</span>
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mt-3">
-                                <div class="view-item">
-                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::country.currency') }}</label>
-                                    <p class="fs-15 color-dark">
-                                        @if($country->currency)
-                                            <span class="badge badge-warning badge-round badge-lg">
-                                                {{ $country->currency->getTranslation('name', app()->getLocale()) }} ({{ $country->currency->code }})
-                                            </span>
-                                        @else
-                                            -
-                                        @endif
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mt-3">
-                                <div class="view-item">
-                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::country.active') }}</label>
-                                    <p class="fs-15">
-                                        @if($country->active)
-                                            <span class="badge bg-success badge-round badge-lg">
-                                                <i class="uil uil-check me-1"></i>{{ __('areasettings::country.active') }}
-                                            </span>
-                                        @else
-                                            <span class="badge bg-danger badge-round badge-lg">
-                                                <i class="uil uil-times me-1"></i>{{ __('areasettings::country.inactive') }}
-                                            </span>
-                                        @endif
-                                    </p>
-                                </div>
-                            </div>
-
-                            {{-- Timestamps Section --}}
-                            <div class="col-12">
-                                <h6 class="fw-500" style="background: #0056B7; color: white; padding: 12px 16px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
-                                    <i class="uil uil-clock"></i>{{ __('common.timestamps') }}
-                                </h6>
-                            </div>
-
-                            <div class="col-md-6 mt-3">
-                                <div class="view-item">
-                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::country.created_at') }}</label>
-                                    <p class="fs-15 color-dark">{{ $country->created_at ? $country->created_at->format('Y-m-d H:i:s') : '-' }}</p>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 mt-3">
-                                <div class="view-item">
-                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('areasettings::country.updated_at') }}</label>
-                                    <p class="fs-15 color-dark">{{ $country->updated_at ? $country->updated_at->format('Y-m-d H:i:s') : '-' }}</p>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3>
+                                            <i class="uil uil-clock me-1"></i>{{ __('common.timestamps') }}
+                                        </h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="view-item">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('common.created_at') }}</label>
+                                                    <p class="fs-15 color-dark">{{ $country->created_at }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="view-item">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('common.updated_at') }}</label>
+                                                    <p class="fs-15 color-dark">{{ $country->updated_at }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -122,16 +136,3 @@
         </div>
     </div>
 @endsection
-
-@push('styles')
-<style>
-    .view-item label {
-        color: #9299b8;
-        margin-bottom: 8px;
-    }
-    .view-item p {
-        margin-bottom: 0;
-        font-weight: 500;
-    }
-</style>
-@endpush

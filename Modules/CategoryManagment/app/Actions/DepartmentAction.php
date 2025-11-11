@@ -25,11 +25,11 @@ class DepartmentAction {
             // Get pagination parameters
             $perPage = $data['per_page'] ?? $data['length'] ?? 10;
             $page = $data['page'] ?? 1;
-            
+
             // Get sorting parameters
             $orderColumnIndex = $data['orderColumnIndex'] ?? 0;
             $orderDirection = $data['orderDirection'] ?? 'desc';
-            
+
             // Get filter parameters
             $filters = [
                 'search' => $data['search'],
@@ -37,14 +37,14 @@ class DepartmentAction {
                 'created_date_from' => $data['created_date_from'],
                 'created_date_to' => $data['created_date_to'],
             ];
-            
+
             // Get languages
             $languages = $this->languageService->getAll();
-            
+
             // Get total and filtered counts
             $totalRecords = $this->departmentService->getDepartmentsQuery([])->count();
             $filteredRecords = $this->departmentService->getDepartmentsQuery($filters)->count();
-            
+
             // Determine sort column
             $orderBy = null;
             if ($orderColumnIndex == 0) {
@@ -64,11 +64,11 @@ class DepartmentAction {
             } elseif ($orderColumnIndex == count($languages) + 3) {
                 $orderBy = 'created_at';
             }
-            
+
             // Get departments with pagination and sorting
             $departmentsQuery = $this->departmentService->getDepartmentsQuery($filters, $orderBy, $orderDirection);
             $departments = $departmentsQuery->paginate($perPage, ['*'], 'page', $page);
-            
+
             // Return raw data - rendering will be handled by DataTables in the view
             $data = [];
             foreach ($departments as $index => $department) {
@@ -78,9 +78,9 @@ class DepartmentAction {
                     'image' => $department->image,
                     'translations' => [],
                     'active' => $department->active,
-                    'created_at' => $department->created_at->format('Y-m-d H:i'),
+                    'created_at' => $department->created_at,
                 ];
-                
+
                 // Add translations for each language
                 foreach ($languages as $language) {
                     $translation = $department->translations->where('lang_id', $language->id)
@@ -91,21 +91,21 @@ class DepartmentAction {
                         'rtl' => $language->rtl
                     ];
                 }
-                
+
                 // Add first translation name for delete modal
                 $firstTranslation = $department->translations->where('lang_key', 'name')->first();
                 $rowData['first_name'] = $firstTranslation ? $firstTranslation->lang_value : '';
-                
+
                 $data[] = $rowData;
             }
-            
+
             return [
                 'data' => $data,
                 'totalRecords' => $totalRecords,
                 'filteredRecords' => $filteredRecords,
                 'dataPaginated' => $departments
             ];
-            
+
         } catch (\Exception $e) {
             Log::error('Error in DepartmentAction getDataTable: ' . $e->getMessage());
             return [
@@ -116,5 +116,5 @@ class DepartmentAction {
             ];
         }
     }
-        
+
 }

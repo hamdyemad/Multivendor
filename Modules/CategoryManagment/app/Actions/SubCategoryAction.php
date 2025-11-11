@@ -27,11 +27,11 @@ class SubCategoryAction {
             // Get pagination parameters
             $perPage = $data['per_page'] ?? $data['length'] ?? 10;
             $page = $data['page'] ?? 1;
-            
+
             // Get sorting parameters
             $sortType = $data['sort_type'] ?? 'id';
             $sortBy = $data['sort_by'] ?? 'desc';
-            
+
             // Get filter parameters
             $filters = [
                 'search' => $data['search'] ?? null,
@@ -40,14 +40,14 @@ class SubCategoryAction {
                 'created_date_from' => $data['created_date_from'] ?? null,
                 'created_date_to' => $data['created_date_to'] ?? null,
             ];
-            
+
             // Get languages
             $languages = $this->languageService->getAll();
-            
+
             // Get total and filtered counts
             $totalRecords = $this->subCategoryRepositoryInterface->getSubCategoriesQuery([])->count();
             $filteredRecords = $this->subCategoryRepositoryInterface->getSubCategoriesQuery($filters)->count();
-            
+
             // Determine sort column based on sort_type
             $orderBy = null;
             if ($sortType == 'id') {
@@ -69,13 +69,13 @@ class SubCategoryAction {
             } elseif ($sortType == 'created_at') {
                 $orderBy = 'created_at';
             }
-            
+
             $filters['orderBy'] = $orderBy;
-            $filters['sortBy'] = $sortBy;            
+            $filters['sortBy'] = $sortBy;
             // Get subcategories with pagination and sorting
             $subCategoriesQuery = $this->subCategoryRepositoryInterface->getSubCategoriesQuery($filters);
             $subCategories = $subCategoriesQuery->paginate($perPage, ['*'], 'page', $page);
-            
+
             // Return raw data - rendering will be handled by DataTables in the view
             $data = [];
             foreach ($subCategories as $index => $subCategory) {
@@ -85,9 +85,9 @@ class SubCategoryAction {
                     'translations' => [],
                     'category' => null,
                     'active' => $subCategory->active,
-                    'created_at' => $subCategory->created_at->format('Y-m-d H:i'),
+                    'created_at' => $subCategory->created_at,
                 ];
-                
+
                 // Add translations for each language
                 foreach ($languages as $language) {
                     $translation = $subCategory->translations->where('lang_id', $language->id)
@@ -98,7 +98,7 @@ class SubCategoryAction {
                         'rtl' => $language->rtl
                     ];
                 }
-                
+
                 // Add category info
                 if ($subCategory->category) {
                     $rowData['category'] = [
@@ -106,21 +106,21 @@ class SubCategoryAction {
                         'name' => $subCategory->category->getTranslation('name', app()->getLocale())
                     ];
                 }
-                
+
                 // Add first translation name for delete modal
                 $firstTranslation = $subCategory->translations->where('lang_key', 'name')->first();
                 $rowData['first_name'] = $firstTranslation ? $firstTranslation->lang_value : '';
-                
+
                 $data[] = $rowData;
             }
-            
+
             return [
                 'data' => $data,
                 'totalRecords' => $totalRecords,
                 'filteredRecords' => $filteredRecords,
                 'dataPaginated' => $subCategories
             ];
-            
+
         } catch (\Exception $e) {
             Log::error('Error in SubCategoryAction getDataTable: ' . $e->getMessage());
             return [
@@ -131,5 +131,5 @@ class SubCategoryAction {
             ];
         }
     }
-        
+
 }

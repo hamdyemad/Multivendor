@@ -33,11 +33,11 @@ class ActivityAction {
             // Get pagination parameters
             $perPage = $data['per_page'] ?? $data['length'] ?? 10;
             $page = $data['page'] ?? 1;
-            
+
             // Get sorting parameters
             $orderColumnIndex = $data['orderColumnIndex'] ?? 0;
             $orderDirection = $data['orderDirection'] ?? 'desc';
-            
+
             // Get filter parameters
             $filters = [
                 'search' => $data['search'],
@@ -45,14 +45,14 @@ class ActivityAction {
                 'created_date_from' => $data['created_date_from'],
                 'created_date_to' => $data['created_date_to'],
             ];
-            
+
             // Get languages
             $languages = $this->languageService->getAll();
-            
+
             // Get total and filtered counts
             $totalRecords = $this->activityRepositoryInterface->getActivitiesQuery([])->count();
             $filteredRecords = $this->activityRepositoryInterface->getActivitiesQuery($filters)->count();
-            
+
             // Determine sort column
             // Column 0 is 'index' (row number) - not sortable
             // Columns 1 to count($languages) are name translations
@@ -76,11 +76,11 @@ class ActivityAction {
                 // Default sorting
                 $orderBy = 'id';
             }
-            
+
             // Get activities with pagination and sorting
             $activitiesQuery = $this->activityRepositoryInterface->getActivitiesQuery($filters, $orderBy, $orderDirection);
             $activities = $activitiesQuery->paginate($perPage, ['*'], 'page', $page);
-            
+
             // Return raw data - rendering will be handled by DataTables in the view
             $data = [];
             foreach ($activities as $index => $activity) {
@@ -89,9 +89,9 @@ class ActivityAction {
                     'id' => $activity->id,
                     'translations' => [],
                     'active' => $activity->active,
-                    'created_at' => $activity->created_at->format('Y-m-d H:i'),
+                    'created_at' => $activity->created_at,
                 ];
-                
+
                 // Add translations for each language
                 foreach ($languages as $language) {
                     $translation = $activity->translations->where('lang_id', $language->id)
@@ -102,21 +102,21 @@ class ActivityAction {
                         'rtl' => $language->rtl
                     ];
                 }
-                
+
                 // Add first translation name for delete modal
                 $firstTranslation = $activity->translations->where('lang_key', 'name')->first();
                 $rowData['first_name'] = $firstTranslation ? $firstTranslation->lang_value : '';
-                
+
                 $data[] = $rowData;
             }
-            
+
             return [
                 'data' => $data,
                 'totalRecords' => $totalRecords,
                 'filteredRecords' => $filteredRecords,
                 'dataPaginated' => $activities
             ];
-            
+
         } catch (\Exception $e) {
             Log::error('Error in ActivityAction getDataTable: ' . $e->getMessage());
             return [
@@ -127,5 +127,5 @@ class ActivityAction {
             ];
         }
     }
-        
+
 }

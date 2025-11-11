@@ -288,7 +288,7 @@ Departments | Bnaia
                                 @can('departments.view')
                                 <li>
                                     <a href="{{ url('admin/category-management/departments') }}/${row.department_id}"
-                                    class="view table_action_father btn btn-primary me-1"
+                                    class="btn btn-primary table_action_father me-1"
                                     title="{{ trans('common.view') }}">
                                         <i class="uil uil-eye table_action_icon"></i>
                                     </a>
@@ -297,7 +297,7 @@ Departments | Bnaia
                                 @can('departments.edit')
                                 <li>
                                     <a href="{{ url('admin/category-management/departments') }}/${row.department_id}/edit"
-                                    class="edit table_action_father btn btn-warning me-1"
+                                    class="btn btn-warning table_action_father me-1"
                                     title="{{ trans('common.edit') }}">
                                         <i class="uil uil-edit table_action_icon"></i>
                                     </a>
@@ -306,7 +306,7 @@ Departments | Bnaia
                                 @can('departments.delete')
                                 <li>
                                     <a href="javascript:void(0);"
-                                    class="remove delete-department btn btn-danger table_action_father"
+                                    class="btn btn-danger delete-department table_action_father"
                                     title="{{ trans('common.delete') }}"
                                     data-bs-toggle="modal"
                                     data-bs-target="#modal-delete-department"

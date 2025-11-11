@@ -312,10 +312,9 @@
                                     @can('brands.delete')
                                     <a href="javascript:void(0);"
                                     class="remove delete-brand btn btn-danger table_action_father"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modal-delete-brand"
-                                    data-item-id="${row.id}"
-                                    data-item-name="${row.translations?.{{ app()->getLocale() }}?.name || 'Brand'}"
+                                    data-id="${row.id}"
+                                    data-name="${row.translations?.{{ app()->getLocale() }}?.name || 'Brand'}"
+                                    data-url="${deleteRoute.replace(':id', row.id)}"
                                     title="{{ trans('common.delete') }}">
                                         <i class="uil uil-trash-alt table_action_icon"></i>
                                     </a>

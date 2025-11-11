@@ -22,16 +22,16 @@ class CountryAction
         $draw = $request->get('draw', 1);
         $start = $request->get('start', 0);
         $length = $request->get('length', 10);
-        
+
         // Get search value from custom parameter or DataTables default
         $searchValue = $request->get('search');
         if (is_array($searchValue)) {
             $searchValue = $searchValue['value'] ?? '';
         }
-        
+
         $orderColumnIndex = $request->get('order')[0]['column'] ?? 0;
         $orderDirection = $request->get('order')[0]['dir'] ?? 'asc';
-        
+
         Log::info('DataTable Order:', [
             'column_index' => $orderColumnIndex,
             'direction' => $orderDirection
@@ -66,7 +66,7 @@ class CountryAction
 
         // Get countries with sorting applied
         $sortedQuery = $this->countryService->getCountriesQuery($filters, $orderBy, $orderDirection);
-        
+
         // Apply pagination
         $perPage = $request->get('per_page', 10);
         $page = $request->get('page', 1);
@@ -96,10 +96,10 @@ class CountryAction
         $orderBy = null;
         $sortBy = $request->get('sort_by');
         $sortDirection = $request->get('sort_direction', 'asc');
-        
+
         // Convert languages collection to array for index access
         $languagesArray = $languages->values()->all();
-        
+
         if ($sortBy) {
             // Handle name sorting by language ID
             if (strpos($sortBy, 'name_') === 0) {
@@ -152,7 +152,7 @@ class CountryAction
     {
         $data = [];
         $startIndex = ($countries->currentPage() - 1) * $countries->perPage();
-        
+
         foreach ($countries as $index => $country) {
             $row = [
                 'index' => $startIndex + $index + 1,
@@ -161,29 +161,29 @@ class CountryAction
                 'code' => $country->code,
                 'phone_code' => $country->phone_code,
                 'active' => $country->active ?? true,
-                'created_at' => $country->created_at ? $country->created_at->format('Y-m-d H:i') : '-',
+                'created_at' =>  $country->created_at,
                 'display_name' => ''
             ];
-            
+
             // Get names for each language
             foreach ($languages as $language) {
                 $translation = $country->translations()
                     ->where('lang_id', $language->id)
                     ->where('lang_key', 'name')
                     ->first();
-                
+
                 $name = $translation ? $translation->lang_value : '-';
                 $row['names'][$language->id] = [
                     'value' => $name,
                     'rtl' => $language->rtl
                 ];
-                
+
                 // Set display name (first available translation)
                 if (!$row['display_name'] && $name !== '-') {
                     $row['display_name'] = $name;
                 }
             }
-            
+
             $data[] = $row;
         }
 

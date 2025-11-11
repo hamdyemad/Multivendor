@@ -22,13 +22,13 @@ class CityAction
         $draw = $request->get('draw', 1);
         $start = $request->get('start', 0);
         $length = $request->get('length', 10);
-        
+
         // Get search value from custom parameter or DataTables default
         $searchValue = $request->get('search');
         if (is_array($searchValue)) {
             $searchValue = $searchValue['value'] ?? '';
         }
-        
+
         $orderColumnIndex = $request->get('order')[0]['column'] ?? 0;
         $orderDirection = $request->get('order')[0]['dir'] ?? 'asc';
 
@@ -63,7 +63,7 @@ class CityAction
 
         // Get cities with sorting applied
         $sortedQuery = $this->cityService->getCitiesQuery($filters, $orderBy, $orderDirection);
-        
+
         // Apply pagination
         $perPage = $request->get('per_page', $request->get('length', 15));
         $page = $request->get('page', 1);
@@ -92,7 +92,7 @@ class CityAction
     {
         $orderBy = null;
         $languagesArray = $languages->values()->all();
-        
+
         // Check if sorting by name column (columns 1 to count($languages))
         // Note: Column 0 is 'index', so names start at column 1
         if ($orderColumnIndex >= 1 && $orderColumnIndex <= count($languagesArray)) {
@@ -132,7 +132,7 @@ class CityAction
     {
         $data = [];
         $startIndex = ($cities->currentPage() - 1) * $cities->perPage();
-        
+
         foreach ($cities as $index => $city) {
             $row = [
                 'index' => $startIndex + $index + 1,
@@ -144,10 +144,10 @@ class CityAction
                 ],
                 'regions_count' => $city->regions()->count(),
                 'active' => $city->active ?? true,
-                'created_at' => $city->created_at ? $city->created_at->format('Y-m-d H:i') : '-',
+                'created_at' => $city->created_at,
                 'display_name' => ''
             ];
-            
+
             // Get names for each language
             foreach ($languages as $language) {
                 $name = $city->getTranslation('name', $language->code) ?? '-';
@@ -155,13 +155,13 @@ class CityAction
                     'value' => $name,
                     'rtl' => $language->rtl
                 ];
-                
+
                 // Set display name (first available translation)
                 if (!$row['display_name'] && $name !== '-') {
                     $row['display_name'] = $name;
                 }
             }
-            
+
             $data[] = $row;
         }
 

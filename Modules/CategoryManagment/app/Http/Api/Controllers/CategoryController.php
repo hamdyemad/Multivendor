@@ -11,6 +11,7 @@ use Modules\CategoryManagment\app\Http\Resources\ActivityResource;
 use App\Services\LanguageService;
 use App\Traits\Res;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Modules\CategoryManagment\app\Http\Resources\DepartmentResource;
 use Modules\CategoryManagment\app\Http\Resources\CategoryResource;
 
@@ -29,26 +30,32 @@ class CategoryController extends Controller
 
     public function index(Request $request)
     {
-        // If requesting for dropdown (no pagination needed)
-        if ($request->has('department_id') && !$request->has('paginate')) {
+        try {
+            // If requesting for dropdown (no pagination needed)
             $filters = $request->all();
             // Only show active categories in dropdown
             $filters['active'] = 1;
-            
+
             $categories = $this->categoryService->getAllCategories($filters, 0);
-            $data = CategoryResource::collection($categories)->map(function($category) {
-                return [
-                    'id' => $category['id'],
-                    'name' => $category['name']
-                ];
-            });
+            if($request->select2) {
+                // Simple data structure for dropdown
+                $data = $categories->map(function($category) {
+                    return [
+                        'id' => $category->id,
+                        'name' => $category->getTranslation('name', app()->getLocale()) ?? 'No Name'
+                    ];
+                });
+            } else {
+                $data = CategoryResource::collection($categories);
+            }
             return $this->sendRes(__('validation.success'), true, $data, [], 200);
+
+        } catch (\Exception $e) {
+            Log::error('CategoryController@index error: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+
+            return $this->sendRes('Error fetching categories: ' . $e->getMessage(), false, [], [], 500);
         }
-        
-        // Regular paginated list
-        $perPage = $request->input('per_page', 10);
-        $categories = $this->categoryService->getAllCategories($request->all(), $perPage);
-        return $this->sendRes(__('validation.success'), true, CategoryResource::collection($categories), [], 200);
     }
 
 }

@@ -2,12 +2,6 @@
 
 <link rel="stylesheet" href="{{ asset('assets/css/my_custom_style.css') }}">
 <body class="layout-light side-menu">
-    {{-- <div class="mobile-search">
-        <form action="/" class="search-form">
-            <img src="{{ asset('assets/img/svg/search.svg') }}" alt="search" class="svg">
-            <input class="form-control me-sm-2 box-shadow-none" type="search" placeholder="Search..." aria-label="Search">
-        </form>
-    </div> --}}
     <div class="mobile-author-actions"></div>
     <header class="header-top">
         @include('partials.top_nav._top_nav')
@@ -58,7 +52,7 @@
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDduF2tLXicDEPDMAtC6-NLOekX0A5vlnY"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
+
     <script src="{{ asset('assets/js/plugins.min.js') }}"></script>
 
     {{-- Add stub functions for missing plugins to prevent console errors --}}
@@ -78,6 +72,10 @@
 
     <script src="{{ asset('assets/js/script.min.js') }}"></script>
     <script src="{{ asset('js/app.min.js') }}"></script>
+    
+    <!-- CKEditor CDN -->
+    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+    
     @vite('resources/js/app.js')
 
     <script>
@@ -85,7 +83,7 @@
         window.addEventListener('load', function() {
             console.log('Page fully loaded');
             console.log('jQuery available:', typeof $ !== 'undefined');
-            
+
             // Dynamically load select2
             var select2Script = document.createElement('script');
             select2Script.src = 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js';
@@ -93,7 +91,7 @@
                 console.log('Select2 script loaded');
                 console.log('Select2 loaded:', typeof $.fn.select2 !== 'undefined');
                 console.log('Select2 elements found:', $('.select2').length);
-                
+
                 // Initialize all select2 elements
                 if (typeof $.fn.select2 !== 'undefined') {
                     $('.select2').each(function() {
@@ -157,49 +155,70 @@
         @endif
     </script>
 
-    <style>
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+    <!-- CKEditor Initialization -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Wait for CKEditor to be available
+        if (typeof CKEDITOR === 'undefined') {
+            console.error('CKEditor is not loaded from CDN');
+            return;
         }
 
-        @keyframes slideOutRight {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-        }
+        console.log('CKEditor loaded successfully from CDN');
 
-        [dir="rtl"] .alert-message {
-            right: auto !important;
-            left: 20px !important;
-        }
+        // Wait a bit more for DOM to be fully ready
+        setTimeout(function() {
+            // Initialize CKEditor for ALL textareas
+            const textareas = document.querySelectorAll('textarea');
+            console.log('Found textareas:', textareas.length);
 
-        [dir="rtl"] .alert-message {
-            animation: slideInLeft 0.3s ease !important;
-        }
+            textareas.forEach(function(textarea, index) {
+                // Skip if no ID or already initialized
+                if (!textarea.id || CKEDITOR.instances[textarea.id]) {
+                    console.log('Skipping textarea:', textarea.id || 'no-id');
+                    return;
+                }
 
-        @keyframes slideInLeft {
-            from {
-                transform: translateX(-100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-    </style>
+                const isRTL = textarea.getAttribute('dir') === 'rtl';
+                console.log('Initializing CKEditor for:', textarea.id, 'RTL:', isRTL);
+
+                try {
+                    CKEDITOR.replace(textarea.id, {
+                        language: 'en', // Use English to avoid missing language files
+                        contentsLangDirection: isRTL ? 'rtl' : 'ltr',
+                        height: 200,
+                        toolbar: [
+                            { name: 'clipboard', items: [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo' ] },
+                            { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat' ] },
+                            { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock' ] },
+                            { name: 'links', items: [ 'Link', 'Unlink' ] },
+                            { name: 'styles', items: [ 'Format', 'FontSize' ] },
+                            { name: 'colors', items: [ 'TextColor', 'BGColor' ] }
+                        ],
+                        removePlugins: 'elementspath',
+                        resize_enabled: false,
+                        enterMode: CKEDITOR.ENTER_BR,
+                        shiftEnterMode: CKEDITOR.ENTER_P,
+                        on: {
+                            instanceReady: function(evt) {
+                                console.log('CKEditor instance ready:', evt.editor.name);
+                                // Set RTL direction after editor is ready
+                                if (isRTL) {
+                                    evt.editor.document.getBody().setStyle('direction', 'rtl');
+                                    evt.editor.document.getBody().setStyle('text-align', 'right');
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error initializing CKEditor for', textarea.id, ':', error);
+                }
+            });
+
+            console.log('CKEditor initialization completed');
+        }, 500); // Wait 500ms for DOM to be fully ready
+    });
+    </script>
 
     {{-- Make date inputs fully clickable --}}
     <script>
@@ -207,23 +226,23 @@
             // Function to make date inputs clickable
             function makeDateInputsClickable() {
                 const dateInputs = document.querySelectorAll('input[type="date"]');
-                
+
                 dateInputs.forEach(function(input) {
                     // Remove any existing click listeners to avoid duplicates
                     input.removeEventListener('click', openDatePicker);
-                    
+
                     // Add click event to open date picker
                     input.addEventListener('click', openDatePicker);
-                    
+
                     // Also handle focus event
                     input.addEventListener('focus', openDatePicker);
                 });
             }
-            
+
             // Function to open the date picker
             function openDatePicker(event) {
                 const input = event.target;
-                
+
                 // Try modern showPicker() API first (supported in newer browsers)
                 if (typeof input.showPicker === 'function') {
                     try {
@@ -234,10 +253,10 @@
                     }
                 }
             }
-            
+
             // Initialize on page load
             makeDateInputsClickable();
-            
+
             // Re-initialize when new content is dynamically loaded
             // Watch for DOM changes (useful for AJAX-loaded content)
             const observer = new MutationObserver(function(mutations) {
@@ -247,7 +266,7 @@
                     }
                 });
             });
-            
+
             // Start observing the document body for changes
             observer.observe(document.body, {
                 childList: true,

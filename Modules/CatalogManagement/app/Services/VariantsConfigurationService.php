@@ -37,4 +37,38 @@ class VariantsConfigurationService
     {
         return $this->variantsConfigRepository->delete($id);
     }
+
+    /**
+     * Get parent variants by key ID
+     *
+     * @param int $keyId
+     * @param int|null $currentId
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getParentsByKey($keyId, $currentId = null)
+    {
+        return $this->variantsConfigRepository->getParentsByKey($keyId, $currentId);
+    }
+
+    /**
+     * Get variant configuration keys for API
+     *
+     * @return array
+     */
+    public function getVariantKeysForApi()
+    {
+        return $this->variantsConfigRepository->getVariantKeysForApi();
+    }
+
+    /**
+     * Get variants by key ID for API
+     *
+     * @param int $keyId
+     * @param string|null $parentId
+     * @return array
+     */
+    public function getVariantsByKeyForApi($keyId, $parentId = null)
+    {
+        return $this->variantsConfigRepository->getVariantsByKeyForApi($keyId, $parentId);
+    }
 }

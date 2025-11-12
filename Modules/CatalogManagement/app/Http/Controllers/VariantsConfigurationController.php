@@ -62,7 +62,7 @@ class VariantsConfigurationController extends Controller
         } else {
             $searchValue = $search;
         }
-        
+
         $data = [
             'page' => $request->get('page', 1),
             'draw' => $request->get('draw', 1),
@@ -78,13 +78,13 @@ class VariantsConfigurationController extends Controller
 
         try {
             $response = $this->variantsConfigAction->getDataTable($data);
-            
+
             \Illuminate\Support\Facades\Log::info('VariantsConfiguration Datatable Response', [
                 'data_count' => count($response['data']),
                 'totalRecords' => $response['totalRecords'],
                 'filteredRecords' => $response['filteredRecords']
             ]);
-            
+
             return response()->json([
                 'draw' => $data['draw'],
                 'data' => $response['data'],
@@ -101,7 +101,7 @@ class VariantsConfigurationController extends Controller
             \Illuminate\Support\Facades\Log::error('VariantsConfiguration Datatable Error: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return response()->json([
                 'draw' => $data['draw'],
                 'data' => [],
@@ -131,10 +131,11 @@ class VariantsConfigurationController extends Controller
     {
         $validated = $request->validated();
         \Log::info('VariantsConfiguration Store Request', [
-            'validated' => $validated
+            'validated' => $validated,
+            'all_input' => $request->all()
         ]);
         try {
-            $variantKey = $this->variantsConfigService->create($validated);   
+            $variantConfig = $this->variantsConfigService->create($validated);
             // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -143,7 +144,7 @@ class VariantsConfigurationController extends Controller
                     'redirect' => route('admin.variants-configurations.index')
                 ]);
             }
-            
+
             return redirect()->route('admin.variants-configurations.index')
                 ->with('success', __('variantsconfig.created_successfully'));
         } catch (\Exception $e) {
@@ -154,7 +155,7 @@ class VariantsConfigurationController extends Controller
                     'message' => __('variantsconfig.error_creating') . ': ' . $e->getMessage()
                 ], 422);
             }
-            
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', __('variantsconfig.error_creating') . ': ' . $e->getMessage());
@@ -168,7 +169,7 @@ class VariantsConfigurationController extends Controller
     {
         $variantsConfig = $this->variantsConfigService->findById($id);
         $languages = $this->languageService->getAll();
-        
+
         if (!$variantsConfig) {
             return redirect()->route('admin.variants-configurations.index')
                 ->with('error', trans('catalogmanagement::variantsconfig.not_found'));
@@ -187,7 +188,7 @@ class VariantsConfigurationController extends Controller
         $variantKeys = VariantConfigurationKey::with('translations')->get();
         $variantKeys = VariantsConfigurationResource::collection($variantKeys)->resolve();
         $allVariantsConfigs = $this->variantsConfigService->getAll();
-        
+
         if (!$variantsConfig) {
             return redirect()->route('admin.variants-configurations.index')
                 ->with('error', trans('catalogmanagement::variantsconfig.not_found'));
@@ -203,7 +204,7 @@ class VariantsConfigurationController extends Controller
     {
         try {
             $validated = $request->validated();
-            $variantKey = $this->variantsConfigService->update($id, $validated);   
+            $variantKey = $this->variantsConfigService->update($id, $validated);
             if ($variantKey) {
                 return response()->json([
                     'success' => true,
@@ -211,7 +212,7 @@ class VariantsConfigurationController extends Controller
                     'redirect' => route('admin.variants-configurations.index')
                 ]);
             }
-            
+
             return redirect()->route('admin.variants-configurations.index')
                 ->with('success', __('variantsconfig.updated_successfully'));
         } catch (\Exception $e) {
@@ -245,6 +246,118 @@ class VariantsConfigurationController extends Controller
                 'success' => false,
                 'message' => __('variantsconfig.error_deleting') . ': ' . $e->getMessage()
             ], 422);
+        }
+    }
+
+    /**
+     * Get parent variants by key for AJAX requests
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getParentsByKey(Request $request)
+    {
+        try {
+            $keyId = $request->get('key_id');
+            $currentId = $request->get('current_id');
+
+            if (!$keyId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Key ID is required'
+                ], 400);
+            }
+
+            // Get parent variants with the same key, excluding current variant
+            $parents = $this->variantsConfigService->getParentsByKey($keyId, $currentId);
+
+            $data = [];
+            if ($parents && $parents->count() > 0) {
+                $data = $parents->map(function ($parent) {
+                    $parentName = $parent->getTranslation('name', app()->getLocale()) ?? 'No Name';
+
+                    // Add parent hierarchy information
+                    $displayName = $parentName;
+                    if ($parent->parent_data) {
+                        $grandParentName = $parent->parent_data->getTranslation('name', app()->getLocale()) ?? $parent->parent_data->value ?? 'No Name';
+                        // Use appropriate arrow for RTL/LTR
+                        $arrow = app()->getLocale() == 'ar' ? ' ← ' : ' → ';
+                        $displayName = $parentName . $arrow . $grandParentName;
+                    }
+
+                    return [
+                        'id' => $parent->id,
+                        'name' => $parentName,
+                        'display_name' => $displayName,
+                        'has_parent' => $parent->parent_data ? true : false,
+                    ];
+                });
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching parent variants: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get variant configuration keys for API
+     */
+    public function getVariantKeys(Request $request)
+    {
+        try {
+            \Log::info('Getting variant keys API call');
+
+            $data = $this->variantsConfigService->getVariantKeysForApi();
+
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error in getVariantKeys: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching variant keys: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get variant configurations by key ID for API
+     */
+    public function getVariantsByKey(Request $request)
+    {
+        try {
+            $keyId = $request->get('key_id');
+            $parentId = $request->get('parent_id');
+
+            if (!$keyId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Key ID is required'
+                ], 400);
+            }
+
+            $data = $this->variantsConfigService->getVariantsByKeyForApi($keyId, $parentId);
+
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching variants: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

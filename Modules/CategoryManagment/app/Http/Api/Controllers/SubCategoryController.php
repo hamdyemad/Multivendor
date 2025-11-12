@@ -23,17 +23,22 @@ class SubCategoryController extends Controller
             $filters = $request->all();
             // Only show active subcategories in dropdown
             $filters['active'] = 1;
-            
+
             $subCategories = $this->subCategoryService->getAllSubCategories($filters, 0);
-            $data = SubCategoryResource::collection($subCategories)->map(function($subCategory) {
-                return [
-                    'id' => $subCategory['id'],
-                    'name' => $subCategory['name']
-                ];
-            });
+            if($request->select2) {
+                // Simple data structure for dropdown
+                $data = $subCategories->map(function($subCategory) {
+                    return [
+                        'id' => $subCategory->id,
+                        'name' => $subCategory->getTranslation('name', app()->getLocale()) ?? 'No Name'
+                    ];
+                });
+            } else {
+                $data = SubCategoryResource::collection($subCategories);
+            }
             return $this->sendRes(__('validation.success'), true, $data, [], 200);
         }
-        
+
         // Regular paginated list
         $perPage = $request->input('per_page', 10);
         $subCategories = $this->subCategoryService->getAllSubCategories($request->all(), $perPage);

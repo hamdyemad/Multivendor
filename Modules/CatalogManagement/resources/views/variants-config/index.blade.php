@@ -134,13 +134,10 @@
                                     <th><span
                                             class="userDatatable-title">الاسم باللغه العربيه</span></th>
                                     <th><span
-                                            class="userDatatable-title">{{ trans('catalogmanagement::variantsconfig.type') }}</span>
-                                    </th>
-                                    <th><span
-                                            class="userDatatable-title">{{ trans('catalogmanagement::variantsconfig.value') }}</span>
-                                    </th>
-                                    <th><span
                                             class="userDatatable-title">{{ trans('catalogmanagement::variantsconfig.key') }}</span>
+                                    </th>
+                                    <th><span
+                                            class="userDatatable-title">{{ trans('catalogmanagement::variantsconfig.parent') }}</span>
                                     </th>
                                     <th><span class="userDatatable-title">{{ trans('common.created_at') }}</span></th>
                                     <th><span class="userDatatable-title">{{ trans('common.actions') }}</span></th>
@@ -230,32 +227,17 @@
                         }
                     },
                     {
-                        data: 'type',
-                        name: 'type',
-                        render: function(data) {
-                            if (data === 'color') {
-                                return '<span class="badge badge-success badge-lg badge-round"> {{ trans('catalogmanagement::variantsconfig.color') }}</span>';
-                            } else if (data === 'text') {
-                                return '<span class="badge badge-info badge-lg badge-round"> {{ trans('catalogmanagement::variantsconfig.text') }}</span>';
-                            }
-                            return data || '-';
-                        }
-                    },
-                    {
-                        data: 'value',
-                        name: 'value',
-                        render: function(data, type, row) {
-                            if (row.type === 'color') {
-                                return '<div class="d-flex align-items-center gap-2"><span class="color-preview" style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 1px solid #ddd; background-color: ' +
-                                    data + ';"></span></div>';
-                            }
-                            return data;
-                        }
-                    },
-                    {
                         data: 'key_name',
                         name: 'key_name',
                         orderable: false
+                    },
+                    {
+                        data: 'parent',
+                        name: 'parent',
+                        orderable: false,
+                        render: function(data) {
+                            return data || '-';
+                        }
                     },
                     {
                         data: 'created_at',
@@ -305,8 +287,8 @@
                 lengthChange: false,
                 searching: false,
                 order: [
-                    [6, 'desc']
-                ] // Order by created_at column (index 6)
+                    [5, 'desc']
+                ] // Order by created_at column (index 5)
             });
 
             // Custom search input

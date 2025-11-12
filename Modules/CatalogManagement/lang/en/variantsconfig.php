@@ -34,6 +34,9 @@ return [
     'value' => 'Value',
     'all_parents' => 'All Parents',
     'no_parent' => 'No Parent',
+    'parent_help' => 'Select a parent variant to create hierarchical relationships',
+    'select_key_first' => 'Select a key first',
+    'error_loading_parents' => 'Error loading parent variants',
 
     // Messages
     'created_successfully' => 'Variants configuration created successfully',

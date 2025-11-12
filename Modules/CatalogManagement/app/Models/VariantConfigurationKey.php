@@ -31,11 +31,6 @@ class VariantConfigurationKey extends Model
         return $this->belongsTo(VariantConfigurationKey::class, 'parent_key_id');
     }
 
-    public function scopeActive(Builder $builder)
-    {
-        return $builder->where('active', 1);
-    }
-
     public function scopeFilter(Builder $builder, $filters)
     {
         // Search filter - searches in both variant key name and parent name

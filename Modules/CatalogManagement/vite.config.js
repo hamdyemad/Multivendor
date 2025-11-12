@@ -17,6 +17,9 @@ export default defineConfig({
             input: [
                 __dirname + '/resources/assets/sass/app.scss',
                 __dirname + '/resources/assets/js/app.js',
+                __dirname + '/resources/assets/sass/product-form.scss',
+                __dirname + '/resources/css/tree-view.css',
+                __dirname + '/resources/assets/js/product-form.js',
             ],
             refresh: true,
         }),

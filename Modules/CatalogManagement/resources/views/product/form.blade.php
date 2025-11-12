@@ -59,7 +59,7 @@
                                                     @if($language->code == 'en')
                                                         Title ({{ $language->name }})
                                                     @else
-                                                        العنوان ({{ $language->name }})
+                                                         {{ $language->name }} العنوان
                                                     @endif
                                                     <span class="text-danger">*</span>
                                                 </label>
@@ -242,7 +242,7 @@
                                                     <span class="text-danger">*</span>
                                                 </label>
                                                 <textarea name="translations[{{ $language->id }}][details]" id="details_{{ $language->code }}"
-                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15 tinymce-editor"
                                                     rows="6"
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل تفاصيل المنتج' : 'Enter product details' }}"
                                                     {{ $language->rtl ? 'dir=rtl' : '' }}></textarea>
@@ -272,7 +272,7 @@
                                                     @endif
                                                 </label>
                                                 <textarea name="translations[{{ $language->id }}][summary]" id="summary_{{ $language->code }}"
-                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15 tinymce-editor"
                                                     rows="4"
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل الملخص' : 'Enter summary' }}"
                                                     {{ $language->rtl ? 'dir=rtl' : '' }}></textarea>
@@ -291,7 +291,7 @@
                                                     @endif
                                                 </label>
                                                 <textarea name="translations[{{ $language->id }}][features]" id="features_{{ $language->code }}"
-                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15 tinymce-editor"
                                                     rows="4"
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل المميزات' : 'Enter features' }}"
                                                     {{ $language->rtl ? 'dir=rtl' : '' }}></textarea>
@@ -310,7 +310,7 @@
                                                     @endif
                                                 </label>
                                                 <textarea name="translations[{{ $language->id }}][instructions]" id="instructions_{{ $language->code }}"
-                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15 tinymce-editor"
                                                     rows="4"
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل التعليمات' : 'Enter instructions' }}"
                                                     {{ $language->rtl ? 'dir=rtl' : '' }}></textarea>
@@ -329,7 +329,7 @@
                                                     @endif
                                                 </label>
                                                 <textarea name="translations[{{ $language->id }}][extra_description]" id="extra_description_{{ $language->code }}"
-                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15 tinymce-editor"
                                                     rows="4"
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل وصف إضافي' : 'Enter extra description' }}"
                                                     {{ $language->rtl ? 'dir=rtl' : '' }}></textarea>
@@ -359,7 +359,7 @@
                                                     @endif
                                                 </label>
                                                 <textarea name="translations[{{ $language->id }}][material]" id="material_{{ $language->code }}"
-                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15 tinymce-editor"
                                                     rows="3"
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل المواد' : 'Enter material' }}"
                                                     {{ $language->rtl ? 'dir=rtl' : '' }}></textarea>
@@ -429,6 +429,7 @@
 
                                             <div class="col-md-12 mb-3">
                                                 <div class="form-group">
+                                                    <label for="has_discount" class="form-label d-block">Enable Discount Offer</label>
                                                     <div class="form-check form-switch form-switch-lg">
                                                         <input class="form-check-input" type="checkbox" role="switch" id="has_discount" name="has_discount" value="1">
                                                     </div>
@@ -454,43 +455,51 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-
-                                <!-- Card 2: Stock per Region -->
-                                <div class="card mb-4">
-                                    <div class="card-body">
-                                        <h5 class="mb-4">
-                                            <i class="uil uil-package"></i>
+                                        <h5 class="mb-0 d-flex justify-content-between align-items-center mb-4">
+                                            <div>
+                                                <i class="uil uil-package"></i>
                                             Stock per Region
+                                            </div>
+                                            <button type="button" id="add-stock-row" class="btn btn-primary btn-sm">
+                                                <i class="uil uil-plus"></i> Add New Region
+                                            </button>
                                         </h5>
 
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered" id="stock-table">
-                                                <thead>
-                                                    <tr class="userDatatable-header">
-                                                        <th><span class="userDatatable-title">Region</span></th>
-                                                        <th><span class="userDatatable-title">Stock</span></th>
-                                                        <th width="100"><span class="userDatatable-title">Actions</span></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="stock-rows">
-                                                    <!-- Stock rows will be added here -->
-                                                </tbody>
-                                                <tfoot>
-                                                    <tr class="table-light">
-                                                        <td class="text-end fw-bold">Total Stock:</td>
-                                                        <td colspan="2">
-                                                            <span id="total-stock" class="fw-bold text-primary">0</span>
-                                                        </td>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
+                                        <!-- Empty state message -->
+                                        <div id="stock-empty-state" class="text-center py-4">
+                                            <i class="uil uil-package text-muted" style="font-size: 48px;"></i>
+                                            <p class="text-muted mb-0">No regions added yet. Click "Add New Region" to start.</p>
                                         </div>
 
-                                        <button type="button" id="add-stock-row" class="btn btn-primary btn-sm mt-3">
-                                            <i class="uil uil-plus"></i> Add New Region
-                                        </button>
+                                        <!-- Stock table (hidden initially) -->
+                                        <div id="stock-table-container" style="display: none;">
+                                            <div class="userDatatable global-shadow border-light-0 p-30 bg-white radius-xl w-100">
+                                                <div class="table-responsive">
+                                                    <table class="table mb-0 table-bordered table-hover" id="stock-table" style="width:100%">
+                                                        <thead>
+                                                            <tr class="userDatatable-header">
+                                                                <th><span class="userDatatable-title">#</span></th>
+                                                                <th><span class="userDatatable-title">Region</span></th>
+                                                                <th><span class="userDatatable-title">Stock Quantity</span></th>
+                                                                <th><span class="userDatatable-title">Actions</span></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="stock-rows">
+                                                            <!-- Stock rows will be added here -->
+                                                        </tbody>
+                                                        <tfoot>
+                                                            <tr class="table-light">
+                                                                <td colspan="2" class="text-end fw-bold">Total Stock:</td>
+                                                                <td class="fw-bold text-primary">
+                                                                    <span id="total-stock">0</span>
+                                                                </td>
+                                                                <td>-</td>
+                                                            </tr>
+                                                        </tfoot>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -499,12 +508,25 @@
                             <div id="variants-section" style="display: none;">
                                 <div class="card mb-4">
                                     <div class="card-body">
-                                        <h5 class="mb-4">
-                                            <i class="uil uil-layer-group"></i>
-                                            Product Variants
+                                        <h5 class="d-flex justify-content-between align-items-center mb-4">
+                                            <div>
+                                                <i class="uil uil-layer-group"></i>
+                                                Product Variants
+                                            </div>
+                                            <button type="button" id="add-variant-btn" class="btn btn-primary btn-sm">
+                                                <i class="uil uil-plus"></i> Add Variant
+                                            </button>
                                         </h5>
-                                        <div class="alert alert-info">
-                                            <i class="uil uil-info-circle"></i> Variants feature will be implemented here
+
+                                        <!-- Empty state message -->
+                                        <div id="variants-empty-state" class="text-center py-4">
+                                            <i class="uil uil-layer-group text-muted" style="font-size: 48px;"></i>
+                                            <p class="text-muted mb-0">No variants added yet. Click "Add Variant" to start.</p>
+                                        </div>
+
+                                        <!-- Variants Container -->
+                                        <div id="variants-container">
+                                            <!-- Variant boxes will be added here dynamically -->
                                         </div>
                                     </div>
                                 </div>
@@ -574,21 +596,11 @@ window.productFormConfig = {
         @foreach($languages as $language)
         {id: {{ $language->id }}, code: '{{ $language->code }}', name: '{{ $language->name }}'}{{ !$loop->last ? ',' : '' }}
         @endforeach
-    ],
-    regions: [
-        {id: 1, name: 'Cairo'},
-        {id: 2, name: 'Alexandria'},
-        {id: 3, name: 'Giza'},
-        {id: 4, name: 'Dakahlia'},
-        {id: 5, name: 'Red Sea'},
-        {id: 6, name: 'Beheira'},
-        {id: 7, name: 'Fayoum'},
-        {id: 8, name: 'Gharbia'},
-        {id: 9, name: 'Ismailia'},
-        {id: 10, name: 'Menofia'}
     ]
 };
 </script>
+
+
 
 <!-- Product Form External JavaScript (All Logic) -->
 @vite(['Modules/CatalogManagement/resources/assets/js/product-form.js'])

@@ -8,6 +8,7 @@ export default defineConfig({
         'resources/scss/progress-bar.scss',
         'resources/scss/rtl-validation.scss',
         'resources/js/app.js',
+        'resources/js/ckeditor-init.js',
         'resources/scss/app.scss',
 
         // ✅ Vendor module assets

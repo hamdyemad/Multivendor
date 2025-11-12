@@ -25,7 +25,7 @@
                                 <td>45</td>
                                 <td class="fw-bold text-success">12,450.00 EGP</td>
                                 <td>Jan 15, 2024</td>
-                                <td>
+                                <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
 
@@ -41,7 +41,7 @@
                                 <td>38</td>
                                 <td class="fw-bold text-success">10,890.00 EGP</td>
                                 <td>Feb 22, 2024</td>
-                                <td>
+                                <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
 
@@ -57,7 +57,7 @@
                                 <td>32</td>
                                 <td class="fw-bold text-success">9,560.00 EGP</td>
                                 <td>Mar 10, 2024</td>
-                                <td>
+                                <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
 
@@ -73,7 +73,7 @@
                                 <td>28</td>
                                 <td class="fw-bold text-success">8,340.00 EGP</td>
                                 <td>Apr 05, 2024</td>
-                                <td>
+                                <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
 
@@ -89,7 +89,7 @@
                                 <td>25</td>
                                 <td class="fw-bold text-success">7,750.00 EGP</td>
                                 <td>May 18, 2024</td>
-                                <td>
+                                <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
 

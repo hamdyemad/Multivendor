@@ -46,13 +46,7 @@ class CategoryRepository implements CategoryRepositoryInterface
 
         // Order by latest
         $query->orderBy('created_at', 'desc');
-
-        // If perPage is 0, return all results without pagination (for dropdowns)
-        if ($perPage === 0) {
-            return $query->get();
-        }
-
-        return $query->paginate($perPage);
+        return ($perPage == 0) ? $query->get() : $query->paginate($perPage);
     }
 
     /**
@@ -98,11 +92,11 @@ class CategoryRepository implements CategoryRepositoryInterface
                 // Sort by translation using subquery
                 $langId = $orderBy['lang_id'];
                 $query->orderByRaw("(
-                    SELECT lang_value 
-                    FROM translations 
-                    WHERE translations.translatable_id = categories.id 
-                    AND translations.translatable_type = 'Modules\\\\CategoryManagment\\\\app\\\\Models\\\\Category' 
-                    AND translations.lang_id = ? 
+                    SELECT lang_value
+                    FROM translations
+                    WHERE translations.translatable_id = categories.id
+                    AND translations.translatable_type = 'Modules\\\\CategoryManagment\\\\app\\\\Models\\\\Category'
+                    AND translations.lang_id = ?
                     AND translations.lang_key = 'name'
                     LIMIT 1
                 ) {$orderDirection}", [$langId]);
@@ -110,11 +104,11 @@ class CategoryRepository implements CategoryRepositoryInterface
                 // Sort by department name using subquery
                 $currentLocale = app()->getLocale();
                 $langId = $currentLocale === 'ar' ? 1 : 2;
-                
+
                 $query->orderByRaw("(
-                    SELECT dt.lang_value 
+                    SELECT dt.lang_value
                     FROM departments d
-                    LEFT JOIN translations dt ON d.id = dt.translatable_id 
+                    LEFT JOIN translations dt ON d.id = dt.translatable_id
                         AND dt.translatable_type = 'Modules\\\\CategoryManagment\\\\app\\\\Models\\\\Department'
                         AND dt.lang_key = 'name'
                         AND dt.lang_id = ?
@@ -135,7 +129,7 @@ class CategoryRepository implements CategoryRepositoryInterface
         return $query;
     }
 
-    
+
     /**
      * Get all active categories
      */
@@ -203,7 +197,7 @@ class CategoryRepository implements CategoryRepositoryInterface
     public function updateCategory(int $id, array $data)
     {
         $category = Category::findOrFail($id);
-        
+
         $category->update([
             'department_id' => $data['department_id'],
             'active' => $data['active'] ?? 1,
@@ -233,7 +227,7 @@ class CategoryRepository implements CategoryRepositoryInterface
                 }
             }
         }
-        
+
         // Handle image upload
         if (isset($data['image']) && $data['image']) {
             // Delete old image if exists
@@ -244,7 +238,7 @@ class CategoryRepository implements CategoryRepositoryInterface
                 }
                 $oldImage->delete();
             }
-            
+
             // Store new image
             $path = $data['image']->store("categories/{$category->id}", 'public');
             $category->attachments()->create([

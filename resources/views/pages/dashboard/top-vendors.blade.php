@@ -31,7 +31,7 @@
                                 <td class="fw-bold text-success">10%</td>
                                 <td class="fw-bold text-success">8,545.00 EGP</td>
                                 <td>Jan 10, 2024</td>
-                                <td>
+                                <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
 
@@ -52,7 +52,7 @@
                                 <td class="fw-bold text-success">10%</td>
                                 <td class="fw-bold text-success">7,289.00 EGP</td>
                                 <td>Feb 15, 2024</td>
-                                <td>
+                                <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
 
@@ -73,7 +73,7 @@
                                 <td class="fw-bold text-success">10%</td>
                                 <td class="fw-bold text-success">6,532.00 EGP</td>
                                 <td>Mar 20, 2024</td>
-                                <td>
+                                <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
 
@@ -94,7 +94,7 @@
                                 <td class="fw-bold text-success">10%</td>
                                 <td class="fw-bold text-success">5,875.00 EGP</td>
                                 <td>Apr 12, 2024</td>
-                                <td>
+                                <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
 
@@ -115,7 +115,7 @@
                                 <td class="fw-bold text-success">10%</td>
                                 <td class="fw-bold text-success">5,218.00 EGP</td>
                                 <td>May 08, 2024</td>
-                                <td>
+                                <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
 

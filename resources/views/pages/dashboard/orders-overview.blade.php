@@ -11,7 +11,7 @@
                 </div>
 
                 <div class="row g-3">
-                    <div class="col-md-6 col-lg-4 col-xl">
+                    <div class="col-md-4">
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body d-flex align-items-center p-3">
                                 <div class="icon-wrapper d-flex align-items-center justify-content-center rounded-circle me-3" style="background-color: rgba(91, 105, 255, 0.15); width: 48px; height: 48px; min-width: 48px;">
@@ -25,7 +25,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6 col-lg-4 col-xl">
+                    <div class="col-md-4">
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body d-flex align-items-center p-3">
                                 <div class="icon-wrapper d-flex align-items-center justify-content-center rounded-circle me-3" style="background-color: rgba(255, 193, 7, 0.15); width: 48px; height: 48px; min-width: 48px;">
@@ -39,7 +39,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6 col-lg-4 col-xl">
+                    <div class="col-md-4">
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body d-flex align-items-center p-3">
                                 <div class="icon-wrapper d-flex align-items-center justify-content-center rounded-circle me-3" style="background-color: rgba(32, 201, 151, 0.15); width: 48px; height: 48px; min-width: 48px;">
@@ -53,7 +53,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6 col-lg-4 col-xl">
+                    <div class="col-md-6">
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body d-flex align-items-center p-3">
                                 <div class="icon-wrapper d-flex align-items-center justify-content-center rounded-circle me-3" style="background-color: rgba(255, 76, 81, 0.15); width: 48px; height: 48px; min-width: 48px;">
@@ -67,7 +67,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6 col-lg-4 col-xl">
+                    <div class="col-md-6">
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body d-flex align-items-center p-3">
                                 <div class="icon-wrapper d-flex align-items-center justify-content-center rounded-circle me-3" style="background-color: rgba(133, 97, 197, 0.15); width: 48px; height: 48px; min-width: 48px;">

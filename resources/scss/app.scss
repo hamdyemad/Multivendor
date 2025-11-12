@@ -6,6 +6,48 @@
 
 /* Bootstrap-styled pagination - smaller and cleaner */
 
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+[dir="rtl"] .alert-message {
+    right: auto !important;
+    left: 20px !important;
+}
+
+[dir="rtl"] .alert-message {
+    animation: slideInLeft 0.3s ease !important;
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
 .pagination {
     justify-content: end;
     .page-item {
@@ -53,10 +95,22 @@ table.dataTable tfoot td {
     text-align: center;
 }
 
-table  th,
-table  td{
+table th,
+table td {
     text-align: center;
     justify-content: center;
+}
+.dt-column-order {
+    color: white !important;
+}
+
+table tbody tr td:last-child.actions {
+    justify-content: center;
+    display: flex;
+}
+
+.cke_notifications_area {
+    display: none;
 }
 // Cards
 
@@ -168,13 +222,12 @@ textarea[data-lang="ar"] + .invalid-feedback {
     background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
 }
 
-
 .userDatatable-header {
     background: linear-gradient(
-                to right,
-                var(--color-primary),
-                var(--second-primary)
-            ) !important;
+        to right,
+        var(--color-primary),
+        var(--second-primary)
+    ) !important;
     color: #fff !important;
 }
 
@@ -183,7 +236,7 @@ textarea[data-lang="ar"] + .invalid-feedback {
 }
 
 .userDatatable table tbody tr td {
-    border-bottom: 1px solid #F1F2F6;
+    border-bottom: 1px solid #f1f2f6;
 }
 .userDatatable table tbody tr td:last-child ul {
     justify-content: center !important;
@@ -223,10 +276,10 @@ html[dir="rtl"] {
 
     .userDatatable-header {
         background: linear-gradient(
-                    to left,
-                    var(--color-primary),
-                    var(--second-primary)
-                ) !important;
+            to left,
+            var(--color-primary),
+            var(--second-primary)
+        ) !important;
         color: #fff !important;
     }
 

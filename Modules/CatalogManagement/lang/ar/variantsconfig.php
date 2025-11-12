@@ -34,6 +34,9 @@ return [
     'value' => 'القيمة',
     'all_parents' => 'جميع الآباء',
     'no_parent' => 'لا يوجد أب',
+    'parent_help' => 'اختر متغير أب لإنشاء علاقات هرمية',
+    'select_key_first' => 'اختر مفتاح أولاً',
+    'error_loading_parents' => 'خطأ في تحميل المتغيرات الأب',
 
     // Messages
     'created_successfully' => 'تم إنشاء تكوين المتغير بنجاح',

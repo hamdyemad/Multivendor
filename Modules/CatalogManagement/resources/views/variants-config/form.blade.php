@@ -10,27 +10,27 @@
         color: #dc3545;
         font-weight: 500;
     }
-    
+
     .invalid-feedback.d-block {
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
     }
-    
+
     .is-invalid {
         border-color: #dc3545 !important;
         background-color: #fff5f5;
     }
-    
+
     .is-invalid:focus {
         border-color: #dc3545 !important;
         box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
     }
-    
+
     .form-control {
         transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     }
-    
+
     /* Error icon for invalid inputs */
     .form-group.has-error .form-control {
         padding-right: 2.5rem;
@@ -38,16 +38,30 @@
         background-position: right calc(0.375em + 0.1875rem) center;
         background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
     }
-    
+
     /* Select2 error state */
     .select2-container.is-invalid .select2-selection {
         border-color: #dc3545 !important;
         background-color: #fff5f5 !important;
     }
-    
+
     .select2-container.is-invalid .select2-selection:focus {
         border-color: #dc3545 !important;
         box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+    }
+
+    /* RTL Support for Select2 */
+    [dir="rtl"] .select2-container--bootstrap-5 .select2-selection {
+        text-align: right;
+    }
+    
+    [dir="rtl"] .select2-container--bootstrap-5 .select2-selection__arrow {
+        left: 1px;
+        right: auto;
+    }
+    
+    [dir="rtl"] .select2-container--bootstrap-5 .select2-selection__clear {
+        float: left;
     }
 </style>
 @endpush
@@ -76,8 +90,8 @@
                         <!-- Alert Container -->
                         <div id="alertContainer"></div>
 
-                        <form id="variantsConfigForm" 
-                              action="{{ isset($variantsConfig) ? route('admin.variants-configurations.update', $variantsConfig->id) : route('admin.variants-configurations.store') }}" 
+                        <form id="variantsConfigForm"
+                              action="{{ isset($variantsConfig) ? route('admin.variants-configurations.update', $variantsConfig->id) : route('admin.variants-configurations.store') }}"
                               method="POST">
                             @csrf
                             @if(isset($variantsConfig))
@@ -89,8 +103,8 @@
                                 @foreach($languages as $language)
                                     <div class="col-md-6">
                                         <div class="form-group mb-25">
-                                            <label for="translation_{{ $language->id }}_name" 
-                                                   class="il-gray fs-14 fw-500 mb-10" 
+                                            <label for="translation_{{ $language->id }}_name"
+                                                   class="il-gray fs-14 fw-500 mb-10"
                                                    @if($language->rtl) dir="rtl" style="text-align: right; display: block;" @endif>
                                                 @if($language->code == 'ar')
                                                     الاسم ({{ $language->name }}) <span class="text-danger">*</span>
@@ -98,10 +112,10 @@
                                                     {{ trans('catalogmanagement::variantsconfig.name') }} ({{ $language->name }}) <span class="text-danger">*</span>
                                                 @endif
                                             </label>
-                                            <input type="text" 
-                                                   class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('translations.' . $language->id . '.name') is-invalid @enderror" 
-                                                   id="translation_{{ $language->id }}_name" 
-                                                   name="translations[{{ $language->id }}][name]"  
+                                            <input type="text"
+                                                   class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('translations.' . $language->id . '.name') is-invalid @enderror"
+                                                   id="translation_{{ $language->id }}_name"
+                                                   name="translations[{{ $language->id }}][name]"
                                                    value="{{ isset($variantsConfig) ? ($variantsConfig->getTranslation('name', $language->code) ?? '') : old('translations.' . $language->id . '.name') }}"
                                                    placeholder="@if($language->code == 'ar')أدخل اسم المتغير@else{{ trans('catalogmanagement::variantsconfig.enter_variant_name') }}@endif"
                                                    @if($language->rtl) dir="rtl" @endif
@@ -117,15 +131,17 @@
                                 <!-- Variant Configuration Key -->
                                 <div class="col-md-6">
                                     <div class="form-group mb-25">
-                                        <label for="key_id" class="il-gray fs-14 fw-500 mb-10">
+                                        <label for="key_id" class="il-gray fs-14 fw-500 mb-10"
+                                               @if(app()->getLocale() == 'ar') dir="rtl" style="text-align: right; display: block;" @endif>
                                             {{ trans('catalogmanagement::variantsconfig.key') }} <span class="text-danger">*</span>
                                         </label>
-                                        <select name="key_id" id="key_id" 
-                                                class="form-control select2 ih-medium ip-gray radius-xs b-light px-15 @error('key_id') is-invalid @enderror">
+                                        <select name="key_id" id="key_id"
+                                                class="form-control select2 ih-medium ip-gray radius-xs b-light px-15 @error('key_id') is-invalid @enderror"
+                                                @if(app()->getLocale() == 'ar') dir="rtl" @endif>
                                             <option value="">-- {{ trans('common.select') }} --</option>
                                             @if(isset($variantKeys))
                                                 @foreach($variantKeys as $key)
-                                                    <option value="{{ $key['id'] }}" 
+                                                    <option value="{{ $key['id'] }}"
                                                         {{ (isset($variantsConfig) && $variantsConfig['key_id'] == $key['id']) ? 'selected' : (old('key_id') == $key['id'] ? 'selected' : '') }}>
                                                         {{ $key['name'] }}
                                                     </option>
@@ -137,14 +153,42 @@
                                         @enderror
                                     </div>
                                 </div>
-                                
+
+                                <!-- Parent Variant Configuration -->
+                                <div class="col-md-6">
+                                    <div class="form-group mb-25">
+                                        <label for="parent_id" class="il-gray fs-14 fw-500 mb-10"
+                                               @if(app()->getLocale() == 'ar') dir="rtl" style="text-align: right; display: block;" @endif>
+                                            {{ trans('catalogmanagement::variantsconfig.parent') }}
+                                        </label>
+                                        <select name="parent_id" id="parent_id"
+                                                class="form-control select2 ih-medium ip-gray radius-xs b-light px-15 @error('parent_id') is-invalid @enderror"
+                                                @if(app()->getLocale() == 'ar') dir="rtl" @endif
+                                                {{ !isset($variantsConfig) || !$variantsConfig->key_id ? 'disabled' : '' }}>
+                                            <option value="">-- {{ trans('catalogmanagement::variantsconfig.select_key_first') }} --</option>
+                                            @if(isset($parentVariants))
+                                                @foreach($parentVariants as $parent)
+                                                    <option value="{{ $parent['id'] }}"
+                                                        {{ (isset($variantsConfig) && $variantsConfig['parent_id'] == $parent['id']) ? 'selected' : (old('parent_id') == $parent['id'] ? 'selected' : '') }}>
+                                                        {{ $parent['name'] }} ({{ $parent['key_name'] }})
+                                                    </option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                        <small class="text-muted">{{ trans('catalogmanagement::variantsconfig.parent_help') }}</small>
+                                        @error('parent_id')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
                                 <!-- Type Selection -->
                                 <div class="col-md-6">
                                     <div class="form-group mb-25">
                                         <label for="type" class="il-gray fs-14 fw-500 mb-10">
                                             {{ trans('catalogmanagement::variantsconfig.type') }}
                                         </label>
-                                        <select name="type" id="type" 
+                                        <select name="type" id="type"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('type') is-invalid @enderror">
                                             <option value="">-- {{ trans('common.select') }} --</option>
                                             <option value="text" {{ (isset($variantsConfig) && $variantsConfig->type == 'text') ? 'selected' : (old('type') == 'text' ? 'selected' : '') }}>
@@ -163,10 +207,10 @@
                                         <label for="value_text" class="il-gray fs-14 fw-500 mb-10">
                                             {{ trans('catalogmanagement::variantsconfig.value') }}
                                         </label>
-                                        <input type="text" 
-                                               class="form-control ih-medium ip-gray radius-xs b-light px-15" 
-                                               id="value_text" 
-                                               name="value_text"  
+                                        <input type="text"
+                                               class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                               id="value_text"
+                                               name="value_text"
                                                value="{{ isset($variantsConfig) && $variantsConfig->type == 'text' ? $variantsConfig->value : old('value') }}"
                                                placeholder="{{ trans('catalogmanagement::variantsconfig.enter_text_value') }}">
                                     </div>
@@ -179,16 +223,16 @@
                                             {{ trans('catalogmanagement::variantsconfig.value') }}
                                         </label>
                                         <div class="d-flex align-items-center gap-3">
-                                            <input type="color" 
-                                                   class="form-control form-control-color @error('value') is-invalid @enderror" 
-                                                   id="value_color" 
-                                                   name="value_color"  
+                                            <input type="color"
+                                                   class="form-control form-control-color @error('value') is-invalid @enderror"
+                                                   id="value_color"
+                                                   name="value_color"
                                                    value="{{ isset($variantsConfig) && $variantsConfig->type == 'color' ? $variantsConfig->value : (old('value') ?: '#000000') }}"
                                                    title="{{ trans('catalogmanagement::variantsconfig.choose_color') }}"
                                                    style="width: 80px; height: 45px;">
-                                            <input type="text" 
-                                                   class="form-control ih-medium ip-gray radius-xs b-light px-15" 
-                                                   id="color_hex" 
+                                            <input type="text"
+                                                   class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                                   id="color_hex"
                                                    readonly
                                                    value="{{ isset($variantsConfig) && $variantsConfig->type == 'color' ? $variantsConfig->value : (old('value') ?: '#000000') }}"
                                                    placeholder="#000000"
@@ -204,13 +248,13 @@
                                 <input type="hidden" name="value" id="value" value="{{ isset($variantsConfig) ? $variantsConfig->value : old('value') }}">
                                 <div class="col-12">
                                     <div class="button-group d-flex gap-3">
-                                        <a href="{{ route('admin.variants-configurations.index') }}" 
+                                        <a href="{{ route('admin.variants-configurations.index') }}"
                                            class="btn btn-light btn-default btn-squared fw-400 text-capitalize">
                                             <i class="uil uil-angle-left"></i> {{ trans('common.cancel') }}
                                         </a>
-                                        <button type="submit" id="submitBtn" 
+                                        <button type="submit" id="submitBtn"
                                                 class="btn btn-primary btn-default btn-squared text-capitalize">
-                                            <i class="uil uil-check"></i> 
+                                            <i class="uil uil-check"></i>
                                             <span>{{ isset($variantsConfig) ? trans('common.update') : trans('common.create') }}</span>
                                             <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                                         </button>
@@ -226,27 +270,30 @@
 @endsection
 
 @push('after-body')
-    <x-loading-overlay 
-        :loadingText="trans('loading.processing')" 
-        :loadingSubtext="trans('loading.please_wait')" 
+    <x-loading-overlay
+        :loadingText="trans('loading.processing')"
+        :loadingSubtext="trans('loading.please_wait')"
     />
 @endpush
 
 @push('scripts')
 <script>
     $(document).ready(function() {
-        // Initialize Select2 for better UX
+        // Initialize Select2 for better UX with RTL support
         if ($.fn.select2) {
             $('.select2').select2({
                 width: '100%',
-                placeholder: '{{ trans("common.select") }}'
+                placeholder: '{{ trans("common.select") }}',
+                @if(app()->getLocale() == 'ar')
+                dir: 'rtl'
+                @endif
             });
         }
 
         // Function to toggle value input based on type
         function toggleValueInput() {
             const type = $('#type').val();
-            
+
             if (type === 'text') {
                 $('#textValueContainer').show();
                 $('#colorValueContainer').hide();
@@ -295,12 +342,12 @@
 
         $('#variantsConfigForm').on('submit', function(e) {
             e.preventDefault();
-            
+
             const variantsConfigForm = this;
             const $submitBtn = $('#submitBtn');
             const $spinner = $submitBtn.find('.spinner-border');
             const alertContainer = document.getElementById('alertContainer');
-            
+
             // Disable button and show spinner
             $submitBtn.prop('disabled', true);
             $spinner.removeClass('d-none');
@@ -314,7 +361,7 @@
                 if (loadingTextEl) loadingTextEl.textContent = loadingText;
                 if (loadingSubtextEl) loadingSubtextEl.textContent = '{{ trans("loading.please_wait") }}';
             }
-            
+
             // Show loading overlay
             if (window.LoadingOverlay) {
                 LoadingOverlay.show();
@@ -322,7 +369,7 @@
 
             // Clear previous alerts
             alertContainer.innerHTML = '';
-            
+
             // Clear previous errors
             $('.is-invalid').removeClass('is-invalid');
             $('.invalid-feedback').remove();
@@ -345,7 +392,7 @@
             .then(response => {
                 // Progress to 60%
                 LoadingOverlay.animateProgressBar(60, 200);
-                
+
                 if (!response.ok) {
                     return response.json().then(data => {
                         throw data;
@@ -366,7 +413,7 @@
                         successMessage,
                         '{{ trans("loading.redirecting") }}'
                     );
-                    
+
                     // Redirect after 1.5 seconds
                     setTimeout(() => {
                         window.location.href = data.redirect || '{{ route("admin.variants-configurations.index") }}';
@@ -376,73 +423,73 @@
             .catch(error => {
                 // Hide loading overlay
                 LoadingOverlay.hide();
-                
+
                 // Re-enable button
                 $submitBtn.prop('disabled', false);
                 $spinner.addClass('d-none');
-                
+
                 // Clear previous errors first
                 $('.is-invalid').removeClass('is-invalid');
                 $('.invalid-feedback').remove();
-                
+
                 // Handle validation errors
                 if (error.errors) {
                     console.log('Validation errors received:', error.errors);
-                    
+
                     Object.keys(error.errors).forEach(field => {
                         console.log('Processing field:', field);
-                        
+
                         // Special handling for 'value' field - show in visible container
                         if (field === 'value') {
                             const type = $('#type').val();
                             let $field;
-                            
+
                             if (type === 'text') {
                                 $field = $('#value_text');
                             } else if (type === 'color') {
                                 $field = $('#value_color');
                             }
-                            
+
                             if ($field && $field.length > 0) {
                                 $field.addClass('is-invalid');
-                                
+
                                 // Insert error message inside the visible container
                                 const errorHtml = '<div class="invalid-feedback d-block" style="display: block !important; color: #dc3545; font-weight: 500; margin-top: 0.5rem;">' + error.errors[field][0] + '</div>';
                                 $field.closest('.form-group').append(errorHtml);
-                                
+
                                 console.log('Added value error for type:', type);
                             }
                             return;
                         }
-                        
+
                         // Convert dot notation to bracket notation
                         // e.g., "translations.1.name" -> "translations[1][name]"
                         let parts = field.split('.');
                         let fieldName = parts[0]; // Start with first part
-                        
+
                         for (let i = 1; i < parts.length; i++) {
                             fieldName += '[' + parts[i] + ']';
                         }
-                        
+
                         console.log('Converted to:', fieldName);
-                        
+
                         // Try to find the field with bracket notation first
                         let $field = $('input[name="' + fieldName + '"], textarea[name="' + fieldName + '"], select[name="' + fieldName + '"]');
-                        
+
                         console.log('Found field:', $field.length);
-                        
+
                         // If not found, try with original dot notation
                         if ($field.length === 0) {
                             $field = $('input[name="' + field + '"], textarea[name="' + field + '"], select[name="' + field + '"]');
                             console.log('Tried original notation, found:', $field.length);
                         }
-                        
+
                         if ($field.length > 0) {
                             $field.addClass('is-invalid');
-                            
+
                             // Insert error message
                             const errorHtml = '<div class="invalid-feedback d-block" style="display: block !important; color: #dc3545; font-weight: 500; margin-top: 0.5rem;">' + error.errors[field][0] + '</div>';
-                            
+
                             // Check if it's a Select2 element
                             if ($field.hasClass('select2') || $field.data('select2')) {
                                 // For Select2, insert after the Select2 container
@@ -457,13 +504,13 @@
                                 // For regular inputs, insert after the input
                                 $field.after(errorHtml);
                             }
-                            
+
                             console.log('Added error for:', field);
                         } else {
                             console.error('Could not find field for:', field);
                         }
                     });
-                    
+
                     // Show error alert
                     alertContainer.innerHTML = `
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -480,11 +527,70 @@
                         </div>
                     `;
                 }
-                
+
                 // Scroll to top
                 $('html, body').animate({ scrollTop: 0 }, 500);
             });
         });
+
+        // Handle Key Selection Change - Filter Parent Variants
+        $('#key_id').on('change', function() {
+            const selectedKeyId = $(this).val();
+            const parentSelect = $('#parent_id');
+
+            if (!selectedKeyId) {
+                // If no key selected, show no parent message
+                parentSelect.html('<option value="">-- {{ trans('catalogmanagement::variantsconfig.select_key_first') }} --</option>');
+                parentSelect.prop('disabled', true);
+                return;
+            }
+
+            // Show loading state
+            parentSelect.html('<option value="">{{ trans('common.loading') }}...</option>');
+            parentSelect.prop('disabled', true);
+
+            // Make AJAX request to get parent variants for selected key
+            $.ajax({
+                url: '{{ route('admin.variants-configurations.get-parents-by-key') }}',
+                method: 'GET',
+                data: {
+                    key_id: selectedKeyId,
+                    current_id: '{{ isset($variantsConfig) ? $variantsConfig->id : '' }}'
+                },
+                success: function(response) {
+                    let options = '<option value="">-- {{ trans('catalogmanagement::variantsconfig.no_parent') }} --</option>';
+
+                    if (response.success && response.data && response.data.length > 0) {
+                        response.data.forEach(function(parent) {
+                            const selected = '{{ isset($variantsConfig) ? $variantsConfig->parent_id : old('parent_id') }}' == parent.id ? 'selected' : '';
+                            options += `<option value="${parent.id}" ${selected}>${parent.display_name}</option>`;
+                        });
+                    }
+
+                    parentSelect.html(options);
+                    parentSelect.prop('disabled', false);
+
+                    // Reinitialize Select2 with RTL support
+                    parentSelect.select2({
+                        theme: 'bootstrap-5',
+                        width: '100%',
+                        @if(app()->getLocale() == 'ar')
+                        dir: 'rtl'
+                        @endif
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching parent variants:', error);
+                    parentSelect.html('<option value="">-- {{ trans('catalogmanagement::variantsconfig.error_loading_parents') }} --</option>');
+                    parentSelect.prop('disabled', false);
+                }
+            });
+        });
+
+        // Trigger change event on page load if key is already selected
+        if ($('#key_id').val()) {
+            $('#key_id').trigger('change');
+        }
     });
 </script>
 @endpush

@@ -33,7 +33,7 @@
                                 <td class="fw-bold text-success">299.00 EGP</td>
                                 <td class="fw-bold text-success">10%</td>
                                 <td class="fw-bold text-success">29.90 EGP</td>
-                                <td>
+                                <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
 
@@ -55,7 +55,7 @@
                                 <td class="fw-bold text-success">179.98 EGP</td>
                                 <td class="fw-bold text-success">10%</td>
                                 <td class="fw-bold text-success">18.00 EGP</td>
-                                <td>
+                                <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
 
@@ -77,7 +77,7 @@
                                 <td class="fw-bold text-success">136.50 EGP</td>
                                 <td class="fw-bold text-success">10%</td>
                                 <td class="fw-bold text-success">13.65 EGP</td>
-                                <td>
+                                <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
 
@@ -99,7 +99,7 @@
                                 <td class="fw-bold text-success">79.96 EGP</td>
                                 <td class="fw-bold text-success">10%</td>
                                 <td class="fw-bold text-success">8.00 EGP</td>
-                                <td>
+                                <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
 
@@ -121,7 +121,7 @@
                                 <td class="fw-bold text-success">259.98 EGP</td>
                                 <td class="fw-bold text-success">10%</td>
                                 <td class="fw-bold text-success">26.00 EGP</td>
-                                <td>
+                                <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0 m-0 m-0"></i>
                                     </a>

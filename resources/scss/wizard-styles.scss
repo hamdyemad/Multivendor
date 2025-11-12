@@ -2,6 +2,9 @@
 // Wizard Step Styles - Global
 // ===================================
 
+// Forward all variables and mixins for external use
+@forward "variables" show $primary-color;
+
 // Variables
 $primary-color: var(--color-primary);
 $primary-light: var(--color-primary);

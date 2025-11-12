@@ -32,6 +32,18 @@ class VariantsConfigurationRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation()
+    {
+        // Log the incoming request data for debugging
+        \Log::info('VariantsConfiguration Request Data', [
+            'all' => $this->all(),
+            'translations' => $this->get('translations')
+        ]);
+    }
+
+    /**
      * Get custom attributes for validator errors.
      *
      * @return array

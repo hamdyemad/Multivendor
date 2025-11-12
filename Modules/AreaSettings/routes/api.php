@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\AreaSettings\Http\Controllers\AreaSettingsController;
+use Modules\AreaSettings\app\Http\Controllers\Api\RegionController;
 
-Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
-    Route::apiResource('areasettings', AreaSettingsController::class)->names('areasettings');
-});
+Route::apiResource('regions', RegionController::class)->names('regions');

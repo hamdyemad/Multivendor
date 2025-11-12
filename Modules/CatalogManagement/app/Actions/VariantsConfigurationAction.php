@@ -167,23 +167,19 @@ class VariantsConfigurationAction
                     'id' => $variantsConfig->id,
                     'name_en' => $nameEn,
                     'name_ar' => $nameAr,
-                    'type' => $variantsConfig->type ?? '',
-                    'value' => $variantsConfig->value,
                     'key_name' => '-',
+                    'parent' => '-',
                     'created_at' => $variantsConfig->created_at,
                 ];
 
                 // Add key name
                 if ($variantsConfig->key) {
-                    $keyTranslation = $variantsConfig->key->translations
-                        ->where('lang_key', 'name')
-                        ->first();
-                    $rowData['key_name'] = $keyTranslation ? $keyTranslation->lang_value : '-';
+                    $rowData['key_name'] = $variantsConfig->key->getTranslation('name', app()->getLocale());
                 }
 
                 // Add parent information if exists
                 if ($variantsConfig->parent_data) {
-                    $rowData['parent'] = $variantsConfig->parent_data->value;
+                    $rowData['parent'] = $variantsConfig->parent_data->getTranslation('name', app()->getLocale());
                 }
 
                 $responseData[] = $rowData;

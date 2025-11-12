@@ -152,7 +152,7 @@ class RegionRepository implements RegionRepositoryInterface
                     }
                 }
             }
-            
+
             return $region;
         });
     }

@@ -305,10 +305,7 @@ jQuery(document).ready(function ($) {
         if (currentStep > totalSteps) currentStep = totalSteps;
         showStep(currentStep);
 
-        // Update review when going to step 4
-        if (currentStep === 4) {
-            updateReview();
-        }
+        // No review step - step 4 is now the final step
     });
 
     // Previous button
@@ -330,10 +327,7 @@ jQuery(document).ready(function ($) {
         currentStep = targetStep;
         showStep(currentStep);
 
-        // Update review when going to step 4
-        if (currentStep === 4) {
-            updateReview();
-        }
+        // No review step - step 4 is now the final step
     });
 
     // Edit button in review page
@@ -517,6 +511,9 @@ jQuery(document).ready(function ($) {
     // Load regions data on page load
     loadRegionsData();
 
+    // Additional images functionality
+    initializeAdditionalImages();
+
     console.log("✅ Product form navigation initialized");
 });
 
@@ -525,7 +522,7 @@ jQuery(document).ready(function ($) {
  */
 function loadRegionsData() {
     console.log("🌍 Loading regions data...");
-    
+
     $.ajax({
         url: "/api/regions?select2=1",
         method: "GET",
@@ -643,10 +640,7 @@ function showStep(step) {
         }
     });
 
-    // Update review page when navigating to step 4
-    if (step === 4 && typeof updateReview === "function") {
-        updateReview();
-    }
+    // No review step - step 4 is now the final step
 
     // Update buttons
     if (step === 1) {
@@ -678,8 +672,6 @@ function showStep(step) {
 function clearAllErrors() {
     $(".error-message").remove();
     $(".is-invalid").removeClass("is-invalid");
-    $("#review-validation-errors").hide();
-    $("#review-errors-list").html("");
     validationErrors = {};
 }
 
@@ -699,19 +691,13 @@ function convertDotToBracket(field) {
 }
 
 /**
- * Display validation errors in alert box at top of Step 4
+ * Display validation errors inline with form fields
  */
 function displayValidationErrors(errors) {
     validationErrors = errors;
 
-    let errorListHtml = '<ul class="mb-0">';
-
     for (let field in errors) {
         const errorMessages = errors[field];
-
-        errorMessages.forEach((msg) => {
-            errorListHtml += `<li class="mb-2">${msg}</li>`;
-        });
 
         const bracketField = convertDotToBracket(field);
         const fieldElement = $(
@@ -740,41 +726,37 @@ function displayValidationErrors(errors) {
             }
         }
     }
-
-    errorListHtml += "</ul>";
-
-    $("#review-errors-list").html(errorListHtml);
-    $("#review-validation-errors").show();
 }
 
 /**
- * Update Review Page with form data
+ * Disable required attributes on hidden form fields to prevent HTML5 validation errors
  */
-function updateReview() {
-    const config = window.productFormConfig;
-    if (!config) {
-        return;
-    }
-
-    // Update titles for each language
-    config.languages.forEach((lang) => {
-        $(`.review-title-${lang.code}`).text(
-            $(`input[name="translations[${lang.id}][title]"]`).val() || "-"
-        );
+function disableRequiredOnHiddenFields() {
+    // Find all hidden wizard steps
+    $('.wizard-step-content:not(.active)').each(function() {
+        // Temporarily disable required attributes on fields in hidden steps
+        $(this).find('[required]').each(function() {
+            $(this).attr('data-was-required', 'true').removeAttr('required');
+        });
     });
+    
+    // Also handle hidden sections within the current step
+    $('#simple-product-section:hidden [required]').each(function() {
+        $(this).attr('data-was-required', 'true').removeAttr('required');
+    });
+    
+    $('#variants-section:hidden [required]').each(function() {
+        $(this).attr('data-was-required', 'true').removeAttr('required');
+    });
+}
 
-    // Update SKU
-    $(".review-sku").text($("#sku").val() || "-");
-
-    // Update Brand
-    $(".review-brand").text($("#brand_id option:selected").text() || "-");
-
-    // Update Price
-    const price = $("#price").val();
-    $(".review-price").text(price ? "$" + price : "-");
-
-    // Update Stock
-    $(".review-stock").text($("#stock_quantity").val() || "-");
+/**
+ * Re-enable required attributes that were temporarily disabled
+ */
+function restoreRequiredAttributes() {
+    $('[data-was-required="true"]').each(function() {
+        $(this).attr('required', 'required').removeAttr('data-was-required');
+    });
 }
 
 /**
@@ -790,6 +772,9 @@ function handleFormSubmission(e) {
 
     // Clear previous errors
     clearAllErrors();
+
+    // Temporarily disable required attributes on hidden fields to prevent HTML5 validation errors
+    disableRequiredOnHiddenFields();
 
     // Show loading overlay
     if (typeof LoadingOverlay !== "undefined") {
@@ -830,28 +815,14 @@ function handleFormSubmission(e) {
                 LoadingOverlay.hide();
             }
 
+            // Restore required attributes in case of error
+            restoreRequiredAttributes();
+
             if (xhr.status === 422) {
                 const errors = xhr.responseJSON.errors;
 
-                // Display errors in step 4 review page
+                // Display validation errors inline
                 displayValidationErrors(errors);
-
-                // Navigate to step 4 to show review with errors
-                currentStep = 4;
-                showStep(4);
-
-                // Scroll to error alert box at top of Step 4
-                setTimeout(function () {
-                    const errorAlert = $("#review-validation-errors");
-                    if (errorAlert.is(":visible")) {
-                        $("html, body").animate(
-                            {
-                                scrollTop: errorAlert.offset().top - 100,
-                            },
-                            300
-                        );
-                    }
-                }, 100);
             } else {
                 alert("An error occurred. Please try again.");
             }
@@ -1171,7 +1142,7 @@ function addVariantBox() {
                                             </tbody>
                                             <tfoot>
                                                 <tr class="table-light">
-                                                    <td colspan="2" class="text-end fw-bold">Total Stock:</td>
+                                                    <td colspan="2" class="text-center fw-bold">Total Stock:</td>
                                                     <td class="fw-bold text-primary">
                                                         <span class="variant-total-stock" data-variant-index="${variantIndex}">0</span>
                                                     </td>
@@ -1604,4 +1575,158 @@ function reindexVariants() {
             .find("h6")
             .html(`<i class="uil uil-cube"></i> Variant ${newIndex}`);
     });
+}
+
+/**
+ * Initialize additional images functionality using x-image-upload component pattern
+ */
+function initializeAdditionalImages() {
+    // Add image button
+    $('#add-additional-image-btn').on('click', function() {
+        addAdditionalImageUpload();
+    });
+    
+    // Remove additional image (event delegation)
+    $(document).on('click', '.remove-additional-image', function() {
+        $(this).closest('.additional-image-item').remove();
+        toggleAdditionalImagesVisibility();
+        reindexAdditionalImages();
+    });
+    
+    function addAdditionalImageUpload() {
+        // Get the current count of existing images to determine the next index
+        const currentCount = $('.additional-image-item').length;
+        const nextIndex = currentCount + 1;
+        const uniqueId = 'additional_image_' + Date.now(); // Use timestamp for unique ID
+        
+        const imageHtml = `
+            <div class="col-md-4 mb-3 additional-image-item" data-index="${nextIndex}">
+                <div class="card">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="text-muted">Additional Image ${nextIndex}</small>
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-additional-image">
+                                <i class="uil uil-trash-alt m-0"></i>
+                            </button>
+                        </div>
+                        <p class="text-muted mb-2" style="font-size: 11px;">
+                            <i class="uil uil-info-circle me-1"></i>
+                            Recommended: 800x800px
+                        </p>
+                        <div class="form-group">
+                            <div class="image-upload-wrapper">
+                                <div class="image-preview-container" id="${uniqueId}-preview-container" data-target="${uniqueId}">
+                                    <div class="image-placeholder" id="${uniqueId}-placeholder">
+                                        <i class="uil uil-image-plus"></i>
+                                        <p>Click to upload image</p>
+                                        <small>Recommended: 800x800px</small>
+                                    </div>
+                                    <div class="image-overlay">
+                                        <button type="button" class="btn-change-image" data-target="${uniqueId}">
+                                            <i class="uil uil-camera"></i> Change
+                                        </button>
+                                        <button type="button" class="btn-remove-image" data-target="${uniqueId}" style="display: none;">
+                                            <i class="uil uil-trash-alt"></i> Remove
+                                        </button>
+                                    </div>
+                                </div>
+                                <input type="file" class="d-none image-file-input" id="${uniqueId}" name="additional_images[]" accept="image/jpeg,image/png,image/jpg,image/webp" data-preview="${uniqueId}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        $('#additional-images-container').append(imageHtml);
+        
+        // Initialize the image upload functionality for this new component
+        initializeImageUploadComponent(uniqueId);
+        
+        toggleAdditionalImagesVisibility();
+    }
+    
+    function initializeImageUploadComponent(uniqueId) {
+        const input = document.getElementById(uniqueId);
+        const container = document.getElementById(uniqueId + '-preview-container');
+        const placeholder = document.getElementById(uniqueId + '-placeholder');
+        const changeBtn = container.querySelector('.btn-change-image');
+        const removeBtn = container.querySelector('.btn-remove-image');
+        
+        // Click on container to select file
+        container.addEventListener('click', (e) => {
+            if (!e.target.closest('.btn-change-image') && !e.target.closest('.btn-remove-image')) {
+                input.click();
+            }
+        });
+        
+        if (changeBtn) {
+            changeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                input.click();
+            });
+        }
+        
+        // Handle file selection
+        input.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    let previewImg = document.getElementById(uniqueId + '-preview-img');
+                    
+                    if (!previewImg) {
+                        const img = document.createElement('img');
+                        img.id = uniqueId + '-preview-img';
+                        img.className = 'preview-image';
+                        img.src = event.target.result;
+                        container.insertBefore(img, placeholder);
+                    } else {
+                        previewImg.src = event.target.result;
+                    }
+                    
+                    if (placeholder) placeholder.style.display = 'none';
+                    if (removeBtn) removeBtn.style.display = 'inline-flex';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Remove image
+        if (removeBtn) {
+            removeBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                input.value = '';
+                
+                const currentPreviewImg = document.getElementById(uniqueId + '-preview-img');
+                if (currentPreviewImg) {
+                    currentPreviewImg.remove();
+                }
+                
+                if (placeholder) placeholder.style.display = 'flex';
+                removeBtn.style.display = 'none';
+            });
+        }
+    }
+    
+    function toggleAdditionalImagesVisibility() {
+        const imageCount = $('.additional-image-item').length;
+        
+        if (imageCount > 0) {
+            $('#additional-images-empty-state').hide();
+            $('#additional-images-container').show();
+        } else {
+            $('#additional-images-empty-state').show();
+            $('#additional-images-container').hide();
+        }
+    }
+    
+    function reindexAdditionalImages() {
+        $('.additional-image-item').each(function(index) {
+            const newIndex = index + 1;
+            $(this).attr('data-index', newIndex);
+            $(this).find('small').text(`Additional Image ${newIndex}`);
+        });
+    }
 }

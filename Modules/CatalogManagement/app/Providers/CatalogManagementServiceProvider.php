@@ -10,6 +10,8 @@ use Modules\CatalogManagement\app\Interfaces\TaxRepositoryInterface;
 use Modules\CatalogManagement\app\Repositories\TaxRepository;
 use Modules\CatalogManagement\app\Interfaces\VariantConfigurationKeyRepositoryInterface;
 use Modules\CatalogManagement\app\Repositories\VariantConfigurationKeyRepository;
+use Modules\CatalogManagement\app\Interfaces\ProductInterface;
+use Modules\CatalogManagement\app\Repositories\ProductRepository;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -57,6 +59,11 @@ class CatalogManagementServiceProvider extends ServiceProvider
         $this->app->bind(
             VariantConfigurationKeyRepositoryInterface::class,
             VariantConfigurationKeyRepository::class
+        );
+        
+        $this->app->bind(
+            ProductInterface::class,
+            ProductRepository::class
         );
     }
 

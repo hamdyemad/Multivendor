@@ -6,6 +6,150 @@
 
 @push('styles')
 <!-- Wizard styles are now loaded globally via app.scss -->
+<style>
+/* Additional wizard responsive fixes */
+.checkout-progress-indicator {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+}
+
+.checkout-progress {
+    min-width: 600px; /* Minimum width to fit 5 steps */
+}
+
+@media (max-width: 1200px) {
+    .wizard-step-nav {
+        min-width: 100px !important;
+        padding: 12px 14px !important;
+    }
+    
+    .wizard-step-nav .step-label {
+        font-size: 11px !important;
+        max-width: 90px !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .checkout-progress {
+        min-width: 550px;
+    }
+}
+
+@media (max-width: 768px) {
+    .checkout-progress {
+        min-width: 500px;
+    }
+}
+
+@media (max-width: 576px) {
+    .checkout-progress {
+        min-width: 420px;
+    }
+}
+
+/* Additional Images Styling - Match x-image-upload component */
+.additional-image-item .image-upload-wrapper {
+    position: relative;
+}
+
+.additional-image-item .image-preview-container {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.additional-image-item .image-preview-container:hover {
+    border-color: #0056B7;
+    background: #e7f3ff;
+}
+
+.additional-image-item .preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: white;
+}
+
+.additional-image-item .image-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #8c90a4;
+}
+
+.additional-image-item .image-placeholder i {
+    font-size: 36px;
+    margin-bottom: 8px;
+    color: #c4c4c4;
+}
+
+.additional-image-item .image-placeholder p {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.additional-image-item .image-placeholder small {
+    color: #adb5bd;
+    font-size: 10px;
+}
+
+.additional-image-item .image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.additional-image-item .image-preview-container:hover .image-overlay {
+    opacity: 1;
+}
+
+.additional-image-item .btn-change-image, 
+.additional-image-item .btn-remove-image {
+    background: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.additional-image-item .btn-change-image:hover {
+    background: #0056B7;
+    color: white;
+}
+
+.additional-image-item .btn-remove-image {
+    background: #ff4757;
+    color: white;
+}
+
+.additional-image-item .btn-remove-image:hover {
+    background: #e84118;
+}
+</style>
 @endpush
 
 @section('content')
@@ -29,14 +173,14 @@
                 <div class="card-body">
                     <!-- Wizard Navigation -->
                     <x-wizard :steps="[
-                        'Product Information',
-                        'Product Details',
-                        'Pricing & Inventory',
-                        'Review & Submit'
+                        'Information',
+                        'Details',
+                        'Pricing',
+                        'SEO & Images'
                     ]" :currentStep="1" />
 
                     <!-- Form -->
-                    <form id="productForm" method="POST" action="{{ isset($product) ? '#' : '#' }}" enctype="multipart/form-data">
+                    <form id="productForm" method="POST" action="{{ isset($product) ? '#' : '#' }}" enctype="multipart/form-data" novalidate>
                         @csrf
                         @if(isset($product))
                             @method('PUT')
@@ -533,25 +677,131 @@
                             </div>
                         </div>
 
-                        <!-- Step 4: Review & Submit -->
+                        <!-- Step 4: SEO & Images -->
                         <div class="wizard-step-content" data-step="4" style="display: none; margin-top: 60px;">
-                            <h5 class="mb-4" style="background: #0056B7; color: white; padding: 16px 20px; border-radius: 8px; display: flex; align-items: center; gap: 12px;">
-                                <i class="uil uil-check-circle" style="font-size: 22px;"></i>
-                                Review & Submit
-                            </h5>
+                            <!-- SEO Information -->
+                            <div class="card mb-4" style="margin-top: 20px;">
+                                <div class="card-body">
+                                    <h5 class="mb-4">
+                                        <i class="uil uil-search"></i>
+                                        SEO Information
+                                    </h5>
+                                    <div class="row">
+                                        @foreach($languages as $language)
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-group">
+                                                <label for="meta_title_{{ $language->code }}" class="form-label w-100 {{ $language->rtl ? 'text-end' : '' }}">
+                                                    @if($language->code == 'en')
+                                                        Meta Title ({{ $language->name }})
+                                                    @else
+                                                        العنوان الوصفي ({{ $language->name }})
+                                                    @endif
+                                                </label>
+                                                <input type="text" name="translations[{{ $language->id }}][meta_title]" id="meta_title_{{ $language->code }}"
+                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                                    placeholder="{{ $language->code == 'ar' ? 'أدخل العنوان الوصفي' : 'Enter meta title' }}"
+                                                    maxlength="60"
+                                                    {{ $language->rtl ? 'dir=rtl' : '' }}>
+                                                <small class="text-muted">Recommended: 50-60 characters</small>
+                                            </div>
+                                        </div>
+                                        @endforeach
 
-                            <!-- Validation Errors Alert -->
-                            <div id="review-validation-errors" class="alert alert-danger" style="display: none; flex-direction: column;">
-                                <h6 class="alert-heading"><i class="uil uil-exclamation-triangle"></i> Validation Errors</h6>
-                                <div id="review-errors-list"></div>
+                                        @foreach($languages as $language)
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-group">
+                                                <label for="meta_description_{{ $language->code }}" class="form-label w-100 {{ $language->rtl ? 'text-end' : '' }}">
+                                                    @if($language->code == 'en')
+                                                        Meta Description ({{ $language->name }})
+                                                    @else
+                                                        الوصف الوصفي ({{ $language->name }})
+                                                    @endif
+                                                </label>
+                                                <textarea name="translations[{{ $language->id }}][meta_description]" id="meta_description_{{ $language->code }}"
+                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                                    rows="3"
+                                                    placeholder="{{ $language->code == 'ar' ? 'أدخل الوصف الوصفي' : 'Enter meta description' }}"
+                                                    maxlength="160"
+                                                    {{ $language->rtl ? 'dir=rtl' : '' }}></textarea>
+                                                <small class="text-muted">Recommended: 150-160 characters</small>
+                                            </div>
+                                        </div>
+                                        @endforeach
+
+                                        @foreach($languages as $language)
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-group">
+                                                <label for="meta_keywords_{{ $language->code }}" class="form-label w-100 {{ $language->rtl ? 'text-end' : '' }}">
+                                                    @if($language->code == 'en')
+                                                        Meta Keywords ({{ $language->name }})
+                                                    @else
+                                                        الكلمات المفتاحية ({{ $language->name }})
+                                                    @endif
+                                                </label>
+                                                <input type="text" name="translations[{{ $language->id }}][meta_keywords]" id="meta_keywords_{{ $language->code }}"
+                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                                    placeholder="{{ $language->code == 'ar' ? 'أدخل الكلمات المفتاحية مفصولة بفواصل' : 'Enter keywords separated by commas' }}"
+                                                    {{ $language->rtl ? 'dir=rtl' : '' }}>
+                                                <small class="text-muted">Separate keywords with commas</small>
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="alert alert-info">
-                                <i class="uil uil-info-circle"></i> Please review your information before submitting
+                            <!-- Main Product Image -->
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="mb-4">
+                                        <i class="uil uil-image"></i>
+                                        Main Product Image
+                                    </h5>
+                                    <div class="row">
+                                        <div class="col-md-12 mb-3">
+                                            <x-image-upload
+                                                id="main_image"
+                                                name="main_image"
+                                                label="Product Image"
+                                                :required="true"
+                                                :existingImage="isset($product) && $product->main_image ? $product->main_image->path : null"
+                                                placeholder="Click to upload main product image"
+                                                recommendedSize="Recommended size: 800x800px"
+                                                accept="image/jpeg,image/png,image/jpg,image/webp"
+                                                aspectRatio="square"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <!-- Review Cards will go here -->
+                            <!-- Additional Images -->
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="mb-4 d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="uil uil-images"></i>
+                                            Additional Images
+                                        </div>
+                                        <button type="button" id="add-additional-image-btn" class="btn btn-primary btn-sm">
+                                            <i class="uil uil-plus"></i> Add Image
+                                        </button>
+                                    </h5>
+                                    
+                                    <!-- Empty state message -->
+                                    <div id="additional-images-empty-state" class="text-center py-4">
+                                        <i class="uil uil-images text-muted" style="font-size: 48px;"></i>
+                                        <p class="text-muted mb-0">No additional images added yet. Click "Add Image" to start.</p>
+                                    </div>
+
+                                    <!-- Images Container -->
+                                    <div id="additional-images-container" class="row" style="display: none;">
+                                        <!-- Additional images will be added here dynamically -->
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
 
                         <!-- Navigation Buttons -->
                         <div class="d-flex justify-content-between mt-4">

@@ -1,6 +1,6 @@
 {
   "Modules/CatalogManagement/resources/assets/js/product-form.js": {
-    "file": "assets/product-form-DkCX6iH7.js",
+    "file": "assets/product-form-Dg8Cbtcp.js",
     "name": "product-form",
     "src": "Modules/CatalogManagement/resources/assets/js/product-form.js",
     "isEntry": true
@@ -36,8 +36,14 @@
       "assets/app-DACxTfZu.css"
     ]
   },
+  "resources/js/ckeditor-init.js": {
+    "file": "assets/ckeditor-init-CtIN31pE.js",
+    "name": "ckeditor-init",
+    "src": "resources/js/ckeditor-init.js",
+    "isEntry": true
+  },
   "resources/scss/app.scss": {
-    "file": "assets/app-D7Y7nwS_.css",
+    "file": "assets/app-CWBT6ac3.css",
     "src": "resources/scss/app.scss",
     "isEntry": true
   },

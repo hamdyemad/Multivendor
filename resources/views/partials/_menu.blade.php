@@ -29,7 +29,7 @@
                 <ul class="px-0">
                     @can('activities.index')
                     <li>
-                        <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.category-management.activities.index') }}">
+                        <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.category-management.activities.index') }}">
                             {{ trans('menu.activities.title') }}
                             <span class="badge badge-round badge-secondary ms-1">8</span>
                         </a>
@@ -38,7 +38,7 @@
 
                     @can('departments.index')
                     <li>
-                        <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.category-management.departments.index') }}">
+                        <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.category-management.departments.index') }}">
                             {{ trans('menu.category managment.department') }}
                             <span class="badge badge-round badge-primary ms-1">8</span>
                         </a>
@@ -47,7 +47,7 @@
 
                     @can('categories.index')
                     <li>
-                        <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.category-management.categories.index') }}">
+                        <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.category-management.categories.index') }}">
                             {{ trans('menu.category managment.main category') }}
                             <span class="badge badge-round badge-info ms-1">25</span>
                         </a>
@@ -56,7 +56,7 @@
 
                     @can('sub_categories.index')
                     <li>
-                        <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.category-management.subcategories.index') }}">
+                        <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.category-management.subcategories.index') }}">
                             {{ trans('menu.category managment.sub category') }}
                             <span class="badge badge-round badge-success ms-1">45</span>
                         </a>
@@ -76,7 +76,7 @@
                 <ul class="px-0">
                     @can('products.create')
                     <li>
-                        <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.products.create') }}">
+                        <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.products.create') }}">
                             {{ trans('menu.products.create') }}
                         </a>
                     </li>
@@ -84,19 +84,19 @@
 
                     @can('products.view')
                     <li>
-                        <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
+                        <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.dashboard') }}">
                             {{ trans('menu.products.all') }}
                             <span class="badge badge-round badge-primary ms-1">250</span>
                         </a>
                     </li>
                     <li>
-                        <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
+                        <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.dashboard') }}">
                             {{ trans('menu.products.in stock') }}
                             <span class="badge badge-round badge-success ms-1">200</span>
                         </a>
                     </li>
                     <li>
-                        <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
+                        <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.dashboard') }}">
                             {{ trans('menu.products.out of stock') }}
                             <span class="badge badge-round badge-danger ms-1">50</span>
                         </a>
@@ -115,13 +115,13 @@
                 </a>
                 <ul class="px-0">
                     <li>
-                        <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.variant-keys.index') }}">
+                        <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.variant-keys.index') }}">
                             {{ trans('menu.variant configurations.variant config keys') }}
                             <span class="badge badge-round badge-primary ms-1">20</span>
                         </a>
                     </li>
                     <li>
-                        <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.variants-configurations.index') }}">
+                        <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.variants-configurations.index') }}">
                             {{ trans('menu.variant configurations.variant config') }}
                             <span class="badge badge-round badge-primary ms-1">10</span>
                         </a>
@@ -139,19 +139,19 @@
             </a>
             <ul class="px-0">
                 <li>
-                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
+                    <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.product reviews.all') }}
                         <span class="badge badge-round badge-primary ms-1">150</span>
                     </a>
                 </li>
                 <li>
-                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
+                    <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.product reviews.accepted') }}
                         <span class="badge badge-round badge-success ms-1">120</span>
                     </a>
                 </li>
                 <li>
-                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
+                    <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.product reviews.rejected') }}
                         <span class="badge badge-round badge-danger ms-1">30</span>
                     </a>
@@ -171,7 +171,7 @@
             <ul class="px-0">
                 @can('taxes.index')
                 <li>
-                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.taxes.index') }}">
+                    <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.taxes.index') }}">
                         {{ trans('menu.taxes.all') }}
                         <span class="badge badge-round badge-info ms-1">12</span>
                     </a>
@@ -196,7 +196,7 @@
             <ul class="px-0">
                 @can('offers.index')
                 <li>
-                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
+                    <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.offers.all') }}
                         <span class="badge badge-round badge-warning ms-1">8</span>
                     </a>
@@ -205,7 +205,7 @@
 
                 @can('offers.create')
                 <li>
-                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.dashboard') }}">
+                    <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.offers.create') }}
                     </a>
                 </li>
@@ -217,7 +217,7 @@
         @can('brands.index')
             <li>
                 <a href="{{ route('admin.brands.index') }}">
-                    <span class="d-flex align-items-center justify-content-between w-100">
+                    <span class="d-flex align-items-center justify-content-between fw-bold w-100">
                         <span class="d-flex align-items-center">
                             <span class="nav-icon uil uil-ticket"></span>
                             <span class="menu-text">{{ trans('menu.brands.title') }}</span>
@@ -231,7 +231,7 @@
         @can('promocodes.view')
         <li>
             <a href="{{ route('admin.dashboard') }}">
-                <span class="d-flex align-items-center justify-content-between w-100">
+                <span class="d-flex align-items-center justify-content-between fw-bold w-100">
                     <span class="d-flex align-items-center">
                         <span class="nav-icon uil uil-ticket"></span>
                         <span class="menu-text">{{ trans('menu.promocodes.title') }}</span>
@@ -255,7 +255,7 @@
             <ul class="px-0">
                 @can('roles.index')
                 <li>
-                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.admin-management.roles.index') }}">
+                    <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.admin-management.roles.index') }}">
                         {{ trans('menu.admin managment.roles managment') }}
                     </a>
                 </li>
@@ -263,7 +263,7 @@
 
                 @can('admins.index')
                 <li>
-                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.admin-management.admins.index') }}">
+                    <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.admin-management.admins.index') }}">
                         {{ trans('menu.admin managment.admin managment') }}
                     </a>
                 </li>
@@ -284,7 +284,7 @@
             <ul class="px-0">
                 @can('vendors.index')
                 <li>
-                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.vendors.index') }}">
+                    <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.vendors.index') }}">
                         {{ trans('menu.vendors.all') }}
                         <span class="badge badge-round badge-success ms-1">50</span>
                     </a>
@@ -293,7 +293,7 @@
 
                 @can('vendors.create')
                 <li>
-                    <a class="d-flex align-items-center justify-content-between" href="{{ route('admin.vendors.create') }}">
+                    <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.vendors.create') }}">
                         {{ trans('menu.vendors.create') }}
                     </a>
                 </li>
@@ -312,21 +312,21 @@
             </a>
             <ul class="px-0">
                 <li>
-                    <a class="d-flex align-items-center justify-content-between"
+                    <a class="d-flex align-items-center justify-content-between fw-bold"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.become a vendor requests.new') }}
                         <span class="badge badge-round badge-primary ms-1">50</span>
                     </a>
                 </li>
                 <li>
-                    <a class="d-flex align-items-center justify-content-between"
+                    <a class="d-flex align-items-center justify-content-between fw-bold"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.become a vendor requests.accepted') }}
                         <span class="badge badge-round badge-success ms-1">50</span>
                     </a>
                 </li>
                 <li>
-                    <a class="d-flex align-items-center justify-content-between"
+                    <a class="d-flex align-items-center justify-content-between fw-bold"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.become a vendor requests.rejected') }}
                         <span class="badge badge-round badge-danger ms-1">50</span>
@@ -348,35 +348,35 @@
             </a>
             <ul class="px-0">
                 <li class="l_sidebar">
-                    <a class="d-flex align-items-center justify-content-between"
+                    <a class="d-flex align-items-center justify-content-between fw-bold"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.orders.new') }}
                         <span class="badge badge-round badge-success ms-1">50</span>
                     </a>
                 </li>
                 <li class="l_sidebar">
-                    <a class="d-flex align-items-center justify-content-between"
+                    <a class="d-flex align-items-center justify-content-between fw-bold"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.orders.inprogress') }}
                         <span class="badge badge-round badge-success ms-1">50</span>
                     </a>
                 </li>
                 <li class="l_sidebar">
-                    <a class="d-flex align-items-center justify-content-between"
+                    <a class="d-flex align-items-center justify-content-between fw-bold"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.orders.delivered') }}
                         <span class="badge badge-round badge-success ms-1">50</span>
                     </a>
                 </li>
                 <li class="l_sidebar">
-                    <a class="d-flex align-items-center justify-content-between"
+                    <a class="d-flex align-items-center justify-content-between fw-bold"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.orders.canceled') }}
                         <span class="badge badge-round badge-success ms-1">50</span>
                     </a>
                 </li>
                 <li class="l_sidebar">
-                    <a class="d-flex align-items-center justify-content-between"
+                    <a class="d-flex align-items-center justify-content-between fw-bold"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.orders.refunded') }}
                         <span class="badge badge-success badge-round ms-1">50</span>
@@ -389,7 +389,7 @@
         @can('order_stages.index')
         <li>
             <a href="{{ route('admin.dashboard') }}">
-                <span class="d-flex align-items-center justify-content-between w-100">
+                <span class="d-flex align-items-center justify-content-between fw-bold w-100">
                     <span class="d-flex align-items-center">
                         <span class="nav-icon uil uil-process"></span>
                         <span class="menu-text">{{ trans('menu.orders.order stages') }}</span>
@@ -403,7 +403,7 @@
         @can('shipping_methods.index')
         <li>
             <a href="{{ route('admin.dashboard') }}">
-                <span class="d-flex align-items-center justify-content-between w-100">
+                <span class="d-flex align-items-center justify-content-between fw-bold w-100">
                     <span class="d-flex align-items-center">
                         <span class="nav-icon uil uil-truck"></span>
                         <span class="menu-text">{{ trans('menu.orders.shipping methods') }}</span>
@@ -427,14 +427,14 @@
             </a>
             <ul class="px-0">
                 <li>
-                    <a class="d-flex align-items-center justify-content-between"
+                    <a class="d-flex align-items-center justify-content-between fw-bold"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.point managment.title') }}
                         {{-- <span class="badge badge-round badge-success ms-1">50</span> --}}
                     </a>
                 </li>
                 <li>
-                    <a class="d-flex align-items-center justify-content-between"
+                    <a class="d-flex align-items-center justify-content-between fw-bold"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.point managment.users points') }}
                         {{-- <span class="badge badge-round badge-success ms-1">50</span> --}}
@@ -454,14 +454,14 @@
             </a>
             <ul class="px-0">
                 <li>
-                    <a class="d-flex align-items-center justify-content-between"
+                    <a class="d-flex align-items-center justify-content-between fw-bold"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.advertisements.title') }}
                         <span class="badge badge-round badge-success ms-1">50</span>
                     </a>
                 </li>
                 <li>
-                    <a class="d-flex align-items-center justify-content-between"
+                    <a class="d-flex align-items-center justify-content-between fw-bold"
                         href="{{ route('admin.dashboard') }}">
                         {{ trans('menu.advertisements.positions') }}
                         <span class="badge badge-round badge-success ms-1">50</span>
@@ -615,7 +615,7 @@
             <ul class="px-0">
                 @can('area.country.index')
                 <li>
-                    <a class="d-flex align-items-center justify-content-between"
+                    <a class="d-flex align-items-center justify-content-between fw-bold"
                         href="{{ route('admin.area-settings.countries.index') }}">
                         {{ trans('menu.area settings.country') }}
                         <span class="badge badge-round badge-success ms-1">15</span>
@@ -625,7 +625,7 @@
 
                 @can('area.city.index')
                 <li>
-                    <a class="d-flex align-items-center justify-content-between"
+                    <a class="d-flex align-items-center justify-content-between fw-bold"
                         href="{{ route('admin.area-settings.cities.index') }}">
                         {{ trans('menu.area settings.city') }}
                         <span class="badge badge-round badge-info ms-1">120</span>
@@ -635,7 +635,7 @@
 
                 @can('area.region.index')
                 <li>
-                    <a class="d-flex align-items-center justify-content-between"
+                    <a class="d-flex align-items-center justify-content-between fw-bold"
                         href="{{ route('admin.area-settings.regions.index') }}">
                         {{ trans('menu.area settings.region') }}
                         <span class="badge badge-round badge-warning ms-1">45</span>
@@ -645,7 +645,7 @@
 
                 @can('area.subregion.index')
                 <li>
-                    <a class="d-flex align-items-center justify-content-between"
+                    <a class="d-flex align-items-center justify-content-between fw-bold"
                         href="{{ route('admin.area-settings.subregions.index') }}">
                         {{ trans('menu.area settings.subregion') }}
                         <span class="badge badge-round badge-secondary ms-1">80</span>
@@ -687,7 +687,7 @@
 
                 @can('settings.messages.view')
                 <li>
-                    <a class="d-flex align-items-center justify-content-between"
+                    <a class="d-flex align-items-center justify-content-between fw-bold"
                         href="{{ route('admin.dashboard') }}">
                         <span class="d-flex align-items-center">
                             <span class="nav-icon uil uil-envelope"></span>
@@ -704,7 +704,7 @@
         @can('system.currency.index')
         <li>
             <a href="{{ route('admin.system-settings.currencies.index') }}">
-                <span class="d-flex align-items-center justify-content-between w-100">
+                <span class="d-flex align-items-center justify-content-between fw-bold w-100">
                     <span class="d-flex align-items-center">
                         <span class="nav-icon uil uil-dollar-alt"></span>
                         <span class="menu-text">{{ trans('menu.currencies.title') }}</span>

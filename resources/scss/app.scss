@@ -19,6 +19,18 @@
   }
 }
 
+/* Menu text styling - make all menu text bold */
+.menu-text,
+.nav-link,
+.sidebar-menu .nav-link,
+.navbar-nav .nav-link,
+.dropdown-menu .dropdown-item,
+.menu-item,
+.sidebar-item,
+.nav-item .nav-link {
+  font-weight: bold !important;
+}
+
 body,
 .h1,
 .h2,
@@ -43,6 +55,10 @@ h6 {
         transform: translateX(0);
         opacity: 1;
     }
+}
+
+.userDatatable-title {
+    font-weight: bold;
 }
 
 @keyframes slideOutRight {

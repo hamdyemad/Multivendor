@@ -8,6 +8,7 @@ use Modules\CategoryManagment\app\Services\DepartmentService;
 use App\Services\LanguageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Modules\CategoryManagment\app\Http\Resources\ActivityResource;
 use Modules\CategoryManagment\app\Services\ActivityService;
 use Modules\CategoryManagment\app\Actions\DepartmentAction;
@@ -47,6 +48,11 @@ class DepartmentController extends Controller
             'created_date_from' => $request->get('created_date_from'),
             'created_date_to' => $request->get('created_date_to'),
         ];
+
+        Log::info('Department Controller - DataTable Request', [
+            'all_params' => $request->all(),
+            'processed_data' => $data
+        ]);
 
         try {
             $response = $this->departmentAction->getDataTable($data);

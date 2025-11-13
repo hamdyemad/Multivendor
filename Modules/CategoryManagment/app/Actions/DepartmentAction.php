@@ -47,23 +47,45 @@ class DepartmentAction {
 
             // Determine sort column
             $orderBy = null;
+            
+            Log::info('Department Action - Sorting Debug', [
+                'orderColumnIndex' => $orderColumnIndex,
+                'orderDirection' => $orderDirection,
+                'languagesCount' => count($languages),
+                'languages' => $languages->pluck('name', 'id')->toArray()
+            ]);
+            
             if ($orderColumnIndex == 0) {
                 $orderBy = 'id';
+                Log::info('Department Action - Sorting by ID');
             } elseif ($orderColumnIndex >= 2 && $orderColumnIndex <= count($languages) + 1) {
                 // Sorting by translated name column (after ID and Image columns)
                 $languageIndex = $orderColumnIndex - 2;
                 $selectedLanguage = $languages->values()->get($languageIndex);
+                Log::info('Department Action - Translation Sort Attempt', [
+                    'languageIndex' => $languageIndex,
+                    'selectedLanguage' => $selectedLanguage ? $selectedLanguage->toArray() : null
+                ]);
                 if ($selectedLanguage) {
                     $orderBy = [
                         'lang_id' => $selectedLanguage->id,
                         'key' => 'name'
                     ];
+                    Log::info('Department Action - Translation Sort Applied', [
+                        'lang_id' => $selectedLanguage->id,
+                        'language_name' => $selectedLanguage->name,
+                        'language_code' => $selectedLanguage->code
+                    ]);
                 }
             } elseif ($orderColumnIndex == count($languages) + 2) {
                 $orderBy = 'active';
+                Log::info('Department Action - Sorting by Active');
             } elseif ($orderColumnIndex == count($languages) + 3) {
                 $orderBy = 'created_at';
+                Log::info('Department Action - Sorting by Created At');
             }
+            
+            Log::info('Department Action - Final Sort Config', ['orderBy' => $orderBy]);
 
             // Get departments with pagination and sorting
             $departmentsQuery = $this->departmentService->getDepartmentsQuery($filters, $orderBy, $orderDirection);

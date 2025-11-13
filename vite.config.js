@@ -16,7 +16,7 @@ export default defineConfig({
         'Modules/Vendor/resources/assets/js/vendor-form.js',
 
         // Product forms
-        'Modules/CatalogManagement/resources/assets/sass/product-form.scss',
+        'Modules/CatalogManagement/resources/assets/scss/product-form.scss',
         'Modules/CatalogManagement/resources/css/tree-view.css',
         'Modules/CatalogManagement/resources/assets/js/product-form.js',
 

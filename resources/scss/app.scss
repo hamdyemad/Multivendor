@@ -6,6 +6,19 @@
 
 /* Bootstrap-styled pagination - smaller and cleaner */
 
+.table > tbody > tr:nth-of-type(odd) {
+  --bs-table-accent-bg: var(--bs-table-striped-bg);
+  color: var(--bs-table-striped-color);
+  &:hover {
+    background-color: #e4e4e4;
+  }
+}
+.table > tbody > tr {
+  &:hover {
+    background-color: #e4e4e4;
+  }
+}
+
 body,
 .h1,
 .h2,

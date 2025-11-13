@@ -417,6 +417,12 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
+    // Setup CSRF token for all AJAX requests
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    });
     // Set delete modal data when delete button is clicked
     $(document).on('click', '.delete-document-btn', function() {
         const documentId = $(this).data('document-id');
@@ -436,46 +442,60 @@ $(document).ready(function() {
         const documentName = $(this).data('document-name');
         const confirmBtn = $(this);
         
+        // Debug logging
+        console.log('Deleting document:', documentId, documentName);
+        
         // Disable button and show loading
         confirmBtn.prop('disabled', true);
-        confirmBtn.html('<i class="uil uil-spinner-alt spin me-1"></i>{{ trans('common.deleting') ?? 'Deleting...' }}');
+        confirmBtn.html('<i class="uil uil-spinner-alt spin me-1"></i>{{ __('common.deleting') }}');
         
         // Send AJAX request
         $.ajax({
             url: `{{ route('admin.vendors.documents.destroy', ['vendor' => $vendor->id, 'document' => '__DOCUMENT_ID__']) }}`.replace('__DOCUMENT_ID__', documentId),
             type: 'DELETE',
+            data: {
+                _token: '{{ csrf_token() }}'
+            },
             headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             success: function(response) {
+                console.log('Delete response:', response);
+                
                 // Hide the modal
                 $('#modal-delete-document').modal('hide');
                 
                 if (response.success) {
+                    console.log('Document deleted successfully, removing from DOM');
                     // Find and remove the document row with animation
                     $(`.delete-document-btn[data-document-id="${documentId}"]`).closest('.col-md-6').fadeOut(300, function() {
                         $(this).remove();
                         
                         // Check if no documents left
                         if ($('.delete-document-btn').length === 0) {
+                            console.log('No documents left, reloading page');
                             location.reload(); // Reload to hide the documents section
                         }
                     });
+                } else {
+                    console.error('Delete failed:', response);
                 }
                 
                 // Reset button
                 confirmBtn.prop('disabled', false);
-                confirmBtn.html('{{ trans('common.delete') ?? 'Delete' }}');
+                confirmBtn.html('{{ __('common.delete') }}');
             },
             error: function(xhr) {
-                console.error('Error deleting document:', xhr);
+                console.error('AJAX Error deleting document:', xhr);
+                console.error('Status:', xhr.status);
+                console.error('Response:', xhr.responseText);
                 
                 // Hide the modal
                 $('#modal-delete-document').modal('hide');
                 
                 // Reset button
                 confirmBtn.prop('disabled', false);
-                confirmBtn.html('{{ trans('common.delete') ?? 'Delete' }}');
+                confirmBtn.html('{{ __('common.delete') }}');
             }
         });
     });

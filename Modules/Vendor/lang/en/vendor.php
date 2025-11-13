@@ -133,7 +133,7 @@ return [
     'invalid_phone' => 'Invalid phone number',
 
     // Additional Form Fields
-    'name' => 'Name',
+    'name' => 'Vendor Name',
     'description' => 'Description',
     'country' => 'Country',
     'select_country' => 'Select Country',
@@ -208,7 +208,7 @@ return [
     'document_file_required' => 'Document file is required.',
     'document_file_types' => 'Document must be a file of type: pdf, doc, docx, jpg, jpeg, png.',
     'document_max_size' => 'Document size must not exceed 5MB.',
-    
+
     // Money Transactions
     'money_transactions' => 'Money Transactions',
     'total_vendors_balance' => 'Total Vendors Balance',

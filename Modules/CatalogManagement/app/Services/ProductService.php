@@ -20,7 +20,7 @@ class ProductService
         return $this->productInterface->getQuery($filters);
     }
 
-    public function getProductById(int $id)
+    public function getProductById($id)
     {
         return $this->productInterface->getProductById($id);
     }

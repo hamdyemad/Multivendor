@@ -52,15 +52,23 @@ class DepartmentAction {
                 'orderColumnIndex' => $orderColumnIndex,
                 'orderDirection' => $orderDirection,
                 'languagesCount' => count($languages),
-                'languages' => $languages->pluck('name', 'id')->toArray()
+                'languages' => $languages->pluck('name', 'id')->toArray(),
+                'columnMapping' => [
+                    '0' => 'ID',
+                    '1' => 'First Language (' . ($languages->first() ? $languages->first()->name : 'N/A') . ')',
+                    '2' => 'Second Language (' . ($languages->count() > 1 ? $languages->skip(1)->first()->name : 'N/A') . ')',
+                    (count($languages) + 1) => 'Active Status',
+                    (count($languages) + 2) => 'Created At',
+                    (count($languages) + 3) => 'Actions'
+                ]
             ]);
             
             if ($orderColumnIndex == 0) {
                 $orderBy = 'id';
                 Log::info('Department Action - Sorting by ID');
-            } elseif ($orderColumnIndex >= 2 && $orderColumnIndex <= count($languages) + 1) {
-                // Sorting by translated name column (after ID and Image columns)
-                $languageIndex = $orderColumnIndex - 2;
+            } elseif ($orderColumnIndex >= 1 && $orderColumnIndex <= count($languages)) {
+                // Sorting by translated name column (after ID column)
+                $languageIndex = $orderColumnIndex - 1;
                 $selectedLanguage = $languages->values()->get($languageIndex);
                 Log::info('Department Action - Translation Sort Attempt', [
                     'languageIndex' => $languageIndex,
@@ -77,10 +85,10 @@ class DepartmentAction {
                         'language_code' => $selectedLanguage->code
                     ]);
                 }
-            } elseif ($orderColumnIndex == count($languages) + 2) {
+            } elseif ($orderColumnIndex == count($languages) + 1) {
                 $orderBy = 'active';
                 Log::info('Department Action - Sorting by Active');
-            } elseif ($orderColumnIndex == count($languages) + 3) {
+            } elseif ($orderColumnIndex == count($languages) + 2) {
                 $orderBy = 'created_at';
                 Log::info('Department Action - Sorting by Created At');
             }

@@ -5,151 +5,7 @@
 @endsection
 
 @push('styles')
-<!-- Wizard styles are now loaded globally via app.scss -->
-<style>
-/* Additional wizard responsive fixes */
-.checkout-progress-indicator {
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-}
-
-.checkout-progress {
-    min-width: 600px; /* Minimum width to fit 5 steps */
-}
-
-@media (max-width: 1200px) {
-    .wizard-step-nav {
-        min-width: 100px !important;
-        padding: 12px 14px !important;
-    }
-    
-    .wizard-step-nav .step-label {
-        font-size: 11px !important;
-        max-width: 90px !important;
-    }
-}
-
-@media (max-width: 992px) {
-    .checkout-progress {
-        min-width: 550px;
-    }
-}
-
-@media (max-width: 768px) {
-    .checkout-progress {
-        min-width: 500px;
-    }
-}
-
-@media (max-width: 576px) {
-    .checkout-progress {
-        min-width: 420px;
-    }
-}
-
-/* Additional Images Styling - Match x-image-upload component */
-.additional-image-item .image-upload-wrapper {
-    position: relative;
-}
-
-.additional-image-item .image-preview-container {
-    position: relative;
-    width: 100%;
-    height: 180px;
-    border: 2px dashed #ddd;
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background: #f8f9fa;
-}
-
-.additional-image-item .image-preview-container:hover {
-    border-color: #0056B7;
-    background: #e7f3ff;
-}
-
-.additional-image-item .preview-image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    background: white;
-}
-
-.additional-image-item .image-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    color: #8c90a4;
-}
-
-.additional-image-item .image-placeholder i {
-    font-size: 36px;
-    margin-bottom: 8px;
-    color: #c4c4c4;
-}
-
-.additional-image-item .image-placeholder p {
-    margin: 0;
-    font-size: 12px;
-    font-weight: 500;
-}
-
-.additional-image-item .image-placeholder small {
-    color: #adb5bd;
-    font-size: 10px;
-}
-
-.additional-image-item .image-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.additional-image-item .image-preview-container:hover .image-overlay {
-    opacity: 1;
-}
-
-.additional-image-item .btn-change-image, 
-.additional-image-item .btn-remove-image {
-    background: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 11px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.additional-image-item .btn-change-image:hover {
-    background: #0056B7;
-    color: white;
-}
-
-.additional-image-item .btn-remove-image {
-    background: #ff4757;
-    color: white;
-}
-
-.additional-image-item .btn-remove-image:hover {
-    background: #e84118;
-}
-</style>
+@vite(['Modules/CatalogManagement/resources/assets/scss/product-form.scss'])
 @endpush
 
 @section('content')
@@ -166,7 +22,7 @@
 
     <div class="row">
         <div class="col-lg-12">
-            <div class="card">
+            <div class="card product-form">
                 <div class="card-header">
                     <h4 class="card-title">{{ isset($product) ? 'Edit Product' : 'Create Product' }}</h4>
                 </div>
@@ -179,17 +35,20 @@
                         'SEO & Images'
                     ]" :currentStep="1" />
 
+                    <!-- Validation Alerts Container -->
+                    <div id="validation-alerts-container" class="mb-3"></div>
+
                     <!-- Form -->
-                    <form id="productForm" method="POST" action="{{ isset($product) ? '#' : '#' }}" enctype="multipart/form-data" novalidate>
+                    <form id="productForm" method="POST" action="{{ isset($product) ? route('admin.products.update', $product->id) : route('admin.products.store') }}" enctype="multipart/form-data" novalidate onkeydown="return event.key != 'Enter';">
                         @csrf
                         @if(isset($product))
                             @method('PUT')
                         @endif
 
                         <!-- Step 1: Product Information -->
-                        <div class="wizard-step-content active" data-step="1" style="margin-top: 60px;">
+                        <div class="wizard-step-content active" data-step="1">
                             <!-- Card 1: Product Information -->
-                            <div class="card mb-4" style="margin-top: 20px;">
+                            <div class="card mb-4">
                                 <div class="card-body">
                                     <h5 class="mb-4">
                                         <i class="uil uil-info-circle"></i>
@@ -211,6 +70,7 @@
                                                     class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل عنوان المنتج' : 'Enter product title' }}"
                                                     {{ $language->rtl ? 'dir=rtl' : '' }}>
+                                                <div class="error-message text-danger" id="error-translations-{{ $language->id }}-title" style="display: none;"></div>
                                             </div>
                                         </div>
                                         @endforeach
@@ -219,19 +79,21 @@
                                             <div class="form-group">
                                                 <label for="sku" class="form-label">SKU <span class="text-danger">*</span></label>
                                                 <input type="text" name="sku" id="sku" class="form-control ih-medium ip-gray radius-xs b-light px-15" placeholder="Enter SKU">
+                                                <div class="error-message text-danger" id="error-sku" style="display: none;"></div>
                                             </div>
                                         </div>
 
                                         <div class="col-md-6 mb-3">
                                             <div class="form-group">
-                                                <label for="points" class="form-label">Points</label>
+                                                <label for="points" class="form-label">Points <span class="text-danger">*</span></label>
                                                 <input type="number" name="points" id="points" class="form-control ih-medium ip-gray radius-xs b-light px-15" min="0" value="0" placeholder="Enter points">
+                                                <div class="error-message text-danger" id="error-points" style="display: none;"></div>
                                             </div>
                                         </div>
 
                                         <div class="col-md-6 mb-3">
                                             <div class="form-group">
-                                                <label for="status" class="form-label d-block">Status</label>
+                                                <label class="form-label d-block">Status</label>
                                                 <div class="form-check form-switch form-switch-lg">
                                                     <input class="form-check-input" type="checkbox" role="switch" id="status" name="status" value="1" checked>
                                                 </div>
@@ -240,7 +102,7 @@
 
                                         <div class="col-md-6 mb-3">
                                             <div class="form-group">
-                                                <label for="featured" class="form-label d-block">Featured Product</label>
+                                                <label class="form-label d-block">Featured Product</label>
                                                 <div class="form-check form-switch form-switch-lg">
                                                     <input class="form-check-input" type="checkbox" role="switch" id="featured" name="featured" value="1">
                                                 </div>
@@ -262,23 +124,24 @@
                                         <div class="col-md-6 mb-3">
                                             <div class="form-group">
                                                 <label for="vendor_id" class="form-label">
-                                                    Vendor 
+                                                    Vendor
                                                     @if(auth()->user()->user_type_id == App\Models\UserType::SUPER_ADMIN_TYPE || auth()->user()->user_type_id == App\Models\UserType::ADMIN_TYPE)
                                                         <span class="text-danger">*</span>
                                                     @endif
                                                 </label>
-                                                <select name="vendor_id" id="vendor_id" class="form-control select2" 
+                                                <select name="vendor_id" id="vendor_id" class="form-control select2"
                                                     @if(auth()->user()->user_type_id == App\Models\UserType::VENDOR_TYPE && count($vendors) == 1) readonly @endif>
                                                     @if(auth()->user()->user_type_id == App\Models\UserType::SUPER_ADMIN_TYPE || auth()->user()->user_type_id == App\Models\UserType::ADMIN_TYPE)
                                                         <option value="">Select Vendor</option>
                                                     @endif
                                                     @foreach($vendors as $vendor)
-                                                        <option value="{{ $vendor['id'] }}" 
+                                                        <option value="{{ $vendor['id'] }}"
                                                             @if(auth()->user()->user_type_id == App\Models\UserType::VENDOR_TYPE || (isset($product) && $product->vendor_id == $vendor['id'])) selected @endif>
                                                             {{ $vendor['name'] }}
                                                         </option>
                                                     @endforeach
                                                 </select>
+                                                <div class="error-message text-danger" id="error-vendor_id" style="display: none;"></div>
                                             </div>
                                         </div>
                                         @endif
@@ -350,8 +213,9 @@
 
                                         <div class="col-md-6 mb-3">
                                             <div class="form-group">
-                                                <label for="max_per_order" class="form-label">Max Per Order</label>
+                                                <label for="max_per_order" class="form-label">Max Per Order <span class="text-danger">*</span></label>
                                                 <input type="number" name="max_per_order" id="max_per_order" class="form-control ih-medium ip-gray radius-xs b-light px-15" min="1" placeholder="Enter max per order">
+                                                <div class="error-message text-danger" id="error-max_per_order" style="display: none;"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -376,11 +240,18 @@
                                                         الوسوم ({{ $language->name }})
                                                     @endif
                                                 </label>
-                                                <input type="text" name="translations[{{ $language->id }}][tags]" id="tags_{{ $language->code }}"
-                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                    placeholder="{{ $language->code == 'ar' ? 'أدخل الوسوم مفصولة بفواصل' : 'Enter tags separated by commas' }}"
-                                                    {{ $language->rtl ? 'dir=rtl' : '' }}>
-                                                <small class="text-muted">Separate tags with commas</small>
+                                                <x-tags-input
+                                                    name="translations[{{ $language->id }}][tags]"
+                                                    :value="isset($product) ? $product->getTagsString($language->code) : old('translations.'.$language->id.'.tags')"
+                                                    placeholder="{{ $language->code == 'ar' ? 'اكتب وسم واضغط انتر' : 'Type a tag and press Enter...' }}"
+                                                    rtl-placeholder="اكتب وسم واضغط انتر"
+                                                    language="{{ $language->code }}"
+                                                    :allow-duplicates="true"
+                                                    theme="primary"
+                                                    size="md"
+                                                    id="tags_{{ $language->code }}"
+                                                />
+                                                <small class="text-muted w-100 d-block" @if($language->code == 'ar') dir="rtl" style="text-align: right;" @endif>{{ $language->code == 'ar' ? 'اضغط انتر أو فاصلة لإنشاء وسم' : 'Press Enter or comma to create a tag' }}</small>
                                             </div>
                                         </div>
                                         @endforeach
@@ -390,9 +261,9 @@
                         </div>
 
                         <!-- Step 2: Product Details -->
-                        <div class="wizard-step-content" data-step="2" style="display: none; margin-top: 60px;">
+                        <div class="wizard-step-content" data-step="2" style="display: none;">
                             <!-- Card 1: Main Descriptions -->
-                            <div class="card mb-4" style="margin-top: 20px;">
+                            <div class="card mb-4">
                                 <div class="card-body">
                                     <h5 class="mb-4">
                                         <i class="uil uil-file-alt"></i>
@@ -415,6 +286,7 @@
                                                     rows="6"
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل تفاصيل المنتج' : 'Enter product details' }}"
                                                     {{ $language->rtl ? 'dir=rtl' : '' }}></textarea>
+                                                <div class="error-message text-danger" id="error-translations-{{ $language->id }}-details" style="display: none;"></div>
                                             </div>
                                         </div>
                                         @endforeach
@@ -445,6 +317,7 @@
                                                     rows="4"
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل الملخص' : 'Enter summary' }}"
                                                     {{ $language->rtl ? 'dir=rtl' : '' }}></textarea>
+                                                <div class="error-message text-danger" id="error-translations-{{ $language->id }}-summary" style="display: none;"></div>
                                             </div>
                                         </div>
                                         @endforeach
@@ -464,6 +337,7 @@
                                                     rows="4"
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل المميزات' : 'Enter features' }}"
                                                     {{ $language->rtl ? 'dir=rtl' : '' }}></textarea>
+                                                <div class="error-message text-danger" id="error-translations-{{ $language->id }}-features" style="display: none;"></div>
                                             </div>
                                         </div>
                                         @endforeach
@@ -483,6 +357,7 @@
                                                     rows="4"
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل التعليمات' : 'Enter instructions' }}"
                                                     {{ $language->rtl ? 'dir=rtl' : '' }}></textarea>
+                                                <div class="error-message text-danger" id="error-translations-{{ $language->id }}-instructions" style="display: none;"></div>
                                             </div>
                                         </div>
                                         @endforeach
@@ -502,6 +377,7 @@
                                                     rows="4"
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل وصف إضافي' : 'Enter extra description' }}"
                                                     {{ $language->rtl ? 'dir=rtl' : '' }}></textarea>
+                                                <div class="error-message text-danger" id="error-translations-{{ $language->id }}-extra_description" style="display: none;"></div>
                                             </div>
                                         </div>
                                         @endforeach
@@ -532,6 +408,7 @@
                                                     rows="3"
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل المواد' : 'Enter material' }}"
                                                     {{ $language->rtl ? 'dir=rtl' : '' }}></textarea>
+                                                <div class="error-message text-danger" id="error-translations-{{ $language->id }}-material" style="display: none;"></div>
                                             </div>
                                         </div>
                                         @endforeach
@@ -549,9 +426,9 @@
                         </div>
 
                         <!-- Step 3: Pricing & Inventory -->
-                        <div class="wizard-step-content" data-step="3" style="display: none; margin-top: 60px;">
+                        <div class="wizard-step-content" data-step="3" style="display: none;">
                             <!-- Configuration Type -->
-                            <div class="card mb-4" style="margin-top: 20px;">
+                            <div class="card mb-4">
                                 <div class="card-body">
                                     <h5 class="mb-4">
                                         <i class="uil uil-setting"></i>
@@ -566,6 +443,7 @@
                                                     <option value="simple">Simple Product (No Variants)</option>
                                                     <option value="variants">With Variants</option>
                                                 </select>
+                                                <div class="error-message text-danger" id="error-configuration_type" style="display: none;"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -703,9 +581,9 @@
                         </div>
 
                         <!-- Step 4: SEO & Images -->
-                        <div class="wizard-step-content" data-step="4" style="display: none; margin-top: 60px;">
+                        <div class="wizard-step-content" data-step="4" style="display: none;">
                             <!-- SEO Information -->
-                            <div class="card mb-4" style="margin-top: 20px;">
+                            <div class="card mb-4">
                                 <div class="card-body">
                                     <h5 class="mb-4">
                                         <i class="uil uil-search"></i>
@@ -727,6 +605,7 @@
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل العنوان الوصفي' : 'Enter meta title' }}"
                                                     maxlength="60"
                                                     {{ $language->rtl ? 'dir=rtl' : '' }}>
+                                                <div class="error-message text-danger" id="error-translations-{{ $language->id }}-meta_title" style="display: none;"></div>
                                                 <small class="text-muted">Recommended: 50-60 characters</small>
                                             </div>
                                         </div>
@@ -748,6 +627,7 @@
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل الوصف الوصفي' : 'Enter meta description' }}"
                                                     maxlength="160"
                                                     {{ $language->rtl ? 'dir=rtl' : '' }}></textarea>
+                                                <div class="error-message text-danger" id="error-translations-{{ $language->id }}-meta_description" style="display: none;"></div>
                                                 <small class="text-muted">Recommended: 150-160 characters</small>
                                             </div>
                                         </div>
@@ -812,7 +692,7 @@
                                             <i class="uil uil-plus"></i> Add Image
                                         </button>
                                     </h5>
-                                    
+
                                     <!-- Empty state message -->
                                     <div id="additional-images-empty-state" class="text-center py-4">
                                         <i class="uil uil-images text-muted" style="font-size: 48px;"></i>
@@ -829,11 +709,11 @@
 
 
                         <!-- Navigation Buttons -->
-                        <div class="d-flex justify-content-between mt-4">
+                        <div class="d-flex justify-content-between wizard-navigation">
                             <button type="button" id="prevBtn" class="btn btn-light btn-squared" style="display: none;">
                                 <i class="uil uil-arrow-left"></i> Previous
                             </button>
-                            <div class="d-flex justify-content-end gap-2">
+                            <div class="d-flex justify-content-end gap-2 w-100">
                                 <a href="#" class="btn btn-light btn-squared">
                                     <i class="uil uil-times"></i> Cancel
                                 </a>
@@ -854,8 +734,8 @@
 
 {{-- Loading Overlay Component --}}
 <x-loading-overlay
-    loadingText="Creating Product"
-    loadingSubtext="Please wait..."
+    loadingText="{{ isset($product) ? trans('catalog::product.updating_product') : trans('catalog::product.creating_product') }}"
+    loadingSubtext="{{ trans('catalog::product.please_wait') }}"
 />
 
 @endsection
@@ -864,18 +744,32 @@
 <!-- Product Form Configuration (Data Only) -->
 <script>
 window.productFormConfig = {
-    categoriesRoute: '/api/categories',
-    subCategoriesRoute: '/api/sub-categories',
-    indexRoute: '/admin/products',
+    selectPlaceholder: '{{ trans("catalog::product.select_option") ?? "Select..." }}',
+    uploadText: '{{ trans("catalog::product.click_to_upload_image") ?? "Click to upload image" }}',
+    notProvided: '{{ trans("catalog::product.not_provided") ?? "Not provided" }}',
+    noImageUploaded: '{{ trans("catalog::product.no_image_uploaded") ?? "No image uploaded" }}',
+    productCreated: '{{ trans("catalog::product.product_created_successfully") ?? "Product created successfully!" }}',
+    productUpdated: '{{ trans("catalog::product.product_updated_successfully") ?? "Product updated successfully!" }}',
+    creatingProduct: '{{ trans("catalog::product.creating_product") ?? "Creating product..." }}',
+    updatingProduct: '{{ trans("catalog::product.updating_product") ?? "Updating product..." }}',
+    redirecting: '{{ trans("catalog::product.redirecting") ?? "Redirecting..." }}',
+    errorOccurred: '{{ trans("catalog::product.error_occurred") ?? "An error occurred. Please try again." }}',
+    validationError: '{{ trans("catalog::product.validation_error") ?? "Validation Error" }}',
+    errorLabel: '{{ trans("catalog::product.error") ?? "Error" }}',
+    indexRoute: '{{ route("admin.products.index") }}',
+    categoriesRoute: '{{ url("/api/categories") }}',
+    subCategoriesRoute: '{{ url("/api/sub-categories") }}',
     languages: [
         @foreach($languages as $language)
-        {id: {{ $language->id }}, code: '{{ $language->code }}', name: '{{ $language->name }}'}{{ !$loop->last ? ',' : '' }}
+        {
+            id: {{ $language->id }},
+            code: '{{ $language->code }}',
+            name: '{{ $language->name }}'
+        }{{ !$loop->last ? ',' : '' }}
         @endforeach
     ]
 };
 </script>
-
-
 
 <!-- Product Form External JavaScript (All Logic) -->
 @vite(['Modules/CatalogManagement/resources/assets/js/product-form.js'])

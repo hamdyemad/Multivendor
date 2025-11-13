@@ -9,7 +9,7 @@ return [
     'region_details' => 'Region Details',
 
     // Form Fields
-    'name' => 'Name',
+    'name' => 'Region Name',
     'name_english' => 'Name',
     'name_arabic' => 'Name',
     'country' => 'Country',

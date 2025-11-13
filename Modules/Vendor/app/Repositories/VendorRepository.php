@@ -31,7 +31,7 @@ class VendorRepository implements VendorInterface
     {
         $query = Vendor::with(['user', 'country', 'country.translations', 'activities', 'translations', 'commission'])
         ->filter($filters);
-        return $query->latest()->paginate($perPage);
+        return ($perPage == 0) ?  $query->get() : $query->latest()->paginate($perPage);
     }
 
     public function getQuery(array $filters = [])

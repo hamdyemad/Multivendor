@@ -118,7 +118,7 @@ class ProductController extends Controller
             $vendors = $vendorsData->map(function($vendor) {
                 return [
                     'id' => $vendor->id,
-                    'name' => $vendor->getTranslation('name', 'Vendor #' . $vendor->id)
+                    'name' => $vendor->getTranslation('name', app()->getLocale())
                 ];
             })->toArray();
         } elseif ($userType === UserType::VENDOR_TYPE) {
@@ -127,11 +127,10 @@ class ProductController extends Controller
             if ($vendor) {
                 $vendors = [[
                     'id' => $vendor->id,
-                    'name' => $vendor->getTranslation('name', 'Vendor #' . $vendor->id)
+                    'name' => $vendor->getTranslation('name', app()->getLocale())
                 ]];
             }
         }
-
         return view('catalogmanagement::product.form', compact('languages', 'brands', 'departments', 'taxes', 'regions', 'vendors'));
     }
 

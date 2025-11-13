@@ -71,7 +71,7 @@ $(document).ready(function() {
 
     // Initialize wizard on page load
     showStep(currentStep);
-    
+
     // Ensure buttons are in correct initial state
     $('#prevBtn').hide(); // Should be hidden on step 1
     $('#nextBtn').show(); // Should be visible on step 1
@@ -81,10 +81,10 @@ $(document).ready(function() {
     protectRequiredAsterisks();
 
     // Add at least one document box on page load (only for new vendors)
-    const isEditMode = $('input[name="_method"][value="PUT"]').length > 0 || 
+    const isEditMode = $('input[name="_method"][value="PUT"]').length > 0 ||
                       $('.image-preview-container img').length > 0 ||
                       $('input[name="translations"]').filter(function() { return $(this).val() !== ''; }).length > 0;
-    
+
     if (!isEditMode) {
         addDocumentRow();
     }
@@ -229,9 +229,6 @@ $(document).ready(function() {
 
     // Re-protect asterisks on any form interaction
     protectAsterisksOnInteraction();
-
-    // Initialize tags input for meta keywords
-    initializeTagsInput();
 });
 
 /**
@@ -312,7 +309,7 @@ function preventEnterSubmission() {
             if (e.target.tagName.toLowerCase() === 'textarea') {
                 return true;
             }
-            
+
             // Prevent form submission for all other inputs
             e.preventDefault();
             console.log('🚫 Enter key form submission prevented');
@@ -327,7 +324,7 @@ function preventEnterSubmission() {
             if (e.target.tagName.toLowerCase() === 'textarea') {
                 return true;
             }
-            
+
             // Prevent form submission
             e.preventDefault();
             return false;
@@ -343,21 +340,21 @@ function preventEnterSubmission() {
 function clearFieldError($field) {
     // Remove error classes from the field itself
     $field.removeClass('is-invalid border-danger');
-    
+
     // Remove error message associated with this field (but NOT asterisks in labels)
     $field.siblings('.error-message, .invalid-feedback').remove();
     $field.siblings('.text-danger:not(label .text-danger):not(.form-label .text-danger)').remove();
     $field.parent().find('.error-message, .invalid-feedback').remove();
     $field.parent().find('.text-danger:not(label .text-danger):not(.form-label .text-danger)').remove();
-    
+
     // For Select2, also clear error from the Select2 container
     if ($field.hasClass('select2') || $field.data('select2')) {
         $field.siblings('.select2-container').find('.select2-selection').removeClass('is-invalid border-danger');
     }
-    
+
     // Remove error from image preview containers
     $field.siblings('.image-preview-container').removeClass('is-invalid border-danger');
-    
+
     // Clear from form group (but preserve asterisks in labels)
     $field.closest('.form-group').find('.error-message, .invalid-feedback').remove();
     $field.closest('.form-group').find('.text-danger:not(label .text-danger):not(.form-label .text-danger)').remove();
@@ -559,7 +556,7 @@ function displayValidationErrors(errors) {
 
         const bracketField = convertDotToBracket(field);
         let fieldElement = $(`[name="${bracketField}"], [name="${bracketField}[]"], [name="${field}"], [name="${field}[]"]`).first();
-        
+
         // Special handling for document fields that might not be found due to dynamic indexing
         if (!fieldElement.length && field.includes('documents.')) {
             // Try to find document fields with partial matching
@@ -568,10 +565,10 @@ function displayValidationErrors(errors) {
                 const docIndex = fieldParts[1];
                 const langId = fieldParts[3];
                 const fieldName = fieldParts[4];
-                
+
                 // Try to find the field with a more flexible selector
                 fieldElement = $(`input[name*="documents[${docIndex}][translations][${langId}][${fieldName}]"]`).first();
-                
+
                 // If still not found, try any document field with the same language and field name
                 if (!fieldElement.length) {
                     fieldElement = $(`input[name*="[translations][${langId}][${fieldName}]"]`).first();
@@ -605,9 +602,9 @@ function displayValidationErrors(errors) {
         const isRtl = document.documentElement.dir === 'rtl' ||
                       document.documentElement.lang === 'ar' ||
                       $('html').attr('lang') === 'ar';
-        
+
         const alertHtml = `
-            <div class="alert alert-danger alert-dismissible fade show validation-errors-alert" role="alert" style="margin-bottom: 20px;">
+            <div class="alert alert-danger alert-dismissible fade show validation-errors-alert" role="alert">
                 <div class="d-flex align-items-start">
                     <i class="uil uil-exclamation-triangle me-2" style="font-size: 18px; margin-top: 2px;"></i>
                     <div class="flex-grow-1">
@@ -618,13 +615,24 @@ function displayValidationErrors(errors) {
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         `;
-        
+
         // Remove any existing validation error alerts
         $('.validation-errors-alert').remove();
-        
-        // Add the alert at the top of the form
-        $('.card').first().prepend(alertHtml);
-        
+
+        // Add the alert to the dedicated validation alerts container
+        const alertsContainer = $('#validation-alerts-container');
+        if (alertsContainer.length) {
+            alertsContainer.html(alertHtml);
+        } else {
+            // Fallback: add at the position where the static alert is in the HTML
+            const staticAlert = $('#validation-errors-alert');
+            if (staticAlert.length) {
+                staticAlert.replaceWith(alertHtml);
+            } else {
+                $('.card-body').prepend(alertHtml);
+            }
+        }
+
         // Scroll to the alert
         $('html, body').animate({
             scrollTop: $('.validation-errors-alert').offset().top - 100
@@ -653,10 +661,10 @@ function handleFormSubmission(e) {
     if (typeof LoadingOverlay !== 'undefined') {
         // Check if this is an edit operation
         const isEdit = $('input[name="_method"][value="PUT"]').length > 0;
-        const loadingMessage = isEdit ? 
-            (config.updatingVendor || 'Updating vendor...') : 
+        const loadingMessage = isEdit ?
+            (config.updatingVendor || 'Updating vendor...') :
             (config.creatingVendor || 'Creating vendor...');
-        
+
         // Show loading overlay with custom message
         LoadingOverlay.show({
             text: loadingMessage,
@@ -796,7 +804,7 @@ function validateCurrentStep(step) {
         }
 
         // Check if this is edit mode (has existing vendor data)
-        const isEditMode = $('input[name="_method"][value="PUT"]').length > 0 || 
+        const isEditMode = $('input[name="_method"][value="PUT"]').length > 0 ||
                           $('.image-preview-container img').length > 0 ||
                           $('input[name="translations"]').filter(function() { return $(this).val() !== ''; }).length > 0;
 
@@ -844,7 +852,7 @@ function validateCurrentStep(step) {
                       $('html').attr('lang') === 'ar';
 
         // Check if this is edit mode
-        const isEditMode = $('input[name="_method"][value="PUT"]').length > 0 || 
+        const isEditMode = $('input[name="_method"][value="PUT"]').length > 0 ||
                           $('.image-preview-container img').length > 0 ||
                           $('input[name="translations"]').filter(function() { return $(this).val() !== ''; }).length > 0;
 
@@ -861,15 +869,15 @@ function validateCurrentStep(step) {
             documentRows.each(function(index) {
                 const documentRow = $(this);
                 const documentIndex = documentRow.data('document-index');
-                
+
                 // Check if document names are provided for both English and Arabic
                 let hasEnglishName = false;
                 let hasArabicName = false;
-                
+
                 documentRow.find('input[name*="[name]"]').each(function() {
                     const inputName = $(this).attr('name');
                     const inputValue = $(this).val().trim();
-                    
+
                     if (inputName.includes('[1][name]') && inputValue !== '') { // English (ID: 1)
                         hasEnglishName = true;
                     }
@@ -877,7 +885,7 @@ function validateCurrentStep(step) {
                         hasArabicName = true;
                     }
                 });
-                
+
                 if (!hasEnglishName) {
                     errors.push({
                         field: `documents[${documentIndex}][translations][1][name]`,
@@ -885,7 +893,7 @@ function validateCurrentStep(step) {
                         element: documentRow.find('input[name*="[1][name]"]')
                     });
                 }
-                
+
                 if (!hasArabicName) {
                     errors.push({
                         field: `documents[${documentIndex}][translations][2][name]`,
@@ -893,12 +901,12 @@ function validateCurrentStep(step) {
                         element: documentRow.find('input[name*="[2][name]"]')
                     });
                 }
-                
+
                 // Check if document file is uploaded
                 const fileInput = documentRow.find('input[type="file"]');
                 const hasFile = fileInput[0]?.files?.length > 0;
                 const hasExistingFile = fileInput.data('has-file') === true;
-                
+
                 if (!hasFile && !hasExistingFile) {
                     errors.push({
                         field: `documents[${documentIndex}][file]`,
@@ -931,7 +939,7 @@ function validateCurrentStep(step) {
         }
 
         // Validate password (only for new vendor)
-        const isEditMode = $('input[name="_method"][value="PUT"]').length > 0 || 
+        const isEditMode = $('input[name="_method"][value="PUT"]').length > 0 ||
                           $('.image-preview-container img').length > 0 ||
                           $('input[name="translations"]').filter(function() { return $(this).val() !== ''; }).length > 0;
         const password = stepElement.find('#password').val();
@@ -1039,8 +1047,19 @@ function showErrorAlert(message) {
     // Remove existing alert if any
     $('#step-validation-alert').remove();
 
-    // Add alert at top of current step
-    $(`.wizard-step-content[data-step="${currentStep}"]`).prepend(alertHtml);
+    // Add alert to the dedicated validation alerts container
+    const alertsContainer = $('#validation-alerts-container');
+    if (alertsContainer.length) {
+        alertsContainer.html(alertHtml);
+    } else {
+        // Fallback: add at the position where the static alert is in the HTML
+        const staticAlert = $('#validation-errors-alert');
+        if (staticAlert.length) {
+            staticAlert.replaceWith(alertHtml);
+        } else {
+            $('.card-body').prepend(alertHtml);
+        }
+    }
 }
 
 /**
@@ -1073,11 +1092,11 @@ function isValidEmail(email) {
  */
 function protectRequiredAsterisks() {
     console.log('🛡️ Protecting required field asterisks...');
-    
+
     // Find all asterisks in labels and ensure they remain visible
     $('label .text-danger, .form-label .text-danger').each(function() {
         const $asterisk = $(this);
-        
+
         // Ensure the asterisk is always visible
         $asterisk.css({
             'display': 'inline !important',
@@ -1086,11 +1105,11 @@ function protectRequiredAsterisks() {
             'color': '#dc3545 !important',
             'font-weight': 'bold !important'
         });
-        
+
         // Add a data attribute to mark it as protected
         $asterisk.attr('data-protected', 'true');
     });
-    
+
     // Set up a mutation observer to watch for changes to labels
     if (typeof MutationObserver !== 'undefined') {
         const observer = new MutationObserver(function(mutations) {
@@ -1110,7 +1129,7 @@ function protectRequiredAsterisks() {
                 }
             });
         });
-        
+
         // Start observing the form for changes
         const formElement = document.getElementById('vendorForm');
         if (formElement) {
@@ -1122,7 +1141,7 @@ function protectRequiredAsterisks() {
             });
         }
     }
-    
+
     console.log('✅ Required field asterisks protection enabled');
 }
 
@@ -1131,179 +1150,50 @@ function protectRequiredAsterisks() {
  */
 function protectAsterisksOnInteraction() {
     console.log('🔒 Setting up asterisk protection on form interactions...');
-    
+
     // Protect asterisks on any input interaction
     $(document).on('input keyup keydown change focus blur', 'input, textarea, select', function() {
         setTimeout(function() {
             protectRequiredAsterisks();
         }, 10);
     });
-    
+
     // Protect asterisks when Select2 changes
     $(document).on('select2:select select2:unselect select2:open select2:close', 'select', function() {
         setTimeout(function() {
             protectRequiredAsterisks();
         }, 10);
     });
-    
+
     // Protect asterisks on file upload interactions
     $(document).on('change', 'input[type="file"]', function() {
         setTimeout(function() {
             protectRequiredAsterisks();
         }, 10);
     });
-    
+
     // Protect asterisks on checkbox/radio interactions
     $(document).on('change', 'input[type="checkbox"], input[type="radio"]', function() {
         setTimeout(function() {
             protectRequiredAsterisks();
         }, 10);
     });
-    
+
     // Protect asterisks when wizard steps change
     $(document).on('click', '.wizard-step-nav, #nextBtn, #prevBtn', function() {
         setTimeout(function() {
             protectRequiredAsterisks();
         }, 50);
     });
-    
+
     // Protect asterisks on form validation
     $(document).on('DOMNodeInserted DOMNodeRemoved', function() {
         setTimeout(function() {
             protectRequiredAsterisks();
         }, 10);
     });
-    
-    console.log('✅ Asterisk protection on form interactions enabled');
-}
 
-/**
- * Initialize tags input functionality for meta keywords
- */
-function initializeTagsInput() {
-    console.log('🏷️ Initializing tags input for meta keywords...');
-    
-    // Initialize for each language
-    $('.tags-input-container').each(function() {
-        const container = $(this);
-        const language = container.data('language');
-        const input = container.find('.tags-input');
-        const hiddenInput = container.find(`#meta_keywords_${language}`);
-        const tagsDisplay = container.find('.tags-display');
-        
-        let tags = [];
-        
-        // Load existing tags from hidden input
-        const existingValue = hiddenInput.val();
-        if (existingValue && existingValue.trim()) {
-            tags = existingValue.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
-            renderTags();
-        }
-        
-        // Handle input events
-        input.on('keydown', function(e) {
-            const value = $(this).val().trim();
-            
-            // Enter key or comma
-            if (e.key === 'Enter' || e.key === ',') {
-                e.preventDefault();
-                if (value) {
-                    addMultipleTags(value);
-                    $(this).val('');
-                }
-            }
-            // Backspace on empty input - remove last tag
-            else if (e.key === 'Backspace' && !value && tags.length > 0) {
-                removeTag(tags.length - 1);
-            }
-        });
-        
-        // Handle blur event (when user clicks away)
-        input.on('blur', function() {
-            const value = $(this).val().trim();
-            if (value) {
-                addMultipleTags(value);
-                $(this).val('');
-            }
-        });
-        
-        // Add tag function
-        function addTag(tagText) {
-            if (tagText) {
-                tags.push(tagText);
-                renderTags();
-                updateHiddenInput();
-            }
-        }
-        
-        // Add multiple tags from comma-separated input
-        function addMultipleTags(input) {
-            if (!input) return;
-            
-            // Split by comma and process each tag
-            const newTags = input.split(',')
-                .map(tag => tag.trim())
-                .filter(tag => tag.length > 0);
-            
-            for (const tagText of newTags) {
-                if (tagText) {
-                    tags.push(tagText);
-                }
-            }
-            
-            if (newTags.length > 0) {
-                renderTags();
-                updateHiddenInput();
-            }
-        }
-        
-        // Remove tag function
-        function removeTag(index) {
-            if (index >= 0 && index < tags.length) {
-                tags.splice(index, 1);
-                renderTags();
-                updateHiddenInput();
-            }
-        }
-        
-        // Render tags in the display area
-        function renderTags() {
-            tagsDisplay.empty();
-            
-            tags.forEach((tag, index) => {
-                const isRtl = language === 'ar';
-                const tagElement = $(`
-                    <div class="tag-item" data-index="${index}">
-                        <span class="tag-text" ${isRtl ? 'dir="rtl"' : ''}>${escapeHtml(tag)}</span>
-                        <button type="button" class="tag-remove" title="${isRtl ? 'إزالة' : 'Remove'}">×</button>
-                    </div>
-                `);
-                
-                // Add click handler for remove button
-                tagElement.find('.tag-remove').on('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    removeTag(index);
-                });
-                
-                tagsDisplay.append(tagElement);
-            });
-        }
-        
-        // Update hidden input with comma-separated values
-        function updateHiddenInput() {
-            hiddenInput.val(tags.join(', '));
-        }
-        
-        // Escape HTML to prevent XSS
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-    });
-    
-    console.log('✅ Tags input initialized for meta keywords');
+    console.log('✅ Asterisk protection on form interactions enabled');
 }
 
 /**

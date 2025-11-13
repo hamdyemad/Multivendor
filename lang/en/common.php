@@ -100,4 +100,5 @@ return [
     'confirm_delete' => 'Confirm Delete',
     'delete_confirmation' => 'Are you sure you want to delete this item? This action cannot be undone.',
     'deleting' => 'Deleting...',
+    'quantity' => 'Quantity',
 ];

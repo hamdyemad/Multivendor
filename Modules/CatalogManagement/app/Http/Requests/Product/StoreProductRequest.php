@@ -23,34 +23,34 @@ class StoreProductRequest extends FormRequest
     public function rules(): array
     {
         $configurationType = $this->input('configuration_type');
-        
+
         $rules = [
             // Basic Product Information
             'sku' => 'required|string|unique:products,sku',
-            'points' => 'nullable|integer|min:0',
+            'points' => 'required|integer|min:0',
             'is_active' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
-            'max_per_order' => 'nullable|integer|min:1',
+            'max_per_order' => 'required|integer|min:1',
             'video_link' => 'nullable|url',
-            
+
             // Relations
-            'brand_id' => 'nullable|exists:brands,id',
-            'department_id' => 'nullable|exists:departments,id',
-            'category_id' => 'nullable|exists:categories,id',
+            'brand_id' => 'required|exists:brands,id',
+            'department_id' => 'required|exists:departments,id',
+            'category_id' => 'required|exists:categories,id',
             'sub_category_id' => 'nullable|exists:sub_categories,id',
             'tax_id' => 'nullable|exists:taxes,id',
-            
+
             // Vendor validation based on user role
             'vendor_id' => $this->getVendorValidationRule(),
-            
+
             // Images
-            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'main_image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
             'additional_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
-            
+
             // Translations
             'translations' => 'required|array|min:1',
             'translations.*.title' => 'required|string|max:255',
-            'translations.*.details' => 'nullable|string',
+            'translations.*.details' => 'required|string',
             'translations.*.summary' => 'nullable|string',
             'translations.*.features' => 'nullable|string',
             'translations.*.instructions' => 'nullable|string',
@@ -60,7 +60,7 @@ class StoreProductRequest extends FormRequest
             'translations.*.meta_title' => 'nullable|string|max:60',
             'translations.*.meta_description' => 'nullable|string|max:160',
             'translations.*.meta_keywords' => 'nullable|string',
-            
+
             // Configuration Type
             'configuration_type' => 'required|in:simple,variants',
         ];
@@ -73,7 +73,7 @@ class StoreProductRequest extends FormRequest
                 'has_discount' => 'nullable|boolean',
                 'price_before_discount' => 'nullable|numeric|min:0',
                 'offer_end_date' => 'nullable|date|after:today',
-                'stocks' => 'nullable|array',
+                'stocks' => 'required|array',
                 'stocks.*.region_id' => 'required_with:stocks|exists:regions,id',
                 'stocks.*.quantity' => 'required_with:stocks|integer|min:0',
             ]);
@@ -112,10 +112,13 @@ class StoreProductRequest extends FormRequest
             'translations.*.title' => __('catalogmanagement::product.title'),
             'translations.*.details' => __('catalogmanagement::product.details'),
             'brand_id' => __('catalogmanagement::product.brand'),
+            'vendor_id' => __('vendor::vendor.name'),
             'department_id' => __('catalogmanagement::product.department'),
             'category_id' => __('catalogmanagement::product.category'),
             'sub_category_id' => __('catalogmanagement::product.sub_category'),
             'tax_id' => __('catalogmanagement::product.tax'),
+            'stocks.*.region_id' => __('areasettings::region.name'),
+            'stocks.*.quantity' => __('common.quantity'),
             'main_image' => __('catalogmanagement::product.main_image'),
             'configuration_type' => __('catalogmanagement::product.configuration_type'),
             'price' => __('catalogmanagement::product.price'),
@@ -141,7 +144,7 @@ class StoreProductRequest extends FormRequest
         // Add custom messages for product title translations with language names
         $languages = Language::all();
         foreach ($languages as $language) {
-            $messages["translations.{$language->id}.title.required"] = 
+            $messages["translations.{$language->id}.title.required"] =
                 __('catalogmanagement::product.title_required_for_language', ['language' => $language->name]);
         }
 

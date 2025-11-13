@@ -15,7 +15,7 @@ class DepartmentRepository implements DepartmentRepositoryInterface
      */
     public function getAllDepartments(array $filters = [], int $perPage = 15)
     {
-        $query = Department::with('translations');
+        $query = Department::with('translations')->whereNull('deleted_at');
 
         // Search filter
         if (!empty($filters['search'])) {
@@ -53,7 +53,8 @@ class DepartmentRepository implements DepartmentRepositoryInterface
      */
     public function getDepartmentsQuery(array $filters = [], $orderBy = null, $orderDirection = 'asc')
     {
-        $query = Department::with('translations');
+        // Ensure we exclude soft-deleted records
+        $query = Department::with('translations')->whereNull('deleted_at');
         
         Log::info('Department Repository - Query Start', ['filters' => $filters]);
         

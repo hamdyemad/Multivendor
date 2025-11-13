@@ -26,6 +26,113 @@ document.addEventListener("DOMContentLoaded", function () {
 jQuery(document).ready(function ($) {
     console.log("✅ Product form jQuery ready");
 
+    // Ensure all form fields have error containers
+    setTimeout(function() {
+        ensureErrorContainers();
+    }, 500);
+
+    // Add test function for error containers
+    window.testErrorContainers = function() {
+        console.log('🧪 Testing error containers...');
+
+        // Test translation title fields
+        const languages = [1, 2]; // Common language IDs
+        languages.forEach(langId => {
+            const containerId = `error-translations-${langId}-title`;
+            const container = $(`#${containerId}`);
+            console.log(`📝 Container #${containerId}: exists=${container.length > 0}`);
+
+            if (container.length > 0) {
+                // Test showing error
+                container.html('<i class="uil uil-exclamation-triangle"></i> Test error message').show();
+                console.log(`✅ Test error displayed in ${containerId}`);
+
+                // Hide after 3 seconds
+                setTimeout(() => {
+                    container.hide().empty();
+                    console.log(`🧹 Cleared test error from ${containerId}`);
+                }, 3000);
+            }
+        });
+
+        console.log('💡 Check the form to see test error messages appear and disappear');
+    };
+
+    // Add specific test for Title (English) field
+    window.testTitleError = function() {
+        console.log('🧪 Testing Title (English) error specifically...');
+
+        const titleInput = $('input[name="translations[1][title]"]');
+        const errorContainer = $('#error-translations-1-title');
+
+        console.log('📝 Title input found:', titleInput.length > 0);
+        console.log('📝 Title input element:', titleInput[0]);
+        console.log('📝 Error container found:', errorContainer.length > 0);
+        console.log('📝 Error container element:', errorContainer[0]);
+
+        if (errorContainer.length > 0) {
+            console.log('📝 Container current display:', errorContainer.css('display'));
+            console.log('📝 Container current visibility:', errorContainer.is(':visible'));
+            console.log('📝 Container classes:', errorContainer.attr('class'));
+            console.log('📝 Container style attribute:', errorContainer.attr('style'));
+
+            // Force show with test message
+            errorContainer.html('<i class="uil uil-exclamation-triangle"></i> TEST: Title is required for English');
+            errorContainer.show();
+            errorContainer.css('display', 'block');
+            errorContainer.css('visibility', 'visible');
+            errorContainer.removeClass('d-none').addClass('d-block');
+            errorContainer.attr('style', 'display: block !important;');
+
+            console.log('📝 After force show - display:', errorContainer.css('display'));
+            console.log('📝 After force show - visible:', errorContainer.is(':visible'));
+            console.log('📝 After force show - style:', errorContainer.attr('style'));
+
+            // Also add red border to input
+            titleInput.addClass('is-invalid');
+
+            console.log('✅ Test error should now be visible under Title (English) field');
+        } else {
+            console.log('❌ Error container not found for Title (English)');
+        }
+    };
+
+    // Add direct test for error container
+    window.testErrorContainer = function() {
+        console.log('🧪 Direct test of error-translations-1-title container...');
+
+        const container = $('#error-translations-1-title');
+        console.log('📝 Container found:', container.length > 0);
+        console.log('📝 Container element:', container[0]);
+
+        if (container.length > 0) {
+            console.log('📝 Current display:', container.css('display'));
+            console.log('📝 Current visibility:', container.css('visibility'));
+            console.log('📝 Is visible:', container.is(':visible'));
+            console.log('📝 Current content:', container.html());
+            console.log('📝 Current classes:', container.attr('class'));
+            console.log('📝 Current style:', container.attr('style'));
+
+            // Force show test
+            container.html('<i class="uil uil-exclamation-triangle"></i> DIRECT TEST MESSAGE');
+            container.show();
+            container.css('display', 'block');
+            container.css('visibility', 'visible');
+            container.removeClass('d-none').addClass('d-block');
+            container.attr('style', 'display: block !important; visibility: visible !important;');
+
+            console.log('📝 After force show:');
+            console.log('📝 Display:', container.css('display'));
+            console.log('📝 Visibility:', container.css('visibility'));
+            console.log('📝 Is visible:', container.is(':visible'));
+            console.log('📝 Style attr:', container.attr('style'));
+
+            console.log('✅ Direct test completed - check if message appears');
+        } else {
+            console.log('❌ Container #error-translations-1-title not found');
+        }
+    };
+
     // Function to attach event handlers
     function attachEventHandlers() {
         console.log("🔧 Attaching event handlers to Select2 dropdowns...");
@@ -297,9 +404,6 @@ jQuery(document).ready(function ($) {
     $("#nextBtn").on("click", function () {
         console.log("📍 Next button clicked. Current step:", currentStep);
 
-        // Clear previous errors
-        clearAllErrors();
-
         // Proceed to next step
         currentStep++;
         if (currentStep > totalSteps) currentStep = totalSteps;
@@ -321,8 +425,11 @@ jQuery(document).ready(function ($) {
         const targetStep = parseInt($(this).data("step"));
         console.log("Clicked step:", targetStep);
 
-        // Clear errors when navigating
-        clearAllErrors();
+        // Hide validation alert when clicking on steps
+        $('#validation-alerts-container').hide().empty();
+
+        // Don't clear errors when navigating steps - keep them visible
+        // clearAllErrors();
 
         currentStep = targetStep;
         showStep(currentStep);
@@ -333,9 +440,6 @@ jQuery(document).ready(function ($) {
     // Edit button in review page
     $(document).on("click", ".edit-step", function () {
         const targetStep = parseInt($(this).data("step"));
-
-        // Clear any existing errors when editing
-        clearAllErrors();
 
         currentStep = targetStep;
         showStep(currentStep);
@@ -350,7 +454,64 @@ jQuery(document).ready(function ($) {
     });
 
     // Form submission handler
-    $("#productForm").on("submit", handleFormSubmission);
+    $('#productForm').on('submit', handleFormSubmission);
+
+    // Clear errors when user starts typing in any input
+    $('#productForm').on('input keyup change', 'input, textarea, select', function() {
+        const $field = $(this);
+        const fieldName = $field.attr('name');
+
+        if (fieldName) {
+            // Remove is-invalid class
+            $field.removeClass('is-invalid');
+
+            // Try to find and clear existing error container
+            let errorContainer = null;
+
+            // For translation fields, try the specific pattern
+            if (fieldName.includes('translations[')) {
+                // Extract language ID and field type from name like "translations[1][title]"
+                const matches = fieldName.match(/translations\[(\d+)\]\[([^\]]+)\]/);
+                if (matches) {
+                    const langId = matches[1];
+                    const fieldType = matches[2];
+                    errorContainer = $(`#error-translations-${langId}-${fieldType}`);
+                }
+            }
+
+            // Try other common patterns
+            if (!errorContainer || !errorContainer.length) {
+                const selectors = [
+                    `#error-${fieldName}`,
+                    `#error-${fieldName.replace(/\[|\]/g, '-').replace(/--/g, '-').replace(/-$/, '')}`,
+                    `[data-error-for="${fieldName}"]`
+                ];
+
+                for (const selector of selectors) {
+                    errorContainer = $(selector);
+                    if (errorContainer.length > 0) {
+                        break;
+                    }
+                }
+            }
+
+            // Clear existing error container
+            if (errorContainer && errorContainer.length) {
+                errorContainer.hide().empty();
+            }
+
+            // Also remove any dynamically created error messages
+            $field.closest('.form-group').find('.error-message:not([id])').remove();
+            $field.siblings('.error-message:not([id])').remove();
+
+            // For Select2, also clear errors from Select2 container
+            if ($field.hasClass('select2') || $field.data('select2')) {
+                $field.next('.select2-container').siblings('.error-message:not([id])').remove();
+            }
+
+            console.log(`🧹 Cleared error for field: ${fieldName}`);
+        }
+    });
 
     // Configuration Type Toggle
     $("#configuration_type").on("change", function () {
@@ -601,26 +762,59 @@ function showStep(step) {
 
             if (fieldElement.length) {
                 fieldElement.addClass("is-invalid");
-                fieldElement
-                    .closest(".form-group")
-                    .find(".error-message")
-                    .remove();
 
-                const errorMsg = `<div class="error-message text-danger small mt-1"><i class="uil uil-exclamation-triangle"></i> ${validationErrors[field][0]}</div>`;
+                // Try to use existing error container first (same logic as displayValidationErrors)
+                let errorContainer = null;
 
-                if (
-                    fieldElement.hasClass("select2") ||
-                    fieldElement.data("select2")
-                ) {
-                    const select2Container =
-                        fieldElement.next(".select2-container");
-                    if (select2Container.length) {
-                        select2Container.after(errorMsg);
+                // For translation fields, try the specific pattern
+                if (field.includes('translations.')) {
+                    const parts = field.split('.');
+                    if (parts.length === 3 && parts[0] === 'translations') {
+                        const langId = parts[1];
+                        const fieldType = parts[2];
+                        const containerId = `error-translations-${langId}-${fieldType}`;
+                        errorContainer = $(`#${containerId}`);
+                    }
+                }
+
+                // Try other common patterns if translation pattern didn't work
+                if (!errorContainer || !errorContainer.length) {
+                    const fieldName = fieldElement.attr('name');
+                    const selectors = [
+                        `#error-${field}`,
+                        `#error-${fieldName}`,
+                        `#error-${field.replace(/\./g, '-')}`,
+                        `#error-${fieldName.replace(/\[|\]/g, '-').replace(/--/g, '-').replace(/-$/, '')}`
+                    ];
+
+                    for (const selector of selectors) {
+                        errorContainer = $(selector);
+                        if (errorContainer.length > 0) {
+                            break;
+                        }
+                    }
+                }
+
+                if (errorContainer && errorContainer.length) {
+                    // Use existing error container
+                    const errorMessage = `<i class="uil uil-exclamation-triangle"></i> ${validationErrors[field][0]}`;
+                    errorContainer.html(errorMessage).show().css('display', 'block').removeClass('d-none').addClass('d-block');
+                } else {
+                    // Fallback: create new error message
+                    fieldElement.closest(".form-group").find(".error-message:not([id])").remove();
+
+                    const errorMsg = `<div class="error-message text-danger small mt-1"><i class="uil uil-exclamation-triangle"></i> ${validationErrors[field][0]}</div>`;
+
+                    if (fieldElement.hasClass("select2") || fieldElement.data("select2")) {
+                        const select2Container = fieldElement.next(".select2-container");
+                        if (select2Container.length) {
+                            select2Container.after(errorMsg);
+                        } else {
+                            fieldElement.after(errorMsg);
+                        }
                     } else {
                         fieldElement.after(errorMsg);
                     }
-                } else {
-                    fieldElement.after(errorMsg);
                 }
             }
         }
@@ -666,14 +860,6 @@ function showStep(step) {
     );
 }
 
-/**
- * Clear all validation errors
- */
-function clearAllErrors() {
-    $(".error-message").remove();
-    $(".is-invalid").removeClass("is-invalid");
-    validationErrors = {};
-}
 
 /**
  * Helper function to convert dot notation to bracket notation
@@ -691,40 +877,204 @@ function convertDotToBracket(field) {
 }
 
 /**
+ * Ensure all form fields have error containers
+ */
+function ensureErrorContainers() {
+    console.log('🔧 Ensuring all form fields have error containers...');
+
+    // Find all input, select, and textarea elements
+    $('#productForm').find('input, select, textarea').each(function() {
+        const $field = $(this);
+        const fieldName = $field.attr('name');
+
+        if (!fieldName) return; // Skip fields without names
+
+        // Check if error container already exists
+        const errorContainerId = `error-${fieldName.replace(/\[|\]/g, '-').replace(/--/g, '-').replace(/-$/, '')}`;
+
+        if ($(`#${errorContainerId}`).length === 0) {
+            // Create error container if it doesn't exist
+            const errorContainer = `<div class="error-message text-danger" id="${errorContainerId}" style="display: none;"></div>`;
+
+            if ($field.hasClass('select2') || $field.data('select2')) {
+                // For Select2, add after the Select2 container
+                const select2Container = $field.next('.select2-container');
+                if (select2Container.length) {
+                    select2Container.after(errorContainer);
+                } else {
+                    $field.after(errorContainer);
+                }
+            } else {
+                // For regular fields, add after the field
+                $field.after(errorContainer);
+            }
+
+            console.log(`✅ Created error container for: ${fieldName}`);
+        }
+    });
+}
+
+/**
  * Display validation errors inline with form fields
  */
 function displayValidationErrors(errors) {
     validationErrors = errors;
 
+    // Ensure all fields have error containers
+    ensureErrorContainers();
+
+    let errorListHtml = '<ul class="mb-0">';
+
     for (let field in errors) {
         const errorMessages = errors[field];
+
+        errorMessages.forEach(msg => {
+            errorListHtml += `<li class="mb-2">${msg}</li>`;
+        });
 
         const bracketField = convertDotToBracket(field);
         const fieldElement = $(
             `[name="${bracketField}"], [name="${bracketField}[]"], [name="${field}"], [name="${field}[]"]`
         ).first();
 
+        console.log(`🔍 Looking for field: ${field} -> ${bracketField}, found: ${fieldElement.length > 0}`);
+
+        // Special debugging for translation fields
+        if (field.includes('translations.') && field.includes('.title')) {
+            console.log(`📝 Translation title field detected: ${field}`);
+            const expectedId = `error-translations-${field.split('.')[1]}-title`;
+            console.log(`📝 Expected error container ID: ${expectedId}`);
+            console.log(`📝 Container exists:`, $(`#${expectedId}`).length > 0);
+            console.log(`📝 Container element:`, $(`#${expectedId}`)[0]);
+        }
+
         if (fieldElement.length) {
-            fieldElement.addClass("is-invalid");
+            fieldElement.addClass('is-invalid');
 
-            const errorMsg = `<div class="error-message text-danger small mt-1"><i class="uil uil-exclamation-triangle"></i> ${errorMessages[0]}</div>`;
-            fieldElement.closest(".form-group").find(".error-message").remove();
+            // First try to use existing error container
+            let errorContainer = null;
 
-            if (
-                fieldElement.hasClass("select2") ||
-                fieldElement.data("select2")
-            ) {
-                const select2Container =
-                    fieldElement.next(".select2-container");
-                if (select2Container.length) {
-                    select2Container.after(errorMsg);
+            // For translation fields, try the specific pattern
+            if (field.includes('translations.')) {
+                const parts = field.split('.');
+                if (parts.length === 3 && parts[0] === 'translations') {
+                    const langId = parts[1];
+                    const fieldType = parts[2];
+                    const containerId = `error-translations-${langId}-${fieldType}`;
+                    errorContainer = $(`#${containerId}`);
+                    console.log(`🔍 Looking for translation container: #${containerId}, found: ${errorContainer.length > 0}`);
+                    if (errorContainer.length > 0) {
+                        console.log(`📝 Container element:`, errorContainer[0]);
+                    }
+                }
+            }
+
+            // Try other common patterns if translation pattern didn't work
+            if (!errorContainer || !errorContainer.length) {
+                const fieldName = fieldElement.attr('name');
+                const selectors = [
+                    `#error-${field}`,
+                    `#error-${fieldName}`,
+                    `#error-${field.replace(/\./g, '-')}`,
+                    `#error-${fieldName.replace(/\[|\]/g, '-').replace(/--/g, '-').replace(/-$/, '')}`
+                ];
+
+                console.log(`🔍 Trying fallback selectors:`, selectors);
+                for (const selector of selectors) {
+                    errorContainer = $(selector);
+                    if (errorContainer.length > 0) {
+                        console.log(`✅ Found with selector: ${selector}`);
+                        break;
+                    }
+                }
+            }
+
+            if (errorContainer && errorContainer.length) {
+                // Use existing error container
+                const errorMessage = `<i class="uil uil-exclamation-triangle"></i> ${errorMessages[0]}`;
+                console.log(`✅ Using existing container for ${field}, setting content: ${errorMessage}`);
+
+                // Force show with multiple methods
+                errorContainer.html(errorMessage);
+                errorContainer.show();
+                errorContainer.css('display', 'block');
+                errorContainer.css('visibility', 'visible');
+                errorContainer.removeClass('d-none').addClass('d-block');
+                errorContainer.attr('style', 'display: block !important;');
+
+                console.log(`✅ Container after update - visible: ${errorContainer.is(':visible')}, display: ${errorContainer.css('display')}`);
+            } else {
+                // Fallback: create new error message like vendor form
+                const errorMsg = `<div class="error-message text-danger small mt-1"><i class="uil uil-exclamation-triangle"></i> ${errorMessages[0]}</div>`;
+                fieldElement.closest('.form-group').find('.error-message:not([id])').remove();
+
+                if (fieldElement.hasClass('select2') || fieldElement.data('select2')) {
+                    const select2Container = fieldElement.next('.select2-container');
+                    if (select2Container.length) {
+                        select2Container.after(errorMsg);
+                    } else {
+                        fieldElement.after(errorMsg);
+                    }
                 } else {
                     fieldElement.after(errorMsg);
                 }
-            } else {
-                fieldElement.after(errorMsg);
+                console.log(`✅ Created new error message for field: ${field}`);
             }
+        } else {
+            console.log(`❌ Field element not found for: ${field} (${bracketField})`);
         }
+    }
+
+    errorListHtml += '</ul>';
+
+    // Display validation errors in an alert at the top of the form
+    if (Object.keys(errors).length > 0) {
+        const isRtl = document.documentElement.dir === 'rtl' ||
+                      document.documentElement.lang === 'ar' ||
+                      $('html').attr('lang') === 'ar';
+
+        const alertHtml = `
+            <div class="alert alert-danger alert-dismissible fade show validation-errors-alert" role="alert">
+                <div class="d-flex align-items-start">
+                    <i class="uil uil-exclamation-triangle me-2" style="font-size: 18px; margin-top: 2px;"></i>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-2">${isRtl ? 'يرجى تصحيح الأخطاء التالية:' : 'Please correct the following errors:'}</h6>
+                        ${errorListHtml}
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+
+        // Remove any existing validation error alerts
+        $('.validation-errors-alert').remove();
+
+        // Add the alert to the dedicated validation alerts container
+        const alertsContainer = $('#validation-alerts-container');
+        if (alertsContainer.length) {
+            console.log('✅ Adding alert to validation-alerts-container');
+            alertsContainer.html(alertHtml).show();
+        } else {
+            console.log('⚠️ validation-alerts-container not found, using fallback');
+            // Fallback: add at the top of card-body
+            $('.card-body').prepend(alertHtml);
+        }
+
+        // Ensure the alert is visible and scroll to it
+        setTimeout(() => {
+            const alertElement = $('.validation-errors-alert');
+            if (alertElement.length) {
+                alertElement.show();
+                console.log('✅ Alert should now be visible');
+                
+                // Scroll to the alert
+                $('html, body').animate({
+                    scrollTop: alertElement.offset().top - 100
+                }, 300);
+            } else {
+                console.log('❌ Alert element not found after creation');
+            }
+        }, 100);
     }
 }
 
@@ -739,12 +1089,12 @@ function disableRequiredOnHiddenFields() {
             $(this).attr('data-was-required', 'true').removeAttr('required');
         });
     });
-    
+
     // Also handle hidden sections within the current step
     $('#simple-product-section:hidden [required]').each(function() {
         $(this).attr('data-was-required', 'true').removeAttr('required');
     });
-    
+
     $('#variants-section:hidden [required]').each(function() {
         $(this).attr('data-was-required', 'true').removeAttr('required');
     });
@@ -770,15 +1120,22 @@ function handleFormSubmission(e) {
         return;
     }
 
-    // Clear previous errors
-    clearAllErrors();
-
     // Temporarily disable required attributes on hidden fields to prevent HTML5 validation errors
     disableRequiredOnHiddenFields();
 
-    // Show loading overlay
+    // Show loading overlay with appropriate message
     if (typeof LoadingOverlay !== "undefined") {
-        LoadingOverlay.show();
+        // Check if this is an edit operation
+        const isEdit = $('input[name="_method"][value="PUT"]').length > 0;
+        const loadingMessage = isEdit ?
+            (config.updatingProduct || 'Updating product...') :
+            (config.creatingProduct || 'Creating product...');
+
+        // Show loading overlay with custom message
+        LoadingOverlay.show({
+            text: loadingMessage,
+            progress: true
+        });
         LoadingOverlay.progressSequence([30, 60, 90]);
     }
 
@@ -799,8 +1156,8 @@ function handleFormSubmission(e) {
             if (response.success) {
                 if (typeof LoadingOverlay !== "undefined") {
                     LoadingOverlay.showSuccess(
-                        response.message || "Product created successfully!",
-                        "Redirecting..."
+                        response.message || config.productCreated,
+                        config.redirecting
                     );
                 }
 
@@ -1585,20 +1942,20 @@ function initializeAdditionalImages() {
     $('#add-additional-image-btn').on('click', function() {
         addAdditionalImageUpload();
     });
-    
+
     // Remove additional image (event delegation)
     $(document).on('click', '.remove-additional-image', function() {
         $(this).closest('.additional-image-item').remove();
         toggleAdditionalImagesVisibility();
         reindexAdditionalImages();
     });
-    
+
     function addAdditionalImageUpload() {
         // Get the current count of existing images to determine the next index
         const currentCount = $('.additional-image-item').length;
         const nextIndex = currentCount + 1;
         const uniqueId = 'additional_image_' + Date.now(); // Use timestamp for unique ID
-        
+
         const imageHtml = `
             <div class="col-md-4 mb-3 additional-image-item" data-index="${nextIndex}">
                 <div class="card">
@@ -1637,29 +1994,29 @@ function initializeAdditionalImages() {
                 </div>
             </div>
         `;
-        
+
         $('#additional-images-container').append(imageHtml);
-        
+
         // Initialize the image upload functionality for this new component
         initializeImageUploadComponent(uniqueId);
-        
+
         toggleAdditionalImagesVisibility();
     }
-    
+
     function initializeImageUploadComponent(uniqueId) {
         const input = document.getElementById(uniqueId);
         const container = document.getElementById(uniqueId + '-preview-container');
         const placeholder = document.getElementById(uniqueId + '-placeholder');
         const changeBtn = container.querySelector('.btn-change-image');
         const removeBtn = container.querySelector('.btn-remove-image');
-        
+
         // Click on container to select file
         container.addEventListener('click', (e) => {
             if (!e.target.closest('.btn-change-image') && !e.target.closest('.btn-remove-image')) {
                 input.click();
             }
         });
-        
+
         if (changeBtn) {
             changeBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1667,7 +2024,7 @@ function initializeAdditionalImages() {
                 input.click();
             });
         }
-        
+
         // Handle file selection
         input.addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -1675,7 +2032,7 @@ function initializeAdditionalImages() {
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     let previewImg = document.getElementById(uniqueId + '-preview-img');
-                    
+
                     if (!previewImg) {
                         const img = document.createElement('img');
                         img.id = uniqueId + '-preview-img';
@@ -1685,34 +2042,34 @@ function initializeAdditionalImages() {
                     } else {
                         previewImg.src = event.target.result;
                     }
-                    
+
                     if (placeholder) placeholder.style.display = 'none';
                     if (removeBtn) removeBtn.style.display = 'inline-flex';
                 };
                 reader.readAsDataURL(file);
             }
         });
-        
+
         // Remove image
         if (removeBtn) {
             removeBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 input.value = '';
-                
+
                 const currentPreviewImg = document.getElementById(uniqueId + '-preview-img');
                 if (currentPreviewImg) {
                     currentPreviewImg.remove();
                 }
-                
+
                 if (placeholder) placeholder.style.display = 'flex';
                 removeBtn.style.display = 'none';
             });
         }
     }
-    
+
     function toggleAdditionalImagesVisibility() {
         const imageCount = $('.additional-image-item').length;
-        
+
         if (imageCount > 0) {
             $('#additional-images-empty-state').hide();
             $('#additional-images-container').show();
@@ -1721,7 +2078,7 @@ function initializeAdditionalImages() {
             $('#additional-images-container').hide();
         }
     }
-    
+
     function reindexAdditionalImages() {
         $('.additional-image-item').each(function(index) {
             const newIndex = index + 1;

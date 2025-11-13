@@ -22,7 +22,7 @@ return [
     'meta_title' => 'عنوان الميتا',
     'meta_description' => 'وصف الميتا',
     'meta_keywords' => 'كلمات الميتا المفتاحية',
-    
+
     // Form Labels - Step 2: Vendor Documents
     'vendor_documents' => 'مستندات المورد',
     'document_name' => 'اسم المستند',
@@ -30,14 +30,14 @@ return [
     'document_name_arabic' => 'اسم المستند (عربي)',
     'document_file' => 'ملف المستند',
     'add_document' => 'إضافة مستند',
-    
+
     // Form Labels - Step 3: Vendor Account
     'vendor_account_details' => 'تفاصيل حساب المورد',
-    
+
     // Form Labels - Step 4: Review & Submit
     'review_submit' => 'المراجعة والإرسال',
     'review_info_message' => 'يرجى مراجعة معلوماتك قبل الإرسال.',
-    
+
     // Placeholders
     'enter_vendor_name' => 'أدخل اسم المتجر',
     'enter_vendor_description' => 'أدخل وصف المتجر',
@@ -51,7 +51,7 @@ return [
     'separate_keywords_commas' => 'افصل الكلمات المفتاحية بفواصل',
     'eg_business_license' => 'مثال: رخصة تجارية',
     'eg_business_license_tax' => 'مثال: رخصة تجارية، شهادة ضريبية',
-    
+
     // Upload Labels
     'click_to_upload_logo' => 'انقر لتحميل الشعار',
     'click_to_upload_banner' => 'انقر لتحميل البانر',
@@ -64,7 +64,7 @@ return [
     'recommended_banner_size' => 'الحجم الموصى به: 1200x400 بكسل',
     'accepted_document_types' => 'PDF, JPG, PNG, DOC, DOCX',
     'branding' => 'العلامة التجارية',
-    
+
     // Buttons
     'change' => 'تغيير',
     'remove' => 'إزالة',
@@ -74,7 +74,7 @@ return [
     'update_vendor' => 'تحديث المورد',
     'save_changes' => 'حفظ التغييرات',
     'cancel' => 'إلغاء',
-    
+
     // Messages
     'vendor_created_successfully' => 'تم إنشاء المورد بنجاح',
     'vendor_updated_successfully' => 'تم تحديث المورد بنجاح',
@@ -87,16 +87,16 @@ return [
     'confirm_delete_document' => 'تأكيد حذف المستند',
     'delete_document_confirmation' => 'هل أنت متأكد من رغبتك في حذف هذا المستند؟ لا يمكن التراجع عن هذا الإجراء.',
     'no_documents_uploaded' => 'لم يتم تحميل أي مستندات لهذا المورد بعد.',
-    
+
     // Table Headers
     'id' => 'الرقم',
-    'name' => 'الاسم',
+    'name' => 'اسم التاجر',
     'email' => 'البريد الإلكتروني',
     'phone' => 'الهاتف',
     'status' => 'الحالة',
     'created_at' => 'تاريخ الإنشاء',
     'actions' => 'الإجراءات',
-    
+
     // Status
     'active' => 'نشط',
     'inactive' => 'غير نشط',
@@ -105,7 +105,7 @@ return [
     'rejected' => 'مرفوض',
     'activation' => 'التفعيل',
     'all' => 'الكل',
-    
+
     // Actions
     'view' => 'عرض',
     'edit' => 'تعديل',
@@ -115,12 +115,12 @@ return [
     'deactivate' => 'إلغاء التفعيل',
     'confirm_delete' => 'تأكيد الحذف',
     'delete_confirmation' => 'هل أنت متأكد من رغبتك في حذف هذا المورد؟',
-    
+
     // Validation
     'required_field' => 'هذا الحقل مطلوب',
     'invalid_email' => 'عنوان بريد إلكتروني غير صالح',
     'invalid_phone' => 'رقم هاتف غير صالح',
-    
+
     // Additional Form Fields
     'name' => 'الاسم',
     'description' => 'الوصف',
@@ -157,13 +157,13 @@ return [
     'creating_vendor' => 'جاري إنشاء المورد...',
     'updating_vendor' => 'جاري تحديث المورد...',
     'please_wait' => 'يرجى الانتظار بينما نقوم بمعالجة طلبك',
-    
+
     // Additional translations
     'not_provided' => 'غير محدد',
     'redirecting' => 'جاري إعادة التوجيه...',
     'please_check_form_errors' => 'يرجى التحقق من الأخطاء في النموذج',
     'an_error_occurred' => 'حدث خطأ',
-    
+
     // Validation Messages
     'name_required_for_language' => 'الاسم (:language) مطلوب.',
     'name_required_all_languages' => 'الاسم مطلوب لجميع اللغات.',
@@ -198,7 +198,7 @@ return [
     'document_file_required' => 'ملف المستند مطلوب.',
     'document_file_types' => 'يجب أن يكون المستند من نوع: pdf, doc, docx, jpg, jpeg, png.',
     'document_max_size' => 'يجب ألا يتجاوز حجم المستند 5 ميجابايت.',
-    
+
     // Money Transactions
     'money_transactions' => 'المعاملات المالية',
     'total_vendors_balance' => 'إجمالي رصيد المورد',

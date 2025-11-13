@@ -1,0 +1,184 @@
+/**
+ * Global Loader Styles
+ * Ensures loading overlays work consistently across all pages
+ */
+
+/* Global fallback loader */
+#global-fallback-loader {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 9999 !important;
+    color: white !important;
+    font-size: 16px !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+#global-fallback-loader .loader-content {
+    text-align: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+#global-fallback-loader .loader-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+#global-fallback-loader .loader-text {
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* Spinner animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Loading overlay improvements */
+.loading-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 9999 !important;
+    display: none !important;
+}
+
+/* Ensure LoadingOverlay.js styles don't conflict */
+.loading-overlay-content {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    text-align: center !important;
+}
+
+/* Form submission states */
+form.submitting {
+    pointer-events: none;
+    opacity: 0.7;
+    position: relative;
+}
+
+form.submitting::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 10;
+    cursor: not-allowed;
+}
+
+/* Button loading states */
+button[type="submit"].loading,
+input[type="submit"].loading {
+    position: relative;
+    color: transparent !important;
+    pointer-events: none;
+}
+
+button[type="submit"].loading::after,
+input[type="submit"].loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    color: inherit;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    #global-fallback-loader {
+        background: rgba(0, 0, 0, 0.8) !important;
+    }
+    
+    #global-fallback-loader .loader-content {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+    }
+    
+    #global-fallback-loader .loader-spinner {
+        border-color: #444;
+        border-top-color: #3498db;
+    }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    #global-fallback-loader {
+        font-size: 14px !important;
+    }
+    
+    #global-fallback-loader .loader-spinner {
+        width: 32px;
+        height: 32px;
+        border-width: 3px;
+    }
+    
+    #global-fallback-loader .loader-content {
+        padding: 15px;
+        margin: 0 20px;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    #global-fallback-loader {
+        background: rgba(0, 0, 0, 0.9) !important;
+    }
+    
+    #global-fallback-loader .loader-spinner {
+        border-color: #fff;
+        border-top-color: #000;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    #global-fallback-loader .loader-spinner,
+    button[type="submit"].loading::after,
+    input[type="submit"].loading::after {
+        animation: none;
+    }
+    
+    #global-fallback-loader .loader-spinner {
+        border: 4px solid #3498db;
+        border-radius: 0;
+        width: 20px;
+        height: 4px;
+    }
+}
+
+/* Print styles */
+@media print {
+    #global-fallback-loader,
+    .loading-overlay {
+        display: none !important;
+    }
+}

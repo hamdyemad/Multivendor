@@ -141,6 +141,7 @@
                         <table id="vendorsDataTable" class="table mb-0 table-bordered table-hover" style="width:100%">
                             <thead>
                                 <tr class="userDatatable-header">
+                                    <th><span class="userDatatable-title">#</span></th>
                                     <th><span
                                             class="userDatatable-title">{{ __('vendor::vendor.vendor_information') }}</span>
                                     </th>
@@ -244,6 +245,16 @@
                     }
                 },
                 columns: [
+                    // Hex Number column
+                    {
+                        data: 'id',
+                        name: 'id',
+                        orderable: true,
+                        searchable: false,
+                        render: function(data, type, row) {
+                            return row.row_number
+                        }
+                    },
                     // Vendor Information column (combined)
                     {
                         data: null,
@@ -285,6 +296,7 @@
                         data: 'commission',
                         name: 'commission',
                         orderable: true,
+                        orderable: false,
                         render: function(data) {
                             return '<div class="userDatatable-content text-center"><span class="badge badge-success badge-round badge-lg">' +
                                 data + '%</span></div>';

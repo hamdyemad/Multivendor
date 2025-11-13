@@ -3,8 +3,8 @@
 namespace Modules\CatalogManagement\app\Models;
 
 use App\Models\Attachment;
-use App\Models\Translation;
-use App\Traits\HasSlug;
+use App\Models\Traits\HasSlug;
+use App\Traits\Translation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -15,7 +15,7 @@ use Modules\Vendor\app\Models\Vendor;
 
 class Product extends Model
 {
-    use HasFactory, SoftDeletes, Translation, HasSlug;
+    use HasFactory, SoftDeletes, HasSlug, Translation;
 
     protected $guarded = [];
     protected $casts = [
@@ -24,15 +24,6 @@ class Product extends Model
         'points' => 'integer',
         'max_per_order' => 'integer',
     ];
-
-
-    /**
-     * Get all translations for the product
-     */
-    public function translations()
-    {
-        return $this->morphMany(Translation::class, 'translatable');
-    }
 
     /**
      * Get all attachments for the product

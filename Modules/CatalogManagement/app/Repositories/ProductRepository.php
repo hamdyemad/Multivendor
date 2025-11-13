@@ -60,7 +60,7 @@ class ProductRepository implements ProductInterface
         if (!empty($filters['created_date_from'])) {
             $query->whereDate('created_at', '>=', $filters['created_date_from']);
         }
-        
+
         if (!empty($filters['created_date_to'])) {
             $query->whereDate('created_at', '<=', $filters['created_date_to']);
         }
@@ -107,7 +107,7 @@ class ProductRepository implements ProductInterface
         if (!empty($filters['created_date_from'])) {
             $query->whereDate('created_at', '>=', $filters['created_date_from']);
         }
-        
+
         if (!empty($filters['created_date_to'])) {
             $query->whereDate('created_at', '<=', $filters['created_date_to']);
         }
@@ -115,7 +115,7 @@ class ProductRepository implements ProductInterface
         return $query;
     }
 
-    public function getProductById(int $id)
+    public function getProductById($id)
     {
         return Product::with([
             'brand',
@@ -135,7 +135,7 @@ class ProductRepository implements ProductInterface
         return DB::transaction(function () use ($data) {
             // Determine vendor_id based on user role
             $vendorId = $this->determineVendorId($data);
-            
+
             // Create product
             $product = Product::create([
                 'slug' => $this->generateSlug($data),

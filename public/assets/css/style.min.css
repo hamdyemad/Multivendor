@@ -37481,10 +37481,6 @@ body:after {
         font-size: 14px
     }
 
-    .checkout-progress div:not(.step) {
-        opacity: 0
-    }
-
     .wizard10 .checkout-shipping-form {
         padding-bottom: 30px
     }

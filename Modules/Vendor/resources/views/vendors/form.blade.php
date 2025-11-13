@@ -34,6 +34,9 @@
                         trans('vendor::vendor.vendor_account_details')
                     ]" :currentStep="1" />
 
+                    <!-- Validation Alerts Container -->
+                    <div id="validation-alerts-container" class="mb-3"></div>
+
                     <!-- Form -->
                     <form id="vendorForm" method="POST" action="{{ isset($vendor) ? route('admin.vendors.update', $vendor->id) : route('admin.vendors.store') }}" enctype="multipart/form-data">
                         @csrf
@@ -340,28 +343,18 @@
                                                         كلمات SEO المفتاحية باللغة العربية
                                                     @endif
                                                 </label>
-                                                <div class="tags-input-container" data-language="{{ $language->code }}">
-                                                    <div class="tags-display" id="tags_display_{{ $language->code }}">
-                                                        <!-- Tags will be displayed here -->
-                                                    </div>
-                                                    <input
-                                                        type="text"
-                                                        class="tags-input form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                        id="meta_keywords_input_{{ $language->code }}"
-                                                        placeholder="{{ $language->code == 'ar' ? 'اكتب كلمة مفتاحية واضغط انتر' : 'Type a keyword and press Enter...' }}"
-                                                        {{ $language->rtl ? 'dir=rtl' : '' }}
-                                                    >
-                                                    <input
-                                                        type="hidden"
-                                                        name="translations[{{ $language->id }}][meta_keywords]"
-                                                        id="meta_keywords_{{ $language->code }}"
-                                                        value="{{ isset($vendor) ? $vendor->getMetaKeywordsString($language->code) : old('translations.'.$language->id.'.meta_keywords') }}"
-                                                    >
-                                                </div>
+                                                <x-tags-input
+                                                    name="translations[{{ $language->id }}][meta_keywords]"
+                                                    :value="isset($vendor) ? $vendor->getMetaKeywordsString($language->code) : old('translations.'.$language->id.'.meta_keywords')"
+                                                    placeholder="{{ $language->code == 'ar' ? 'اكتب كلمة مفتاحية واضغط انتر' : 'Type a keyword and press Enter...' }}"
+                                                    rtl-placeholder="اكتب كلمة مفتاحية واضغط انتر"
+                                                    language="{{ $language->code }}"
+                                                    :allow-duplicates="true"
+                                                    theme="primary"
+                                                    size="md"
+                                                    id="meta_keywords_{{ $language->code }}"
+                                                />
                                                 <small class="text-muted w-100 d-block" @if($language->code == 'ar') dir="rtl" style="text-align: right;" @endif>{{ $language->code == 'ar' ? 'اضغط انتر أو فاصلة لإنشاء كلمة مفتاحية' : 'Press Enter or comma to create a keyword' }}</small>
-                                                @error('translations.'.$language->id.'.meta_keywords')
-                                                    <div class="text-danger mt-1">{{ $message }}</div>
-                                                @enderror
                                             </div>
                                         </div>
                                         @endforeach
@@ -372,8 +365,8 @@
                         </div>
 
                         <!-- Step 2: Vendor Documents -->
-                        <div class="wizard-step-content" data-step="2" style="display: none; margin-top: 60px;">
-                            <h5 class="mb-4" style="background: #0056B7; color: white; padding: 16px 20px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 0;">
+                        <div class="wizard-step-content" data-step="2" style="display: none;">
+                            <h5 class="mb-4" style="background: var(--color-primary); color: white; padding: 16px 20px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 0;">
                                 <div style="display: flex; align-items: center; gap: 12px;">
                                     <i class="uil uil-file-alt" style="font-size: 22px;"></i>
                                     {{ trans('vendor::vendor.vendor_documents') }}
@@ -385,12 +378,10 @@
                             <div id="documentsContainer">
                                 <!-- Documents will be added here dynamically -->
                             </div>
-
-
                         </div>
 
                         <!-- Step 3: Vendor Account Details -->
-                        <div class="wizard-step-content" data-step="3" style="display: none; margin-top: 60px;">
+                        <div class="wizard-step-content" data-step="3" style="display: none;">
                             <div class="card">
                                 <div class="card-body">
                                     <h5 class="mb-4" style="background: #0056B7; color: white; padding: 16px 20px; border-radius: 8px; display: flex; align-items: center; gap: 12px;">

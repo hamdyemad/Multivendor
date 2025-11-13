@@ -9,7 +9,7 @@ return [
     'region_details' => 'تفاصيل المنطقة',
 
     // Form Fields
-    'name' => 'الاسم',
+    'name' => 'اسم المنطقة',
     'name_english' => 'الاسم',
     'name_arabic' => 'الاسم',
     'country' => 'الدولة',
@@ -65,7 +65,7 @@ return [
 
     // Validation
     'validation_errors' => 'أخطاء التحقق من الصحة',
-    
+
     // Validation Messages
     'validation' => [
         'name_en_required' => 'الاسم الإنجليزي مطلوب',

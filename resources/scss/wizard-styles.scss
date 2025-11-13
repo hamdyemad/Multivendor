@@ -155,11 +155,15 @@ $transition: all 0.3s ease;
     gap: 0;
     position: relative;
     min-width: fit-content;
+
+    div:not(.step) {
+        margin: 0 10px;
+    }
 }
 
 .wizard-step-nav {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     padding: 15px 18px;
     border-radius: 10px;
@@ -168,6 +172,7 @@ $transition: all 0.3s ease;
     min-width: 120px;
     position: relative;
     border: 2px solid transparent;
+    gap: 12px;
 
     .step-number {
         width: 50px;
@@ -178,18 +183,18 @@ $transition: all 0.3s ease;
         @include flex-center;
         font-weight: 700;
         font-size: 20px;
-        margin-bottom: 10px;
         transition: $transition;
         @include box-shadow-sm;
+        flex-shrink: 0;
     }
 
     .step-label {
         font-size: 14px;
         color: $gray-600;
-        text-align: center;
+        text-align: left;
         font-weight: 500;
         line-height: 1.4;
-        max-width: 100px;
+        white-space: nowrap;
     }
 
     // Current Step
@@ -250,7 +255,7 @@ $transition: all 0.3s ease;
 .wizard-separator {
     display: flex;
     align-items: center;
-    padding: 0 15px;
+    padding: 0;
 
     svg {
         opacity: 0.5;
@@ -283,10 +288,11 @@ html[lang="ar"] {
 
     .wizard-step-nav {
         direction: rtl;
+        flex-direction: row-reverse;
 
         .step-label {
             direction: rtl;
-            text-align: center;
+            text-align: right;
         }
     }
 
@@ -298,8 +304,9 @@ html[lang="ar"] {
 // Responsive Design
 @media (max-width: 992px) {
     .wizard-step-nav {
-        min-width: 110px;
+        min-width: 140px;
         padding: 14px 16px;
+        gap: 10px;
 
         .step-number {
             width: 45px;
@@ -309,13 +316,12 @@ html[lang="ar"] {
 
         .step-label {
             font-size: 12px;
-            max-width: 95px;
             line-height: 1.3;
         }
     }
 
     .wizard-separator {
-        padding: 0 8px;
+        padding: 0;
 
         svg {
             width: 25px;
@@ -330,9 +336,10 @@ html[lang="ar"] {
     }
 
     .wizard-step-nav {
-        min-width: 95px;
+        min-width: 120px;
         padding: 12px 15px;
         flex-shrink: 0;
+        gap: 8px;
 
         .step-number {
             width: 35px;
@@ -342,13 +349,12 @@ html[lang="ar"] {
 
         .step-label {
             font-size: 10px;
-            max-width: 85px;
             line-height: 1.2;
         }
     }
 
     .wizard-separator {
-        padding: 0 6px;
+        padding: 0;
         flex-shrink: 0;
 
         svg {
@@ -360,8 +366,9 @@ html[lang="ar"] {
 
 @media (max-width: 576px) {
     .wizard-step-nav {
-        min-width: 80px;
+        min-width: 100px;
         padding: 10px 12px;
+        gap: 6px;
 
         .step-number {
             width: 30px;
@@ -371,13 +378,12 @@ html[lang="ar"] {
 
         .step-label {
             font-size: 9px;
-            max-width: 75px;
             line-height: 1.1;
         }
     }
 
     .wizard-separator {
-        padding: 0 4px;
+        padding: 0;
 
         svg {
             width: 18px;

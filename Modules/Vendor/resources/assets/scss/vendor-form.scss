@@ -92,6 +92,7 @@ $transition: all 0.3s ease;
     }
 }
 
+
 // Form Controls
 .form-control:focus {
     border-color: $primary-color;
@@ -189,11 +190,6 @@ input.is-invalid + .image-preview-container,
     color: #adb5bd;
 }
 
-// Select2
-.select2-selection--multiple .select2-selection__choice {
-    background-color: $primary-color !important;
-    border-color: $primary-color !important;
-}
 
 // Wizard Step Styling
 .checkout-progress-indicator {
@@ -268,7 +264,6 @@ input.is-invalid + .image-preview-container,
         text-align: center;
         font-weight: 500;
         line-height: 1.4;
-        max-width: 120px;
     }
 
     // Current Step
@@ -363,6 +358,167 @@ input.is-invalid + .image-preview-container,
         font-size: 14px;
         margin-right: 3px;
     }
+}
+
+// Ensure required field asterisks are always visible
+.form-label .text-danger,
+label .text-danger,
+.form-group label .text-danger {
+    display: inline !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #dc3545 !important;
+    font-weight: bold !important;
+    margin-left: 2px;
+}
+
+// Protect asterisks from being hidden by any other styles
+span.text-danger {
+    display: inline !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+
+    &:before {
+        content: none !important;
+    }
+
+    &:after {
+        content: none !important;
+    }
+}
+
+// Tags Input Styling
+.tags-input-container {
+    position: relative;
+    border: 1px solid #ddd;
+    border-radius: $border-radius;
+    padding: 8px;
+    background: white;
+    min-height: 45px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 6px;
+    transition: $transition;
+    width: 100%;
+
+    &:focus-within {
+        border-color: $primary-color;
+        box-shadow: 0 0 0 0.2rem rgba(95, 99, 242, 0.25);
+    }
+
+    .tags-display {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+        width: 100%;
+    }
+
+    .tag-item {
+        display: inline-flex;
+        align-items: center;
+        background: linear-gradient(135deg, #5f63f2 0%, #7c81f7 100%);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 15px;
+        font-size: 13px;
+        font-weight: 500;
+        gap: 6px;
+        animation: tagFadeIn 0.2s ease;
+
+        .tag-text {
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .tag-remove {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            line-height: 1;
+            transition: background-color 0.2s ease;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
+        }
+    }
+
+    .tags-input {
+        border: none;
+        outline: none;
+        background: transparent;
+        width: 100%;
+        padding: 4px 0;
+        font-size: 14px;
+        margin-top: 4px;
+
+        &::placeholder {
+            color: #999;
+            font-style: italic;
+        }
+    }
+}
+
+// RTL Support for tags
+[dir="rtl"] .tags-input-container,
+html[lang="ar"] .tags-input-container,
+.tags-input-container[data-language="ar"] {
+    direction: rtl;
+
+    .tags-display {
+        direction: rtl;
+        justify-content: flex-start;
+    }
+
+    .tag-item {
+        direction: rtl;
+        text-align: right;
+
+        .tag-text {
+            direction: rtl;
+            text-align: right;
+        }
+
+        .tag-remove {
+            margin-left: 6px;
+            margin-right: 0;
+        }
+    }
+
+    .tags-input {
+        direction: rtl;
+        text-align: right;
+    }
+}
+
+// Tag animation
+@keyframes tagFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+// Error state for tags input
+.tags-input-container.is-invalid {
+    border-color: $danger-color !important;
+    background-color: $danger-light !important;
 }
 
 .is-invalid {

@@ -155,6 +155,7 @@ return [
     'please_fix_errors' => 'يرجى إصلاح الأخطاء التالية قبل الإرسال:',
     'error' => 'خطأ',
     'creating_vendor' => 'جاري إنشاء المورد...',
+    'updating_vendor' => 'جاري تحديث المورد...',
     'please_wait' => 'يرجى الانتظار بينما نقوم بمعالجة طلبك',
     
     // Additional translations
@@ -188,7 +189,11 @@ return [
     'banner_must_be_image' => 'يجب أن يكون البانر ملف صورة.',
     'banner_file_types' => 'يجب أن يكون البانر من نوع: jpeg, png, jpg, gif.',
     'banner_max_size' => 'يجب ألا يتجاوز حجم البانر 4 ميجابايت.',
+    'documents_required' => 'يجب إضافة مستند واحد على الأقل.',
+    'at_least_one_document_required' => 'يجب إضافة مستند واحد على الأقل.',
     'document_name_required' => 'اسم المستند مطلوب.',
+    'document_name_required_english' => 'اسم المستند باللغة الإنجليزية مطلوب.',
+    'document_name_required_arabic' => 'اسم المستند باللغة العربية مطلوب.',
     'document_name_required_for_language' => 'اسم المستند مطلوب لـ :language.',
     'document_file_required' => 'ملف المستند مطلوب.',
     'document_file_types' => 'يجب أن يكون المستند من نوع: pdf, doc, docx, jpg, jpeg, png.',

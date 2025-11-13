@@ -17,8 +17,8 @@
         position: fixed;
         width: 60px;
         height: 60px;
-        bottom: 30px;
-        right: 30px;
+        bottom: 10px;
+        right: 100px;
         background-color: #25d366;
         color: #FFF;
         border-radius: 50px;
@@ -74,7 +74,7 @@
     /* RTL Support */
     [dir="rtl"] .whatsapp-float {
         right: auto;
-        left: 30px;
+        left: 100px;
         flex-direction: row-reverse;
     }
 
@@ -111,8 +111,8 @@
         .whatsapp-float {
             width: 50px;
             height: 50px;
-            bottom: 20px;
-            right: 20px;
+            bottom: 10px;
+            right: 85px;
             font-size: 25px;
             padding: 0 8px;
         }
@@ -133,7 +133,7 @@
 
         [dir="rtl"] .whatsapp-float {
             right: auto;
-            left: 20px;
+            left: 85px;
         }
     }
 
@@ -142,7 +142,7 @@
         position: fixed;
         width: 60px;
         height: 60px;
-        bottom: 100px;
+        bottom: 10px;
         right: 30px;
         background-color: #007bff;
         color: #FFF;
@@ -173,7 +173,7 @@
         .scroll-top-float {
             width: 50px;
             height: 50px;
-            bottom: 85px;
+            bottom: 10px;
             right: 20px;
             font-size: 24px;
         }

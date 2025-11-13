@@ -17,13 +17,13 @@
     "isEntry": true
   },
   "Modules/Vendor/resources/assets/js/vendor-form.js": {
-    "file": "assets/vendor-form-B8HzPgj-.js",
+    "file": "assets/vendor-form-CrXHtykc.js",
     "name": "vendor-form",
     "src": "Modules/Vendor/resources/assets/js/vendor-form.js",
     "isEntry": true
   },
   "Modules/Vendor/resources/assets/scss/vendor-form.scss": {
-    "file": "assets/vendor-form-CaTxyivd.css",
+    "file": "assets/vendor-form-kUtcNiFD.css",
     "src": "Modules/Vendor/resources/assets/scss/vendor-form.scss",
     "isEntry": true
   },
@@ -43,7 +43,7 @@
     "isEntry": true
   },
   "resources/scss/app.scss": {
-    "file": "assets/app-YmtgpliW.css",
+    "file": "assets/app-DI0EE-hE.css",
     "src": "resources/scss/app.scss",
     "isEntry": true
   },

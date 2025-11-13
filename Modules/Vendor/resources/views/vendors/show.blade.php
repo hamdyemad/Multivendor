@@ -1,7 +1,15 @@
 @extends('layout.app')
 
 @section('title', trans('vendor::vendor.vendor_details'))
-
+@section('styles')
+<style>
+    .view-item.docs-box {
+        border: 3px dashed var(--color-primary);
+        padding: 10px;
+        border-radius: 5px;
+    }
+</style>
+@endsection
 @section('content')
     <div class="container-fluid">
         <div class="row">
@@ -201,6 +209,85 @@
                                     </div>
                                 </div>
 
+                                {{-- SEO Information Section --}}
+                                <div class="card card-holder mt-3">
+                                    <div class="card-header">
+                                        <h3>
+                                            <i class="uil uil-search me-1"></i>{{ trans('vendor::vendor.seo_information') }}
+                                        </h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            {{-- Meta Title for each language --}}
+                                            @foreach($languages as $language)
+                                                <div class="col-md-6">
+                                                    <div class="view-item">
+                                                        <label class="il-gray fs-14 fw-500 mb-10" @if($language->rtl) dir="rtl" style="text-align: right; display: block;" @endif>
+                                                            @if($language->code == 'ar')
+                                                                عنوان SEO بالعربية
+                                                            @elseif($language->code == 'en')
+                                                                {{ trans('vendor::vendor.meta_title') }} ({{ $language->name }})
+                                                            @else
+                                                                {{ trans('vendor::vendor.meta_title') }} ({{ $language->name }})
+                                                            @endif
+                                                        </label>
+                                                        <p class="fs-15 color-dark" @if($language->rtl) dir="rtl" style="text-align: right;" @endif>
+                                                            {{ $vendor->getTranslation('meta_title', $language->code) ?? '-' }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                            {{-- Meta Description for each language --}}
+                                            @foreach($languages as $language)
+                                                <div class="col-md-6">
+                                                    <div class="view-item">
+                                                        <label class="il-gray fs-14 fw-500 mb-10" @if($language->rtl) dir="rtl" style="text-align: right; display: block;" @endif>
+                                                            @if($language->code == 'ar')
+                                                                وصف SEO بالعربية
+                                                            @elseif($language->code == 'en')
+                                                                {{ trans('vendor::vendor.meta_description') }} ({{ $language->name }})
+                                                            @else
+                                                                {{ trans('vendor::vendor.meta_description') }} ({{ $language->name }})
+                                                            @endif
+                                                        </label>
+                                                        <p class="fs-15 color-dark" @if($language->rtl) dir="rtl" style="text-align: right;" @endif>
+                                                            {{ $vendor->getTranslation('meta_description', $language->code) ?? '-' }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                            {{-- Meta Keywords for each language --}}
+                                            @foreach($languages as $language)
+                                                <div class="col-md-6">
+                                                    <div class="view-item">
+                                                        <label class="il-gray fs-14 fw-500 mb-10" @if($language->rtl) dir="rtl" style="text-align: right; display: block;" @endif>
+                                                            @if($language->code == 'ar')
+                                                                كلمات SEO المفتاحية بالعربية
+                                                            @elseif($language->code == 'en')
+                                                                {{ trans('vendor::vendor.meta_keywords') }} ({{ $language->name }})
+                                                            @else
+                                                                {{ trans('vendor::vendor.meta_keywords') }} ({{ $language->name }})
+                                                            @endif
+                                                        </label>
+                                                        <p class="fs-15 color-dark" @if($language->rtl) dir="rtl" style="text-align: right;" @endif>
+                                                            @php
+                                                                $keywords = $vendor->getMetaKeywordsArray($language->code);
+                                                            @endphp
+                                                            @if(!empty($keywords))
+                                                                @foreach($keywords as $keyword)
+                                                                    <span class="badge badge-primary badge-round me-1 mb-1">{{ $keyword }}</span>
+                                                                @endforeach
+                                                            @else
+                                                                <span class="text-muted">-</span>
+                                                            @endif
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+
                                 {{-- Documents Section --}}
                                 @if($vendor->documents && $vendor->documents->count() > 0)
                                 <div class="card card-holder mt-3">
@@ -213,14 +300,23 @@
                                         <div class="row">
                                             @foreach($vendor->documents as $document)
                                                 <div class="col-md-6 mb-3">
-                                                    <div class="view-item">
+                                                    <div class="view-item docs-box">
                                                         <label class="il-gray fs-14 fw-500 mb-10">
                                                             {{ $document->getTranslation('name', app()->getLocale()) ?? trans('vendor::vendor.document') }}
                                                         </label>
                                                         <p class="fs-15 color-dark">
-                                                            <a href="{{ asset('storage/' . $document->path) }}" target="_blank" class="btn btn-sm btn-light">
-                                                                <i class="uil uil-file-download me-1"></i>{{ trans('common.download') ?? 'Download' }}
-                                                            </a>
+                                                            <div class="d-flex gap-2">
+                                                                <a href="{{ asset('storage/' . $document->path) }}" target="_blank" class="btn btn-sm btn-light">
+                                                                    <i class="uil uil-file-download me-1"></i>{{ trans('common.download') ?? 'Download' }}
+                                                                </a>
+                                                                <button type="button" class="btn btn-sm btn-danger delete-document-btn"
+                                                                        data-bs-toggle="modal"
+                                                                        data-bs-target="#modal-delete-document"
+                                                                        data-document-id="{{ $document->id }}"
+                                                                        data-document-name="{{ $document->getTranslation('name', app()->getLocale()) ?? trans('vendor::vendor.document') }}">
+                                                                    <i class="uil uil-trash-alt me-1"></i>{{ trans('common.delete') ?? 'Delete' }}
+                                                                </button>
+                                                            </div>
                                                         </p>
                                                     </div>
                                                 </div>
@@ -306,5 +402,111 @@
 
     {{-- Image Modal Component --}}
     <x-image-modal />
+
+    {{-- Delete Document Confirmation Modal --}}
+    <x-delete-modal modalId="modal-delete-document" 
+                    :title="__('common.confirm_delete')" 
+                    :message="__('common.delete_confirmation')" 
+                    itemNameId="delete-document-name"
+                    confirmBtnId="confirmDeleteDocumentBtn" 
+                    :deleteRoute="'#'" 
+                    :cancelText="__('common.cancel')" 
+                    :deleteText="__('common.delete')" />
 @endsection
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    // Set delete modal data when delete button is clicked
+    $(document).on('click', '.delete-document-btn', function() {
+        const documentId = $(this).data('document-id');
+        const documentName = $(this).data('document-name');
+        
+        // Set the document name in the modal
+        $('#delete-document-name').text(documentName);
+        
+        // Store document ID and name in the confirm button
+        $('#confirmDeleteDocumentBtn').data('document-id', documentId);
+        $('#confirmDeleteDocumentBtn').data('document-name', documentName);
+    });
+
+    // Handle confirm delete button click
+    $('#confirmDeleteDocumentBtn').on('click', function() {
+        const documentId = $(this).data('document-id');
+        const documentName = $(this).data('document-name');
+        const confirmBtn = $(this);
+        
+        // Disable button and show loading
+        confirmBtn.prop('disabled', true);
+        confirmBtn.html('<i class="uil uil-spinner-alt spin me-1"></i>{{ trans('common.deleting') ?? 'Deleting...' }}');
+        
+        // Send AJAX request
+        $.ajax({
+            url: `{{ route('admin.vendors.documents.destroy', ['vendor' => $vendor->id, 'document' => '__DOCUMENT_ID__']) }}`.replace('__DOCUMENT_ID__', documentId),
+            type: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                // Hide the modal
+                $('#modal-delete-document').modal('hide');
+                
+                if (response.success) {
+                    // Find and remove the document row with animation
+                    $(`.delete-document-btn[data-document-id="${documentId}"]`).closest('.col-md-6').fadeOut(300, function() {
+                        $(this).remove();
+                        
+                        // Check if no documents left
+                        if ($('.delete-document-btn').length === 0) {
+                            location.reload(); // Reload to hide the documents section
+                        }
+                    });
+                }
+                
+                // Reset button
+                confirmBtn.prop('disabled', false);
+                confirmBtn.html('{{ trans('common.delete') ?? 'Delete' }}');
+            },
+            error: function(xhr) {
+                console.error('Error deleting document:', xhr);
+                
+                // Hide the modal
+                $('#modal-delete-document').modal('hide');
+                
+                // Reset button
+                confirmBtn.prop('disabled', false);
+                confirmBtn.html('{{ trans('common.delete') ?? 'Delete' }}');
+            }
+        });
+    });
+});
+</script>
+
+<style>
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.vendor-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.image-wrapper {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.image-wrapper:hover {
+    transform: scale(1.02);
+}
+</style>
+@endpush
 

@@ -31,8 +31,7 @@
                     <x-wizard :steps="[
                         trans('vendor::vendor.vendor_information'),
                         trans('vendor::vendor.vendor_documents'),
-                        trans('vendor::vendor.vendor_account_details'),
-                        trans('vendor::vendor.review_submit')
+                        trans('vendor::vendor.vendor_account_details')
                     ]" :currentStep="1" />
 
                     <!-- Form -->
@@ -69,7 +68,7 @@
                                                     id="name_{{ $language->code }}"
                                                     class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                     value="{{ isset($vendor) ? $vendor->getTranslation('name', $language->code) : old('translations.'.$language->id.'.name') }}"
-                                                    placeholder="@if($language->code == 'ar')أدخل اسم المتجر@else{{ trans('vendor::vendor.enter_vendor_name') }}@endif"
+                                                    placeholder="@if($language->code == 'ar')أدخل اسم التاجر@else{{ trans('vendor::vendor.enter_vendor_name') }}@endif"
                                                     {{ $language->rtl ? 'dir=rtl' : '' }}
                                                 >
                                                 @error('translations.'.$language->id.'.name')
@@ -98,7 +97,6 @@
                                                     id="description_{{ $language->code }}"
                                                     class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                     rows="4"
-                                                    placeholder="@if($language->code == 'ar')أدخل وصف المتجر@else{{ trans('vendor::vendor.enter_vendor_description') }}@endif"
                                                     {{ $language->rtl ? 'dir=rtl' : '' }}
                                                 >{{ isset($vendor) ? $vendor->getTranslation('description', $language->code) : old('translations.'.$language->id.'.description') }}</textarea>
                                                 @error('translations.'.$language->id.'.description')
@@ -247,7 +245,7 @@
                                         <!-- Active -->
                                         <div class="col-md-6 mb-3">
                                             <div class="form-group">
-                                                <label for="active" class="form-label d-block">
+                                                <label class="form-label d-block">
                                                     {{ trans('vendor::vendor.active') }}
                                                 </label>
                                                 <div class="form-check form-switch form-switch-lg">
@@ -320,7 +318,6 @@
                                                     id="meta_description_{{ $language->code }}"
                                                     class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                     rows="3"
-                                                    placeholder="{{ $language->code == 'ar' ? 'أدخل وصف SEO' : trans('vendor::vendor.enter_meta_description') }}"
                                                     {{ $language->rtl ? 'dir=rtl' : '' }}
                                                 >{{ isset($vendor) ? $vendor->getTranslation('meta_description', $language->code) : old('translations.'.$language->id.'.meta_description') }}</textarea>
                                                 @error('translations.'.$language->id.'.meta_description')
@@ -343,16 +340,25 @@
                                                         كلمات SEO المفتاحية باللغة العربية
                                                     @endif
                                                 </label>
-                                                <input
-                                                    type="text"
-                                                    name="translations[{{ $language->id }}][meta_keywords]"
-                                                    id="meta_keywords_{{ $language->code }}"
-                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                    value="{{ isset($vendor) ? $vendor->getTranslation('meta_keywords', $language->code) : old('translations.'.$language->id.'.meta_keywords') }}"
-                                                    placeholder="{{ $language->code == 'ar' ? 'أدخل الكلمات المفتاحية' : trans('vendor::vendor.enter_meta_keywords') }}"
-                                                    {{ $language->rtl ? 'dir=rtl' : '' }}
-                                                >
-                                                <small class="text-muted">{{ trans('vendor::vendor.separate_keywords_commas') }}</small>
+                                                <div class="tags-input-container" data-language="{{ $language->code }}">
+                                                    <div class="tags-display" id="tags_display_{{ $language->code }}">
+                                                        <!-- Tags will be displayed here -->
+                                                    </div>
+                                                    <input
+                                                        type="text"
+                                                        class="tags-input form-control ih-medium ip-gray radius-xs b-light px-15"
+                                                        id="meta_keywords_input_{{ $language->code }}"
+                                                        placeholder="{{ $language->code == 'ar' ? 'اكتب كلمة مفتاحية واضغط انتر' : 'Type a keyword and press Enter...' }}"
+                                                        {{ $language->rtl ? 'dir=rtl' : '' }}
+                                                    >
+                                                    <input
+                                                        type="hidden"
+                                                        name="translations[{{ $language->id }}][meta_keywords]"
+                                                        id="meta_keywords_{{ $language->code }}"
+                                                        value="{{ isset($vendor) ? $vendor->getMetaKeywordsString($language->code) : old('translations.'.$language->id.'.meta_keywords') }}"
+                                                    >
+                                                </div>
+                                                <small class="text-muted w-100 d-block" @if($language->code == 'ar') dir="rtl" style="text-align: right;" @endif>{{ $language->code == 'ar' ? 'اضغط انتر أو فاصلة لإنشاء كلمة مفتاحية' : 'Press Enter or comma to create a keyword' }}</small>
                                                 @error('translations.'.$language->id.'.meta_keywords')
                                                     <div class="text-danger mt-1">{{ $message }}</div>
                                                 @enderror
@@ -387,7 +393,7 @@
                         <div class="wizard-step-content" data-step="3" style="display: none; margin-top: 60px;">
                             <div class="card">
                                 <div class="card-body">
-                                    <h5 class="mb-4" style="">
+                                    <h5 class="mb-4" style="background: #0056B7; color: white; padding: 16px 20px; border-radius: 8px; display: flex; align-items: center; gap: 12px;">
                                         <i class="uil uil-user-circle" style="font-size: 22px;"></i>
                                         {{ trans('vendor::vendor.vendor_account_details') }}
                                     </h5>
@@ -471,195 +477,25 @@
 
                         </div>
 
-                        <!-- Step 4: Review & Submit -->
-                        <div class="wizard-step-content" data-step="4" style="display: none; margin-top: 60px;">
-                            <h5 class="mb-4" style="background: #0056B7; color: white; padding: 16px 20px; border-radius: 8px; display: flex; align-items: center; gap: 12px;">
-                                <i class="uil uil-check-circle" style="font-size: 22px;"></i>
-                                {{ trans('vendor::vendor.review_submit') }}
-                            </h5>
-
-                            <!-- Validation Errors Alert -->
-                            <div id="review-validation-errors" class="alert alert-danger" style="display: none; flex-direction: column;">
-                                <h6 class="alert-heading"><i class="uil uil-exclamation-triangle"></i> {{ trans('vendor::vendor.validation_errors') }}</h6>
-                                <div id="review-errors-list"></div>
-                            </div>
-
-                            <div class="alert alert-info">
-                                <i class="uil uil-info-circle"></i> {{ trans('vendor::vendor.please_review_info') }}
-                            </div>
-
-                            <!-- Review: Vendor Information -->
-                            <div class="card mb-3">
-                                <div class="card-header review-card-header">
-                                    <h6>
-                                        <i class="uil uil-store"></i> {{ trans('vendor::vendor.vendor_information') }}
-                                    </h6>
-                                    <button type="button" class="btn btn-sm btn-edit-step edit-step" data-step="1">
-                                        <i class="uil uil-edit"></i> {{ trans('common.edit') }}
-                                    </button>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        @foreach($languages as $language)
-                                        <div class="col-md-6 mb-2">
-                                            <strong>{{ trans('vendor::vendor.name') }} ({{ $language->name }}):</strong>
-                                            <span class="review-name-{{ $language->code }}">-</span>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                    <div class="row mt-2">
-                                        @foreach($languages as $language)
-                                        <div class="col-md-6 mb-2">
-                                            <strong>{{ trans('vendor::vendor.description') }} ({{ $language->name }}):</strong>
-                                            <p class="review-description-{{ $language->code }} text-muted mb-0">-</p>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                    <div class="row mt-2">
-                                        <div class="col-md-6 mb-2">
-                                            <strong>{{ trans('vendor::vendor.logo') }}:</strong>
-                                            <div class="review-logo">
-                                                <span class="text-muted">{{ trans('vendor::vendor.no_logo_uploaded') }}</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 mb-2">
-                                            <strong>{{ trans('vendor::vendor.banner') }}:</strong>
-                                            <div class="review-banner">
-                                                <span class="text-muted">{{ trans('vendor::vendor.no_banner_uploaded') }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row mt-2">
-                                        <div class="col-md-6 mb-2">
-                                            <strong>{{ trans('vendor::vendor.country') }}:</strong>
-                                            <span class="review-country">-</span>
-                                        </div>
-                                        <div class="col-md-6 mb-2">
-                                            <strong>{{ trans('vendor::vendor.commission') }}:</strong>
-                                            <span class="review-commission">-</span>
-                                        </div>
-                                    </div>
-                                    <div class="row mt-2">
-                                        <div class="col-md-6 mb-2">
-                                            <strong>{{ trans('vendor::vendor.status') }}:</strong>
-                                            <span class="review-active">
-                                                <span class="badge badge-success badge-round badge-lg">{{ trans('vendor::vendor.active') }}</span>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="row mt-2">
-                                        <div class="col-md-12">
-                                            <strong>{{ trans('vendor::vendor.activities') }}:</strong>
-                                            <span class="review-activities">-</span>
-                                        </div>
-                                    </div>
-                                    <div class="row mt-3">
-                                        <div class="col-md-12 mb-2">
-                                            <strong>{{ trans('vendor::vendor.seo_information') }}:</strong>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-2">
-                                                <strong class="text-muted" style="font-size: 14px;">English</strong>
-                                            </div>
-                                            <div class="mb-2">
-                                                <strong>Meta Title:</strong>
-                                                <span class="review-meta-title-en text-muted">Not provided</span>
-                                            </div>
-                                            <div class="mb-2">
-                                                <strong>Meta Description:</strong>
-                                                <span class="review-meta-description-en text-muted">Not provided</span>
-                                            </div>
-                                            <div class="mb-2">
-                                                <strong>Meta Keywords:</strong>
-                                                <span class="review-meta-keywords-en text-muted">Not provided</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-2">
-                                                <strong class="text-muted w-100 d-block" dir="rtl" style="font-size: 14px;">العربية</strong>
-                                            </div>
-                                            <div class="mb-2" dir="rtl">
-                                                <strong>عنوان الميتا:</strong>
-                                                <span class="review-meta-title-ar text-muted">غير محدد</span>
-                                            </div>
-                                            <div class="mb-2" dir="rtl">
-                                                <strong>وصف الميتا:</strong>
-                                                <span class="review-meta-description-ar text-muted">غير محدد</span>
-                                            </div>
-                                            <div class="mb-2" dir="rtl">
-                                                <strong>كلمات الميتا المفتاحية:</strong>
-                                                <span class="review-meta-keywords-ar text-muted">غير محدد</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Review: Documents -->
-                            <div class="card mb-3">
-                                <div class="card-header review-card-header">
-                                    <h6>
-                                        <i class="uil uil-file-alt"></i> {{ trans('vendor::vendor.vendor_documents') }}
-                                    </h6>
-                                    <button type="button" class="btn btn-sm btn-edit-step edit-step" data-step="2">
-                                        <i class="uil uil-edit"></i> {{ trans('common.edit') }}
-                                    </button>
-                                </div>
-                                <div class="card-body">
-                                    <div class="review-documents">
-                                        <p class="text-muted">{{ trans('vendor::vendor.no_documents_uploaded') }}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Review: Account Details -->
-                            <div class="card mb-3">
-                                <div class="card-header review-card-header">
-                                    <h6>
-                                        <i class="uil uil-user-circle"></i> {{ trans('vendor::vendor.vendor_account_details') }}
-                                    </h6>
-                                    <button type="button" class="btn btn-sm btn-edit-step edit-step" data-step="3">
-                                        <i class="uil uil-edit"></i> {{ trans('common.edit') }}
-                                    </button>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-12 mb-2">
-                                            <strong>{{ trans('vendor::vendor.email') }}:</strong>
-                                            <span class="review-email">-</span>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <strong>{{ trans('vendor::vendor.password') }}:</strong>
-                                            <span class="review-password text-muted">
-                                                {{ isset($vendor) ? trans('vendor::vendor.password_will_be_updated_if_provided') : trans('vendor::vendor.password_is_set') }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Navigation Buttons -->
-                        <div class="d-flex justify-content-between mt-4">
+                        <div class="d-flex justify-content-end gap-2 mt-4">
                             <button type="button" id="prevBtn" class="btn btn-light btn-squared" style="display: none;">
                                 <i class="uil uil-arrow-left"></i> {{ trans('vendor::vendor.previous') }}
                             </button>
-                            <div class="d-flex justify-content-end gap-2">
-                                <a href="{{ route('admin.vendors.index') }}" class="btn btn-light btn-squared">
-                                    <i class="uil uil-times"></i> {{ trans('vendor::vendor.cancel') }}
-                                </a>
-                                <button type="button" id="nextBtn" class="btn btn-primary btn-squared">
-                                    {{ trans('vendor::vendor.next') }}
-                                    @if(app()->getLocale() == 'en')
-                                        <i class="uil uil-arrow-right"></i>
-                                    @else
-                                        <i class="uil uil-arrow-left"></i>
-                                    @endif
-                                </button>
-                                <button type="submit" id="submitBtn" class="btn btn-success btn-squared" style="display: none;">
-                                    <i class="uil uil-check"></i> {{ isset($vendor) ? trans('vendor::vendor.update_vendor') : trans('vendor::vendor.create_vendor_button') }}
-                                </button>
-                            </div>
+                            <a href="{{ route('admin.vendors.index') }}" class="btn btn-light btn-squared">
+                                <i class="uil uil-times"></i> {{ trans('vendor::vendor.cancel') }}
+                            </a>
+                            <button type="button" id="nextBtn" class="btn btn-primary btn-squared">
+                                {{ trans('vendor::vendor.next') }}
+                                @if(app()->getLocale() == 'en')
+                                    <i class="uil uil-arrow-right"></i>
+                                @else
+                                    <i class="uil uil-arrow-left"></i>
+                                @endif
+                            </button>
+                            <button type="submit" id="submitBtn" class="btn btn-success btn-squared" style="display: none;">
+                                <i class="uil uil-check"></i> {{ isset($vendor) ? trans('vendor::vendor.update_vendor') : trans('vendor::vendor.create_vendor_button') }}
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -687,6 +523,7 @@
                         @else
                             الاسم باللغة العربية
                         @endif
+                        <span class="text-danger">*</span>
                     </label>
                     <input
                         type="text"
@@ -701,7 +538,7 @@
 
             <div class="col-md-12 mb-3">
                 <div class="form-group">
-                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('vendor::vendor.document_file') }}</label>
+                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('vendor::vendor.document_file') }} <span class="text-danger">*</span></label>
                     <div class="image-upload-wrapper">
                         <div class="image-preview-container banner-preview" id="__UNIQUEID__-preview-container" data-target="__UNIQUEID__">
                             <div class="image-placeholder" id="__UNIQUEID__-placeholder">
@@ -750,6 +587,8 @@ window.vendorFormConfig = {
     noBannerUploaded: '{{ trans("vendor::vendor.no_banner_uploaded") }}',
     noDocumentsUploaded: '{{ trans("vendor::vendor.no_documents_uploaded") }}',
     vendorCreated: '{{ trans("vendor::vendor.vendor_created_successfully") }}',
+    creatingVendor: '{{ trans("vendor::vendor.creating_vendor") }}',
+    updatingVendor: '{{ trans("vendor::vendor.updating_vendor") }}',
     redirecting: '{{ trans("vendor::vendor.redirecting") }}',
     errorOccurred: '{{ trans("vendor::vendor.error_occurred") }}',
     validationError: '{{ trans("vendor::vendor.validation_error") }}',

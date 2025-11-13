@@ -25,94 +25,28 @@ class VendorRepository implements VendorInterface
         protected RoleService $roleService,
     )
     {
-        
+
     }
     public function getAllVendors(array $filters = [], int $perPage = 10)
     {
-        $query = Vendor::with(['user', 'country', 'country.translations', 'activities', 'translations', 'commission']);
-
-        // Search in translations or user email
-        if (!empty($filters['search'])) {
-            $searchTerm = $filters['search'];
-            $query->where(function($q) use ($searchTerm) {
-                $q->whereHas('translations', function($query) use ($searchTerm) {
-                    $query->where('lang_key', 'name')
-                          ->where('lang_value', 'like', '%' . $searchTerm . '%');
-                })
-                ->orWhereHas('user', function($query) use ($searchTerm) {
-                    $query->where('email', 'like', '%' . $searchTerm . '%');
-                });
-            });
-        }
-
-        // Filter by active status
-        if (isset($filters['active']) && $filters['active'] !== '') {
-            $query->where('active', $filters['active']);
-        }
-
-        // Filter by country
-        if (!empty($filters['country_id'])) {
-            $query->where('country_id', $filters['country_id']);
-        }
-
-        // Filter by date range
-        if (!empty($filters['created_date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['created_date_from']);
-        }
-        
-        if (!empty($filters['created_date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['created_date_to']);
-        }
-
+        $query = Vendor::with(['user', 'country', 'country.translations', 'activities', 'translations', 'commission'])
+        ->filter($filters);
         return $query->latest()->paginate($perPage);
     }
 
     public function getQuery(array $filters = [])
     {
-        $query = Vendor::latest();
-
-        // Search in translations or user email
-        if (!empty($filters['search'])) {
-            $searchTerm = $filters['search'];
-            $query->where(function($q) use ($searchTerm) {
-                $q->whereHas('translations', function($query) use ($searchTerm) {
-                    $query->where('lang_key', 'name')
-                          ->where('lang_value', 'like', '%' . $searchTerm . '%');
-                })
-                ->orWhereHas('user', function($query) use ($searchTerm) {
-                    $query->where('email', 'like', '%' . $searchTerm . '%');
-                });
-            });
-        }
-
-        // Filter by active status
-        if (isset($filters['active']) && $filters['active'] !== '') {
-            $query->where('active', $filters['active']);
-        }
-
-        // Filter by country
-        if (!empty($filters['country_id'])) {
-            $query->where('country_id', $filters['country_id']);
-        }
-
-        // Filter by date range
-        if (!empty($filters['created_date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['created_date_from']);
-        }
-        
-        if (!empty($filters['created_date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['created_date_to']);
-        }
+        $query = Vendor::latest()->filter($filters);
         return $query;
     }
 
     public function getVendorById(int $id)
     {
         return Vendor::with([
-            'user', 
-            'country', 
-            'country.translations', 
-            'activities', 
+            'user',
+            'country',
+            'country.translations',
+            'activities',
             'activities.translations',
             'translations',
             'attachments',
@@ -137,13 +71,13 @@ class VendorRepository implements VendorInterface
             $user = $this->userService->createVendorAccount($userData);
             $user->roles()->sync([$role->id]);
 
-            // Create vendor
+            // Create vendor with temporary slug
             $vendor = Vendor::create([
-                'slug' => Str::uuid(),
                 'user_id' => $user->id,
                 'country_id' => $data['country_id'],
                 'type' => $data['type'],
                 'active' => $data['active'] ?? false,
+                'slug' => 'temp-vendor-' . Str::random(8), // Temporary slug to avoid SQL error
             ]);
             // Handle logo upload
             if (isset($data['logo'])) {
@@ -178,6 +112,11 @@ class VendorRepository implements VendorInterface
 
             // Store translations
             $this->storeTranslations($vendor, $data);
+
+            // Generate proper slug after translations are saved
+            $vendor->refresh(); // Refresh to get the latest translations
+            $newSlug = $vendor->createSlug();
+            $vendor->update(['slug' => $newSlug]);
 
             // Handle documents
             if (!empty($data['documents'])) {
@@ -265,6 +204,13 @@ class VendorRepository implements VendorInterface
             // Update translations
             $this->storeTranslations($vendor, $data);
 
+            // Regenerate slug after translations are updated
+            $vendor->refresh(); // Refresh to get the latest translations
+            $newSlug = $vendor->createSlug();
+            if ($newSlug !== $vendor->slug) {
+                $vendor->update(['slug' => $newSlug]);
+            }
+
             // Handle documents
             if (!empty($data['documents'])) {
                 $this->storeDocuments($vendor, $data['documents']);
@@ -274,42 +220,70 @@ class VendorRepository implements VendorInterface
         });
     }
 
+    public function canDeleteVendor(int $id): array
+    {
+        $productCount = DB::table('products')->where('vendor_id', $id)->count();
+
+        if ($productCount > 0) {
+            return [
+                'can_delete' => false,
+                'reason' => "Cannot delete vendor. This vendor has {$productCount} associated products. Please delete or reassign the products first.",
+                'product_count' => $productCount
+            ];
+        }
+
+        return ['can_delete' => true];
+    }
+
     public function deleteVendor(int $id)
     {
         return DB::transaction(function () use ($id) {
             $vendor = Vendor::with(['user', 'attachments', 'commission'])->findOrFail($id);
-            
+
             // Get user before deleting vendor
             $user = $vendor->user;
-            
-            // Delete all attachments with force delete (they use soft delete)
+
+            // Check if vendor can be deleted
+            $canDelete = $this->canDeleteVendor($id);
+            if (!$canDelete['can_delete']) {
+                throw new \Exception($canDelete['reason']);
+            }
+
+            // Delete all attachments and their files
             foreach ($vendor->attachments as $attachment) {
+                // Delete physical file if it exists
+                if ($attachment->path && Storage::disk('public')->exists($attachment->path)) {
+                    Storage::disk('public')->delete($attachment->path);
+                }
+
                 // Delete attachment translations (hard delete)
                 $attachment->translations()->delete();
-                
+
                 // Force delete attachment record (bypass soft delete)
-                $attachment->delete();
+                $attachment->forceDelete();
             }
-            
+
             // Delete vendor translations (hard delete - translations don't use soft delete)
             $vendor->translations()->delete();
-            
+
             // Detach activities (many-to-many) - must be done before vendor deletion
             $vendor->activities()->detach();
-            
+
             // Force delete commission if exists (commission uses soft delete)
             if ($vendor->commission) {
-                $vendor->commission()->delete();
+                $vendor->commission->forceDelete();
             }
-            
+
             // Force delete vendor (bypass soft delete) to avoid foreign key constraint issues
-            $vendor->delete();
-            
+            $vendor->forceDelete();
+
             // Delete associated user account if exists
             if ($user) {
-                $user->delete();
+                // Detach user roles first
+                $user->roles()->detach();
+                $user->forceDelete();
             }
-            
+
             return true;
         });
     }
@@ -367,17 +341,31 @@ class VendorRepository implements VendorInterface
                     ]);
                 }
 
-                // Store meta_keywords translation
+                // Store meta_keywords translation as JSON
                 if (!empty($fields['meta_keywords'])) {
+                    // Convert comma-separated string to array and then to JSON
+                    $keywords = is_string($fields['meta_keywords'])
+                        ? array_map('trim', explode(',', $fields['meta_keywords']))
+                        : $fields['meta_keywords'];
+
+                    // Filter out empty values
+                    $keywords = array_filter($keywords, function($keyword) {
+                        return !empty(trim($keyword));
+                    });
+
                     $vendor->translations()->create([
                         'lang_id' => $language->id,
                         'lang_key' => 'meta_keywords',
-                        'lang_value' => $fields['meta_keywords'],
+                        'lang_value' => json_encode(array_values($keywords)),
                     ]);
                 }
             }
         }
     }
+
+
+
+
 
     /**
      * Store documents for vendor using Attachment model
@@ -389,16 +377,16 @@ class VendorRepository implements VendorInterface
             if (empty($documentData['file'])) {
                 continue;
             }
-            
+
             $file = $documentData['file'];
             $filePath = $file->store("vendors/{$vendor->id}/documents", 'public');
-            
+
             // Create the attachment
             $attachment = $vendor->attachments()->create([
                 'type' => 'docs',
                 'path' => $filePath,
             ]);
-            
+
             // Store document name translations if they exist
             if (!empty($documentData['translations'])) {
                 foreach ($documentData['translations'] as $languageId => $fields) {
@@ -407,7 +395,7 @@ class VendorRepository implements VendorInterface
                     if (!$language || empty($fields['name'])) {
                         continue;
                     }
-                    
+
                     // Store document name translation
                     $attachment->translations()->create([
                         'lang_id' => $language->id,

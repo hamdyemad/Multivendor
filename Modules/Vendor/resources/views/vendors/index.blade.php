@@ -460,8 +460,14 @@
         });
 
         function showNotification(type, message) {
-            // Implement your notification system here
-            alert(message);
+            // Use the global showMessage function from app.blade.php
+            if (typeof showMessage === 'function') {
+                const icon = type === 'success' ? 'check-circle' : 'exclamation-triangle';
+                showMessage(type, message, icon);
+            } else {
+                // Fallback to alert if showMessage is not available
+                alert(message);
+            }
         }
     </script>
 @endpush

@@ -7,7 +7,7 @@ console.log('🚀 Vendor form script loaded!');
 
 // Global variables for wizard state
 let currentStep = 1;
-const totalSteps = 4;
+const totalSteps = 3;
 let documentIndex = 0;
 let validationErrors = {};
 
@@ -71,26 +71,27 @@ $(document).ready(function() {
 
     // Initialize wizard on page load
     showStep(currentStep);
+    
+    // Ensure buttons are in correct initial state
+    $('#prevBtn').hide(); // Should be hidden on step 1
+    $('#nextBtn').show(); // Should be visible on step 1
+    $('#submitBtn').hide(); // Should be hidden on step 1
+
+    // Protect required field asterisks from being removed
+    protectRequiredAsterisks();
+
+    // Add at least one document box on page load (only for new vendors)
+    const isEditMode = $('input[name="_method"][value="PUT"]').length > 0 || 
+                      $('.image-preview-container img').length > 0 ||
+                      $('input[name="translations"]').filter(function() { return $(this).val() !== ''; }).length > 0;
+    
+    if (!isEditMode) {
+        addDocumentRow();
+    }
 
     // Add Document Row using template
     $('#addDocument').on('click', function() {
-        const uniqueId = 'document_' + documentIndex + '_' + Date.now();
-        const template = document.getElementById('document-row-template');
-        const templateContent = template.content.cloneNode(true);
-        const div = document.createElement('div');
-        div.appendChild(templateContent);
-
-        // Replace placeholders
-        let html = div.innerHTML;
-        html = html.replace(/__INDEX__/g, documentIndex);
-        html = html.replace(/__UNIQUEID__/g, uniqueId);
-
-        $('#documentsContainer').append(html);
-        documentIndex++;
-        updateRemoveButtons();
-
-        // Re-initialize upload handlers for new document
-        initializeDocumentUpload(uniqueId);
+        addDocumentRow();
     });
 
     // Remove Document Row
@@ -148,10 +149,7 @@ $(document).ready(function() {
         if (currentStep > totalSteps) currentStep = totalSteps;
         showStep(currentStep);
 
-        // Update review when going to step 4
-        if (currentStep === 4) {
-            updateReview();
-        }
+        // No review step anymore - removed step 4
     });
 
     // Previous button
@@ -214,10 +212,7 @@ $(document).ready(function() {
             currentStep = targetStep;
             showStep(currentStep);
 
-            // Update review when going to step 4
-            if (currentStep === 4) {
-                updateReview();
-            }
+            // No review step anymore - removed step 4
         }
     });
 
@@ -225,7 +220,149 @@ $(document).ready(function() {
 
     // Form submission handler
     $('#vendorForm').on('submit', handleFormSubmission);
+
+    // Clear validation errors when user starts typing/selecting
+    initializeErrorClearingHandlers();
+
+    // Prevent form submission on Enter key press
+    preventEnterSubmission();
+
+    // Re-protect asterisks on any form interaction
+    protectAsterisksOnInteraction();
+
+    // Initialize tags input for meta keywords
+    initializeTagsInput();
 });
+
+/**
+ * Add a new document row to the form
+ */
+function addDocumentRow() {
+    const uniqueId = 'document_' + documentIndex + '_' + Date.now();
+    const template = document.getElementById('document-row-template');
+    const templateContent = template.content.cloneNode(true);
+    const div = document.createElement('div');
+    div.appendChild(templateContent);
+
+    // Replace placeholders
+    let html = div.innerHTML;
+    html = html.replace(/__INDEX__/g, documentIndex);
+    html = html.replace(/__UNIQUEID__/g, uniqueId);
+
+    $('#documentsContainer').prepend(html);
+    documentIndex++;
+    updateRemoveButtons();
+
+    // Re-initialize upload handlers for new document
+    initializeDocumentUpload(uniqueId);
+}
+
+/**
+ * Initialize handlers to clear validation errors when user interacts with form fields
+ */
+function initializeErrorClearingHandlers() {
+    // Handle text inputs, textareas, email inputs, number inputs, and other common input types
+    $(document).on('input keyup', 'input[type="text"], input[type="email"], input[type="number"], input[type="tel"], input[type="url"], input[type="password"], textarea', function() {
+        clearFieldError($(this));
+        // Ensure asterisks remain protected after clearing errors
+        protectRequiredAsterisks();
+    });
+
+    // Handle select dropdowns (including Select2)
+    $(document).on('change', 'select', function() {
+        clearFieldError($(this));
+        protectRequiredAsterisks();
+    });
+
+    // Handle Select2 specifically
+    $(document).on('select2:select select2:unselect', 'select', function() {
+        clearFieldError($(this));
+        protectRequiredAsterisks();
+    });
+
+    // Handle file inputs
+    $(document).on('change', 'input[type="file"]', function() {
+        clearFieldError($(this));
+        // Also clear error from associated image preview container
+        const previewContainer = $(this).siblings('.image-preview-container');
+        if (previewContainer.length) {
+            previewContainer.removeClass('is-invalid border-danger');
+        }
+        protectRequiredAsterisks();
+    });
+
+    // Handle checkboxes and radio buttons
+    $(document).on('change', 'input[type="checkbox"], input[type="radio"]', function() {
+        clearFieldError($(this));
+        protectRequiredAsterisks();
+    });
+
+    console.log('✅ Error clearing handlers initialized');
+}
+
+/**
+ * Prevent form submission when Enter key is pressed
+ */
+function preventEnterSubmission() {
+    // Prevent Enter key from submitting the form
+    $('#vendorForm').on('keypress', function(e) {
+        // Check if Enter key was pressed (keyCode 13)
+        if (e.which === 13 || e.keyCode === 13) {
+            // Allow Enter in textareas (for line breaks)
+            if (e.target.tagName.toLowerCase() === 'textarea') {
+                return true;
+            }
+            
+            // Prevent form submission for all other inputs
+            e.preventDefault();
+            console.log('🚫 Enter key form submission prevented');
+            return false;
+        }
+    });
+
+    // Also prevent keydown Enter events
+    $('#vendorForm').on('keydown', function(e) {
+        if (e.which === 13 || e.keyCode === 13) {
+            // Allow Enter in textareas
+            if (e.target.tagName.toLowerCase() === 'textarea') {
+                return true;
+            }
+            
+            // Prevent form submission
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    console.log('✅ Enter key form submission prevention initialized');
+}
+
+/**
+ * Clear validation error for a specific field
+ */
+function clearFieldError($field) {
+    // Remove error classes from the field itself
+    $field.removeClass('is-invalid border-danger');
+    
+    // Remove error message associated with this field (but NOT asterisks in labels)
+    $field.siblings('.error-message, .invalid-feedback').remove();
+    $field.siblings('.text-danger:not(label .text-danger):not(.form-label .text-danger)').remove();
+    $field.parent().find('.error-message, .invalid-feedback').remove();
+    $field.parent().find('.text-danger:not(label .text-danger):not(.form-label .text-danger)').remove();
+    
+    // For Select2, also clear error from the Select2 container
+    if ($field.hasClass('select2') || $field.data('select2')) {
+        $field.siblings('.select2-container').find('.select2-selection').removeClass('is-invalid border-danger');
+    }
+    
+    // Remove error from image preview containers
+    $field.siblings('.image-preview-container').removeClass('is-invalid border-danger');
+    
+    // Clear from form group (but preserve asterisks in labels)
+    $field.closest('.form-group').find('.error-message, .invalid-feedback').remove();
+    $field.closest('.form-group').find('.text-danger:not(label .text-danger):not(.form-label .text-danger)').remove();
+    $field.closest('.form-group').removeClass('has-error');
+}
 
 /**
  * Update remove buttons visibility
@@ -308,7 +445,7 @@ function showStep(step) {
     }
 
     // Reapply validation errors if they exist for this step
-    if (Object.keys(validationErrors).length > 0 && step !== 4) {
+    if (Object.keys(validationErrors).length > 0) {
         for (let field in validationErrors) {
             const bracketField = convertDotToBracket(field);
             const fieldElement = targetStep.find(`[name="${bracketField}"], [name="${bracketField}[]"], [name="${field}"], [name="${field}[]"]`).first();
@@ -354,10 +491,7 @@ function showStep(step) {
         }
     });
 
-    // Update review page when navigating to step 4
-    if (step === 4 && typeof updateReview === 'function') {
-        updateReview();
-    }
+    // No review step anymore - removed step 4
 
     // Update buttons
     if (step === 1) {
@@ -387,8 +521,8 @@ function clearAllErrors() {
     $('.error-message').remove();
     $('.is-invalid').removeClass('is-invalid');
     $('.border-danger').removeClass('border-danger');
-    $('#review-validation-errors').hide();
-    $('#review-errors-list').html('');
+    $('.validation-errors-alert').remove(); // Clear validation error alerts
+    // Removed review error elements since step 4 was removed
     $('#step-validation-alert').remove();
     validationErrors = {};
 }
@@ -424,7 +558,26 @@ function displayValidationErrors(errors) {
         });
 
         const bracketField = convertDotToBracket(field);
-        const fieldElement = $(`[name="${bracketField}"], [name="${bracketField}[]"], [name="${field}"], [name="${field}[]"]`).first();
+        let fieldElement = $(`[name="${bracketField}"], [name="${bracketField}[]"], [name="${field}"], [name="${field}[]"]`).first();
+        
+        // Special handling for document fields that might not be found due to dynamic indexing
+        if (!fieldElement.length && field.includes('documents.')) {
+            // Try to find document fields with partial matching
+            const fieldParts = field.split('.');
+            if (fieldParts.length >= 4 && fieldParts[0] === 'documents') {
+                const docIndex = fieldParts[1];
+                const langId = fieldParts[3];
+                const fieldName = fieldParts[4];
+                
+                // Try to find the field with a more flexible selector
+                fieldElement = $(`input[name*="documents[${docIndex}][translations][${langId}][${fieldName}]"]`).first();
+                
+                // If still not found, try any document field with the same language and field name
+                if (!fieldElement.length) {
+                    fieldElement = $(`input[name*="[translations][${langId}][${fieldName}]"]`).first();
+                }
+            }
+        }
 
         if (fieldElement.length) {
             fieldElement.addClass('is-invalid');
@@ -447,101 +600,39 @@ function displayValidationErrors(errors) {
 
     errorListHtml += '</ul>';
 
-    $('#review-errors-list').html(errorListHtml);
-    $('#review-validation-errors').show();
+    // Display validation errors in an alert at the top of the form
+    if (Object.keys(errors).length > 0) {
+        const isRtl = document.documentElement.dir === 'rtl' ||
+                      document.documentElement.lang === 'ar' ||
+                      $('html').attr('lang') === 'ar';
+        
+        const alertHtml = `
+            <div class="alert alert-danger alert-dismissible fade show validation-errors-alert" role="alert" style="margin-bottom: 20px;">
+                <div class="d-flex align-items-start">
+                    <i class="uil uil-exclamation-triangle me-2" style="font-size: 18px; margin-top: 2px;"></i>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-2">${isRtl ? 'يرجى تصحيح الأخطاء التالية:' : 'Please correct the following errors:'}</h6>
+                        ${errorListHtml}
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+        
+        // Remove any existing validation error alerts
+        $('.validation-errors-alert').remove();
+        
+        // Add the alert at the top of the form
+        $('.card').first().prepend(alertHtml);
+        
+        // Scroll to the alert
+        $('html, body').animate({
+            scrollTop: $('.validation-errors-alert').offset().top - 100
+        }, 300);
+    }
 }
 
-/**
- * Update Review Page with form data
- */
-function updateReview() {
-    const config = window.vendorFormConfig;
-    if (!config) {
-        console.error('vendorFormConfig not found!');
-        return;
-    }
-
-    // Update names and descriptions for each language
-    config.languages.forEach(lang => {
-        $(`.review-name-${lang.code}`).text($(`input[name="translations[${lang.id}][name]"]`).val() || config.notProvided);
-        $(`.review-description-${lang.code}`).text($(`textarea[name="translations[${lang.id}][description]"]`).val() || config.notProvided);
-    });
-
-    // Update country
-    $('.review-country').text($('#country_id option:selected').text() || config.notProvided);
-
-    // Update commission
-    const commission = $('#commission').val();
-    $('.review-commission').text(commission ? commission + '%' : config.notProvided);
-
-    // Update active status
-    const isActive = $('#active').is(':checked');
-    const activeLabel = config.activeLabel || 'Active';
-    const inactiveLabel = config.inactiveLabel || 'Inactive';
-    $('.review-active').html(isActive
-        ? `<span class="badge badge-success">${activeLabel}</span>`
-        : `<span class="badge badge-secondary">${inactiveLabel}</span>`
-    );
-
-    // Update activities
-    const selectedActivities = $('#activities option:selected').map(function() { return $(this).text(); }).get();
-    $('.review-activities').html(selectedActivities.length > 0
-        ? selectedActivities.map(a => `<span class="badge badge-primary badge-round me-1">${a}</span>`).join('')
-        : config.notProvided);
-
-    // Update Logo
-    const logoInput = document.getElementById('logo');
-    if (logoInput?.files?.[0]) {
-        const reader = new FileReader();
-        reader.onload = e => $('.review-logo').html(`<img src="${e.target.result}" alt="Logo" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">`);
-        reader.readAsDataURL(logoInput.files[0]);
-    } else {
-        $('.review-logo').html(`<span class="text-muted">${config.noLogoUploaded}</span>`);
-    }
-
-    // Update Banner
-    const bannerInput = document.getElementById('banner');
-    if (bannerInput?.files?.[0]) {
-        const reader = new FileReader();
-        reader.onload = e => $('.review-banner').html(`<img src="${e.target.result}" alt="Banner" class="img-thumbnail" style="max-width: 300px; max-height: 100px;">`);
-        reader.readAsDataURL(bannerInput.files[0]);
-    } else {
-        $('.review-banner').html(`<span class="text-muted">${config.noBannerUploaded}</span>`);
-    }
-
-    // Update SEO - for each language
-    let seoHtml = '';
-    config.languages.forEach((lang, index) => {
-        const metaTitle = $(`input[name="translations[${lang.id}][meta_title]"]`).val() || config.notProvided;
-        const metaDescription = $(`textarea[name="translations[${lang.id}][meta_description]"]`).val() || config.notProvided;
-        const metaKeywords = $(`input[name="translations[${lang.id}][meta_keywords]"]`).val() || config.notProvided;
-
-        seoHtml += `<div class="${index > 0 ? 'mt-3 pt-3 border-top' : ''}">`;
-        seoHtml += `<h6 class="text-muted mb-2">${lang.name}</h6>`;
-        seoHtml += `<div class="mb-2"><strong>${config.metaTitle}:</strong> ${metaTitle}</div>`;
-        seoHtml += `<div class="mb-2"><strong>${config.metaDescription}:</strong> ${metaDescription}</div>`;
-        seoHtml += `<div><strong>${config.metaKeywords}:</strong> ${metaKeywords}</div>`;
-        seoHtml += '</div>';
-    });
-    $('.review-seo').html(seoHtml);
-
-    // Update documents
-    const documents = [];
-    $('.document-row').each(function() {
-        const idx = $(this).data('document-index');
-        const name = $(this).find(`input[name^="documents[${idx}][translations]"][name$="[name]"]`).first().val();
-        const file = $(this).find(`input[name="documents[${idx}][file]"]`)[0].files[0];
-        if (name || file) documents.push({ name: name || config.notProvided, file: file ? file.name : config.notProvided });
-    });
-
-    $('.review-documents').html(documents.length > 0
-        ? '<ul class="list-unstyled mb-0">' + documents.map(d => `<li class="mb-2"><i class="uil uil-file-alt text-primary"></i> <strong>${d.name}</strong> - ${d.file}</li>`).join('') + '</ul>'
-        : `<p class="text-muted">${config.noDocumentsUploaded}</p>`
-    );
-
-    // Update email
-    $('.review-email').text($('#email').val() || config.notProvided);
-}
+// Removed updateReview function - no longer needed since step 4 was removed
 
 /**
  * Handle form submission
@@ -558,9 +649,19 @@ function handleFormSubmission(e) {
     // Clear previous errors
     clearAllErrors();
 
-    // Show loading overlay
+    // Show loading overlay with appropriate message
     if (typeof LoadingOverlay !== 'undefined') {
-        LoadingOverlay.show();
+        // Check if this is an edit operation
+        const isEdit = $('input[name="_method"][value="PUT"]').length > 0;
+        const loadingMessage = isEdit ? 
+            (config.updatingVendor || 'Updating vendor...') : 
+            (config.creatingVendor || 'Creating vendor...');
+        
+        // Show loading overlay with custom message
+        LoadingOverlay.show({
+            text: loadingMessage,
+            progress: true
+        });
         LoadingOverlay.progressSequence([30, 60, 90]);
     }
 
@@ -599,21 +700,14 @@ function handleFormSubmission(e) {
             if (xhr.status === 422) {
                 const errors = xhr.responseJSON.errors;
 
-                // Display errors in step 4 review page
+                // Display errors on current step
                 displayValidationErrors(errors);
 
-                // Navigate to step 4 to show review with errors
-                currentStep = 4;
-                showStep(4);
-
-                // Scroll to error alert box at top of Step 4
+                // Scroll to top of form on validation error
                 setTimeout(function() {
-                    const errorAlert = $('#review-validation-errors');
-                    if (errorAlert.is(':visible')) {
-                        $('html, body').animate({
-                            scrollTop: errorAlert.offset().top - 100
-                        }, 300);
-                    }
+                    $('html, body').animate({
+                        scrollTop: $('.card-body').offset().top - 100
+                    }, 300);
                 }, 100);
             } else {
                 alert(config.errorOccurred);
@@ -701,42 +795,119 @@ function validateCurrentStep(step) {
             });
         }
 
-        // Validate Logo (required for new vendor)
-        const logoInput = stepElement.find('input[name="logo"]');
-        const logoPreviewContainer = stepElement.find('#logo-preview-container');
-        const hasExistingLogo = logoPreviewContainer.find('img').length > 0 || logoInput.data('has-image') === true;
-        const logoFile = logoInput[0]?.files?.length > 0;
+        // Check if this is edit mode (has existing vendor data)
+        const isEditMode = $('input[name="_method"][value="PUT"]').length > 0 || 
+                          $('.image-preview-container img').length > 0 ||
+                          $('input[name="translations"]').filter(function() { return $(this).val() !== ''; }).length > 0;
 
-        if (!hasExistingLogo && !logoFile) {
-            const isRtl = document.documentElement.dir === 'rtl' ||
-                          document.documentElement.lang === 'ar' ||
-                          $('html').attr('lang') === 'ar';
-            errors.push({
-                field: 'logo',
-                message: isRtl ? 'الشعار مطلوب' : 'Logo is required',
-                element: logoPreviewContainer.length ? logoPreviewContainer : logoInput
-            });
+        // Validate Logo (required only for new vendor, not for edit)
+        if (!isEditMode) {
+            const logoInput = stepElement.find('input[name="logo"]');
+            const logoPreviewContainer = stepElement.find('#logo-preview-container');
+            const hasExistingLogo = logoPreviewContainer.find('img').length > 0 || logoInput.data('has-image') === true;
+            const logoFile = logoInput[0]?.files?.length > 0;
+
+            if (!hasExistingLogo && !logoFile) {
+                const isRtl = document.documentElement.dir === 'rtl' ||
+                              document.documentElement.lang === 'ar' ||
+                              $('html').attr('lang') === 'ar';
+                errors.push({
+                    field: 'logo',
+                    message: isRtl ? 'الشعار مطلوب' : 'Logo is required',
+                    element: logoPreviewContainer.length ? logoPreviewContainer : logoInput
+                });
+            }
         }
 
-        // Validate Banner (required for new vendor)
-        const bannerInput = stepElement.find('input[name="banner"]');
-        const bannerPreviewContainer = stepElement.find('#banner-preview-container');
-        const hasExistingBanner = bannerPreviewContainer.find('img').length > 0 || bannerInput.data('has-image') === true;
-        const bannerFile = bannerInput[0]?.files?.length > 0;
+        // Validate Banner (required only for new vendor, not for edit)
+        if (!isEditMode) {
+            const bannerInput = stepElement.find('input[name="banner"]');
+            const bannerPreviewContainer = stepElement.find('#banner-preview-container');
+            const hasExistingBanner = bannerPreviewContainer.find('img').length > 0 || bannerInput.data('has-image') === true;
+            const bannerFile = bannerInput[0]?.files?.length > 0;
 
-        if (!hasExistingBanner && !bannerFile) {
-            const isRtl = document.documentElement.dir === 'rtl' ||
-                          document.documentElement.lang === 'ar' ||
-                          $('html').attr('lang') === 'ar';
-            errors.push({
-                field: 'banner',
-                message: isRtl ? 'البانر مطلوب' : 'Banner is required',
-                element: bannerInput.length ? bannerInput : stepElement.find('#banner-preview-container')
-            });
+            if (!hasExistingBanner && !bannerFile) {
+                const isRtl = document.documentElement.dir === 'rtl' ||
+                              document.documentElement.lang === 'ar' ||
+                              $('html').attr('lang') === 'ar';
+                errors.push({
+                    field: 'banner',
+                    message: isRtl ? 'البانر مطلوب' : 'Banner is required',
+                    element: bannerInput.length ? bannerInput : stepElement.find('#banner-preview-container')
+                });
+            }
         }
     } else if (step === 2) {
-        // Step 2: Documents - Optional, no required validation
-        // But we can validate if document names are provided when files are uploaded
+        // Step 2: Documents - Required validation (only for new vendors)
+        const isRtl = document.documentElement.dir === 'rtl' ||
+                      document.documentElement.lang === 'ar' ||
+                      $('html').attr('lang') === 'ar';
+
+        // Check if this is edit mode
+        const isEditMode = $('input[name="_method"][value="PUT"]').length > 0 || 
+                          $('.image-preview-container img').length > 0 ||
+                          $('input[name="translations"]').filter(function() { return $(this).val() !== ''; }).length > 0;
+
+        // Check if at least one document is added (only required for new vendors)
+        const documentRows = stepElement.find('.document-row');
+        if (!isEditMode && documentRows.length === 0) {
+            errors.push({
+                field: 'documents',
+                message: isRtl ? 'يجب إضافة مستند واحد على الأقل' : 'At least one document is required',
+                element: stepElement.find('#documentsContainer')
+            });
+        } else if (documentRows.length > 0) {
+            // Validate each document row
+            documentRows.each(function(index) {
+                const documentRow = $(this);
+                const documentIndex = documentRow.data('document-index');
+                
+                // Check if document names are provided for both English and Arabic
+                let hasEnglishName = false;
+                let hasArabicName = false;
+                
+                documentRow.find('input[name*="[name]"]').each(function() {
+                    const inputName = $(this).attr('name');
+                    const inputValue = $(this).val().trim();
+                    
+                    if (inputName.includes('[1][name]') && inputValue !== '') { // English (ID: 1)
+                        hasEnglishName = true;
+                    }
+                    if (inputName.includes('[2][name]') && inputValue !== '') { // Arabic (ID: 2)
+                        hasArabicName = true;
+                    }
+                });
+                
+                if (!hasEnglishName) {
+                    errors.push({
+                        field: `documents[${documentIndex}][translations][1][name]`,
+                        message: isRtl ? 'اسم المستند باللغة الإنجليزية مطلوب' : 'Document name in English is required',
+                        element: documentRow.find('input[name*="[1][name]"]')
+                    });
+                }
+                
+                if (!hasArabicName) {
+                    errors.push({
+                        field: `documents[${documentIndex}][translations][2][name]`,
+                        message: isRtl ? 'اسم المستند باللغة العربية مطلوب' : 'Document name in Arabic is required',
+                        element: documentRow.find('input[name*="[2][name]"]')
+                    });
+                }
+                
+                // Check if document file is uploaded
+                const fileInput = documentRow.find('input[type="file"]');
+                const hasFile = fileInput[0]?.files?.length > 0;
+                const hasExistingFile = fileInput.data('has-file') === true;
+                
+                if (!hasFile && !hasExistingFile) {
+                    errors.push({
+                        field: `documents[${documentIndex}][file]`,
+                        message: isRtl ? 'ملف المستند مطلوب' : 'Document file is required',
+                        element: fileInput.closest('.image-upload-wrapper').find('.image-preview-container')
+                    });
+                }
+            });
+        }
     } else if (step === 3) {
         // Step 3: Account Details
         const isRtl = document.documentElement.dir === 'rtl' ||
@@ -760,10 +931,12 @@ function validateCurrentStep(step) {
         }
 
         // Validate password (only for new vendor)
-        const isEdit = stepElement.find('#email').data('edit') === true;
+        const isEditMode = $('input[name="_method"][value="PUT"]').length > 0 || 
+                          $('.image-preview-container img').length > 0 ||
+                          $('input[name="translations"]').filter(function() { return $(this).val() !== ''; }).length > 0;
         const password = stepElement.find('#password').val();
 
-        if (!isEdit && (!password || password.trim() === '')) {
+        if (!isEditMode && (!password || password.trim() === '')) {
             errors.push({
                 field: 'password',
                 message: isRtl ? 'كلمة المرور مطلوبة' : 'Password is required',
@@ -893,4 +1066,251 @@ function scrollToFirstError() {
 function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
+}
+
+/**
+ * Protect required field asterisks from being removed or hidden
+ */
+function protectRequiredAsterisks() {
+    console.log('🛡️ Protecting required field asterisks...');
+    
+    // Find all asterisks in labels and ensure they remain visible
+    $('label .text-danger, .form-label .text-danger').each(function() {
+        const $asterisk = $(this);
+        
+        // Ensure the asterisk is always visible
+        $asterisk.css({
+            'display': 'inline !important',
+            'visibility': 'visible !important',
+            'opacity': '1 !important',
+            'color': '#dc3545 !important',
+            'font-weight': 'bold !important'
+        });
+        
+        // Add a data attribute to mark it as protected
+        $asterisk.attr('data-protected', 'true');
+    });
+    
+    // Set up a mutation observer to watch for changes to labels
+    if (typeof MutationObserver !== 'undefined') {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList' || mutation.type === 'attributes') {
+                    // Re-protect asterisks if they've been modified
+                    $(mutation.target).find('.text-danger[data-protected="true"]').each(function() {
+                        const $asterisk = $(this);
+                        $asterisk.css({
+                            'display': 'inline !important',
+                            'visibility': 'visible !important',
+                            'opacity': '1 !important',
+                            'color': '#dc3545 !important',
+                            'font-weight': 'bold !important'
+                        });
+                    });
+                }
+            });
+        });
+        
+        // Start observing the form for changes
+        const formElement = document.getElementById('vendorForm');
+        if (formElement) {
+            observer.observe(formElement, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['style', 'class']
+            });
+        }
+    }
+    
+    console.log('✅ Required field asterisks protection enabled');
+}
+
+/**
+ * Protect asterisks on any form interaction
+ */
+function protectAsterisksOnInteraction() {
+    console.log('🔒 Setting up asterisk protection on form interactions...');
+    
+    // Protect asterisks on any input interaction
+    $(document).on('input keyup keydown change focus blur', 'input, textarea, select', function() {
+        setTimeout(function() {
+            protectRequiredAsterisks();
+        }, 10);
+    });
+    
+    // Protect asterisks when Select2 changes
+    $(document).on('select2:select select2:unselect select2:open select2:close', 'select', function() {
+        setTimeout(function() {
+            protectRequiredAsterisks();
+        }, 10);
+    });
+    
+    // Protect asterisks on file upload interactions
+    $(document).on('change', 'input[type="file"]', function() {
+        setTimeout(function() {
+            protectRequiredAsterisks();
+        }, 10);
+    });
+    
+    // Protect asterisks on checkbox/radio interactions
+    $(document).on('change', 'input[type="checkbox"], input[type="radio"]', function() {
+        setTimeout(function() {
+            protectRequiredAsterisks();
+        }, 10);
+    });
+    
+    // Protect asterisks when wizard steps change
+    $(document).on('click', '.wizard-step-nav, #nextBtn, #prevBtn', function() {
+        setTimeout(function() {
+            protectRequiredAsterisks();
+        }, 50);
+    });
+    
+    // Protect asterisks on form validation
+    $(document).on('DOMNodeInserted DOMNodeRemoved', function() {
+        setTimeout(function() {
+            protectRequiredAsterisks();
+        }, 10);
+    });
+    
+    console.log('✅ Asterisk protection on form interactions enabled');
+}
+
+/**
+ * Initialize tags input functionality for meta keywords
+ */
+function initializeTagsInput() {
+    console.log('🏷️ Initializing tags input for meta keywords...');
+    
+    // Initialize for each language
+    $('.tags-input-container').each(function() {
+        const container = $(this);
+        const language = container.data('language');
+        const input = container.find('.tags-input');
+        const hiddenInput = container.find(`#meta_keywords_${language}`);
+        const tagsDisplay = container.find('.tags-display');
+        
+        let tags = [];
+        
+        // Load existing tags from hidden input
+        const existingValue = hiddenInput.val();
+        if (existingValue && existingValue.trim()) {
+            tags = existingValue.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+            renderTags();
+        }
+        
+        // Handle input events
+        input.on('keydown', function(e) {
+            const value = $(this).val().trim();
+            
+            // Enter key or comma
+            if (e.key === 'Enter' || e.key === ',') {
+                e.preventDefault();
+                if (value) {
+                    addMultipleTags(value);
+                    $(this).val('');
+                }
+            }
+            // Backspace on empty input - remove last tag
+            else if (e.key === 'Backspace' && !value && tags.length > 0) {
+                removeTag(tags.length - 1);
+            }
+        });
+        
+        // Handle blur event (when user clicks away)
+        input.on('blur', function() {
+            const value = $(this).val().trim();
+            if (value) {
+                addMultipleTags(value);
+                $(this).val('');
+            }
+        });
+        
+        // Add tag function
+        function addTag(tagText) {
+            if (tagText) {
+                tags.push(tagText);
+                renderTags();
+                updateHiddenInput();
+            }
+        }
+        
+        // Add multiple tags from comma-separated input
+        function addMultipleTags(input) {
+            if (!input) return;
+            
+            // Split by comma and process each tag
+            const newTags = input.split(',')
+                .map(tag => tag.trim())
+                .filter(tag => tag.length > 0);
+            
+            for (const tagText of newTags) {
+                if (tagText) {
+                    tags.push(tagText);
+                }
+            }
+            
+            if (newTags.length > 0) {
+                renderTags();
+                updateHiddenInput();
+            }
+        }
+        
+        // Remove tag function
+        function removeTag(index) {
+            if (index >= 0 && index < tags.length) {
+                tags.splice(index, 1);
+                renderTags();
+                updateHiddenInput();
+            }
+        }
+        
+        // Render tags in the display area
+        function renderTags() {
+            tagsDisplay.empty();
+            
+            tags.forEach((tag, index) => {
+                const isRtl = language === 'ar';
+                const tagElement = $(`
+                    <div class="tag-item" data-index="${index}">
+                        <span class="tag-text" ${isRtl ? 'dir="rtl"' : ''}>${escapeHtml(tag)}</span>
+                        <button type="button" class="tag-remove" title="${isRtl ? 'إزالة' : 'Remove'}">×</button>
+                    </div>
+                `);
+                
+                // Add click handler for remove button
+                tagElement.find('.tag-remove').on('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    removeTag(index);
+                });
+                
+                tagsDisplay.append(tagElement);
+            });
+        }
+        
+        // Update hidden input with comma-separated values
+        function updateHiddenInput() {
+            hiddenInput.val(tags.join(', '));
+        }
+        
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    });
+    
+    console.log('✅ Tags input initialized for meta keywords');
+}
+
+/**
+ * Clear field error for tags input
+ */
+function clearTagsInputError($container) {
+    $container.removeClass('is-invalid border-danger');
+    $container.siblings('.error-message, .text-danger, .invalid-feedback').remove();
+    $container.parent().find('.error-message, .text-danger, .invalid-feedback').remove();
 }

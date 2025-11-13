@@ -75,11 +75,12 @@ class VendorRequest extends FormRequest
             // Commission
             'commission' => 'required|numeric|min:0|max:100',
             
-            // Documents (using language IDs)
-            'documents' => 'nullable|array',
+            // Documents (using language IDs) - Required for vendor creation, optional for update
+            'documents' => $isUpdate ? 'nullable|array' : 'required|array|min:1',
             'documents.*.translations' => 'required_with:documents|array',
-            'documents.*.translations.*.name' => 'required_with:documents|string|max:255',
-            'documents.*.file' => 'required_with:documents|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+            'documents.*.translations.1.name' => 'required_with:documents|string|max:255', // English (ID: 1)
+            'documents.*.translations.2.name' => 'required_with:documents|string|max:255', // Arabic (ID: 2)
+            'documents.*.file' => $isUpdate ? 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120' : 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
             
             // Account
             'email' => $emailRule,
@@ -150,7 +151,12 @@ class VendorRequest extends FormRequest
             'banner.image' => __('vendor::vendor.banner_must_be_image'),
             'banner.mimes' => __('vendor::vendor.banner_file_types'),
             'banner.max' => __('vendor::vendor.banner_max_size'),
-            'documents.*.file.required_with' => __('vendor::vendor.document_file_required'),
+            'documents.required' => __('vendor::vendor.documents_required'),
+            'documents.min' => __('vendor::vendor.at_least_one_document_required'),
+            'documents.*.translations.required' => __('vendor::vendor.document_name_required'),
+            'documents.*.translations.1.name.required_with' => __('vendor::vendor.document_name_required_english'),
+            'documents.*.translations.2.name.required_with' => __('vendor::vendor.document_name_required_arabic'),
+            'documents.*.file.required' => __('vendor::vendor.document_file_required'),
             'documents.*.file.mimes' => __('vendor::vendor.document_file_types'),
             'documents.*.file.max' => __('vendor::vendor.document_max_size'),
         ];

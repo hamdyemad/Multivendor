@@ -164,6 +164,7 @@ return [
     'please_fix_errors' => 'Please fix the following errors before submitting:',
     'error' => 'Error',
     'creating_vendor' => 'Creating Vendor...',
+    'updating_vendor' => 'Updating Vendor...',
     'please_wait' => 'Please wait while we process your request',
 
     // Additional translations
@@ -198,7 +199,11 @@ return [
     'banner_must_be_image' => 'Banner must be an image file.',
     'banner_file_types' => 'Banner must be a file of type: jpeg, png, jpg, gif.',
     'banner_max_size' => 'Banner size must not exceed 4MB.',
+    'documents_required' => 'At least one document is required.',
+    'at_least_one_document_required' => 'At least one document is required.',
     'document_name_required' => 'Document name is required.',
+    'document_name_required_english' => 'Document name in English is required.',
+    'document_name_required_arabic' => 'Document name in Arabic is required.',
     'document_name_required_for_language' => 'Document name is required for :language.',
     'document_file_required' => 'Document file is required.',
     'document_file_types' => 'Document must be a file of type: pdf, doc, docx, jpg, jpeg, png.',

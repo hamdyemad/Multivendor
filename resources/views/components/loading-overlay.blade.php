@@ -23,8 +23,22 @@
                 this.overlay = document.getElementById('loadingOverlay');
             },
 
-            show() {
+            show(config = {}) {
                 if (!this.overlay) this.init();
+                
+                // Update text if provided
+                if (config.text || config.subtext) {
+                    const textElement = this.overlay?.querySelector('.loading-text');
+                    const subtextElement = this.overlay?.querySelector('.loading-subtext');
+                    
+                    if (config.text && textElement) {
+                        textElement.textContent = config.text;
+                    }
+                    if (config.subtext && subtextElement) {
+                        subtextElement.textContent = config.subtext;
+                    }
+                }
+                
                 this.overlay?.classList.add('active');
                 this.resetProgressBar();
             },

@@ -1,0 +1,198 @@
+// ===================================
+// Tags Input Component Styles
+// ===================================
+
+// Variables
+$tags-primary-color: #5f63f2 !default;
+$tags-border-color: #ddd !default;
+$tags-border-radius: 8px !default;
+$tags-danger-color: #dc3545 !default;
+$tags-danger-light: #fff5f5 !default;
+$tags-transition: all 0.3s ease !default;
+
+// Tags Input Styling
+.tags-input-container {
+    position: relative;
+    border: 1px solid $tags-border-color;
+    border-radius: $tags-border-radius;
+    padding: 8px;
+    background: white;
+    min-height: 45px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 6px;
+    transition: $tags-transition;
+    width: 100%;
+
+    &:focus-within {
+        border-color: $tags-primary-color;
+        box-shadow: 0 0 0 0.2rem rgba(95, 99, 242, 0.25);
+    }
+
+    .tags-display {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+        width: 100%;
+    }
+
+    .tag-item {
+        display: inline-flex;
+        align-items: center;
+        background: linear-gradient(135deg, #5f63f2 0%, #7c81f7 100%);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 15px;
+        font-size: 13px;
+        font-weight: 500;
+        gap: 6px;
+        animation: tagFadeIn 0.2s ease;
+
+        .tag-text {
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .tag-remove {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            line-height: 1;
+            transition: background-color 0.2s ease;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
+        }
+    }
+
+    .tags-input {
+        border: none;
+        outline: none;
+        background: transparent;
+        width: 100%;
+        padding: 4px 0;
+        font-size: 14px;
+        margin-top: 4px;
+
+        &::placeholder {
+            color: #999;
+            font-style: italic;
+        }
+    }
+}
+
+// RTL Support for tags
+[dir="rtl"] .tags-input-container,
+html[lang="ar"] .tags-input-container,
+.tags-input-container[data-language="ar"] {
+    direction: rtl;
+    
+    .tags-display {
+        direction: rtl;
+        justify-content: flex-start;
+    }
+
+    .tag-item {
+        direction: rtl;
+        text-align: right;
+        
+        .tag-text {
+            direction: rtl;
+            text-align: right;
+        }
+        
+        .tag-remove {
+            margin-left: 6px;
+            margin-right: 0;
+        }
+    }
+    
+    .tags-input {
+        direction: rtl;
+        text-align: right;
+    }
+}
+
+// Tag animation
+@keyframes tagFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+// Error state for tags input
+.tags-input-container.is-invalid {
+    border-color: $tags-danger-color !important;
+    background-color: $tags-danger-light !important;
+}
+
+// Different color themes
+.tags-input-container {
+    &.theme-success .tag-item {
+        background: linear-gradient(135deg, #28a745 0%, #34ce57 100%);
+    }
+    
+    &.theme-warning .tag-item {
+        background: linear-gradient(135deg, #ffc107 0%, #ffcd39 100%);
+        color: #212529;
+    }
+    
+    &.theme-danger .tag-item {
+        background: linear-gradient(135deg, #dc3545 0%, #e4606d 100%);
+    }
+    
+    &.theme-info .tag-item {
+        background: linear-gradient(135deg, #17a2b8 0%, #3dd5f3 100%);
+    }
+}
+
+// Size variants
+.tags-input-container {
+    &.size-sm {
+        min-height: 35px;
+        padding: 6px;
+        
+        .tag-item {
+            padding: 2px 6px;
+            font-size: 11px;
+            border-radius: 12px;
+        }
+        
+        .tags-input {
+            font-size: 12px;
+        }
+    }
+    
+    &.size-lg {
+        min-height: 55px;
+        padding: 10px;
+        
+        .tag-item {
+            padding: 6px 10px;
+            font-size: 15px;
+            border-radius: 18px;
+        }
+        
+        .tags-input {
+            font-size: 16px;
+        }
+    }
+}

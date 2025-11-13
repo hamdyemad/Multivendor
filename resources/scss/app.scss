@@ -6,6 +6,21 @@
 
 /* Bootstrap-styled pagination - smaller and cleaner */
 
+body,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "Cairo", sans-serif !important;
+}
 @keyframes slideInRight {
     from {
         transform: translateX(100%);
@@ -242,22 +257,8 @@ textarea[data-lang="ar"] + .invalid-feedback {
     justify-content: center !important;
 }
 
+
 html[dir="rtl"] {
-    body,
-    .h1,
-    .h2,
-    .h3,
-    .h4,
-    .h5,
-    .h6,
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        font-family: "Cairo", sans-serif !important;
-    }
     .card.card-holder {
         .card-header {
             background: linear-gradient(

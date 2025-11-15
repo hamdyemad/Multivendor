@@ -9,7 +9,7 @@ trait Translation
 {
   public function translations()
   {
-      return $this->morphMany(TranslationModel::class, 'translatable');
+      return $this->morphMany(TranslationModel::class, 'translatable')->withTrashed();
   }
 
   public function getTranslation(string $key, string $locale)

@@ -43,9 +43,18 @@ class SystemSettingServiceProvider extends ServiceProvider
             \Modules\SystemSetting\app\Repositories\CurrencyRepository::class
         );
         
+        $this->app->bind(
+            \Modules\SystemSetting\app\Interfaces\ActivityLogRepositoryInterface::class,
+            \Modules\SystemSetting\app\Repositories\ActivityLogRepository::class
+        );
+        
         // Bind Services
         $this->app->bind(
             \Modules\SystemSetting\app\Services\CurrencyService::class
+        );
+        
+        $this->app->bind(
+            \Modules\SystemSetting\app\Services\ActivityLogService::class
         );
     }
 

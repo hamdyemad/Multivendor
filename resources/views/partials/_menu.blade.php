@@ -593,7 +593,7 @@
 
         @can('settings.logs.view')
         <li>
-            <a href="{{ route('admin.dashboard') }}">
+            <a href="{{ route('admin.system-settings.activity-logs.index') }}">
                 <span class="nav-icon uil uil-history"></span>
                 <span class="menu-text">{{ trans('menu.system log.title') }}</span>
             </a>

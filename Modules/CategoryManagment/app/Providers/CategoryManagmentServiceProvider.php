@@ -6,13 +6,17 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Modules\CategoryManagment\app\Interfaces\ActivityRepositoryInterface;
 use Modules\CategoryManagment\app\Interfaces\Api\ActivityApiRepositoryInterface;
+use Modules\CategoryManagment\app\Interfaces\Api\CategoryApiRepositoryInterface;
 use Modules\CategoryManagment\app\Interfaces\Api\DepartmentApiRepositoryInterface;
+use Modules\CategoryManagment\app\Interfaces\Api\SubCategoryApiRepositoryInterface;
 use Modules\CategoryManagment\app\Interfaces\DepartmentRepositoryInterface;
 use Modules\CategoryManagment\app\Interfaces\CategoryRepositoryInterface;
 use Modules\CategoryManagment\app\Interfaces\SubCategoryRepositoryInterface;
 use Modules\CategoryManagment\app\Repositories\Api\ActivityApiRepository;
 use Modules\CategoryManagment\app\Repositories\ActivityRepository;
+use Modules\CategoryManagment\app\Repositories\Api\CategoryApiRepository;
 use Modules\CategoryManagment\app\Repositories\Api\DepartmentApiRepository;
+use Modules\CategoryManagment\app\Repositories\Api\SubCategoryApiRepository;
 use Modules\CategoryManagment\app\Repositories\DepartmentRepository;
 use Modules\CategoryManagment\app\Repositories\CategoryRepository;
 use Modules\CategoryManagment\app\Repositories\SubCategoryRepository;
@@ -63,6 +67,16 @@ class CategoryManagmentServiceProvider extends ServiceProvider
         $this->app->bind(
             DepartmentApiRepositoryInterface::class,
             DepartmentApiRepository::class
+        );
+
+        $this->app->bind(
+            CategoryApiRepositoryInterface::class,
+            CategoryApiRepository::class
+        );
+
+        $this->app->bind(
+            SubCategoryApiRepositoryInterface::class,
+            SubCategoryApiRepository::class
         );
         
         $this->app->bind(

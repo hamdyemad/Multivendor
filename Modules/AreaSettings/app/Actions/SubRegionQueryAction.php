@@ -9,7 +9,7 @@ class SubRegionQueryAction
 {
     public function handle(array $filters = [])
     {
-        $query = SubRegion::query()->with('translations')->filter($filters);
+        $query = SubRegion::query()->active()->with('translations')->filter($filters);
         return $query;
     }
 }

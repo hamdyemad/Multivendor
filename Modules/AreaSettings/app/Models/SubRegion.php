@@ -22,6 +22,11 @@ class SubRegion extends Model
         return $this->belongsTo(Region::class, 'region_id');
     }
 
+    public function scopeActive($query)
+    {
+        return $query->where('active', true);
+    }
+
     public function scopeFilter(Builder $query, array $filters) {
         // Search filter
         if (!empty($filters['search'])) {

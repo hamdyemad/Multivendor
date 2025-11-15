@@ -8,7 +8,7 @@ class RegionQueryAction
 {
     public function handle(array $filters = [])
     {
-        $query = Region::query()->with('translations')->filter($filters);
+        $query = Region::query()->active()->with('translations')->filter($filters);
         return $query;
     }
 }

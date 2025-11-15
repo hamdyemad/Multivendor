@@ -23,7 +23,7 @@ class CityApiRepository implements CityApiRepositoryInterface
         $paginated = isset($filters["paginated"]) ? true : false;
 
         $query = $this->query->handle($filters)->whereHas('country', function($q) use ($id) {
-            $q->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id));
+            $q->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id))->active();
         });
 
         $result = $this->paginated->handle($query, $paginated, $filters["per_page"] ?? null);

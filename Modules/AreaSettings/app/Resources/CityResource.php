@@ -17,6 +17,7 @@ class CityResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name ?? $this->getTranslation('name', app()->getLocale()),
+            'slug' => $this->slug,
             'country' => new CountryResource($this->country),
             'active' => $this->active,
             'created_at' => $this->created_at,

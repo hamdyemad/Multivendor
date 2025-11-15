@@ -17,6 +17,7 @@ class SubRegionResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name ?? $this->getTranslation('name', app()->getLocale()),
+            'slug' => $this->slug,
             'region' => new RegionResource($this->whenLoaded('region')),
             'active' => $this->active,
             'created_at' => $this->created_at,

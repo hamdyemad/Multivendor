@@ -25,6 +25,11 @@ class Region extends Model
         return $this->belongsTo(City::class, 'city_id');
     }
 
+    public function scopeActive($query)
+    {
+        return $query->where('active', true);
+    }
+
     public function scopeFilter(Builder $query, array $filters) {
         // Search filter
         if (!empty($filters['search'])) {

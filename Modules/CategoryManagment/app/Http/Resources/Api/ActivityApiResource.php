@@ -1,11 +1,11 @@
 <?php
 
-namespace Modules\CategoryManagment\app\Http\Resources;
+namespace Modules\CategoryManagment\app\Http\Resources\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ActivityResource extends JsonResource
+class ActivityApiResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -31,6 +31,8 @@ class ActivityResource extends JsonResource
             'slug' => $this->slug,
             'description' => $activityDescription,
             'active' => $this->active,
+            'departmentsCount' => $this->active_departments_count ?? count($this->activeDepartments),
+            'departments' => DepartmentApiResource::collection($this->whenLoaded('activeDepartments')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

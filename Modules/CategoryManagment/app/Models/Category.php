@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\CategoryManagment\app\Models\DepartmentTranslation;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class Category extends Model
 {
@@ -50,4 +52,45 @@ class Category extends Model
         return $this->belongsToMany(Activity::class, 'activities_categories', 'category_id', 'activity_id');
     }
 
+    public function scopeActive($query)
+    {
+        return $query->where('active', true);
+    }
+
+    public function scopeFilter(Builder $query, array $filters)
+    {
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function($q) use ($search) {
+                $q->whereHas('translations', function($query) use ($search) {
+                    $query->where('lang_value', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        // Department Filter
+        if (isset($filters['department_id']) && $filters['department_id'] !== '') {
+            $query->where('department_id', $filters['department_id']);
+        }
+
+        // Active filter
+        if (isset($filters['active']) && $filters['active'] !== '') {
+            $query->where('active', $filters['active']);
+        }
+
+        // Date from filter
+        if (!empty($filters['created_date_from'])) {
+            $query->whereDate('created_at', '>=', $filters['created_date_from']);
+        }
+
+        // Date to filter
+        if (!empty($filters['created_date_to'])) {
+            $query->whereDate('created_at', '<=', $filters['created_date_to']);
+        }
+
+        // Order by latest
+        $query->orderBy('created_at', 'desc');
+
+        return $query;
+    }
 }

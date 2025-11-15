@@ -143,7 +143,6 @@ class ActivityRepository implements ActivityRepositoryInterface
     {
         return DB::transaction(function () use ($data) {
             $activity = Activity::create([
-                'slug' => \Str::uuid(),
                 'active' => $data['active'] ?? 0,
             ]);
 

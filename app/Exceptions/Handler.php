@@ -3,6 +3,9 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -34,6 +37,56 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
+        // Handle validation exceptions
+        $this->renderable(function (ValidationException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors(),
+                ], 422);
+            }
+        });
+
+        // Handle model not found exceptions
+        $this->renderable(function (ModelNotFoundException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Resource not found',
+                    'error' => $e->getMessage(),
+                ], 404);
+            }
+        });
+
+        // Handle database exceptions
+        $this->renderable(function (QueryException $e, $request) {
+            \Log::error('Database error: ' . $e->getMessage(), [
+                'query' => $e->getSql(),
+                'bindings' => $e->getBindings(),
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Database error occurred',
+                    'error' => app()->isLocal() ? $e->getMessage() : 'An error occurred',
+                ], 500);
+            }
+        });
+
+        // Handle generic exceptions
+        $this->renderable(function (Throwable $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An error occurred',
+                    'error' => app()->isLocal() ? $e->getMessage() : 'An unexpected error occurred',
+                    'code' => $e->getCode(),
+                ], 500);
+            }
+        });
+
         $this->reportable(function (Throwable $e) {
             //
         });

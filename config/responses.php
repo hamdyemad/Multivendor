@@ -17,6 +17,14 @@ return [
         'en' => 'Resource not found.',
         'ar' => 'المورد غير موجود.',
     ],
+    'Database error occurred' => [
+        'en' => 'Database error occurred.',
+        'ar' => 'حدث خطأ في قاعدة البيانات.',
+    ],
+    'HTTP error occurred' => [
+        'en' => 'HTTP error occurred.',
+        'ar' => 'حدث خطأ في بروتوكول نقل النصوص الفائق.',
+    ],
     'country' => [
         'en' => 'Invalid country.',
         'ar' => "الدولة غير صالحة",

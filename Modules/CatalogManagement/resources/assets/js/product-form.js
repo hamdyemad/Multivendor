@@ -602,6 +602,29 @@ jQuery(document).ready(function ($) {
         toggleAdditionalImagesVisibility();
     });
 
+    // Remove Image Box Button (Remove entire image box)
+    $(document).on('click', '.remove-image-box-btn', function(e) {
+        e.preventDefault();
+        console.log('🗑️ Remove image box button clicked');
+        const imageItem = $(this).closest('.additional-image-item');
+        const imageId = imageItem.data('image-id');
+
+        console.log('📦 Image ID:', imageId);
+
+        // If it's an existing image, mark it for deletion
+        if (imageId) {
+            console.log('🔖 Marking existing image for deletion:', imageId);
+            // Create a hidden input to mark for deletion
+            const deleteInput = $(`<input type="hidden" name="deleted_images[]" value="${imageId}">`);
+            $('#productForm').append(deleteInput);
+        }
+
+        console.log('🗑️ Removing image item from DOM');
+        imageItem.remove();
+        toggleAdditionalImagesVisibility();
+        console.log('✅ Image box removed successfully');
+    });
+
     showStep(currentStep);
 
     // Next button
@@ -2108,10 +2131,15 @@ function addAdditionalImage() {
 
     const imageHtml = `
         <div class="col-md-6 col-lg-4 mb-3 additional-image-item" data-index="${imageCount}">
-            <div class="form-group">
-                <label class="il-gray fs-14 fw-500 mb-10">
-                    ${config.additionalImage} ${imageCount}
-                </label>
+            <div class="form-group position-relative">
+                <div class="d-flex justify-content-between align-items-center mb-2" style="display: flex !important; justify-content: space-between !important; align-items: center !important; width: 100%;">
+                    <label class="il-gray fs-14 fw-500 mb-0" style="margin-bottom: 0 !important; flex: 1;">
+                        ${config.additionalImage} ${imageCount}
+                    </label>
+                    <button type="button" class="btn btn-sm btn-danger remove-image-box-btn" title="Remove this image" style="flex-shrink: 0; margin-left: 8px; padding: 4px 8px; font-size: 12px; min-width: auto; height: auto; line-height: 1;">
+                        <i class="uil uil-trash-alt" style="margin: 0;"></i>
+                    </button>
+                </div>
                 <div class="image-upload-wrapper">
                     <div class="image-preview-container" id="${uniqueId}-preview-container" data-target="${uniqueId}">
                         <div class="image-placeholder" id="${uniqueId}-placeholder">
@@ -2145,6 +2173,9 @@ function addAdditionalImage() {
     console.log('✅ Image HTML appended');
     console.log('📦 Container now has', container.find('.additional-image-item').length, 'items');
 
+    // Force container to display
+    container.css('display', 'flex');
+
     // Initialize image upload handlers for the new image
     initializeImageUploadHandler(uniqueId);
 
@@ -2152,6 +2183,14 @@ function addAdditionalImage() {
     toggleAdditionalImagesVisibility();
 
     console.log('✅ Additional image added successfully');
+
+    // Scroll to the new image
+    setTimeout(function() {
+        const newImage = container.find('.additional-image-item').last();
+        if (newImage.length) {
+            newImage[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }, 100);
 }
 
 /**

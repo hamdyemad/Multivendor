@@ -333,9 +333,14 @@
                                             @foreach($product->additionalImages as $index => $image)
                                                 <div class="col-md-6 col-lg-4 mb-3 additional-image-item" data-index="{{ $index + 1 }}" data-image-id="{{ $image->id }}">
                                                     <div class="form-group position-relative">
-                                                        <label class="il-gray fs-14 fw-500 mb-10">
-                                                            {{ __('common.additional_image') }} {{ $index + 1 }}
-                                                        </label>
+                                                        <div class="d-flex justify-content-between align-items-center mb-2" style="display: flex !important; justify-content: space-between !important; align-items: center !important; width: 100%;">
+                                                            <label class="il-gray fs-14 fw-500 mb-0" style="margin-bottom: 0 !important; flex: 1;">
+                                                                {{ __('common.additional_image') }} {{ $index + 1 }}
+                                                            </label>
+                                                            <button type="button" class="btn btn-sm btn-danger remove-image-box-btn" title="Remove this image" style="flex-shrink: 0; margin-left: 8px; padding: 4px 8px; font-size: 12px; min-width: auto; height: auto; line-height: 1;">
+                                                                <i class="uil uil-trash-alt" style="margin: 0;"></i>
+                                                            </button>
+                                                        </div>
                                                         <div class="image-upload-wrapper">
                                                             <div class="image-preview-container" id="existing_image_{{ $image->id }}-preview-container" data-target="existing_image_{{ $image->id }}">
                                                                 <img src="{{ asset('storage/' . $image->path) }}" alt="{{ __('common.additional_image') }}" class="preview-image" id="existing_image_{{ $image->id }}-preview-img">

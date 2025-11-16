@@ -350,18 +350,13 @@
                                                         @foreach(['en' => 'English', 'ar' => 'العربية'] as $lang => $langName)
                                                             @php
                                                                 $keywords = $product->getTranslation('meta_keywords', $lang) ?? '';
-                                                                if ($keywords) {
-                                                                    // Try to decode as JSON
-                                                                    $decoded = json_decode($keywords, true);
-                                                                    if (is_array($decoded)) {
-                                                                        $keywords = implode(', ', $decoded);
-                                                                    }
-                                                                }
+                                                                $keywords = explode(",", $keywords);
                                                             @endphp
                                                             @if($keywords)
                                                                 <div class="col-md-6 mb-2">
-                                                                    <small class="text-muted d-block">{{ $langName }}:</small>
-                                                                    <p class="fs-15 color-dark mb-0">{{ $keywords }}</p>
+                                                                    @foreach ($keywords as $keyword)
+                                                                        <div class="badge badge-round badge-lg badge-primary">{{ $keyword }}</div>
+                                                                    @endforeach
                                                                 </div>
                                                             @endif
                                                         @endforeach

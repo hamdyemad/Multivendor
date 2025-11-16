@@ -26,6 +26,83 @@ document.addEventListener("DOMContentLoaded", function () {
 jQuery(document).ready(function ($) {
     console.log("✅ Product form jQuery ready");
 
+    // Initialize Select2 for main form selects with placeholder
+    setTimeout(function() {
+        $('#brand_id, #vendor_id, #department_id, #category_id, #sub_category_id, #tax_id, #configuration_type').each(function() {
+            var emptyOptionText = $(this).find('option[value=""]').text().trim();
+            console.log('📋 Select2 Init - ID:', $(this).attr('id'), 'Placeholder:', emptyOptionText);
+
+            $(this).select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                allowClear: false,
+                placeholder: emptyOptionText || 'Select An Option'
+            });
+        });
+    }, 100);
+
+    // Handle vendor change to filter departments
+    $('#vendor_id').on('change', function() {
+        const vendorId = $(this).val();
+        const vendorActivitiesMap = window.productFormConfig?.vendorActivitiesMap || {};
+        const vendorActivities = vendorActivitiesMap[vendorId] || [];
+
+        console.log('🔄 Vendor changed to:', vendorId);
+        console.log('📊 Vendor Activities Map:', vendorActivitiesMap);
+        console.log('📋 Vendor Activities:', vendorActivities);
+
+        // Filter departments based on vendor activities
+        $('#department_id option').each(function() {
+            const $option = $(this);
+            const optionValue = $option.val();
+
+            // Always show empty option
+            if (optionValue === '') {
+                $option.show();
+                return;
+            }
+
+            // Get department activities from data attribute
+            try {
+                let deptActivitiesStr = $option.attr('data-activities');
+                let deptActivities = [];
+
+                if (deptActivitiesStr) {
+                    // Decode HTML entities first
+                    const textarea = document.createElement('textarea');
+                    textarea.innerHTML = deptActivitiesStr;
+                    const decodedStr = textarea.value;
+
+                    // Try to parse as JSON
+                    deptActivities = JSON.parse(decodedStr);
+                }
+
+                // Show department if it has matching activities with vendor
+                const hasMatchingActivity = deptActivities.some(activity => vendorActivities.includes(activity));
+
+                if (hasMatchingActivity || vendorActivities.length === 0) {
+                    $option.show();
+                } else {
+                    $option.hide();
+                    // Clear selection if hidden
+                    if ($option.is(':selected')) {
+                        $('#department_id').val('').trigger('change');
+                    }
+                }
+            } catch (e) {
+                console.error('Error parsing department activities:', e);
+                $option.show();
+            }
+        });
+
+        // Refresh Select2
+        $('#department_id').select2('destroy').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            allowClear: false
+        });
+    });
+
     // Ensure all form fields have error containers
     setTimeout(function() {
         ensureErrorContainers();
@@ -141,10 +218,10 @@ jQuery(document).ready(function ($) {
         const vendorSelect = $("#vendor_id");
         const departmentSelect = $("#department_id");
         const vendorActivitiesMap = window.productFormConfig.vendorActivitiesMap || {};
-        
+
         // Check if this is Admin/Super Admin (has vendorActivitiesMap with multiple vendors)
         const isAdminUser = Object.keys(vendorActivitiesMap).length > 0;
-        
+
         if (isAdminUser) {
             console.log("👤 Admin/Super Admin user detected - hiding departments until vendor selected");
             // Hide all department options except empty option
@@ -485,10 +562,46 @@ jQuery(document).ready(function ($) {
     setTimeout(waitForSelect2AndAttach, 200);
 
     // Initialize wizard on page load
-    
+
     // Add form submission handler
     $('#productForm').on('submit', handleFormSubmission);
-    
+
+    // Additional Images Management
+    let additionalImageIndex = 0;
+
+    // Initialize existing additional images
+    $('.additional-image-item').each(function() {
+        const imageId = $(this).data('image-id');
+        if (imageId) {
+            initializeImageUploadHandler(`existing_image_${imageId}`);
+        }
+    });
+
+    // Add Additional Image Button
+    $('#add-additional-image-btn').on('click', function(e) {
+        console.log('🖱️ Add Image button clicked!');
+        e.preventDefault();
+        console.log('🎯 Calling addAdditionalImage function...');
+        addAdditionalImage();
+    });
+
+    // Remove Additional Image (Event Delegation)
+    $(document).on('click', '.remove-additional-image-btn', function(e) {
+        e.preventDefault();
+        const imageItem = $(this).closest('.additional-image-item');
+        const imageId = imageItem.data('image-id');
+
+        // If it's an existing image, mark it for deletion
+        if (imageId) {
+            // Create a hidden input to mark for deletion
+            const deleteInput = $(`<input type="hidden" name="deleted_images[]" value="${imageId}">`);
+            $('#productForm').append(deleteInput);
+        }
+
+        imageItem.remove();
+        toggleAdditionalImagesVisibility();
+    });
+
     showStep(currentStep);
 
     // Next button
@@ -763,8 +876,14 @@ jQuery(document).ready(function ($) {
     // Load regions data on page load
     loadRegionsData();
 
-    // Additional images functionality
-    initializeAdditionalImages();
+    // Ensure LoadingOverlay is initialized
+    if (typeof LoadingOverlay !== "undefined" && LoadingOverlay.init) {
+        console.log("🔄 Initializing LoadingOverlay...");
+        LoadingOverlay.init();
+        console.log("✅ LoadingOverlay initialized");
+    } else {
+        console.warn("⚠️ LoadingOverlay not available");
+    }
 
     console.log("✅ Product form navigation initialized");
 });
@@ -1131,7 +1250,7 @@ function displayValidationErrors(errors) {
             if (alertElement.length) {
                 alertElement.show();
                 console.log('✅ Alert should now be visible');
-                
+
                 // Scroll to the alert
                 $('html, body').animate({
                     scrollTop: alertElement.offset().top - 100
@@ -1194,90 +1313,100 @@ function handleFormSubmission(e) {
     if (typeof LoadingOverlay !== "undefined") {
         // Initialize if not already done
         if (!LoadingOverlay.overlay) {
+            console.log('Initializing LoadingOverlay...');
             LoadingOverlay.init();
         }
-        
-        // Check if this is an edit operation
-        const isEdit = $('input[name="_method"][value="PUT"]').length > 0;
-        const loadingMessage = isEdit ?
-            (config.updatingProduct || 'Updating product...') :
-            (config.creatingProduct || 'Creating product...');
-
-        // Show loading overlay with custom message
-        console.log('Showing loading overlay with message:', loadingMessage);
-        LoadingOverlay.show({
-            text: loadingMessage,
-            subtext: config.pleaseWait || 'Please wait...'
-        });
-        LoadingOverlay.progressSequence([30, 60, 90]);
     } else {
         console.error('LoadingOverlay is not defined');
+        return;
     }
 
     const formData = new FormData(this);
     const url = $(this).attr("action");
 
-    $.ajax({
-        url: url,
-        method: "POST",
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function (response) {
-            console.log('AJAX response:', response);
-            
-            if (typeof LoadingOverlay !== "undefined") {
-                LoadingOverlay.animateProgressBar(100);
-            }
+    // Check if this is an edit operation
+    const isEdit = $('input[name="_method"][value="PUT"]').length > 0;
+    const loadingMessage = isEdit ?
+        (config.updatingProduct || 'Updating product...') :
+        (config.creatingProduct || 'Creating product...');
 
-            // Check if response indicates success (either response.success or status code 200)
-            if (response.success !== false) {
-                const isEdit = $('input[name="_method"][value="PUT"]').length > 0;
-                const successMessage = response.message || 
-                    (isEdit ? config.productUpdated : config.productCreated) || 
-                    'Product saved successfully!';
-                
-                if (typeof LoadingOverlay !== "undefined") {
-                    LoadingOverlay.showSuccess(
-                        successMessage,
-                        config.redirecting || 'Redirecting...'
-                    );
-                }
+    // Update loading overlay text
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        overlay.querySelector('.loading-text').textContent = loadingMessage;
+        overlay.querySelector('.loading-subtext').textContent = config.pleaseWait || 'Please wait...';
+    }
 
-                setTimeout(function () {
-                    window.location.href =
-                        config.indexRoute || "/admin/products";
-                }, 1500);
-            } else {
-                // Handle error response
-                if (typeof LoadingOverlay !== "undefined") {
-                    LoadingOverlay.hide();
-                }
-                alert(response.message || "An error occurred. Please try again.");
-            }
-        },
-        error: function (xhr) {
-            console.log('AJAX error:', xhr);
-            
-            if (typeof LoadingOverlay !== "undefined") {
-                LoadingOverlay.hide();
-            }
+    // Show loading overlay
+    LoadingOverlay.show();
 
-            // Restore required attributes in case of error
+    // Animate progress bar and send request
+    LoadingOverlay.animateProgressBar(30, 300).then(() => {
+        return fetch(url, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+            }
+        });
+    })
+    .then(response => {
+        // Progress to 60%
+        LoadingOverlay.animateProgressBar(60, 200);
+
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw data;
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Progress to 90%
+        return LoadingOverlay.animateProgressBar(90, 200).then(() => data);
+    })
+    .then(data => {
+        // Complete progress bar
+        return LoadingOverlay.animateProgressBar(100, 200).then(() => {
+            // Restore required attributes
             restoreRequiredAttributes();
 
-            if (xhr.status === 422) {
-                const errors = xhr.responseJSON.errors;
-                console.log('Validation errors:', errors);
+            // Show success animation with dynamic message
+            const isEdit = $('input[name="_method"][value="PUT"]').length > 0;
+            const successMessage = data.message ||
+                (isEdit ? config.productUpdated : config.productCreated) ||
+                'Product saved successfully!';
 
-                // Display validation errors inline
-                displayValidationErrors(errors);
-            } else {
-                const errorMessage = xhr.responseJSON?.message || "An error occurred. Please try again.";
-                console.error('Error message:', errorMessage);
-                alert(errorMessage);
-            }
-        },
+            LoadingOverlay.showSuccess(
+                successMessage,
+                config.redirecting || 'Redirecting...'
+            );
+
+            // Redirect after 1.5 seconds
+            setTimeout(() => {
+                window.location.href = data.redirect || config.indexRoute || '/admin/products';
+            }, 1500);
+        });
+    })
+    .catch(error => {
+        // Hide loading overlay and reset progress bar
+        LoadingOverlay.hide();
+
+        // Restore required attributes in case of error
+        restoreRequiredAttributes();
+
+        console.log('Error:', error);
+
+        // Handle validation errors
+        if (error.errors) {
+            console.log('Validation errors:', error.errors);
+            displayValidationErrors(error.errors);
+        } else {
+            const errorMessage = error.message || 'An error occurred. Please try again.';
+            console.error('Error message:', errorMessage);
+            alert(errorMessage);
+        }
     });
 }
 
@@ -1384,6 +1513,7 @@ function calculateTotalStock() {
  */
 function addVariantBox() {
     variantIndex++;
+    const config = window.productFormConfig;
 
     const variantHtml = `
         <div class="variant-box card mb-3" data-variant-index="${variantIndex}">
@@ -1392,24 +1522,24 @@ function addVariantBox() {
                     <div>
                         <h6 class="mb-0 text-primary variant-title">
                             <i class="uil uil-cube"></i>
-                            Variant ${variantIndex}
+                            ${config.variantNumber} ${variantIndex}
                         </h6>
                         <small class="text-muted variant-details-path" style="display: none;">
-                            <strong>Variant Details:</strong> <span class="variant-path-text"></span>
+                            <strong>${config.variantDetails}:</strong> <span class="variant-path-text"></span>
                         </small>
                     </div>
                     <button type="button" class="btn btn-sm btn-outline-danger remove-variant-btn">
-                        <i class="uil uil-trash-alt m-0"></i> Remove
+                        <i class="uil uil-trash-alt m-0"></i> ${config.remove}
                     </button>
                 </div>
 
                 <div class="row">
                     <div class="col-md-12 mb-3">
-                        <label class="form-label">Variant Configuration Key <span class="text-danger">*</span></label>
+                        <label class="form-label">${config.selectVariantKey} <span class="text-danger">*</span></label>
                         <select name="variants[${variantIndex}][key_id]" class="form-control variant-key-select" required>
-                            <option value="">Loading variant keys...</option>
+                            <option value="">${config.loadingVariantKeys}</option>
                         </select>
-                        <small class="text-muted">Select the type of variant (e.g., Color, Size, Material)</small>
+                        <small class="text-muted">${config.selectVariantKeyHelper}</small>
                     </div>
                 </div>
 
@@ -1439,26 +1569,26 @@ function addVariantBox() {
                         <div class="card-body">
                             <h5 class="mb-4">
                                 <i class="uil uil-receipt"></i>
-                                Product Details
+                                ${config.productDetails}
                             </h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <div class="form-group">
-                                        <label class="form-label">Variant SKU <span class="text-danger">*</span></label>
+                                        <label class="form-label">${config.variantSku} <span class="text-danger">*</span></label>
                                         <input type="text" name="variants[${variantIndex}][sku]" class="form-control ih-medium ip-gray radius-xs b-light px-15" placeholder="PRD-12345">
                                     </div>
                                 </div>
 
                                 <div class="col-md-6 mb-3">
                                     <div class="form-group">
-                                        <label class="form-label">Price <span class="text-danger">*</span></label>
+                                        <label class="form-label">${config.price} <span class="text-danger">*</span></label>
                                         <input type="number" name="variants[${variantIndex}][price]" class="form-control ih-medium ip-gray radius-xs b-light px-15" min="0" step="0.01" placeholder="Enter price" required>
                                     </div>
                                 </div>
 
                                 <div class="col-md-12 mb-3">
                                     <div class="form-group">
-                                        <label class="form-label d-block">Enable Discount Offer</label>
+                                        <label class="form-label d-block">${config.enableDiscountOffer}</label>
                                         <div class="form-check form-switch form-switch-lg">
                                             <input class="form-check-input variant-discount-toggle" type="checkbox" role="switch" name="variants[${variantIndex}][has_discount]" value="1">
                                         </div>
@@ -1470,14 +1600,14 @@ function addVariantBox() {
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <div class="form-group">
-                                                <label class="form-label">Price Before Discount</label>
+                                                <label class="form-label">${config.priceBeforeDiscount}</label>
                                                 <input type="number" name="variants[${variantIndex}][price_before_discount]" class="form-control ih-medium ip-gray radius-xs b-light px-15" min="0" step="0.01" placeholder="Enter original price">
                                             </div>
                                         </div>
 
                                         <div class="col-md-6 mb-3">
                                             <div class="form-group">
-                                                <label class="form-label">Offer End Date</label>
+                                                <label class="form-label">${config.offerEndDate}</label>
                                                 <input type="date" name="variants[${variantIndex}][offer_end_date]" class="form-control ih-medium ip-gray radius-xs b-light px-15">
                                             </div>
                                         </div>
@@ -1490,17 +1620,17 @@ function addVariantBox() {
                             <h5 class="mb-4 d-flex justify-content-between align-items-center">
                                 <div>
                                     <i class="uil uil-package"></i>
-                                    Stock per Region
+                                    ${config.stockPerRegion}
                                 </div>
                                 <button type="button" class="btn btn-primary btn-sm add-stock-row-variant" data-variant-index="${variantIndex}">
-                                    <i class="uil uil-plus"></i> Add New Region
+                                    <i class="uil uil-plus"></i> ${config.addNewRegion}
                                 </button>
                             </h5>
 
                             <!-- Empty state message -->
                             <div class="variant-stock-empty-state text-center py-4" data-variant-index="${variantIndex}">
                                 <i class="uil uil-package text-muted" style="font-size: 48px;"></i>
-                                <p class="text-muted mb-0">No regions added yet. Click "Add New Region" to start.</p>
+                                <p class="text-muted mb-0">${config.noRegionsAddedYet}</p>
                             </div>
 
                             <!-- Stock table (hidden initially) -->
@@ -1511,9 +1641,9 @@ function addVariantBox() {
                                             <thead>
                                                 <tr class="userDatatable-header">
                                                     <th><span class="userDatatable-title">#</span></th>
-                                                    <th><span class="userDatatable-title">Region</span></th>
-                                                    <th><span class="userDatatable-title">Stock Quantity</span></th>
-                                                    <th><span class="userDatatable-title">Actions</span></th>
+                                                    <th><span class="userDatatable-title">${config.region}</span></th>
+                                                    <th><span class="userDatatable-title">${config.stockQuantity}</span></th>
+                                                    <th><span class="userDatatable-title">${config.actionsLabel}</span></th>
                                                 </tr>
                                             </thead>
                                             <tbody class="variant-stock-rows" data-variant-index="${variantIndex}">
@@ -1521,7 +1651,7 @@ function addVariantBox() {
                                             </tbody>
                                             <tfoot>
                                                 <tr class="table-light">
-                                                    <td colspan="2" class="text-center fw-bold">Total Stock:</td>
+                                                    <td colspan="2" class="text-center fw-bold">${config.totalStock}:</td>
                                                     <td class="fw-bold text-primary">
                                                         <span class="variant-total-stock" data-variant-index="${variantIndex}">0</span>
                                                     </td>
@@ -1610,6 +1740,7 @@ function loadNestedVariants(variantBox, keyId) {
  */
 function loadVariantLevel(variantBox, keyId, parentId, level) {
     const nestedContainer = variantBox.find(".nested-variant-levels");
+    const config = window.productFormConfig;
 
     $.ajax({
         url: "/admin/api/variants-by-key",
@@ -1627,7 +1758,7 @@ function loadVariantLevel(variantBox, keyId, parentId, level) {
                 // Create select for this level
                 const levelId = `level-${level}`;
                 const levelLabel =
-                    level === 0 ? "Root Variants" : `Level ${level + 1}`;
+                    level === 0 ? config.rootVariantsLabel : `${config.selectLevel} ${level + 1}`;
 
                 const levelHtml = `
                     <div class="variant-level mb-3" data-level="${level}">
@@ -1728,6 +1859,7 @@ function setFinalVariantSelection(variantBox, variantId) {
  * Update the selection info display
  */
 function updateVariantSelectionInfo(variantBox) {
+    const config = window.productFormConfig;
     const selectionInfo = variantBox.find(".variant-selection-info");
     const selectionText = selectionInfo.find(".selection-text");
     const finalVariantId = variantBox.find(".final-variant-id").val();
@@ -1750,7 +1882,7 @@ function updateVariantSelectionInfo(variantBox) {
 
             // Update selection info
             selectionText.html(
-                `<strong>Selected:</strong> ${path.join(" → ")}`
+                `<strong>${config.selectedColon}</strong> ${path.join(" → ")}`
             );
             selectionInfo
                 .removeClass("alert-info")
@@ -1764,7 +1896,7 @@ function updateVariantSelectionInfo(variantBox) {
             // Product details are shown by setFinalVariantSelection function
         }
     } else {
-        selectionText.text("Please select a variant");
+        selectionText.text(config.pleaseSelectVariant);
         selectionInfo
             .removeClass("alert-success")
             .addClass("alert-info")
@@ -1957,155 +2089,146 @@ function reindexVariants() {
 }
 
 /**
- * Initialize additional images functionality using x-image-upload component pattern
+ * Add Additional Image
  */
-function initializeAdditionalImages() {
-    // Add image button
-    $('#add-additional-image-btn').on('click', function() {
-        addAdditionalImageUpload();
-    });
+function addAdditionalImage() {
+    console.log('🖼️ Adding new additional image...');
 
-    // Remove additional image (event delegation)
-    $(document).on('click', '.remove-additional-image', function() {
-        $(this).closest('.additional-image-item').remove();
-        toggleAdditionalImagesVisibility();
-        reindexAdditionalImages();
-    });
+    const config = window.productFormConfig;
+    const container = $('#additional-images-container');
 
-    function addAdditionalImageUpload() {
-        // Get the current count of existing images to determine the next index
-        const currentCount = $('.additional-image-item').length;
-        const nextIndex = currentCount + 1;
-        const uniqueId = 'additional_image_' + Date.now(); // Use timestamp for unique ID
+    console.log('📦 Container found:', container.length > 0);
+    console.log('📦 Container display:', container.css('display'));
 
-        const imageHtml = `
-            <div class="col-md-4 mb-3 additional-image-item" data-index="${nextIndex}">
-                <div class="card">
-                    <div class="card-body p-3">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="text-muted">Additional Image ${nextIndex}</small>
-                            <button type="button" class="btn btn-sm btn-outline-danger remove-additional-image">
-                                <i class="uil uil-trash-alt m-0"></i>
+    const imageCount = container.find('.additional-image-item').length + 1;
+    const uniqueId = 'new_image_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+    console.log('🆔 Unique ID:', uniqueId);
+    console.log('📊 Image count:', imageCount);
+
+    const imageHtml = `
+        <div class="col-md-6 col-lg-4 mb-3 additional-image-item" data-index="${imageCount}">
+            <div class="form-group">
+                <label class="il-gray fs-14 fw-500 mb-10">
+                    ${config.additionalImage} ${imageCount}
+                </label>
+                <div class="image-upload-wrapper">
+                    <div class="image-preview-container" id="${uniqueId}-preview-container" data-target="${uniqueId}">
+                        <div class="image-placeholder" id="${uniqueId}-placeholder">
+                            <i class="uil uil-image-plus"></i>
+                            <p>${config.clickToUploadImage}</p>
+                            <small>${config.recommendedSize}</small>
+                        </div>
+                        <div class="image-overlay">
+                            <button type="button" class="btn-change-image" data-target="${uniqueId}">
+                                <i class="uil uil-camera"></i> ${config.change}
+                            </button>
+                            <button type="button" class="btn-remove-image remove-additional-image-btn" data-target="${uniqueId}" style="display: none;">
+                                <i class="uil uil-trash-alt"></i> ${config.remove}
                             </button>
                         </div>
-                        <p class="text-muted mb-2" style="font-size: 11px;">
-                            <i class="uil uil-info-circle me-1"></i>
-                            Recommended: 800x800px
-                        </p>
-                        <div class="form-group">
-                            <div class="image-upload-wrapper">
-                                <div class="image-preview-container" id="${uniqueId}-preview-container" data-target="${uniqueId}">
-                                    <div class="image-placeholder" id="${uniqueId}-placeholder">
-                                        <i class="uil uil-image-plus"></i>
-                                        <p>Click to upload image</p>
-                                        <small>Recommended: 800x800px</small>
-                                    </div>
-                                    <div class="image-overlay">
-                                        <button type="button" class="btn-change-image" data-target="${uniqueId}">
-                                            <i class="uil uil-camera"></i> Change
-                                        </button>
-                                        <button type="button" class="btn-remove-image" data-target="${uniqueId}" style="display: none;">
-                                            <i class="uil uil-trash-alt"></i> Remove
-                                        </button>
-                                    </div>
-                                </div>
-                                <input type="file" class="d-none image-file-input" id="${uniqueId}" name="additional_images[]" accept="image/jpeg,image/png,image/jpg,image/webp" data-preview="${uniqueId}">
-                            </div>
-                        </div>
                     </div>
+                    <input type="file"
+                           class="d-none image-file-input"
+                           id="${uniqueId}"
+                           name="additional_images[]"
+                           accept="image/jpeg,image/png,image/jpg,image/webp"
+                           data-preview="${uniqueId}">
                 </div>
             </div>
-        `;
+        </div>
+    `;
 
-        $('#additional-images-container').append(imageHtml);
+    console.log('📝 Appending image HTML to container...');
+    container.append(imageHtml);
 
-        // Initialize the image upload functionality for this new component
-        initializeImageUploadComponent(uniqueId);
+    console.log('✅ Image HTML appended');
+    console.log('📦 Container now has', container.find('.additional-image-item').length, 'items');
 
-        toggleAdditionalImagesVisibility();
-    }
+    // Initialize image upload handlers for the new image
+    initializeImageUploadHandler(uniqueId);
 
-    function initializeImageUploadComponent(uniqueId) {
-        const input = document.getElementById(uniqueId);
-        const container = document.getElementById(uniqueId + '-preview-container');
-        const placeholder = document.getElementById(uniqueId + '-placeholder');
-        const changeBtn = container.querySelector('.btn-change-image');
-        const removeBtn = container.querySelector('.btn-remove-image');
+    // Show container and hide empty state
+    toggleAdditionalImagesVisibility();
 
-        // Click on container to select file
-        container.addEventListener('click', (e) => {
-            if (!e.target.closest('.btn-change-image') && !e.target.closest('.btn-remove-image')) {
-                input.click();
-            }
-        });
+    console.log('✅ Additional image added successfully');
+}
 
-        if (changeBtn) {
-            changeBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                input.click();
-            });
+/**
+ * Initialize Image Upload Handler for a specific image
+ */
+function initializeImageUploadHandler(uniqueId) {
+    const input = $(`#${uniqueId}`);
+    const container = $(`#${uniqueId}-preview-container`);
+    const placeholder = $(`#${uniqueId}-placeholder`);
+    const changeBtn = container.find('.btn-change-image');
+    const removeBtn = container.find('.btn-remove-image');
+
+    // Click on container to select file
+    container.on('click', function(e) {
+        if (!$(e.target).closest('.btn-change-image') && !$(e.target).closest('.btn-remove-image')) {
+            input.click();
         }
+    });
 
-        // Handle file selection
-        input.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    let previewImg = document.getElementById(uniqueId + '-preview-img');
+    // Change button click
+    changeBtn.on('click', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        input.click();
+    });
 
-                    if (!previewImg) {
-                        const img = document.createElement('img');
-                        img.id = uniqueId + '-preview-img';
-                        img.className = 'preview-image';
-                        img.src = event.target.result;
-                        container.insertBefore(img, placeholder);
-                    } else {
-                        previewImg.src = event.target.result;
-                    }
+    // File selection
+    input.on('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                let previewImg = $(`#${uniqueId}-preview-img`);
 
-                    if (placeholder) placeholder.style.display = 'none';
-                    if (removeBtn) removeBtn.style.display = 'inline-flex';
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Remove image
-        if (removeBtn) {
-            removeBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                input.value = '';
-
-                const currentPreviewImg = document.getElementById(uniqueId + '-preview-img');
-                if (currentPreviewImg) {
-                    currentPreviewImg.remove();
+                if (previewImg.length === 0) {
+                    const img = $(`<img id="${uniqueId}-preview-img" class="preview-image" src="${event.target.result}">`);
+                    container.prepend(img);
+                } else {
+                    previewImg.attr('src', event.target.result);
                 }
 
-                if (placeholder) placeholder.style.display = 'flex';
-                removeBtn.style.display = 'none';
-            });
+                placeholder.hide();
+                removeBtn.show();
+            };
+            reader.readAsDataURL(file);
         }
-    }
+    });
 
-    function toggleAdditionalImagesVisibility() {
-        const imageCount = $('.additional-image-item').length;
+    // Remove button click
+    removeBtn.on('click', function(e) {
+        e.stopPropagation();
+        input.val('');
 
-        if (imageCount > 0) {
-            $('#additional-images-empty-state').hide();
-            $('#additional-images-container').show();
-        } else {
-            $('#additional-images-empty-state').show();
-            $('#additional-images-container').hide();
+        const previewImg = $(`#${uniqueId}-preview-img`);
+        if (previewImg.length > 0) {
+            previewImg.remove();
         }
-    }
 
-    function reindexAdditionalImages() {
-        $('.additional-image-item').each(function(index) {
-            const newIndex = index + 1;
-            $(this).attr('data-index', newIndex);
-            $(this).find('small').text(`Additional Image ${newIndex}`);
-        });
+        placeholder.show();
+        removeBtn.hide();
+    });
+}
+
+/**
+ * Toggle Additional Images Visibility
+ */
+function toggleAdditionalImagesVisibility() {
+    const container = $('#additional-images-container');
+    const emptyState = $('#additional-images-empty-state');
+    const imageCount = container.find('.additional-image-item').length;
+
+    if (imageCount > 0) {
+        container.show();
+        emptyState.hide();
+    } else {
+        container.hide();
+        emptyState.show();
     }
 }
+

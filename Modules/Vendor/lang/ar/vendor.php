@@ -129,7 +129,7 @@ return [
     'activities' => 'الأنشطة',
     'vendor_type' => 'نوع المورد',
     'select_vendor_type' => 'اختر نوع المورد',
-    'select_option' => 'اختر خياراً',
+    'select_option' => 'اختر',
     'product' => 'منتجات',
     'booking' => 'حجوزات',
     'product_booking' => 'منتجات وحجوزات',

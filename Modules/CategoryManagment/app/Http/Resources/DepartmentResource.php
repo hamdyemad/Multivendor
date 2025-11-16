@@ -15,7 +15,12 @@ class DepartmentResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-
+        if($request->select2){
+            return [
+                'id' => $this->id,
+                'name' => $this->getTranslation('name', app()->getLocale()),
+            ];
+        }
         return [
             'id' => $this->id,
             'image' => ($this->image) ? Storage::disk('public')->url($this->image) : '',

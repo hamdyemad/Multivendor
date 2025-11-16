@@ -17,7 +17,7 @@ class DepartmentRepository implements DepartmentRepositoryInterface
     {
         $query = Department::with('translations')->filter($filters);
         $query->orderBy('created_at', 'desc');
-        return $query->paginate($perPage);
+        return ($perPage == 0) ? $query->get() : $query->paginate($perPage);
     }
 
     /**
@@ -27,16 +27,16 @@ class DepartmentRepository implements DepartmentRepositoryInterface
     {
         // Ensure we exclude soft-deleted records
         $query = Department::with('translations')->filter($filters);
-        
+
         // Apply sorting
         if ($orderBy) {
             if (is_array($orderBy) && isset($orderBy['lang_id'])) {
                 // Sort by translation using polymorphic relationship
                 Log::info('Department Repository - Applying translation sort', [
-                    'lang_id' => $orderBy['lang_id'], 
+                    'lang_id' => $orderBy['lang_id'],
                     'direction' => $orderDirection
                 ]);
-                
+
                 $query->join('translations as t', function($join) use ($orderBy) {
                     $join->on('departments.id', '=', 't.translatable_id')
                          ->where('t.translatable_type', '=', 'Modules\CategoryManagment\app\Models\Department')
@@ -124,7 +124,7 @@ class DepartmentRepository implements DepartmentRepositoryInterface
     public function updateDepartment(int $id, array $data)
     {
         $department = Department::findOrFail($id);
-        
+
         $updateData = [
             'active' => $data['active'] ?? 1,
         ];

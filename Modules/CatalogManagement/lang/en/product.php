@@ -4,11 +4,13 @@ return [
     // General
     'product' => 'Product',
     'products' => 'Products',
+    'products_management' => 'Products Management',
     'product_details' => 'Product Details',
+    'view_product' => 'View Product',
     'edit_product' => 'Edit Product',
     'create_product' => 'Create Product',
     'add_product' => 'Add Product',
-    
+
     // Fields
     'sku' => 'SKU',
     'title' => 'Title',
@@ -27,16 +29,37 @@ return [
     'category' => 'Category',
     'sub_category' => 'Sub Category',
     'tax' => 'Tax',
+    'vendor' => 'Vendor',
     'main_image' => 'Main Image',
     'additional_images' => 'Additional Images',
+    'images' => 'Images',
     'configuration_type' => 'Configuration Type',
     'price' => 'Price',
+    'cost_price' => 'Cost Price',
+    'selling_price' => 'Selling Price',
+    'stock_quantity' => 'Stock Quantity',
+    'pricing_stock' => 'Pricing & Stock',
+    'variants_stock' => 'Variants & Stock',
+    'region' => 'Region',
+    'stock' => 'Stock',
+    'stock_per_region' => 'Stock per Region',
+    'total' => 'Total',
     'points' => 'Points',
+    'variant_sku' => 'Variant SKU',
     'is_active' => 'Active',
+    'active' => 'Active',
+    'inactive' => 'Inactive',
     'is_featured' => 'Featured',
+    'featured' => 'Featured',
+    'status' => 'Status',
     'max_per_order' => 'Max Per Order',
     'video_link' => 'Video Link',
-    
+    'description' => 'Description',
+    'no_stock_data' => 'No stock data available',
+    'no_products_found' => 'No products found',
+    'created_at' => 'Created At',
+    'updated_at' => 'Updated At',
+
     // Messages
     'product_created_successfully' => 'Product created successfully!',
     'product_updated_successfully' => 'Product updated successfully!',
@@ -44,7 +67,11 @@ return [
     'error_creating_product' => 'Error creating product',
     'error_updating_product' => 'Error updating product',
     'error_deleting_product' => 'Error deleting product',
-    
+    'creating_product' => 'Creating product...',
+    'updating_product' => 'Updating product...',
+    'please_wait' => 'Please wait...',
+    'redirecting' => 'Redirecting...',
+
     // Validation
     'sku_required' => 'SKU is required',
     'sku_unique' => 'SKU must be unique',

@@ -58,6 +58,7 @@ class ProductRepository implements ProductInterface
                 'tax_id' => $data['tax_id'] ?? null,
                 'max_per_order' => $data['max_per_order'] ?? null,
                 'video_link' => $data['video_link'] ?? null,
+                'configuration_type' => $data['configuration_type'] ?? 'simple',
             ]);
 
             // Store translations
@@ -98,6 +99,7 @@ class ProductRepository implements ProductInterface
                 'tax_id' => $data['tax_id'] ?? null,
                 'max_per_order' => $data['max_per_order'] ?? null,
                 'video_link' => $data['video_link'] ?? null,
+                'configuration_type' => $data['configuration_type'] ?? 'simple',
             ]);
 
             // Update translations

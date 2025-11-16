@@ -4,11 +4,13 @@ return [
     // General
     'product' => 'منتج',
     'products' => 'المنتجات',
+    'products_management' => 'إدارة المنتجات',
     'product_details' => 'تفاصيل المنتج',
+    'view_product' => 'عرض المنتج',
     'edit_product' => 'تعديل المنتج',
     'create_product' => 'إنشاء منتج',
     'add_product' => 'إضافة منتج',
-    
+
     // Fields
     'sku' => 'رمز المنتج',
     'title' => 'العنوان',
@@ -27,16 +29,37 @@ return [
     'category' => 'الفئة',
     'sub_category' => 'الفئة الفرعية',
     'tax' => 'الضريبة',
+    'vendor' => 'البائع',
     'main_image' => 'الصورة الرئيسية',
     'additional_images' => 'صور إضافية',
+    'images' => 'الصور',
     'configuration_type' => 'نوع التكوين',
     'price' => 'السعر',
+    'cost_price' => 'سعر التكلفة',
+    'selling_price' => 'سعر البيع',
+    'stock_quantity' => 'كمية المخزون',
+    'pricing_stock' => 'التسعير والمخزون',
+    'variants_stock' => 'المتغيرات والمخزون',
+    'region' => 'المنطقة',
+    'stock' => 'المخزون',
+    'stock_per_region' => 'المخزون حسب المنطقة',
+    'total' => 'الإجمالي',
     'points' => 'النقاط',
+    'variant_sku' => 'رمز متغير المنتج',
     'is_active' => 'نشط',
+    'active' => 'نشط',
+    'inactive' => 'غير نشط',
     'is_featured' => 'مميز',
+    'featured' => 'مميز',
+    'status' => 'الحالة',
     'max_per_order' => 'الحد الأقصى للطلب',
     'video_link' => 'رابط الفيديو',
-    
+    'description' => 'الوصف',
+    'no_stock_data' => 'لا توجد بيانات مخزون',
+    'no_products_found' => 'لم يتم العثور على منتجات',
+    'created_at' => 'تاريخ الإنشاء',
+    'updated_at' => 'تاريخ التحديث',
+
     // Messages
     'product_created_successfully' => 'تم إنشاء المنتج بنجاح!',
     'product_updated_successfully' => 'تم تحديث المنتج بنجاح!',
@@ -44,7 +67,11 @@ return [
     'error_creating_product' => 'خطأ في إنشاء المنتج',
     'error_updating_product' => 'خطأ في تحديث المنتج',
     'error_deleting_product' => 'خطأ في حذف المنتج',
-    
+    'creating_product' => 'جاري إنشاء المنتج...',
+    'updating_product' => 'جاري تحديث المنتج...',
+    'please_wait' => 'يرجى الانتظار...',
+    'redirecting' => 'جاري إعادة التوجيه...',
+
     // Validation
     'sku_required' => 'رمز المنتج مطلوب',
     'sku_unique' => 'رمز المنتج يجب أن يكون فريد',

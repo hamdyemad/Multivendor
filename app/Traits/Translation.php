@@ -12,7 +12,8 @@ trait Translation
       return $this->morphMany(TranslationModel::class, 'translatable')->withTrashed();
   }
 
-  public function getTranslation(string $key, string $locale)
+
+  public function getTranslation(string $key, string $locale = 'en')
   {
     $lang = Language::where('code', $locale)->first();
     if($lang) {

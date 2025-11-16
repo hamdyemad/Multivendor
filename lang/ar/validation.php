@@ -173,6 +173,7 @@ return [
         'translations.*.name' => 'الاسم',
         'commission' => 'العمولة',
         'type' => 'النوع',
+        'max_per_order' => 'الحد الاقصى للطلب الواحدة',
     ],
 
 ];

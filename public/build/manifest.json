@@ -1,6 +1,6 @@
 {
   "Modules/CatalogManagement/resources/assets/js/product-form.js": {
-    "file": "assets/product-form-C5FcjneP.js",
+    "file": "assets/product-form-DP0aYHaD.js",
     "name": "product-form",
     "src": "Modules/CatalogManagement/resources/assets/js/product-form.js",
     "isEntry": true
@@ -27,7 +27,7 @@
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-CC4NR9aC.js",
+    "file": "assets/app-Bs8SRQVP.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -42,7 +42,7 @@
     "isEntry": true
   },
   "resources/scss/app.scss": {
-    "file": "assets/app-BpzAcg_Y.css",
+    "file": "assets/app-DF194o_J.css",
     "src": "resources/scss/app.scss",
     "isEntry": true
   },

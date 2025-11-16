@@ -17,7 +17,14 @@ class CategoryResource extends JsonResource
     public function toArray(Request $request): array
     {
         $locale = $this->getProperLocale();
-        
+
+        if($request->select2){
+            return [
+                'id' => $this->id,
+                'name' => $this->getTranslation('name', app()->getLocale()),
+            ];
+        }
+
         return [
             'id' => $this->id,
             'name' => $this->getTranslation('name', $locale) ?? '',
@@ -46,27 +53,27 @@ class CategoryResource extends JsonResource
                 return $headerLang;
             }
         }
-        
+
         $appLocale = app()->getLocale();
-        
+
         // If app locale contains comma (multiple locales), extract the first one
         if (strpos($appLocale, ',') !== false) {
             $locales = explode(',', $appLocale);
             $appLocale = trim($locales[0]);
         }
-        
+
         // Remove quality values (e.g., "en-US;q=0.9" becomes "en-US")
         if (strpos($appLocale, ';') !== false) {
             $appLocale = explode(';', $appLocale)[0];
         }
-        
+
         // Map common locale variations to our supported locales
         if (strpos($appLocale, 'ar') === 0) {
             return 'ar';
         } elseif (strpos($appLocale, 'en') === 0) {
             return 'en';
         }
-        
+
         // Default to English if we can't determine
         return 'en';
     }

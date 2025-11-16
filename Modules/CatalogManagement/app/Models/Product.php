@@ -115,6 +115,42 @@ class Product extends Model
         return 'slug';
     }
 
+    /**
+     * Get tags as a comma-separated string for a specific language
+     */
+    public function getTagsString($languageCode = 'en')
+    {
+        $language = \App\Models\Language::where('code', $languageCode)->first();
+        if (!$language) {
+            return '';
+        }
+
+        $translation = $this->translations()
+            ->where('lang_id', $language->id)
+            ->where('lang_key', 'tags')
+            ->first();
+
+        return $translation ? $translation->lang_value : '';
+    }
+
+    /**
+     * Get meta keywords as a comma-separated string for a specific language
+     */
+    public function getMetaKeywordsString($languageCode = 'en')
+    {
+        $language = \App\Models\Language::where('code', $languageCode)->first();
+        if (!$language) {
+            return '';
+        }
+
+        $translation = $this->translations()
+            ->where('lang_id', $language->id)
+            ->where('lang_key', 'meta_keywords')
+            ->first();
+
+        return $translation ? $translation->lang_value : '';
+    }
+
 
 
     // Scopes
@@ -125,7 +161,7 @@ class Product extends Model
             $searchTerm = $filters['search'];
             $query->where(function($q) use ($searchTerm) {
                 $q->whereHas('translations', function($query) use ($searchTerm) {
-                    $query->where('lang_key', 'title')
+                    $query->where('lang_key', 'name')
                           ->where('lang_value', 'like', '%' . $searchTerm . '%');
                 })
                 ->orWhere('sku', 'like', '%' . $searchTerm . '%');
@@ -133,7 +169,7 @@ class Product extends Model
         }
 
         // Filter by active status
-        if (isset($filters['is_active']) && $filters['is_active'] !== '') {
+        if (isset($filters['is_active']) && $filters['is_active'] !== null && $filters['is_active'] !== '') {
             $query->where('is_active', $filters['is_active']);
         }
 

@@ -17,8 +17,8 @@ class DepartmentApiController extends Controller
     public function index(Request $request)
     {
         $departments = $this->DepartmentService->getAllDepartments($request->all());
-
-        return $this->sendRes(config('responses.success')[app()->getLocale()], true, DepartmentApiResource::collection($departments));
+        $departments =  DepartmentApiResource::collection($departments)->additional($request->all());
+        return $this->sendRes(config('responses.success')[app()->getLocale()], true, $departments);
     }
 
     public function show(Request $request, $id)

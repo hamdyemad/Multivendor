@@ -17,103 +17,10 @@ class ProductRepository implements ProductInterface
 {
     public function getAllProducts(array $filters = [], int $perPage = 10)
     {
-        $query = Product::with(['brand', 'category', 'variants', 'translations']);
-
-        // Search in translations
-        if (!empty($filters['search'])) {
-            $searchTerm = $filters['search'];
-            $query->where(function($q) use ($searchTerm) {
-                $q->whereHas('translations', function($query) use ($searchTerm) {
-                    $query->where('lang_key', 'title')
-                          ->where('lang_value', 'like', '%' . $searchTerm . '%');
-                })
-                ->orWhere('sku', 'like', '%' . $searchTerm . '%');
-            });
-        }
-
-        // Filter by active status
-        if (isset($filters['is_active']) && $filters['is_active'] !== '') {
-            $query->where('is_active', $filters['is_active']);
-        }
-
-        // Filter by featured status
-        if (isset($filters['is_featured']) && $filters['is_featured'] !== '') {
-            $query->where('is_featured', $filters['is_featured']);
-        }
-
-        // Filter by brand
-        if (!empty($filters['brand_id'])) {
-            $query->where('brand_id', $filters['brand_id']);
-        }
-
-        // Filter by category
-        if (!empty($filters['category_id'])) {
-            $query->where('category_id', $filters['category_id']);
-        }
-
-        // Filter by department
-        if (!empty($filters['department_id'])) {
-            $query->where('department_id', $filters['department_id']);
-        }
-
-        // Filter by date range
-        if (!empty($filters['created_date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['created_date_from']);
-        }
-
-        if (!empty($filters['created_date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['created_date_to']);
-        }
-
-        return $query->latest()->paginate($perPage);
+        $query = Product::with(['brand', 'category', 'variants', 'translations'])->filter($filters);
+        return ($perPage == 0) ? $query->get() : $query->latest()->paginate($perPage);
     }
 
-    public function getQuery(array $filters = [])
-    {
-        $query = Product::with(['brand', 'category', 'variants', 'translations'])->latest();
-
-        // Apply same filters as getAllProducts
-        if (!empty($filters['search'])) {
-            $searchTerm = $filters['search'];
-            $query->where(function($q) use ($searchTerm) {
-                $q->whereHas('translations', function($query) use ($searchTerm) {
-                    $query->where('lang_key', 'title')
-                          ->where('lang_value', 'like', '%' . $searchTerm . '%');
-                })
-                ->orWhere('sku', 'like', '%' . $searchTerm . '%');
-            });
-        }
-
-        if (isset($filters['is_active']) && $filters['is_active'] !== '') {
-            $query->where('is_active', $filters['is_active']);
-        }
-
-        if (isset($filters['is_featured']) && $filters['is_featured'] !== '') {
-            $query->where('is_featured', $filters['is_featured']);
-        }
-
-        if (!empty($filters['brand_id'])) {
-            $query->where('brand_id', $filters['brand_id']);
-        }
-
-        if (!empty($filters['category_id'])) {
-            $query->where('category_id', $filters['category_id']);
-        }
-
-        if (!empty($filters['department_id'])) {
-            $query->where('department_id', $filters['department_id']);
-        }
-
-        if (!empty($filters['created_date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['created_date_from']);
-        }
-
-        if (!empty($filters['created_date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['created_date_to']);
-        }
-
-        return $query;
-    }
 
     public function getProductById($id)
     {

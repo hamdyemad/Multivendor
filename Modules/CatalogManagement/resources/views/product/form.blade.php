@@ -120,6 +120,17 @@
                                         Organization
                                     </h5>
                                     <div class="row">
+                                                                            <div class="col-md-6 mb-3">
+                                            <div class="form-group">
+                                                <label for="brand_id" class="form-label">Brand <span class="text-danger">*</span></label>
+                                                <select name="brand_id" id="brand_id" class="form-control select2">
+                                                    <option value="">Select Brand</option>
+                                                    @foreach($brands as $brand)
+                                                        <option value="{{ $brand['id'] }}">{{ $brand['name'] }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
                                         @if(isset($vendors) && count($vendors) > 0)
                                         <div class="col-md-6 mb-3">
                                             <div class="form-group">
@@ -146,26 +157,13 @@
                                         </div>
                                         @endif
 
-                                        <div class="col-md-6 mb-3">
-                                            <div class="form-group">
-                                                <label for="brand_id" class="form-label">Brand <span class="text-danger">*</span></label>
-                                                <select name="brand_id" id="brand_id" class="form-control select2">
-                                                    <option value="">Select Brand</option>
-                                                    @foreach($brands as $brand)
-                                                        <option value="{{ $brand['id'] }}">{{ $brand['name'] }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
+
 
                                         <div class="col-md-6 mb-3">
                                             <div class="form-group">
                                                 <label for="department_id" class="form-label">Department <span class="text-danger">*</span></label>
                                                 <select name="department_id" id="department_id" class="form-control select2">
                                                     <option value="">Select Department</option>
-                                                    @foreach($departments as $department)
-                                                        <option value="{{ $department['id'] }}">{{ $department['name'] }}</option>
-                                                    @endforeach
                                                 </select>
                                             </div>
                                         </div>
@@ -761,6 +759,7 @@ window.productFormConfig = {
     productUpdated: '{{ trans("catalog::product.product_updated_successfully") ?? "Product updated successfully!" }}',
     creatingProduct: '{{ trans("catalog::product.creating_product") ?? "Creating product..." }}',
     updatingProduct: '{{ trans("catalog::product.updating_product") ?? "Updating product..." }}',
+    pleaseWait: '{{ trans("catalog::product.please_wait") ?? "Please wait..." }}',
     redirecting: '{{ trans("catalog::product.redirecting") ?? "Redirecting..." }}',
     errorOccurred: '{{ trans("catalog::product.error_occurred") ?? "An error occurred. Please try again." }}',
     validationError: '{{ trans("catalog::product.validation_error") ?? "Validation Error" }}',
@@ -768,6 +767,7 @@ window.productFormConfig = {
     indexRoute: '{{ route("admin.products.index") }}',
     categoriesRoute: '{{ url("/api/categories") }}',
     subCategoriesRoute: '{{ url("/api/sub-categories") }}',
+    departmentsRoute: '{{ url("/api/departments") }}',
     languages: [
         @foreach($languages as $language)
         {

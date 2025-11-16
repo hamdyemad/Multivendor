@@ -15,7 +15,13 @@ class DepartmentApiResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-
+        
+        if ($request->get('select2')) {
+            return [
+                'id' => $this->id,
+                'name' => $this->getTranslation('name', app()->getLocale()) ?? '', // select2 expects "id" + "text"
+            ];
+        }
         return [
             'id' => $this->id,
             'slug' => $this->slug,

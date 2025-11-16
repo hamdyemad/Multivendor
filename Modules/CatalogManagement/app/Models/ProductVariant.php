@@ -2,7 +2,7 @@
 
 namespace Modules\CatalogManagement\app\Models;
 
-use App\Models\Traits\HasSlug;
+use App\Traits\HasSlug;
 use App\Traits\Translation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,15 +12,7 @@ class ProductVariant extends Model
 {
     use HasFactory, SoftDeletes, Translation, HasSlug;
 
-    protected $fillable = [
-        'product_id',
-        'slug',
-        'sku',
-        'price',
-        'has_discount',
-        'discount_price',
-        'discount_end_date',
-    ];
+    protected $guarded = [];
 
     protected $casts = [
         'price' => 'integer',
@@ -43,52 +35,11 @@ class ProductVariant extends Model
     }
 
     /**
-     * Get all translations for the variant
-     */
-    public function translations()
-    {
-        return $this->morphMany(Translation::class, 'translatable');
-    }
-
-    /**
      * Get the variant stocks
      */
     public function stocks()
     {
         return $this->hasMany(VariantStock::class);
-    }
-
-    /**
-     * Get translation for specific language and key
-     */
-    public function getTranslation($key, $langCode = null)
-    {
-        $langCode = $langCode ?? app()->getLocale();
-
-        $translation = $this->translations()
-            ->whereHas('language', function ($query) use ($langCode) {
-                $query->where('code', $langCode);
-            })
-            ->where('lang_key', $key)
-            ->first();
-
-        return $translation ? $translation->lang_value : '';
-    }
-
-    /**
-     * Set translation for specific language and key
-     */
-    public function setTranslation($key, $value, $langId)
-    {
-        $this->translations()->updateOrCreate(
-            [
-                'lang_id' => $langId,
-                'lang_key' => $key,
-            ],
-            [
-                'lang_value' => $value,
-            ]
-        );
     }
 
     /**

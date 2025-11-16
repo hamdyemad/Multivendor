@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class Department extends Model
 {
@@ -85,15 +86,22 @@ class Department extends Model
             $query->whereDate('created_at', '<=', $filters['created_date_to']);
         }
 
-        if (!empty($filters['activity_id'])) {
-            $query->whereHas('activeActivities', function($q) use ($filters) {
-                $q->where(fn($query) => $query->where('id', $filters['activity_id'])->orWhere('slug', $filters['activity_id']));
+        if (!empty($filters['activity_ids'])) {
+            $query->whereHas('activities', function($q) use ($filters) {
+                $q->whereIn('activity_id', $filters['activity_ids']);
             });
         }
 
-        // Order by latest
-        $query->orderBy('created_at', 'desc');
-
+        if (!empty($filters['vendor_id'])) {
+            // Get activity IDs that belong to this vendor
+            $vendorActivityIds = DB::table('vendors_activities')
+                ->where('vendor_id', $filters['vendor_id'])
+                ->pluck('activity_id')
+                ->toArray();
+            $query->whereHas('activities', function($q) use ($vendorActivityIds) {
+                $q->whereIn('activity_id', $vendorActivityIds);
+            });
+        }
         return $query;
     }
 }

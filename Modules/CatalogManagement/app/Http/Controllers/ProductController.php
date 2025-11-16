@@ -101,13 +101,10 @@ class ProductController extends Controller
         $languages = $this->languageService->getAll();
         $brands = $this->brandService->getAllBrands([], 0);
         $brands = BrandResource::collection($brands)->resolve();
-        $departments = $this->departmentService->getAllDepartments([], 0);
-        $departments = DepartmentResource::collection($departments)->resolve();
         $taxes = $this->taxService->getAllTaxes([], 0);
         $taxes = TaxResource::collection($taxes)->resolve();
         $regions = $this->regionService->getAllRegions([], 0);
         $regions = RegionResource::collection($regions)->resolve();
-
         // Get vendors for admin/super admin, or current vendor for vendor users
         $vendors = [];
         $currentUser = Auth::user();
@@ -131,7 +128,7 @@ class ProductController extends Controller
                 ]];
             }
         }
-        return view('catalogmanagement::product.form', compact('languages', 'brands', 'departments', 'taxes', 'regions', 'vendors'));
+        return view('catalogmanagement::product.form', compact('languages', 'brands', 'taxes', 'regions', 'vendors'));
     }
 
     /**
@@ -214,6 +211,7 @@ class ProductController extends Controller
 
         // Get vendors for admin/super admin, or current vendor for vendor users
         $vendors = [];
+        $vendorActivitiesMap = [];
         $currentUser = Auth::user();
         $userType = $currentUser->user_type_id;
 
@@ -226,6 +224,11 @@ class ProductController extends Controller
                     'name' => $vendor->getTranslation('name', 'Vendor #' . $vendor->id)
                 ];
             })->toArray();
+            // Build vendor activities map
+            foreach ($vendorsData as $vendor) {
+                $activityIds = $vendor->activities()->pluck('activity_id')->toArray();
+                $vendorActivitiesMap[$vendor->id] = $activityIds;
+            }
         } elseif ($userType === UserType::VENDOR_TYPE) {
             // Vendor can only create products for themselves
             $vendor = $currentUser->vendor;
@@ -234,6 +237,8 @@ class ProductController extends Controller
                     'id' => $vendor->id,
                     'name' => $vendor->getTranslation('name', 'Vendor #' . $vendor->id)
                 ]];
+                $activityIds = $vendor->activities()->pluck('activity_id')->toArray();
+                $vendorActivitiesMap[$vendor->id] = $activityIds;
             }
         }
 
@@ -245,7 +250,8 @@ class ProductController extends Controller
             'departments' => $departments,
             'taxes' => $taxes,
             'regions' => $regions,
-            'vendors' => $vendors
+            'vendors' => $vendors,
+            'vendorActivitiesMap' => $vendorActivitiesMap
         ];
         return view('catalogmanagement::product.form', $data);
     }

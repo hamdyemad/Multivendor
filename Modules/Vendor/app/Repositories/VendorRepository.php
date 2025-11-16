@@ -293,9 +293,6 @@ class VendorRepository implements VendorInterface
      */
     protected function storeTranslations(Vendor $vendor, array $data)
     {
-        // Delete existing translations
-        $vendor->translations()->delete();
-
         // Handle translations array from form (translations[language_id][name/description])
         if (!empty($data['translations'])) {
             foreach ($data['translations'] as $languageId => $fields) {
@@ -305,43 +302,59 @@ class VendorRepository implements VendorInterface
                     continue;
                 }
 
-                // Store name translation
+                // Update or create name translation
                 if (!empty($fields['name'])) {
-                    $vendor->translations()->create([
-                        'lang_id' => $language->id,
-                        'lang_key' => 'name',
-                        'lang_value' => $fields['name'],
-                    ]);
+                    $vendor->translations()->updateOrCreate(
+                        [
+                            'lang_id' => $language->id,
+                            'lang_key' => 'name',
+                        ],
+                        [
+                            'lang_value' => $fields['name'],
+                        ]
+                    );
                 }
 
-                // Store description translation
+                // Update or create description translation
                 if (!empty($fields['description'])) {
-                    $vendor->translations()->create([
-                        'lang_id' => $language->id,
-                        'lang_key' => 'description',
-                        'lang_value' => $fields['description'],
-                    ]);
+                    $vendor->translations()->updateOrCreate(
+                        [
+                            'lang_id' => $language->id,
+                            'lang_key' => 'description',
+                        ],
+                        [
+                            'lang_value' => $fields['description'],
+                        ]
+                    );
                 }
 
-                // Store meta_title translation
+                // Update or create meta_title translation
                 if (!empty($fields['meta_title'])) {
-                    $vendor->translations()->create([
-                        'lang_id' => $language->id,
-                        'lang_key' => 'meta_title',
-                        'lang_value' => $fields['meta_title'],
-                    ]);
+                    $vendor->translations()->updateOrCreate(
+                        [
+                            'lang_id' => $language->id,
+                            'lang_key' => 'meta_title',
+                        ],
+                        [
+                            'lang_value' => $fields['meta_title'],
+                        ]
+                    );
                 }
 
-                // Store meta_description translation
+                // Update or create meta_description translation
                 if (!empty($fields['meta_description'])) {
-                    $vendor->translations()->create([
-                        'lang_id' => $language->id,
-                        'lang_key' => 'meta_description',
-                        'lang_value' => $fields['meta_description'],
-                    ]);
+                    $vendor->translations()->updateOrCreate(
+                        [
+                            'lang_id' => $language->id,
+                            'lang_key' => 'meta_description',
+                        ],
+                        [
+                            'lang_value' => $fields['meta_description'],
+                        ]
+                    );
                 }
 
-                // Store meta_keywords translation as JSON
+                // Update or create meta_keywords translation as JSON
                 if (!empty($fields['meta_keywords'])) {
                     // Convert comma-separated string to array and then to JSON
                     $keywords = is_string($fields['meta_keywords'])
@@ -353,11 +366,15 @@ class VendorRepository implements VendorInterface
                         return !empty(trim($keyword));
                     });
 
-                    $vendor->translations()->create([
-                        'lang_id' => $language->id,
-                        'lang_key' => 'meta_keywords',
-                        'lang_value' => json_encode(array_values($keywords)),
-                    ]);
+                    $vendor->translations()->updateOrCreate(
+                        [
+                            'lang_id' => $language->id,
+                            'lang_key' => 'meta_keywords',
+                        ],
+                        [
+                            'lang_value' => json_encode(array_values($keywords)),
+                        ]
+                    );
                 }
             }
         }

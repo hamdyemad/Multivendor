@@ -100,10 +100,6 @@ class Category extends Model
         if (!empty($filters['created_date_to'])) {
             $query->whereDate('created_at', '<=', $filters['created_date_to']);
         }
-
-        // Order by latest
-        $query->orderBy('created_at', 'desc');
-
         return $query;
     }
 }

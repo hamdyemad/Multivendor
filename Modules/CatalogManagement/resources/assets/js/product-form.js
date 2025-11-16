@@ -137,19 +137,106 @@ jQuery(document).ready(function ($) {
     function attachEventHandlers() {
         console.log("🔧 Attaching event handlers to Select2 dropdowns...");
 
-        // Check department select status
-        const deptElement = $("#department_id");
-        console.log("📍 Department element found:", deptElement.length > 0);
-        console.log(
-            "📍 Department has Select2:",
-            deptElement.hasClass("select2-hidden-accessible")
-        );
-        console.log("📍 Department value:", deptElement.val());
+        // Initialize: Hide all departments except empty option until vendor is selected
+        const vendorSelect = $("#vendor_id");
+        const departmentSelect = $("#department_id");
+        const vendorActivitiesMap = window.productFormConfig.vendorActivitiesMap || {};
+        
+        // Check if this is Admin/Super Admin (has vendorActivitiesMap with multiple vendors)
+        const isAdminUser = Object.keys(vendorActivitiesMap).length > 0;
+        
+        if (isAdminUser) {
+            console.log("👤 Admin/Super Admin user detected - hiding departments until vendor selected");
+            // Hide all department options except empty option
+            departmentSelect.find("option[value!=''][data-activities]").hide();
+        }
 
-        // Remove any existing handlers to prevent duplicates
-        $("#department_id").off(
-            "change.productForm select2:select.productForm"
-        );
+        // Vendor change handler - Filter departments based on vendor activities
+        $(document)
+            .off("change.productForm", "#vendor_id")
+            .on("change.productForm", "#vendor_id", function (e) {
+                console.log("🎯 Vendor changed");
+                const vendorId = $(this).val();
+                const departmentSelect = $("#department_id");
+                const currentDepartmentValue = departmentSelect.val();
+                const url = `${window.productFormConfig.departmentsRoute}?vendor_id=${vendorId}&select2=1`;
+
+                console.log("🔍 Vendor ID:", vendorId);
+                fetch(url, {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Accept: "application/json",
+                            "X-Requested-With": "XMLHttpRequest",
+                            lang: document.documentElement.lang || "en", // Custom header for app locale
+                        },
+                    })
+                        .then((response) => {
+                            console.log(
+                                "📥 Departments response status:",
+                                response.status
+                            );
+                            if (!response.ok) {
+                                throw new Error(
+                                    `HTTP error! status: ${response.status}`
+                                );
+                            }
+                            return response.json();
+                        })
+                        .then((response) => {
+                            console.log(
+                                "✅ Departments API response:",
+                                response
+                            );
+
+                            // Reset with empty option
+                            departmentSelect
+                                .empty()
+                                .append(
+                                    '<option value="">Select Department</option>'
+                                )
+                                .prop("disabled", false);
+
+                            // Handle API response format: {status, message, data, errors, code}
+                            if (
+                                response.status &&
+                                response.data &&
+                                response.data.length > 0
+                            ) {
+                                response.data.forEach((department) => {
+                                    departmentSelect.append(
+                                        `<option value="${department.id}">${department.name}</option>`
+                                    );
+                                });
+                                console.log(
+                                    `✅ Loaded ${response.data.length} departments`
+                                );
+                            } else {
+                                console.log(
+                                    "⚠️ No departments found for vendor:",
+                                    vendorId
+                                );
+                                departmentSelect.append(
+                                    '<option value="">No departments available</option>'
+                                );
+                            }
+                            // Refresh Select2 dropdown
+                            departmentSelect.trigger("change");
+                        })
+                        .catch((error) => {
+                            console.error(
+                                "❌ Error loading departments:",
+                                error
+                            );
+                            departmentSelect
+                                .empty()
+                                .append(
+                                    '<option value="">Error loading departments</option>'
+                                )
+                                .prop("disabled", false)
+                                .trigger("change");
+                        });
+            });
 
         // Department change handler - Use namespaced events and listen for select2:select
         // Use event delegation on the body to ensure it survives re-initialization
@@ -687,52 +774,26 @@ jQuery(document).ready(function ($) {
  */
 function loadRegionsData() {
     console.log("🌍 Loading regions data...");
-
+    let url = "/api/area/regions?select2=1";
     $.ajax({
-        url: "/api/regions?select2=1",
+        url: url,
         method: "GET",
         dataType: "json",
         success: function (response) {
-            if (response.results && response.results.length > 0) {
-                cachedRegions = response.results;
-                console.log(`✅ Cached ${cachedRegions.length} regions`);
-            } else if (response.data && response.data.items && response.data.items.length > 0) {
-                // Handle different API response format
-                cachedRegions = response.data.items.map(item => ({
-                    id: item.id,
-                    text: item.name
-                }));
-                console.log(`✅ Cached ${cachedRegions.length} regions (alternative format)`);
-            } else {
-                console.log("⚠️ No regions from API, using fallback");
-                cachedRegions = [
-                    { id: 1, text: "Cairo" },
-                    { id: 2, text: "Alexandria" },
-                    { id: 3, text: "Giza" },
-                    { id: 4, text: "Luxor" },
-                    { id: 5, text: "Aswan" },
-                    { id: 6, text: "Beheira" },
-                    { id: 7, text: "Fayoum" },
-                    { id: 8, text: "Gharbia" },
-                    { id: 9, text: "Ismailia" },
-                    { id: 10, text: "Menofia" }
-                ];
-            }
+            cachedRegions = response.data;
+            console.log("✅ Regions loaded successfully:", cachedRegions);
         },
         error: function (xhr, status, error) {
             console.log("❌ API error, using fallback regions");
+            // Set fallback regions on error
             cachedRegions = [
-                { id: 1, text: "Cairo" },
-                { id: 2, text: "Alexandria" },
-                { id: 3, text: "Giza" },
-                { id: 4, text: "Luxor" },
-                { id: 5, text: "Aswan" },
-                { id: 6, text: "Beheira" },
-                { id: 7, text: "Fayoum" },
-                { id: 8, text: "Gharbia" },
-                { id: 9, text: "Ismailia" },
-                { id: 10, text: "Menofia" }
+                { id: 1, text: "Cairo", name: "Cairo" },
+                { id: 2, text: "Alexandria", name: "Alexandria" },
+                { id: 3, text: "Giza", name: "Giza" },
+                { id: 4, text: "Luxor", name: "Luxor" },
+                { id: 5, text: "Aswan", name: "Aswan" }
             ];
+            console.log("✅ Fallback regions set:", cachedRegions);
         }
     });
 }
@@ -1125,18 +1186,17 @@ function handleFormSubmission(e) {
         console.error('productFormConfig is not defined');
         return;
     }
-    
-    // Debug: Check if LoadingOverlay is defined
-    console.log('LoadingOverlay available:', typeof LoadingOverlay !== 'undefined');
-    if (typeof LoadingOverlay === 'undefined') {
-        console.error('LoadingOverlay is not defined. Make sure the loading-overlay component is included in the layout.');
-    }
 
     // Temporarily disable required attributes on hidden fields to prevent HTML5 validation errors
     disableRequiredOnHiddenFields();
 
-    // Show loading overlay with appropriate message
+    // Ensure LoadingOverlay is initialized
     if (typeof LoadingOverlay !== "undefined") {
+        // Initialize if not already done
+        if (!LoadingOverlay.overlay) {
+            LoadingOverlay.init();
+        }
+        
         // Check if this is an edit operation
         const isEdit = $('input[name="_method"][value="PUT"]').length > 0;
         const loadingMessage = isEdit ?
@@ -1144,11 +1204,14 @@ function handleFormSubmission(e) {
             (config.creatingProduct || 'Creating product...');
 
         // Show loading overlay with custom message
+        console.log('Showing loading overlay with message:', loadingMessage);
         LoadingOverlay.show({
             text: loadingMessage,
-            progress: true
+            subtext: config.pleaseWait || 'Please wait...'
         });
         LoadingOverlay.progressSequence([30, 60, 90]);
+    } else {
+        console.error('LoadingOverlay is not defined');
     }
 
     const formData = new FormData(this);
@@ -1161,15 +1224,23 @@ function handleFormSubmission(e) {
         processData: false,
         contentType: false,
         success: function (response) {
+            console.log('AJAX response:', response);
+            
             if (typeof LoadingOverlay !== "undefined") {
                 LoadingOverlay.animateProgressBar(100);
             }
 
-            if (response.success) {
+            // Check if response indicates success (either response.success or status code 200)
+            if (response.success !== false) {
+                const isEdit = $('input[name="_method"][value="PUT"]').length > 0;
+                const successMessage = response.message || 
+                    (isEdit ? config.productUpdated : config.productCreated) || 
+                    'Product saved successfully!';
+                
                 if (typeof LoadingOverlay !== "undefined") {
                     LoadingOverlay.showSuccess(
-                        response.message || config.productCreated,
-                        config.redirecting
+                        successMessage,
+                        config.redirecting || 'Redirecting...'
                     );
                 }
 
@@ -1177,9 +1248,17 @@ function handleFormSubmission(e) {
                     window.location.href =
                         config.indexRoute || "/admin/products";
                 }, 1500);
+            } else {
+                // Handle error response
+                if (typeof LoadingOverlay !== "undefined") {
+                    LoadingOverlay.hide();
+                }
+                alert(response.message || "An error occurred. Please try again.");
             }
         },
         error: function (xhr) {
+            console.log('AJAX error:', xhr);
+            
             if (typeof LoadingOverlay !== "undefined") {
                 LoadingOverlay.hide();
             }
@@ -1189,11 +1268,14 @@ function handleFormSubmission(e) {
 
             if (xhr.status === 422) {
                 const errors = xhr.responseJSON.errors;
+                console.log('Validation errors:', errors);
 
                 // Display validation errors inline
                 displayValidationErrors(errors);
             } else {
-                alert("An error occurred. Please try again.");
+                const errorMessage = xhr.responseJSON?.message || "An error occurred. Please try again.";
+                console.error('Error message:', errorMessage);
+                alert(errorMessage);
             }
         },
     });
@@ -1204,79 +1286,7 @@ function handleFormSubmission(e) {
  */
 function addStockRow() {
     // Use cached regions data
-    if (cachedRegions && cachedRegions.length > 0) {
-        addStockRowWithRegions(cachedRegions);
-    } else {
-        // If regions not loaded yet, wait a bit and try again
-        console.log("⏳ Regions not loaded yet, waiting...");
-        setTimeout(function() {
-            if (cachedRegions && cachedRegions.length > 0) {
-                addStockRowWithRegions(cachedRegions);
-            } else {
-                console.log("⚠️ Using fallback regions");
-                addStockRowWithFallback();
-            }
-        }, 500);
-    }
-}
-
-/**
- * Fallback function with hardcoded regions
- */
-function addStockRowWithFallback() {
-    const regions = [
-        { id: 1, name: "Cairo" },
-        { id: 2, name: "Alexandria" },
-        { id: 3, name: "Giza" },
-        { id: 4, name: "Dakahlia" },
-        { id: 5, name: "Red Sea" },
-        { id: 6, name: "Beheira" },
-        { id: 7, name: "Fayoum" },
-        { id: 8, name: "Gharbia" },
-        { id: 9, name: "Ismailia" },
-        { id: 10, name: "Menofia" },
-    ];
-
-    const rowIndex = $(".stock-row").length;
-
-    let regionOptions = '<option value="">Select Region</option>';
-    regions.forEach((region) => {
-        regionOptions += `<option value="${region.id}">${region.name}</option>`;
-    });
-
-    const rowNumber = rowIndex + 1;
-    const rowHtml = `
-        <tr class="stock-row">
-            <td>${rowNumber}</td>
-            <td>
-                <select name="stocks[${rowIndex}][region_id]" class="form-control select2-stock" required>
-                    ${regionOptions}
-                </select>
-            </td>
-            <td>
-                <input type="number" name="stocks[${rowIndex}][quantity]" class="form-control stock-quantity" min="0" value="0" required>
-            </td>
-            <td class="text-center actions">
-                <button type="button" class="btn btn-sm btn-danger remove-stock-row">
-                    <i class="uil uil-trash-alt m-0"></i>
-                </button>
-            </td>
-        </tr>
-    `;
-
-    $("#stock-rows").append(rowHtml);
-
-    // Show table and hide empty state
-    toggleStockTableVisibility();
-
-    // Initialize Select2 for the new row
-    $(".select2-stock").select2({
-        theme: "bootstrap-5",
-        width: "100%",
-    });
-
-    calculateTotalStock();
-    reindexStockRows();
+    addStockRowWithRegions(cachedRegions);
 }
 
 /**

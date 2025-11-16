@@ -14,6 +14,12 @@ class RegionResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        if($request->select2){
+            return [
+                'id' => $this->id,
+                'name' => $this->name ?? $this->getTranslation('name', app()->getLocale()),
+            ];
+        }
         return [
             'id' => $this->id,
             'name' => $this->name ?? $this->getTranslation('name', app()->getLocale()),

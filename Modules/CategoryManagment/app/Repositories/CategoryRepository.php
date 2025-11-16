@@ -13,37 +13,8 @@ class CategoryRepository implements CategoryRepositoryInterface
      */
     public function getAllCategories(array $filters = [], int $perPage = 15)
     {
-        $query = Category::with('translations', 'department');
-        // Search filter
-        if (!empty($filters['search'])) {
-            $search = $filters['search'];
-            $query->where(function($q) use ($search) {
-                $q->whereHas('translations', function($query) use ($search) {
-                    $query->where('lang_value', 'like', "%{$search}%");
-                });
-            });
-        }
-
-        // Department Filter
-        if (isset($filters['department_id']) && $filters['department_id'] !== '') {
-            $query->where('department_id', $filters['department_id']);
-        }
-
-        // Active filter
-        if (isset($filters['active']) && $filters['active'] !== '') {
-            $query->where('active', $filters['active']);
-        }
-
-        // Date from filter
-        if (!empty($filters['created_date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['created_date_from']);
-        }
-
-        // Date to filter
-        if (!empty($filters['created_date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['created_date_to']);
-        }
-
+        $query = Category::with('translations', 'department')->filter($filters);
+        
         // Order by latest
         $query->orderBy('created_at', 'desc');
         return ($perPage == 0) ? $query->get() : $query->paginate($perPage);
@@ -54,38 +25,7 @@ class CategoryRepository implements CategoryRepositoryInterface
      */
     public function getCategoriesQuery(array $filters = [], $orderBy = null, $orderDirection = 'asc')
     {
-        $query = Category::query();
-        // Search filter
-        if (!empty($filters['search'])) {
-            $search = $filters['search'];
-            $query->where(function($q) use ($search) {
-                $q->whereHas('translations', function($query) use ($search) {
-                    $query->where('lang_key', 'name')
-                          ->where('lang_value', 'like', "%{$search}%");
-                });
-            });
-        }
-
-        // Active filter
-        if (isset($filters['active']) && $filters['active'] !== '') {
-            $query->where('active', $filters['active']);
-        }
-
-        // Department filter
-        if (!empty($filters['department_id'])) {
-            $query->where('department_id', $filters['department_id']);
-        }
-
-        // Date from filter
-        if (!empty($filters['created_date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['created_date_from']);
-        }
-
-        // Date to filter
-        if (!empty($filters['created_date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['created_date_to']);
-        }
-
+        $query = Category::query()->filter($filters);
         // Apply sorting
         if ($orderBy) {
             if (is_array($orderBy) && isset($orderBy['lang_id'])) {

@@ -44,6 +44,11 @@ class SubCategory extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function scopeActive($query)
+    {
+        return $query->where('active', true);
+    }
+
     public function scopeFilter(Builder $query, array $filters)
     {
         // Search filter

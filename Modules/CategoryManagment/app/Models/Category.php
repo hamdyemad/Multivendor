@@ -45,6 +45,16 @@ class Category extends Model
         return $this->belongsTo(Department::class);
     }
 
+    public function subs() 
+    {
+        return $this->hasMany(SubCategory::class, 'category_id');
+    }
+
+    public function activeSubs() 
+    {
+        return $this->subs()->active();
+    }
+
     /**
      * Activities relationship
      */

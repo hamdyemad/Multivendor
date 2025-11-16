@@ -27,7 +27,7 @@ class SubCategoryApiRepository implements SubCategoryApiRepositoryInterface
      */
     public function find(array $filters = [], $id)
     {
-        return $this->query->handle($filters)->with('activeSubs')->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id))->first();
+        return $this->query->handle($filters)->with('activeSubs')->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id))->firstOrFail();
     }
 
 }

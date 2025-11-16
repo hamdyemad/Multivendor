@@ -18,10 +18,12 @@ class DepartmentApiResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'slug' => $this->slug,
             'image' => ($this->image) ? Storage::disk('public')->url($this->image) : '',
-            'name' => $this->getTranslation('name', app()->getLocale()) ?? 'N/A',
+            'name' => $this->getTranslation('name', app()->getLocale()) ?? '',
             'description' => $this->getTranslation('description', app()->getLocale()) ?? '',
             'active' => $this->active,
+            'activities' => ActivityApiResource::collection($this->whenLoaded('activeActivities')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

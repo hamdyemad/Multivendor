@@ -146,7 +146,6 @@ class SubCategoryRepository implements SubCategoryRepositoryInterface
     public function createSubCategory(array $data)
     {
         $subCategory = SubCategory::create([
-            'slug' => Str::uuid(),
             'category_id' => $data['category_id'],
             'active' => $data['active'] ?? 1,
         ]);

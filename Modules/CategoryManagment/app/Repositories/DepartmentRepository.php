@@ -135,7 +135,6 @@ class DepartmentRepository implements DepartmentRepositoryInterface
     public function createDepartment(array $data)
     {
         $department = Department::create([
-            'slug' => Str::uuid(),
             'active' => $data['active'] ?? 1,
         ]);
 

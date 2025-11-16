@@ -3,6 +3,7 @@
 namespace Modules\CategoryManagment\app\Models;
 
 use App\Models\Attachment;
+use App\Traits\HasSlug;
 use App\Models\Traits\HumanDates;
 use App\Traits\Translation;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class Department extends Model
 {
-    use HasFactory, SoftDeletes, Translation, HumanDates;
+    use HasFactory, SoftDeletes, Translation, HumanDates, HasSlug;
 
     protected $guarded = [];
 
@@ -44,6 +45,10 @@ class Department extends Model
      */
     public function activities() {
         return $this->belongsToMany(Activity::class, 'activities_departments', 'department_id', 'activity_id');
+    }
+
+    public function activeActivities() {
+        return $this->activities()->active();
     }
 
     public function categories() {
@@ -78,6 +83,12 @@ class Department extends Model
         // Date to filter
         if (!empty($filters['created_date_to'])) {
             $query->whereDate('created_at', '<=', $filters['created_date_to']);
+        }
+
+        if (!empty($filters['activity_id'])) {
+            $query->whereHas('activeActivities', function($q) use ($filters) {
+                $q->where(fn($query) => $query->where('id', $filters['activity_id'])->orWhere('slug', $filters['activity_id']));
+            });
         }
 
         // Order by latest

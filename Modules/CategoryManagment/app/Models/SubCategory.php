@@ -4,6 +4,7 @@ namespace Modules\CategoryManagment\app\Models;
 
 use App\Models\Attachment;
 use App\Models\Traits\HumanDates;
+use App\Traits\HasSlug;
 use App\Traits\Translation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class SubCategory extends Model
 {
-    use HasFactory, SoftDeletes, Translation, HumanDates;
+    use HasFactory, SoftDeletes, Translation, HumanDates, HasSlug;
 
     protected $guarded = [];
 
@@ -62,7 +63,9 @@ class SubCategory extends Model
 
         // Category filter
         if (!empty($filters['category_id'])) {
-            $query->where('category_id', $filters['category_id']);
+            $query->whereHas('category', function($q) use ($filters) {
+                $q->where(fn($query) => $query->where('id', $filters['category_id'])->orWhere('slug', $filters['category_id']));
+            });
         }
 
         // Date from filter

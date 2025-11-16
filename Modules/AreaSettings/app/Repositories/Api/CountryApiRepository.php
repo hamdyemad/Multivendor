@@ -20,6 +20,6 @@ class CountryApiRepository implements CountryApiRepositoryInterface
 
     public function getCountryById(array $filters = [], $id)
     {
-        return $this->query->handle($filters)->with('currency.translations')->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id))->first();
+        return $this->query->handle($filters)->with('currency.translations')->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id))->firstOrFail();
     }
 }

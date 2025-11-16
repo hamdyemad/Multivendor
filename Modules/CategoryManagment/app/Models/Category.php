@@ -4,6 +4,7 @@ namespace Modules\CategoryManagment\app\Models;
 
 use App\Models\Attachment;
 use App\Models\Traits\HumanDates;
+use App\Traits\HasSlug;
 use App\Traits\Translation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class Category extends Model
 {
-    use HasFactory, SoftDeletes, Translation, HumanDates;
+    use HasFactory, SoftDeletes, Translation, HumanDates, HasSlug;
 
     protected $guarded = [];
 
@@ -70,7 +71,9 @@ class Category extends Model
 
         // Department Filter
         if (isset($filters['department_id']) && $filters['department_id'] !== '') {
-            $query->where('department_id', $filters['department_id']);
+            $query->whereHas('department', function($q) use ($filters) {
+                $q->where(fn($query) => $query->where('id', $filters['department_id'])->orWhere('slug', $filters['department_id']));
+            });
         }
 
         // Active filter

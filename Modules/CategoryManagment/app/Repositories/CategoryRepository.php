@@ -152,7 +152,6 @@ class CategoryRepository implements CategoryRepositoryInterface
     public function createCategory(array $data)
     {
         $category = Category::create([
-            'slug' => \Str::uuid(),
             'department_id' => $data['department_id'],
             'active' => $data['active'] ?? 1,
         ]);

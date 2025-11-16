@@ -27,7 +27,7 @@ class DepartmentApiRepository implements DepartmentApiRepositoryInterface
      */
     public function find(array $filters = [], $id)
     {
-        return $this->query->handle($filters)->with('activeCategories')->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id))->first();
+        return $this->query->handle($filters)->with('activeCategories')->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id))->firstOrFail();
     }
 
 }

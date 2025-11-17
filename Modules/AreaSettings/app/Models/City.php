@@ -61,5 +61,7 @@ class City extends Model
                 $q->where('id', $filters['country_id']);
             });
         }
+
+        return $query;
     }
 }

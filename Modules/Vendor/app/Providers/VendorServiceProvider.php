@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Modules\Vendor\app\Interfaces\VendorInterface;
 use Modules\Vendor\app\Repositories\VendorRepository;
+use Modules\Vendor\app\Interfaces\Api\VendorApiRepositoryInterface;
+use Modules\Vendor\app\Repositories\Api\VendorApiRepository;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -42,6 +44,11 @@ class VendorServiceProvider extends ServiceProvider
         $this->app->bind(
             VendorInterface::class,
             VendorRepository::class
+        );
+
+        $this->app->bind(
+            VendorApiRepositoryInterface::class,
+            VendorApiRepository::class
         );
         
     }

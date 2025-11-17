@@ -58,5 +58,7 @@ class SubRegion extends Model
                 $q->where('id', $filters['region_id']);
             });
         }
+
+        return $query;
     }
 }

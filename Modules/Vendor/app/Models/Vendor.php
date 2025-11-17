@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
 use App\Models\Attachment;
-use App\Models\Traits\HasSlug;
+use App\Traits\HasSlug;
 use App\Models\Traits\HumanDates;
 use Illuminate\Database\Eloquent\Builder;
 use Modules\AreaSettings\app\Models\Country;
@@ -19,11 +19,6 @@ class Vendor extends Model
     use HasFactory, SoftDeletes, Translation, HumanDates, HasSlug;
 
     protected $guarded = [];
-
-    // HasSlug trait configuration
-    protected $slugWithRandomSuffix = true;
-    protected $slugSuffixLength = 6;
-
 
     /**
      * Get the user that owns the vendor
@@ -57,6 +52,11 @@ class Vendor extends Model
         return $this->belongsToMany(Activity::class, 'vendors_activities', 'vendor_id', 'activity_id');
     }
 
+    public function activeActivities()
+    {
+        return $this->activities()->active();
+    }
+
     /**
      * Alias for attachments relationship
      */
@@ -86,6 +86,11 @@ class Vendor extends Model
     public function commission()
     {
         return $this->hasOne(VendorCommission::class);
+    }
+
+    public function scopeActive(Builder $query)
+    {
+        return $query->where('active', true);
     }
 
     public function scopeFilter(Builder $query, $filters)
@@ -122,6 +127,8 @@ class Vendor extends Model
         if (!empty($filters['created_date_to'])) {
             $query->whereDate('created_at', '<=', $filters['created_date_to']);
         }
+
+        return $query;
     }
 
     /**
@@ -154,44 +161,4 @@ class Vendor extends Model
         $keywords = $this->getMetaKeywordsArray($languageCode);
         return implode(', ', $keywords);
     }
-
-    /**
-     * Override slug source text method to handle vendor translations properly
-     */
-    protected function getSlugSourceText()
-    {
-        // Try to get from existing translations first
-        $name = $this->getTranslation('name', 'en');
-        
-        if (!empty($name)) {
-            return $name;
-        }
-        
-        // Fallback to any available translation
-        $name = $this->getTranslation('name', 'ar');
-        
-        if (!empty($name)) {
-            return $name;
-        }
-        
-        // Final fallback
-        return $this->getSlugFallbackText();
-    }
-
-    /**
-     * Override slug fallback text
-     */
-    protected function getSlugFallbackText()
-    {
-        return 'vendor-' . ($this->id ?: time());
-    }
-
-    /**
-     * Public method to generate slug (calls protected trait method)
-     */
-    public function createSlug()
-    {
-        return $this->generateSlug();
-    }
-
 }

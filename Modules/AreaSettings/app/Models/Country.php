@@ -59,5 +59,7 @@ class Country extends Model
             $query->whereDate('created_at', '<=', $filters['created_date_to']);
         }
         $query->orderBy('created_at', 'desc');
+
+        return $query;
     }
 }

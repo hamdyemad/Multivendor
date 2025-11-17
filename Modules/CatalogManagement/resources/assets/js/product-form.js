@@ -566,64 +566,7 @@ jQuery(document).ready(function ($) {
     // Add form submission handler
     $('#productForm').on('submit', handleFormSubmission);
 
-    // Additional Images Management
-    let additionalImageIndex = 0;
 
-    // Initialize existing additional images
-    $('.additional-image-item').each(function() {
-        const imageId = $(this).data('image-id');
-        if (imageId) {
-            initializeImageUploadHandler(`existing_image_${imageId}`);
-        }
-    });
-
-    // Add Additional Image Button
-    $('#add-additional-image-btn').on('click', function(e) {
-        console.log('🖱️ Add Image button clicked!');
-        e.preventDefault();
-        console.log('🎯 Calling addAdditionalImage function...');
-        addAdditionalImage();
-    });
-
-    // Remove Additional Image (Event Delegation)
-    $(document).on('click', '.remove-additional-image-btn', function(e) {
-        e.preventDefault();
-        const imageItem = $(this).closest('.additional-image-item');
-        const imageId = imageItem.data('image-id');
-
-        // If it's an existing image, mark it for deletion
-        if (imageId) {
-            // Create a hidden input to mark for deletion
-            const deleteInput = $(`<input type="hidden" name="deleted_images[]" value="${imageId}">`);
-            $('#productForm').append(deleteInput);
-        }
-
-        imageItem.remove();
-        toggleAdditionalImagesVisibility();
-    });
-
-    // Remove Image Box Button (Remove entire image box)
-    $(document).on('click', '.remove-image-box-btn', function(e) {
-        e.preventDefault();
-        console.log('🗑️ Remove image box button clicked');
-        const imageItem = $(this).closest('.additional-image-item');
-        const imageId = imageItem.data('image-id');
-
-        console.log('📦 Image ID:', imageId);
-
-        // If it's an existing image, mark it for deletion
-        if (imageId) {
-            console.log('🔖 Marking existing image for deletion:', imageId);
-            // Create a hidden input to mark for deletion
-            const deleteInput = $(`<input type="hidden" name="deleted_images[]" value="${imageId}">`);
-            $('#productForm').append(deleteInput);
-        }
-
-        console.log('🗑️ Removing image item from DOM');
-        imageItem.remove();
-        toggleAdditionalImagesVisibility();
-        console.log('✅ Image box removed successfully');
-    });
 
     showStep(currentStep);
 
@@ -2004,7 +1947,9 @@ function addVariantStockRowWithRegions(variantIndex, regions) {
 
     let regionOptions = '<option value="">Select Region</option>';
     regions.forEach(function (region) {
-        regionOptions += `<option value="${region.id}">${region.text}</option>`;
+        // Handle both API formats: {id, text} and {id, name}
+        const regionName = region.text || region.name;
+        regionOptions += `<option value="${region.id}">${regionName}</option>`;
     });
 
     const stockRowHtml = `
@@ -2136,8 +2081,8 @@ function addAdditionalImage() {
                     <label class="il-gray fs-14 fw-500 mb-0" style="margin-bottom: 0 !important; flex: 1;">
                         ${config.additionalImage} ${imageCount}
                     </label>
-                    <button type="button" class="btn btn-sm btn-danger remove-image-box-btn" title="Remove this image" style="flex-shrink: 0; margin-left: 8px; padding: 4px 8px; font-size: 12px; min-width: auto; height: auto; line-height: 1;">
-                        <i class="uil uil-trash-alt" style="margin: 0;"></i>
+                    <button type="button" class="btn btn-sm btn-danger remove-image-box-btn" title="Remove this image box" style="flex-shrink: 0; margin-left: 8px; padding: 6px 10px; font-size: 12px; min-width: auto; height: auto; line-height: 1; white-space: nowrap;">
+                        <i class="uil uil-trash-alt" style="margin: 0; margin-right: 3px;"></i> Remove
                     </button>
                 </div>
                 <div class="image-upload-wrapper">

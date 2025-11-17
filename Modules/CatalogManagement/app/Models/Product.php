@@ -57,6 +57,11 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class);
     }
 
+    public function getCurrencyAttribute()
+    {
+        return $this->vendor->country->currency ?? null;
+    }
+
     /**
      * Get the brand
      */

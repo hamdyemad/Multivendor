@@ -167,5 +167,10 @@ return [
     'please_select_variant' => 'يرجى اختيار متغير',
     'add_new_region' => 'إضافة منطقة جديدة',
     'actions' => 'الإجراءات',
-
+    'sku' => 'رقم SKU',
+    'units' => 'وحدات',
+    'currency' => 'جنيه مصري',
+    'offer_valid_until' => 'العرض صالح حتى',
+    'no_stock_data' => 'لا توجد بيانات مخزون',
+    'variants_and_stock' => 'المتغيرات والمخزون',
 ];

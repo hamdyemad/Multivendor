@@ -44,8 +44,8 @@ class StoreProductRequest extends FormRequest
             'vendor_id' => $this->getVendorValidationRule(),
 
             // Images
-            'main_image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
-            'additional_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'main_image' => 'required|image|max:5120',
+            'additional_images.*' => 'nullable|image|max:5120',
 
             // Translations
             'translations' => 'required|array|min:1',
@@ -83,14 +83,14 @@ class StoreProductRequest extends FormRequest
         if ($configurationType === 'variants') {
             $rules = array_merge($rules, [
                 'variants' => 'required|array|min:1',
-                'variants.*.sku' => 'nullable|string',
+                'variants.*.sku' => 'required|string',
                 'variants.*.price' => 'required|numeric|min:0',
                 'variants.*.has_discount' => 'nullable|boolean',
                 'variants.*.discount_price' => 'nullable|numeric|min:0',
                 'variants.*.discount_end_date' => 'nullable|date|after:today',
-                'variants.*.key_id' => 'nullable|exists:variant_keys,id',
-                'variants.*.variant_id' => 'nullable|exists:variant_values,id',
-                'variants.*.stock' => 'nullable|array',
+                'variants.*.key_id' => 'required|exists:variants_configurations_keys,id',
+                'variants.*.variant_id' => 'required|exists:variants_configurations,id',
+                'variants.*.stock' => 'required|array',
                 'variants.*.stock.*.region_id' => 'required_with:variants.*.stock|exists:regions,id',
                 'variants.*.stock.*.quantity' => 'required_with:variants.*.stock|integer|min:0',
                 'variants.*.translations' => 'nullable|array',

@@ -12,6 +12,7 @@ class ProductVariant extends Model
 {
     use HasFactory, SoftDeletes, Translation, HasSlug;
 
+    protected $table = 'product_variants';
     protected $guarded = [];
 
     protected $casts = [
@@ -32,6 +33,22 @@ class ProductVariant extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    /**
+     * Get the variant configuration key
+     */
+    public function variantKey()
+    {
+        return $this->belongsTo(VariantConfigurationKey::class, 'variant_key_id');
+    }
+
+    /**
+     * Get the variant configuration value
+     */
+    public function variantValue()
+    {
+        return $this->belongsTo(VariantsConfiguration::class, 'variant_value_id');
     }
 
     /**

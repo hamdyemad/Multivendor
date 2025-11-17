@@ -12,6 +12,7 @@ class VariantsConfiguration extends Model
 {
     use HasFactory, Translation, HumanDates;
 
+    protected $table = 'variants_configurations';
     protected $guarded = [];
 
 

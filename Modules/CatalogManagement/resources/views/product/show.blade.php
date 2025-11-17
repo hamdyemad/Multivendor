@@ -189,51 +189,63 @@
                                     </div>
                                 </div>
 
-                                {{-- Pricing & Stock Information --}}
+                                {{-- Additional Images Carousel --}}
+                                @if($product->additionalImages && $product->additionalImages->count() > 0)
+                                    <div class="card card-holder mt-3">
+                                        <div class="card-header">
+                                            <h3>
+                                                <i class="uil uil-images me-1"></i>{{ __('catalogmanagement::product.additional_images') ?? 'Additional Images' }}
+                                            </h3>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="slick-slider global-slider slick-dots-bottom" data-dots-slick='true' data-autoplay-slick='true'>
+                                                @foreach($product->additionalImages as $index => $image)
+                                                    <div class="slick-slider__single d-flex justify-content-center align-items-center" style="height: 400px; background: #f8f9fa; cursor: pointer;" ondblclick="openImageModal({{ $index }})">
+                                                        <img src="{{ asset('storage/' . $image->path) }}"
+                                                             alt="{{ __('common.additional_image') }}"
+                                                             style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Image Modals (Outside Loop) --}}
+                                    @foreach($product->additionalImages as $index => $image)
+                                        <div class="modal fade" id="imageModal{{ $index }}" tabindex="-1" aria-labelledby="imageModalLabel{{ $index }}" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <div class="modal-body p-0 d-flex justify-content-center align-items-center" style="min-height: 500px; background: #f8f9fa;">
+                                                        <img src="{{ asset('storage/' . $image->path) }}"
+                                                             alt="{{ __('common.additional_image') }}"
+                                                             style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+
+                                {{-- Configuration Type --}}
                                 <div class="card card-holder mt-3">
                                     <div class="card-header">
                                         <h3>
-                                            <i class="uil uil-dollar-alt me-1"></i>{{ __('catalogmanagement::product.pricing_stock') }}
+                                            <i class="uil uil-cog me-1"></i>{{ __('catalogmanagement::product.configuration_type') ?? 'Configuration Type' }}
                                         </h3>
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
-                                            {{-- Cost Price --}}
-                                            <div class="col-md-6">
+                                            <div class="col-md-12">
                                                 <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.cost_price') }}</label>
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.type') ?? 'Type' }}</label>
                                                     <p class="fs-15 color-dark fw-500">
-                                                        {{ $product->cost_price ?? '-' }}
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            {{-- Selling Price --}}
-                                            <div class="col-md-6">
-                                                <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.selling_price') }}</label>
-                                                    <p class="fs-15 color-dark fw-500">
-                                                        {{ $product->selling_price ?? '-' }}
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            {{-- Stock Quantity --}}
-                                            <div class="col-md-6">
-                                                <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.stock_quantity') }}</label>
-                                                    <p class="fs-15 color-dark fw-500">
-                                                        {{ $product->stock_quantity ?? '-' }}
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            {{-- Max Per Order --}}
-                                            <div class="col-md-6">
-                                                <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.max_per_order') }}</label>
-                                                    <p class="fs-15 color-dark fw-500">
-                                                        {{ $product->max_per_order ?? '-' }}
+                                                        @if($product->configuration_type === 'simple')
+                                                            <span class="badge badge-round badge-success badge-lg">{{ __('catalogmanagement::product.simple') ?? 'Simple' }}</span>
+                                                        @elseif($product->configuration_type === 'variants')
+                                                            <span class="badge badge-round badge-info badge-lg">{{ __('catalogmanagement::product.variants') ?? 'Variants' }}</span>
+                                                        @else
+                                                            <span class="text-muted">{{ $product->configuration_type ?? '-' }}</span>
+                                                        @endif
                                                     </p>
                                                 </div>
                                             </div>
@@ -242,184 +254,84 @@
                                 </div>
 
                                 {{-- Product Variants & Regional Stock --}}
-                                @if($product->variants->count() > 0)
-                                    <div class="card card-holder mt-3">
-                                        <div class="card-header">
-                                            <h3>
-                                                <i class="uil uil-box me-1"></i>{{ __('catalogmanagement::product.variants_stock') }}
-                                            </h3>
-                                        </div>
-                                        <div class="card-body">
-                                            @foreach($product->variants as $variant)
-                                                <div class="mb-4 pb-3 border-bottom">
-                                                    <h5 class="fw-600 mb-3">
-                                                        {{ $variant->getTranslation('title', app()->getLocale()) ?? $variant->getTranslation('title', 'en') ?? $variant->getTranslation('title', 'ar') ?? 'Variant' }}
-                                                        <span class="badge badge-round badge-primary badge-lg ms-2">{{ __('catalogmanagement::product.total') }}: {{ $variant->getTotalStock() }}</span>
-                                                    </h5>
+                                <div class="card card-holder mt-3">
+                                    <div class="card-header">
+                                        <h3>
+                                            <i class="uil uil-box me-1"></i>{{ __('common.variants_and_stock') }}
+                                        </h3>
+                                    </div>
+                                    <div class="card-body">
+                                        @foreach($product->variants as $variantIndex => $variant)
+                                            <div class="mb-4 pb-4" style="@if(!$loop->last) border-bottom: 1px solid #e9ecef; @endif">
+                                                {{-- Variant Header with SKU, Title, and Price --}}
+                                                <div class="mb-3">
+                                                    <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+                                                        {{-- SKU Badge --}}
+                                                        <span class="badge badge-lg" style="background-color: #17a2b8; color: white; padding: 8px 12px; border-radius: 20px;">
+                                                            <i class="uil uil-barcode me-1"></i>{{ __('common.sku') }}: {{ $variant->sku ?? '-' }}
+                                                        </span>
 
-                                                    @if($variant->stocks->count() > 0)
-                                                        <div class="table-responsive">
-                                                            <table class="table table-sm table-bordered mb-0">
-                                                                <thead>
-                                                                    <tr class="table-light">
-                                                                        <th>{{ __('catalogmanagement::product.region') }}</th>
-                                                                        <th class="text-center">{{ __('catalogmanagement::product.stock') }}</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    @foreach($variant->stocks as $stock)
-                                                                        <tr>
-                                                                            <td>
-                                                                                @if($stock->region)
-                                                                                    <span class="badge badge-round badge-secondary badge-lg">{{ $stock->region->getTranslation('name', app()->getLocale()) ?? $stock->region->getTranslation('name', 'en') ?? $stock->region->getTranslation('name', 'ar') ?? '-' }}</span>
-                                                                                @else
-                                                                                    <span class="text-muted">-</span>
-                                                                                @endif
-                                                                            </td>
-                                                                            <td class="text-center fw-600">
-                                                                                <span class="badge badge-round badge-primary badge-lg">{{ $stock->stock }}</span>
-                                                                            </td>
-                                                                        </tr>
-                                                                    @endforeach
-                                                                </tbody>
-                                                            </table>
+                                                        {{-- Variant Title Badge --}}
+                                                        <span class="badge badge-lg" style="background-color: #17a2b8; color: white; padding: 8px 12px; border-radius: 20px;">
+                                                            <i class="uil uil-tag me-1"></i>{{ $variant->getTranslation('title', app()->getLocale()) ?? $variant->getTranslation('title', 'en') ?? $variant->getTranslation('title', 'ar') ?? __('common.variant') . ' ' . ($variantIndex + 1) }}
+                                                        </span>
+
+                                                        {{-- Price Section --}}
+                                                        <div class="ms-auto d-flex align-items-center gap-2">
+                                                            @if($variant->has_discount)
+                                                                <span style="text-decoration: line-through; color: #999; font-size: 14px;">
+                                                                    {{ $variant->discount_price ?? '-' }} {{ __('common.currency') ?? 'EGP' }}
+                                                                </span>
+                                                            @endif
+                                                            <span class="fw-bold" style="color: #28a745; font-size: 18px;">
+                                                                {{ $variant->price ?? '-' }} {{ $product->currency->code }}
+                                                            </span>
+                                                            @if($variant->has_discount)
+                                                                <span class="badge badge-primary badge-round badge-lg" style="padding: 4px 8px;">
+                                                                    -{{ round((($variant->discount_price - $variant->price) / $variant->discount_price) * 100) }}%
+                                                                </span>
+                                                            @endif
                                                         </div>
-                                                    @else
-                                                        <p class="text-muted fs-14">{{ __('catalogmanagement::product.no_stock_data') }}</p>
+                                                    </div>
+
+                                                    {{-- Offer Valid Until --}}
+                                                    @if($variant->has_discount && $variant->discount_end_date)
+                                                        <div class="mt-2">
+                                                            <small class="text-muted">
+                                                                <i class="uil uil-clock me-1"></i>{{ __('common.offer_valid_until') }}: {{ \Carbon\Carbon::parse($variant->discount_end_date)->format('M d, Y') }}
+                                                            </small>
+                                                        </div>
                                                     @endif
                                                 </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @endif
 
-                                {{-- SEO Information --}}
-                                <div class="card card-holder mt-3">
-                                    <div class="card-header">
-                                        <h3>
-                                            <i class="uil uil-search me-1"></i>{{ __('common.seo') ?? 'SEO' }}
-                                        </h3>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            {{-- Meta Title --}}
-                                            <div class="col-md-12">
-                                                <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.meta_title') }}</label>
-                                                    <div class="row">
-                                                        @foreach(['en' => 'English', 'ar' => 'العربية'] as $lang => $langName)
-                                                            @php
-                                                                $translation = $product->getTranslation('meta_title', $lang);
-                                                            @endphp
-                                                            @if($translation)
-                                                                <div class="col-md-6 mb-2">
-                                                                    <small class="text-muted d-block">{{ $langName }}:</small>
-                                                                    <p class="fs-15 color-dark fw-500 mb-0">{{ $translation }}</p>
+                                                {{-- Stock per Region --}}
+                                                @if($variant->stocks->count() > 0)
+                                                    <div class="mt-3">
+                                                        <h6 class="fw-600 mb-3">{{ __('common.stock_per_region') }}:</h6>
+                                                        <div class="row">
+                                                            @foreach($variant->stocks as $stock)
+                                                                <div class="col-md-4 mb-3">
+                                                                    <div class="p-3 border rounded" style="background: #f8f9fa;">
+                                                                        <div class="text-muted small mb-2">
+                                                                            @if($stock->region)
+                                                                                {{ $stock->region->getTranslation('name', app()->getLocale()) ?? $stock->region->getTranslation('name', 'en') ?? $stock->region->getTranslation('name', 'ar') ?? '-' }}
+                                                                            @else
+                                                                                {{ __('common.region') }}
+                                                                            @endif
+                                                                        </div>
+                                                                        <div class="fw-bold" style="color: #0066cc; font-size: 18px;">
+                                                                            {{ $stock->stock }} {{ __('common.units') }}
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
-                                                            @endif
-                                                        @endforeach
+                                                            @endforeach
+                                                        </div>
                                                     </div>
-                                                </div>
+                                                @else
+                                                    <p class="text-muted fs-14 mt-3">{{ __('common.no_stock_data') }}</p>
+                                                @endif
                                             </div>
-
-                                            {{-- Meta Description --}}
-                                            <div class="col-md-12">
-                                                <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.meta_description') }}</label>
-                                                    <div class="row">
-                                                        @foreach(['en' => 'English', 'ar' => 'العربية'] as $lang => $langName)
-                                                            @php
-                                                                $translation = $product->getTranslation('meta_description', $lang);
-                                                            @endphp
-                                                            @if($translation)
-                                                                <div class="col-md-6 mb-3">
-                                                                    <small class="text-muted d-block">{{ $langName }}:</small>
-                                                                    <p class="fs-15 color-dark mb-0">{{ $translation }}</p>
-                                                                </div>
-                                                            @endif
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {{-- Meta Keywords --}}
-                                            <div class="col-md-12">
-                                                <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.meta_keywords') }}</label>
-                                                    <div class="row">
-                                                        @foreach(['en' => 'English', 'ar' => 'العربية'] as $lang => $langName)
-                                                            @php
-                                                                $keywords = $product->getTranslation('meta_keywords', $lang) ?? '';
-                                                                $keywords = explode(",", $keywords);
-                                                            @endphp
-                                                            @if($keywords)
-                                                                <div class="col-md-6 mb-2">
-                                                                    @foreach ($keywords as $keyword)
-                                                                        <div class="badge badge-round badge-lg badge-primary">{{ $keyword }}</div>
-                                                                    @endforeach
-                                                                </div>
-                                                            @endif
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- Status & Timestamps --}}
-                                <div class="card card-holder mt-3">
-                                    <div class="card-header">
-                                        <h3>
-                                            <i class="uil uil-clock me-1"></i>{{ __('common.timestamps') }}
-                                        </h3>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            {{-- Status --}}
-                                            <div class="col-md-6">
-                                                <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.status') }}</label>
-                                                    <p class="fs-15">
-                                                        @if($product->is_active)
-                                                            <span class="badge badge-round badge-success badge-round badge-lg">{{ __('catalogmanagement::product.active') }}</span>
-                                                        @else
-                                                            <span class="badge badge-round badge-danger badge-round badge-lg">{{ __('catalogmanagement::product.inactive') }}</span>
-                                                        @endif
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            {{-- Featured --}}
-                                            <div class="col-md-6">
-                                                <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.featured') }}</label>
-                                                    <p class="fs-15">
-                                                        @if($product->is_featured)
-                                                            <span class="badge badge-round badge-success badge-round badge-lg">{{ __('Yes') }}</span>
-                                                        @else
-                                                            <span class="badge badge-round badge-secondary badge-round badge-lg">{{ __('No') }}</span>
-                                                        @endif
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            {{-- Created At --}}
-                                            <div class="col-md-6">
-                                                <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('common.created_at') }}</label>
-                                                    <p class="fs-15 color-dark">{{ $product->created_at }}</p>
-                                                </div>
-                                            </div>
-
-                                            {{-- Updated At --}}
-                                            <div class="col-md-6">
-                                                <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('common.updated_at') }}</label>
-                                                    <p class="fs-15 color-dark">{{ $product->updated_at }}</p>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        @endforeach
                                     </div>
                                 </div>
                             </div>
@@ -445,32 +357,6 @@
                                                 </div>
                                             </div>
                                         @endif
-
-                                        {{-- Additional Images --}}
-                                        @if($product->additionalImages->count() > 0)
-                                            <div class="mt-3">
-                                                <label class="il-gray fs-14 fw-500 mb-10 d-block">{{ __('catalogmanagement::product.additional_images') }}</label>
-                                                <div class="row g-3">
-                                                    @foreach($product->additionalImages as $image)
-                                                        <div class="col-6">
-                                                            <div class="image-wrapper image-preview-container" style="position: relative; width: 100%; height: 180px; border: 2px dashed #0056B7; border-radius: 8px; overflow: hidden; cursor: pointer; transition: all 0.3s ease; background: #f8f9fa;">
-                                                                <img src="{{ asset('storage/' . $image->path) }}"
-                                                                    alt="{{ $product->getTranslation('title') }}"
-                                                                    class="preview-image"
-                                                                    style="width: 100%; height: 100%; object-fit: contain;">
-                                                                <div class="image-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; gap: 10px; opacity: 0; transition: opacity 0.3s ease;">
-                                                                    <button type="button" class="btn-change-image" style="background: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 5px; text-decoration: none; color: #333;">
-                                                                        <i class="uil uil-eye"></i> View
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                            </div>
-                                        @else
-                                            <p class="fs-15 color-light fst-italic text-center">{{ __('common.no_images') ?? 'No additional images' }}</p>
-                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -484,3 +370,20 @@
     {{-- Image Modal Component --}}
     <x-image-modal />
 @endsection
+
+@push('scripts')
+<script>
+    /**
+     * Open image modal for additional images carousel
+     */
+    function openImageModal(index) {
+        const modalId = 'imageModal' + index;
+        const modalElement = document.getElementById(modalId);
+
+        if (modalElement) {
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+        }
+    }
+</script>
+@endpush

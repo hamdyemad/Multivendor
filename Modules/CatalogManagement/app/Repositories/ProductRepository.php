@@ -257,9 +257,9 @@ class ProductRepository implements ProductInterface
             $variant = ProductVariant::create([
                 'product_id' => $product->id,
                 'sku' => $data['simple_sku'] ?? $data['sku'],
-                'price' => ($data['price'] ?? 0) * 100, // Store in cents
+                'price' => ($data['price'] ?? 0), // Store in cents
                 'has_discount' => $data['has_discount'] ?? false,
-                'discount_price' => isset($data['price_before_discount']) ? $data['price_before_discount'] * 100 : 0,
+                'discount_price' => isset($data['price_before_discount']) ? $data['price_before_discount'] : 0,
                 'discount_end_date' => $data['offer_end_date'] ?? null,
             ]);
 
@@ -282,12 +282,12 @@ class ProductRepository implements ProductInterface
                     $variant = ProductVariant::create([
                         'product_id' => $product->id,
                         'sku' => $variantData['sku'] ?? null,
-                        'price' => ($variantData['price'] ?? 0) * 100, // Store in cents
+                        'price' => $variantData['price'] ?? 0, // Store in cents
                         'has_discount' => $variantData['has_discount'] ?? false,
-                        'discount_price' => isset($variantData['discount_price']) ? $variantData['discount_price'] * 100 : 0,
-                        'discount_end_date' => $variantData['discount_end_date'] ?? null,
+                        'discount_price' =>  $variantData['price_before_discount'] ?? 0,
+                        'discount_end_date' => $variantData['offer_end_date'] ?? null,
                         'variant_key_id' => $variantData['key_id'] ?? null,
-                        'variant_value_id' => $variantData['variant_id'] ?? null,
+                        'variant_value_id' => $variantData['value_id'] ?? null,
                     ]);
 
                     // Save variant translations

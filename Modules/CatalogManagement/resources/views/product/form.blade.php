@@ -306,65 +306,17 @@
                                     </div>
                                 </div>
                             </div>
-
                             <!-- Additional Images -->
                             <div class="card mb-4">
                                 <div class="card-body">
-                                    <h5 class="mb-4 d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <i class="uil uil-images"></i>
-                                            {{ __('catalogmanagement::product.additional_images') }}
-                                        </div>
-                                        <button type="button" id="add-additional-image-btn" class="btn btn-primary btn-sm">
-                                            <i class="uil uil-plus"></i> {{ __('common.add_image') }}
-                                        </button>
+                                    <h5 class="mb-4">
+                                        <i class="uil uil-image"></i>
+                                        {{ __('catalogmanagement::product.additional_images') }}
                                     </h5>
-
-                                    <!-- Empty state message -->
-                                    <div id="additional-images-empty-state" class="text-center py-4">
-                                        <i class="uil uil-images text-muted" style="font-size: 48px;"></i>
-                                        <p class="text-muted mb-0">{{ __('common.no_additional_images') }}</p>
-                                    </div>
-
-                                    <!-- Images Container -->
-                                    <div id="additional-images-container" class="row" @if(isset($product) && $product->additionalImages && $product->additionalImages->count() > 0) @else style="display: none;" @endif>
-                                        <!-- Existing additional images -->
-                                        @if(isset($product) && $product->additionalImages)
-                                            @foreach($product->additionalImages as $index => $image)
-                                                <div class="col-md-6 col-lg-4 mb-3 additional-image-item" data-index="{{ $index + 1 }}" data-image-id="{{ $image->id }}">
-                                                    <div class="form-group position-relative">
-                                                        <div class="d-flex justify-content-between align-items-center mb-2" style="display: flex !important; justify-content: space-between !important; align-items: center !important; width: 100%;">
-                                                            <label class="il-gray fs-14 fw-500 mb-0" style="margin-bottom: 0 !important; flex: 1;">
-                                                                {{ __('common.additional_image') }} {{ $index + 1 }}
-                                                            </label>
-                                                            <button type="button" class="btn btn-sm btn-danger remove-image-box-btn" title="Remove this image" style="flex-shrink: 0; margin-left: 8px; padding: 4px 8px; font-size: 12px; min-width: auto; height: auto; line-height: 1;">
-                                                                <i class="uil uil-trash-alt" style="margin: 0;"></i>
-                                                            </button>
-                                                        </div>
-                                                        <div class="image-upload-wrapper">
-                                                            <div class="image-preview-container" id="existing_image_{{ $image->id }}-preview-container" data-target="existing_image_{{ $image->id }}">
-                                                                <img src="{{ asset('storage/' . $image->path) }}" alt="{{ __('common.additional_image') }}" class="preview-image" id="existing_image_{{ $image->id }}-preview-img">
-                                                                <div class="image-overlay">
-                                                                    <button type="button" class="btn-change-image" data-target="existing_image_{{ $image->id }}">
-                                                                        <i class="uil uil-camera"></i> {{ __('common.change') }}
-                                                                    </button>
-                                                                    <button type="button" class="btn-remove-image remove-additional-image-btn" data-target="existing_image_{{ $image->id }}">
-                                                                        <i class="uil uil-trash-alt"></i> {{ __('common.remove') }}
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                            <input type="file"
-                                                                   class="d-none image-file-input"
-                                                                   id="existing_image_{{ $image->id }}"
-                                                                   name="existing_images[]"
-                                                                   accept="image/jpeg,image/png,image/jpg,image/webp"
-                                                                   data-preview="existing_image_{{ $image->id }}">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        @endif
-                                        <!-- New additional images will be added here dynamically -->
+                                    <div class="row">
+                                        <div class="col-md-12 mb-3">
+                                            <input type="file" multiple class="form-control" accept="image/*" name="additional_images[]">
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -168,4 +168,10 @@ return [
     'please_select_variant' => 'Please select a variant',
     'add_new_region' => 'Add New Region',
     'actions' => 'Actions',
+    'sku' => 'SKU',
+    'units' => 'units',
+    'currency' => 'EGP',
+    'offer_valid_until' => 'Offer valid until',
+    'no_stock_data' => 'No stock data available',
+    'variants_and_stock' => 'Variants & Stock',
 ];

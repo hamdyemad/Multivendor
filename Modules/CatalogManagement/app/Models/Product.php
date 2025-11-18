@@ -21,10 +21,14 @@ class Product extends Model
     protected $guarded = [];
     protected $casts = [
         'is_active' => 'boolean',
-        'is_featured' => 'boolean',
-        'points' => 'integer',
-        'max_per_order' => 'integer',
+        'status' => 'string',
+        'configuration_type' => 'string',
     ];
+
+    /**
+     * The field to generate slug from (for HasSlug trait)
+     */
+    protected $slugFrom = 'title';
 
     /**
      * Get all attachments for the product
@@ -96,19 +100,19 @@ class Product extends Model
     }
 
     /**
-     * Get the tax
+     * Get the vendor (if created by vendor)
      */
-    public function tax()
+    public function vendor()
     {
-        return $this->belongsTo(Tax::class);
+        return $this->belongsTo(Vendor::class);
     }
 
     /**
      * Get the user who created this product
      */
-    public function createdBy()
+    public function createdByUser()
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by_user_id');
     }
 
 
@@ -172,59 +176,6 @@ class Product extends Model
             ->first();
 
         return $translation ? $translation->lang_value : '';
-    }
-
-
-
-    // Scopes
-    public function scopeFilter($query, $filters)
-    {
-        // Search in translations
-        if (!empty($filters['search'])) {
-            $searchTerm = $filters['search'];
-            $query->where(function($q) use ($searchTerm) {
-                $q->whereHas('translations', function($query) use ($searchTerm) {
-                    $query->where('lang_key', 'name')
-                          ->where('lang_value', 'like', '%' . $searchTerm . '%');
-                })
-                ->orWhere('sku', 'like', '%' . $searchTerm . '%');
-            });
-        }
-
-        // Filter by active status
-        if (isset($filters['is_active']) && $filters['is_active'] !== null && $filters['is_active'] !== '') {
-            $query->where('is_active', $filters['is_active']);
-        }
-
-        // Filter by featured status
-        if (isset($filters['is_featured']) && $filters['is_featured'] !== '') {
-            $query->where('is_featured', $filters['is_featured']);
-        }
-
-        // Filter by brand
-        if (!empty($filters['brand_id'])) {
-            $query->where('brand_id', $filters['brand_id']);
-        }
-
-        // Filter by category
-        if (!empty($filters['category_id'])) {
-            $query->where('category_id', $filters['category_id']);
-        }
-
-        // Filter by department
-        if (!empty($filters['department_id'])) {
-            $query->where('department_id', $filters['department_id']);
-        }
-
-        // Filter by date range
-        if (!empty($filters['created_date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['created_date_from']);
-        }
-
-        if (!empty($filters['created_date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['created_date_to']);
-        }
-        return $query;
     }
 
 }

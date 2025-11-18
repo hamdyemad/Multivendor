@@ -66,28 +66,21 @@
             </li>
         @endcanany
 
-        @canany(['products.view', 'products.create'])
-            <li class="has-child">
-                <a href="#" class="">
-                    <span class="nav-icon uil uil-box"></span>
-                    <span class="menu-text">{{ trans('menu.products.title') }}</span>
-                    <span class="toggle-icon"></span>
-                </a>
-                <ul class="px-0">
-                    <li>
-                        <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.products.create') }}">
-                            {{ trans('menu.products.create') }}
-                        </a>
-                    </li>
-
-                    <li>
-                        <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.products.index') }}">
-                            {{ trans('menu.products.all') }}
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        @endcanany
+        <li class="has-child">
+            <a href="#" class="">
+                <span class="nav-icon uil uil-box"></span>
+                <span class="menu-text">{{ trans('menu.products.title') }}</span>
+                <span class="toggle-icon"></span>
+            </a>
+            <ul class="px-0">
+                <li>
+                    <a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.products.index') }}">
+                        {{ trans('menu.products.all_products') }}
+                        <span class="badge badge-round badge-primary ms-1">20</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
 
         @canany(['variant-keys.view', 'variant-keys.create'])
             <li class="has-child">
@@ -112,7 +105,6 @@
                 </ul>
             </li>
         @endcanany
-
         @can('reviews.view')
         <li class="has-child">
             <a href="#" class="">

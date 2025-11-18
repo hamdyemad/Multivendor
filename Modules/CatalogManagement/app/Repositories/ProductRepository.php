@@ -55,29 +55,21 @@ class ProductRepository implements ProductInterface
             } else {
                 $isVendorCreated = false;
             }
-
-            $productType = $isVendorCreated ? 'vendor' : 'bank';
             $status = $isVendorCreated ? 'pending' : 'approved';
 
             // Create product
             $product = Product::create([
-                'slug' => $this->generateSlug($data),
-                'sku' => $data['sku'],
-                'points' => $data['points'] ?? 0,
                 'is_active' => $data['is_active'] ?? true,
-                'is_featured' => $data['is_featured'] ?? false,
-                'created_by' => $vendorId,
+                'configuration_type' => $data['configuration_type'],
+                'status' => $status,
+                'vendor_id' => $vendorId,
                 'brand_id' => $data['brand_id'] ?? null,
                 'department_id' => $data['department_id'] ?? null,
                 'category_id' => $data['category_id'] ?? null,
                 'sub_category_id' => $data['sub_category_id'] ?? null,
-                'tax_id' => $data['tax_id'] ?? null,
-                'max_per_order' => $data['max_per_order'] ?? null,
-                'video_link' => $data['video_link'] ?? null,
-                'configuration_type' => $data['configuration_type'] ?? 'simple',
-                'product_type' => $productType,
-                'status' => $status,
+                'created_by_user_id' => $currentUser->id,
             ]);
+
 
             // Store translations
             $this->storeTranslations($product, $data);
@@ -91,59 +83,50 @@ class ProductRepository implements ProductInterface
             // Handle variants or simple product
             $this->handleProductVariants($product, $data);
 
-            // If vendor created a product, add it to vendor_products table for admin approval
-            if ($isVendorCreated && $vendorId) {
-                VendorProduct::create([
-                    'vendor_id' => $vendorId,
-                    'product_id' => $product->id,
-                    'status' => 'pending'
-                ]);
-            }
-
             return $product;
         });
     }
 
     public function updateProduct(int $id, array $data)
     {
-        return DB::transaction(function () use ($id, $data) {
-            $product = Product::findOrFail($id);
+        // return DB::transaction(function () use ($id, $data) {
+        //     $product = Product::findOrFail($id);
 
-            // Determine vendor_id based on user role
-            $vendorId = $this->determineVendorId($data);
+        //     // Determine vendor_id based on user role
+        //     $vendorId = $this->determineVendorId($data);
 
-            // Update product
-            $product->update([
-                'sku' => $data['sku'],
-                'points' => $data['points'] ?? 0,
-                'is_active' => $data['is_active'] ?? true,
-                'is_featured' => $data['is_featured'] ?? false,
-                'created_by' => $vendorId,
-                'brand_id' => $data['brand_id'] ?? null,
-                'department_id' => $data['department_id'] ?? null,
-                'category_id' => $data['category_id'] ?? null,
-                'sub_category_id' => $data['sub_category_id'] ?? null,
-                'tax_id' => $data['tax_id'] ?? null,
-                'max_per_order' => $data['max_per_order'] ?? null,
-                'video_link' => $data['video_link'] ?? null,
-                'configuration_type' => $data['configuration_type'] ?? 'simple',
-            ]);
+        //     // Update product
+        //     $product->update([
+        //         'sku' => $data['sku'],
+        //         'points' => $data['points'] ?? 0,
+        //         'is_active' => $data['is_active'] ?? true,
+        //         'is_featured' => $data['is_featured'] ?? false,
+        //         'created_by' => $vendorId,
+        //         'brand_id' => $data['brand_id'] ?? null,
+        //         'department_id' => $data['department_id'] ?? null,
+        //         'category_id' => $data['category_id'] ?? null,
+        //         'sub_category_id' => $data['sub_category_id'] ?? null,
+        //         'tax_id' => $data['tax_id'] ?? null,
+        //         'max_per_order' => $data['max_per_order'] ?? null,
+        //         'video_link' => $data['video_link'] ?? null,
+        //         'configuration_type' => $data['configuration_type'] ?? 'simple',
+        //     ]);
 
-            // Update translations
-            $this->storeTranslations($product, $data);
+        //     // Update translations
+        //     $this->storeTranslations($product, $data);
 
-            // Handle main image update
-            $this->handleMainImage($product, $data, true);
+        //     // Handle main image update
+        //     $this->handleMainImage($product, $data, true);
 
-            // Handle additional images
-            $this->handleAdditionalImages($product, $data);
+        //     // Handle additional images
+        //     $this->handleAdditionalImages($product, $data);
 
-            // Update variants (delete old ones and create new ones)
-            $product->variants()->delete();
-            $this->handleProductVariants($product, $data);
+        //     // Update variants (delete old ones and create new ones)
+        //     $product->variants()->delete();
+        //     $this->handleProductVariants($product, $data);
 
-            return $product;
-        });
+        //     return $product;
+        // });
     }
 
     public function deleteProduct(int $id)
@@ -172,23 +155,6 @@ class ProductRepository implements ProductInterface
 
             return true;
         });
-    }
-
-    /**
-     * Generate unique slug for product
-     */
-    protected function generateSlug(array $data): string
-    {
-        $baseSlug = Str::slug($data['sku'] . '-' . time());
-        $slug = $baseSlug;
-        $counter = 1;
-
-        while (Product::where('slug', $slug)->exists()) {
-            $slug = $baseSlug . '-' . $counter;
-            $counter++;
-        }
-
-        return $slug;
     }
 
     /**
@@ -278,36 +244,36 @@ class ProductRepository implements ProductInterface
     protected function handleProductVariants(Product $product, array $data): void
     {
         $configurationType = $data['configuration_type'] ?? 'simple';
-        $vendorId = $product->created_by;
+        $vendorId = $product->vendor_id;
 
+        // Create vendor-specific pricing for simple product
+        $vendorProduct = VendorProduct::create([
+            'vendor_id' => $vendorId,
+            'product_id' => $product->id,
+            'tax_id' => $data['tax_id'],
+            'sku' => $data['sku'],
+            'points' => $data['points'] ?? 0,
+            'max_per_order' => $data['max_per_order'],
+            'is_active' => $data['is_active'] ?? false,
+            'is_featured' => $data['is_featured'] ?? false,
+        ]);
         if ($configurationType === 'simple') {
-            // Create single variant for simple product
-            $variant = ProductVariant::create([
-                'product_id' => $product->id,
+            $vendorProductVariant = $vendorProduct->variants()->create([
+                'sku' => $data['sku'],
+                'price' => ($data['price'] ?? 0),
+                'has_offer' => $data['has_discount'] ?? false,
+                'price_before_discount' => isset($data['price_before_discount']) ? $data['price_before_discount'] : 0,
+                'offer_end_date' => $data['offer_end_date'] ?? null,
             ]);
 
-            // Create vendor-specific pricing for simple product
-            if ($vendorId) {
-                $vendorVariant = VendorProductVariant::create([
-                    'vendor_id' => $vendorId,
-                    'product_variant_id' => $variant->id,
-                    'sku' => $data['simple_sku'] ?? $data['sku'],
-                    'price' => ($data['price'] ?? 0),
-                    'has_discount' => $data['has_discount'] ?? false,
-                    'discount_price' => isset($data['price_before_discount']) ? $data['price_before_discount'] : 0,
-                    'discount_end_date' => $data['offer_end_date'] ?? null,
-                ]);
-
-                // Create vendor-specific stocks for simple product
-                if (isset($data['stocks']) && is_array($data['stocks'])) {
-                    foreach ($data['stocks'] as $stockData) {
-                        if (isset($stockData['region_id']) && isset($stockData['quantity'])) {
-                            VendorProductVariantStock::create([
-                                'vendor_product_variant_id' => $vendorVariant->id,
-                                'region_id' => $stockData['region_id'],
-                                'stock' => $stockData['quantity'],
-                            ]);
-                        }
+            // Create vendor-specific stocks for simple product
+            if (isset($data['stocks']) && is_array($data['stocks'])) {
+                foreach ($data['stocks'] as $stockData) {
+                    if (isset($stockData['region_id']) && isset($stockData['quantity'])) {
+                        $vendorProductVariant->stocks()->create([
+                            'region_id' => $stockData['region_id'],
+                            'quantity' => $stockData['quantity'],
+                        ]);
                     }
                 }
             }
@@ -315,54 +281,28 @@ class ProductRepository implements ProductInterface
             // Handle variants
             if (isset($data['variants']) && is_array($data['variants'])) {
                 foreach ($data['variants'] as $variantData) {
-                    $variant = ProductVariant::create([
-                        'product_id' => $product->id,
-                        'variant_key_id' => $variantData['key_id'] ?? null,
-                        'variant_value_id' => $variantData['value_id'] ?? null,
+                    // Create Global Variant To The Product
+                    $productVariant = $product->variants()->create([
+                        'variant_configuration_id' => $variantData['value_id'],
+                    ]);
+                    // Create vendor-specific pricing for variant
+                    $vendorProductVariant = $vendorProduct->variants()->create([
+                        'variant_configuration_id' => $variantData['value_id'],
+                        'sku' => $variantData['sku'] ?? null,
+                        'price' => $variantData['price'] ?? 0,
+                        'has_discount' => $variantData['has_discount'] ?? false,
+                        'discount_price' => $variantData['price_before_discount'] ?? 0,
+                        'discount_end_date' => $variantData['offer_end_date'] ?? null,
                     ]);
 
-                    // Save variant translations
-                    if (isset($variantData['translations'])) {
-                        foreach ($variantData['translations'] as $langId => $translations) {
-                            $language = \App\Models\Language::find($langId);
-                            if (!$language) {
-                                continue;
-                            }
-
-                            foreach ($translations as $key => $value) {
-                                if (!empty($value)) {
-                                    $variant->translations()->create([
-                                        'lang_id' => $language->id,
-                                        'lang_key' => $key,
-                                        'lang_value' => $value,
-                                    ]);
-                                }
-                            }
-                        }
-                    }
-
-                    // Create vendor-specific pricing for variant
-                    if ($vendorId) {
-                        $vendorVariant = VendorProductVariant::create([
-                            'vendor_id' => $vendorId,
-                            'product_variant_id' => $variant->id,
-                            'sku' => $variantData['sku'] ?? null,
-                            'price' => $variantData['price'] ?? 0,
-                            'has_discount' => $variantData['has_discount'] ?? false,
-                            'discount_price' => $variantData['price_before_discount'] ?? 0,
-                            'discount_end_date' => $variantData['offer_end_date'] ?? null,
-                        ]);
-
-                        // Create vendor-specific stocks for variant
-                        if (isset($variantData['stock']) && is_array($variantData['stock'])) {
-                            foreach ($variantData['stock'] as $stockData) {
-                                if (isset($stockData['region_id']) && isset($stockData['quantity'])) {
-                                    VendorProductVariantStock::create([
-                                        'vendor_product_variant_id' => $vendorVariant->id,
-                                        'region_id' => $stockData['region_id'],
-                                        'stock' => $stockData['quantity'],
-                                    ]);
-                                }
+                    // Create vendor-specific stocks for variant
+                    if (isset($variantData['stock']) && is_array($variantData['stock'])) {
+                        foreach ($variantData['stock'] as $stockData) {
+                            if (isset($stockData['region_id']) && isset($stockData['quantity'])) {
+                                $vendorProductVariant->stocks()->create([
+                                    'region_id' => $stockData['region_id'],
+                                    'quantity' => $stockData['quantity'],
+                                ]);
                             }
                         }
                     }
@@ -379,13 +319,17 @@ class ProductRepository implements ProductInterface
         $currentUser = Auth::user();
         $userType = $currentUser->user_type_id;
 
-        if (in_array($userType, [UserType::SUPER_ADMIN_TYPE, UserType::ADMIN_TYPE])) {
+        if (in_array($userType, UserType::adminIds())) {
             // Admin/Super Admin can select vendor from form
             return $data['vendor_id'] ?? null;
-        } elseif ($userType === UserType::VENDOR_TYPE) {
+        } elseif (in_array($userType, UserType::vendorIds())) {
             // Vendor can only create products for themselves
-            $vendor = $currentUser->vendor;
-            return $vendor ? $vendor->id : null;
+            if($currentUser->vendor_id) {
+                $vendor_id = $currentUser->vendor_id;
+            } else {
+                $vendor = $currentUser->vendor;
+                return $vendor ? $vendor->id : null;
+            }
         }
 
         return null;

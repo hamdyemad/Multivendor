@@ -15,26 +15,26 @@ class VendorProductVariant extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'price' => 'integer',
-        'has_discount' => 'boolean',
-        'discount_price' => 'integer',
-        'discount_end_date' => 'date',
+        'price' => 'decimal:2',
+        'has_offer' => 'boolean',
+        'price_before_discount' => 'decimal:2',
+        'offer_end_date' => 'date',
     ];
 
     /**
-     * Get the vendor that owns this variant pricing
+     * Get the vendor product
      */
-    public function vendor()
+    public function vendorProduct()
     {
-        return $this->belongsTo(Vendor::class);
+        return $this->belongsTo(VendorProduct::class);
     }
 
     /**
-     * Get the product variant
+     * Get the variant configuration
      */
-    public function productVariant()
+    public function variantConfiguration()
     {
-        return $this->belongsTo(ProductVariant::class);
+        return $this->belongsTo(VariantsConfiguration::class);
     }
 
     /**
@@ -50,11 +50,19 @@ class VendorProductVariant extends Model
      */
     public function getEffectivePrice()
     {
-        if ($this->has_discount && $this->discount_end_date && $this->discount_end_date->isFuture()) {
-            return $this->discount_price;
+        if ($this->has_offer && $this->offer_end_date && $this->offer_end_date->isFuture()) {
+            return $this->price_before_discount;
         }
 
         return $this->price;
+    }
+
+    /**
+     * Check if the offer is still valid
+     */
+    public function isOfferValid()
+    {
+        return $this->has_offer && $this->offer_end_date && $this->offer_end_date->isFuture();
     }
 
     /**
@@ -62,6 +70,6 @@ class VendorProductVariant extends Model
      */
     public function getTotalStock()
     {
-        return $this->stocks()->sum('stock');
+        return $this->stocks()->sum('quantity');
     }
 }

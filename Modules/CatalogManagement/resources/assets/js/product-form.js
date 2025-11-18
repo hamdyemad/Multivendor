@@ -23,10 +23,12 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // Use jQuery document ready to ensure DOM and jQuery are loaded
-jQuery(document).ready(function ($) {
-    console.log("✅ Product form jQuery ready");
+jQuery(document).ready(function () {
+    console.log("🚀 Product form script loaded");
 
-    // Initialize Select2 for main form selects with placeholder
+    // Ensure productFormConfig is available
+    ensureProductFormConfig();
+
     setTimeout(function() {
         $('#brand_id, #vendor_id, #department_id, #category_id, #sub_category_id, #tax_id, #configuration_type').each(function() {
             // Skip if this is a hidden input
@@ -549,34 +551,59 @@ jQuery(document).ready(function ($) {
     // Add form submission handler
     $('#productForm').on('submit', handleFormSubmission);
 
+    // Next button (using event delegation)
+    $(document).on("click", "#nextBtn", function () {
+        console.log("🔄 Next button clicked, current step:", currentStep);
 
+        // Validate current step before proceeding
+        const errors = {};
+        const isValid = validateStep(currentStep, errors);
 
-    showStep(currentStep);
+        if (!isValid) {
+            console.log("❌ Validation failed for step", currentStep);
+            displayValidationErrors(errors);
+            return;
+        }
 
-    // Next button
-    $("#nextBtn").on("click", function () {
-        console.log("📍 Next button clicked. Current step:", currentStep);
-
-        // Proceed to next step without validation
+        console.log("✅ Validation passed for step", currentStep);
         currentStep++;
-        if (currentStep > totalSteps) currentStep = totalSteps;
+        if (currentStep > 4) currentStep = 4;
         showStep(currentStep);
-
-        // No review step - step 4 is now the final step
     });
 
     // Previous button
-    $("#prevBtn").on("click", function () {
+    $(document).on("click", "#prevBtn", function () {
+        console.log("🔄 Previous button clicked, current step:", currentStep);
         currentStep--;
         if (currentStep < 1) currentStep = 1;
         showStep(currentStep);
     });
 
+    // Debug: Check if elements exist
+    console.log("🔍 Debugging element detection:");
+    console.log("- Next button (#nextBtn):", $("#nextBtn").length);
+    console.log("- Previous button (#prevBtn):", $("#prevBtn").length);
+    console.log("- Wizard step nav (.wizard-step-nav):", $(".wizard-step-nav").length);
+    console.log("- Wizard step content (.wizard-step-content):", $(".wizard-step-content").length);
+
+    // List all elements that might be step navigation
+    console.log("🔍 All elements with 'step' in class or data:");
+    $("[class*='step'], [data-step]").each(function() {
+        console.log("Element:", this.tagName, "Class:", $(this).attr('class'), "Data-step:", $(this).data('step'));
+    });
+
     // Click on wizard step navigation
-    $(".wizard-step-nav").on("click", function () {
+    $(document).on("click", ".wizard-step-nav", function (e) {
         console.log("🖱️ Wizard step clicked!");
+        e.preventDefault();
+
         const targetStep = parseInt($(this).data("step"));
-        console.log("Clicked step:", targetStep);
+        console.log("Clicked step:", targetStep, "Current step:", currentStep);
+
+        if (isNaN(targetStep)) {
+            console.error("Invalid target step:", $(this).data("step"));
+            return;
+        }
 
         // Allow navigation to any step without validation
         console.log(`🔍 Navigating from step ${currentStep} to step ${targetStep}`);
@@ -588,7 +615,9 @@ jQuery(document).ready(function ($) {
         // clearAllErrors();
 
         currentStep = targetStep;
+        console.log("About to call showStep with:", currentStep);
         showStep(currentStep);
+        console.log("showStep completed");
 
         // No review step - step 4 is now the final step
     });
@@ -676,33 +705,115 @@ jQuery(document).ready(function ($) {
         if (selectedType === "simple") {
             $("#simple-product-section").show();
             $("#variants-section").hide();
+
+            // Generate simple product boxes
+            generateSimpleProductBoxes();
         } else if (selectedType === "variants") {
             $("#simple-product-section").hide();
             $("#variants-section").show();
+
+            // Clear simple product container
+            $("#simple-product-details-container").empty();
         } else {
             // No selection - hide both sections
             $("#simple-product-section").hide();
             $("#variants-section").hide();
+
+            // Clear simple product container
+            $("#simple-product-details-container").empty();
         }
     });
 
-    // Discount Checkbox Toggle
-    $("#has_discount").on("change", function () {
+    // Discount Checkbox Toggle (for simple products)
+    $(document).on("change", ".simple-discount-toggle", function () {
+        const discountFields = $(this).closest('.card').find('.simple-discount-fields');
         if ($(this).is(":checked")) {
-            $("#discount-fields").slideDown();
+            discountFields.slideDown();
         } else {
-            $("#discount-fields").slideUp();
-            $("#price_before_discount").val("");
-            $("#offer_end_date").val("");
+            discountFields.slideUp();
+            discountFields.find('input').val("");
+        }
+    });
+
+    // Discount Checkbox Toggle (for variants - existing)
+    $(document).on("change", ".variant-discount-toggle", function () {
+        const discountFields = $(this).closest('.card').find('.variant-discount-fields');
+        if ($(this).is(":checked")) {
+            discountFields.slideDown();
+        } else {
+            discountFields.slideUp();
+            discountFields.find('input').val("");
         }
     });
 
     // Stock Row Index
     let stockRowIndex = 0;
 
-    // Add Stock Row
-    $("#add-stock-row").on("click", function () {
+    // Add Stock Row (Event Delegation for dynamically generated buttons)
+    $(document).on("click", ".add-stock-row", function () {
         addStockRow();
+    });
+
+    // Variant Key Selection Change Handler
+    $(document).on("change", ".variant-key-select", function () {
+        const variantBox = $(this).closest(".variant-box");
+        const variantIndex = variantBox.data("variant-index");
+        const selectedKeyId = $(this).val();
+        const selectedKeyText = $(this).find("option:selected").text();
+
+        console.log("Variant key changed:", selectedKeyId, selectedKeyText);
+
+        if (selectedKeyId) {
+            // Update variant title
+            const variantTitle = variantBox.find(".variant-title");
+            variantTitle.html(`<i class="uil uil-cube"></i> ${selectedKeyText}`);
+
+            // Load variant values for this key
+            loadVariantValues(variantIndex, selectedKeyId);
+        } else {
+            // Reset title to default
+            const config = window.productFormConfig || {};
+            const variantTitle = variantBox.find(".variant-title");
+            variantTitle.html(`<i class="uil uil-cube"></i> ${config.variantNumber || 'Variant'} ${variantIndex}`);
+
+            // Clear variant values
+            const valueSelect = variantBox.find(".variant-value-select");
+            valueSelect.html('<option value="">Select Variant Key First</option>');
+        }
+    });
+
+    // Variant Value Selection Change Handler
+    $(document).on("change", ".variant-value-select", function () {
+        const variantBox = $(this).closest(".variant-box");
+        const variantIndex = variantBox.data("variant-index");
+        const selectedValueId = $(this).val();
+        const selectedValueText = $(this).find("option:selected").text();
+        const keySelect = variantBox.find(".variant-key-select");
+        const selectedKeyText = keySelect.find("option:selected").text();
+
+        console.log("Variant value changed:", selectedValueId, selectedValueText);
+
+        if (selectedValueId && selectedKeyText && selectedKeyText !== "Select Variant Key") {
+            // Update variant title with key and value
+            const variantTitle = variantBox.find(".variant-title");
+            variantTitle.html(`<i class="uil uil-cube"></i> ${selectedKeyText}: ${selectedValueText}`);
+
+            // Show variant details path
+            const variantDetailsPath = variantBox.find(".variant-details-path");
+            const variantPathText = variantBox.find(".variant-path-text");
+            variantPathText.text(`${selectedKeyText}: ${selectedValueText}`);
+            variantDetailsPath.show();
+        } else {
+            // Reset to key name only if value is cleared
+            if (selectedKeyText && selectedKeyText !== "Select Variant Key") {
+                const variantTitle = variantBox.find(".variant-title");
+                variantTitle.html(`<i class="uil uil-cube"></i> ${selectedKeyText}`);
+            }
+
+            // Hide variant details path
+            const variantDetailsPath = variantBox.find(".variant-details-path");
+            variantDetailsPath.hide();
+        }
     });
 
     // Remove Stock Row (Event Delegation)
@@ -873,17 +984,27 @@ function loadRegionsData() {
  * Show/Hide wizard steps
  */
 function showStep(step) {
+    console.log("🔄 showStep called with step:", step);
+
     // Hide all steps
     $(".wizard-step-content").each(function () {
         $(this).removeClass("active").css("display", "none");
     });
+    console.log("✅ All steps hidden");
 
     // Show target step
     const targetStep = $(`.wizard-step-content[data-step="${step}"]`);
+    console.log("🎯 Target step element found:", targetStep.length > 0, "Selector:", `.wizard-step-content[data-step="${step}"]`);
 
     if (targetStep.length) {
         targetStep.addClass("active").css("display", "block");
+        console.log("✅ Target step shown");
     } else {
+        console.error("❌ Target step not found for step:", step);
+        // List all available steps for debugging
+        $(".wizard-step-content").each(function() {
+            console.log("Available step:", $(this).data("step"));
+        });
     }
 
     // Reapply validation errors if they exist for this step
@@ -1246,17 +1367,66 @@ function restoreRequiredAttributes() {
 }
 
 /**
+ * Ensure productFormConfig is available
+ */
+function ensureProductFormConfig() {
+    if (!window.productFormConfig) {
+        console.warn('productFormConfig is not defined, creating fallback configuration');
+        window.productFormConfig = {
+            productCreated: 'Product created successfully!',
+            productUpdated: 'Product updated successfully!',
+            creatingProduct: 'Creating product...',
+            updatingProduct: 'Updating product...',
+            pleaseWait: 'Please wait...',
+            redirecting: 'Redirecting...',
+            errorOccurred: 'An error occurred. Please try again.',
+            validationError: 'Validation Error',
+            errorLabel: 'Error',
+            indexRoute: '/admin/products',
+            productDetails: 'Product Details',
+            sku: 'SKU',
+            price: 'Price',
+            enableDiscountOffer: 'Enable Discount Offer',
+            priceBeforeDiscount: 'Price Before Discount',
+            offerEndDate: 'Offer End Date',
+            stockPerRegion: 'Stock per Region',
+            addNewRegion: 'Add New Region',
+            region: 'Region',
+            stockQuantity: 'Stock Quantity',
+            totalStock: 'Total Stock',
+            actionsLabel: 'Actions',
+            noRegionsAddedYet: 'No regions added yet. Click "Add New Region" to start.',
+            variantNumber: 'Variant',
+            variantSku: 'Variant SKU',
+            variantDetails: 'Variant Details',
+            selectVariantKey: 'Select Variant Key',
+            loadingVariantKeys: 'Loading variant keys...',
+            selectVariantKeyHelper: 'Choose a variant key to configure this variant',
+            remove: 'Remove',
+            rootVariantsLabel: 'Root Variants',
+            selectLevel: 'Level',
+            selectRootVariants: 'Select Root Variants',
+            selectedColon: 'Selected:',
+            pleaseSelectVariant: 'Please select a variant',
+            // API Routes
+            categoriesRoute: '/api/categories',
+            subCategoriesRoute: '/api/sub-categories',
+            departmentsRoute: '/api/departments',
+            indexRoute: '/admin/products'
+        };
+    }
+}
+
+/**
  * Handle form submission
  */
 function handleFormSubmission(e) {
     console.log('Form submission started');
     e.preventDefault();
 
+    // Ensure config is available
+    ensureProductFormConfig();
     const config = window.productFormConfig;
-    if (!config) {
-        console.error('productFormConfig is not defined');
-        return;
-    }
 
     // Temporarily disable required attributes on hidden fields to prevent HTML5 validation errors
     disableRequiredOnHiddenFields();
@@ -1366,8 +1536,27 @@ function handleFormSubmission(e) {
  * Add Stock Row to Table
  */
 function addStockRow() {
-    // Use cached regions data
-    addStockRowWithRegions(cachedRegions);
+    // Check if regions are loaded
+    if (cachedRegions && cachedRegions.length > 0) {
+        addStockRowWithRegions(cachedRegions);
+    } else {
+        console.log("⚠️ Regions not loaded yet, waiting...");
+        // Wait a bit and try again
+        setTimeout(function() {
+            if (cachedRegions && cachedRegions.length > 0) {
+                addStockRowWithRegions(cachedRegions);
+            } else {
+                console.log("⚠️ Using fallback regions");
+                // Use fallback regions
+                const fallbackRegions = [
+                    { id: 1, name: "Cairo" },
+                    { id: 2, name: "Alexandria" },
+                    { id: 3, name: "Giza" }
+                ];
+                addStockRowWithRegions(fallbackRegions);
+            }
+        }, 500);
+    }
 }
 
 /**
@@ -1403,7 +1592,18 @@ function addStockRowWithRegions(regions) {
         </tr>
     `;
 
-    $("#stock-rows").append(rowHtml);
+    // Try to find the correct tbody - check both simple and variant contexts
+    let tbody = $("#stock-table-body");
+    if (tbody.length === 0) {
+        tbody = $(".stock-table-body");
+    }
+
+    if (tbody.length > 0) {
+        tbody.append(rowHtml);
+    } else {
+        console.error("Could not find stock table body to append row");
+        return;
+    }
 
     // Show table and hide empty state
     toggleStockTableVisibility();
@@ -1436,13 +1636,15 @@ function toggleStockTableVisibility() {
     const rowCount = $(".stock-row").length;
 
     if (rowCount > 0) {
-        // Show table, hide empty state
-        $("#stock-table-container").show();
-        $("#stock-empty-state").hide();
+        // Show table and hide empty state
+        $(".stock-table-container, .variant-stock-table-container").show();
+        $(".stock-empty-state, .variant-stock-empty-state").hide();
+        $("#stock-table").show();
     } else {
-        // Hide table, show empty state
-        $("#stock-table-container").hide();
-        $("#stock-empty-state").show();
+        // Show empty state and hide table
+        $(".stock-table-container, .variant-stock-table-container").hide();
+        $(".stock-empty-state, .variant-stock-empty-state").show();
+        $("#stock-table").show();
     }
 }
 
@@ -1457,7 +1659,180 @@ function calculateTotalStock() {
         total += value;
     });
 
-    $("#total-stock").text(total);
+    // Update both simple and variant total displays
+    $("#total-stock-display, .total-stock-display, .variant-total-stock").text(total);
+}
+
+/**
+ * Generate Product Details Box (reusable for both simple and variant products)
+ */
+function generateProductDetailsBox(type, index = null) {
+    const config = window.productFormConfig || {};
+    const isVariant = type === 'variant';
+    const namePrefix = isVariant ? `variants[${index}]` : '';
+    const idPrefix = isVariant ? `variant_${index}_` : '';
+    const boxTitle = isVariant ? `${config.variantNumber || 'Variant'} ${index}` : (config.productDetails || 'Product Details');
+
+    // No additional fields for simple products
+    const additionalFields = '';
+
+    return `
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="mb-4">
+                    <i class="uil uil-receipt"></i>
+                    ${boxTitle}
+                </h5>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            <label class="form-label">${isVariant ? (config.variantSku || 'Variant SKU') : (config.sku || 'SKU')} <span class="text-danger">*</span></label>
+                            <input type="text" name="${namePrefix}${isVariant ? '[sku]' : 'sku'}" id="${idPrefix}sku" class="form-control ih-medium ip-gray radius-xs b-light px-15" placeholder="PRD-12345" required>
+                            <div class="error-message text-danger" id="error-${idPrefix}sku" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            <label class="form-label">${config.price || 'Price'} <span class="text-danger">*</span></label>
+                            <input type="number" name="${namePrefix}${isVariant ? '[price]' : 'price'}" id="${idPrefix}price" class="form-control ih-medium ip-gray radius-xs b-light px-15" min="0" step="0.01" placeholder="Enter price" required>
+                            <div class="error-message text-danger" id="error-${idPrefix}price" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    ${additionalFields}
+
+                    <div class="col-md-12 mb-3">
+                        <div class="form-group">
+                            <label class="form-label d-block">${config.enableDiscountOffer || 'Enable Discount Offer'}</label>
+                            <div class="form-check form-switch form-switch-lg">
+                                <input class="form-check-input ${isVariant ? 'variant-discount-toggle' : 'simple-discount-toggle'}" type="checkbox" role="switch" name="${namePrefix}${isVariant ? '[has_discount]' : 'has_discount'}" id="${idPrefix}has_discount" value="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Discount Fields (shown when discount is checked) -->
+                    <div class="${isVariant ? 'variant-discount-fields' : 'simple-discount-fields'}" id="${idPrefix}discount_fields" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label">${config.priceBeforeDiscount || 'Price Before Discount'}</label>
+                                    <input type="number" name="${namePrefix}${isVariant ? '[price_before_discount]' : 'price_before_discount'}" id="${idPrefix}price_before_discount" class="form-control ih-medium ip-gray radius-xs b-light px-15" min="0" step="0.01" placeholder="Enter original price">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label">${config.offerEndDate || 'Offer End Date'}</label>
+                                    <input type="date" name="${namePrefix}${isVariant ? '[offer_end_date]' : 'offer_end_date'}" id="${idPrefix}offer_end_date" class="form-control ih-medium ip-gray radius-xs b-light px-15">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Generate Stock Management Box (reusable for both simple and variant products)
+ */
+function generateStockManagementBox(type, index = null) {
+    const config = window.productFormConfig || {};
+    const isVariant = type === 'variant';
+    const dataAttr = isVariant ? `data-variant-index="${index}"` : '';
+    const tableClass = isVariant ? 'variant-stock-table' : 'stock-table';
+    const tbodyClass = isVariant ? 'variant-stock-rows' : 'stock-table-body';
+    const emptyStateClass = isVariant ? 'variant-stock-empty-state' : 'stock-empty-state';
+    const containerClass = isVariant ? 'variant-stock-table-container' : 'stock-table-container';
+    const addButtonClass = isVariant ? 'add-stock-row-variant' : 'add-stock-row';
+    const totalStockClass = isVariant ? 'variant-total-stock' : 'total-stock-display';
+
+    return `
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="mb-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="uil uil-package"></i>
+                        ${config.stockPerRegion || 'Stock per Region'}
+                    </div>
+                    <button type="button" class="btn btn-primary btn-sm ${addButtonClass}" ${dataAttr}>
+                        <i class="uil uil-plus"></i> ${config.addNewRegion || 'Add New Region'}
+                    </button>
+                </h5>
+
+                <!-- Empty state message -->
+                <div class="${emptyStateClass} text-center py-4" ${dataAttr}>
+                    <i class="uil uil-package text-muted" style="font-size: 48px;"></i>
+                    <p class="text-muted mb-0">${config.noRegionsAddedYet || 'No regions added yet. Click "Add New Region" to start.'}</p>
+                </div>
+
+                <!-- Stock table (hidden initially) -->
+                <div class="${containerClass}" ${dataAttr} style="display: none;">
+                    <div class="userDatatable global-shadow border-light-0 p-30 bg-white radius-xl w-100">
+                        <div class="table-responsive">
+                            <table class="table mb-0 table-bordered table-hover ${tableClass}" ${dataAttr} style="width:100%">
+                                <thead>
+                                    <tr class="userDatatable-header">
+                                        <th><span class="userDatatable-title">#</span></th>
+                                        <th><span class="userDatatable-title">${config.region || 'Region'}</span></th>
+                                        <th><span class="userDatatable-title">${config.stockQuantity || 'Stock Quantity'}</span></th>
+                                        <th><span class="userDatatable-title">${config.actionsLabel || 'Actions'}</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="${tbodyClass}" ${dataAttr}>
+                                    <!-- Stock rows will be added here -->
+                                </tbody>
+                                <tfoot>
+                                    <tr class="table-light">
+                                        <td colspan="2" class="text-center fw-bold">${config.totalStock || 'Total Stock'}:</td>
+                                        <td class="fw-bold text-primary">
+                                            <span class="${totalStockClass}" ${dataAttr}>0</span>
+                                        </td>
+                                        <td>-</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Generate Simple Product Boxes
+ */
+function generateSimpleProductBoxes() {
+    const container = $("#simple-product-details-container");
+    container.empty();
+
+    // Generate product details box
+    const productDetailsHtml = generateProductDetailsBox('simple');
+    container.append(productDetailsHtml);
+
+    // Generate stock management box
+    const stockManagementHtml = generateStockManagementBox('simple');
+    container.append(stockManagementHtml);
+
+    console.log("✅ Simple product boxes generated");
+}
+
+/**
+ * Populate Tax Dropdown
+ */
+function populateTaxDropdown() {
+    const taxSelect = $('#tax_id');
+    const taxes = window.productFormConfig.taxes || [];
+
+    taxSelect.empty();
+    taxSelect.append('<option value="">Select Tax</option>');
+
+    taxes.forEach(function(tax) {
+        taxSelect.append(`<option value="${tax.id}">${tax.name} (${tax.percentage}%)</option>`);
+    });
 }
 
 /**
@@ -1661,6 +2036,7 @@ function loadVariantKeys(variantIndex) {
             }
         },
         error: function () {
+            console.error("Failed to load variant keys");
             keySelect.html('<option value="">Error loading keys</option>');
         },
     });
@@ -1710,7 +2086,7 @@ function loadVariantLevel(variantBox, keyId, parentId, level) {
                 // Create select for this level
                 const levelId = `level-${level}`;
                 const levelLabel =
-                    level === 0 ? config.rootVariantsLabel : `${config.selectLevel} ${level + 1}`;
+                    level === 0 ? (config.rootVariantsLabel || 'Root Variants') : `${config.selectLevel || 'Level'} ${level + 1}`;
 
                 const levelHtml = `
                     <div class="variant-level mb-3" data-level="${level}">
@@ -1863,7 +2239,47 @@ function updateVariantSelectionInfo(variantBox) {
 }
 
 /**
- * Initialize Select2 for variant selects
+ * Load Variant Values for a specific key
+ */
+function loadVariantValues(variantIndex, keyId) {
+    const variantBox = $(`.variant-box[data-variant-index="${variantIndex}"]`);
+    const valueSelect = variantBox.find(".variant-value-select");
+
+    // Show loading state
+    valueSelect.html('<option value="">Loading values...</option>');
+
+    $.ajax({
+        url: "/admin/api/variants-by-key",
+        method: "GET",
+        data: {
+            key_id: keyId
+        },
+        headers: {
+            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+            Accept: "application/json",
+        },
+        success: function (response) {
+            if (response.success && response.data) {
+                let options = '<option value="">Select Variant Value</option>';
+
+                response.data.forEach((value) => {
+                    options += `<option value="${value.id}">${value.name}</option>`;
+                });
+
+                valueSelect.html(options);
+            } else {
+                valueSelect.html('<option value="">Error loading values</option>');
+            }
+        },
+        error: function () {
+            console.error("Failed to load variant values for key:", keyId);
+            valueSelect.html('<option value="">Error loading values</option>');
+        },
+    });
+}
+
+/**
+ * Initialize Variant Selects2 for variant selects
  */
 function initializeVariantSelects(variantIndex) {
     const variantBox = $(`.variant-box[data-variant-index="${variantIndex}"]`);
@@ -2393,9 +2809,9 @@ function validateSimpleProduct(errors) {
     let isValid = true;
 
     // Validate SKU
-    const simpleSku = $('input[name="simple_sku"]');
-    if (simpleSku.length && !simpleSku.val().trim()) {
-        errors['simple_sku'] = ['SKU is required'];
+    const sku = $('input[name="sku"]');
+    if (sku.length && !sku.val().trim()) {
+        errors['sku'] = ['SKU is required'];
         isValid = false;
     }
 

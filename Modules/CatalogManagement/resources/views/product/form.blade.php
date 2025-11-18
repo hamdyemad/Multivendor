@@ -507,6 +507,14 @@
                                 </div>
                             </div>
 
+                            <!-- Simple Product Section (shown when "simple" is selected) -->
+                            <div id="simple-product-section" style="display: none;">
+                                <!-- Simple Product Details Container (will be populated by JavaScript) -->
+                                <div id="simple-product-details-container">
+                                    <!-- Product details and stock management boxes will be inserted here -->
+                                </div>
+                            </div>
+
                             <!-- With Variants Section (shown when "variants" is selected) -->
                             <div id="variants-section" style="display: none;">
                                 <div class="card mb-4">
@@ -714,6 +722,7 @@ window.productFormConfig = {
     variantNumber: '{{ __('common.variant_number') }}',
     productDetails: '{{ __('common.product_details') }}',
     variantSku: '{{ __('common.variant_sku') }}',
+    sku: '{{ __('catalogmanagement::product.sku') }}',
     price: '{{ __('common.price') }}',
     enableDiscountOffer: '{{ __('common.enable_discount_offer') }}',
     priceBeforeDiscount: '{{ __('common.price_before_discount') }}',
@@ -740,6 +749,15 @@ window.productFormConfig = {
             id: {{ $language->id }},
             code: '{{ $language->code }}',
             name: '{{ $language->name }}'
+        }{{ !$loop->last ? ',' : '' }}
+        @endforeach
+    ],
+    taxes: [
+        @foreach($taxes as $tax)
+        {
+            id: {{ $tax['id'] }},
+            name: '{{ $tax['name'] }}',
+            percentage: {{ $tax['percentage'] }}
         }{{ !$loop->last ? ',' : '' }}
         @endforeach
     ]

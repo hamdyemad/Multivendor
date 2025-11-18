@@ -26,7 +26,7 @@ class StoreProductRequest extends FormRequest
 
         $rules = [
             // Basic Product Information
-            'sku' => 'required|string|unique:products,sku',
+            'sku' => 'required|string|unique:vendor_products,sku',
             'points' => 'required|integer|min:0',
             'is_active' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
@@ -68,7 +68,7 @@ class StoreProductRequest extends FormRequest
         // Simple product validation
         if ($configurationType === 'simple') {
             $rules = array_merge($rules, [
-                'simple_sku' => 'required|string',
+                'sku' => 'required|string',
                 'price' => 'required|numeric|min:0',
                 'has_discount' => 'nullable|boolean',
                 'price_before_discount' => 'nullable|numeric|min:0',
@@ -83,19 +83,15 @@ class StoreProductRequest extends FormRequest
         if ($configurationType === 'variants') {
             $rules = array_merge($rules, [
                 'variants' => 'required|array|min:1',
-                'variants.*.sku' => 'required|string',
+                'variants.*.sku' => 'required|string|unique:vendor_product_variants,sku',
                 'variants.*.price' => 'required|numeric|min:0',
                 'variants.*.has_discount' => 'nullable|boolean',
                 'variants.*.discount_price' => 'nullable|numeric|min:0',
                 'variants.*.discount_end_date' => 'nullable|date|after:today',
-                'variants.*.key_id' => 'required|exists:variants_configurations_keys,id',
-                'variants.*.variant_id' => 'required|exists:variants_configurations,id',
+                'variants.*.value_id' => 'required|exists:variants_configurations,id',
                 'variants.*.stock' => 'required|array',
                 'variants.*.stock.*.region_id' => 'required_with:variants.*.stock|exists:regions,id',
                 'variants.*.stock.*.quantity' => 'required_with:variants.*.stock|integer|min:0',
-                'variants.*.translations' => 'nullable|array',
-                'variants.*.translations.*.name' => 'nullable|string|max:255',
-                'variants.*.translations.*.description' => 'nullable|string',
             ]);
         }
 
@@ -122,7 +118,7 @@ class StoreProductRequest extends FormRequest
             'main_image' => __('catalogmanagement::product.main_image'),
             'configuration_type' => __('catalogmanagement::product.configuration_type'),
             'price' => __('catalogmanagement::product.price'),
-            'simple_sku' => __('catalogmanagement::product.sku'),
+            'sku' => __('catalogmanagement::product.sku'),
         ];
     }
 

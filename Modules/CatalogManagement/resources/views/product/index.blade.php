@@ -251,7 +251,7 @@
                             const showUrl = "{{ route('admin.products.show', ':id') }}".replace(':id', data.id);
                             const editUrl = "{{ route('admin.products.edit', ':id') }}".replace(':id', data.id);
                             const destroyUrl = "{{ route('admin.products.destroy', ':id') }}".replace(':id', data.id);
-                            const stockPricingUrl = "{{ route('admin.products.manage-pricing-stock', ':id') }}".replace(':id', data.id);
+                            const stockPricingUrl = "";
 
                             return `
                             <div class="orderDatatable_actions d-inline-flex gap-1">

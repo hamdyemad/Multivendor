@@ -72,10 +72,10 @@
 
     <script src="{{ asset('assets/js/script.min.js') }}"></script>
     <script src="{{ asset('js/app.min.js') }}"></script>
-    
+
     <!-- CKEditor CDN -->
     <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
-    
+
     @vite('resources/js/app.js')
 
     <script>
@@ -276,6 +276,20 @@
     </script>
 
     @stack('scripts')
+
+    {{-- Menu Badge Counter Script --}}
+    <script src="{{ asset('assets/js/menu-badges.js') }}"></script>
+
+    {{-- Add user type classes to body for JavaScript detection --}}
+    <script>
+        @if(Auth::check())
+            @if(Auth::user()->user_type_id == \App\Models\UserType::ADMIN_TYPE || Auth::user()->user_type_id == \App\Models\UserType::SUPER_ADMIN_TYPE)
+                $('body').addClass('admin-user');
+            @elseif(Auth::user()->user_type_id == \App\Models\UserType::VENDOR_TYPE)
+                $('body').addClass('vendor-user');
+            @endif
+        @endif
+    </script>
 
 </body>
 </html>

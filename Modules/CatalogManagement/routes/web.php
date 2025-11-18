@@ -14,14 +14,9 @@ Route::group(
     // Taxes
     Route::get('taxes/datatable', 'TaxController@datatable')->name('taxes.datatable');
     Route::resource('taxes', 'TaxController');
-
-    // Products
     Route::get('products/datatable', 'ProductController@datatable')->name('products.datatable');
-    Route::get('products/{id}/manage-pricing-stock', 'ProductController@managePricingStock')->name('products.manage-pricing-stock');
-    Route::post('products/{id}/save-pricing-stock', 'ProductController@savePricingStock')->name('products.save-pricing-stock');
-    Route::post('products/{id}/approve', 'ProductController@approve')->name('products.approve');
-    Route::post('products/{id}/reject', 'ProductController@reject')->name('products.reject');
     Route::resource('products', 'ProductController');
+
 
     // Variant Configuration Keys
     Route::get('variant-keys/datatable', 'VariantConfigurationKeyController@datatable')->name('variant-keys.datatable');

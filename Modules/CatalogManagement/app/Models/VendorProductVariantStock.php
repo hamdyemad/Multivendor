@@ -15,11 +15,11 @@ class VendorProductVariantStock extends Model
     protected $fillable = [
         'vendor_product_variant_id',
         'region_id',
-        'stock',
+        'quantity',
     ];
 
     protected $casts = [
-        'stock' => 'integer',
+        'quantity' => 'integer',
     ];
 
     /**

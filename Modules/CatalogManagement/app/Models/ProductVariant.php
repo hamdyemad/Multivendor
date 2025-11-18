@@ -15,20 +15,45 @@ class ProductVariant extends Model
     protected $table = 'product_variants';
     protected $guarded = [];
 
-    protected $casts = [
-        'price' => 'integer',
-        'has_discount' => 'boolean',
-        'discount_price' => 'integer',
-        'discount_end_date' => 'date',
-    ];
-
     // Note: Price-related fields have been moved to VendorProductVariant table
     // This model now only stores variant configuration (key, value, etc.)
 
     /**
      * The field to generate slug from (for HasSlug trait)
+     * Since variants don't have direct name field, we'll override the slug generation
      */
-    protected $slugFrom = 'title';
+    protected $slugFrom = 'name';
+
+    /**
+     * Override slug source value generation for variants
+     * Generate slug based on product title and variant configuration
+     */
+    protected function getSourceValueForSlug(): ?string
+    {
+        // Try to get product title first
+        $productTitle = null;
+        if ($this->product_id && $this->product) {
+            $productTitle = $this->product->getTranslation('title') ?: 'product';
+        }
+
+        // Try to get variant configuration name
+        $variantName = null;
+        if ($this->variantConfiguration) {
+            $variantName = $this->variantConfiguration->getTranslation('name') ?: 'variant';
+        }
+
+        // Combine product title and variant name
+        if ($productTitle && $variantName) {
+            return $productTitle . ' ' . $variantName;
+        } elseif ($productTitle) {
+            return $productTitle . ' variant';
+        } elseif ($variantName) {
+            return $variantName;
+        }
+
+        // Fallback to a generic name
+        return 'variant-' . ($this->id ?: uniqid());
+    }
 
     /**
      * Get the product that owns the variant
@@ -38,35 +63,13 @@ class ProductVariant extends Model
         return $this->belongsTo(Product::class);
     }
 
-    /**
-     * Get the variant configuration key
-     */
-    public function variantKey()
-    {
-        return $this->belongsTo(VariantConfigurationKey::class, 'variant_key_id');
-    }
 
     /**
      * Get the variant configuration value
      */
-    public function variantValue()
+    public function variantConfiguration()
     {
-        return $this->belongsTo(VariantsConfiguration::class, 'variant_value_id');
+        return $this->belongsTo(VariantsConfiguration::class, 'variant_configuration_id');
     }
 
-    /**
-     * Get the variant stocks (deprecated - use vendorProductVariants instead)
-     */
-    public function stocks()
-    {
-        return $this->hasMany(VariantStock::class);
-    }
-
-    /**
-     * Get vendor-specific product variants with pricing
-     */
-    public function vendorProductVariants()
-    {
-        return $this->hasMany(VendorProductVariant::class);
-    }
 }

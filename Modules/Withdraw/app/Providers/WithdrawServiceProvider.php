@@ -2,8 +2,6 @@
 
 namespace Modules\Withdraw\app\Providers;
 
-use App\Providers\EventServiceProvider;
-use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Modules\Withdraw\app\Interfaces\WithdrawRepositoryInterface;
@@ -38,7 +36,6 @@ class WithdrawServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
 
         // Register repository bindings

@@ -251,10 +251,10 @@
                         }
                     },
                     { // Before Money
-                        data: 'vendor_name',
-                        name: 'vendor_name',
+                        data: 'vendor',
+                        name: 'vendor',
                         render: function(data, type, row) {
-                            return `<div class="userDatatable-content">${row.vendor_name || '-'}</div>`;
+                            return `<div class="userDatatable-content">${row.vendor || '-'}</div>`;
                         }
                     },
                     { // Sent Amount
@@ -265,17 +265,17 @@
                         }
                     },
                     { // After Money
-                        data: 'total_sent_money',
-                        name: 'total_sent_money',
+                        data: 'sent_amount',
+                        name: 'sent_amount',
                         render: function(data, type, row) {
-                            return `<div class="userDatatable-content">${1000 || '-'}</div>`;
+                            return `<div class="userDatatable-content">${row.sent_amount || '-'}</div>`;
                         }
                     },
                     { // After Money
-                        data: 'remaining',
-                        name: 'remaining',
+                        data: 'after_sending_amount',
+                        name: 'after_sending_amount',
                         render: function(data, type, row) {
-                            return `<div class="userDatatable-content">${1000 || '-'}</div>`;
+                            return `<div class="userDatatable-content">${row.after_sending_amount || '-'}</div>`;
                         }
                     },
                 ],

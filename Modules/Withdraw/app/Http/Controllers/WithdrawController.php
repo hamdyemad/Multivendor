@@ -65,7 +65,7 @@ class WithdrawController extends Controller
             $data = $query->get()->map(function ($item) {
                 return [
                     'id' => $item->id,
-                    'vendor_logo' => asset('storage/' . $item->vendor->logo->path),
+                    'vendor_logo' => $item->vendor ? asset('storage/' . $item->vendor->logo->path) : '',
                     'vendor' => $item->vendor
                         ? optional($item->vendor->translations->first())->lang_value ?? $item->vendor->name
                         : '-',

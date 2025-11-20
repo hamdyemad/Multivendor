@@ -55,7 +55,7 @@
                             @if ($vendor)
                                 <p>
                                     <a href="{{ $item->status == "accepted" ? route('admin.transactionsRequests', 'accepted') : route('admin.transactionsRequests', 'rejected') }}" class="subject stretched-link text-truncate"
-                                        style="max-width: 180px;">Bnaia is {{ $item->status == "accepted" ? "Accept your request" : "Reject your request"  }}</a>
+                                        style="max-width: 180px;">Bnaia is {{ $item->status == "accepted" ? "Sent money to you" : "Reject your request"  }}</a>
                                 </p>
                                 <p>
                                     <span class="time-posted">Request Value : {{ $item->sent_amount }} EGP</span>

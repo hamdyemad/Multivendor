@@ -1,7 +1,17 @@
+@php
+    $user_type = auth()->user()->user_type->name;
+    $vendor = auth()->user()->vendor;
+@endphp
+
 <div class="col-12">
     <div class="card mb-2">
         <div class="card-body fw-bold">
-            {{ trans('dashboard.vendors_withdraw_transactions') }}
+            @if ($user_type == 'super_admin')
+                {{ trans('dashboard.vendors_withdraw_transactions') }}
+            @else
+                {{ $vendor->translations->first()->lang_value }} Withdraw Transactions
+            @endif
+
         </div>
     </div>
     <div class="col-12">
@@ -29,7 +39,11 @@
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
                                 <h1 style="font-size: 20px;">58,750.00 EGP</h1>
+                                @if ($user_type == 'super_admin')
                                 <p>{{ trans('dashboard.Total Sent Money To Vendors') }}</p>
+                                @else
+                                 <p>Total Recieved Money</p>
+                                @endif
                             </div>
                             <div class="ap-po-details__icon-area">
                                 <div class="svg-icon order-bg-opacity-primary color-primary">
@@ -46,7 +60,11 @@
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
                                 <h1 style="font-size: 20px;">36,570.00 EGP</h1>
-                                <p>{{ trans('dashboard.Total Vendor\'s Remaining') }}</p>
+                                @if ($user_type == 'super_admin')
+                                    <p>{{ trans('dashboard.Total Vendor\'s Remaining') }}</p>
+                                @else
+                                    <p>{{ $vendor->translations->first()->lang_value }}'s Credit Balance</p>
+                                @endif
                             </div>
                             <div class="ap-po-details__icon-area">
                                 <div class="svg-icon order-bg-opacity-secondary color-secondary">

@@ -61,15 +61,15 @@
 @endphp
 <div class="sidebar__menu-group">
     <ul class="sidebar_nav">
-        @can('dashboard.view')
-            <li>
-                <a href="{{ route('admin.dashboard') }}"
-                    class="{{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/dashboard') ? 'active' : '' }}">
-                    <span class="nav-icon uil uil-create-dashboard"></span>
-                    <span class="menu-text">{{ trans('menu.dashboard.title') }}</span>
-                </a>
-            </li>
-        @endcan
+        <li>
+            <a href="{{ route('admin.dashboard') }}"
+                class="{{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/dashboard') ? 'active' : '' }}">
+                <span class="nav-icon uil uil-create-dashboard"></span>
+                <span class="menu-text">{{ trans('menu.dashboard.title') }}</span>
+            </a>
+        </li>
+
+
         <li class="menu-title mt-30">
             <span>{{ trans('menu.sections.withdraw module') }}</span>
         </li>

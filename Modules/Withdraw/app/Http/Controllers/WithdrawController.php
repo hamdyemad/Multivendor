@@ -74,7 +74,7 @@ class WithdrawController extends Controller
                     'before_sending_money' => number_format($item->before_sending_money, 2) . " EGP",
                     'sent_amount' => number_format($item->sent_amount, 2) . " EGP",
                     'after_sending_amount' => number_format($item->after_sending_amount, 2) . " EGP",
-                    'created_at' => $item->created_at->format('Y-m-d H:i:s'),
+                    'created_at' => $item->created_at,
                 ];
             });
 
@@ -161,6 +161,7 @@ class WithdrawController extends Controller
                     'before_sending_money' => number_format($item->total_orders->sum("price"), 2) . " EGP",
                     'total_sent_money' => number_format($item->withdraw->where("status", "accepted")->sum("sent_amount"), 2) . " EGP",
                     'remaining' => number_format($item->total_orders->sum("price") - $item->withdraw->where("status", "accepted")->sum("sent_amount"), 2) . " EGP",
+                    'created_at' => $item->created_at,
                 ];
             });
 
@@ -238,7 +239,7 @@ class WithdrawController extends Controller
                 ->with('error', "Vendor not found!");
         }
 
-        if (!$vendor->user_id) {
+        if (!$vendor) {
             return redirect()->back()
                 ->with('error', "Vendor is not associated with a user!");
         }
@@ -248,8 +249,8 @@ class WithdrawController extends Controller
         $total_vendor_balance = $orders->sum("price") - ($orders->sum("price") * ($orders->first()->commission / 100));
 
         $last_withdraw = Withdraw::where(function ($q) use ($vendor) {
-            $q->where('sender_id', $vendor->user_id)
-                ->orWhere('reciever_id', $vendor->user_id);
+            $q->where('sender_id', $vendor->id)
+                ->orWhere('reciever_id', $vendor->id);
         })
             ->where('status', 'accepted')
             ->latest()
@@ -333,8 +334,8 @@ class WithdrawController extends Controller
 
         Withdraw::create([
             "request_from" => "vendor",
-            "sender_id" => $user_id,
-            "reciever_id" => $adminUser->id,
+            // "sender_id" => $user_id,
+            "reciever_id" => $vendor_id,
             "before_sending_money" => $final_last_before_sending_money,
             "sent_amount" => $data["sent_amount"],
             "after_sending_amount" => $final_last_before_sending_money - $data["sent_amount"],
@@ -394,7 +395,7 @@ class WithdrawController extends Controller
                 'before_sending_money' => number_format($item->before_sending_money, 2) . " EGP",
                 'sent_amount' => number_format($item->sent_amount, 2) . " EGP",
                 'after_sending_amount' => number_format($item->after_sending_amount, 2) . " EGP",
-                'created_at' => $item->created_at->format('Y-m-d H:i:s'),
+                'created_at' => $item->created_at,
             ];
         });
 

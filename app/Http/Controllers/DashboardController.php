@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Modules\Withdraw\app\Models\Withdraw;
 
 class DashboardController extends Controller
 {

@@ -2,6 +2,7 @@
 
 namespace Modules\Withdraw\app\Models;
 
+use App\Models\Traits\HumanDates;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,7 +12,7 @@ use Modules\Vendor\app\Models\Vendor;
 
 class Withdraw extends Model
 {
-    use HasFactory;
+    use HasFactory, HumanDates;
 
     protected $fillable = [
         "request_from",

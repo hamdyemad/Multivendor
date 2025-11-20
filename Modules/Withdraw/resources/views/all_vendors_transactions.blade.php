@@ -182,6 +182,11 @@
                                             Remaining
                                         </span>
                                     </th>
+                                    <th>
+                                        <span class="userDatatable-title">
+                                            Created at
+                                        </span>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -276,6 +281,13 @@
                         name: 'after_sending_amount',
                         render: function(data, type, row) {
                             return `<div class="userDatatable-content">${row.after_sending_amount || '-'}</div>`;
+                        }
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at',
+                        render: function(data, type, row) {
+                            return `<div class="userDatatable-content">${row.created_at || '-'}</div>`;
                         }
                     },
                 ],

@@ -1,7 +1,12 @@
+@php
+    $user_type = auth()->user()->user_type->name;
+    $vendor = auth()->user()->vendor;
+@endphp
+
 @extends('layout.app')
 
 @section('title')
-{{ $title }}
+    {{ $title }}
 @endsection
 @section('content')
     <div class="crm mb-25">
@@ -49,7 +54,10 @@
                 @include('pages.dashboard.top-selling-products')
                 @include('pages.dashboard.latest-orders')
                 @include('pages.dashboard.best-customers')
-                @include('pages.dashboard.top-vendors')
+                @if ($user_type == 'super_admin')
+                    @include('pages.dashboard.top-vendors')
+                @endif
+
                 @include('pages.dashboard.recent-activities')
 
             </div>

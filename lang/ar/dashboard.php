@@ -40,7 +40,12 @@ return [
     'Total Needed From Bnaia To Vendors' => 'إجمالي المطلوب من بنايا للتجار',
     'Total Sent Money To Vendors' => 'إجمالي المبلغ المرسل للتجار',
     "Total Vendor's Remaining" => "إجمالي المتبقي للتجار",
-
+    "Total Expenses" => "إجمالي المصروفات",
+    "Total Income (After Delivery)" => "إجمالي الدخل (بعد التسليم)",
+    "Net Profit Y.T.D" => "صافي الربح Y.T.D",
+    "Revenue Y.T.D" => "إجمالي الإيرادات Y.T.D",
+    "Total New Orders" => "إجمالي الطلبات الجديدة",
+    "Total In Progress Orders" => "إجمالي الطلبات قيد التنفيذ",
 
 
     // Sales Overview

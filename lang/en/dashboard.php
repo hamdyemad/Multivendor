@@ -41,6 +41,13 @@ return [
     'Total Sent Money To Vendors' => 'Total Sent Money To Vendors',
     "Total Vendor's Remaining" => "Total Vendor's Remaining",
 
+    "Total Expenses" => "Total Expenses",
+    "Total Income (After Delivery)" => "Total Income (After Delivery)",
+    "Net Profit Y.T.D" => "Net Profit Y.T.D",
+    "Revenue Y.T.D" => "Revenue Y.T.D",
+    "Total New Orders" => "Total New Orders",
+    "Total In Progress Orders" => "Total In Progress Orders",
+
     // Sales Overview
     'sales_overview' => 'Sales Overview',
 

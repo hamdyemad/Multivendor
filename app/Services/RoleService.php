@@ -34,13 +34,13 @@ class RoleService
         $draw = $data['draw'];
         $start = $data['start'];
         $length = $data['length'];
-        
+
         // Get search value from custom parameter or DataTables default
         $searchValue = $data['search'];
         if (is_array($searchValue)) {
             $searchValue = $searchValue['value'] ?? '';
         }
-        
+
         $orderColumnIndex = $data['orderColumnIndex'];
         $orderDirection = $data['orderDirection'];
 
@@ -61,17 +61,17 @@ class RoleService
         $filteredRecords = clone($baseQuery);
         $filteredRecords = $filteredRecords->count();
         $query = $baseQuery;
-        
+
         // Clear existing orders to prevent conflicts with latest() in base query
         $query->reorder();
-        
+
         // Apply sorting
         // Check if sorting by name column (columns 1 to count($languages))
         if ($orderColumnIndex >= 1 && $orderColumnIndex <= count($languages)) {
             // Get the language for this column
             $languageIndex = $orderColumnIndex - 1;
             $selectedLanguage = $languages->values()->get($languageIndex);
-            
+
             // Join with translations table to sort by translated name
             $query->leftJoin('translations as trans_sort', function($join) use ($selectedLanguage) {
                 $join->on('roles.id', '=', 'trans_sort.translatable_id')
@@ -103,7 +103,7 @@ class RoleService
         $data = [];
         foreach ($roles as $index => $role) {
             $row = [];
-            
+
             // Row number with pagination offset
             $row[] = ($roles->currentPage() - 1) * $roles->perPage() + $index + 1;
 
@@ -140,10 +140,10 @@ class RoleService
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="javascript:void(0);" 
-                                       class="remove" 
+                                    <a href="javascript:void(0);"
+                                       class="remove"
                                        title="' . e(trans('common.delete')) . '"
-                                       data-bs-toggle="modal" 
+                                       data-bs-toggle="modal"
                                        data-bs-target="#modal-delete-role"
                                        data-item-id="' . $role->id . '"
                                        data-item-name="' . e($role->name) . '">
@@ -184,7 +184,7 @@ class RoleService
      * Create a new role
      */
     public function createRole(array $data)
-    {        
+    {
         return $this->roleRepositoryInterface->create($data);
     }
 
@@ -219,7 +219,7 @@ class RoleService
     {
         $currentPermissions = $role->permessions->pluck('id')->toArray();
         $allPermissions = array_unique(array_merge($currentPermissions, $permissionIds));
-        
+
         $this->roleRepositoryInterface->syncPermissions($role, $allPermissions);
     }
 
@@ -230,11 +230,11 @@ class RoleService
     {
         $currentPermissions = $role->permessions->pluck('id')->toArray();
         $remainingPermissions = array_diff($currentPermissions, $permissionIds);
-        
+
         $this->roleRepositoryInterface->syncPermissions($role, $remainingPermissions);
     }
 
-    public function getVendorRole(): Role
+    public function getVendorRole()
     {
         return $this->roleRepositoryInterface->getVendorRole();
     }

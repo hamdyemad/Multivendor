@@ -87,7 +87,12 @@ class Handler extends ExceptionHandler
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            $data = app()->isLocal() ? ['error' => $e->getMessage()] : [];
+            $data = app()->isLocal() ? [
+                'class' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ] : [];
             $message = config('responses.error')[app()->getLocale()] ?? 'An error occurred';
             return $this->sendRes($message, false, $data, [], 500);
         }

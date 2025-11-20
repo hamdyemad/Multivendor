@@ -101,34 +101,34 @@ class VendorController extends Controller {
                 'vendor' => $vendor
             ]);
         }
+        return $vendor;
+        // return redirect()
+        //     ->route('admin.vendors.index')
+        //     ->with('success', __('vendor::vendor.vendor_created_successfully'));
+        // try {
+        // } catch (Exception $e) {
+        //     Log::error("Vendor creation failed", [
+        //         'error' => $e->getMessage(),
+        //         'file' => $e->getFile(),
+        //         'line' => $e->getLine(),
+        //         'trace' => $e->getTraceAsString()
+        //     ]);
 
-        return redirect()
-            ->route('admin.vendors.index')
-            ->with('success', __('vendor::vendor.vendor_created_successfully'));
-        try {
-        } catch (Exception $e) {
-            Log::error("Vendor creation failed", [
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]);
+        //     // Check if it's an AJAX request
+        //     if ($request->wantsJson() || $request->ajax()) {
+        //         return response()->json([
+        //             'success' => false,
+        //             'message' => __('vendor::vendor.error_creating_vendor'),
+        //             'error_details' => $e->getMessage()
+        //         ], 500);
+        //     }
 
-            // Check if it's an AJAX request
-            if ($request->wantsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => __('vendor::vendor.error_creating_vendor'),
-                    'error_details' => $e->getMessage()
-                ], 500);
-            }
-
-            return redirect()
-                ->back()
-                ->withInput()
-                ->with('error', __('vendor::vendor.error_creating_vendor'))
-                ->with('error_details', $e->getMessage());
-        }
+        //     return redirect()
+        //         ->back()
+        //         ->withInput()
+        //         ->with('error', __('vendor::vendor.error_creating_vendor'))
+        //         ->with('error_details', $e->getMessage());
+        // }
     }
 
     public function show($id) {

@@ -90,18 +90,19 @@ class VendorController extends Controller {
 
     public function store(VendorRequest $request)
     {
-        $data = $request->validated();
-        $vendor = $this->vendorService->createVendor($data);
-        // Check if it's an AJAX request
-        if ($request->wantsJson() || $request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => __('vendor::vendor.vendor_created_successfully'),
-                'redirect' => route('admin.vendors.index'),
-                'vendor' => $vendor
-            ]);
-        }
-        return $vendor;
+        return $request->all();
+        // $data = $request->validated();
+        // $vendor = $this->vendorService->createVendor($data);
+        // // Check if it's an AJAX request
+        // if ($request->wantsJson() || $request->ajax()) {
+        //     return response()->json([
+        //         'success' => true,
+        //         'message' => __('vendor::vendor.vendor_created_successfully'),
+        //         'redirect' => route('admin.vendors.index'),
+        //         'vendor' => $vendor
+        //     ]);
+        // }
+        // return $vendor;
         // return redirect()
         //     ->route('admin.vendors.index')
         //     ->with('success', __('vendor::vendor.vendor_created_successfully'));

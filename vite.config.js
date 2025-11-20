@@ -18,7 +18,14 @@ export default defineConfig({
         // Product forms
         'Modules/CatalogManagement/resources/assets/scss/product-form.scss',
         'Modules/CatalogManagement/resources/css/tree-view.css',
-        'Modules/CatalogManagement/resources/assets/js/product-form.js',
+
+        // Product form modules
+        'Modules/CatalogManagement/resources/assets/js/modules/form-wizard.js',
+        'Modules/CatalogManagement/resources/assets/js/modules/form-init.js',
+        'Modules/CatalogManagement/resources/assets/js/modules/form-edit.js',
+        'Modules/CatalogManagement/resources/assets/js/modules/form-variants.js',
+        'Modules/CatalogManagement/resources/assets/js/modules/form-validation.js',
+        'Modules/CatalogManagement/resources/assets/js/product-form-refactored.js',
 
       ],
       refresh: true,

@@ -2,19 +2,24 @@
     $user_type = auth()->user()->user_type->name;
     $vendor = auth()->user()->vendor;
 
-    $new_transactions = 0 ;
-    $accepted_transactions = 0 ;
-    $rejected_transactions = 0 ;
-
+    $new_transactions = 0;
+    $accepted_transactions = 0;
+    $rejected_transactions = 0;
 
     if ($vendor) {
-        $new_transactions = Modules\Withdraw\app\Models\Withdraw::where("reciever_id", $vendor->id)->where("status", "new")->count();
-        $accepted_transactions = Modules\Withdraw\app\Models\Withdraw::where("reciever_id", $vendor->id)->where("status", "accepted")->count();
-        $rejected_transactions = Modules\Withdraw\app\Models\Withdraw::where("reciever_id", $vendor->id)->where("status", "rejected")->count();
-    }else{
-        $new_transactions = Modules\Withdraw\app\Models\Withdraw::where("status", "new")->count();
-        $accepted_transactions = Modules\Withdraw\app\Models\Withdraw::where("status", "accepted")->count();
-        $rejected_transactions = Modules\Withdraw\app\Models\Withdraw::where("status", "rejected")->count();
+        $new_transactions = Modules\Withdraw\app\Models\Withdraw::where('reciever_id', $vendor->id)
+            ->where('status', 'new')
+            ->count();
+        $accepted_transactions = Modules\Withdraw\app\Models\Withdraw::where('reciever_id', $vendor->id)
+            ->where('status', 'accepted')
+            ->count();
+        $rejected_transactions = Modules\Withdraw\app\Models\Withdraw::where('reciever_id', $vendor->id)
+            ->where('status', 'rejected')
+            ->count();
+    } else {
+        $new_transactions = Modules\Withdraw\app\Models\Withdraw::where('status', 'new')->count();
+        $accepted_transactions = Modules\Withdraw\app\Models\Withdraw::where('status', 'accepted')->count();
+        $rejected_transactions = Modules\Withdraw\app\Models\Withdraw::where('status', 'rejected')->count();
     }
 @endphp
 <div class="sidebar__menu-group">
@@ -122,6 +127,28 @@
             </ul>
         </li>
 
+        @can('accounting.view')
+            <li class="menu-title mt-30">
+                <span>{{ trans('menu.sections.financials') }}</span>
+            </li>
+            <li class="has-child">
+                <a href="#" class="">
+                    <span class="nav-icon uil uil-invoice"></span>
+                    <span class="menu-text">{{ trans('menu.accounting module.title') }}</span>
+                    <span class="toggle-icon"></span>
+                </a>
+                <ul class="px-0">
+                    <li><a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.dashboard') }}">{{ trans('menu.accounting module.overview') }}</a>
+                    </li>
+                    <li><a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.dashboard') }}">{{ trans('menu.accounting module.balance') }}</a>
+                    </li>
+                    <li><a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.dashboard') }}">{{ trans('menu.accounting module.expenses keys') }}</a>
+                    </li>
+                    <li><a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.dashboard') }}">{{ trans('menu.accounting module.expenses') }}</a>
+                    </li>
+                </ul>
+            </li>
+        @endcan
 
 
 
@@ -623,56 +650,7 @@
             @endcanany
 
 
-            @can('accounting.view')
-                <li class="menu-title mt-30">
-                    <span>{{ trans('menu.sections.financials') }}</span>
-                </li>
-                <li class="has-child">
-                    <a href="#" class="">
-                        <span class="nav-icon uil uil-invoice"></span>
-                        <span class="menu-text">{{ trans('menu.accounting module.title') }}</span>
-                        <span class="toggle-icon"></span>
-                    </a>
-                    <ul class="px-0">
-                        <li><a href="{{ route('admin.dashboard') }}">{{ trans('menu.accounting module.overview') }}</a>
-                        </li>
-                        <li><a href="{{ route('admin.dashboard') }}">{{ trans('menu.accounting module.balance') }}</a>
-                        </li>
-                        <li><a
-                                href="{{ route('admin.dashboard') }}">{{ trans('menu.accounting module.expenses keys') }}</a>
-                        </li>
-                        <li><a href="{{ route('admin.dashboard') }}">{{ trans('menu.accounting module.expenses') }}</a>
-                        </li>
-                    </ul>
-                </li>
-            @endcan
 
-            @can('withdraw.view')
-                <li class="has-child">
-                    <a href="#" class="">
-                        <span class="nav-icon uil uil-money-withdraw"></span>
-                        <span class="menu-text">{{ trans('menu.withdraw module.title') }}</span>
-                        <span class="toggle-icon"></span>
-                    </a>
-                    <ul class="px-0">
-                        <li><a
-                                href="{{ route('admin.dashboard') }}">{{ trans('menu.withdraw module.send money to vendors') }}</a>
-                        </li>
-                        <li><a
-                                href="{{ route('admin.dashboard') }}">{{ trans('menu.withdraw module.all transactions') }}</a>
-                        </li>
-                        <li><a
-                                href="{{ route('admin.dashboard') }}">{{ trans('menu.withdraw module.vendors accepted requests') }}</a>
-                        </li>
-                        <li><a
-                                href="{{ route('admin.dashboard') }}">{{ trans('menu.withdraw module.vendors rejected requests') }}</a>
-                        </li>
-                        <li><a
-                                href="{{ route('admin.dashboard') }}">{{ trans('menu.withdraw module.vendors new requests') }}</a>
-                        </li>
-                    </ul>
-                </li>
-            @endcan
 
 
             @can('blog.view')

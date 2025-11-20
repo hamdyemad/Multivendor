@@ -12,7 +12,7 @@
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
                                 <h1 style="font-size: 20px;">95,320.00 EGP</h1>
-                                <p>{{ trans('dashboard.total_vendors_balance') }}</p>
+                                <p>{{ trans('dashboard.Total Needed From Bnaia To Vendors') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
                                 <div class="svg-icon order-bg-opacity-info color-info">
@@ -29,7 +29,7 @@
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
                                 <h1 style="font-size: 20px;">58,750.00 EGP</h1>
-                                <p>{{ trans('dashboard.total_sent_money') }}</p>
+                                <p>{{ trans('dashboard.Total Sent Money To Vendors') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
                                 <div class="svg-icon order-bg-opacity-primary color-primary">
@@ -46,7 +46,7 @@
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
                                 <h1 style="font-size: 20px;">36,570.00 EGP</h1>
-                                <p>{{ trans('dashboard.total_remaining') }}</p>
+                                <p>{{ trans('dashboard.Total Vendor\'s Remaining') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
                                 <div class="svg-icon order-bg-opacity-secondary color-secondary">

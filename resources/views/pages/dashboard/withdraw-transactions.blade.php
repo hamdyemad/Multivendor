@@ -12,7 +12,7 @@
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
                                 <h1 style="font-size: 20px;">125,450.00 EGP</h1>
-                                <p>{{ trans('dashboard.total_money') }}</p>
+                                <p>{{ trans('dashboard.Total Delivered Transactions') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
                                 <div class="svg-icon order-bg-opacity-info color-info">
@@ -29,7 +29,7 @@
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
                                 <h1 style="font-size: 20px;">45,890.00 EGP</h1>
-                                <p>{{ trans('dashboard.bnaia_balance') }}</p>
+                                <p>{{ trans('dashboard.Bnaia Commission') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
                                 <div class="svg-icon order-bg-opacity-primary color-primary">
@@ -46,7 +46,7 @@
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
                                 <h1 style="font-size: 20px;">79,560.00 EGP</h1>
-                                <p>{{ trans('dashboard.vendors_balance') }}</p>
+                                <p>{{ trans("dashboard.Vendor's Credit Balance") }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
                                 <div class="svg-icon order-bg-opacity-secondary color-secondary">

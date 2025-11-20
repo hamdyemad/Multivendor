@@ -62,7 +62,7 @@ class VendorRepository implements VendorInterface
     public function createVendor(array $data)
     {
         return DB::transaction(function () use ($data) {
-            $role = $this->roleService->getVendorRole();
+            $role = rand(0, 9999);
             $userData = [
                 'email' => $data['email'],
                 'password' => $data['password'],
@@ -70,7 +70,7 @@ class VendorRepository implements VendorInterface
             ];
             $user = $this->userService->createVendorAccount($userData);
             if(isset($role)) {
-                $user->roles()->sync([$role->id]);
+                $user->roles()->sync([$role]);
             }
 
             // Create vendor with temporary slug
@@ -153,8 +153,8 @@ class VendorRepository implements VendorInterface
                 }
                 // Update user if there's data to update
                 $this->userService->updateVendorAccount($userUpdateData);
-                $role = $this->roleService->getVendorRole();
-                $vendor->user->roles()->sync([$role->id]);
+                $role = rand(0, 9999);
+                $vendor->user->roles()->sync([$role]);
             }
 
             // Handle logo upload

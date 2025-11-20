@@ -683,6 +683,7 @@ function handleFormSubmission(e) {
         processData: false,
         contentType: false,
         success: function(response) {
+            console.log(response)
             if (typeof LoadingOverlay !== 'undefined') {
                 LoadingOverlay.animateProgressBar(100);
             }
@@ -701,6 +702,7 @@ function handleFormSubmission(e) {
             }
         },
         error: function(xhr) {
+            console.log(xhr)
             if (typeof LoadingOverlay !== 'undefined') {
                 LoadingOverlay.hide();
             }

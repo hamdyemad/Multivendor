@@ -36,8 +36,13 @@
         ],
         'withdraw module' => [
             'title' => 'وحدة السحب',
+            'send money' => 'إرسال أموال',
             'send money to vendors' => 'إرسال أموال للموردين',
+            'send money request' => 'طلب إرسال أموال',
             'all transactions' => 'جميع المعاملات',
+            'new transaction requests' => 'طلبات المعاملات الجديدة',
+            'accepted transaction requests' => 'طلبات المعاملات المقبولة',
+            'rejected transaction requests' => 'طلبات المعاملات المرفوضة',
             'vendors accepted requests' => 'طلبات الموردين المقبولة',
             'vendors rejected requests' => 'طلبات الموردين المرفوضة',
             'vendors new requests' => 'طلبات الموردين الجديدة',
@@ -45,6 +50,7 @@
         'products' => [
             'title' => 'المنتجات',
             'all' => 'الكل',
+            'all_products' => 'جميع المنتجات',
             'create' => 'إضافة',
             'create_bank_product' => 'إنشاء منتج بنك',
             'bank_products' => 'منتجات البنك',
@@ -164,6 +170,7 @@
             'reports' => 'التقارير',
             'settings' => 'الإعدادات',
             'business activities' => 'الأنشطة التجارية',
+            'withdraw module' => 'وحدة السحب',
         ],
         'activities' => [
             'title' => 'الأنشطة',

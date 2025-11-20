@@ -66,12 +66,12 @@
 
 
         <li class="menu-title mt-30">
-            <span>Withdraw Module</span>
+            <span>{{ trans('menu.sections.withdraw module') }}</span>
         </li>
         <li class="has-child">
             <a href="#" class="">
                 <span class="nav-icon uil uil-sitemap"></span>
-                <span class="menu-text">Withdraw Module</span>
+                <span class="menu-text">{{ trans('menu.withdraw module.title') }}</span>
                 <span class="toggle-icon"></span>
             </a>
             <ul class="px-0">
@@ -79,14 +79,14 @@
                     <li>
                         <a class="d-flex align-items-center justify-content-between fw-bold"
                             href="{{ route('admin.sendMoney') }}">
-                            Send money
+                            {{ trans('menu.withdraw module.send money') }}
                         </a>
                     </li>
 
                     <li>
                         <a class="d-flex align-items-center justify-content-between fw-bold"
                             href="{{ route('admin.allTransactions') }}">
-                            All Transactions
+                            {{ trans('menu.withdraw module.all transactions') }}
                         </a>
                     </li>
                 @endif
@@ -94,7 +94,7 @@
                     <li>
                         <a class="d-flex align-items-center justify-content-between fw-bold"
                             href="{{ route('admin.sendMoneyRequest') }}">
-                            Send money request
+                            {{ trans('menu.withdraw module.send money request') }}
                         </a>
                     </li>
                 @endif
@@ -102,7 +102,7 @@
                 <li>
                     <a class="d-flex align-items-center justify-content-between fw-bold"
                         href="{{ route('admin.transactionsRequests', 'new') }}">
-                        New Transaction requests
+                        {{ trans('menu.withdraw module.new transaction requests') }}
                         <span class="badge badge-round badge-primary ms-1">{{ $new_transactions }}</span>
                     </a>
                 </li>
@@ -110,7 +110,7 @@
                 <li>
                     <a class="d-flex align-items-center justify-content-between fw-bold"
                         href="{{ route('admin.transactionsRequests', 'accepted') }}">
-                        Accepted Transaction requests
+                        {{ trans('menu.withdraw module.accepted transaction requests') }}
                         <span class="badge badge-round badge-primary ms-1">{{ $accepted_transactions }}</span>
                     </a>
                 </li>
@@ -118,7 +118,7 @@
                 <li>
                     <a class="d-flex align-items-center justify-content-between fw-bold"
                         href="{{ route('admin.transactionsRequests', 'rejected') }}">
-                        Rejected Transaction requests
+                        {{ trans('menu.withdraw module.rejected transaction requests') }}
                         <span class="badge badge-round badge-primary ms-1">{{ $rejected_transactions }}</span>
                     </a>
                 </li>

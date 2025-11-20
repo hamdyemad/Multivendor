@@ -36,8 +36,13 @@
         ],
         'withdraw module' => [
             'title' => 'withdraw module',
+            'send money' => 'send money',
             'send money to vendors' => 'send money to vendors',
+            'send money request' => 'send money request',
             'all transactions' => 'all transactions',
+            'new transaction requests' => 'new transaction requests',
+            'accepted transaction requests' => 'accepted transaction requests',
+            'rejected transaction requests' => 'rejected transaction requests',
             'vendors accepted requests' => 'vendors accepted requests',
             'vendors rejected requests' => 'vendors rejected requests',
             'vendors new requests' => 'vendors new requests',
@@ -53,6 +58,7 @@
         'products' => [
             'title' => 'products',
             'all' => 'all',
+            'all_products' => 'all products',
             'create' => 'create',
             'create_bank_product' => 'create bank product',
             'bank_products' => 'bank products',
@@ -172,6 +178,7 @@
             'reports' => 'Reports',
             'settings' => 'Settings',
             'business activities' => 'Business Activities',
+            'withdraw module' => 'Withdraw Module',
         ],
         'activities' => [
             'title' => 'Activities',

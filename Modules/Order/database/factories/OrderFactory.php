@@ -1,9 +1,8 @@
 <?php
 
-namespace Modules\Order\Database\Factories;
+namespace Modules\Order\database\factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 use Modules\Order\app\Models\Order;
 
 class OrderFactory extends Factory

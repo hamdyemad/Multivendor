@@ -61,71 +61,70 @@ class VendorRepository implements VendorInterface
 
     public function createVendor(array $data)
     {
-        return true;
-        // return DB::transaction(function () use ($data) {
-        //     $role = $this->roleService->getVendorRole();
-        //     $userData = [
-        //         'email' => $data['email'],
-        //         'password' => $data['password'],
-        //         'active' => $data['active'] ?? false,
-        //     ];
-        //     $user = $this->userService->createVendorAccount($userData);
-        //     $user->roles()->sync([$role->id]);
+        return DB::transaction(function () use ($data) {
+            $role = $this->roleService->getVendorRole();
+            $userData = [
+                'email' => $data['email'],
+                'password' => $data['password'],
+                'active' => $data['active'] ?? false,
+            ];
+            $user = $this->userService->createVendorAccount($userData);
+            $user->roles()->sync([$role->id]);
 
-        //     // Create vendor with temporary slug
-        //     $vendor = Vendor::create([
-        //         'user_id' => $user->id,
-        //         'country_id' => $data['country_id'],
-        //         'type' => $data['type'],
-        //         'active' => $data['active'] ?? false,
-        //         'slug' => 'temp-vendor-' . Str::random(8), // Temporary slug to avoid SQL error
-        //     ]);
-        //     // Handle logo upload
-        //     if (isset($data['logo'])) {
-        //         $logoPath = $data['logo']->store("vendors/$vendor->id/logo", 'public');
-        //         $vendor->attachments()->create([
-        //             'path' => $logoPath,
-        //             'type' => 'logo',
-        //         ]);
-        //     }
+            // Create vendor with temporary slug
+            $vendor = Vendor::create([
+                'user_id' => $user->id,
+                'country_id' => $data['country_id'],
+                'type' => $data['type'],
+                'active' => $data['active'] ?? false,
+                'slug' => 'temp-vendor-' . Str::random(8), // Temporary slug to avoid SQL error
+            ]);
+            // Handle logo upload
+            if (isset($data['logo'])) {
+                $logoPath = $data['logo']->store("vendors/$vendor->id/logo", 'public');
+                $vendor->attachments()->create([
+                    'path' => $logoPath,
+                    'type' => 'logo',
+                ]);
+            }
 
-        //     // Handle banner upload
-        //     if (isset($data['banner'])) {
-        //         $bannerPath = $data['banner']->store("vendors/$vendor->id/banner", 'public');
-        //         $vendor->attachments()->create([
-        //             'path' => $bannerPath,
-        //             'type' => 'banner',
-        //         ]);
-        //     }
+            // Handle banner upload
+            if (isset($data['banner'])) {
+                $bannerPath = $data['banner']->store("vendors/$vendor->id/banner", 'public');
+                $vendor->attachments()->create([
+                    'path' => $bannerPath,
+                    'type' => 'banner',
+                ]);
+            }
 
 
-        //     // Sync activities (many-to-many relationship)
-        //     if (!empty($data['activity_ids'])) {
-        //         $vendor->activities()->sync($data['activity_ids']);
-        //     }
+            // Sync activities (many-to-many relationship)
+            if (!empty($data['activity_ids'])) {
+                $vendor->activities()->sync($data['activity_ids']);
+            }
 
-        //     // Store commission
-        //     if (isset($data['commission'])) {
-        //         $vendor->commission()->create([
-        //             'commission' => $data['commission'],
-        //         ]);
-        //     }
+            // Store commission
+            if (isset($data['commission'])) {
+                $vendor->commission()->create([
+                    'commission' => $data['commission'],
+                ]);
+            }
 
-        //     // Store translations
-        //     $this->storeTranslations($vendor, $data);
+            // Store translations
+            $this->storeTranslations($vendor, $data);
 
-        //     // Generate proper slug after translations are saved
-        //     $vendor->refresh(); // Refresh to get the latest translations
-        //     $newSlug = $vendor->createSlug();
-        //     $vendor->update(['slug' => $newSlug]);
+            // Generate proper slug after translations are saved
+            $vendor->refresh(); // Refresh to get the latest translations
+            $newSlug = $vendor->createSlug();
+            $vendor->update(['slug' => $newSlug]);
 
-        //     // Handle documents
-        //     if (!empty($data['documents'])) {
-        //         $this->storeDocuments($vendor, $data['documents']);
-        //     }
+            // Handle documents
+            if (!empty($data['documents'])) {
+                $this->storeDocuments($vendor, $data['documents']);
+            }
 
-        //     return $vendor;
-        // });
+            return $vendor;
+        });
     }
 
     public function updateVendor(int $id, array $data)

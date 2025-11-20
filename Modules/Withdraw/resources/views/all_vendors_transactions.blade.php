@@ -244,7 +244,7 @@
                         name: 'vendor_logo',
                         render: function(data, type, row) {
                             const logo = row.vendor_logo ?
-                                `<img src="${row.vendor_logo}" alt="${data}" style="width:30px; height:30px; border-radius:50%; margin-right:8px;">` :
+                                `<img src="${row.vendor_logo}" alt="${data}" style="width:30px; height:30px; border-radius:50%; margin: auto;">` :
                                 '';
                             return `<div class="userDatatable-content d-flex align-items-center">
                             ${logo}`;

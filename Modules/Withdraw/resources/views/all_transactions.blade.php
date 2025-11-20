@@ -398,7 +398,7 @@
                         searchable: false,
                         render: function(data) {
                             if (data) {
-                                return `<a href="${data}" class="btn btn-sm btn-primary" target="_blank" download>
+                                return `<a href="${data}" class="btn btn-sm btn-primary" target="_blank" style="margin: auto;" download>
                                     <i class="uil uil-download-alt"></i> Download
                                 </a>`;
                             }

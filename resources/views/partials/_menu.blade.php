@@ -56,6 +56,8 @@
         $accepted_transactions = Modules\Withdraw\app\Models\Withdraw::where('status', 'accepted')->count();
         $rejected_transactions = Modules\Withdraw\app\Models\Withdraw::where('status', 'rejected')->count();
     }
+
+    $all_transactions = Modules\Withdraw\app\Models\Withdraw::count();
 @endphp
 <div class="sidebar__menu-group">
     <ul class="sidebar_nav">
@@ -99,6 +101,7 @@
                         <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.allTransactions', $currentRoute) ? 'active' : '' }}"
                             href="{{ route('admin.allTransactions') }}">
                             {{ trans('menu.withdraw module.all transactions') }}
+                            <span class="badge badge-round badge-primary ms-1">{{ $all_transactions }}</span>
                         </a>
                     </li>
                 @endif

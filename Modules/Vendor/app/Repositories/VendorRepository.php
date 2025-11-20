@@ -2,12 +2,6 @@
 
 namespace Modules\Vendor\app\Repositories;
 
-use App\Models\Attachment;
-use App\Models\Role;
-use App\Models\User;
-use App\Models\Translation;
-use App\Models\UserType;
-use App\Services\RoleService;
 use App\Services\UserService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -22,7 +16,6 @@ class VendorRepository implements VendorInterface
 
     public function __construct(
         protected UserService $userService,
-        protected RoleService $roleService,
     )
     {
 

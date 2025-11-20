@@ -93,7 +93,7 @@
                                                 <label class="form-label d-block">{{ __('catalogmanagement::product.status') }}</label>
                                                 <div class="form-check form-switch form-switch-lg">
                                                     <input class="form-check-input" type="checkbox" role="switch" id="status" name="status" value="1"
-                                                    @if(isset($product) && $product->is_active) checked @endif>
+                                                    @if(isset($product) && ($product->product ? $product->product->is_active : $product->is_active)) checked @endif>
                                                 </div>
                                             </div>
                                         </div>
@@ -102,7 +102,7 @@
                                             <div class="form-group">
                                                 <label class="form-label d-block">{{ __('catalogmanagement::product.featured') }}</label>
                                                 <div class="form-check form-switch form-switch-lg">
-                                                    <input class="form-check-input" type="checkbox" role="switch" id="featured" name="featured" value="1" {{ isset($product) && $product->is_featured ? 'checked' : '' }}>
+                                                    <input class="form-check-input" type="checkbox" role="switch" id="featured" name="featured" value="1" @if(isset($product) && ($product->product ? $product->product->is_featured : $product->is_featured)) checked @endif>
                                                 </div>
                                             </div>
                                         </div>
@@ -210,7 +210,7 @@
                                         <div class="col-md-6 mb-3">
                                             <div class="form-group">
                                                 <label for="max_per_order" class="form-label">{{ __('catalogmanagement::product.max_per_order') }} <span class="text-danger">*</span></label>
-                                                <input type="number" name="max_per_order" id="max_per_order" class="form-control ih-medium ip-gray radius-xs b-light px-15" min="1" placeholder="Enter max per order" value="{{ isset($product) ? $product->max_per_order : '' }}" required>
+                                                <input type="number" name="max_per_order" id="max_per_order" class="form-control ih-medium ip-gray radius-xs b-light px-15" min="1" placeholder="Enter max per order" value="{{ isset($product) ? ($product->max_per_order ?? ($product->product ? $product->product->max_per_order : null)) ?? '' : '' }}" required>
                                                 <div class="error-message text-danger" id="error-max_per_order" style="display: none;"></div>
                                             </div>
                                         </div>
@@ -316,7 +316,7 @@
                                                     class="form-control ih-medium ip-gray radius-xs b-light px-15 tinymce-editor"
                                                     rows="6"
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل تفاصيل المنتج' : 'Enter product details' }}"
-                                                    dir="{{ $language->code == 'ar' ? 'rtl' : 'ltr' }}"></textarea>
+                                                    dir="{{ $language->code == 'ar' ? 'rtl' : 'ltr' }}">{{ isset($product) ? ($product->product && method_exists($product->product, 'getTranslation') ? $product->product->getTranslation('details', $language->code) : (method_exists($product, 'getTranslation') ? $product->getTranslation('details', $language->code) : '')) ?? '' : '' }}</textarea>
                                                 <div class="error-message text-danger" id="error-translations-{{ $language->id }}-details" style="display: none;"></div>
                                             </div>
                                         </div>
@@ -343,7 +343,7 @@
                                                     class="form-control ih-medium ip-gray radius-xs b-light px-15 tinymce-editor"
                                                     rows="4"
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل الملخص' : 'Enter summary' }}"
-                                                    dir="{{ $language->code == 'ar' ? 'rtl' : 'ltr' }}"></textarea>
+                                                    dir="{{ $language->code == 'ar' ? 'rtl' : 'ltr' }}">{{ isset($product) ? ($product->product && method_exists($product->product, 'getTranslation') ? $product->product->getTranslation('summary', $language->code) : (method_exists($product, 'getTranslation') ? $product->getTranslation('summary', $language->code) : '')) ?? '' : '' }}</textarea>
                                                 <div class="error-message text-danger" id="error-translations-{{ $language->id }}-summary" style="display: none;"></div>
                                             </div>
                                         </div>
@@ -359,7 +359,7 @@
                                                     class="form-control ih-medium ip-gray radius-xs b-light px-15 tinymce-editor"
                                                     rows="4"
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل المميزات' : 'Enter features' }}"
-                                                    dir="{{ $language->code == 'ar' ? 'rtl' : 'ltr' }}"></textarea>
+                                                    dir="{{ $language->code == 'ar' ? 'rtl' : 'ltr' }}">{{ isset($product) ? ($product->product && method_exists($product->product, 'getTranslation') ? $product->product->getTranslation('features', $language->code) : (method_exists($product, 'getTranslation') ? $product->getTranslation('features', $language->code) : '')) ?? '' : '' }}</textarea>
                                                 <div class="error-message text-danger" id="error-translations-{{ $language->id }}-features" style="display: none;"></div>
                                             </div>
                                         </div>
@@ -375,7 +375,7 @@
                                                     class="form-control ih-medium ip-gray radius-xs b-light px-15 tinymce-editor"
                                                     rows="4"
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل التعليمات' : 'Enter instructions' }}"
-                                                    dir="{{ $language->code == 'ar' ? 'rtl' : 'ltr' }}"></textarea>
+                                                    dir="{{ $language->code == 'ar' ? 'rtl' : 'ltr' }}">{{ isset($product) ? ($product->product && method_exists($product->product, 'getTranslation') ? $product->product->getTranslation('instructions', $language->code) : (method_exists($product, 'getTranslation') ? $product->getTranslation('instructions', $language->code) : '')) ?? '' : '' }}</textarea>
                                                 <div class="error-message text-danger" id="error-translations-{{ $language->id }}-instructions" style="display: none;"></div>
                                             </div>
                                         </div>
@@ -391,7 +391,7 @@
                                                     class="form-control ih-medium ip-gray radius-xs b-light px-15 tinymce-editor"
                                                     rows="4"
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل وصف إضافي' : 'Enter extra description' }}"
-                                                    dir="{{ $language->code == 'ar' ? 'rtl' : 'ltr' }}"></textarea>
+                                                    dir="{{ $language->code == 'ar' ? 'rtl' : 'ltr' }}">{{ isset($product) ? ($product->product && method_exists($product->product, 'getTranslation') ? $product->product->getTranslation('extra_description', $language->code) : (method_exists($product, 'getTranslation') ? $product->getTranslation('extra_description', $language->code) : '')) ?? '' : '' }}</textarea>
                                                 <div class="error-message text-danger" id="error-translations-{{ $language->id }}-extra_description" style="display: none;"></div>
                                             </div>
                                         </div>
@@ -418,7 +418,7 @@
                                                     class="form-control ih-medium ip-gray radius-xs b-light px-15 tinymce-editor"
                                                     rows="3"
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل المواد' : 'Enter material' }}"
-                                                    dir="{{ $language->code == 'ar' ? 'rtl' : 'ltr' }}"></textarea>
+                                                    dir="{{ $language->code == 'ar' ? 'rtl' : 'ltr' }}">{{ isset($product) ? ($product->product && method_exists($product->product, 'getTranslation') ? $product->product->getTranslation('material', $language->code) : (method_exists($product, 'getTranslation') ? $product->getTranslation('material', $language->code) : '')) ?? '' : '' }}</textarea>
                                                 <div class="error-message text-danger" id="error-translations-{{ $language->id }}-material" style="display: none;"></div>
                                             </div>
                                         </div>
@@ -788,7 +788,7 @@ window.productFormConfig = {
             variantsCount: {{ isset($product) && $product->variants ? $product->variants->count() : 0 }},
             // Product details for simple products
             @if(isset($product) && ($product->configuration_type ?? $product->product->configuration_type ?? '') == 'simple')
-                productSku: '{{ addslashes($product->variants && $product->variants->first() ? $product->variants->first()->sku : '') }}',
+                productSku: '{{ addslashes($product->sku ?? '') }}',
                 productPrice: {{ $product->variants && $product->variants->first() ? $product->variants->first()->price : 0 }},
                 productHasDiscount: {{ $product->variants && $product->variants->first() && $product->variants->first()->has_offer ? 'true' : 'false' }},
                 productPriceBeforeDiscount: {{ $product->variants && $product->variants->first() ? $product->variants->first()->price_before_discount : 0 }},

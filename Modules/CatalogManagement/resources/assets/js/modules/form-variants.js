@@ -87,15 +87,6 @@ class ProductFormVariants {
         const stockManagementHtml = this.generateStockManagementBox('simple');
         container.append(stockManagementHtml);
 
-        // Auto-populate simple product SKU from basic SKU (Step 1)
-        setTimeout(() => {
-            const basicSku = $('#sku').val(); // From step 1
-            if (basicSku) {
-                $('input[name="sku"]').not('#sku').val(basicSku); // Simple product SKU
-                console.log('✅ Auto-populated simple product SKU from basic SKU:', basicSku);
-            }
-        }, 100);
-
         console.log("✅ Simple product boxes generated");
     }
 
@@ -116,13 +107,15 @@ class ProductFormVariants {
                         ${boxTitle}
                     </h5>
                     <div class="row">
+                        ${isVariant ? `
                         <div class="col-md-6 mb-3">
                             <div class="form-group">
-                                <label class="form-label">${isVariant ? (this.config.variantSku || 'Variant SKU') : (this.config.sku || 'SKU')} <span class="text-danger">*</span></label>
-                                <input type="text" name="${namePrefix}${isVariant ? '[sku]' : 'sku'}" id="${idPrefix}sku" class="form-control ih-medium ip-gray radius-xs b-light px-15" placeholder="PRD-12345" required>
+                                <label class="form-label">${this.config.variantSku || 'Variant SKU'} <span class="text-danger">*</span></label>
+                                <input type="text" name="${namePrefix}[sku]" id="${idPrefix}sku" class="form-control ih-medium ip-gray radius-xs b-light px-15" placeholder="PRD-12345" required>
                                 <div class="error-message text-danger" id="error-${idPrefix}sku" style="display: none;"></div>
                             </div>
                         </div>
+                        ` : ''}
 
                         <div class="col-md-6 mb-3">
                             <div class="form-group">
@@ -132,7 +125,7 @@ class ProductFormVariants {
                             </div>
                         </div>
 
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <div class="form-group">
                                 <label class="form-label d-block">${this.config.enableDiscountOffer || 'Enable Discount Offer'}</label>
                                 <div class="form-check form-switch form-switch-lg">

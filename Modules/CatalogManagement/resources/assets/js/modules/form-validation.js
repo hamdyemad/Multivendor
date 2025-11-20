@@ -590,6 +590,14 @@ class ProductFormValidation {
         // Clean empty stock rows before creating FormData
         this.cleanEmptyStockRows();
 
+        // Trigger CKEditor to save content to textareas
+        if (typeof CKEDITOR !== 'undefined') {
+            for (var instance in CKEDITOR.instances) {
+                CKEDITOR.instances[instance].updateElement();
+            }
+            console.log('✅ CKEditor content saved to textareas');
+        }
+
         const form = $('#productForm')[0];
         const formData = new FormData(form);
         const url = form.action;

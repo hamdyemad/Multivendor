@@ -76,6 +76,8 @@ return [
     'error_rejecting_product' => 'خطأ في رفض المنتج',
     'pricing_stock_updated_successfully' => 'تم تحديث التسعير والمخزون بنجاح!',
     'error_saving_pricing_stock' => 'خطأ في حفظ التسعير والمخزون',
+    'manage_stock_pricing' => 'إدارة المخزون والتسعير',
+    'stock_management' => 'إدارة المخزون والتسعير',
     'error_loading_product' => 'خطأ في تحميل المنتج',
     'creating_product' => 'جاري إنشاء المنتج...',
     'updating_product' => 'جاري تحديث المنتج...',

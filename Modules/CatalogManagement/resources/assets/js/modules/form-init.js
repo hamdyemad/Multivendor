@@ -139,13 +139,6 @@ class ProductFormInit {
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <div class="form-group">
-                                <label class="form-label">SKU <span class="text-danger">*</span></label>
-                                <input type="text" name="sku" id="sku" class="form-control" placeholder="PRD-12345" required>
-                                <div class="error-message text-danger" id="error-sku" style="display: none;"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="form-group">
                                 <label class="form-label">Price <span class="text-danger">*</span></label>
                                 <input type="number" name="price" id="price" class="form-control" min="0" step="0.01" placeholder="Enter price" required>
                                 <div class="error-message text-danger" id="error-price" style="display: none;"></div>

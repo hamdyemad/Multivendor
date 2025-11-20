@@ -180,8 +180,8 @@ class ProductRepository implements ProductInterface
      */
     protected function storeTranslations(Product $product, array $data): void
     {
-        // Delete existing translations
-        $product->translations()->delete();
+        // Force delete existing translations (including soft deleted ones)
+        $product->translations()->forceDelete();
 
         if (!empty($data['translations'])) {
             foreach ($data['translations'] as $languageId => $fields) {
@@ -198,7 +198,7 @@ class ProductRepository implements ProductInterface
                 ];
 
                 foreach ($translationFields as $field) {
-                    if (!empty($fields[$field])) {
+                    if (isset($fields[$field])) {
                         $product->translations()->create([
                             'lang_id' => $language->id,
                             'lang_key' => $field,
@@ -340,8 +340,8 @@ class ProductRepository implements ProductInterface
                             'sku' => $variantData['sku'] ?? null,
                             'price' => $variantData['price'] ?? 0,
                             'has_discount' => $variantData['has_discount'] ?? false,
-                            'discount_price' => $variantData['price_before_discount'] ?? 0,
-                            'discount_end_date' => $variantData['offer_end_date'] ?? null,
+                            'price_before_discount' => $variantData['price_before_discount'] ?? 0,
+                            'offer_end_date' => $variantData['offer_end_date'] ?? null,
                         ]);
                         $vendorProductVariant = $existingVendorVariant;
                         $incomingVariantIds[] = $existingVendorVariant->id;
@@ -359,8 +359,8 @@ class ProductRepository implements ProductInterface
                             'sku' => $variantData['sku'] ?? null,
                             'price' => $variantData['price'] ?? 0,
                             'has_discount' => $variantData['has_discount'] ?? false,
-                            'discount_price' => $variantData['price_before_discount'] ?? 0,
-                            'discount_end_date' => $variantData['offer_end_date'] ?? null,
+                            'price_before_discount' => $variantData['price_before_discount'] ?? 0,
+                            'offer_end_date' => $variantData['offer_end_date'] ?? null,
                         ]);
                         $incomingVariantIds[] = $vendorProductVariant->id;
                     }
@@ -433,5 +433,106 @@ class ProductRepository implements ProductInterface
         }
 
         return null;
+    }
+
+    /**
+     * Update only stock and pricing for a product
+     */
+    public function updateStockAndPricing($id, array $data)
+    {
+        $product = $this->getProductById($id);
+
+        if (!$product) {
+            throw new \Exception('Product not found');
+        }
+
+        $configurationType = $product->product ? $product->product->configuration_type : $product->configuration_type;
+
+        if ($configurationType === 'simple') {
+            $this->updateSimpleProductStockPricing($product, $data);
+        } else {
+            $this->updateVariantProductStockPricing($product, $data);
+        }
+
+        return $product;
+    }
+
+    /**
+     * Update simple product stock and pricing
+     */
+    private function updateSimpleProductStockPricing($product, $data)
+    {
+        // Get the first (and only) variant for simple products
+        $variant = $product->variants->first();
+
+        if ($variant) {
+            // Update variant pricing
+            $variant->update([
+                'price' => $data['price'] ?? $variant->price,
+                'has_offer' => isset($data['has_discount']) ? (bool)$data['has_discount'] : $variant->has_offer,
+                'price_before_discount' => $data['price_before_discount'] ?? $variant->price_before_discount,
+                'offer_end_date' => $data['offer_end_date'] ?? $variant->offer_end_date,
+            ]);
+
+            // Update stock data
+            if (isset($data['stocks']) && is_array($data['stocks'])) {
+                // Delete existing stocks
+                $variant->stocks()->delete();
+
+                // Create new stock entries
+                foreach ($data['stocks'] as $stockData) {
+                    if (!empty($stockData['region_id']) && isset($stockData['quantity'])) {
+                        $variant->stocks()->create([
+                            'region_id' => $stockData['region_id'],
+                            'stock' => $stockData['quantity']
+                        ]);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Update variant product stock and pricing
+     */
+    private function updateVariantProductStockPricing($product, $data)
+    {
+        if (isset($data['variants']) && is_array($data['variants'])) {
+            foreach ($data['variants'] as $variantIndex => $variantData) {
+                // Find the variant by index or ID
+                $variant = null;
+                if (isset($variantData['id'])) {
+                    $variant = $product->variants->where('id', $variantData['id'])->first();
+                } else {
+                    $variant = $product->variants->skip($variantIndex)->first();
+                }
+
+                if ($variant) {
+                    // Update variant pricing
+                    $variant->update([
+                        'price' => $variantData['price'] ?? $variant->price,
+                        'has_offer' => isset($variantData['has_discount']) ? (bool)$variantData['has_discount'] : $variant->has_offer,
+                        'price_before_discount' => $variantData['price_before_discount'] ?? $variant->price_before_discount,
+                        'offer_end_date' => $variantData['offer_end_date'] ?? $variant->offer_end_date,
+                    ]);
+
+                    // Update stock data for this variant
+                    if (isset($variantData['stocks']) && is_array($variantData['stocks'])) {
+                        // Delete existing stocks for this variant
+                        $variant->stocks()->delete();
+
+                        // Create new stock entries
+                        foreach ($variantData['stocks'] as $stockData) {
+                            if (!empty($stockData['region_id']) && isset($stockData['quantity'])) {
+                                $variant->stocks()->create([
+                                    'region_id' => $stockData['region_id'],
+                                    'stock' => $stockData['quantity']
+                                ]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

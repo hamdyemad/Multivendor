@@ -308,4 +308,56 @@ class ProductController extends Controller
         }
     }
 
+    /**
+     * Show stock and pricing management page
+     */
+    public function stockManagement($id)
+    {
+        $product = $this->productService->getProductById($id);
+        $languages = $this->languageService->getAll();
+        $regions = $this->regionService->getAllRegions([], 0);
+        $regions = RegionResource::collection($regions)->resolve();
+
+        // Get variant configuration keys for the variant section
+        $variantKeys = $this->variantConfigurationKeyService->getAllVariantConfigurationKeys([], 0);
+        $variantKeys = VariantsConfigurationKeyResource::collection(
+            $variantKeys->map(fn ($v) => $v->setAttribute('select2', true))
+        )->resolve();
+
+        return view('catalogmanagement::product.stock-management', compact(
+            'product',
+            'languages',
+            'regions',
+            'variantKeys'
+        ));
+    }
+
+    /**
+     * Update stock and pricing only
+     */
+    public function updateStockPricing(Request $request, $id)
+    {
+        try {
+            $data = $request->all();
+            // Update stock and pricing through service layer
+            $this->productService->updateStockAndPricing($id, $data);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('catalogmanagement::product.pricing_stock_updated_successfully')
+            ]);
+        } catch (Exception $e) {
+            Log::error('Stock pricing update failed', [
+                'product_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => __('catalogmanagement::product.error_saving_pricing_stock'),
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

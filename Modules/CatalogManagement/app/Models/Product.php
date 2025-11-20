@@ -62,16 +62,7 @@ class Product extends Model
     {
         return $this->hasMany(ProductVariant::class);
     }
-
-    public function getCurrencyAttribute()
-    {
-        return $this->vendor->country->currency ?? null;
-    }
-
-    /**
-     * Get the brand
-     */
-    public function brand()
+     public function brand()
     {
         return $this->belongsTo(Brand::class);
     }
@@ -134,6 +125,70 @@ class Product extends Model
                     ->withPivot('status', 'rejection_reason')
                     ->withTimestamps();
     }
+
+    // Start Getters
+    public function getTitleAttribute()
+    {
+        return $this->getTranslation('title', app()->getLocale());
+    }
+
+    public function getDetailsAttribute()
+    {
+        return $this->getTranslation('details', app()->getLocale());
+    }
+
+    public function getSummaryAttribute()
+    {
+        return $this->getTranslation('summary', app()->getLocale());
+    }
+
+    public function getFeaturesAttribute()
+    {
+        return $this->getTranslation('features', app()->getLocale());
+    }
+
+    public function getInstructionsAttribute()
+    {
+        return $this->getTranslation('instructions', app()->getLocale());
+    }
+
+    public function getExtraDescriptionAttribute()
+    {
+        return $this->getTranslation('extra_description', app()->getLocale());
+    }
+
+    public function getMaterialAttribute()
+    {
+        return $this->getTranslation('material', app()->getLocale());
+    }
+
+    public function getTagsAttribute()
+    {
+        return $this->getTranslation('tags', app()->getLocale());
+    }
+
+    public function getMetaTitleAttribute()
+    {
+        return $this->getTranslation('meta_title', app()->getLocale());
+    }
+
+    public function getMetaKeywordsAttribute()
+    {
+        return $this->getTranslation('meta_keywords', app()->getLocale());
+    }
+
+    public function getMetaDescriptionAttribute()
+    {
+        return $this->getTranslation('meta_description', app()->getLocale());
+    }
+
+    public function getCurrencyAttribute()
+    {
+        return $this->vendor->country->currency ?? null;
+    }
+    // End Getters
+
+
 
     /**
      * Get the route key for the model

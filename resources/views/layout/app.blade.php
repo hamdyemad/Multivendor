@@ -1,6 +1,7 @@
 @include('partials._header')
 
 <link rel="stylesheet" href="{{ asset('assets/css/my_custom_style.css') }}">
+
 <body class="layout-light side-menu">
     <div class="mobile-author-actions"></div>
     <header class="header-top">
@@ -61,11 +62,15 @@
         if (typeof jQuery !== 'undefined') {
             // Add stub for sortable if not loaded
             if (!jQuery.fn.sortable) {
-                jQuery.fn.sortable = function() { return this; };
+                jQuery.fn.sortable = function() {
+                    return this;
+                };
             }
             // Add stub for footable if not loaded
             if (!jQuery.fn.footable) {
-                jQuery.fn.footable = function() { return this; };
+                jQuery.fn.footable = function() {
+                    return this;
+                };
             }
         }
     </script>
@@ -144,80 +149,90 @@
         }
 
         // Handle session messages
-        @if(session('success'))
+        @if (session('success'))
             showMessage('success', "{{ session('success') }}", 'check-circle');
-        @elseif(session('error'))
+        @elseif (session('error'))
             showMessage('danger', "{{ session('error') }}", 'times-circle');
-        @elseif(session('info'))
+        @elseif (session('info'))
             showMessage('info', "{{ session('info') }}", 'info-circle');
-        @elseif(session('warning'))
+        @elseif (session('warning'))
             showMessage('warning', "{{ session('warning') }}", 'exclamation-triangle');
         @endif
     </script>
 
     <!-- CKEditor Initialization -->
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Wait for CKEditor to be available
-        if (typeof CKEDITOR === 'undefined') {
-            console.error('CKEditor is not loaded from CDN');
-            return;
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for CKEditor to be available
+            if (typeof CKEDITOR === 'undefined') {
+                console.error('CKEditor is not loaded from CDN');
+                return;
+            }
 
-        console.log('CKEditor loaded successfully from CDN');
+            console.log('CKEditor loaded successfully from CDN');
 
-        // Wait a bit more for DOM to be fully ready
-        setTimeout(function() {
-            // Initialize CKEditor for ALL textareas
-            const textareas = document.querySelectorAll('textarea');
-            console.log('Found textareas:', textareas.length);
+            // Wait a bit more for DOM to be fully ready
+            setTimeout(function() {
+                // Initialize CKEditor for ALL textareas
+                const textareas = document.querySelectorAll('textarea');
+                console.log('Found textareas:', textareas.length);
 
-            textareas.forEach(function(textarea, index) {
-                // Skip if no ID or already initialized
-                if (!textarea.id || CKEDITOR.instances[textarea.id]) {
-                    console.log('Skipping textarea:', textarea.id || 'no-id');
-                    return;
-                }
+                textareas.forEach(function(textarea, index) {
+                    // Skip if no ID or already initialized
+                    if (!textarea.id || CKEDITOR.instances[textarea.id]) {
+                        console.log('Skipping textarea:', textarea.id || 'no-id');
+                        return;
+                    }
 
-                const isRTL = textarea.getAttribute('dir') === 'rtl';
-                console.log('Initializing CKEditor for:', textarea.id, 'RTL:', isRTL);
+                    const isRTL = textarea.getAttribute('dir') === 'rtl';
+                    console.log('Initializing CKEditor for:', textarea.id, 'RTL:', isRTL);
 
-                try {
-                    CKEDITOR.replace(textarea.id, {
-                        language: 'en', // Use English to avoid missing language files
-                        contentsLangDirection: isRTL ? 'rtl' : 'ltr',
-                        height: 200,
-                        toolbar: [
-                            { name: 'clipboard', items: [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo' ] },
-                            { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat' ] },
-                            { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock' ] },
-                            { name: 'links', items: [ 'Link', 'Unlink' ] },
-                            { name: 'styles', items: [ 'Format', 'FontSize' ] },
-                            { name: 'colors', items: [ 'TextColor', 'BGColor' ] }
-                        ],
-                        removePlugins: 'elementspath',
-                        resize_enabled: false,
-                        enterMode: CKEDITOR.ENTER_BR,
-                        shiftEnterMode: CKEDITOR.ENTER_P,
-                        on: {
-                            instanceReady: function(evt) {
-                                console.log('CKEditor instance ready:', evt.editor.name);
-                                // Set RTL direction after editor is ready
-                                if (isRTL) {
-                                    evt.editor.document.getBody().setStyle('direction', 'rtl');
-                                    evt.editor.document.getBody().setStyle('text-align', 'right');
+                    try {
+                        CKEDITOR.replace(textarea.id, {
+                            language: 'en', // Use English to avoid missing language files
+                            contentsLangDirection: isRTL ? 'rtl' : 'ltr',
+                            height: 200,
+                            toolbar: [
+                                { name: 'document', items: [ 'Source', '-', 'NewPage', 'Preview', 'Print', '-', 'Templates' ] },
+                                { name: 'clipboard', items: [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo' ] },
+                                { name: 'editing', items: [ 'Find', 'Replace', '-', 'SelectAll', '-', 'Scayt' ] },
+                                { name: 'forms', items: [ 'Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton', 'HiddenField' ] },
+                                '/',
+                                { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat' ] },
+                                { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl' ] },
+                                { name: 'links', items: [ 'Link', 'Unlink', 'Anchor' ] },
+                                { name: 'insert', items: [ 'Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak', 'Iframe' ] },
+                                '/',
+                                { name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
+                                { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
+                                { name: 'tools', items: [ 'Maximize', 'ShowBlocks' ] }
+                            ],
+                            removePlugins: 'elementspath',
+                            resize_enabled: false,
+                            enterMode: CKEDITOR.ENTER_BR,
+                            shiftEnterMode: CKEDITOR.ENTER_P,
+                            on: {
+                                instanceReady: function(evt) {
+                                    console.log('CKEditor instance ready:', evt.editor
+                                        .name);
+                                    // Set RTL direction after editor is ready
+                                    if (isRTL) {
+                                        evt.editor.document.getBody().setStyle(
+                                            'direction', 'rtl');
+                                        evt.editor.document.getBody().setStyle(
+                                            'text-align', 'right');
+                                    }
                                 }
                             }
-                        }
-                    });
-                } catch (error) {
-                    console.error('Error initializing CKEditor for', textarea.id, ':', error);
-                }
-            });
+                        });
+                    } catch (error) {
+                        console.error('Error initializing CKEditor for', textarea.id, ':', error);
+                    }
+                });
 
-            console.log('CKEditor initialization completed');
-        }, 500); // Wait 500ms for DOM to be fully ready
-    });
+                console.log('CKEditor initialization completed');
+            }, 500); // Wait 500ms for DOM to be fully ready
+        });
     </script>
 
     {{-- Make date inputs fully clickable --}}
@@ -282,14 +297,16 @@
 
     {{-- Add user type classes to body for JavaScript detection --}}
     <script>
-        @if(Auth::check())
-            @if(Auth::user()->user_type_id == \App\Models\UserType::ADMIN_TYPE || Auth::user()->user_type_id == \App\Models\UserType::SUPER_ADMIN_TYPE)
+        @if (Auth::check())
+            @if (Auth::user()->user_type_id == \App\Models\UserType::ADMIN_TYPE ||
+                    Auth::user()->user_type_id == \App\Models\UserType::SUPER_ADMIN_TYPE)
                 $('body').addClass('admin-user');
-            @elseif(Auth::user()->user_type_id == \App\Models\UserType::VENDOR_TYPE)
+            @elseif (Auth::user()->user_type_id == \App\Models\UserType::VENDOR_TYPE)
                 $('body').addClass('vendor-user');
             @endif
         @endif
     </script>
 
 </body>
+
 </html>

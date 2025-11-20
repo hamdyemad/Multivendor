@@ -35,4 +35,9 @@ class ProductService
     {
         return $this->productInterface->deleteProduct($id);
     }
+
+    public function updateStockAndPricing($id, array $data)
+    {
+        return $this->productInterface->updateStockAndPricing($id, $data);
+    }
 }

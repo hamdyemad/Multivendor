@@ -207,7 +207,7 @@
                             }
 
                             if (data.name_ar && data.name_ar !== '-') {
-                                html += `<div class="product-name-item">
+                                html += `<div class="product-name-item" dir="rtl" style="text-align: right !important;">
                                     <span class="language-badge badge bg-success text-white px-2 py-1 me-2 rounded-pill fw-bold" style="font-size: 10px;">AR</span>
                                     <span class="product-name text-dark fw-semibold" dir="rtl" style="font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${$('<div/>').text(data.name_ar).html()}</span>
                                 </div>`;
@@ -274,7 +274,7 @@
                             const showUrl = "{{ route('admin.products.show', ':id') }}".replace(':id', data.id);
                             const editUrl = "{{ route('admin.products.edit', ':id') }}".replace(':id', data.id);
                             const destroyUrl = "{{ route('admin.products.destroy', ':id') }}".replace(':id', data.id);
-                            const stockPricingUrl = "";
+                            const stockPricingUrl = "{{ route('admin.products.stock-management', ':id') }}".replace(':id', data.id);
 
                             return `
                             <div class="orderDatatable_actions d-inline-flex gap-1">

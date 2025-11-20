@@ -14,7 +14,11 @@ Route::group(
     // Taxes
     Route::get('taxes/datatable', 'TaxController@datatable')->name('taxes.datatable');
     Route::resource('taxes', 'TaxController');
+
+    // Products
     Route::get('products/datatable', 'ProductController@datatable')->name('products.datatable');
+    Route::get('products/{product}/stock-management', 'ProductController@stockManagement')->name('products.stock-management');
+    Route::post('products/{product}/update-stock-pricing', 'ProductController@updateStockPricing')->name('products.update-stock-pricing');
     Route::resource('products', 'ProductController');
 
 

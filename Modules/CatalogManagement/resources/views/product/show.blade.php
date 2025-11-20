@@ -2,6 +2,115 @@
 
 @section('title', __('catalogmanagement::product.view_product'))
 
+@push('styles')
+<style>
+/* Product View HTML Content Styling */
+.fs-15.color-dark {
+    line-height: 1.6;
+}
+
+.fs-15.color-dark table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.fs-15.color-dark table th,
+.fs-15.color-dark table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.fs-15.color-dark table th {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 12px;
+}
+
+.fs-15.color-dark table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.fs-15.color-dark table tr:last-child td {
+    border-bottom: none;
+}
+
+.fs-15.color-dark strong {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.fs-15.color-dark em {
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+.fs-15.color-dark ul,
+.fs-15.color-dark ol {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.fs-15.color-dark li {
+    margin-bottom: 5px;
+    line-height: 1.5;
+}
+
+.fs-15.color-dark p {
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+.fs-15.color-dark h1,
+.fs-15.color-dark h2,
+.fs-15.color-dark h3,
+.fs-15.color-dark h4,
+.fs-15.color-dark h5,
+.fs-15.color-dark h6 {
+    margin: 15px 0 10px 0;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.fs-15.color-dark blockquote {
+    border-left: 4px solid #4e73df;
+    padding-left: 15px;
+    margin: 15px 0;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.fs-15.color-dark a {
+    color: #4e73df;
+    text-decoration: none;
+}
+
+.fs-15.color-dark a:hover {
+    color: #224abe;
+    text-decoration: underline;
+}
+
+/* Arabic content styling */
+.fs-15.color-dark[style*="direction: rtl"] {
+    font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.fs-15.color-dark[style*="direction: rtl"] table th,
+.fs-15.color-dark[style*="direction: rtl"] table td {
+    text-align: right;
+}
+</style>
+@endpush
+
 @section('content')
     <div class="container-fluid">
         <div class="row">
@@ -90,7 +199,7 @@
                                                                     <div class="fs-15 color-dark mb-0"
                                                                         style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
                                                                         @if($translation)
-                                                                            {!! nl2br(e($translation)) !!}
+                                                                            {!! $translation !!}
                                                                         @else
                                                                             --
                                                                         @endif
@@ -114,20 +223,18 @@
                                                                     $lang->code,
                                                                 );
                                                             @endphp
-                                                            @if ($translation)
-                                                                <div class="col-md-6 mb-3">
-                                                                    <small class="text-muted d-block"
-                                                                        style="@if ($lang->code == 'ar') direction: rtl; text-align: right; @endif">{{ $lang->code }}:</small>
-                                                                    <div class="fs-15 color-dark mb-0"
-                                                                        style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
-                                                                        @if($translation)
-                                                                            {!! nl2br(e($translation)) !!}
-                                                                        @else
-                                                                            --
-                                                                        @endif
-                                                                    </div>
+                                                            <div class="col-md-6 mb-3">
+                                                                <small class="text-muted d-block"
+                                                                    style="@if ($lang->code == 'ar') direction: rtl; text-align: right; @endif">{{ $lang->code }}:</small>
+                                                                <div class="fs-15 color-dark mb-0"
+                                                                    style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
+                                                                    @if($translation)
+                                                                        {!! $translation !!}
+                                                                    @else
+                                                                        --
+                                                                    @endif
                                                                 </div>
-                                                            @endif
+                                                            </div>
                                                         @endforeach
                                                     </div>
                                                 </div>
@@ -146,14 +253,13 @@
                                                                     $lang->code,
                                                                 );
                                                             @endphp
-                                                            @if ($translation)
-                                                                <div class="col-md-6 mb-3">
-                                                                    <small class="text-muted d-block"
-                                                                        style="@if ($lang->code == 'ar') direction: rtl; text-align: right; @endif">{{ $lang->code }}:</small>
-                                                                    <div class="fs-15 color-dark mb-0"
-                                                                        style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
+                                                            <div class="col-md-6 mb-3">
+                                                                <small class="text-muted d-block"
+                                                                    style="@if ($lang->code == 'ar') direction: rtl; text-align: right; @endif">{{ $lang->code }}:</small>
+                                                                <div class="fs-15 color-dark mb-0"
+                                                                    style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
                                                                         @if($translation)
-                                                                            {!! nl2br(e($translation)) !!}
+                                                                            {!! $translation !!}
                                                                         @else
                                                                             --
                                                                         @endif
@@ -178,14 +284,13 @@
                                                                     $lang->code,
                                                                 );
                                                             @endphp
-                                                            @if ($translation)
-                                                                <div class="col-md-6 mb-3">
-                                                                    <small class="text-muted d-block"
-                                                                        style="@if ($lang->code == 'ar') direction: rtl; text-align: right; @endif">{{ $lang->code }}:</small>
-                                                                    <div class="fs-15 color-dark mb-0"
-                                                                        style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
+                                                            <div class="col-md-6 mb-3">
+                                                                <small class="text-muted d-block"
+                                                                    style="@if ($lang->code == 'ar') direction: rtl; text-align: right; @endif">{{ $lang->code }}:</small>
+                                                                <div class="fs-15 color-dark mb-0"
+                                                                    style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
                                                                         @if($translation)
-                                                                            {!! nl2br(e($translation)) !!}
+                                                                            {!! $translation !!}
                                                                         @else
                                                                             --
                                                                         @endif

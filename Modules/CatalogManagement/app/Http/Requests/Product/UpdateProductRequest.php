@@ -25,30 +25,30 @@ class UpdateProductRequest extends FormRequest
     {
         $product = $this->resolveProduct();
         $configurationType = $this->input('configuration_type');
-        
+
         $rules = [
             // Basic Product Information
-            'sku' => 'required|string|unique:products,sku,' . ($product ? $product->id : ''),
+            'sku' => 'nullable|string',
             'points' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
             'max_per_order' => 'nullable|integer|min:1',
             'video_link' => 'nullable|url',
-            
+
             // Relations
             'brand_id' => 'nullable|exists:brands,id',
             'department_id' => 'nullable|exists:departments,id',
             'category_id' => 'nullable|exists:categories,id',
             'sub_category_id' => 'nullable|exists:sub_categories,id',
             'tax_id' => 'nullable|exists:taxes,id',
-            
+
             // Vendor validation based on user role
             'vendor_id' => $this->getVendorValidationRule(),
-            
+
             // Images
             'main_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'additional_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
-            
+
             // Translations
             'translations' => 'required|array|min:1',
             'translations.*.title' => 'required|string|max:255',
@@ -62,7 +62,7 @@ class UpdateProductRequest extends FormRequest
             'translations.*.meta_title' => 'nullable|string|max:60',
             'translations.*.meta_description' => 'nullable|string|max:160',
             'translations.*.meta_keywords' => 'nullable|string',
-            
+
             // Configuration Type
             'configuration_type' => 'required|in:simple,variants',
         ];
@@ -70,7 +70,6 @@ class UpdateProductRequest extends FormRequest
         // Simple product validation
         if ($configurationType === 'simple') {
             $rules = array_merge($rules, [
-                'simple_sku' => 'required|string',
                 'price' => 'required|numeric|min:0',
                 'has_discount' => 'nullable|boolean',
                 'price_before_discount' => 'nullable|numeric|min:0',
@@ -134,7 +133,6 @@ class UpdateProductRequest extends FormRequest
             'main_image' => __('catalogmanagement::product.main_image'),
             'configuration_type' => __('catalogmanagement::product.configuration_type'),
             'price' => __('catalogmanagement::product.price'),
-            'simple_sku' => __('catalogmanagement::product.sku'),
         ];
     }
 
@@ -156,7 +154,7 @@ class UpdateProductRequest extends FormRequest
         // Add custom messages for product title translations with language names
         $languages = Language::all();
         foreach ($languages as $language) {
-            $messages["translations.{$language->id}.title.required"] = 
+            $messages["translations.{$language->id}.title.required"] =
                 __('catalogmanagement::product.title_required_for_language', ['language' => $language->name]);
         }
 

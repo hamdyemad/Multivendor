@@ -151,7 +151,7 @@
                                 <div class="card card-holder">
                                     <div class="card-header">
                                         <h3>
-                                            <i class="uil uil-info-circle me-1"></i>{{ __('common.basic_information') }}
+                                            <i class="uil uil-info-circle me-1"></i>{{ __('catalogmanagement::product.basic_information') ?? 'Basic Information' }}
                                         </h3>
                                     </div>
                                     <div class="card-body">
@@ -162,19 +162,22 @@
                                                     <label
                                                         class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.title') }}</label>
                                                     <div class="row">
-                                                        @foreach (['en' => 'English', 'ar' => 'العربية'] as $lang => $langName)
+                                                        @foreach ($languages as $lang)
                                                             @php
-                                                                $translation = $product->product->getTranslation('title', $lang);
+                                                                $translation = $product->product->getTranslation('title', $lang->code);
                                                             @endphp
-                                                            @if ($translation)
-                                                                <div class="col-md-6 mb-2">
-                                                                    <small class="text-muted d-block"
-                                                                        style="@if ($lang == 'ar') direction: rtl; text-align: right; @endif">{{ $langName }}:</small>
-                                                                    <p class="fs-15 color-dark fw-500 mb-0"
-                                                                        style="@if ($lang == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
-                                                                        {{ $translation }}</p>
+                                                            <div class="col-md-6 mb-3">
+                                                                <small class="text-muted d-block"
+                                                                    style="@if ($lang->code == 'ar') direction: rtl; text-align: right; @endif">{{ $lang->code }}:</small>
+                                                                <div class="fs-15 color-dark mb-0"
+                                                                    style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
+                                                                    @if($translation)
+                                                                        {{ $translation }}
+                                                                    @else
+                                                                        --
+                                                                    @endif
                                                                 </div>
-                                                            @endif
+                                                            </div>
                                                         @endforeach
                                                     </div>
                                                 </div>
@@ -299,6 +302,37 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            {{-- Tags --}}
+                                            <div class="col-md-12">
+                                                <div class="view-item box-items-translations">
+                                                    <label
+                                                        class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.tags') }}</label>
+                                                    <div class="row">
+                                                        @foreach ($languages as $lang)
+                                                            @php
+                                                                $translation = $product->product->getTranslation('tags', $lang->code);
+                                                            @endphp
+                                                            <div class="col-md-6 mb-3">
+                                                                <small class="text-muted d-block"
+                                                                    style="@if ($lang->code == 'ar') direction: rtl; text-align: right; @endif">{{ $lang->code }}:</small>
+                                                                <div class="fs-15 color-dark mb-0"
+                                                                    style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
+                                                                    @if (str_contains($translation, ','))
+                                                                        @foreach (explode(',', $translation) as $tag)
+                                                                            <span
+                                                                                class="badge badge-primary badge-lg badge-round me-1 mb-1"
+                                                                                style="@if ($lang->code == 'ar') font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">{{ trim($tag) }}</span>
+                                                                        @endforeach
+                                                                    @else
+                                                                        <span class="badge badge-primary"
+                                                                            style="@if ($lang->code == 'ar') font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">{{ $translation }}</span>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
 
                                             {{-- Brand --}}
                                             <div class="col-md-6">
@@ -412,7 +446,7 @@
                                                     <label
                                                         class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.sku') }}</label>
                                                     <p class="fs-15 color-dark fw-500">
-                                                        {{ $product->product->sku ?? '-' }}
+                                                        {{ $product->sku ?? '-' }}
                                                     </p>
                                                 </div>
                                             </div>
@@ -426,7 +460,7 @@
                                 <div class="card card-holder mt-3">
                                     <div class="card-header">
                                         <h3>
-                                            <i class="uil uil-search me-1"></i>{{ __('common.seo_information') }}
+                                            <i class="uil uil-search me-1"></i>{{ __('catalogmanagement::product.seo_information') ?? 'SEO Information' }}
                                         </h3>
                                     </div>
                                     <div class="card-body">
@@ -444,20 +478,18 @@
                                                                     $lang->code,
                                                                 );
                                                             @endphp
-                                                            @if ($translation)
-                                                                <div class="col-md-6 mb-3">
-                                                                    <small class="text-muted d-block"
-                                                                        style="@if ($lang->code == 'ar') direction: rtl; text-align: right; @endif">{{ $lang->code }}:</small>
-                                                                    <div class="fs-15 color-dark mb-0"
-                                                                        style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
-                                                                        @if($translation)
-                                                                            {{ $translation }}
-                                                                        @else
-                                                                            --
-                                                                        @endif
-                                                                    </div>
+                                                            <div class="col-md-6 mb-3">
+                                                                <small class="text-muted d-block"
+                                                                    style="@if ($lang->code == 'ar') direction: rtl; text-align: right; @endif">{{ $lang->code }}:</small>
+                                                                <div class="fs-15 color-dark mb-0"
+                                                                    style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
+                                                                    @if($translation)
+                                                                        {{ $translation }}
+                                                                    @else
+                                                                        --
+                                                                    @endif
                                                                 </div>
-                                                            @endif
+                                                            </div>
                                                         @endforeach
                                                     </div>
                                                 </div>
@@ -476,20 +508,18 @@
                                                                     $lang->code,
                                                                 );
                                                             @endphp
-                                                            @if ($translation)
-                                                                <div class="col-md-6 mb-3">
-                                                                    <small class="text-muted d-block"
-                                                                        style="@if ($lang->code == 'ar') direction: rtl; text-align: right; @endif">{{ $lang->code }}:</small>
-                                                                    <div class="fs-15 color-dark mb-0"
-                                                                        style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
-                                                                        @if($translation)
-                                                                            {{ $translation }}
-                                                                        @else
-                                                                            --
-                                                                        @endif
-                                                                    </div>
+                                                            <div class="col-md-6 mb-3">
+                                                                <small class="text-muted d-block"
+                                                                    style="@if ($lang->code == 'ar') direction: rtl; text-align: right; @endif">{{ $lang->code }}:</small>
+                                                                <div class="fs-15 color-dark mb-0"
+                                                                    style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
+                                                                    @if($translation)
+                                                                        {{ $translation }}
+                                                                    @else
+                                                                        --
+                                                                    @endif
                                                                 </div>
-                                                            @endif
+                                                            </div>
                                                         @endforeach
                                                     </div>
                                                 </div>
@@ -508,61 +538,33 @@
                                                                     $lang->code,
                                                                 );
                                                             @endphp
-                                                            @if ($translation)
-                                                                <div class="col-md-6 mb-3">
-                                                                    <small class="text-muted d-block"
-                                                                        style="@if ($lang->code == 'ar') direction: rtl; text-align: right; @endif">{{ $lang->code }}:</small>
-                                                                    <div class="fs-15 color-dark mb-0"
-                                                                        style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
-                                                                        @if (is_array(json_decode($translation, true)))
-                                                                            @foreach (json_decode($translation, true) as $keyword)
-                                                                                <span class="badge badge-light me-1 mb-1"
-                                                                                    style="@if ($lang->code == 'ar') font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">{{ $keyword }}</span>
+                                                            <div class="col-md-6 mb-3">
+                                                                <small class="text-muted d-block"
+                                                                    style="@if ($lang->code == 'ar') direction: rtl; text-align: right; @endif">{{ $lang->code }}:</small>
+                                                                <div class="fs-15 color-dark mb-0"
+                                                                    style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
+                                                                    @if($translation)
+                                                                        @if (str_contains($translation, ','))
+                                                                            @foreach (explode(',', $translation) as $keyword)
+                                                                                <span
+                                                                                    class="badge badge-primary badge-lg badge-round me-1 mb-1"
+                                                                                    style="@if ($lang->code == 'ar') font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">{{ trim($keyword) }}</span>
                                                                             @endforeach
                                                                         @else
-                                                                            {{ $translation }}
+                                                                            <span class="badge badge-primary badge-lg badge-round"
+                                                                                style="@if ($lang->code == 'ar') font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">{{ $translation }}</span>
                                                                         @endif
-                                                                    </div>
+                                                                    @else
+                                                                        --
+                                                                    @endif
                                                                 </div>
-                                                            @endif
+                                                            </div>
                                                         @endforeach
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            {{-- Tags --}}
-                                            <div class="col-md-12">
-                                                <div class="view-item box-items-translations">
-                                                    <label
-                                                        class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.tags') }}</label>
-                                                    <div class="row">
-                                                        @foreach ($languages as $lang)
-                                                            @php
-                                                                $translation = $product->product->getTranslation('tags', $lang->code);
-                                                            @endphp
-                                                            @if ($translation)
-                                                                <div class="col-md-6 mb-3">
-                                                                    <small class="text-muted d-block"
-                                                                        style="@if ($lang->code == 'ar') direction: rtl; text-align: right; @endif">{{ $lang->code }}:</small>
-                                                                    <div class="fs-15 color-dark mb-0"
-                                                                        style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
-                                                                        @if (str_contains($translation, ','))
-                                                                            @foreach (explode(',', $translation) as $tag)
-                                                                                <span
-                                                                                    class="badge badge-primary badge-lg badge-round me-1 mb-1"
-                                                                                    style="@if ($lang->code == 'ar') font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">{{ trim($tag) }}</span>
-                                                                            @endforeach
-                                                                        @else
-                                                                            <span class="badge badge-primary"
-                                                                                style="@if ($lang->code == 'ar') font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">{{ $translation }}</span>
-                                                                        @endif
-                                                                    </div>
-                                                                </div>
-                                                            @endif
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -570,7 +572,7 @@
                                 <div class="card card-holder mt-3">
                                     <div class="card-header">
                                         <h3>
-                                            <i class="uil uil-box me-1"></i>{{ __('common.variants_and_stock') }}
+                                            <i class="uil uil-box me-1"></i>{{ __('catalogmanagement::product.variants_and_stock') ?? 'Variants & Stock' }}
                                         </h3>
                                     </div>
                                     <div class="card-body">
@@ -583,7 +585,7 @@
                                                         {{-- SKU Badge --}}
                                                         <span class="badge badge-lg"
                                                             style="background-color: #17a2b8; color: white; padding: 8px 12px; border-radius: 20px;">
-                                                            <i class="uil uil-barcode me-1"></i>{{ __('common.sku') }}:
+                                                            <i class="uil uil-barcode me-1"></i>{{ __('catalogmanagement::product.sku') }}:
                                                             {{ $variant->sku ?? '-' }}
                                                         </span>
 
@@ -593,36 +595,22 @@
                                                                 $variantParts = [];
 
                                                                 // Add variant configuration if available
-                                                                if($variant->variantConfiguration) {
-                                                                    $configName = $variant->variantConfiguration->getTranslation('name', app()->getLocale()) ??
-                                                                                 $variant->variantConfiguration->getTranslation('name', 'en') ??
-                                                                                 $variant->variantConfiguration->name ?? '';
-                                                                    if($configName) {
-                                                                        $variantParts[] = $configName;
-                                                                    }
-                                                                }
+                                                                // if($variant->variantConfiguration) {
+                                                                //     $configName = $variant->variantConfiguration->getTranslation('name', app()->getLocale()) ??
+                                                                //                  $variant->variantConfiguration->getTranslation('name', 'en') ??
+                                                                //                  $variant->variantConfiguration->name ?? '';
+                                                                //     if($configName) {
+                                                                //         $variantParts[] = $configName;
+                                                                //     }
+                                                                // }
 
-                                                                // Add variant title if available and not already covered
-                                                                if($variant->title && !in_array($variant->title, $variantParts)) {
-                                                                    $variantParts[] = $variant->title;
-                                                                }
-
-                                                                // Add SKU as additional identifier if available
-                                                                if($variant->sku && !in_array($variant->sku, $variantParts)) {
-                                                                    $variantParts[] = $variant->sku;
-                                                                }
-
-                                                                // Fallback if no parts found
-                                                                if(empty($variantParts)) {
-                                                                    $variantParts[] = __('common.variant') . ' ' . ($variantIndex + 1);
-                                                                }
                                                             @endphp
 
-                                                            <span class="badge badge-lg badge-info"
+                                                            {{-- <span class="badge badge-lg badge-info"
                                                                   style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white; padding: 10px 15px; border-radius: 25px; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                                                 <i class="uil uil-sitemap me-2"></i>
                                                                 {{ implode(' - ', $variantParts) }}
-                                                            </span>
+                                                            </span> --}}
                                                         </div>
                                                     </div>
 
@@ -633,7 +621,7 @@
                                                             @if($variant->price)
                                                                 <div class="col-md-3 mb-2">
                                                                     <div class="p-2 border rounded" style="background: #f8f9fa;">
-                                                                        @if($variant->price_before_discount)
+                                                                        @if($variant->has_offer)
                                                                             <div class="fw-bold text-danger text-decoration-line-through">
                                                                                 <i class="uil uil-money-bill me-1"></i>{{ number_format($variant->price_before_discount, 2) }}
                                                                             </div>
@@ -644,71 +632,19 @@
                                                                     </div>
                                                                 </div>
                                                             @endif
-
-
-
-                                                            {{-- Price After Discount --}}
-                                                            @if($variant->discount_amount || $variant->discount_percentage)
-                                                                @php
-                                                                    $basePrice = $variant->offer_price ?? $variant->price ?? 0;
-                                                                    $discountAmount = $variant->discount_amount ?? 0;
-                                                                    $discountPercentage = $variant->discount_percentage ?? 0;
-
-                                                                    if ($discountPercentage > 0) {
-                                                                        $finalPrice = $basePrice - ($basePrice * $discountPercentage / 100);
-                                                                    } else {
-                                                                        $finalPrice = $basePrice - $discountAmount;
-                                                                    }
-                                                                @endphp
-                                                                <div class="col-md-3 mb-2">
-                                                                    <div class="p-2 border rounded" style="background: #d1ecf1;">
-                                                                        <small class="text-muted d-block">{{ __('common.final_price') ?? 'Final Price' }}</small>
-                                                                        <div class="fw-bold text-success">
-                                                                            <i class="uil uil-check-circle me-1"></i>${{ number_format($finalPrice, 2) }}
-                                                                        </div>
-                                                                        @if($discountPercentage > 0)
-                                                                            <small class="text-success">{{ $discountPercentage }}% {{ __('common.off') ?? 'OFF' }}</small>
-                                                                        @elseif($discountAmount > 0)
-                                                                            <small class="text-success">${{ number_format($discountAmount, 2) }} {{ __('common.off') ?? 'OFF' }}</small>
-                                                                        @endif
-                                                                    </div>
-                                                                </div>
-                                                            @endif
-
-                                                            {{-- Offer Dates --}}
-                                                            @if($variant->offer_start_date || $variant->offer_end_date)
-                                                                <div class="col-md-3 mb-2">
-                                                                    <div class="p-2 border rounded" style="background: #f0f0f0;">
-                                                                        <small class="text-muted d-block">{{ __('common.offer_period') ?? 'Offer Period' }}</small>
-                                                                        @if($variant->offer_start_date)
-                                                                            <div class="small">
-                                                                                <i class="uil uil-calendar-alt me-1"></i>
-                                                                                <strong>{{ __('common.from') ?? 'From' }}:</strong> {{ \Carbon\Carbon::parse($variant->offer_start_date)->format('M d, Y') }}
-                                                                            </div>
-                                                                        @endif
-                                                                        @if($variant->offer_end_date)
-                                                                            <div class="small">
-                                                                                <i class="uil uil-calendar-alt me-1"></i>
-                                                                                <strong>{{ __('common.to') ?? 'To' }}:</strong> {{ \Carbon\Carbon::parse($variant->offer_end_date)->format('M d, Y') }}
-                                                                            </div>
-                                                                        @endif
-                                                                    </div>
-                                                                </div>
-                                                            @endif
                                                         </div>
                                                     </div>
-
                                                     {{-- Variant hierarchy is now shown in the header above --}}
                                                 </div>
 
                                                 {{-- Additional Variant Details --}}
                                                 @if ($variant->variantConfiguration)
                                                     <div class="mt-3">
-                                                        <h6 class="fw-600 mb-2">{{ __('common.variant_details') ?? 'Variant Details' }}:</h6>
+                                                        <h6 class="fw-600 mb-2">{{ __('catalogmanagement::product.variant_details') ?? 'Variant Details' }}:</h6>
                                                         <div class="row">
                                                             <div class="col-md-12 mb-2">
                                                                 <div class="p-2 border rounded" style="background: #e7f3ff;">
-                                                                    <small class="text-muted d-block">{{ __('common.configuration') ?? 'Configuration' }}</small>
+                                                                    <small class="text-muted d-block">{{ __('catalogmanagement::product.configuration') ?? 'Configuration' }}</small>
                                                                     <div class="fw-bold text-info">
                                                                         <i class="uil uil-setting me-1"></i>
                                                                         {{ $variant->variantConfiguration->getTranslation('name', app()->getLocale()) ?? $variant->variantConfiguration->getTranslation('name', 'en') ?? $variant->variantConfiguration->name ?? 'Configuration ' . $variant->variants_configuration_id }}
@@ -728,20 +664,20 @@
                                                 @if ($variant->stocks && $variant->stocks->count() > 0)
                                                     <div class="mt-3">
                                                         <div class="d-flex align-items-center gap-3 mb-3">
-                                                            <h6 class="fw-600 mb-0">{{ __('common.stock_summary') ?? 'Stock Summary' }}:</h6>
+                                                            <h6 class="fw-600 mb-0">{{ __('catalogmanagement::product.stock_summary') ?? 'Stock Summary' }}:</h6>
                                                             <span class="badge badge-round badge-lg badge-success">
-                                                                <i class="uil uil-package me-1"></i>{{ __('common.total') ?? 'Total' }}:
-                                                                {{ $variant->stocks->sum('stock') }}
-                                                                {{ __('common.units') ?? 'Units' }}
+                                                                <i class="uil uil-package me-1"></i>{{ __('catalogmanagement::product.total') ?? 'Total' }}:
+                                                                {{ $variant->stocks->sum('quantity') }}
+                                                                {{ __('catalogmanagement::product.units') ?? 'Units' }}
                                                             </span>
                                                             {{-- Debug info --}}
                                                             @if(config('app.debug'))
                                                                 <small class="text-muted">
-                                                                    ({{ $variant->stocks->count() }} {{ __('common.regions') ?? 'regions' }})
+                                                                    ({{ $variant->stocks->count() }} {{ __('catalogmanagement::product.regions') ?? 'regions' }})
                                                                 </small>
                                                             @endif
                                                         </div>
-                                                        <h6 class="fw-600 mb-3">{{ __('common.stock_per_region') ?? 'Stock per Region' }}:</h6>
+                                                        <h6 class="fw-600 mb-3">{{ __('catalogmanagement::product.stock_per_region') ?? 'Stock per Region' }}:</h6>
                                                         <div class="row">
                                                             @forelse ($variant->stocks as $stock)
                                                                 <div class="col-md-4 mb-3">
@@ -753,13 +689,13 @@
                                                                                 {{ $stock->region->getTranslation('name', app()->getLocale()) ?? ($stock->region->getTranslation('name', 'en') ?? ($stock->region->getTranslation('name', 'ar') ?? $stock->region->name ?? '-')) }}
                                                                             @else
                                                                                 <i class="uil uil-location-point me-1"></i>
-                                                                                {{ __('common.default_region') ?? 'Default Region' }}
+                                                                                {{ __('catalogmanagement::product.default_region') ?? 'Default Region' }}
                                                                             @endif
                                                                         </div>
                                                                         <div class="fw-bold"
                                                                             style="color: #0066cc; font-size: 18px;">
                                                                             <i class="uil uil-package me-1"></i>
-                                                                            {{ $stock->quantity ?? 0 }} {{ __('common.units') }}
+                                                                            {{ $stock->quantity ?? 0 }} {{ __('catalogmanagement::product.units') ?? 'Units' }}
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -767,14 +703,14 @@
                                                                 <div class="col-12">
                                                                     <div class="alert alert-info">
                                                                         <i class="uil uil-info-circle me-2"></i>
-                                                                        {{ __('common.no_regional_stock_data') ?? 'No regional stock data available for this variant.' }}
+                                                                        {{ __('catalogmanagement::product.no_regional_stock_data') ?? 'No regional stock data available for this variant.' }}
                                                                     </div>
                                                                 </div>
                                                             @endforelse
                                                         </div>
                                                     </div>
                                                 @else
-                                                    <p class="text-muted fs-14 mt-3">{{ __('common.no_stock_data') }}</p>
+                                                    <p class="text-muted fs-14 mt-3">{{ __('catalogmanagement::product.no_stock_data') ?? 'No stock data available.' }}</p>
                                                 @endif
                                             </div>
                                         @endforeach
@@ -817,7 +753,7 @@
                                                 <div class="card-header">
                                                     <h3>
                                                         <i
-                                                            class="uil uil-images me-1"></i>{{ __('catalogmanagement::product.additional_images') ?? 'Additional Images' }}
+                                                            class="uil uil-images me-1"></i>{{ __('catalogmanagement::product.additional_images') }}
                                                     </h3>
                                                 </div>
                                                 <div class="card-body">
@@ -828,7 +764,7 @@
                                                                 style="height: 400px; background: #f8f9fa; cursor: pointer;"
                                                                 ondblclick="openImageModal({{ $index }})">
                                                                 <img src="{{ asset('storage/' . $image->path) }}"
-                                                                    alt="{{ __('common.additional_image') }}"
+                                                                    alt="{{ __('catalogmanagement::product.additional_image') ?? 'Additional Image' }}"
                                                                     style="max-width: 100%; max-height: 100%; object-fit: contain;">
                                                             </div>
                                                         @endforeach
@@ -846,7 +782,7 @@
                                                             <div class="modal-body p-0 d-flex justify-content-center align-items-center"
                                                                 style="min-height: 500px; background: #f8f9fa;">
                                                                 <img src="{{ asset('storage/' . $image->path) }}"
-                                                                    alt="{{ __('common.additional_image') }}"
+                                                                    alt="{{ __('catalogmanagement::product.additional_image') ?? 'Additional Image' }}"
                                                                     style="max-width: 100%; max-height: 100%; object-fit: contain;">
                                                             </div>
                                                         </div>

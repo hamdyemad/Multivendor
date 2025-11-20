@@ -170,7 +170,7 @@ class VendorProductController extends Controller
             ]);
 
             // Handle variants and pricing
-            if ($product->configuration_type === 'with_variants' && $request->variants) {
+            if ($product->configuration_type === 'variants' && $request->variants) {
                 foreach ($request->variants as $variantId => $variantData) {
                     $productVariant = $product->variants()->where('variant_configuration_id', $variantId)->first();
 

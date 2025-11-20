@@ -339,7 +339,7 @@ class ProductRepository implements ProductInterface
                         $existingVendorVariant->update([
                             'sku' => $variantData['sku'] ?? null,
                             'price' => $variantData['price'] ?? 0,
-                            'has_discount' => $variantData['has_discount'] ?? false,
+                            'has_offer' => $variantData['has_discount'] ?? false,
                             'price_before_discount' => $variantData['price_before_discount'] ?? 0,
                             'offer_end_date' => $variantData['offer_end_date'] ?? null,
                         ]);
@@ -358,7 +358,7 @@ class ProductRepository implements ProductInterface
                             'variant_configuration_id' => $variantConfigId,
                             'sku' => $variantData['sku'] ?? null,
                             'price' => $variantData['price'] ?? 0,
-                            'has_discount' => $variantData['has_discount'] ?? false,
+                            'has_offer' => $variantData['has_discount'] ?? false,
                             'price_before_discount' => $variantData['price_before_discount'] ?? 0,
                             'offer_end_date' => $variantData['offer_end_date'] ?? null,
                         ]);

@@ -334,13 +334,29 @@ class ProductFormEdit {
         const existingVariants = this.config.selectedValues?.existingVariants || [];
 
         console.log('🔧 Populating existing variants:', existingVariants.length);
+        console.log('🔧 Existing variants data:', existingVariants);
+
+        if (existingVariants.length === 0) {
+            console.log('⚠️ No existing variants to populate');
+            return;
+        }
+
+        // Get the variants module
+        const variantsModule = window.productForm?.getModule('variants');
+        if (!variantsModule) {
+            console.warn('⚠️ ProductFormVariants module not available');
+            return;
+        }
 
         existingVariants.forEach((variant, index) => {
-            window.ProductFormVariants?.addVariantBox();
+            console.log(`🔧 Processing variant ${index + 1}:`, variant);
+
+            // Add variant box
+            variantsModule.addVariantBox();
 
             setTimeout(() => {
-                this.populateVariantFields(variant, index + 1);
-            }, 100 * (index + 1));
+                this.populateVariantFields(variant, index);
+            }, 500 * (index + 1)); // Longer delay to ensure proper loading
         });
     }
 
@@ -348,61 +364,277 @@ class ProductFormEdit {
      * Populate individual variant fields
      */
     populateVariantFields(variant, variantIndex) {
+        console.log(`🔧 Populating variant ${variantIndex}:`, variant);
+
+        const variantBox = $(`.variant-box`).eq(variantIndex);
+        if (!variantBox.length) {
+            console.warn(`⚠️ Variant box ${variantIndex} not found`);
+            return;
+        }
+
+        // Set variant key and configuration if available
+        if (variant.variant_config && variant.variant_config.key_id) {
+            console.log(`🔧 Setting variant key: ${variant.variant_config.key_id}`);
+
+            // First, set the variant key
+            const variantKeySelect = variantBox.find('.variant-key-select');
+            if (variantKeySelect.length) {
+                // Wait for variant keys to load, then set the value
+                setTimeout(() => {
+                    variantKeySelect.val(variant.variant_config.key_id).trigger('change');
+                    console.log(`✅ Set variant key to: ${variant.variant_config.key_id}`);
+
+                    // After key is set, wait for tree to load and traverse the path
+                    setTimeout(() => {
+                        if (variant.variant_configuration_id) {
+                            this.traverseVariantTreePath(variantBox, variant.variant_configuration_id);
+                        }
+                    }, 1000); // Wait longer for tree to load
+                }, 500); // Wait for keys to load
+            }
+        }
+
         // Set SKU
         if (variant.sku) {
-            $(`input[name="variants[${variantIndex}][sku]"]`).val(variant.sku);
+            const skuInput = variantBox.find(`input[name*="[sku]"]`);
+            if (skuInput.length) {
+                skuInput.val(variant.sku);
+                console.log(`✅ Set SKU: ${variant.sku}`);
+            }
         }
 
         // Set Price
         if (variant.price) {
-            $(`input[name="variants[${variantIndex}][price]"]`).val(variant.price);
+            const priceInput = variantBox.find(`input[name*="[price]"]`);
+            if (priceInput.length) {
+                priceInput.val(variant.price);
+                console.log(`✅ Set Price: ${variant.price}`);
+            }
         }
 
         // Set Discount
         if (variant.has_discount) {
-            $(`.variant-discount-toggle[name="variants[${variantIndex}][has_discount]"]`).prop('checked', true).trigger('change');
+            const discountToggle = variantBox.find(`input[name*="[has_discount]"]`);
+            if (discountToggle.length) {
+                discountToggle.prop('checked', true).trigger('change');
+                console.log(`✅ Set discount toggle: true`);
 
-            if (variant.price_before_discount) {
-                $(`input[name="variants[${variantIndex}][price_before_discount]"]`).val(variant.price_before_discount);
-            }
-
-            if (variant.offer_end_date) {
-                $(`input[name="variants[${variantIndex}][offer_end_date]"]`).val(variant.offer_end_date);
-            }
-        }
-
-        // Populate stock data for this variant
-        if (variant.stocks && variant.stocks.length > 0) {
-            variant.stocks.forEach((stock, stockIndex) => {
                 setTimeout(() => {
-                    this.addVariantStockRow(variantIndex, stock, stockIndex);
-                }, 100 * stockIndex);
-            });
+                    if (variant.price_before_discount) {
+                        const priceBeforeInput = variantBox.find(`input[name*="[price_before_discount]"]`);
+                        if (priceBeforeInput.length) {
+                            priceBeforeInput.val(variant.price_before_discount);
+                            console.log(`✅ Set price before discount: ${variant.price_before_discount}`);
+                        }
+                    }
+
+                    if (variant.offer_end_date) {
+                        const offerEndInput = variantBox.find(`input[name*="[offer_end_date]"]`);
+                        if (offerEndInput.length) {
+                            offerEndInput.val(variant.offer_end_date);
+                            console.log(`✅ Set offer end date: ${variant.offer_end_date}`);
+                        }
+                    }
+                }, 300);
+            }
         }
 
-        console.log(`🔧 Populated variant ${variantIndex}:`, variant.sku);
+        // Populate stock data for this variant (wait for variant tree to fully load)
+        if (variant.stocks && variant.stocks.length > 0) {
+            console.log(`🔧 Populating ${variant.stocks.length} stock rows for variant ${variantIndex}`);
+
+            // Wait for variant tree to be fully loaded and stock section to be visible
+            setTimeout(() => {
+                this.waitForStockSection(variantBox, () => {
+                    variant.stocks.forEach((stock, stockIndex) => {
+                        setTimeout(() => {
+                            this.addVariantStockRow(variantIndex, stock, stockIndex, variantBox);
+                        }, 400 * (stockIndex + 1));
+                    });
+                });
+            }, 2500); // Wait even longer for variant tree to fully load
+        }
+
+        console.log(`✅ Populated variant ${variantIndex}:`, variant.sku);
+    }
+
+    /**
+     * Traverse variant tree path to select the correct variant configuration
+     */
+    async traverseVariantTreePath(variantBox, targetVariantId) {
+        console.log(`🌲 Traversing variant tree to find: ${targetVariantId}`);
+
+        // Wait a bit more for the tree to be fully loaded
+        setTimeout(() => {
+            this.selectVariantInTree(variantBox, targetVariantId, 0);
+        }, 500);
+    }
+
+    /**
+     * Select variant in tree by checking each level
+     */
+    selectVariantInTree(variantBox, targetVariantId, currentLevel) {
+        console.log(`🔄 Checking level ${currentLevel} for variant: ${targetVariantId}`);
+
+        // Find the select for this level
+        const levelSelect = variantBox.find(`.variant-level-select[data-level="${currentLevel}"]`);
+
+        if (!levelSelect.length) {
+            console.log(`⚠️ No more levels found. Trying direct selection.`);
+            this.selectVariantDirectly(variantBox, targetVariantId);
+            return;
+        }
+
+        // Check if our target variant is in this level
+        const targetOption = levelSelect.find(`option[value="${targetVariantId}"]`);
+
+        if (targetOption.length) {
+            // Found it! Select it
+            console.log(`✅ Found target variant at level ${currentLevel}`);
+            levelSelect.val(targetVariantId).trigger('change');
+            return;
+        }
+
+        // Not found at this level, check if any option has children
+        const optionsWithChildren = levelSelect.find('option[data-has-children="true"]');
+
+        if (optionsWithChildren.length > 0) {
+            // Try the first option with children and continue searching
+            const firstOptionWithChildren = optionsWithChildren.first();
+            const optionValue = firstOptionWithChildren.val();
+
+            if (optionValue) {
+                console.log(`🔄 Selecting option with children: ${optionValue}`);
+                levelSelect.val(optionValue).trigger('change');
+
+                // Wait for next level to load, then continue
+                setTimeout(() => {
+                    this.selectVariantInTree(variantBox, targetVariantId, currentLevel + 1);
+                }, 800);
+            }
+        } else {
+            console.log(`⚠️ No options with children at level ${currentLevel}`);
+            this.selectVariantDirectly(variantBox, targetVariantId);
+        }
+    }
+
+    /**
+     * Fallback: try to select variant directly (for simple cases)
+     */
+    selectVariantDirectly(variantBox, targetVariantId) {
+        console.log(`🔄 Attempting direct selection of variant: ${targetVariantId}`);
+
+        // Try to find any select that has this value
+        const allSelects = variantBox.find('.variant-level-select');
+
+        allSelects.each(function() {
+            const select = $(this);
+            const option = select.find(`option[value="${targetVariantId}"]`);
+
+            if (option.length) {
+                select.val(targetVariantId).trigger('change');
+                console.log(`✅ Direct selection successful at level ${select.data('level')}`);
+                return false; // Break the loop
+            }
+        });
+    }
+
+    /**
+     * Wait for stock section to be visible before adding stock rows
+     */
+    waitForStockSection(variantBox, callback) {
+        console.log('🔍 Waiting for stock section to be visible...');
+
+        const checkStockSection = () => {
+            // Check if stock section is visible
+            const stockSection = variantBox.find('.variant-stock-section, .stock-management-section');
+            const addStockButton = variantBox.find('.add-stock-row-variant');
+
+            if (stockSection.length && stockSection.is(':visible') && addStockButton.length) {
+                console.log('✅ Stock section is visible, proceeding with stock population');
+                callback();
+            } else {
+                console.log('⏳ Stock section not ready yet, waiting...');
+                setTimeout(checkStockSection, 500);
+            }
+        };
+
+        checkStockSection();
     }
 
     /**
      * Add and populate variant stock row
      */
-    addVariantStockRow(variantIndex, stock, stockIndex) {
-        const addButton = $(`.add-stock-row-variant[data-variant-index="${variantIndex}"]`);
+    addVariantStockRow(variantIndex, stock, stockIndex, variantBox) {
+        console.log(`🔧 Adding stock row ${stockIndex} for variant ${variantIndex}:`, stock);
 
-        if (addButton.length) {
-            addButton.trigger('click');
+        // Get the variants module from the global product form
+        let variantsModule = window.productForm?.modules?.variants;
 
-            setTimeout(() => {
-                const stockRows = $(`.variant-stock-row[data-variant-index="${variantIndex}"]`);
-                const currentRow = stockRows.eq(stockIndex);
+        if (!variantsModule && window.ProductFormVariants) {
+            // Create new instance if class is available
+            variantsModule = new window.ProductFormVariants();
+            console.log(`🔄 Created new ProductFormVariants instance`);
+        }
 
-                if (currentRow.length) {
-                    currentRow.find('select[name*="[region_id]"]').val(stock.region_id);
-                    currentRow.find('input[name*="[quantity]"]').val(stock.quantity);
+        console.log(`🔍 Variants module available:`, !!variantsModule);
+        console.log(`🔍 addStockRow method available:`, !!(variantsModule && typeof variantsModule.addStockRow === 'function'));
 
-                    console.log(`🔧 Populated variant ${variantIndex} stock row ${stockIndex + 1}:`, stock);
+        if (variantsModule && typeof variantsModule.addStockRow === 'function') {
+            console.log(`🔄 Using variants module to add stock row`);
+
+            // Call the addStockRow method directly
+            variantsModule.addStockRow(variantBox, true, variantIndex).then((result) => {
+                console.log(`✅ Stock row added successfully:`, result);
+
+                // Now populate the newly created row
+                if (result && result.regionSelect && result.quantityInput) {
+                    result.regionSelect.val(stock.region_id).trigger('change');
+                    result.quantityInput.val(stock.quantity);
+
+                    console.log(`✅ Successfully populated variant ${variantIndex} stock row ${stockIndex + 1}: Region ${stock.region_id} (${stock.region_name || 'Unknown'}), Quantity ${stock.quantity}`);
+                } else {
+                    console.warn(`⚠️ Stock row elements not found in result:`, result);
                 }
-            }, 100);
+            }).catch((error) => {
+                console.error(`❌ Error adding stock row:`, error);
+            });
+        } else {
+            console.warn(`⚠️ Variants module not available, falling back to button click`);
+
+            // Fallback to button click method
+            const addButton = variantBox.find('.add-stock-row-variant');
+
+            if (addButton.length) {
+                console.log(`🔄 Clicking add stock button for variant ${variantIndex}`);
+                addButton.trigger('click');
+
+                setTimeout(() => {
+                    // Find the newly created stock row
+                    const stockRows = variantBox.find('.stock-rows-container tr');
+                    const currentRow = stockRows.eq(stockIndex);
+
+                    if (currentRow.length) {
+                        console.log(`🎯 Found stock row ${stockIndex}, populating...`);
+
+                        const regionSelect = currentRow.find('select');
+                        const quantityInput = currentRow.find('input[type="number"]');
+
+                        if (regionSelect.length && quantityInput.length) {
+                            regionSelect.val(stock.region_id).trigger('change');
+                            quantityInput.val(stock.quantity);
+
+                            console.log(`✅ Successfully populated variant ${variantIndex} stock row ${stockIndex + 1}: Region ${stock.region_id} (${stock.region_name || 'Unknown'}), Quantity ${stock.quantity}`);
+                        } else {
+                            console.warn(`⚠️ Stock row elements not found for variant ${variantIndex}, row ${stockIndex}`);
+                        }
+                    } else {
+                        console.warn(`⚠️ Stock row ${stockIndex} not found for variant ${variantIndex}`);
+                    }
+                }, 500);
+            } else {
+                console.warn(`⚠️ Add stock button not found for variant ${variantIndex}`);
+            }
         }
     }
 }

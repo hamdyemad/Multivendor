@@ -792,7 +792,7 @@ window.productFormConfig = {
                 productPrice: {{ $product->variants && $product->variants->first() ? $product->variants->first()->price : 0 }},
                 productHasDiscount: {{ $product->variants && $product->variants->first() && $product->variants->first()->has_offer ? 'true' : 'false' }},
                 productPriceBeforeDiscount: {{ $product->variants && $product->variants->first() ? $product->variants->first()->price_before_discount : 0 }},
-                productOfferEndDate: '{{ $product->variants && $product->variants->first() ? $product->variants->first()->offer_end_date : '' }}',
+                productOfferEndDate: '{{ $product->variants && $product->variants->first() && $product->variants->first()->offer_end_date ? \Carbon\Carbon::parse($product->variants->first()->offer_end_date)->format('Y-m-d') : '' }}',
             @else
                 productSku: '',
                 productPrice: 0,
@@ -808,11 +808,20 @@ window.productFormConfig = {
                         id: {{ $variant->id }},
                         sku: '{{ addslashes($variant->sku ?? '') }}',
                         price: {{ $variant->price ?? 0 }},
-                        has_discount: {{ $variant->has_offer ? 'true' : 'false' }},
+                        has_discount: {{ ($variant->has_offer ?? false) ? 'true' : 'false' }},
                         price_before_discount: {{ $variant->price_before_discount ?? 0 }},
-                        offer_end_date: '{{ $variant->offer_end_date ?? '' }}',
-                        key_id: {{ $variant->key_id ?? 'null' }},
-                        value_id: {{ $variant->value_id ?? 'null' }},
+                        offer_end_date: '{{ $variant->offer_end_date ? \Carbon\Carbon::parse($variant->offer_end_date)->format('Y-m-d') : '' }}',
+                        variant_configuration_id: {{ $variant->variant_configuration_id ?? 'null' }},
+                        variant_config: @if($variant->variantConfiguration)
+                        {
+                            id: {{ $variant->variantConfiguration->id }},
+                            key_id: {{ $variant->variantConfiguration->key_id ?? 'null' }},
+                            parent_id: {{ $variant->variantConfiguration->parent_id ?? 'null' }},
+                            name: '{{ addslashes($variant->variantConfiguration->getTranslation('name', app()->getLocale()) ?? $variant->variantConfiguration->getTranslation('name', 'en') ?? '') }}'
+                        }
+                        @else
+                        null
+                        @endif,
                         // Add stock data if available
                         stocks: [
                             @if($variant->stocks && $variant->stocks->count() > 0)

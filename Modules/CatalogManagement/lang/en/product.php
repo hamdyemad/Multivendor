@@ -197,4 +197,19 @@ return [
     'total_stock' => 'Total Stock',
     'additional_settings' => 'Additional Settings',
     'sku' => 'SKU',
+
+    // View page translations
+    'basic_information' => 'Basic Information',
+    'seo_information' => 'SEO Information',
+    'variants_and_stock' => 'Variants & Stock',
+    'variant_details' => 'Variant Details',
+    'configuration' => 'Configuration',
+    'stock_summary' => 'Stock Summary',
+    'units' => 'Units',
+    'regions' => 'regions',
+    'stock_per_region' => 'Stock per Region',
+    'default_region' => 'Default Region',
+    'no_regional_stock_data' => 'No regional stock data available for this variant.',
+    'no_stock_data' => 'No stock data available.',
+    'additional_image' => 'Additional Image',
 ];

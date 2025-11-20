@@ -45,12 +45,12 @@ class Category extends Model
         return $this->belongsTo(Department::class);
     }
 
-    public function subs() 
+    public function subs()
     {
         return $this->hasMany(SubCategory::class, 'category_id');
     }
 
-    public function activeSubs() 
+    public function activeSubs()
     {
         return $this->subs()->active();
     }
@@ -63,6 +63,13 @@ class Category extends Model
         return $this->belongsToMany(Activity::class, 'activities_categories', 'category_id', 'activity_id');
     }
 
+    // Getters
+    public function getNameAttribute()
+    {
+        return $this->getTranslation('name', app()->getLocale()) ?? '-';
+    }
+
+    // Scopes
     public function scopeActive($query)
     {
         return $query->where('active', true);

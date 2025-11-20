@@ -197,4 +197,19 @@ return [
     'total_stock' => 'إجمالي المخزون',
     'additional_settings' => 'الإعدادات الإضافية',
     'sku' => 'رمز المنتج',
+
+    // View page translations
+    'basic_information' => 'المعلومات الأساسية',
+    'seo_information' => 'معلومات تحسين محركات البحث',
+    'variants_and_stock' => 'المتغيرات والمخزون',
+    'variant_details' => 'تفاصيل المتغير',
+    'configuration' => 'التكوين',
+    'stock_summary' => 'ملخص المخزون',
+    'units' => 'وحدة',
+    'regions' => 'مناطق',
+    'stock_per_region' => 'المخزون لكل منطقة',
+    'default_region' => 'المنطقة الافتراضية',
+    'no_regional_stock_data' => 'لا توجد بيانات مخزون إقليمية متاحة لهذا المتغير.',
+    'no_stock_data' => 'لا توجد بيانات مخزون متاحة.',
+    'additional_image' => 'صورة إضافية',
 ];

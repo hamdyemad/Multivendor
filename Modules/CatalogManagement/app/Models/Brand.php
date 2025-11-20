@@ -39,4 +39,11 @@ class Brand extends Model
     {
         return $this->morphOne(Attachment::class, 'attachable')->where('type', 'cover');
     }
+
+    // Getters
+
+    public function getNameAttribute()
+    {
+        return $this->getTranslation('name', app()->getLocale()) ?? '-';
+    }
 }

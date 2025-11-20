@@ -84,21 +84,17 @@ class ProductAction {
                     'id' => $product->id,
                     'index' => $index++,
                     'product_information' => [
-                        'name_en' => $nameEn,
-                        'name_ar' => $nameAr,
+                        'name_en' => truncateString($nameEn),
+                        'name_ar' => truncateString($nameAr),
                     ],
                     'translations' => [],
                     'brand' => $product->brand ? [
                         'id' => $product->brand->id,
-                        'name' => $product->brand->getTranslation('name', app()->getLocale()) ??
-                                 $product->brand->getTranslation('name', 'en') ??
-                                 $product->brand->getTranslation('name', 'ar') ?? '-'
+                        'name' => truncateString($product->brand->name),
                     ] : null,
                     'category' => $product->category ? [
                         'id' => $product->category->id,
-                        'name' => $product->category->getTranslation('name', app()->getLocale()) ??
-                                 $product->category->getTranslation('name', 'en') ??
-                                 $product->category->getTranslation('name', 'ar') ?? '-'
+                        'name' => truncateString($product->category->name),
                     ] : null,
                     'active' => $product->is_active,
                     'created_at' => $product->created_at,
@@ -107,10 +103,7 @@ class ProductAction {
                 // Add vendor information for admin users
                 if ($currentUser && in_array($userType, UserType::adminIds())) {
                     if ($product->vendor) {
-                        $vendorName = $product->vendor->getTranslation('name', app()->getLocale()) ??
-                                     $product->vendor->getTranslation('name', 'en') ??
-                                     $product->vendor->getTranslation('name', 'ar') ??
-                                     $product->vendor->name ?? '-';
+                        $vendorName = truncateString($product->vendor->name);
 
                         $rowData['vendor'] = [
                             'id' => $product->vendor->id,

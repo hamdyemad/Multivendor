@@ -17,9 +17,28 @@ class VendorProductVariant extends Model
     protected $casts = [
         'price' => 'decimal:2',
         'has_offer' => 'boolean',
+        'has_discount' => 'boolean',
         'price_before_discount' => 'decimal:2',
         'offer_end_date' => 'date',
     ];
+
+    /**
+     * Accessor for has_discount (backward compatibility)
+     */
+    public function getHasDiscountAttribute()
+    {
+        return $this->attributes['has_discount'] ?? $this->attributes['has_offer'] ?? false;
+    }
+
+    /**
+     * Mutator for has_discount (backward compatibility)
+     */
+    public function setHasDiscountAttribute($value)
+    {
+        $this->attributes['has_discount'] = $value;
+        // Also set has_offer for backward compatibility
+        $this->attributes['has_offer'] = $value;
+    }
 
     /**
      * Get the vendor product

@@ -89,9 +89,9 @@ class StoreProductRequest extends FormRequest
                 'variants.*.discount_price' => 'nullable|numeric|min:0',
                 'variants.*.discount_end_date' => 'nullable|date|after:today',
                 'variants.*.value_id' => 'required|exists:variants_configurations,id',
-                'variants.*.stock' => 'required|array',
-                'variants.*.stock.*.region_id' => 'required_with:variants.*.stock|exists:regions,id',
-                'variants.*.stock.*.quantity' => 'required_with:variants.*.stock|integer|min:0',
+                'variants.*.stocks' => 'required|array',
+                'variants.*.stocks.*.region_id' => 'required_with:variants.*.stocks|exists:regions,id',
+                'variants.*.stocks.*.quantity' => 'required_with:variants.*.stocks|integer|min:0',
             ]);
         }
 

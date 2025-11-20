@@ -73,6 +73,9 @@
     <script src="{{ asset('assets/js/script.min.js') }}"></script>
     <script src="{{ asset('js/app.min.js') }}"></script>
 
+    <!-- Toastr JS -->
+    <script src="{{ asset('js/plugins/toastr.min.js') }}"></script>
+
     <!-- CKEditor CDN -->
     <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 
@@ -113,46 +116,68 @@
             document.head.appendChild(select2Script);
         });
 
-        // Custom message function using utilities message system
-        function showMessage(type, message, icon = 'check-circle', duration = 3000) {
-            const messageWrapper = document.querySelector('.message-wrapper');
-            if (!messageWrapper) return;
+        // Configure Toastr options to match login page
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": false,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "3000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
 
-            const messageId = 'msg-' + Date.now();
-            const iconClass = icon;
-
-            const messageHTML = `
-                <div id="${messageId}" class="alert-message alert alert-${type} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideInRight 0.3s ease;">
-                    <div class="alert-content d-flex align-items-center">
-                        <i class="uil uil-${iconClass} me-2" style="font-size: 20px;"></i>
-                        <p class="mb-0">${message}</p>
-                        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                </div>
-            `;
-
-            messageWrapper.insertAdjacentHTML('beforeend', messageHTML);
-
-            // Auto remove after duration
-            setTimeout(() => {
-                const msgElement = document.getElementById(messageId);
-                if (msgElement) {
-                    msgElement.style.animation = 'slideOutRight 0.3s ease';
-                    setTimeout(() => msgElement.remove(), 300);
-                }
-            }, duration);
-        }
+        // Add custom CSS for Toastr to match main app styling
+        const toastrStyle = document.createElement('style');
+        toastrStyle.textContent = `
+            #toast-container > .toast {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                min-width: 300px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                border-radius: 8px;
+                font-weight: 600;
+            }
+            #toast-container > .toast-success {
+                background-color: #28a745;
+                color: white;
+            }
+            #toast-container > .toast-error {
+                background-color: #dc3545;
+                color: white;
+            }
+            #toast-container > .toast-info {
+                background-color: #17a2b8;
+                color: white;
+            }
+            #toast-container > .toast-warning {
+                background-color: #ffc107;
+                color: #212529;
+            }
+        `;
+        document.head.appendChild(toastrStyle);
 
         // Handle session messages
         @if(session('success'))
-            showMessage('success', "{{ session('success') }}", 'check-circle');
+            toastr.success("{{ session('success') }}", 'Success');
         @elseif(session('error'))
-            showMessage('danger', "{{ session('error') }}", 'times-circle');
+            toastr.error("{{ session('error') }}", 'Error');
         @elseif(session('info'))
-            showMessage('info', "{{ session('info') }}", 'info-circle');
+            toastr.info("{{ session('info') }}", 'Info');
         @elseif(session('warning'))
-            showMessage('warning', "{{ session('warning') }}", 'exclamation-triangle');
+            toastr.warning("{{ session('warning') }}", 'Warning');
         @endif
+
+
     </script>
 
     <!-- CKEditor Initialization -->

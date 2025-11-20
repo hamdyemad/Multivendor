@@ -23,6 +23,46 @@
             background-color: var(--bg-primary-hover) !important;
             border-color: var(--bg-primary-hover);
         }
+
+        /* Custom Toastr styling to match main app messages */
+        .toast-top-right {
+            top: 20px !important;
+            right: 20px !important;
+        }
+
+        .toast {
+            min-width: 300px !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+            border-radius: 8px !important;
+            font-weight: 500 !important;
+        }
+
+        .toast-success {
+            background-color: #28a745 !important;
+        }
+
+        .toast-error {
+            background-color: #dc3545 !important;
+        }
+
+        .toast-info {
+            background-color: #17a2b8 !important;
+        }
+
+        .toast-warning {
+            background-color: #ffc107 !important;
+            color: #212529 !important;
+        }
+
+        .toast-message {
+            font-size: 14px !important;
+            line-height: 1.4 !important;
+        }
+
+        .toast-title {
+            font-weight: 600 !important;
+            margin-bottom: 4px !important;
+        }
     </style>
 </head>
 <body>
@@ -57,12 +97,33 @@
     <script src="{{ asset('assets/js/plugins.min.js') }}"></script>
     <script src="{{ asset('assets/js/script.min.js') }}"></script>
     <script>
+        // Configure Toastr to match main app message positioning
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": false,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "3000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+
         @if(session('success'))
-            toastr.success("{{ session('success') }}", 'Success')
+            toastr.success("{{ session('success') }}", 'Success');
         @elseif(session('error'))
-            toastr.error("{{ session('error') }}", 'Error')
+            toastr.error("{{ session('error') }}", 'Error');
         @elseif(session('info'))
-            toastr.info("{{ session('info') }}", 'Info')
+            toastr.info("{{ session('info') }}", 'Info');
+        @elseif(session('warning'))
+            toastr.warning("{{ session('warning') }}", 'Warning');
         @endif
     </script>
 </body>

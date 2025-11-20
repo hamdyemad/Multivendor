@@ -198,6 +198,66 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="approveModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <form method="post" action="{{ route('admin.changeTransactionRequestsStatus') }}"
+                enctype="multipart/form-data">
+                @csrf
+                <input type="text" name="request_id" hidden id="approve_id">
+                <input type="text" name="status" hidden id="approve_status_id">
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Upload Invoice</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <label class="form-label">Invoice Image</label>
+                        <input type="file" required class="form-control" id="invoice_file" name="invoice"
+                            accept="image/*">
+
+                        <div class="mt-3">
+                            <img id="invoice_preview" src="{{ asset('assets/img/empty_image.jpg') }}"
+                                style="margin-top:10px; max-width:200px; border:1px solid #ddd; padding:5px; cursor: pointer;">
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Approve Now</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="rejectForm" method="POST" action="{{ route('admin.changeTransactionRequestsStatus') }}">
+                @csrf
+                <input type="text" name="request_id" hidden id="reject_id">
+                <input type="text" name="status" hidden id="reject_status_id">
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirm Reject</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <p class="text-danger fw-bold" style="font-size: 25px;">Are you sure you want to reject this
+                            request?</p>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Yes, Reject</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 @endsection
 
 @push('after-body')
@@ -205,6 +265,37 @@
 @endpush
 
 @push('scripts')
+    <script>
+        // === OPEN APPROVE MODAL ===
+        $(document).on('click', '.approve-withdraw', function() {
+            let id = $(this).data('id');
+            $('#approve_id').val(id);
+            $('#approve_status_id').val("accepted");
+            $('#invoice_file').val('');
+            $('#approveModal').modal('show');
+        });
+
+
+        // === PREVIEW IMAGE ===
+        $('#invoice_file').on('change', function() {
+            let file = this.files[0];
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#invoice_preview').attr('src', e.target.result).show();
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // === OPEN REJECT MODAL ===
+        $(document).on('click', '.reject-withdraw', function() {
+            let id = $(this).data('id');
+            $('#reject_id').val(id);
+            $('#reject_status_id').val("rejected");
+            $('#rejectModal').modal('show');
+        });
+    </script>
     <script>
         $(document).ready(function() {
             console.log('Cities page loaded, initializing DataTable...');
@@ -300,14 +391,14 @@
                         render: function(data, type, row) {
                             if (row.status === 'new') {
                                 return `
-                                    <div class="d-inline-flex gap-1">
-                                        <button class="btn btn-success approve-withdraw" data-id="${row.id}">
-                                            <i class="uil uil-check"></i> Approve
-                                        </button>
-                                        <button class="btn btn-danger reject-withdraw" data-id="${row.id}">
-                                            <i class="uil uil-times"></i> Reject
-                                        </button>
-                                    </div>`;
+                                     <div class="d-inline-flex gap-1">
+                                            <button class="btn btn-success approve-withdraw" data-id="${row.id}">
+                                                <i class="uil uil-check"></i> Approve
+                                            </button>
+                                            <button class="btn btn-danger reject-withdraw" data-id="${row.id}">
+                                                <i class="uil uil-times"></i> Reject
+                                            </button>
+                                        </div>`;
                             } else {
                                 return '-';
                             }

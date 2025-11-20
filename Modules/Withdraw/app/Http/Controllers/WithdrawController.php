@@ -7,7 +7,6 @@ use App\Services\LanguageService;
 use Illuminate\Http\Request;
 use Modules\Order\app\Models\OrderProduct;
 use Modules\SystemSetting\app\Resources\VendorResource;
-use Modules\Vendor\app\Models\Vendor;
 use Modules\Withdraw\app\Models\Withdraw;
 use Modules\Withdraw\app\Services\WithdrawService;
 
@@ -29,75 +28,7 @@ class WithdrawController extends Controller
         return view('withdraw::send_money', compact('languages', 'vendors'));
     }
 
-    // public function allTransactionsDatabase(Request $request)
-    // {
-    //     if (auth()->user()->user_type->name == "vendor") {
-    //         abort(404);
-    //     }
-
-    //     $perPage = $request->input('length', 10);
-    //     $page = ($request->input('start', 0) / $perPage) + 1;
-    //     $searchValue = $request->input('search.value', '');
-
-    //     try {
-
-    //         $totalRecords = $query->count();
-    //         $dataPaginated = $query->orderBy('created_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
-
-    //         // Prepare data for DataTable
-    //         $data = $query->get()->map(function ($item) {
-    //             return [
-    //                 'id' => $item->id,
-    //                 'vendor_logo' => asset('storage/' . $item->vendor->logo->path),
-    //                 'vendor' => $item->vendor
-    //                     ? optional($item->vendor->translations->first())->lang_value ?? $item->vendor->name
-    //                     : '-',
-    //                 'status' => $item->status,
-    //                 'invoice' => $item->invoice_url,
-    //                 'before_sending_money' => number_format($item->before_sending_money, 2) . " EGP",
-    //                 'sent_amount' => number_format($item->sent_amount, 2) . " EGP",
-    //                 'after_sending_amount' => number_format($item->after_sending_amount, 2) . " EGP",
-    //                 'created_at' => $item->created_at->format('Y-m-d H:i:s'),
-    //             ];
-    //         });
-
-    //         return response()->json([
-    //             'draw' => $request->input('draw', 1),
-    //             'recordsTotal' => $totalRecords,
-    //             'recordsFiltered' => $totalRecords,
-    //             'data' => $data,
-    //             'current_page' => $dataPaginated->currentPage(),
-    //             'last_page' => $dataPaginated->lastPage(),
-    //             'per_page' => $dataPaginated->perPage(),
-    //             'total' => $dataPaginated->total(),
-    //             'from' => $dataPaginated->firstItem(),
-    //             'to' => $dataPaginated->lastItem()
-    //         ]);
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'draw' => $request->input('draw', 1),
-    //             'data' => [],
-    //             'recordsTotal' => 0,
-    //             'recordsFiltered' => 0,
-    //             'error' => $e->getMessage()
-    //         ], 500);
-    //     }
-    // }
-
-    // public function allTransactions()
-    // {
-    //     if (auth()->user()->user_type->name == "vendor") {
-    //         abort(404);
-    //     }
-    //     $languages = $this->languageService->getAll();
-    //     return view('withdraw::all_transactions', compact('languages'));
-    // }
-
-
-
-
-
-    public function allVendorsTransactionsDatatable(Request $request)
+    public function allTransactionsDatabase(Request $request)
     {
         if (auth()->user()->user_type->name == "vendor") {
             abort(404);
@@ -169,7 +100,7 @@ class WithdrawController extends Controller
         }
     }
 
-    public function allVendorsTransactions()
+    public function allTransactions()
     {
         if (auth()->user()->user_type->name == "vendor") {
             abort(404);
@@ -190,6 +121,11 @@ class WithdrawController extends Controller
 
 
 
+
+
+
+
+    
 
     public function getVendorBalance($vendor_id)
     {
@@ -250,7 +186,7 @@ class WithdrawController extends Controller
 
         $vendor_name = auth()->user()->vendor->translations[0]->lang_value;
 
-        $final_remaining = floatval(str_replace(',', '', $general_info['remaining'])) - floatval(str_replace(',', '', $general_info['waiting_approve_requests']));
+        $final_remaining = floatval(str_replace(',', '', $general_info['remaining'])) - floatval(str_replace(',', '', $general_info['waiting_approve_requests'])) ;
 
         return view('withdraw::send_money_request', compact('languages', 'general_info', 'vendor_name', 'final_remaining'));
     }

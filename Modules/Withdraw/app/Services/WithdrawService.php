@@ -17,10 +17,20 @@ class WithdrawService
     /**
      * Get all departments with filters and pagination
      */
-    public function sendMoney()
+    public function getVendor()
     {
         try {
-            return $this->withdrawRepositoryInterface->sendMoney();
+            return $this->withdrawRepositoryInterface->getVendor();
+        } catch (\Exception $e) {
+            Log::error('Error fetching departments: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function getVendorBalance($vendor_id)
+    {
+        try {
+            return $this->withdrawRepositoryInterface->getVendorBalance($vendor_id);
         } catch (\Exception $e) {
             Log::error('Error fetching departments: ' . $e->getMessage());
             throw $e;

@@ -7,5 +7,6 @@ interface WithdrawRepositoryInterface
     /**
      * Get all departments with filters and pagination
      */
-    public function sendMoney();
+    public function getVendor();
+    public function getVendorBalance($vendor_id);
 }

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->enum("request_from", ["vendor", "admin"]);
 
-            $table->unsignedBigInteger('sender_id');
+            $table->unsignedBigInteger('sender_id')->nullable();
             $table->foreign('sender_id')
                 ->references('id')
                 ->on('users')
@@ -32,6 +32,10 @@ return new class extends Migration
             $table->text("sent_amount");
 
             $table->text("after_sending_amount");
+
+            $table->text("invoice")->nullable();
+
+            $table->enum("status", ["new","accepted","rejected"]);
 
             $table->timestamps();
         });

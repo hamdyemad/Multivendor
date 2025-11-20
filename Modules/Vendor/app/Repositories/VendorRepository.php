@@ -2,16 +2,9 @@
 
 namespace Modules\Vendor\app\Repositories;
 
-use App\Models\Attachment;
-use App\Models\Role;
-use App\Models\User;
-use App\Models\Translation;
-use App\Models\UserType;
-use App\Services\RoleService;
 use App\Services\UserService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Modules\Vendor\app\Interfaces\VendorInterface;
@@ -22,7 +15,6 @@ class VendorRepository implements VendorInterface
 
     public function __construct(
         protected UserService $userService,
-        protected RoleService $roleService,
     )
     {
 
@@ -62,16 +54,16 @@ class VendorRepository implements VendorInterface
     public function createVendor(array $data)
     {
         return DB::transaction(function () use ($data) {
-            $role = $this->roleService->getVendorRole();
+            // $role = rand(0, 9999);
             $userData = [
                 'email' => $data['email'],
                 'password' => $data['password'],
                 'active' => $data['active'] ?? false,
             ];
             $user = $this->userService->createVendorAccount($userData);
-            if(isset($role)) {
-                $user->roles()->sync([$role->id]);
-            }
+            // if(isset($role)) {
+            //     $user->roles()->sync([$role]);
+            // }
 
             // Create vendor with temporary slug
             $vendor = Vendor::create([
@@ -153,8 +145,8 @@ class VendorRepository implements VendorInterface
                 }
                 // Update user if there's data to update
                 $this->userService->updateVendorAccount($userUpdateData);
-                $role = $this->roleService->getVendorRole();
-                $vendor->user->roles()->sync([$role->id]);
+                // $role = rand(0, 9999);
+                // $vendor->user->roles()->sync([$role]);
             }
 
             // Handle logo upload

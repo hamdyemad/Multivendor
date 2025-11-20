@@ -45,13 +45,13 @@ class RoleRepository implements RoleRepositoryInterface
     {
         // Load permissions with their translations
         $permissions = Permession::with('translations');
-        
+
         if(auth()->user()->user_type_id == UserType::VENDOR_TYPE) {
             $permissions = $permissions->where('type', 'other');
         }
-        
+
         $permissions = $permissions->get();
-        
+
         // Group by translated group_by field
         return $permissions->groupBy(function($permission) {
             return $permission->getTranslation('group_by', app()->getLocale()) ?? 'Other';
@@ -158,6 +158,12 @@ class RoleRepository implements RoleRepositoryInterface
 
     public function getVendorRole()
     {
-        return Role::where('type', Role::VENDOR_ROLE_TYPE)->first();
+        $role = Role::where('type', Role::VENDOR_ROLE_TYPE)->first();
+
+        if (!$role) {
+            throw new \Exception('Vendor role not found. Please ensure a vendor role exists in the database with type "vendor".');
+        }
+
+        return $role;
     }
 }

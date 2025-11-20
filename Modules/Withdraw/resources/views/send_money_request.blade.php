@@ -217,7 +217,6 @@
                                             name="sent_amount" id="sent_amount" value="{{ old('sent_amount') }}">
                                     </div>
                                 </div>
-
                             </div>
 
                             <div class="d-flex justify-content-end gap-15 mt-30">

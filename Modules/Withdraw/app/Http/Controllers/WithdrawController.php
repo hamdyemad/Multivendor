@@ -109,6 +109,24 @@ class WithdrawController extends Controller
         return view('withdraw::all_transactions', compact('languages'));
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
     public function getVendorBalance($vendor_id)
     {
         return $vendors = $this->withdrawService->getVendorBalance($vendor_id);

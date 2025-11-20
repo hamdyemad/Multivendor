@@ -133,7 +133,7 @@
                                     </div>
                                     <br>
                                     <div class="col-12">
-                                        <div class="card" style="background-color: #0056b7; color: #fff">
+                                        <div class="card" style="background-color: #0056b7; color: #fff; border-radius: 1px !important">
                                             <div class="card-body fw-bold">
                                                 {{ trans('dashboard.vendors_withdraw_transactions') }}
                                             </div>
@@ -236,7 +236,7 @@
                                             Upload invoice <span class="text-danger">*</span>
                                         </label><br>
 
-                                        <img id="imagePreview" src="{{ asset('assets/img/3d-message.png') }}"
+                                        <img id="imagePreview" src="{{ asset('assets/img/empty_image.jpg') }}"
                                             alt="Preview"
                                             style="margin-top:10px; max-width:200px; border:1px solid #ddd; padding:5px; cursor: pointer;">
 

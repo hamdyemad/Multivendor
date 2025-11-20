@@ -18,7 +18,7 @@
                         'url' => route('admin.dashboard'),
                         'icon' => 'uil uil-estate',
                     ],
-                    ['title' =>  '{{ $status }} Withdraw Transactions | Bnaia'],
+                    ['title' =>  $status . ' Withdraw Transactions | Bnaia'],
                 ]" />
             </div>
         </div>
@@ -217,7 +217,7 @@
                         <input type="file" required class="form-control" id="invoice_file" name="invoice" accept="image/*">
 
                         <div class="mt-3">
-                            <img id="invoice_preview" src="{{ asset('assets/img/3d-message.png') }}"
+                            <img id="invoice_preview" src="{{ asset('assets/img/empty_image.jpg') }}"
                                 style="margin-top:10px; max-width:200px; border:1px solid #ddd; padding:5px; cursor: pointer;">
                         </div>
                     </div>

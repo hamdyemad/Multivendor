@@ -7,7 +7,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function() {
     Route::get('withdraw/send-money', [WithdrawController::class, "sendMoney"])->name("sendMoney");
     Route::get('withdraw/allTransactionsDatabase', [WithdrawController::class, "allTransactionsDatabase"])->name("allTransactionsDatabase");
     Route::get('withdraw/all-transactions', [WithdrawController::class, "allTransactions"])->name("allTransactions");
-    Route::get('withdraw/all-vendors-transactions', [WithdrawController::class, "allVendorsTransactions"])->name("allVendorsTransactions");
+    // Route::get('withdraw/all-vendors-transactions', [WithdrawController::class, "allVendorsTransactions"])->name("allVendorsTransactions");
+    // Route::get('withdraw/all-vendors-transactions-datatable', [WithdrawController::class, "allVendorsTransactionsDatatable"])->name("allVendorsTransactionsDatatable");
 
     Route::get('get-vendor-balance/{vendor_id}', [WithdrawController::class, 'getVendorBalance'])->name('getVendorBalance');
     Route::post('send-money-to-vendor-action', [WithdrawController::class, 'sendMoneyToVendorAction'])->name('sendMoneyToVendorAction');

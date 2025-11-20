@@ -1,7 +1,7 @@
 <div class="col-xl-7 col-lg-12 mb-30">
     <div class="card chart-card">
         <div class="card-body fw-bold">
-            <h5 class="header-title pb-2 mt-0" style="font-size: 1.1rem; color: #495057; margin-bottom: 1rem;">
+            <h5 class="header-title pb-2 mt-0" style="font-weight: bold; font-size: 1.1rem; color: #495057; margin-bottom: 1rem;">
                 {{ trans('dashboard.income_expense_this_month') }}
                 ( {{ date('m') . "-" . date('Y') }} )
             </h5>
@@ -38,7 +38,7 @@
 <div class="col-xl-5 col-lg-12 mb-30">
     <div class="card chart-card">
         <div class="card-body">
-            <h5 class="header-title pb-2 mt-0" style="font-size: 1.1rem; color: #495057; margin-bottom: 1rem;">
+            <h5 class="header-title pb-2 mt-0" style="font-weight: bold; font-size: 1.1rem; color: #495057; margin-bottom: 1rem;">
                 {{ trans('dashboard.income_expense_this_year') }} ( 2025 )
             </h5>
 

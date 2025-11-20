@@ -92,6 +92,7 @@ class VendorController extends Controller {
     {
         $data = $request->validated();
         $vendor = $this->vendorService->createVendor($data);
+        return $vendor;
         // Check if it's an AJAX request
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([

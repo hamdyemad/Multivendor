@@ -92,7 +92,7 @@ class Handler extends ExceptionHandler
         //     return $this->sendRes($message, false, $data, [], 500);
         // }
 
-        // return parent::render($request, $e);
+        return parent::render($request, $e);
     }
 
     public function register()

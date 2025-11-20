@@ -265,7 +265,7 @@ class WithdrawController extends Controller
         Withdraw::create([
             "request_from" => "admin",
             "sender_id" => auth()->user()->id,
-            "reciever_id" => $vendor->user_id,
+            "reciever_id" => $data["vendor_id"],
             "before_sending_money" => $final_last_before_sending_money,
             "sent_amount" => $data["sent_amount"],
             "after_sending_amount" => $final_last_before_sending_money - $data["sent_amount"],

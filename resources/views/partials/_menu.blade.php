@@ -6,7 +6,8 @@
     $currentUrl = Request::url();
 
     // Helper function to check if menu item is active
-    function isMenuActive($routes, $currentRoute = null, $urlPatterns = []) {
+    function isMenuActive($routes, $currentRoute = null, $urlPatterns = [])
+    {
         global $currentLocale;
 
         if ($currentRoute && is_array($routes)) {
@@ -30,7 +31,8 @@
     }
 
     // Helper function to check if parent menu should be open
-    function isParentMenuOpen($childRoutes, $urlPatterns = []) {
+    function isParentMenuOpen($childRoutes, $urlPatterns = [])
+    {
         global $currentRoute;
         return isMenuActive($childRoutes, $currentRoute, $urlPatterns);
     }
@@ -66,43 +68,13 @@
                 </a>
             </li>
         @endcan
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         <li class="menu-title mt-30">
             <span>{{ trans('menu.sections.withdraw module') }}</span>
         </li>
-        <li class="has-child {{ isParentMenuOpen(['admin.sendMoney', 'admin.allTransactions', 'admin.sendMoneyRequest', 'admin.transactionsRequests'], ['admin/send-money*', 'admin/transactions*', 'admin/withdraw*']) ? 'open' : '' }}">
-            <a href="#" class="{{ isParentMenuOpen(['admin.sendMoney', 'admin.allTransactions', 'admin.sendMoneyRequest', 'admin.transactionsRequests'], ['admin/send-money*', 'admin/transactions*', 'admin/withdraw*']) ? 'active' : '' }}">
+        <li
+            class="has-child {{ isParentMenuOpen(['admin.sendMoney', 'admin.allTransactions', 'admin.allVendorsTransactions', 'admin.sendMoneyRequest', 'admin.transactionsRequests'], ['admin/send-money*', 'admin/transactions*', 'admin/withdraw*', 'admin/vendors-transactions*']) ? 'open' : '' }}">
+            <a href="#"
+                class="{{ isParentMenuOpen(['admin.sendMoney', 'admin.allTransactions', 'admin.allVendorsTransactions', 'admin.sendMoneyRequest', 'admin.transactionsRequests'], ['admin/send-money*', 'admin/transactions*', 'admin/withdraw*', 'admin/vendors-transactions*']) ? 'active' : '' }}">
                 <span class="nav-icon uil uil-sitemap"></span>
                 <span class="menu-text">{{ trans('menu.withdraw module.title') }}</span>
                 <span class="toggle-icon"></span>
@@ -117,7 +89,7 @@
                     </li>
 
                     <li>
-                        <a class="d-flex align-items-center justify-content-between fw-bold"
+                        <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.allVendorsTransactions', $currentRoute) ? 'active' : '' }}"
                             href="{{ route('admin.allVendorsTransactions') }}">
                             Vendors Transactions Overview
                         </a>
@@ -171,20 +143,26 @@
             <li class="menu-title mt-30">
                 <span>{{ trans('menu.sections.financials') }}</span>
             </li>
-            <li class="has-child {{ isParentMenuOpen(['admin.accounting.overview', 'admin.accounting.balance', 'admin.accounting.expenses'], ['admin/accounting*']) ? 'open' : '' }}">
-                <a href="#" class="{{ isParentMenuOpen(['admin.accounting.overview', 'admin.accounting.balance', 'admin.accounting.expenses'], ['admin/accounting*']) ? 'active' : '' }}">
+            <li
+                class="has-child {{ isParentMenuOpen(['admin.accounting.overview', 'admin.accounting.balance', 'admin.accounting.expenses'], ['admin/accounting*']) ? 'open' : '' }}">
+                <a href="#"
+                    class="{{ isParentMenuOpen(['admin.accounting.overview', 'admin.accounting.balance', 'admin.accounting.expenses'], ['admin/accounting*']) ? 'active' : '' }}">
                     <span class="nav-icon uil uil-invoice"></span>
                     <span class="menu-text">{{ trans('menu.accounting module.title') }}</span>
                     <span class="toggle-icon"></span>
                 </a>
                 <ul class="px-0">
-                    <li><a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.dashboard') }}">{{ trans('menu.accounting module.overview') }}</a>
+                    <li><a class="d-flex align-items-center justify-content-between fw-bold"
+                            href="{{ route('admin.dashboard') }}">{{ trans('menu.accounting module.overview') }}</a>
                     </li>
-                    <li><a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.dashboard') }}">{{ trans('menu.accounting module.balance') }}</a>
+                    <li><a class="d-flex align-items-center justify-content-between fw-bold"
+                            href="{{ route('admin.dashboard') }}">{{ trans('menu.accounting module.balance') }}</a>
                     </li>
-                    <li><a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.dashboard') }}">{{ trans('menu.accounting module.expenses keys') }}</a>
+                    <li><a class="d-flex align-items-center justify-content-between fw-bold"
+                            href="{{ route('admin.dashboard') }}">{{ trans('menu.accounting module.expenses keys') }}</a>
                     </li>
-                    <li><a class="d-flex align-items-center justify-content-between fw-bold" href="{{ route('admin.dashboard') }}">{{ trans('menu.accounting module.expenses') }}</a>
+                    <li><a class="d-flex align-items-center justify-content-between fw-bold"
+                            href="{{ route('admin.dashboard') }}">{{ trans('menu.accounting module.expenses') }}</a>
                     </li>
                 </ul>
             </li>
@@ -220,8 +198,10 @@
                 <span>{{ trans('menu.sections.catalog management') }}</span>
             </li>
             @if ($user_type == 'super_admin')
-                <li class="has-child {{ isParentMenuOpen(['admin.category-management.activities.index', 'admin.category-management.departments.index', 'admin.category-management.categories.index', 'admin.category-management.subcategories.index'], ['admin/category-management*']) ? 'open' : '' }}">
-                    <a href="#" class="{{ isParentMenuOpen(['admin.category-management.activities.index', 'admin.category-management.departments.index', 'admin.category-management.categories.index', 'admin.category-management.subcategories.index'], ['admin/category-management*']) ? 'active' : '' }}">
+                <li
+                    class="has-child {{ isParentMenuOpen(['admin.category-management.activities.index', 'admin.category-management.departments.index', 'admin.category-management.categories.index', 'admin.category-management.subcategories.index'], ['admin/category-management*']) ? 'open' : '' }}">
+                    <a href="#"
+                        class="{{ isParentMenuOpen(['admin.category-management.activities.index', 'admin.category-management.departments.index', 'admin.category-management.categories.index', 'admin.category-management.subcategories.index'], ['admin/category-management*']) ? 'active' : '' }}">
                         <span class="nav-icon uil uil-sitemap"></span>
                         <span class="menu-text">{{ trans('menu.category managment.title') }}</span>
                         <span class="toggle-icon"></span>
@@ -271,8 +251,10 @@
             @endif
         @endcanany
 
-        <li class="has-child {{ isParentMenuOpen(['admin.products.index', 'admin.products.create', 'admin.products.show', 'admin.products.edit', 'admin.variant-keys.index', 'admin.variants-configurations.index'], ['admin/products*', 'admin/variant*']) ? 'open' : '' }}">
-            <a href="#" class="{{ isParentMenuOpen(['admin.products.index', 'admin.products.create', 'admin.products.show', 'admin.products.edit', 'admin.variant-keys.index', 'admin.variants-configurations.index'], ['admin/products*', 'admin/variant*']) ? 'active' : '' }}">
+        <li
+            class="has-child {{ isParentMenuOpen(['admin.products.index', 'admin.products.create', 'admin.products.show', 'admin.products.edit', 'admin.variant-keys.index', 'admin.variants-configurations.index'], ['admin/products*', 'admin/variant*']) ? 'open' : '' }}">
+            <a href="#"
+                class="{{ isParentMenuOpen(['admin.products.index', 'admin.products.create', 'admin.products.show', 'admin.products.edit', 'admin.variant-keys.index', 'admin.variants-configurations.index'], ['admin/products*', 'admin/variant*']) ? 'active' : '' }}">
                 <span class="nav-icon uil uil-box"></span>
                 <span class="menu-text">{{ trans('menu.products.title') }}</span>
                 <span class="toggle-icon"></span>
@@ -340,8 +322,10 @@
 
         @if ($user_type == 'super_admin')
             @canany(['taxes.view', 'taxes.create'])
-                <li class="has-child {{ isParentMenuOpen(['admin.taxes.index', 'admin.taxes.create', 'admin.taxes.show', 'admin.taxes.edit'], ['admin/taxes*']) ? 'open' : '' }}">
-                    <a href="#" class="{{ isParentMenuOpen(['admin.taxes.index', 'admin.taxes.create', 'admin.taxes.show', 'admin.taxes.edit'], ['admin/taxes*']) ? 'active' : '' }}">
+                <li
+                    class="has-child {{ isParentMenuOpen(['admin.taxes.index', 'admin.taxes.create', 'admin.taxes.show', 'admin.taxes.edit'], ['admin/taxes*']) ? 'open' : '' }}">
+                    <a href="#"
+                        class="{{ isParentMenuOpen(['admin.taxes.index', 'admin.taxes.create', 'admin.taxes.show', 'admin.taxes.edit'], ['admin/taxes*']) ? 'active' : '' }}">
                         <span class="nav-icon uil uil-percentage"></span>
                         <span class="menu-text">{{ trans('menu.taxes.title') }}</span>
                         <span class="toggle-icon"></span>
@@ -358,7 +342,9 @@
                         @endcan
 
                         @can('taxes.create')
-                            <li><a href="{{ route('admin.taxes.create') }}" class="{{ isMenuActive('admin.taxes.create', $currentRoute) ? 'active' : '' }}">{{ trans('menu.taxes.create') }}</a></li>
+                            <li><a href="{{ route('admin.taxes.create') }}"
+                                    class="{{ isMenuActive('admin.taxes.create', $currentRoute) ? 'active' : '' }}">{{ trans('menu.taxes.create') }}</a>
+                            </li>
                         @endcan
                     </ul>
                 </li>
@@ -401,7 +387,8 @@
 
         @can('brands.index')
             <li>
-                <a href="{{ route('admin.brands.index') }}" class="{{ isMenuActive(['admin.brands.index', 'admin.brands.create', 'admin.brands.show', 'admin.brands.edit'], $currentRoute) ? 'active' : '' }}">
+                <a href="{{ route('admin.brands.index') }}"
+                    class="{{ isMenuActive(['admin.brands.index', 'admin.brands.create', 'admin.brands.show', 'admin.brands.edit'], $currentRoute) ? 'active' : '' }}">
                     <span class="d-flex align-items-center justify-content-between fw-bold w-100">
                         <span class="d-flex align-items-center">
                             <span class="nav-icon uil uil-ticket"></span>
@@ -433,8 +420,10 @@
             <li class="menu-title mt-30">
                 <span>{{ trans('menu.sections.user management') }}</span>
             </li>
-            <li class="has-child {{ isParentMenuOpen(['admin.admin-management.roles.index', 'admin.admin-management.admins.index'], ['admin/admin-management*']) ? 'open' : '' }}">
-                <a href="#" class="{{ isParentMenuOpen(['admin.admin-management.roles.index', 'admin.admin-management.admins.index'], ['admin/admin-management*']) ? 'active' : '' }}">
+            <li
+                class="has-child {{ isParentMenuOpen(['admin.admin-management.roles.index', 'admin.admin-management.admins.index'], ['admin/admin-management*']) ? 'open' : '' }}">
+                <a href="#"
+                    class="{{ isParentMenuOpen(['admin.admin-management.roles.index', 'admin.admin-management.admins.index'], ['admin/admin-management*']) ? 'active' : '' }}">
                     <span class="nav-icon uil uil-user-check"></span>
                     <span class="menu-text">{{ trans('menu.admin managment.title') }}</span>
                     <span class="toggle-icon"></span>
@@ -532,8 +521,10 @@
             <li class="menu-title mt-30">
                 <span>{{ trans('menu.sections.order and fulfillment') }}</span>
             </li>
-            <li class="has-child {{ isParentMenuOpen(['admin.orders.new', 'admin.orders.inprogress', 'admin.orders.delivered', 'admin.orders.canceled', 'admin.orders.refunded'], ['admin/orders*']) ? 'open' : '' }}">
-                <a href="#" class="{{ isParentMenuOpen(['admin.orders.new', 'admin.orders.inprogress', 'admin.orders.delivered', 'admin.orders.canceled', 'admin.orders.refunded'], ['admin/orders*']) ? 'active' : '' }}">
+            <li
+                class="has-child {{ isParentMenuOpen(['admin.orders.new', 'admin.orders.inprogress', 'admin.orders.delivered', 'admin.orders.canceled', 'admin.orders.refunded'], ['admin/orders*']) ? 'open' : '' }}">
+                <a href="#"
+                    class="{{ isParentMenuOpen(['admin.orders.new', 'admin.orders.inprogress', 'admin.orders.delivered', 'admin.orders.canceled', 'admin.orders.refunded'], ['admin/orders*']) ? 'active' : '' }}">
                     <span class="nav-icon uil uil-shopping-cart"></span>
                     <span class="menu-text">{{ trans('menu.orders.title') }}</span>
                     <span class="toggle-icon"></span>
@@ -580,7 +571,8 @@
 
         @can('order_stages.index')
             <li>
-                <a href="{{ route('admin.dashboard') }}" class="{{ isMenuActive('admin.order-stages.index', $currentRoute) ? 'active' : '' }}">
+                <a href="{{ route('admin.dashboard') }}"
+                    class="{{ isMenuActive('admin.order-stages.index', $currentRoute) ? 'active' : '' }}">
                     <span class="d-flex align-items-center justify-content-between fw-bold w-100">
                         <span class="d-flex align-items-center">
                             <span class="nav-icon uil uil-process"></span>
@@ -743,7 +735,8 @@
 
             @can('settings.logs.view')
                 <li>
-                    <a href="{{ route('admin.system-settings.activity-logs.index') }}" class="{{ isMenuActive('admin.system-settings.activity-logs.index', $currentRoute) ? 'active' : '' }}">
+                    <a href="{{ route('admin.system-settings.activity-logs.index') }}"
+                        class="{{ isMenuActive('admin.system-settings.activity-logs.index', $currentRoute) ? 'active' : '' }}">
                         <span class="nav-icon uil uil-history"></span>
                         <span class="menu-text">{{ trans('menu.system log.title') }}</span>
                     </a>
@@ -751,8 +744,10 @@
             @endcan
 
             @canany(['area.country.index', 'area.city.index', 'area.region.index', 'area.subregion.index'])
-                <li class="has-child {{ isParentMenuOpen(['admin.area-settings.countries.index', 'admin.area-settings.cities.index', 'admin.area-settings.regions.index', 'admin.area-settings.subregions.index'], ['admin/area-settings*']) ? 'open' : '' }}">
-                    <a href="#" class="{{ isParentMenuOpen(['admin.area-settings.countries.index', 'admin.area-settings.cities.index', 'admin.area-settings.regions.index', 'admin.area-settings.subregions.index'], ['admin/area-settings*']) ? 'active' : '' }}">
+                <li
+                    class="has-child {{ isParentMenuOpen(['admin.area-settings.countries.index', 'admin.area-settings.cities.index', 'admin.area-settings.regions.index', 'admin.area-settings.subregions.index'], ['admin/area-settings*']) ? 'open' : '' }}">
+                    <a href="#"
+                        class="{{ isParentMenuOpen(['admin.area-settings.countries.index', 'admin.area-settings.cities.index', 'admin.area-settings.regions.index', 'admin.area-settings.subregions.index'], ['admin/area-settings*']) ? 'active' : '' }}">
                         <span class="nav-icon uil uil-map-marker"></span>
                         <span class="menu-text">{{ trans('menu.area settings.title') }}</span>
                         <span class="toggle-icon"></span>
@@ -849,7 +844,8 @@
 
             @can('system.currency.index')
                 <li>
-                    <a href="{{ route('admin.system-settings.currencies.index') }}" class="{{ isMenuActive(['admin.system-settings.currencies.index', 'admin.system-settings.currencies.create', 'admin.system-settings.currencies.show', 'admin.system-settings.currencies.edit'], $currentRoute) ? 'active' : '' }}">
+                    <a href="{{ route('admin.system-settings.currencies.index') }}"
+                        class="{{ isMenuActive(['admin.system-settings.currencies.index', 'admin.system-settings.currencies.create', 'admin.system-settings.currencies.show', 'admin.system-settings.currencies.edit'], $currentRoute) ? 'active' : '' }}">
                         <span class="d-flex align-items-center justify-content-between fw-bold w-100">
                             <span class="d-flex align-items-center">
                                 <span class="nav-icon uil uil-dollar-alt"></span>
@@ -864,3 +860,58 @@
 
     </ul>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to open parent menus
+        function openParentMenus() {
+            // Find all active menu items (both parent and child)
+            const activeMenuItems = document.querySelectorAll('.sidebar_nav a.active');
+
+            activeMenuItems.forEach(function(activeItem) {
+                // Check if this is a child menu item (inside a ul that's inside a has-child li)
+                const parentUl = activeItem.closest('ul');
+                if (parentUl) {
+                    const parentHasChild = parentUl.closest('li.has-child');
+                    if (parentHasChild) {
+                        // Add open class to parent menu
+                        parentHasChild.classList.add('open');
+
+                        // Make sure parent link is also active
+                        const parentLink = parentHasChild.querySelector(':scope > a');
+                        if (parentLink && !parentLink.classList.contains('active')) {
+                            parentLink.classList.add('active');
+                        }
+
+                        // Show the submenu
+                        const submenu = parentHasChild.querySelector(':scope > ul');
+                        if (submenu) {
+                            submenu.style.display = 'block';
+                        }
+                    }
+                }
+            });
+
+            // Also handle menus that already have the 'open' class from PHP
+            const openMenus = document.querySelectorAll('.sidebar_nav li.has-child.open');
+            openMenus.forEach(function(menu) {
+                const parentLink = menu.querySelector(':scope > a');
+                if (parentLink && !parentLink.classList.contains('active')) {
+                    parentLink.classList.add('active');
+                }
+
+                // Ensure submenu is visible
+                const submenu = menu.querySelector(':scope > ul');
+                if (submenu) {
+                    submenu.style.display = 'block';
+                }
+            });
+        }
+
+        // Run the function
+        openParentMenus();
+
+        // Also run after a short delay to ensure all elements are rendered
+        setTimeout(openParentMenus, 100);
+    });
+</script>

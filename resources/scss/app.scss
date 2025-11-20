@@ -118,6 +118,17 @@ html[dir="rtl"] {
   }
 }
 
+/* Ensure parent menus open when they have the 'open' class */
+.sidebar_nav {
+  li.has-child {
+    &.open {
+      > ul {
+        display: block !important;
+      }
+    }
+  }
+}
+
 body,
 .h1,
 .h2,

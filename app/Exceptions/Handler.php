@@ -39,58 +39,58 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $e)
     {
-        // // Handle model not found exceptions
-        // if ($e instanceof ModelNotFoundException) {
-        //     $message = config('responses.not_found')[app()->getLocale()] ?? 'Resource not found';
-        //     if ($request->expectsJson()) {
-        //         return $this->sendRes($message, false, [], [], 404);
-        //     }
-        // }
+        // Handle model not found exceptions
+        if ($e instanceof ModelNotFoundException) {
+            $message = config('responses.not_found')[app()->getLocale()] ?? 'Resource not found';
+            if ($request->expectsJson()) {
+                return $this->sendRes($message, false, [], [], 404);
+            }
+        }
 
-        // // Handle validation exceptions
-        // if ($e instanceof ValidationException) {
-        //     if ($request->expectsJson()) {
-        //         return $this->sendRes(config('responses.validation')[app()->getLocale()] ?? 'Validation failed', false, [], $e->errors(), 422);
-        //     }
-        // }
+        // Handle validation exceptions
+        if ($e instanceof ValidationException) {
+            if ($request->expectsJson()) {
+                return $this->sendRes(config('responses.validation')[app()->getLocale()] ?? 'Validation failed', false, [], $e->errors(), 422);
+            }
+        }
 
-        // // Handle database exceptions
-        // if ($e instanceof QueryException) {
-        //     \Illuminate\Support\Facades\Log::error('Database error: ' . $e->getMessage(), [
-        //         'query' => $e->getSql() ?? 'N/A',
-        //         'bindings' => $e->getBindings() ?? [],
-        //         'file' => $e->getFile(),
-        //         'line' => $e->getLine(),
-        //     ]);
+        // Handle database exceptions
+        if ($e instanceof QueryException) {
+            \Illuminate\Support\Facades\Log::error('Database error: ' . $e->getMessage(), [
+                'query' => $e->getSql() ?? 'N/A',
+                'bindings' => $e->getBindings() ?? [],
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
 
-        //     if ($request->expectsJson()) {
-        //         $message = config('responses.database_error')[app()->getLocale()] ?? 'Database error occurred';
-        //         $data = app()->isLocal() ? ['error' => $e->getMessage()] : [];
-        //         return $this->sendRes($message, false, $data, [], 500);
-        //     }
-        // }
+            if ($request->expectsJson()) {
+                $message = config('responses.database_error')[app()->getLocale()] ?? 'Database error occurred';
+                $data = app()->isLocal() ? ['error' => $e->getMessage()] : [];
+                return $this->sendRes($message, false, $data, [], 500);
+            }
+        }
 
-        // // Handle HTTP exceptions
-        // if ($e instanceof HttpException) {
-        //     if ($request->expectsJson()) {
-        //         $message = $e->getMessage() ?: config('responses.http_error')[app()->getLocale()] ?? 'HTTP error occurred';
-        //         return $this->sendRes($message, false, [], [], $e->getStatusCode());
-        //     }
-        // }
+        // Handle HTTP exceptions
+        if ($e instanceof HttpException) {
+            if ($request->expectsJson()) {
+                $message = $e->getMessage() ?: config('responses.http_error')[app()->getLocale()] ?? 'HTTP error occurred';
+                return $this->sendRes($message, false, [], [], $e->getStatusCode());
+            }
+        }
 
-        // // Handle generic exceptions
-        // if ($request->expectsJson() && !($e instanceof ValidationException)) {
-        //     \Illuminate\Support\Facades\Log::error('Unhandled exception: ' . $e->getMessage(), [
-        //         'class' => get_class($e),
-        //         'file' => $e->getFile(),
-        //         'line' => $e->getLine(),
-        //         'trace' => $e->getTraceAsString(),
-        //     ]);
+        // Handle generic exceptions
+        if ($request->expectsJson() && !($e instanceof ValidationException)) {
+            \Illuminate\Support\Facades\Log::error('Unhandled exception: ' . $e->getMessage(), [
+                'class' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
 
-        //     $data = app()->isLocal() ? ['error' => $e->getMessage()] : [];
-        //     $message = config('responses.error')[app()->getLocale()] ?? 'An error occurred';
-        //     return $this->sendRes($message, false, $data, [], 500);
-        // }
+            $data = app()->isLocal() ? ['error' => $e->getMessage()] : [];
+            $message = config('responses.error')[app()->getLocale()] ?? 'An error occurred';
+            return $this->sendRes($message, false, $data, [], 500);
+        }
 
         return parent::render($request, $e);
     }

@@ -359,22 +359,23 @@
                     { // Before Money
                         data: 'before_sending_money',
                         name: 'before_sending_money',
-                        render: function(data) {
-                            return `<div class="userDatatable-content">${data || '-'}</div>`;
+                        render: function(data, type, row) {
+                            console.log(row);
+                            return `<div class="userDatatable-content">${row.before_sending_money || '-'}</div>`;
                         }
                     },
                     { // Sent Amount
                         data: 'sent_amount',
                         name: 'sent_amount',
-                        render: function(data) {
-                            return `<div class="userDatatable-content">${data || '-'}</div>`;
+                        render: function(data, type, row) {
+                            return `<div class="userDatatable-content">${row.sent_amount || '-'}</div>`;
                         }
                     },
                     { // After Money
                         data: 'after_sending_amount',
                         name: 'after_sending_amount',
-                        render: function(data) {
-                            return `<div class="userDatatable-content">${data || '-'}</div>`;
+                        render: function(data, type, row) {
+                            return `<div class="userDatatable-content">${row.after_sending_amount || '-'}</div>`;
                         }
                     },
                     { // Status
@@ -382,7 +383,7 @@
                         name: 'status',
                         orderable: false,
                         searchable: false,
-                        render: function(data) {
+                        render: function(data, type, row) {
                             if (data == "accepted") {
                                 return '<p class="text-success" style="text-transform: capitalize; font-weight: bold;">' + data + '</p>';
                             } else if( data == "rejected" ) {

@@ -238,7 +238,7 @@ class WithdrawController extends Controller
                 ->with('error', "Vendor not found!");
         }
 
-        if (!$vendor->user_id) {
+        if (!$vendor) {
             return redirect()->back()
                 ->with('error', "Vendor is not associated with a user!");
         }
@@ -248,8 +248,8 @@ class WithdrawController extends Controller
         $total_vendor_balance = $orders->sum("price") - ($orders->sum("price") * ($orders->first()->commission / 100));
 
         $last_withdraw = Withdraw::where(function ($q) use ($vendor) {
-            $q->where('sender_id', $vendor->user_id)
-                ->orWhere('reciever_id', $vendor->user_id);
+            $q->where('sender_id', $vendor->id)
+                ->orWhere('reciever_id', $vendor->id);
         })
             ->where('status', 'accepted')
             ->latest()

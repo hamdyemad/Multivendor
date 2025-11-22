@@ -1,40 +1,4 @@
 {
-  "Modules/CatalogManagement/resources/assets/js/modules/form-edit.js": {
-    "file": "assets/form-edit-BCo-FIhH.js",
-    "name": "form-edit",
-    "src": "Modules/CatalogManagement/resources/assets/js/modules/form-edit.js",
-    "isEntry": true
-  },
-  "Modules/CatalogManagement/resources/assets/js/modules/form-init.js": {
-    "file": "assets/form-init-DgX6tTme.js",
-    "name": "form-init",
-    "src": "Modules/CatalogManagement/resources/assets/js/modules/form-init.js",
-    "isEntry": true
-  },
-  "Modules/CatalogManagement/resources/assets/js/modules/form-validation.js": {
-    "file": "assets/form-validation-BSm74W6Q.js",
-    "name": "form-validation",
-    "src": "Modules/CatalogManagement/resources/assets/js/modules/form-validation.js",
-    "isEntry": true
-  },
-  "Modules/CatalogManagement/resources/assets/js/modules/form-variants.js": {
-    "file": "assets/form-variants-DQux9k2e.js",
-    "name": "form-variants",
-    "src": "Modules/CatalogManagement/resources/assets/js/modules/form-variants.js",
-    "isEntry": true
-  },
-  "Modules/CatalogManagement/resources/assets/js/modules/form-wizard.js": {
-    "file": "assets/form-wizard-D1m-bubs.js",
-    "name": "form-wizard",
-    "src": "Modules/CatalogManagement/resources/assets/js/modules/form-wizard.js",
-    "isEntry": true
-  },
-  "Modules/CatalogManagement/resources/assets/js/product-form-refactored.js": {
-    "file": "assets/product-form-refactored-DSleSVbp.js",
-    "name": "product-form-refactored",
-    "src": "Modules/CatalogManagement/resources/assets/js/product-form-refactored.js",
-    "isEntry": true
-  },
   "Modules/CatalogManagement/resources/assets/scss/product-form.scss": {
     "file": "assets/product-form-CH04rjk_.css",
     "src": "Modules/CatalogManagement/resources/assets/scss/product-form.scss",
@@ -57,7 +21,7 @@
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-Bs8SRQVP.js",
+    "file": "assets/app-CC4NR9aC.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,

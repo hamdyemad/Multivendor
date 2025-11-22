@@ -15,8 +15,8 @@ class SubCategoryController extends Controller
 {
 
     public function __construct(
-        protected SubCategoryService $subCategoryService, 
-        protected CategoryService $categoryService, 
+        protected SubCategoryService $subCategoryService,
+        protected CategoryService $categoryService,
         protected LanguageService $languageService,
         protected SubCategoryAction $subCategoryAction
     )
@@ -36,9 +36,9 @@ class SubCategoryController extends Controller
         try {
             // Get datatable data from action
             $result = $this->subCategoryAction->getDataTable($request->all());
-            
+
             $dataPaginated = $result['dataPaginated'];
-            
+
             return response()->json([
                 'data' => $result['data'],
                 'recordsTotal' => $result['totalRecords'],
@@ -50,7 +50,7 @@ class SubCategoryController extends Controller
                 'from' => $dataPaginated->firstItem(),
                 'to' => $dataPaginated->lastItem()
             ]);
-            
+
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Error loading sub-categories: ' . $e->getMessage()
@@ -96,7 +96,7 @@ class SubCategoryController extends Controller
 
         try {
             $this->subCategoryService->createSubCategory($validated);
-            
+
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
@@ -161,7 +161,7 @@ class SubCategoryController extends Controller
 
         try {
             $this->subCategoryService->updateSubCategory($id, $validated);
-            
+
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,

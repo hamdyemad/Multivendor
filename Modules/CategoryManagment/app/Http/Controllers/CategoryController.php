@@ -16,9 +16,9 @@ use Modules\CategoryManagment\app\Actions\CategoryAction;
 class CategoryController extends Controller
 {
     public function __construct(
-        protected CategoryService $categoryService, 
-        protected DepartmentService $departmentService, 
-        protected ActivityService $activityService, 
+        protected CategoryService $categoryService,
+        protected DepartmentService $departmentService,
+        protected ActivityService $activityService,
         protected LanguageService $languageService,
         protected CategoryAction $categoryAction
     )
@@ -38,9 +38,9 @@ class CategoryController extends Controller
         try {
             // Get datatable data from action
             $result = $this->categoryAction->getDataTable($request->all());
-            
+
             $dataPaginated = $result['dataPaginated'];
-            
+
             return response()->json([
                 'data' => $result['data'],
                 'recordsTotal' => $result['totalRecords'],
@@ -52,7 +52,7 @@ class CategoryController extends Controller
                 'from' => $dataPaginated->firstItem(),
                 'to' => $dataPaginated->lastItem()
             ]);
-            
+
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Error loading categories: ' . $e->getMessage()
@@ -83,7 +83,7 @@ class CategoryController extends Controller
                 $request->get('q', ''),
                 $request->get('page', 1)
             );
-            
+
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json([
@@ -118,7 +118,7 @@ class CategoryController extends Controller
 
         try {
             $this->categoryService->createCategory($validated);
-            
+
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
@@ -184,7 +184,7 @@ class CategoryController extends Controller
 
         try {
             $this->categoryService->updateCategory($id, $validated);
-            
+
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,

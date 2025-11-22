@@ -1,0 +1,210 @@
+/* Stock Management Specific Styles */
+.stock-management-container {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.product-details-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.product-details-card h5 {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.product-details-card .badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.stock-section-card {
+    background: white;
+    border: 1px solid #e3e6f0;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.stock-section-header {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    color: white;
+    padding: 15px 20px;
+    font-weight: 600;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.stock-section-header i {
+    font-size: 18px;
+    margin-right: 8px;
+}
+
+.stock-section-body {
+    padding: 25px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #5a5c69;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.form-control {
+    border: 2px solid #e3e6f0;
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+.form-switch {
+    padding-left: 2.5em;
+}
+
+.form-switch .form-check-input {
+    width: 2em;
+    height: 1.2em;
+    margin-left: -2.5em;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280,0,0,.25%29'/%3e%3c/svg%3e");
+    background-position: left center;
+    border-radius: 2em;
+    transition: background-position .15s ease-in-out;
+}
+
+.form-switch .form-check-input:checked {
+    background-color: #4e73df;
+    border-color: #4e73df;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%28255,255,255,1.0%29'/%3e%3c/svg%3e");
+    background-position: right center;
+}
+
+.discount-fields {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 15px;
+    border-left: 4px solid #1cc88a;
+}
+
+.stock-table {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stock-table thead {
+    background: linear-gradient(135deg, #36b9cc 0%, #258391 100%);
+}
+
+.stock-table thead th {
+    color: white;
+    font-weight: 600;
+    padding: 15px;
+    border: none;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stock-table tbody td {
+    padding: 15px;
+    vertical-align: middle;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.stock-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.btn-add-region {
+    background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(28, 200, 138, 0.3);
+}
+
+.btn-add-region:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(28, 200, 138, 0.4);
+    color: white;
+}
+
+.btn-remove-stock {
+    background: linear-gradient(135deg, #e74a3b 0%, #c0392b 100%);
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.btn-remove-stock:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(231, 74, 59, 0.4);
+    color: white;
+}
+
+.total-stock-display {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    margin-top: 15px;
+}
+
+.select2-container--bootstrap-5 .select2-selection {
+    border: 2px solid #e3e6f0;
+    border-radius: 8px;
+    min-height: 45px;
+}
+
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+    padding: 12px 15px;
+    color: #5a5c69;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .stock-section-body {
+        padding: 15px;
+    }
+
+    .product-details-card {
+        padding: 15px;
+    }
+
+    .stock-table thead th,
+    .stock-table tbody td {
+        padding: 10px 8px;
+        font-size: 12px;
+    }
+}

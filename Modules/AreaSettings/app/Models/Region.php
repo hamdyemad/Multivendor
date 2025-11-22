@@ -17,6 +17,7 @@ class Region extends Model
     protected $table = 'regions';
     protected $guarded = [];
 
+    // Start Relations
     public function subRegions() {
         return $this->hasMany(SubRegion::class, 'region_id');
     }
@@ -24,7 +25,16 @@ class Region extends Model
     public function city() {
         return $this->belongsTo(City::class, 'city_id');
     }
+    // End Relations
 
+
+    // Start Geters
+    public function getNameAttribute() {
+        return $this->getTranslation('name', app()->getLocale());
+    }
+    // End Geters
+
+    // Start Scopes
     public function scopeActive($query)
     {
         return $query->where('active', true);
@@ -62,4 +72,5 @@ class Region extends Model
             });
         }
     }
+    // End Scopes
 }

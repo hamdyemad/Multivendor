@@ -124,8 +124,22 @@ class Vendor extends Model
         return $this->hasMany(\Modules\CatalogManagement\app\Models\VendorProductVariant::class);
     }
 
+
+    // Getters
+
+    public function getNameAttribute()
+    {
+        return $this->getTranslation('name', app()->getLocale()) ?? '--';
+    }
+
     public function scopeFilter(Builder $query, $filters)
     {
+
+        // Filter by active status
+        if (isset($filters['id']) && $filters['id'] !== '') {
+            $query->where('id', $filters['id']);
+        }
+
         // Search in translations or user email
         if (!empty($filters['search'])) {
             $searchTerm = $filters['search'];

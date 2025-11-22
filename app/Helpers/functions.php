@@ -927,3 +927,12 @@ function roles_reset()
         }
     }
 }
+
+
+function truncateString($string, $length = 15, $append = '...')
+{
+    if (strlen($string) > $length) {
+        return substr($string, 0, $length) . $append;
+    }
+    return $string;
+}

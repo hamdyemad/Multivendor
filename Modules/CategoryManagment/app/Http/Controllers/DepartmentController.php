@@ -232,4 +232,41 @@ class DepartmentController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get departments by vendor for cascading dropdown
+     */
+    public function getDepartmentsByVendor(Request $request)
+    {
+        try {
+            $vendorId = $request->get('vendor_id');
+
+            if (!$vendorId) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Vendor ID is required'
+                ], 400);
+            }
+
+            // Get all departments (you can add vendor filtering logic here if needed)
+            $departments = $this->departmentService->getAllDepartments([], 0);
+
+            $departmentsData = $departments->map(function($department) {
+                return [
+                    'id' => $department->id,
+                    'name' => $department->getTranslation('name', app()->getLocale()) ?? $department->name
+                ];
+            });
+
+            return response()->json([
+                'status' => true,
+                'data' => $departmentsData
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error loading departments: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

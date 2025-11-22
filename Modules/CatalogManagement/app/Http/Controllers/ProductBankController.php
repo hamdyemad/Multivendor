@@ -167,8 +167,8 @@ class ProductBankController extends Controller
             // Store translations
             $this->storeTranslations($product, $request->translations);
 
-            // Handle variants if configuration_type is with_variants
-            if ($request->configuration_type === 'with_variants' && $request->variants) {
+            // Handle variants if configuration_type is variants
+            if ($request->configuration_type === 'variants' && $request->variants) {
                 foreach ($request->variants as $variantData) {
                     ProductVariant::create([
                         'product_id' => $product->id,
@@ -277,7 +277,7 @@ class ProductBankController extends Controller
             $this->storeTranslations($product, $request->translations);
 
             // Update variants
-            if ($request->configuration_type === 'with_variants' && $request->variants) {
+            if ($request->configuration_type === 'variants' && $request->variants) {
                 // Delete existing variants
                 $product->variants()->delete();
 

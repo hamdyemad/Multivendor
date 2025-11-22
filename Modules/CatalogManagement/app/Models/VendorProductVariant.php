@@ -14,12 +14,30 @@ class VendorProductVariant extends Model
     protected $table = 'vendor_product_variants';
     protected $guarded = [];
 
+    protected $with = ['stocks'];
+
     protected $casts = [
         'price' => 'decimal:2',
-        'has_offer' => 'boolean',
+        'has_discount' => 'boolean',
         'price_before_discount' => 'decimal:2',
-        'offer_end_date' => 'date',
+        'discount_end_date' => 'date',
     ];
+
+    /**
+     * Accessor for has_discount (backward compatibility)
+     */
+    public function getHasDiscountAttribute()
+    {
+        return $this->attributes['has_discount'] ?? $this->attributes['has_discount'] ?? false;
+    }
+
+    /**
+     * Mutator for has_discount (backward compatibility)
+     */
+    public function setHasDiscountAttribute($value)
+    {
+        $this->attributes['has_discount'] = $value;
+    }
 
     /**
      * Get the vendor product
@@ -50,7 +68,7 @@ class VendorProductVariant extends Model
      */
     public function getEffectivePrice()
     {
-        if ($this->has_offer && $this->offer_end_date && $this->offer_end_date->isFuture()) {
+        if ($this->has_discount && $this->discount_end_date && $this->discount_end_date->isFuture()) {
             return $this->price_before_discount;
         }
 
@@ -58,11 +76,11 @@ class VendorProductVariant extends Model
     }
 
     /**
-     * Check if the offer is still valid
+     * Check if the discount is still valid
      */
-    public function isOfferValid()
+    public function isDiscountValid()
     {
-        return $this->has_offer && $this->offer_end_date && $this->offer_end_date->isFuture();
+        return $this->has_discount && $this->discount_end_date && $this->discount_end_date->isFuture();
     }
 
     /**

@@ -31,6 +31,12 @@ class VariantConfigurationKey extends Model
         return $this->belongsTo(VariantConfigurationKey::class, 'parent_key_id');
     }
 
+
+    public function getNameAttribute() {
+        return $this->getTranslation('name', app()->getLocale());
+    }
+
+
     public function scopeFilter(Builder $builder, $filters)
     {
         // Search filter - searches in both variant key name and parent name

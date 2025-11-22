@@ -11,6 +11,11 @@ class VendorProduct extends Model
 {
     use HasFactory, SoftDeletes;
 
+    // Status constants
+    const STATUS_PENDING = 'pending';
+    const STATUS_APPROVED = 'approved';
+    const STATUS_REJECTED = 'rejected';
+
     protected $guarded = [];
     protected $casts = [
         'points' => 'integer',
@@ -19,6 +24,18 @@ class VendorProduct extends Model
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
     ];
+
+    /**
+     * Get all available status values
+     */
+    public static function getStatuses()
+    {
+        return [
+            self::STATUS_PENDING => __('common.pending'),
+            self::STATUS_APPROVED => __('common.approved'),
+            self::STATUS_REJECTED => __('common.rejected'),
+        ];
+    }
 
     /**
      * Get the vendor that owns this vendor product

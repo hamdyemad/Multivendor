@@ -26,7 +26,7 @@ class StoreProductRequest extends FormRequest
 
         $rules = [
             // Basic Product Information
-            'sku' => 'required|string|unique:vendor_products,sku',
+            'sku' => 'required|string|max:255',
             'points' => 'required|integer|min:0',
             'is_active' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
@@ -68,11 +68,10 @@ class StoreProductRequest extends FormRequest
         // Simple product validation
         if ($configurationType === 'simple') {
             $rules = array_merge($rules, [
-                'sku' => 'required|string',
                 'price' => 'required|numeric|min:0',
                 'has_discount' => 'nullable|boolean',
                 'price_before_discount' => 'nullable|numeric|min:0',
-                'offer_end_date' => 'nullable|date|after:today',
+                'discount_end_date' => 'nullable|date|after:today',
                 'stocks' => 'required|array',
                 'stocks.*.region_id' => 'required_with:stocks|exists:regions,id',
                 'stocks.*.quantity' => 'required_with:stocks|integer|min:0',
@@ -83,15 +82,15 @@ class StoreProductRequest extends FormRequest
         if ($configurationType === 'variants') {
             $rules = array_merge($rules, [
                 'variants' => 'required|array|min:1',
-                'variants.*.sku' => 'required|string|unique:vendor_product_variants,sku',
+                'variants.*.sku' => 'required|string',
                 'variants.*.price' => 'required|numeric|min:0',
                 'variants.*.has_discount' => 'nullable|boolean',
                 'variants.*.discount_price' => 'nullable|numeric|min:0',
                 'variants.*.discount_end_date' => 'nullable|date|after:today',
                 'variants.*.value_id' => 'required|exists:variants_configurations,id',
-                'variants.*.stock' => 'required|array',
-                'variants.*.stock.*.region_id' => 'required_with:variants.*.stock|exists:regions,id',
-                'variants.*.stock.*.quantity' => 'required_with:variants.*.stock|integer|min:0',
+                'variants.*.stocks' => 'required|array',
+                'variants.*.stocks.*.region_id' => 'required_with:variants.*.stocks|exists:regions,id',
+                'variants.*.stocks.*.quantity' => 'required_with:variants.*.stocks|integer|min:0',
             ]);
         }
 

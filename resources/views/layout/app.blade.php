@@ -1,6 +1,7 @@
 @include('partials._header')
 
 <link rel="stylesheet" href="{{ asset('assets/css/my_custom_style.css') }}">
+
 <body class="layout-light side-menu">
     <div class="mobile-author-actions"></div>
     <header class="header-top">
@@ -47,27 +48,40 @@
             iconLoaderUrl: "{{ asset('assets/js/json/icons.json') }}",
             googleMarkerUrl: "{{ asset('assets/img/markar-icon.png') }}",
             editorIconUrl: "{{ asset('assets/img/ui/icons.svg') }}",
-            mapClockIcon: "{{ asset('assets/img/svg/clock-ticket1.sv') }}g"
+            mapClockIcon: "{{ asset('assets/img/svg/clock-ticket1.svg') }}"
         }
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDduF2tLXicDEPDMAtC6-NLOekX0A5vlnY"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script src="{{ asset('assets/js/plugins.min.js') }}"></script>
+    <script src="{{ asset('assets/js/select2.min.js') }}"></script>
 
-    {{-- Add stub functions for missing plugins to prevent console errors --}}
+
+    {{-- Add stub functions AFTER jQuery and Select2 load but BEFORE other scripts --}}
     <script>
         // Prevent errors for optional plugins that script.min.js might try to initialize
-        if (typeof jQuery !== 'undefined') {
-            // Add stub for sortable if not loaded
-            if (!jQuery.fn.sortable) {
-                jQuery.fn.sortable = function() { return this; };
+        $(document).ready(function() {
+            // Better stubs that return chainable objects
+            if (!$.fn.sortable) {
+                $.fn.sortable = function() {
+                    console.warn('Sortable not loaded, using stub');
+                    return this; // Return this for chaining
+                };
             }
-            // Add stub for footable if not loaded
-            if (!jQuery.fn.footable) {
-                jQuery.fn.footable = function() { return this; };
+            if (!$.fn.footable) {
+                $.fn.footable = function() {
+                    console.warn('Footable not loaded, using stub');
+                    return this;
+                };
             }
-        }
+            // Add disableSelection stub for sortable chaining
+            if (!$.fn.disableSelection) {
+                $.fn.disableSelection = function() {
+                    console.warn('disableSelection not loaded, using stub');
+                    return this;
+                };
+            }
+        });
     </script>
 
     <script src="{{ asset('assets/js/script.min.js') }}"></script>
@@ -82,40 +96,6 @@
     @vite('resources/js/app.js')
 
     <script>
-        // Wait for everything to load, then dynamically load select2
-        window.addEventListener('load', function() {
-            console.log('Page fully loaded');
-            console.log('jQuery available:', typeof $ !== 'undefined');
-
-            // Dynamically load select2
-            var select2Script = document.createElement('script');
-            select2Script.src = 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js';
-            select2Script.onload = function() {
-                console.log('Select2 script loaded');
-                console.log('Select2 loaded:', typeof $.fn.select2 !== 'undefined');
-                console.log('Select2 elements found:', $('.select2').length);
-
-                // Initialize all select2 elements
-                if (typeof $.fn.select2 !== 'undefined') {
-                    $('.select2').each(function() {
-                        $(this).select2({
-                            theme: 'bootstrap-5',
-                            width: '100%',
-                            placeholder: $(this).data('placeholder') || 'Select an option',
-                            allowClear: true
-                        });
-                    });
-                    console.log('Select2 initialized successfully');
-                } else {
-                    console.error('Select2 is not loaded!');
-                }
-            };
-            select2Script.onerror = function() {
-                console.error('Failed to load Select2 script');
-            };
-            document.head.appendChild(select2Script);
-        });
-
         // Configure Toastr options to match login page
         toastr.options = {
             "closeButton": true,
@@ -177,72 +157,71 @@
             toastr.warning("{{ session('warning') }}", 'Warning');
         @endif
 
-
+        $('.select2').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+        });
     </script>
 
     <!-- CKEditor Initialization -->
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Wait for CKEditor to be available
-        if (typeof CKEDITOR === 'undefined') {
-            console.error('CKEditor is not loaded from CDN');
-            return;
-        }
-
-        console.log('CKEditor loaded successfully from CDN');
-
-        // Wait a bit more for DOM to be fully ready
-        setTimeout(function() {
-            // Initialize CKEditor for ALL textareas
-            const textareas = document.querySelectorAll('textarea');
-            console.log('Found textareas:', textareas.length);
-
-            textareas.forEach(function(textarea, index) {
-                // Skip if no ID or already initialized
-                if (!textarea.id || CKEDITOR.instances[textarea.id]) {
-                    console.log('Skipping textarea:', textarea.id || 'no-id');
-                    return;
-                }
-
-                const isRTL = textarea.getAttribute('dir') === 'rtl';
-                console.log('Initializing CKEditor for:', textarea.id, 'RTL:', isRTL);
-
-                try {
-                    CKEDITOR.replace(textarea.id, {
-                        language: 'en', // Use English to avoid missing language files
-                        contentsLangDirection: isRTL ? 'rtl' : 'ltr',
-                        height: 200,
-                        toolbar: [
-                            { name: 'clipboard', items: [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo' ] },
-                            { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat' ] },
-                            { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock' ] },
-                            { name: 'links', items: [ 'Link', 'Unlink' ] },
-                            { name: 'styles', items: [ 'Format', 'FontSize' ] },
-                            { name: 'colors', items: [ 'TextColor', 'BGColor' ] }
-                        ],
-                        removePlugins: 'elementspath',
-                        resize_enabled: false,
-                        enterMode: CKEDITOR.ENTER_BR,
-                        shiftEnterMode: CKEDITOR.ENTER_P,
-                        on: {
-                            instanceReady: function(evt) {
-                                console.log('CKEditor instance ready:', evt.editor.name);
-                                // Set RTL direction after editor is ready
-                                if (isRTL) {
-                                    evt.editor.document.getBody().setStyle('direction', 'rtl');
-                                    evt.editor.document.getBody().setStyle('text-align', 'right');
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for CKEditor to be available
+            if (typeof CKEDITOR === 'undefined') {
+                return;
+            }
+            // Wait a bit more for DOM to be fully ready
+            setTimeout(function() {
+                // Initialize CKEditor for ALL textareas
+                const textareas = document.querySelectorAll('textarea');
+                textareas.forEach(function(textarea, index) {
+                    // Skip if no ID or already initialized
+                    if (!textarea.id || CKEDITOR.instances[textarea.id]) {
+                        return;
+                    }
+                    const isRTL = textarea.getAttribute('dir') === 'rtl';
+                    try {
+                        CKEDITOR.replace(textarea.id, {
+                            language: 'en', // Use English to avoid missing language files
+                            contentsLangDirection: isRTL ? 'rtl' : 'ltr',
+                            height: 200,
+                            toolbar: [
+                                { name: 'document', items: [ 'Source', '-', 'NewPage', 'Preview', 'Print', '-', 'Templates' ] },
+                                { name: 'clipboard', items: [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo' ] },
+                                { name: 'editing', items: [ 'Find', 'Replace', '-', 'SelectAll', '-', 'Scayt' ] },
+                                { name: 'forms', items: [ 'Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton', 'HiddenField' ] },
+                                '/',
+                                { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat' ] },
+                                { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl' ] },
+                                { name: 'links', items: [ 'Link', 'Unlink', 'Anchor' ] },
+                                { name: 'insert', items: [ 'Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak', 'Iframe' ] },
+                                '/',
+                                { name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
+                                { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
+                                { name: 'tools', items: [ 'Maximize', 'ShowBlocks' ] }
+                            ],
+                            removePlugins: 'elementspath',
+                            resize_enabled: false,
+                            enterMode: CKEDITOR.ENTER_BR,
+                            shiftEnterMode: CKEDITOR.ENTER_P,
+                            on: {
+                                instanceReady: function(evt) {
+                                    // Set RTL direction after editor is ready
+                                    if (isRTL) {
+                                        evt.editor.document.getBody().setStyle(
+                                            'direction', 'rtl');
+                                        evt.editor.document.getBody().setStyle(
+                                            'text-align', 'right');
+                                    }
                                 }
                             }
-                        }
-                    });
-                } catch (error) {
-                    console.error('Error initializing CKEditor for', textarea.id, ':', error);
-                }
-            });
-
-            console.log('CKEditor initialization completed');
-        }, 500); // Wait 500ms for DOM to be fully ready
-    });
+                        });
+                    } catch (error) {
+                        console.error('Error initializing CKEditor for', textarea.id, ':', error);
+                    }
+                });
+            }, 500); // Wait 500ms for DOM to be fully ready
+        });
     </script>
 
     {{-- Make date inputs fully clickable --}}
@@ -307,14 +286,16 @@
 
     {{-- Add user type classes to body for JavaScript detection --}}
     <script>
-        @if(Auth::check())
-            @if(Auth::user()->user_type_id == \App\Models\UserType::ADMIN_TYPE || Auth::user()->user_type_id == \App\Models\UserType::SUPER_ADMIN_TYPE)
+        @if (Auth::check())
+            @if (Auth::user()->user_type_id == \App\Models\UserType::ADMIN_TYPE ||
+                    Auth::user()->user_type_id == \App\Models\UserType::SUPER_ADMIN_TYPE)
                 $('body').addClass('admin-user');
-            @elseif(Auth::user()->user_type_id == \App\Models\UserType::VENDOR_TYPE)
+            @elseif (Auth::user()->user_type_id == \App\Models\UserType::VENDOR_TYPE)
                 $('body').addClass('vendor-user');
             @endif
         @endif
     </script>
 
 </body>
+
 </html>

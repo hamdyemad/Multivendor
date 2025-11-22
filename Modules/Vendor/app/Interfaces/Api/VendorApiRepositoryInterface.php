@@ -13,4 +13,9 @@ interface VendorApiRepositoryInterface
      * Get vendor by ID
      */
     public function find(array $filters = [], $id);
+
+    /**
+     * Create a new vendor request
+     */
+    public function createVendorRequest(array $data);
 }

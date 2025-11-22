@@ -504,32 +504,32 @@
             @endcan
 
             @can('vendor_requests.new')
-                <li class="has-child">
-                    <a href="#" class="">
+                <li class="has-child {{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/vendor-requests*') ? 'open' : '' }}">
+                    <a href="#" class="{{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/vendor-requests*') ? 'active' : '' }}">
                         <span class="nav-icon uil uil-clipboard-notes"></span>
                         <span class="menu-text">{{ trans('menu.become a vendor requests.title') }}</span>
                         <span class="toggle-icon"></span>
                     </a>
                     <ul class="px-0">
                         <li>
-                            <a class="d-flex align-items-center justify-content-between fw-bold"
-                                href="{{ route('admin.dashboard') }}">
+                            <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.vendor-requests.index', $currentRoute) ? 'active' : '' }}"
+                                href="{{ route('admin.vendor-requests.index') }}">
                                 {{ trans('menu.become a vendor requests.new') }}
-                                <span class="badge badge-round badge-primary ms-1">50</span>
+                                <span class="badge badge-round badge-primary ms-1">{{ \Modules\Vendor\app\Models\VendorRequest::pending()->count() }}</span>
                             </a>
                         </li>
                         <li>
                             <a class="d-flex align-items-center justify-content-between fw-bold"
-                                href="{{ route('admin.dashboard') }}">
+                                href="{{ route('admin.vendor-requests.index') }}?status=approved">
                                 {{ trans('menu.become a vendor requests.accepted') }}
-                                <span class="badge badge-round badge-success ms-1">50</span>
+                                <span class="badge badge-round badge-success ms-1">{{ \Modules\Vendor\app\Models\VendorRequest::approved()->count() }}</span>
                             </a>
                         </li>
                         <li>
                             <a class="d-flex align-items-center justify-content-between fw-bold"
-                                href="{{ route('admin.dashboard') }}">
+                                href="{{ route('admin.vendor-requests.index') }}?status=rejected">
                                 {{ trans('menu.become a vendor requests.rejected') }}
-                                <span class="badge badge-round badge-danger ms-1">50</span>
+                                <span class="badge badge-round badge-danger ms-1">{{ \Modules\Vendor\app\Models\VendorRequest::rejected()->count() }}</span>
                             </a>
                         </li>
                     </ul>

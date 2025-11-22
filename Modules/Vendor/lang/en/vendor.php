@@ -214,4 +214,26 @@ return [
     'total_vendors_balance' => 'Total Vendors Balance',
     'total_sent_money' => 'Total Sent Money',
     'total_remaining' => 'Total Remaining',
+
+    // Vendor Request Email
+    'vendor_request_email' => [
+        'subject' => 'Vendor Request Received - :app_name',
+        'header_title' => 'Vendor Request Received',
+        'header_subtitle' => 'Thank you for your interest in becoming a vendor',
+        'greeting' => 'Hello :company,',
+        'intro_message' => 'Thank you for your interest in becoming a vendor on :app_name! We have received your vendor request and will review it shortly.',
+        'request_details' => 'Request Details',
+        'company_name' => 'Company Name',
+        'email' => 'Email',
+        'phone' => 'Phone',
+        'activities' => 'Activities',
+        'next_steps' => 'What Happens Next?',
+        'review_message' => 'Our team will carefully review your vendor request and verify all the information you provided.',
+        'contact_message' => 'We will contact you within 2-3 business days with a decision. If we need any additional information, we will reach out to you directly.',
+        'need_help' => 'Need Help?',
+        'support_message' => 'If you have any questions about your vendor request or need assistance, please don\'t hesitate to contact us.',
+        'support_contact' => 'Support Email',
+        'footer_message' => 'Thank you for choosing :app_name as your platform to grow your business.',
+        'all_rights_reserved' => 'All rights reserved.',
+    ],
 ];

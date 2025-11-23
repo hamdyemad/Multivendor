@@ -28,7 +28,9 @@ use App\Models\UserType;
 use Illuminate\Support\Facades\Auth;
 use Modules\CatalogManagement\app\Actions\ProductAction;
 use Modules\CatalogManagement\app\Http\Resources\VariantsConfigurationKeyResource;
+use Modules\CatalogManagement\app\Models\Brand;
 use Modules\CatalogManagement\app\Services\VariantConfigurationKeyService;
+use Modules\Vendor\app\Models\Vendor;
 
 class ProductController extends Controller
 {
@@ -51,46 +53,8 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $languages = $this->languageService->getAll();
-
-        // Get filter data for admin users
-        $vendors = [];
-        $brands = [];
-        $categories = [];
-
-        if (auth()->user() && in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds())) {
-            $vendors = \Modules\Vendor\app\Models\Vendor::select('id')->with('translations')->get()->map(function($vendor) {
-                return [
-                    'id' => $vendor->id,
-                    'name' => $vendor->getTranslation('name', app()->getLocale()) ??
-                             $vendor->getTranslation('name', 'en') ??
-                             $vendor->getTranslation('name', 'ar') ??
-                             'Vendor #' . $vendor->id
-                ];
-            });
-
-            $brands = \Modules\CatalogManagement\app\Models\Brand::select('id')->with('translations')->get()->map(function($brand) {
-                return [
-                    'id' => $brand->id,
-                    'name' => $brand->getTranslation('name', app()->getLocale()) ??
-                             $brand->getTranslation('name', 'en') ??
-                             $brand->getTranslation('name', 'ar') ??
-                             'Brand #' . $brand->id
-                ];
-            });
-
-            $categories = \Modules\CategoryManagment\app\Models\Category::select('id')->with('translations')->get()->map(function($category) {
-                return [
-                    'id' => $category->id,
-                    'name' => $category->getTranslation('name', app()->getLocale()) ??
-                             $category->getTranslation('name', 'en') ??
-                             $category->getTranslation('name', 'ar') ??
-                             'Category #' . $category->id
-                ];
-            });
-        }
-
-        return view('catalogmanagement::product.index', compact('languages', 'vendors', 'brands', 'categories'));
+        // Use the same logic as filtered methods but without status filter
+        return $this->getFilteredProducts($request, null);
     }
 
     /**
@@ -434,5 +398,69 @@ class ProductController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Display pending products
+     */
+    public function pending(Request $request)
+    {
+        // Use the same logic as index() but with status filter
+        return $this->getFilteredProducts($request, 'pending');
+    }
+
+    /**
+     * Display rejected products
+     */
+    public function rejected(Request $request)
+    {
+        // Use the same logic as index() but with status filter
+        return $this->getFilteredProducts($request, 'rejected');
+    }
+
+    /**
+     * Display accepted products
+     */
+    public function accepted(Request $request)
+    {
+        // Use the same logic as index() but with status filter
+        return $this->getFilteredProducts($request, 'approved');
+    }
+
+    /**
+     * Private method to get filtered products using the same pattern as index()
+     */
+    private function getFilteredProducts(Request $request, ?string $statusFilter)
+    {
+        $languages = $this->languageService->getAll();
+
+        // Get filter data for admin users - same logic as index() method
+        $vendors = [];
+        $brands = [];
+        $categories = [];
+
+        if (auth()->user() && in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds())) {
+            $vendors = Vendor::with('translations')->get()->map(function($vendor) {
+                return [
+                    'id' => $vendor->id,
+                    'name' => $vendor->name
+                ];
+            });
+
+            $brands = $this->brandService->getAllBrands([], 0);
+            return $brands;
+
+            $categories = Category::select('id')->with('translations')->get()->map(function($category) {
+                return [
+                    'id' => $category->id,
+                    'name' => $category->getTranslation('name', app()->getLocale()) ??
+                             $category->getTranslation('name', 'en') ??
+                             $category->getTranslation('name', 'ar') ??
+                             'Category #' . $category->id
+                ];
+            });
+        }
+
+        return view('catalogmanagement::product.index', compact('languages', 'vendors', 'brands', 'categories', 'statusFilter'));
     }
 }

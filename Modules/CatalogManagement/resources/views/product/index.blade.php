@@ -1,5 +1,10 @@
 @extends('layout.app')
-@section('title', trans('catalogmanagement::product.products_management'))
+@section('title',
+    (isset($statusFilter) && $statusFilter === 'pending') ? trans('menu.products.pending_products') :
+    ((isset($statusFilter) && $statusFilter === 'rejected') ? trans('menu.products.rejected_products') :
+    ((isset($statusFilter) && $statusFilter === 'approved') ? trans('menu.products.accepted_products') :
+    trans('catalogmanagement::product.products_management')))
+)
 
 @section('content')
     <div class="container-fluid">
@@ -11,7 +16,12 @@
                         'url' => route('admin.dashboard'),
                         'icon' => 'uil uil-estate',
                     ],
-                    ['title' => trans('catalogmanagement::product.products_management')],
+                    ['title' =>
+                        $statusFilter === 'pending' ? trans('menu.products.pending_products') :
+                        ($statusFilter === 'rejected' ? trans('menu.products.rejected_products') :
+                        ($statusFilter === 'approved' ? trans('menu.products.accepted_products') :
+                        trans('catalogmanagement::product.products_management')))
+                    ],
                 ]" />
             </div>
         </div>
@@ -22,7 +32,15 @@
                     <div class="d-flex justify-content-between align-items-center mb-25">
                         <h4 class="mb-0 fw-600 text-primary">
                             <i class="uil uil-box me-2"></i>
-                            {{ trans('catalogmanagement::product.products_management') }}
+                            @if($statusFilter === 'pending')
+                                {{ trans('menu.products.pending_products') }}
+                            @elseif($statusFilter === 'rejected')
+                                {{ trans('menu.products.rejected_products') }}
+                            @elseif($statusFilter === 'approved')
+                                {{ trans('menu.products.accepted_products') }}
+                            @else
+                                {{ trans('catalogmanagement::product.products_management') }}
+                            @endif
                         </h4>
                         <a href="{{ route('admin.products.create') }}"
                             class="btn btn-primary btn-squared shadow-sm px-4">
@@ -306,6 +324,9 @@
                         d.category_id = $('#category_filter').val();
                         d.active = $('#active').val();
                         d.status = $('#status').val();
+                        @if(isset($statusFilter) && $statusFilter)
+                        d.status = '{{ $statusFilter }}';
+                        @endif
                         d.created_date_from = $('#created_date_from').val();
                         d.created_date_to = $('#created_date_to').val();
                         d.per_page = $('#entriesSelect').val() || 10;

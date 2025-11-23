@@ -14,7 +14,7 @@ use Modules\Customer\app\Http\Requests\Api\VerifyResetOtpRequest;
 use Modules\Customer\app\Http\Requests\Api\ResetPasswordRequest;
 use Modules\Customer\app\Http\Requests\Api\TokensRequest;
 use Modules\Customer\app\Http\Requests\Api\UpdateProfileRequest;
-use Modules\Customer\Transformers\CustomerApiResource;
+use Modules\Customer\app\Transformers\CustomerApiResource;
 use Modules\Customer\app\Models\Customer;
 use Modules\Customer\app\Services\Api\CustomerAuthService;
 use Modules\Customer\app\Http\Requests\Api\DeviceIdRequest;
@@ -120,7 +120,6 @@ class CustomerAuthController extends Controller
         $validated = $request->validated();
 
         $result = $this->authService->login($validated);
-
         if(!$result) {
             return $this->sendRes(
                 config('responses.invalid_credentials')[app()->getLocale()],

@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Customer\Http\Controllers\CustomerController;
+use Modules\Customer\app\Http\Controllers\CustomerController;
 
 Route::group(['prefix' => 'admin/customers', 'as' => 'admin.customers.', 'middleware' => ['auth']], function () {
     Route::get('datatable', [CustomerController::class, 'datatable'])->name('datatable');

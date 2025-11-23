@@ -4,6 +4,7 @@ namespace Modules\Customer\app\Providers;
 
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -35,7 +36,10 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapWebRoutes(): void
     {
-        Route::middleware('web')->group(module_path($this->name, '/routes/web.php'));
+        Route::middleware(['web', 'auth', 'localeSessionRedirect', 'localizationRedirect', 'localeViewPath', 'setLocaleFromUrl'])
+        ->prefix(LaravelLocalization::setLocale())
+        ->namespace('Modules\Customer\app\Http\Controllers')
+        ->group(module_path($this->name, '/routes/web.php'));
     }
 
     /**

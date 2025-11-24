@@ -12662,11 +12662,9 @@ body.top-menu .navbar-left .customizer-trigger+.top-menu {
     border-bottom: none;
     padding: 13px 20px 15px 20px;
     vertical-align: middle;
-    background: var(--bg-normal)
 }
 
 .userDatatable-header th .checkbox-text {
-    color: var(--color-gray);
     font-size: 14px;
     font-weight: 500;
     text-transform: capitalize

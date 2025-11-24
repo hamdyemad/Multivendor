@@ -1,10 +1,10 @@
 <?php
 
-namespace Modules\Customer\Transformers;
+namespace Modules\Customer\app\Transformers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Modules\Customer\Transformers\AddressResource;
+use Modules\Customer\app\Transformers\AddressResource;
 
 class CustomerApiResource extends JsonResource
 {

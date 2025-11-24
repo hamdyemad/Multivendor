@@ -26,7 +26,7 @@ class CustomerAuthService
     /**
      * Send OTP for email verification
      */
-    public function sendEmailVerificationOtp(string $email, $cause = "email_verification", int $expiresInMinutes = 10): bool
+    public function sendEmailVerificationOtp(string $email, $cause = "email_verification", int $expiresInMinutes = 10)
     {
         // Check if customer exists
         $customer = $this->customerRepository->getByEmail($email);
@@ -35,15 +35,19 @@ class CustomerAuthService
         //     return false;
         // }
 
-        event(new OtpCreated($customer, str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT), $cause, $expiresInMinutes));
+        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        return true;
+        event(new OtpCreated($customer, $otp, $cause, $expiresInMinutes));
+
+        return [
+            'otp' => $otp
+        ];
     }
 
     /**
      * Register customer (save to DB first, then send OTP)
      */
-    public function registerCustomer(array $data): Customer
+    public function registerCustomer(array $data): array
     {
         $customer = $this->customerRepository->create($data);
 
@@ -52,7 +56,9 @@ class CustomerAuthService
 
         event(new OtpCreated($customer, $otp, "email_verification", 10));
 
-        return $customer;
+        return [
+            'otp' => $otp
+        ];
     }
 
     /**

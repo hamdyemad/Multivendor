@@ -90,4 +90,14 @@ return [
     // Info
     'basic_information' => 'Basic Information',
     'subregions_list' => 'Sub-Regions List',
+
+    // Status Change Modal
+    'change_status' => 'Change Status',
+    'change_status_confirmation' => 'Are you sure you want to change the status of this sub-region?',
+    'current_status' => 'Current Status',
+    'new_status' => 'New Status',
+    'confirm_status_change' => 'Confirm Change',
+    'status_changed_successfully' => 'Sub-region status changed successfully',
+    'error_changing_status' => 'Error changing sub-region status',
+    'status_already_set' => 'Sub-region is already set to this status',
 ];

@@ -37,7 +37,7 @@ class WithdrawController extends Controller
 
         $perPage = $request->input('length', 10);
         $page = ($request->input('start', 0) / $perPage) + 1;
-        $searchValue = $request->input('search.value', '');
+        $searchValue = $request->input('search', '');
 
         try {
             $query = Withdraw::with([
@@ -50,12 +50,29 @@ class WithdrawController extends Controller
             // Filter by search
             if ($searchValue) {
                 $query->where(function ($q) use ($searchValue) {
-                    $q->whereHas('vendor', function ($q2) use ($searchValue) {
-                        $q2->where('name', 'like', "%$searchValue%");
-                    })->orWhereHas('admin', function ($q2) use ($searchValue) {
-                        $q2->where('name', 'like', "%$searchValue%");
+                    $q->whereHas('vendor.translations', function ($q2) use ($searchValue) {
+                        $q2->where('lang_value', 'like', "%$searchValue%");
                     });
                 });
+            }
+
+            // Filter by vendor
+            if ($request->filled('vendor_filter')) {
+                $query->where('reciever_id', $request->vendor_filter);
+            }
+
+            // Filter by status
+            if ($request->filled('status_filter')) {
+                $query->where('status', $request->status_filter);
+            }
+
+            // Filter by date range
+            if ($request->filled('created_date_from')) {
+                $query->whereDate('created_at', '>=', $request->created_date_from);
+            }
+
+            if ($request->filled('created_date_to')) {
+                $query->whereDate('created_at', '<=', $request->created_date_to);
             }
 
             $totalRecords = $query->count();
@@ -63,17 +80,40 @@ class WithdrawController extends Controller
 
             // Prepare data for DataTable
             $data = $query->get()->map(function ($item) {
+                // Get logo safely
+                $logoPath = '';
+                try {
+                    if ($item->vendor && $item->vendor->logo && isset($item->vendor->logo->path)) {
+                        $logoPath = asset('storage/' . $item->vendor->logo->path);
+                    }
+                } catch (\Exception $e) {
+                    $logoPath = '';
+                }
+
+                // Get vendor name safely
+                $vendorName = '-';
+                try {
+                    if ($item->vendor) {
+                        // Try to get name from translations first, then fallback to direct name property
+                        if ($item->vendor->translations && $item->vendor->translations->count() > 0) {
+                            $vendorName = $item->vendor->translations->first()->lang_value ?? '-';
+                        } else {
+                            $vendorName = $item->vendor->name ?? '-';
+                        }
+                    }
+                } catch (\Exception $e) {
+                    $vendorName = '-';
+                }
+
                 return [
                     'id' => $item->id,
-                    'vendor_logo' => $item->vendor ? asset('storage/' . $item->vendor->logo->path) : '',
-                    'vendor' => $item->vendor
-                        ? optional($item->vendor->translations->first())->lang_value ?? $item->vendor->name
-                        : '-',
+                    'vendor_logo' => $logoPath,
+                    'vendor' => $vendorName,
                     'status' => $item->status,
                     'invoice' => $item->invoice_url,
-                    'before_sending_money' => number_format($item->before_sending_money, 2) . " EGP",
-                    'sent_amount' => number_format($item->sent_amount, 2) . " EGP",
-                    'after_sending_amount' => number_format($item->after_sending_amount, 2) . " EGP",
+                    'before_sending_money' => number_format($item->before_sending_money, 2) . ' ' . __('withdraw::withdraw.currency'),
+                    'sent_amount' => number_format($item->sent_amount, 2) . ' ' . __('withdraw::withdraw.currency'),
+                    'after_sending_amount' => number_format($item->after_sending_amount, 2) . ' ' . __('withdraw::withdraw.currency'),
                     'created_at' => $item->created_at,
                 ];
             });
@@ -106,8 +146,29 @@ class WithdrawController extends Controller
         if (auth()->user()->user_type->name == "vendor") {
             abort(404);
         }
+
         $languages = $this->languageService->getAll();
-        return view('withdraw::all_transactions', compact('languages'));
+
+        // Get vendors for filter dropdown
+        $vendors = Vendor::with(['translations' => function ($q) {
+            $q->where('lang_key', 'name');
+        }])->get()->map(function ($vendor) {
+            $vendorName = 'Unknown Vendor';
+            try {
+                if ($vendor->translations && $vendor->translations->count() > 0) {
+                    $vendorName = $vendor->translations->first()->lang_value ?? 'Unknown Vendor';
+                }
+            } catch (\Exception $e) {
+                $vendorName = 'Unknown Vendor';
+            }
+
+            return [
+                'id' => $vendor->id,
+                'name' => $vendorName
+            ];
+        });
+
+        return view('withdraw::all_transactions', compact('languages', 'vendors'));
     }
 
 
@@ -127,65 +188,77 @@ class WithdrawController extends Controller
 
         $perPage = $request->input('length', 10);
         $page = ($request->input('start', 0) / $perPage) + 1;
-        $searchValue = $request->input('search.value', '');
+        $searchValue = $request->input('search', '');
 
-        try {
-            $query = Vendor::latest()->with([
-                'translations' => function ($q) {
-                    $q->where('lang_key', 'name');
-                }
-            ]);
+        // Use simple query without problematic relationships
+        $query = Vendor::query();
 
-            // Filter by search
-            if ($searchValue) {
-                $query->where(function ($q) use ($searchValue) {
-                    $q->whereHas('vendor', function ($q2) use ($searchValue) {
-                        $q2->where('name', 'like', "%$searchValue%");
-                    })->orWhereHas('admin', function ($q2) use ($searchValue) {
-                        $q2->where('name', 'like', "%$searchValue%");
-                    });
+        // Search filter
+        if ($searchValue) {
+            $query->where(function($q) use ($searchValue) {
+                $q->whereHas('translations', function($query) use ($searchValue) {
+                    $query->where('lang_value', 'like', "%{$searchValue}%");
                 });
-            }
-
-            $totalRecords = $query->count();
-            $dataPaginated = $query->orderBy('created_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
-
-            // Prepare data for DataTable
-            $data = $query->get()->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'vendor_logo' => asset('storage/' . $item->logo->path),
-                    'vendor_name' => $item
-                        ? optional($item->translations->first())->lang_value ?? $item->name
-                        : '-',
-                    'before_sending_money' => number_format($item->total_orders->sum("price"), 2) . " EGP",
-                    'total_sent_money' => number_format($item->withdraw->where("status", "accepted")->sum("sent_amount"), 2) . " EGP",
-                    'remaining' => number_format($item->total_orders->sum("price") - $item->withdraw->where("status", "accepted")->sum("sent_amount"), 2) . " EGP",
-                    'created_at' => $item->created_at,
-                ];
             });
-
-            return response()->json([
-                'draw' => $request->input('draw', 1),
-                'recordsTotal' => $totalRecords,
-                'recordsFiltered' => $totalRecords,
-                'data' => $data,
-                'current_page' => $dataPaginated->currentPage(),
-                'last_page' => $dataPaginated->lastPage(),
-                'per_page' => $dataPaginated->perPage(),
-                'total' => $dataPaginated->total(),
-                'from' => $dataPaginated->firstItem(),
-                'to' => $dataPaginated->lastItem()
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'draw' => $request->input('draw', 1),
-                'data' => [],
-                'recordsTotal' => 0,
-                'recordsFiltered' => 0,
-                'error' => $e->getMessage()
-            ], 500);
         }
+
+        // Filter by vendor
+        if ($request->filled('vendor_filter')) {
+            $query->where('id', $request->vendor_filter);
+        }
+
+        // Filter by date range
+        if ($request->filled('created_date_from')) {
+            $query->whereDate('created_at', '>=', $request->created_date_from);
+        }
+
+        if ($request->filled('created_date_to')) {
+            $query->whereDate('created_at', '<=', $request->created_date_to);
+        }
+
+        $totalRecords = $query->count();
+
+        // Get vendors for this page
+        $vendors = $query->orderBy('created_at', 'desc')
+                       ->skip($request->input('start', 0))
+                       ->take($perPage)
+                       ->get();
+
+        // Prepare data for DataTable with safe calculations
+        $data = [];
+        foreach ($vendors as $item) {
+            $totalOrders = OrderProduct::where('vendor_id', $item->id)
+                         ->sum('price') ?? 0;
+            $totalSentMoney = Withdraw::where('reciever_id', $item->id)
+                                    ->where('status', 'accepted')
+                                    ->sum('sent_amount') ?? 0;
+
+            $remaining = $totalOrders - $totalSentMoney;
+
+            // Get logo safely
+            $logoPath = asset('storage/' . $item->logo->path);
+
+            // Get vendor name safely
+            $vendorName = $item->name;
+            $data[] = [
+                'id' => $item->id,
+                'vendor' => [
+                    'logo' => $logoPath,
+                    'name' => $vendorName
+                ],
+                'before_sending_money' => number_format($totalOrders, 2) . ' ' . __('withdraw::withdraw.currency'),
+                'sent_amount' => number_format($totalSentMoney, 2) . ' ' . __('withdraw::withdraw.currency'),
+                'after_sending_amount' => number_format($remaining, 2) . ' ' . __('withdraw::withdraw.currency'),
+                'created_at' => $item->created_at,
+            ];
+        }
+
+        return response()->json([
+            'draw' => $request->input('draw', 1),
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $totalRecords,
+            'data' => $data
+        ]);
     }
 
     public function allVendorsTransactions()
@@ -193,28 +266,21 @@ class WithdrawController extends Controller
         if (auth()->user()->user_type->name == "vendor") {
             abort(404);
         }
+
         $languages = $this->languageService->getAll();
-        return view('withdraw::all_vendors_transactions', compact('languages'));
+
+        // Get vendors for filter dropdown
+        $vendors = Vendor::with(['translations' => function ($q) {
+            $q->where('lang_key', 'name');
+        }])->get()->map(function ($vendor) {
+            return [
+                'id' => $vendor->id,
+                'name' => optional($vendor->translations->first())->lang_value ?? $vendor->name ?? 'Unknown Vendor'
+            ];
+        });
+
+        return view('withdraw::all_vendors_transactions', compact('languages', 'vendors'));
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     public function getVendorBalance($vendor_id)
     {
@@ -289,7 +355,7 @@ class WithdrawController extends Controller
 
         $vendor_name = auth()->user()->vendor->translations[0]->lang_value;
 
-        $final_remaining = floatval(str_replace(',', '', $general_info['remaining'])) - floatval(str_replace(',', '', $general_info['waiting_approve_requests'])) ;
+        $final_remaining = floatval(str_replace(',', '', $general_info['remaining'])) - floatval(str_replace(',', '', $general_info['waiting_approve_requests']));
 
         return view('withdraw::send_money_request', compact('languages', 'general_info', 'vendor_name', 'final_remaining'));
     }
@@ -392,9 +458,9 @@ class WithdrawController extends Controller
                     : '-',
                 'status' => $item->status,
                 'invoice' => $item->invoice_url,
-                'before_sending_money' => number_format($item->before_sending_money, 2) . " EGP",
-                'sent_amount' => number_format($item->sent_amount, 2) . " EGP",
-                'after_sending_amount' => number_format($item->after_sending_amount, 2) . " EGP",
+                'before_sending_money' => number_format($item->before_sending_money, 2) . ' ' . __("common.currency"),
+                'sent_amount' => number_format($item->sent_amount, 2) . ' ' . __("common.currency"),
+                'after_sending_amount' => number_format($item->after_sending_amount, 2) . ' ' . __("common.currency"),
                 'created_at' => $item->created_at,
             ];
         });

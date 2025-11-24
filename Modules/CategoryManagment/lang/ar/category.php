@@ -80,4 +80,10 @@ return [
     // Info
     'basic_information' => 'المعلومات الأساسية',
     'categories_list' => 'قائمة الفئات',
+
+    // Status Change
+    'change_status' => 'تغيير الحالة',
+    'status_changed_successfully' => 'تم تغيير حالة الفئة بنجاح',
+    'error_changing_status' => 'خطأ في تغيير حالة الفئة',
+    'status_already_set' => 'الفئة مضبوطة بالفعل على هذه الحالة',
 ];

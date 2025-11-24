@@ -265,4 +265,16 @@ return [
     'please_select_status' => 'Please select a status',
     'rejection_reason_required' => 'Rejection reason is required when rejecting a product',
     'select_new_status_for_product' => 'Select the new status for this product',
+
+    'add_new_variants' => 'Add New Variants',
+    'click_add_variant_to_create_new' => 'Click To Add New Variant',
+    'enable_discount_offer' => 'Enable Discount Offer',
+    'product_not_found' => 'Product not found or already deleted',
+    'variant_configuration' => 'Variant Configuration',
+    'variant_configuration_required' => 'Please select a variant configuration',
+    'stock_management' => 'Stock Management',
+    'manage_product_pricing_stock' => 'Manage product pricing and stock levels',
+    'update_stock_pricing' => 'Update Stock & Pricing',
+    'stock_pricing_updated' => 'Stock and pricing updated successfully',
+    'updating_stock_pricing' => 'Updating stock and pricing',
 ];

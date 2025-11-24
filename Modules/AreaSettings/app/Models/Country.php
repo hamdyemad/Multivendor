@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\SystemSetting\app\Models\Currency;
+use Modules\Vendor\app\Models\Vendor;
 
 class Country extends Model
 {
@@ -17,6 +18,10 @@ class Country extends Model
     protected $table = 'countries';
     protected $guarded = [];
 
+
+    public function vendors() {
+        return $this->hasMany(Vendor::class, 'country_id');
+    }
     public function cities() {
         return $this->hasMany(City::class, 'country_id');
     }

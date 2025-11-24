@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Customer\Providers;
+namespace Modules\Customer\app\Providers;
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Modules\Customer\app\Events\OtpCreated;

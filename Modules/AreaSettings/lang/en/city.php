@@ -79,4 +79,14 @@ return [
     // Info
     'basic_information' => 'Basic Information',
     'cities_list' => 'Cities List',
+
+    // Status Change Modal
+    'change_status' => 'Change Status',
+    'change_status_confirmation' => 'Are you sure you want to change the status of this city?',
+    'current_status' => 'Current Status',
+    'new_status' => 'New Status',
+    'confirm_status_change' => 'Confirm Change',
+    'status_changed_successfully' => 'City status changed successfully',
+    'error_changing_status' => 'Error changing city status',
+    'status_already_set' => 'City is already set to this status',
 ];

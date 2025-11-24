@@ -1,5 +1,10 @@
 @extends('layout.app')
-@section('title', trans('catalogmanagement::product.products_management'))
+@section('title',
+    (isset($statusFilter) && $statusFilter === 'pending') ? trans('menu.products.pending_products') :
+    ((isset($statusFilter) && $statusFilter === 'rejected') ? trans('menu.products.rejected_products') :
+    ((isset($statusFilter) && $statusFilter === 'approved') ? trans('menu.products.accepted_products') :
+    trans('catalogmanagement::product.products_management')))
+)
 
 @section('content')
     <div class="container-fluid">
@@ -11,7 +16,12 @@
                         'url' => route('admin.dashboard'),
                         'icon' => 'uil uil-estate',
                     ],
-                    ['title' => trans('catalogmanagement::product.products_management')],
+                    ['title' =>
+                        $statusFilter === 'pending' ? trans('menu.products.pending_products') :
+                        ($statusFilter === 'rejected' ? trans('menu.products.rejected_products') :
+                        ($statusFilter === 'approved' ? trans('menu.products.accepted_products') :
+                        trans('catalogmanagement::product.products_management')))
+                    ],
                 ]" />
             </div>
         </div>
@@ -22,17 +32,21 @@
                     <div class="d-flex justify-content-between align-items-center mb-25">
                         <h4 class="mb-0 fw-600 text-primary">
                             <i class="uil uil-box me-2"></i>
-                            {{ trans('catalogmanagement::product.products_management') }}
+                            @if($statusFilter === 'pending')
+                                {{ trans('menu.products.pending_products') }}
+                            @elseif($statusFilter === 'rejected')
+                                {{ trans('menu.products.rejected_products') }}
+                            @elseif($statusFilter === 'approved')
+                                {{ trans('menu.products.accepted_products') }}
+                            @else
+                                {{ trans('catalogmanagement::product.products_management') }}
+                            @endif
                         </h4>
                         <a href="{{ route('admin.products.create') }}"
                             class="btn btn-primary btn-squared shadow-sm px-4">
                             <i class="uil uil-plus"></i> {{ trans('catalogmanagement::product.add_product') }}
                         </a>
                     </div>
-                    <div class="alert alert-info glowing-alert" role="alert">
-                        {{ __('common.live_search_info') }}
-                    </div>
-
                     {{-- Search & Filters --}}
                     <div class="mb-25">
                         <div class="card border-0 shadow-sm">
@@ -60,11 +74,11 @@
                                                 {{ __('catalogmanagement::product.vendor') }}
                                             </label>
                                             <select
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="vendor_filter">
                                                 <option value="">{{ __('common.all') }}</option>
                                                 @foreach($vendors as $vendor)
-                                                    <option value="{{ $vendor['id'] }}">{{ $vendor['name'] }}</option>
+                                                    <option value="{{ $vendor['id'] }}" @if(request('vendor_id') == $vendor['id']) selected @endif>{{ $vendor['name'] }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -77,11 +91,11 @@
                                                 {{ __('catalogmanagement::product.brand') }}
                                             </label>
                                             <select
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="brand_filter">
                                                 <option value="">{{ __('common.all') }}</option>
                                                 @foreach($brands as $brand)
-                                                    <option value="{{ $brand['id'] }}">{{ $brand['name'] }}</option>
+                                                    <option value="{{ $brand['id'] }}" @if(request('brand_id') == $brand['id']) selected @endif>{{ $brand['name'] }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -94,11 +108,11 @@
                                                 {{ __('catalogmanagement::product.category') }}
                                             </label>
                                             <select
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="category_filter">
                                                 <option value="">{{ __('common.all') }}</option>
                                                 @foreach($categories as $category)
-                                                    <option value="{{ $category['id'] }}">{{ $category['name'] }}</option>
+                                                    <option value="{{ $category['id'] }}" @if(request('category_id') == $brand['id']) selected @endif>{{ $category['name'] }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -111,17 +125,18 @@
                                                 {{ __('common.active_status') }}
                                             </label>
                                             <select
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="active">
                                                 <option value="">{{ __('common.all') }}</option>
-                                                <option value="1">{{ __('common.active') }}
+                                                <option value="1" @if(request('active') == '1') selected @endif>{{ __('common.active') }}
                                                 </option>
-                                                <option value="0">{{ __('common.inactive') }}
+                                                <option value="2" @if(request('active') == '2') selected @endif>{{ __('common.inactive') }}
                                                 </option>
                                             </select>
                                         </div>
                                     </div>
 
+                                    @if(!isset($statusFilter))
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="status" class="il-gray fs-14 fw-500 mb-10">
@@ -129,7 +144,7 @@
                                                 {{ __('catalogmanagement::product.approval_status') }}
                                             </label>
                                             <select
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="status">
                                                 <option value="">{{ __('common.all') }}</option>
                                                 @foreach(\Modules\CatalogManagement\app\Models\VendorProduct::getStatuses() as $statusValue => $statusLabel)
@@ -138,6 +153,7 @@
                                             </select>
                                         </div>
                                     </div>
+                                    @endif
 
                                     <div class="col-md-3">
                                         <div class="form-group">
@@ -164,35 +180,27 @@
                                     </div>
 
                                     <div class="col-md-12 d-flex align-items-center">
-                                        <button type="button" id="exportExcel"
-                                            class="btn btn-primary btn-default btn-squared me-1"
-                                            title="{{ __('common.excel') }}">
-                                            <i class="uil uil-file-download-alt me-1"></i>
-                                            {{ __('common.export_excel') }}
+                                        <button type="button" id="searchBtn"
+                                            class="btn btn-success btn-default btn-squared me-1"
+                                            title="{{ __('common.search') }}">
+                                            <i class="uil uil-search me-1"></i>
+                                            {{ __('common.search') }}
                                         </button>
                                         <button type="button" id="resetFilters"
-                                            class="btn btn-warning btn-default btn-squared"
+                                            class="btn btn-warning btn-default btn-squared me-1"
                                             title="{{ __('common.reset') }}">
                                             <i class="uil uil-redo me-1"></i>
                                             {{ __('common.reset_filters') }}
                                         </button>
+                                        <button type="button" id="exportExcel"
+                                            class="btn btn-primary btn-default btn-squared"
+                                            title="{{ __('common.excel') }}">
+                                            <i class="uil uil-file-download-alt me-1"></i>
+                                            {{ __('common.export_excel') }}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    {{-- Entries Per Page --}}
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="d-flex align-items-center">
-                            <label class="me-2 mb-0">{{ __('common.show') }}</label>
-                            <select id="entriesSelect" class="form-select form-select-sm" style="width: auto;">
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                            </select>
-                            <label class="ms-2 mb-0">{{ __('common.entries') }}</label>
                         </div>
                     </div>
 
@@ -294,9 +302,21 @@
                 inactive: '{{ __('common.inactive') }}'
             };
 
+            // Populate filters from URL parameters on page load
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('search')) $('#search').val(urlParams.get('search'));
+            if (urlParams.has('vendor_id')) $('#vendor_filter').val(urlParams.get('vendor_id')).trigger('change');
+            if (urlParams.has('brand_id')) $('#brand_filter').val(urlParams.get('brand_id')).trigger('change');
+            if (urlParams.has('category_id')) $('#category_filter').val(urlParams.get('category_id')).trigger('change');
+            if (urlParams.has('active')) $('#active').val(urlParams.get('active')).trigger('change');
+            if (urlParams.has('status')) $('#status').val(urlParams.get('status')).trigger('change');
+            if (urlParams.has('created_date_from')) $('#created_date_from').val(urlParams.get('created_date_from'));
+            if (urlParams.has('created_date_to')) $('#created_date_to').val(urlParams.get('created_date_to'));
+
             let table = $('#productsDataTable').DataTable({
                 processing: true,
                 serverSide: true,
+                searching: false,
                 ajax: {
                     url: '{{ route('admin.products.datatable') }}',
                     data: function(d) {
@@ -306,6 +326,9 @@
                         d.category_id = $('#category_filter').val();
                         d.active = $('#active').val();
                         d.status = $('#status').val();
+                        @if(isset($statusFilter) && $statusFilter)
+                        d.status = '{{ $statusFilter }}';
+                        @endif
                         d.created_date_from = $('#created_date_from').val();
                         d.created_date_to = $('#created_date_to').val();
                         d.per_page = $('#entriesSelect').val() || 10;
@@ -315,12 +338,14 @@
                         data: 'index',
                         name: 'index',
                         orderable: false,
+                        searchable: false,
                         className: 'text-center fw-bold'
                     },
                     {
                         data: 'product_information',
                         name: 'product_information',
                         orderable: false,
+                        searchable: true,
                         render: function(data, type, row) {
                             if (!data) return '<span class="text-muted">—</span>';
                             let html = '<div class="product-info-container">';
@@ -348,6 +373,7 @@
                     {
                         data: 'vendor',
                         name: 'vendor',
+                        searchable: false,
                         render: function(data, type, row) {
                             if (!data || !data.name) {
                                 return '<span class="text-muted">—</span>';
@@ -359,6 +385,7 @@
                     {
                         data: 'brand',
                         name: 'brand',
+                        searchable: false,
                         render: function(data) {
                             if (!data?.name) return '<span class="text-muted">—</span>';
                             return `<span class="badge badge-info badge-round badge-lg">${$('<div/>').text(data.name).html()}</span>`;
@@ -367,6 +394,7 @@
                     {
                         data: 'category',
                         name: 'category',
+                        searchable: false,
                         render: function(data) {
                             if (!data?.name) return '<span class="text-muted">—</span>';
                             return `<span class="badge badge-secondary badge-round badge-lg">${$('<div/>').text(data.name).html()}</span>`;
@@ -376,6 +404,7 @@
                         data: 'status',
                         name: 'status',
                         orderable: true,
+                        searchable: false,
                         className: 'text-center',
                         render: function(data, type, row) {
                             if (!data) {
@@ -395,6 +424,7 @@
                         data: 'active',
                         name: 'active',
                         orderable: true,
+                        searchable: false,
                         className: 'text-center',
                         render: function(data) {
                             return data ?
@@ -405,6 +435,7 @@
                     {
                         data: 'created_at',
                         name: 'created_at',
+                        searchable: false,
                         render: function(data) {
                             return data ? new Date(data).toLocaleDateString('en-EG') : '—';
                         }
@@ -427,6 +458,9 @@
                                 </a>
                                 <a href="${editUrl}" class="edit btn btn-warning table_action_father" title="{{ trans('common.edit') }}">
                                     <i class="uil uil-edit table_action_icon"></i>
+                                </a>
+                                <a href="${stockPricingUrl}" class="stock-management btn btn-info table_action_father" title="{{ trans('catalogmanagement::product.stock_management') }}">
+                                    <i class="uil uil-box table_action_icon"></i>
                                 </a>`;
 
                             // Add approve/reject button for admin users only
@@ -446,7 +480,7 @@
                                 <a href="javascript:void(0);" class="remove delete-product btn btn-danger table_action_father"
                                    data-bs-toggle="modal" data-bs-target="#modal-delete-product"
                                    data-item-id="${data.id}"
-                                   data-item-name="${data.translations?.{{ app()->getLocale() }}?.name || 'Product'}"
+                                   data-item-name="${data.product_information?.name_en || data.product_information?.name_ar || 'Product'}"
                                    data-url="${destroyUrl}"
                                    title="{{ trans('common.delete') }}">
                                     <i class="uil uil-trash-alt table_action_icon"></i>
@@ -505,7 +539,35 @@
                 table.page.len($(this).val()).draw();
             });
 
-            // Search Debounce
+            // Search button click
+            $('#searchBtn').on('click', function() {
+                // Update URL with filter parameters
+                const params = new URLSearchParams();
+                const search = $('#search').val();
+                const vendor = $('#vendor_filter').val();
+                const brand = $('#brand_filter').val();
+                const category = $('#category_filter').val();
+                const active = $('#active').val();
+                const status = $('#status').val();
+                const dateFrom = $('#created_date_from').val();
+                const dateTo = $('#created_date_to').val();
+
+                if (search) params.set('search', search);
+                if (vendor) params.set('vendor_id', vendor);
+                if (brand) params.set('brand_id', brand);
+                if (category) params.set('category_id', category);
+                if (active) params.set('active', active);
+                if (status) params.set('status', status);
+                if (dateFrom) params.set('created_date_from', dateFrom);
+                if (dateTo) params.set('created_date_to', dateTo);
+
+                const newUrl = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
+                window.history.pushState({}, '', newUrl);
+
+                table.ajax.reload();
+            });
+
+            // Live search for product names only (EN/AR)
             let searchTimer;
             $('#search').on('keyup', function() {
                 clearTimeout(searchTimer);
@@ -524,14 +586,17 @@
 
             // Reset
             $('#resetFilters').on('click', function() {
+                // Clear URL parameters and reload page
+                window.history.pushState({}, '', window.location.pathname);
+
                 // Clear regular inputs
                 $('#search, #created_date_from, #created_date_to').val('');
 
                 // Clear dropdowns properly
                 $('#vendor_filter, #brand_filter, #category_filter, #active, #status').val(null).trigger('change');
 
-                $('#entriesSelect').val(10);
-                table.search('').page.len(10).ajax.reload();
+                // Reload table
+                table.ajax.reload();
             });
 
             // RTL Support in DataTables

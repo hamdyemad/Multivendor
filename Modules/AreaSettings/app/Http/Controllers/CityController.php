@@ -23,7 +23,7 @@ class CityController extends Controller
         $this->middleware('can:area.city.index')->only(['index']);
         $this->middleware('can:area.city.show')->only(['show']);
         $this->middleware('can:area.city.create')->only(['create', 'store']);
-        $this->middleware('can:area.city.edit')->only(['edit', 'update']);
+        $this->middleware('can:area.city.edit')->only(['edit', 'update', 'changeStatus']);
         $this->middleware('can:area.city.delete')->only(['destroy']);
     }
 
@@ -207,6 +207,60 @@ class CityController extends Controller
 
             return redirect()->route('admin.area-settings.cities.index')
                 ->with('error', __('Error deleting city: ') . $e->getMessage());
+        }
+    }
+
+    /**
+     * Change the status of the specified city.
+     */
+    public function changeStatus(Request $request, string $id)
+    {
+        // Validate the request
+        $request->validate([
+            'status' => 'required|in:1,2'
+        ]);
+
+        try {
+            $city = $this->cityService->getCityById($id);
+
+            // Get the new status from request (1 = active, 2 = inactive)
+            $newStatus = $request->input('status') == '1';
+
+            // Check if status is actually changing
+            if ($city->active == $newStatus) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('areasettings::city.status_already_set')
+                ], 422);
+            }
+
+            // Update the city status
+            $this->cityService->updateCity($id, ['active' => $newStatus]);
+
+            // Check if request is AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => __('areasettings::city.status_changed_successfully'),
+                    'new_status' => $newStatus,
+                    'status_text' => $newStatus ? __('areasettings::city.active') : __('areasettings::city.inactive'),
+                    'status_class' => $newStatus ? 'badge-success' : 'badge-danger'
+                ]);
+            }
+
+            return redirect()->route('admin.area-settings.cities.index')
+                ->with('success', __('areasettings::city.status_changed_successfully'));
+        } catch (\Exception $e) {
+            // Check if request is AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('areasettings::city.error_changing_status') . ': ' . $e->getMessage()
+                ], 422);
+            }
+
+            return redirect()->route('admin.area-settings.cities.index')
+                ->with('error', __('areasettings::city.error_changing_status') . ': ' . $e->getMessage());
         }
     }
 }

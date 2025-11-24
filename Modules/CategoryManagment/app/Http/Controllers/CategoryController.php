@@ -26,7 +26,7 @@ class CategoryController extends Controller
         $this->middleware('can:categories.index')->only(['index']);
         $this->middleware('can:categories.show')->only(['show']);
         $this->middleware('can:categories.create')->only(['create', 'store']);
-        $this->middleware('can:categories.edit')->only(['edit', 'update']);
+        $this->middleware('can:categories.edit')->only(['edit', 'update', 'changeStatus']);
         $this->middleware('can:categories.delete')->only(['destroy']);
     }
 
@@ -226,6 +226,60 @@ class CategoryController extends Controller
                 'success' => false,
                 'message' => trans('categorymanagment::category.error_deleting_category')
             ], 500);
+        }
+    }
+
+    /**
+     * Change the status of the specified category.
+     */
+    public function changeStatus(Request $request, string $id)
+    {
+        // Validate the request
+        $request->validate([
+            'status' => 'required|in:1,2'
+        ]);
+
+        try {
+            $category = $this->categoryService->getCategoryById($id);
+
+            // Get the new status from request (1 = active, 2 = inactive)
+            $newStatus = $request->input('status') == '1';
+
+            // Check if status is actually changing
+            if ($category->active == $newStatus) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('categorymanagment::category.status_already_set')
+                ], 422);
+            }
+
+            // Update the category status
+            $this->categoryService->updateCategory($id, ['active' => $newStatus]);
+
+            // Check if request is AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => __('categorymanagment::category.status_changed_successfully'),
+                    'new_status' => $newStatus,
+                    'status_text' => $newStatus ? __('categorymanagment::category.active') : __('categorymanagment::category.inactive'),
+                    'status_class' => $newStatus ? 'badge-success' : 'badge-danger'
+                ]);
+            }
+
+            return redirect()->route('admin.category-management.categories.index')
+                ->with('success', __('categorymanagment::category.status_changed_successfully'));
+        } catch (\Exception $e) {
+            // Check if request is AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('categorymanagment::category.error_changing_status') . ': ' . $e->getMessage()
+                ], 422);
+            }
+
+            return redirect()->route('admin.category-management.categories.index')
+                ->with('error', __('categorymanagment::category.error_changing_status') . ': ' . $e->getMessage());
         }
     }
 }

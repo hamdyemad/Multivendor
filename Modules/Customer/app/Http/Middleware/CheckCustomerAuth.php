@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Customer\Http\Middleware;
+namespace Modules\Customer\app\Http\Middleware;
 
 use App\Traits\Res;
 use Closure;

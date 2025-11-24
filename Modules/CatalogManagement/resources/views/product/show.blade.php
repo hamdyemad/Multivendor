@@ -706,23 +706,15 @@
 
                                                         {{-- Hierarchical Variant Tree --}}
                                                         @if($variant->variantConfiguration)
-                                                            {{-- Display Root Key Name --}}
-                                                            @if($variant->variantConfiguration->key)
-                                                                <span class="badge badge-lg"
-                                                                      style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-                                                                             color: white; padding: 8px 12px; border-radius: 20px; font-size: 14px;
-                                                                             box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-weight: bold; margin-right: 8px;">
-                                                                    <i class="uil uil-key-skeleton me-1"></i>{{ $variant->variantConfiguration->key->name }}
-                                                                </span>:
-                                                            @endif
                                                             <div class="variant-tree-display">
                                                                 @php
                                                                     // Build the variant hierarchy by traversing up the parent chain
-                                                                    $hierarchy = [];
+                                                                    $values = [];
+                                                                    $rootKeyName = '';
                                                                     $current = $variant->variantConfiguration;
                                                                     $visited = []; // Prevent infinite loops
 
-                                                                    // Start with the current variant (leaf node)
+                                                                    // Collect all values from leaf to root
                                                                     while($current && !in_array($current->id, $visited)) {
                                                                         $visited[] = $current->id;
 
@@ -731,54 +723,49 @@
                                                                                     $current->getTranslation('name', 'en') ??
                                                                                     $current->name ?? 'Value';
 
-                                                                        // If this has a parent, it means this is a value and parent is key
+                                                                        // Add value to the beginning of array
+                                                                        array_unshift($values, $valueName);
+
+                                                                        // Move to parent
                                                                         if($current->parent_data) {
-                                                                            $keyName = $current->parent_data->getTranslation('name', app()->getLocale()) ??
-                                                                                      $current->parent_data->getTranslation('name', 'en') ??
-                                                                                      $current->parent_data->name ?? 'Key';
-
-                                                                            // Add to hierarchy (key -> value)
-                                                                            array_unshift($hierarchy, [
-                                                                                'key' => $keyName,
-                                                                                'value' => $valueName
-                                                                            ]);
-
-                                                                            // Move to parent for next iteration
                                                                             $current = $current->parent_data;
                                                                         } else {
-                                                                            // This is a root node (key without parent)
+                                                                            // Reached root, get the key name
+                                                                            $rootKeyName = $current->key ?
+                                                                                ($current->key->getTranslation('name', app()->getLocale()) ??
+                                                                                 $current->key->getTranslation('name', 'en') ??
+                                                                                 $current->key->name ?? 'Key') : 'Key';
                                                                             break;
                                                                         }
                                                                     }
                                                                 @endphp
 
-                                                                @if(count($hierarchy) > 0)
+                                                                @if(count($values) > 0)
                                                                     <div class="d-flex align-items-center flex-wrap gap-2">
-                                                                        {{-- Display each key-value pair in the hierarchy --}}
-                                                                        @foreach($hierarchy as $levelIndex => $level)
-                                                                            @if($levelIndex > 0)
-                                                                                <i class="uil uil-arrow-right text-muted" style="font-size: 14px;"></i>
+                                                                        {{-- Display root key badge --}}
+                                                                        <span class="badge badge-lg"
+                                                                              style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
+                                                                                     color: white; padding: 6px 10px; border-radius: 15px; font-size: 12px;
+                                                                                     box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-weight: bold;">
+                                                                            <i class="uil uil-key-skeleton me-1"></i>{{ $rootKeyName }}
+                                                                        </span>
+
+                                                                        <span class="text-muted fw-bold">:</span>
+
+                                                                        {{-- Display all values separated by colons --}}
+                                                                        @foreach($values as $valueIndex => $value)
+                                                                            @if($valueIndex > 0)
+                                                                                <span class="text-muted fw-bold">:</span>
                                                                             @endif
-
-                                                                            {{-- Key Badge --}}
-                                                                            <span class="badge badge-lg"
-                                                                                  style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
-                                                                                         color: white; padding: 6px 10px; border-radius: 15px; font-size: 12px;
-                                                                                         box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-weight: bold;">
-                                                                                <i class="uil uil-key-skeleton me-1"></i>{{ $level['key'] }}
-                                                                            </span>
-
-                                                                            {{-- Colon separator --}}
-                                                                            <span class="text-muted fw-bold">:</span>
 
                                                                             {{-- Value Badge --}}
                                                                             <span class="badge badge-lg"
                                                                                   style="background: linear-gradient(135deg,
-                                                                                         {{ $levelIndex % 3 === 0 ? '#17a2b8' : ($levelIndex % 3 === 1 ? '#28a745' : '#fd7e14') }} 0%,
-                                                                                         {{ $levelIndex % 3 === 0 ? '#138496' : ($levelIndex % 3 === 1 ? '#218838' : '#e8590c') }} 100%);
+                                                                                         {{ $valueIndex % 3 === 0 ? '#17a2b8' : ($valueIndex % 3 === 1 ? '#28a745' : '#fd7e14') }} 0%,
+                                                                                         {{ $valueIndex % 3 === 0 ? '#138496' : ($valueIndex % 3 === 1 ? '#218838' : '#e8590c') }} 100%);
                                                                                          color: white; padding: 6px 10px; border-radius: 15px; font-size: 12px;
                                                                                          box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                                                                                <i class="uil uil-tag me-1"></i>{{ $level['value'] }}
+                                                                                <i class="uil uil-tag me-1"></i>{{ $value }}
                                                                             </span>
                                                                         @endforeach
                                                                     </div>

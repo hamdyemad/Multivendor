@@ -65,7 +65,7 @@ return [
 
     // Validation
     'validation_errors' => 'أخطاء التحقق من الصحة',
-    
+
     // Validation Messages
     'validation' => [
         'name_en_required' => 'الاسم الإنجليزي مطلوب',
@@ -79,4 +79,14 @@ return [
     // Info
     'basic_information' => 'المعلومات الأساسية',
     'cities_list' => 'قائمة المدن',
+
+    // Status Change Modal
+    'change_status' => 'تغيير الحالة',
+    'change_status_confirmation' => 'هل أنت متأكد من تغيير حالة هذه المدينة؟',
+    'current_status' => 'الحالة الحالية',
+    'new_status' => 'الحالة الجديدة',
+    'confirm_status_change' => 'تأكيد التغيير',
+    'status_changed_successfully' => 'تم تغيير حالة المدينة بنجاح',
+    'error_changing_status' => 'خطأ في تغيير حالة المدينة',
+    'status_already_set' => 'المدينة مضبوطة بالفعل على هذه الحالة',
 ];

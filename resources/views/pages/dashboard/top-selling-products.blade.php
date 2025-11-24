@@ -13,7 +13,7 @@
                         <th><span class="userDatatable-title">{{ trans('dashboard.sold_count') }}</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.price') }}</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.total') }}</span></th>
-                        <th><span class="userDatatable-title">{{ trans('dashboard.commission') }} EGP</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.commission') }} {{ __('common.egp') }}</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.actions') }}</span></th>
                     </tr>
                 </thead>
@@ -37,9 +37,9 @@
                                     </a>
                                 </td>
                                 <td>156</td>
-                                <td>89.99 EGP</td>
-                                <td class="fw-bold text-success">14,038.44 EGP</td>
-                                <td class="fw-bold text-success">1,403.844 EGP</td>
+                                <td>89.99 {{ __('common.egp') }}</td>
+                                <td class="fw-bold text-success">14,038.44 {{ __('common.egp') }}</td>
+                                <td class="fw-bold text-success">1,403.844 {{ __('common.egp') }}</td>
                                 <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
@@ -64,9 +64,9 @@
                                     </a>
                                 </td>
                                 <td>234</td>
-                                <td>299.00 EGP</td>
-                                <td class="fw-bold text-success">69,966.00 EGP</td>
-                                <td class="fw-bold text-success">6,996.6 EGP</td>
+                                <td>299.00 {{ __('common.egp') }}</td>
+                                <td class="fw-bold text-success">69,966.00 {{ __('common.egp') }}</td>
+                                <td class="fw-bold text-success">6,996.6 {{ __('common.egp') }}</td>
                                 <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
@@ -91,9 +91,9 @@
                                     </a>
                                 </td>
                                 <td>189</td>
-                                <td>45.50 EGP</td>
-                                <td class="fw-bold text-success">8,599.50 EGP</td>
-                                <td class="fw-bold text-success">859.95 EGP</td>
+                                <td>45.50 {{ __('common.egp') }}</td>
+                                <td class="fw-bold text-success">8,599.50 {{ __('common.egp') }}</td>
+                                <td class="fw-bold text-success">859.95 {{ __('common.egp') }}</td>
                                 <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
@@ -118,9 +118,9 @@
                                     </a>
                                 </td>
                                 <td>445</td>
-                                <td>19.99 EGP</td>
-                                <td class="fw-bold text-success">8,895.55 EGP</td>
-                                <td class="fw-bold text-success">889.555 EGP</td>
+                                <td>19.99 {{ __('common.egp') }}</td>
+                                <td class="fw-bold text-success">8,895.55 {{ __('common.egp') }}</td>
+                                <td class="fw-bold text-success">889.555 {{ __('common.egp') }}</td>
                                 <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
@@ -145,9 +145,9 @@
                                     </a>
                                 </td>
                                 <td>98</td>
-                                <td>129.99 EGP</td>
-                                <td class="fw-bold text-success">12,739.02 EGP</td>
-                                <td class="fw-bold text-success">1,273.902 EGP</td>
+                                <td>129.99 {{ __('common.egp') }}</td>
+                                <td class="fw-bold text-success">12,739.02 {{ __('common.egp') }}</td>
+                                <td class="fw-bold text-success">1,273.902 {{ __('common.egp') }}</td>
                                 <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>

@@ -23,12 +23,16 @@ use Modules\CategoryManagment\app\Services\CategoryService;
 use Modules\CategoryManagment\app\Services\SubCategoryService;
 use Modules\CatalogManagement\app\Http\Requests\Product\StoreProductRequest;
 use Modules\CatalogManagement\app\Http\Requests\Product\UpdateProductRequest;
+use Modules\CatalogManagement\app\Http\Requests\Product\UpdateStockPricingRequest;
 use Modules\Vendor\app\Services\VendorService;
 use App\Models\UserType;
 use Illuminate\Support\Facades\Auth;
 use Modules\CatalogManagement\app\Actions\ProductAction;
 use Modules\CatalogManagement\app\Http\Resources\VariantsConfigurationKeyResource;
+use Modules\CatalogManagement\app\Models\Brand;
 use Modules\CatalogManagement\app\Services\VariantConfigurationKeyService;
+use Modules\CategoryManagment\app\Http\Resources\CategoryResource;
+use Modules\Vendor\app\Models\Vendor;
 
 class ProductController extends Controller
 {
@@ -51,46 +55,8 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $languages = $this->languageService->getAll();
-
-        // Get filter data for admin users
-        $vendors = [];
-        $brands = [];
-        $categories = [];
-
-        if (auth()->user() && in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds())) {
-            $vendors = \Modules\Vendor\app\Models\Vendor::select('id')->with('translations')->get()->map(function($vendor) {
-                return [
-                    'id' => $vendor->id,
-                    'name' => $vendor->getTranslation('name', app()->getLocale()) ??
-                             $vendor->getTranslation('name', 'en') ??
-                             $vendor->getTranslation('name', 'ar') ??
-                             'Vendor #' . $vendor->id
-                ];
-            });
-
-            $brands = \Modules\CatalogManagement\app\Models\Brand::select('id')->with('translations')->get()->map(function($brand) {
-                return [
-                    'id' => $brand->id,
-                    'name' => $brand->getTranslation('name', app()->getLocale()) ??
-                             $brand->getTranslation('name', 'en') ??
-                             $brand->getTranslation('name', 'ar') ??
-                             'Brand #' . $brand->id
-                ];
-            });
-
-            $categories = \Modules\CategoryManagment\app\Models\Category::select('id')->with('translations')->get()->map(function($category) {
-                return [
-                    'id' => $category->id,
-                    'name' => $category->getTranslation('name', app()->getLocale()) ??
-                             $category->getTranslation('name', 'en') ??
-                             $category->getTranslation('name', 'ar') ??
-                             'Category #' . $category->id
-                ];
-            });
-        }
-
-        return view('catalogmanagement::product.index', compact('languages', 'vendors', 'brands', 'categories'));
+        // Use the same logic as filtered methods but without status filter
+        return $this->getFilteredProducts($request, null);
     }
 
     /**
@@ -134,8 +100,6 @@ class ProductController extends Controller
         $brands = BrandResource::collection($brands)->resolve();
         $taxes = $this->taxService->getAllTaxes([], 0);
         $taxes = TaxResource::collection($taxes)->resolve();
-        $regions = $this->regionService->getAllRegions([], 0);
-        $regions = RegionResource::collection($regions)->resolve();
         // Get vendors for admin/super admin, or current vendor for vendor users
         $vendors = [];
         $currentUser = Auth::user();
@@ -164,7 +128,7 @@ class ProductController extends Controller
         $variantKeys = VariantsConfigurationKeyResource::collection(
             $variantKeys->map(fn ($v) => $v->setAttribute('select2', true))
         )->resolve();
-        return view('catalogmanagement::product.create', compact('languages', 'brands', 'taxes', 'regions', 'vendors', 'variantKeys'));
+        return view('catalogmanagement::product.create', compact('languages', 'brands', 'taxes', 'vendors', 'variantKeys'));
     }
 
     /**
@@ -409,18 +373,42 @@ class ProductController extends Controller
 
     /**
      * Update stock and pricing only
+     * Only validates Step 3: Configuration Type, Pricing, and Stock
      */
-    public function updateStockPricing(Request $request, $id)
+    public function updateStockPricing(UpdateStockPricingRequest $request, $id)
     {
         try {
-            $data = $request->all();
+            // Get validated data (only Step 3 fields)
+            $data = $request->validated();
+
+            Log::info('Stock pricing update started', [
+                'product_id' => $id,
+                'configuration_type' => $data['configuration_type'] ?? null,
+                'has_variants' => isset($data['variants']),
+                'variants_count' => isset($data['variants']) ? count($data['variants']) : 0,
+            ]);
+
             // Update stock and pricing through service layer
             $this->productService->updateStockAndPricing($id, $data);
 
+            Log::info('Stock pricing updated successfully', ['product_id' => $id]);
+
             return response()->json([
                 'success' => true,
-                'message' => __('catalogmanagement::product.pricing_stock_updated_successfully')
+                'message' => __('catalogmanagement::product.stock_pricing_updated'),
+                'redirect' => route('admin.products.index')
             ]);
+        } catch (ValidationException $e) {
+            Log::warning('Stock pricing validation failed', [
+                'product_id' => $id,
+                'errors' => $e->errors()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => __('common.validation_error'),
+                'errors' => $e->errors()
+            ], 422);
         } catch (Exception $e) {
             Log::error('Stock pricing update failed', [
                 'product_id' => $id,
@@ -434,5 +422,70 @@ class ProductController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Display pending products
+     */
+    public function pending(Request $request)
+    {
+        // Use the same logic as index() but with status filter
+        return $this->getFilteredProducts($request, 'pending');
+    }
+
+    /**
+     * Display rejected products
+     */
+    public function rejected(Request $request)
+    {
+        // Use the same logic as index() but with status filter
+        return $this->getFilteredProducts($request, 'rejected');
+    }
+
+    /**
+     * Display accepted products
+     */
+    public function accepted(Request $request)
+    {
+        // Use the same logic as index() but with status filter
+        return $this->getFilteredProducts($request, 'approved');
+    }
+
+    /**
+     * Private method to get filtered products using the same pattern as index()
+     */
+    private function getFilteredProducts(Request $request, ?string $statusFilter)
+    {
+        $languages = $this->languageService->getAll();
+        // Get filter data for admin users - same logic as index() method
+        $vendors = [];
+        $brands = [];
+        $categories = [];
+
+        if (auth()->user() && in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds())) {
+            $vendors = Vendor::with('translations')->get()->map(function($vendor) {
+                return [
+                    'id' => $vendor->id,
+                    'name' => $vendor->name
+                ];
+            });
+
+            $brands = $this->brandService->getAllBrands([], 0);
+            $brands = BrandResource::collection($brands)->map(function($brand) {
+                return [
+                    'id' => $brand->id,
+                    'name' => $brand->name
+                ];
+            });
+            $categories = $this->categoryService->getAllCategories([], 0);
+            $categories = CategoryResource::collection($categories)->map(function($category) {
+                return [
+                    'id' => $category->id,
+                    'name' => $category->name
+                ];
+            });
+        }
+
+        return view('catalogmanagement::product.index', compact('languages', 'vendors', 'brands', 'categories', 'statusFilter'));
     }
 }

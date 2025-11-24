@@ -18,6 +18,15 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function() {
     Route::get('withdraw/all-vendors-transactions', [WithdrawController::class, "allVendorsTransactions"])->name("allVendorsTransactions");
     Route::get('withdraw/all-vendors-transactions-datatable', [WithdrawController::class, "allVendorsTransactionsDatatable"])->name("allVendorsTransactionsDatatable");
 
+    // Simple test route
+    Route::get('withdraw/test-datatable', function() {
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Test route works',
+            'data' => ['test' => 'data']
+        ]);
+    })->name("testDatatable");
+
     Route::get('get-vendor-balance/{vendor_id}', [WithdrawController::class, 'getVendorBalance'])->name('getVendorBalance');
     Route::post('send-money-to-vendor-action', [WithdrawController::class, 'sendMoneyToVendorAction'])->name('sendMoneyToVendorAction');
     Route::get('send-money-request', [WithdrawController::class, 'sendMoneyRequest'])->name('sendMoneyRequest');

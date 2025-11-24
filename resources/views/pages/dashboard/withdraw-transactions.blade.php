@@ -16,7 +16,7 @@
                         <div class="overview-content w-100">
                             <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                 <div class="ap-po-details__titlebar">
-                                    <h1 style="font-size: 20px;">125,450.00 EGP</h1>
+                                    <h1 style="font-size: 20px;">125,450.00 {{ __('common.egp') }}</h1>
                                     <p>{{ trans('dashboard.Total Delivered Transactions') }}</p>
                                 </div>
                                 <div class="ap-po-details__icon-area">
@@ -33,7 +33,7 @@
                         <div class="overview-content w-100">
                             <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                 <div class="ap-po-details__titlebar">
-                                    <h1 style="font-size: 20px;">45,890.00 EGP</h1>
+                                    <h1 style="font-size: 20px;">45,890.00 {{ __('common.egp') }}</h1>
                                     <p>{{ trans('dashboard.Bnaia Commission') }}</p>
                                 </div>
                                 <div class="ap-po-details__icon-area">
@@ -50,7 +50,7 @@
                         <div class="overview-content w-100">
                             <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                 <div class="ap-po-details__titlebar">
-                                    <h1 style="font-size: 20px;">79,560.00 EGP</h1>
+                                    <h1 style="font-size: 20px;">79,560.00 {{ __('common.egp') }}</h1>
                                     <p>{{ trans("dashboard.Vendor's Credit Balance") }}</p>
                                 </div>
                                 <div class="ap-po-details__icon-area">

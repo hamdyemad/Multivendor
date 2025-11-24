@@ -22,7 +22,7 @@ class RegionController extends Controller
         $this->middleware('can:area.region.index')->only(['index']);
         $this->middleware('can:area.region.show')->only(['show']);
         $this->middleware('can:area.region.create')->only(['create', 'store']);
-        $this->middleware('can:area.region.edit')->only(['edit', 'update']);
+        $this->middleware('can:area.region.edit')->only(['edit', 'update', 'changeStatus']);
         $this->middleware('can:area.region.delete')->only(['destroy']);
     }
 
@@ -218,6 +218,60 @@ class RegionController extends Controller
 
             return redirect()->route('admin.area-settings.regions.index')
                 ->with('error', __('Error deleting region: ') . $e->getMessage());
+        }
+    }
+
+    /**
+     * Change the status of the specified region.
+     */
+    public function changeStatus(Request $request, string $id)
+    {
+        // Validate the request
+        $request->validate([
+            'status' => 'required|in:1,2'
+        ]);
+
+        try {
+            $region = $this->regionService->getRegionById($id);
+
+            // Get the new status from request (1 = active, 2 = inactive)
+            $newStatus = $request->input('status') == '1';
+
+            // Check if status is actually changing
+            if ($region->active == $newStatus) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('areasettings::region.status_already_set')
+                ], 422);
+            }
+
+            // Update the region status
+            $this->regionService->updateRegion($id, ['active' => $newStatus]);
+
+            // Check if request is AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => __('areasettings::region.status_changed_successfully'),
+                    'new_status' => $newStatus,
+                    'status_text' => $newStatus ? __('areasettings::region.active') : __('areasettings::region.inactive'),
+                    'status_class' => $newStatus ? 'badge-success' : 'badge-danger'
+                ]);
+            }
+
+            return redirect()->route('admin.area-settings.regions.index')
+                ->with('success', __('areasettings::region.status_changed_successfully'));
+        } catch (\Exception $e) {
+            // Check if request is AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('areasettings::region.error_changing_status') . ': ' . $e->getMessage()
+                ], 422);
+            }
+
+            return redirect()->route('admin.area-settings.regions.index')
+                ->with('error', __('areasettings::region.error_changing_status') . ': ' . $e->getMessage());
         }
     }
 }

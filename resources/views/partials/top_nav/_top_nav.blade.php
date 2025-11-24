@@ -4,7 +4,11 @@
     <div class="navbar-left">
         <div class="logo-area">
             <a class="navbar-brand" href="#">
-                <img src="{{ asset('assets/img/logo.png') }}" alt="svg">
+                @if(app()->getLocale() == 'ar')
+                    <img src="{{ asset('assets/img/logo_ar.png') }}" alt="svg">
+                @else
+                    <img src="{{ asset('assets/img/logo.png') }}" alt="svg">
+                @endif
             </a>
             <a href="#" class="sidebar-toggle">
                 <img class="svg" src="{{ asset('assets/img/svg/align-center-alt.svg') }}" alt="img"></a>

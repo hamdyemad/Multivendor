@@ -76,4 +76,10 @@ return [
     // Info
     'basic_information' => 'Basic Information',
     'subcategories_list' => 'Sub-Categories List',
+
+    // Status Change
+    'change_status' => 'Change Status',
+    'status_changed_successfully' => 'Sub-category status changed successfully',
+    'error_changing_status' => 'Error changing sub-category status',
+    'status_already_set' => 'Sub-category is already set to this status',
 ];

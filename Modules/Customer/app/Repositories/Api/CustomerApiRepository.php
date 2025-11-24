@@ -12,8 +12,8 @@ use Modules\Customer\app\Events\OtpCreated;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\PersonalAccessToken;
-use Modules\Customer\Actions\UpdateCustomerInfoAction;
-use Modules\Customer\Actions\UpdateCustomerPasswordAction;
+use Modules\Customer\app\Actions\UpdateCustomerInfoAction;
+use Modules\Customer\app\Actions\UpdateCustomerPasswordAction;
 
 class CustomerApiRepository implements CustomerApiRepositoryInterface
 {

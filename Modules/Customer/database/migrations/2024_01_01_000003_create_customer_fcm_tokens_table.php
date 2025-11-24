@@ -11,10 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Skip this migration - fixed in 2024_01_01_000004_fix_customer_fcm_tokens_table
+        if (Schema::hasTable('customer_fcm_tokens')) {
+            return;
+        }
+
         Schema::create('customer_fcm_tokens', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
-            $table->text('fcm_token');
+            $table->string('fcm_token', 500); // FCM tokens are typically ~150-200 chars
             $table->string('device_id')->nullable();
             $table->string('device_name')->nullable();
             $table->timestamps();

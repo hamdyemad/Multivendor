@@ -196,6 +196,7 @@
     {{-- Delete Confirmation Modal Component --}}
     <x-delete-modal modalId="modal-delete-region" :title="__('areasettings::region.confirm_delete')" :message="__('areasettings::region.delete_confirmation')" itemNameId="delete-region-name"
         confirmBtnId="confirmDeleteRegionBtn" :deleteRoute="route('admin.area-settings.regions.index')" :cancelText="__('areasettings::region.cancel')" :deleteText="__('areasettings::region.delete_region')" />
+
 @endsection
 
 @push('after-body')
@@ -311,6 +312,23 @@
                         name: 'active',
                         orderable: true,
                         render: function(data, type, row) {
+                            @can('area.region.edit')
+                            const isChecked = data ? 'checked' : '';
+                            const switchId = 'status-switch-' + row.id;
+
+                            return `<div class="userDatatable-content">
+                                <div class="form-switch">
+                                    <input class="form-check-input status-switcher"
+                                           type="checkbox"
+                                           id="${switchId}"
+                                           data-region-id="${row.id}"
+                                           data-region-name="${$('<div>').text(row.display_name).html()}"
+                                           ${isChecked}
+                                           style="cursor: pointer;">
+                                    <label class="form-check-label" for="${switchId}"></label>
+                                </div>
+                            </div>`;
+                            @else
                             if (data) {
                                 return `<div class="userDatatable-content">
                                     <span class="badge badge-success" style="border-radius: 6px; padding: 6px 12px;">
@@ -324,6 +342,7 @@
                                     </span>
                                 </div>`;
                             }
+                            @endcan
                         }
                     },
                     {
@@ -469,6 +488,107 @@
                 $('#created_date_to').val('');
                 // Clear search and reload table
                 table.search('').ajax.reload();
+            });
+
+            // Status switcher handler
+            $(document).on('change', '.status-switcher', function() {
+                const switcher = $(this);
+                const regionId = switcher.data('region-id');
+                const regionName = switcher.data('region-name');
+                const newStatus = switcher.is(':checked') ? 1 : 2; // 1=active, 2=inactive
+
+                // Disable switcher during request
+                switcher.prop('disabled', true);
+
+                // Show loading overlay
+                if (typeof LoadingOverlay !== 'undefined') {
+                    LoadingOverlay.show({
+                        text: '{{ __('areasettings::region.change_status') }}',
+                        subtext: '{{ __('common.please_wait') ?? 'Please wait' }}...'
+                    });
+                }
+
+                // Make AJAX request
+                $.ajax({
+                    url: '{{ route('admin.area-settings.regions.change-status', ':id') }}'.replace(':id', regionId),
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        status: newStatus
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Hide loading overlay
+                            if (typeof LoadingOverlay !== 'undefined') {
+                                LoadingOverlay.hide();
+                            }
+
+                            // Show success message
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '{{ __('common.success') ?? 'Success' }}',
+                                    text: response.message,
+                                    timer: 2000,
+                                    showConfirmButton: false,
+                                    toast: true,
+                                    position: 'top-end'
+                                });
+                            }
+
+                            // Reload table to reflect changes
+                            table.ajax.reload(null, false);
+                        } else {
+                            // Hide loading overlay
+                            if (typeof LoadingOverlay !== 'undefined') {
+                                LoadingOverlay.hide();
+                            }
+
+                            // Revert switcher state
+                            switcher.prop('checked', !switcher.is(':checked'));
+
+                            // Show error message
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: '{{ __('common.error') ?? 'Error' }}',
+                                    text: response.message
+                                });
+                            } else {
+                                alert(response.message);
+                            }
+                        }
+                    },
+                    error: function(xhr) {
+                        // Hide loading overlay
+                        if (typeof LoadingOverlay !== 'undefined') {
+                            LoadingOverlay.hide();
+                        }
+
+                        // Revert switcher state
+                        switcher.prop('checked', !switcher.is(':checked'));
+
+                        let errorMessage = '{{ __('areasettings::region.error_changing_status') }}';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+
+                        // Show error message
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: '{{ __('common.error') ?? 'Error' }}',
+                                text: errorMessage
+                            });
+                        } else {
+                            alert(errorMessage);
+                        }
+                    },
+                    complete: function() {
+                        // Re-enable switcher
+                        switcher.prop('disabled', false);
+                    }
+                });
             });
         });
     </script>

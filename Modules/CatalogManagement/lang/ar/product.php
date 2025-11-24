@@ -265,4 +265,16 @@ return [
     'please_select_status' => 'يرجى اختيار حالة',
     'rejection_reason_required' => 'سبب الرفض مطلوب عند رفض المنتج',
     'select_new_status_for_product' => 'اختر الحالة الجديدة لهذا المنتج',
+
+    'add_new_variants' => 'اضف متغير جديد',
+    'click_add_variant_to_create_new' => 'اضف متغيرات',
+    'enable_discount_offer' => 'فعل الخصم',
+    'product_not_found' => 'المنتج غير موجود أو تم حذفه بالفعل',
+    'variant_configuration' => 'تكوين المتغير',
+    'variant_configuration_required' => 'يرجى اختيار تكوين المتغير',
+    'stock_management' => 'إدارة المخزون',
+    'manage_product_pricing_stock' => 'إدارة التسعير ومستويات المخزون للمنتج',
+    'update_stock_pricing' => 'تحديث المخزون والتسعير',
+    'stock_pricing_updated' => 'تم تحديث المخزون والتسعير بنجاح',
+    'updating_stock_pricing' => 'جاري تحديث المخزون والتسعير',
 ];

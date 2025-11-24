@@ -1,7 +1,7 @@
 @extends('layout.app')
 
 @section('title')
-    All Withdraw Transactions | Bnaia
+    {{ __('withdraw::withdraw.all_withdraw_transactions') }} | Bnaia
 @endsection
 
 @push('styles')
@@ -18,7 +18,7 @@
                         'url' => route('admin.dashboard'),
                         'icon' => 'uil uil-estate',
                     ],
-                    ['title' => 'All Withdraw Transactions | Bnaia'],
+                    ['title' => __('withdraw::withdraw.all_withdraw_transactions')],
                 ]" />
             </div>
         </div>
@@ -28,16 +28,11 @@
 
                 <div class="userDatatable global-shadow border-light-0 p-30 bg-white radius-xl w-100 mb-30">
                     <div class="d-flex justify-content-between align-items-center mb-25">
-                        <h4 class="mb-0 fw-500">All Withdraw Transactions</h4>
+                        <h4 class="mb-0 fw-500">{{ __('withdraw::withdraw.all_withdraw_transactions') }}</h4>
                     </div>
 
-                    {{-- Alert --}}
-                    {{-- <div class="alert alert-info glowing-alert" role="alert">
-                        {{ __('common.live_search_info') }}
-                    </div> --}}
-
                     {{-- Search & Filters --}}
-                    {{-- <div class="mb-25">
+                    <div class="mb-25">
                         <div class="card border-0 shadow-sm">
                             <div class="card-body">
                                 <div class="row g-3 align-items-end">
@@ -45,56 +40,56 @@
                                         <div class="form-group">
                                             <label for="search" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-search me-1"></i>
-                                                {{ __('common.search') }}
-                                                <small
-                                                    class="text-muted">({{ __('common.real_time') ?? 'Real-time' }})</small>
+                                                {{ __('withdraw::withdraw.search') }}
+                                                <small class="text-muted">({{ __('withdraw::withdraw.real_time') }})</small>
                                             </label>
                                             <input type="text"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                 id="search"
-                                                placeholder="{{ __('areasettings::city.search_placeholder') }}"
+                                                placeholder="{{ __('common.search') }}"
                                                 autocomplete="off">
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
+
+                                    <div class="col-md-2">
                                         <div class="form-group">
-                                            <label for="country_id" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-globe me-1"></i>
-                                                {{ __('areasettings::city.country') }}
+                                            <label for="vendor_filter" class="il-gray fs-14 fw-500 mb-10">
+                                                <i class="uil uil-shop me-1"></i>
+                                                {{ __('withdraw::withdraw.vendor') }}
                                             </label>
                                             <select
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="country_id">
-                                                <option value="">{{ __('areasettings::city.all_countries') }}</option>
-                                                @foreach ($countries as $country)
-                                                    <option value="{{ $country->id }}">
-                                                        {{ $country->getTranslation('name', app()->getLocale()) ?? $country->code }}
-                                                    </option>
+                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                id="vendor_filter">
+                                                <option value="">{{ __('withdraw::withdraw.all') }} {{ __('withdraw::withdraw.vendors') }}</option>
+                                                @foreach($vendors as $vendor)
+                                                    <option value="{{ $vendor['id'] }}" @if(request('vendor_id') == $vendor['id']) selected @endif>{{ $vendor['name'] }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
+
+                                    <div class="col-md-2">
                                         <div class="form-group">
-                                            <label for="active" class="il-gray fs-14 fw-500 mb-10">
+                                            <label for="status_filter" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-check-circle me-1"></i>
-                                                {{ __('areasettings::city.status') }}
+                                                {{ __('withdraw::withdraw.status') }}
                                             </label>
                                             <select
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="active">
-                                                <option value="">{{ __('areasettings::city.all_status') }}</option>
-                                                <option value="1">{{ __('areasettings::city.active') }}</option>
-                                                <option value="0">{{ __('areasettings::city.inactive') }}</option>
+                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                id="status_filter">
+                                                <option value="">{{ __('withdraw::withdraw.all') }} {{ __('withdraw::withdraw.status') }}</option>
+                                                <option value="new">{{ __('withdraw::withdraw.new') }}</option>
+                                                <option value="accepted">{{ __('withdraw::withdraw.accepted') }}</option>
+                                                <option value="rejected">{{ __('withdraw::withdraw.rejected') }}</option>
                                             </select>
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6">
+                                    <div class="col-md-2">
                                         <div class="form-group">
                                             <label for="created_date_from" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-calendar-alt me-1"></i>
-                                                {{ __('common.created_date_from') }}
+                                                {{ __('withdraw::withdraw.created_date_from') }}
                                             </label>
                                             <input type="date"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
@@ -102,11 +97,11 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6">
+                                    <div class="col-md-2">
                                         <div class="form-group">
                                             <label for="created_date_to" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-calendar-alt me-1"></i>
-                                                {{ __('common.created_date_to') }}
+                                                {{ __('withdraw::withdraw.created_date_to') }}
                                             </label>
                                             <input type="date"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
@@ -114,36 +109,42 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-12 d-flex align-items-center">
-                                        <button type="button" id="exportExcel"
-                                            class="btn btn-primary btn-default btn-squared me-1"
-                                            title="{{ __('common.excel') }}">
-                                            <i class="uil uil-file-download-alt me-1"></i> {{ __('common.export_excel') }}
+                                    <div class="col-md-9 d-flex align-items-center">
+                                        <button type="button" id="searchBtn"
+                                            class="btn btn-success btn-default btn-squared me-1"
+                                            title="{{ __('common.search') }}">
+                                            <i class="uil uil-search me-1"></i>
+                                            {{ __('withdraw::withdraw.search') }}
                                         </button>
                                         <button type="button" id="resetFilters"
-                                            class="btn btn-warning btn-default btn-squared"
+                                            class="btn btn-warning btn-default btn-squared me-1"
                                             title="{{ __('common.reset') }}">
                                             <i class="uil uil-redo me-1"></i>
-                                            {{ __('common.reset_filters') }}
+                                            {{ __('withdraw::withdraw.reset_filters') }}
+                                        </button>
+                                        <button type="button" id="exportExcel"
+                                            class="btn btn-primary btn-default btn-squared"
+                                            title="{{ __('common.excel') }}">
+                                            <i class="uil uil-file-download-alt me-1"></i> {{ __('common.export_excel') }}
                                         </button>
                                     </div>
 
                                 </div>
                             </div>
                         </div>
-                    </div> --}}
+                    </div>
 
                     {{-- Entries Per Page --}}
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="d-flex align-items-center">
-                            <label class="me-2 mb-0">{{ __('common.show') }}</label>
+                            <label class="me-2 mb-0">{{ __('withdraw::withdraw.show') }}</label>
                             <select id="entriesSelect" class="form-select form-select-sm" style="width: auto;">
                                 <option value="10">10</option>
                                 <option value="25">25</option>
                                 <option value="50">50</option>
                                 <option value="100">100</option>
                             </select>
-                            <label class="ms-2 mb-0">{{ __('common.entries') }}</label>
+                            <label class="ms-2 mb-0">{{ __('withdraw::withdraw.entries') }}</label>
                         </div>
                     </div>
 
@@ -155,49 +156,49 @@
                                     <th><span class="userDatatable-title">#</span></th>
                                     <th>
                                         <span class="userDatatable-title">
-                                            Vendor
+                                            {{ __('withdraw::withdraw.vendor') }}
                                         </span>
                                     </th>
 
                                     <th>
                                         <span class="userDatatable-title">
-                                            Balance Before Send Money
+                                            {{ __('withdraw::withdraw.balance_before_send_money') }}
                                         </span>
                                     </th>
 
                                     <th>
                                         <span class="userDatatable-title">
-                                            Total Sent Money
+                                            {{ __('withdraw::withdraw.total_sent_money') }}
                                         </span>
                                     </th>
 
                                     <th>
                                         <span class="userDatatable-title">
-                                            Balance After Send Money
+                                            {{ __('withdraw::withdraw.balance_after_send_money') }}
                                         </span>
                                     </th>
 
                                     <th>
                                         <span class="userDatatable-title">
-                                            Status
+                                            {{ __('withdraw::withdraw.status') }}
                                         </span>
                                     </th>
 
                                     <th>
                                         <span class="userDatatable-title">
-                                            Invoice
+                                            {{ __('withdraw::withdraw.invoice') }}
                                         </span>
                                     </th>
 
                                     <th>
                                         <span class="userDatatable-title">
-                                            Created at
+                                            {{ __('withdraw::withdraw.created_at') }}
                                         </span>
                                     </th>
 
                                     <th>
                                         <span class="userDatatable-title">
-                                            Action
+                                            {{ __('withdraw::withdraw.action') }}
                                         </span>
                                     </th>
                                 </tr>
@@ -221,12 +222,12 @@
 
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Upload Invoice</h5>
+                        <h5 class="modal-title">{{ __('withdraw::withdraw.upload_invoice') }}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
 
                     <div class="modal-body">
-                        <label class="form-label">Invoice Image</label>
+                        <label class="form-label">{{ __('withdraw::withdraw.invoice_image') }}</label>
                         <input type="file" required class="form-control" id="invoice_file" name="invoice"
                             accept="image/*">
 
@@ -237,7 +238,7 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">Approve Now</button>
+                        <button type="submit" class="btn btn-success">{{ __('withdraw::withdraw.approve_now') }}</button>
                     </div>
                 </div>
             </form>
@@ -253,18 +254,17 @@
 
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Confirm Reject</h5>
+                        <h5 class="modal-title">{{ __('withdraw::withdraw.confirm_reject') }}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
 
                     <div class="modal-body">
-                        <p class="text-danger fw-bold" style="font-size: 25px;">Are you sure you want to reject this
-                            request?</p>
+                        <p class="text-danger fw-bold" style="font-size: 25px;">{{ __('withdraw::withdraw.are_you_sure_reject_request') }}</p>
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger">Yes, Reject</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('withdraw::withdraw.cancel') }}</button>
+                        <button type="submit" class="btn btn-danger">{{ __('withdraw::withdraw.yes_reject') }}</button>
                     </div>
                 </div>
             </form>
@@ -310,9 +310,48 @@
     </script>
     <script>
         $(document).ready(function() {
-            console.log('Cities page loaded, initializing DataTable...');
+            console.log('All Transactions page loaded, initializing DataTable...');
 
             let per_page = 10;
+
+            // Function to get URL parameter
+            function getUrlParameter(name) {
+                var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+                var results = regex.exec(location.search);
+                return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+            }
+
+            // Function to update URL with filter parameters
+            function updateUrlWithFilters() {
+                const params = new URLSearchParams();
+
+                const search = $('#search').val();
+                const vendorFilter = $('#vendor_filter').val();
+                const statusFilter = $('#status_filter').val();
+                const createdDateFrom = $('#created_date_from').val();
+                const createdDateTo = $('#created_date_to').val();
+
+                if (search) params.set('search', search);
+                if (vendorFilter) params.set('vendor_id', vendorFilter);
+                if (statusFilter) params.set('status', statusFilter);
+                if (createdDateFrom) params.set('created_date_from', createdDateFrom);
+                if (createdDateTo) params.set('created_date_to', createdDateTo);
+
+                const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+                window.history.pushState({}, '', newUrl);
+            }
+
+            // Initialize filters from URL parameters
+            function initializeFiltersFromUrl() {
+                $('#search').val(getUrlParameter('search'));
+                $('#vendor_filter').val(getUrlParameter('vendor_filter'));
+                $('#status_filter').val(getUrlParameter('status'));
+                $('#created_date_from').val(getUrlParameter('created_date_from'));
+                $('#created_date_to').val(getUrlParameter('created_date_to'));
+            }
+
+            // Initialize filters from URL
+            initializeFiltersFromUrl();
 
             // Server-side processing with pagination
             let table = $('#citiesDataTable').DataTable({
@@ -324,6 +363,14 @@
                     data: function(d) {
                         d.per_page = d.length;
                         d.page = (d.start / d.length) + 1;
+
+                        // Add filter parameters
+                        d.search = $('#search').val();
+                        d.vendor_filter = $('#vendor_filter').val();
+                        d.status_filter = $('#status_filter').val();
+                        d.created_date_from = $('#created_date_from').val();
+                        d.created_date_to = $('#created_date_to').val();
+
                         return d;
                     },
                     dataSrc: function(json) {
@@ -389,11 +436,11 @@
                         searchable: false,
                         render: function(data) {
                             if (data == "accepted") {
-                                return '<p class="text-success" style="text-transform: capitalize; font-weight: bold;">' + data + '</p>';
+                                return '<p class="text-success" style="text-transform: capitalize; font-weight: bold;">{{ __('withdraw::withdraw.accepted') }}</p>';
                             } else if( data == "rejected" ) {
-                                return '<p class="text-danger" style="text-transform: capitalize; font-weight: bold;">'+ data +'</p>';
+                                return '<p class="text-danger" style="text-transform: capitalize; font-weight: bold;">{{ __('withdraw::withdraw.rejected') }}</p>';
                             } else if( data == "new" ) {
-                                return '<p class="text-primary" style="text-transform: capitalize; font-weight: bold;">'+ data +'</p>';
+                                return '<p class="text-primary" style="text-transform: capitalize; font-weight: bold;">{{ __('withdraw::withdraw.new') }}</p>';
                             }
                         }
                     },
@@ -405,7 +452,7 @@
                         render: function(data) {
                             if (data) {
                                 return `<a href="${data}" class="btn btn-sm btn-primary" target="_blank" style="margin: auto;" download>
-                                    <i class="uil uil-download-alt"></i> Download
+                                    <i class="uil uil-download-alt"></i> {{ __('withdraw::withdraw.download') }}
                                 </a>`;
                             }
                             return '-';
@@ -430,10 +477,10 @@
                                 return `
                                      <div class="d-inline-flex gap-1">
                                             <button class="btn btn-success approve-withdraw" data-id="${row.id}">
-                                                <i class="uil uil-check"></i> Approve
+                                                <i class="uil uil-check"></i> {{ __('withdraw::withdraw.approve') }}
                                             </button>
                                             <button class="btn btn-danger reject-withdraw" data-id="${row.id}">
-                                                <i class="uil uil-times"></i> Reject
+                                                <i class="uil uil-times"></i> {{ __('withdraw::withdraw.reject') }}
                                             </button>
                                         </div>`;
                             } else {
@@ -455,27 +502,28 @@
                     '<"row mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
                 searching: true,
                 language: {
-                    lengthMenu: "Show _MENU_",
-                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
-                    infoEmpty: "Showing 0 to 0 of 0 entries",
-                    zeroRecords: "No transactions found",
-                    loadingRecords: "Loading...",
-                    processing: "Processing...",
-                    search: "Search:",
+                    lengthMenu: "{{ __('withdraw::withdraw.show') }} _MENU_",
+                    info: "{{ __('withdraw::withdraw.showing_entries') }}",
+                    infoEmpty: "{{ __('withdraw::withdraw.showing_empty') }}",
+                    emptyTable: "{{ __('withdraw::withdraw.no_data_available') }}",
+                    zeroRecords: "{{ __('withdraw::withdraw.no_transactions_found') }}",
+                    loadingRecords: "{{ __('withdraw::withdraw.loading') }}",
+                    processing: "{{ __('withdraw::withdraw.processing') }}",
+                    search: "{{ __('withdraw::withdraw.search') }}:",
                     paginate: {
-                        first: "First",
-                        last: "Last",
-                        next: "Next",
-                        previous: "Previous"
+                        first: "{{ __('withdraw::withdraw.first') }}",
+                        last: "{{ __('withdraw::withdraw.last') }}",
+                        next: "{{ __('withdraw::withdraw.next') }}",
+                        previous: "{{ __('withdraw::withdraw.previous') }}"
                     },
                 }
             });
 
 
 
-            // Initialize Select2 on custom entries select
+            // Initialize Select2 on all select elements
             if ($.fn.select2) {
-                $('#entriesSelect').select2({
+                $('#entriesSelect, #vendor_filter, #status_filter').select2({
                     theme: 'bootstrap-5',
                     minimumResultsForSearch: Infinity,
                     width: '100%'
@@ -489,30 +537,29 @@
                 table.page.len($(this).val()).draw();
             });
 
-            // Handle Excel export button
-            $('#exportExcel').on('click', function() {
-                table.button('.buttons-excel').trigger();
+            // Search button functionality
+            $('#searchBtn').on('click', function() {
+                console.log('Search button clicked, updating URL and reloading table...');
+                updateUrlWithFilters();
+                table.ajax.reload();
             });
 
-            // Search on cached data with debounce
+            // Server-side filter event listeners - reload data when filters change
+            $('#vendor_filter, #status_filter, #created_date_from, #created_date_to').on('change', function() {
+                console.log('Filter changed:', $(this).attr('id'), '=', $(this).val());
+                updateUrlWithFilters();
+                table.ajax.reload();
+            });
+
+            // Search input with debounce
             let searchTimer;
             $('#search').on('keyup', function() {
                 clearTimeout(searchTimer);
                 const searchValue = $(this).val();
                 searchTimer = setTimeout(function() {
-                    table.search(searchValue).draw(); // Search on cached data
+                    updateUrlWithFilters();
+                    table.ajax.reload();
                 }, 500);
-            });
-
-            $('#search').on('change', function() {
-                clearTimeout(searchTimer);
-                table.search($(this).val()).draw();
-            });
-
-            // Server-side filter event listeners - reload data when filters change
-            $('#country_id, #active, #created_date_from, #created_date_to').on('change', function() {
-                console.log('Filter changed:', $(this).attr('id'), '=', $(this).val());
-                table.ajax.reload();
             });
 
             // Reset filters button
@@ -520,12 +567,19 @@
                 console.log('Resetting all filters...');
                 // Clear all filter inputs
                 $('#search').val('');
-                $('#country_id').val('');
-                $('#active').val('');
+                $('#vendor_filter').val('').trigger('change');
+                $('#status_filter').val('').trigger('change');
                 $('#created_date_from').val('');
                 $('#created_date_to').val('');
-                // Clear search and reload table
-                table.search('').ajax.reload();
+
+                // Update URL and reload table
+                updateUrlWithFilters();
+                table.ajax.reload();
+            });
+
+            // Handle Excel export button
+            $('#exportExcel').on('click', function() {
+                table.button('.buttons-excel').trigger();
             });
         });
     </script>

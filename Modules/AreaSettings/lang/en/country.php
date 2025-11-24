@@ -125,5 +125,15 @@ return [
     'entries' => 'entries',
     'previous' => 'Previous',
     'next' => 'Next',
+
+    // Status Change Modal
+    'change_status' => 'Change Status',
+    'change_status_confirmation' => 'Are you sure you want to change the status of this country?',
+    'current_status' => 'Current Status',
+    'new_status' => 'New Status',
+    'confirm_status_change' => 'Confirm Change',
+    'status_changed_successfully' => 'Country status changed successfully',
+    'error_changing_status' => 'Error changing country status',
+    'status_already_set' => 'Country is already set to this status',
 ];
 

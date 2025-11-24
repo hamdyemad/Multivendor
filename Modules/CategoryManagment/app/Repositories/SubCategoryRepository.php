@@ -63,9 +63,9 @@ class SubCategoryRepository implements SubCategoryRepositoryInterface
     public function getSubCategoriesQuery(array $filters = [])
     {
         $query = SubCategory::with(['translations', 'category']);
-        
+
         \Log::info('SubCategory Repository - Query Start', ['filters' => $filters]);
-        
+
         // Search filter
         if (!empty($filters['search'])) {
             $search = $filters['search'];
@@ -105,9 +105,9 @@ class SubCategoryRepository implements SubCategoryRepositoryInterface
                 // Sort by translation using subquery to avoid duplicates
                 $langId = $filters['orderBy']['lang_id'];
                 $query->orderByRaw("(
-                    SELECT lang_value 
-                    FROM translations 
-                    WHERE translations.translatable_id = sub_categories.id 
+                    SELECT lang_value
+                    FROM translations
+                    WHERE translations.translatable_id = sub_categories.id
                     AND translations.translatable_type = 'Modules\\\\CategoryManagment\\\\app\\\\Models\\\\SubCategory'
                     AND translations.lang_id = {$langId}
                     AND translations.lang_key = 'name'
@@ -189,16 +189,21 @@ class SubCategoryRepository implements SubCategoryRepositoryInterface
     public function updateSubCategory(int $id, array $data)
     {
         $subCategory = SubCategory::findOrFail($id);
-        
-        $subCategory->update([
-            'category_id' => $data['category_id'],
-            'active' => $data['active'] ?? 1,
-        ]);
+        $updatedData = [];
+        (isset($data['category_id'])) ? $updatedData['category_id'] = $data['category_id'] : null;
+        if(isset($data['active'])) {
+            if($data['active'] == 1) {
+                $updatedData['active'] = 1;
+            } else {
+                $updatedData['active'] = 0;
+            }
+        }
+        $subCategory->update($updatedData);
 
         // Update translations
         if (isset($data['translations'])) {
             // Delete existing translations
-            $subCategory->translations()->delete();
+            $subCategory->translations()->forceDelete();
 
             // Create new translations
             foreach ($data['translations'] as $langId => $translation) {
@@ -230,7 +235,7 @@ class SubCategoryRepository implements SubCategoryRepositoryInterface
                 }
                 $oldImage->delete();
             }
-            
+
             // Store new image
             $path = $data['image']->store("subcategories/{$subCategory->id}", 'public');
             $subCategory->attachments()->create([

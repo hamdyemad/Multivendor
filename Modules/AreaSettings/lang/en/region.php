@@ -80,4 +80,14 @@ return [
     // Info
     'basic_information' => 'Basic Information',
     'regions_list' => 'Regions List',
+
+    // Status Change Modal
+    'change_status' => 'Change Status',
+    'change_status_confirmation' => 'Are you sure you want to change the status of this region?',
+    'current_status' => 'Current Status',
+    'new_status' => 'New Status',
+    'confirm_status_change' => 'Confirm Change',
+    'status_changed_successfully' => 'Region status changed successfully',
+    'error_changing_status' => 'Error changing region status',
+    'status_already_set' => 'Region is already set to this status',
 ];

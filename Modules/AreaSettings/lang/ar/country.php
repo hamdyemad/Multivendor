@@ -113,14 +113,14 @@ return [
     'view_cities' => 'عرض المدن',
     'add_city' => 'إضافة مدينة',
     'updated_at' => 'تاريخ التحديث',
-    
+
     // Table headers
     'sr_no' => '#',
     'name_english' => 'الاسم (إنجليزي)',
     'name_arabic' => 'الاسم (عربي)',
     'action' => 'الإجراءات',
     'no_countries_found' => 'لم يتم العثور على دول',
-    
+
     // Pagination
     'showing' => 'عرض',
     'to' => 'إلى',
@@ -128,5 +128,15 @@ return [
     'entries' => 'إدخال',
     'previous' => 'السابق',
     'next' => 'التالي',
+
+    // Status Change Modal
+    'change_status' => 'تغيير الحالة',
+    'change_status_confirmation' => 'هل أنت متأكد من تغيير حالة هذه الدولة؟',
+    'current_status' => 'الحالة الحالية',
+    'new_status' => 'الحالة الجديدة',
+    'confirm_status_change' => 'تأكيد التغيير',
+    'status_changed_successfully' => 'تم تغيير حالة الدولة بنجاح',
+    'error_changing_status' => 'خطأ في تغيير حالة الدولة',
+    'status_already_set' => 'الدولة مضبوطة بالفعل على هذه الحالة',
 ];
 

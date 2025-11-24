@@ -77,6 +77,6 @@ class Kernel extends HttpKernel
         'setLocaleFromUrl'        => \App\Http\Middleware\SetLocaleFromUrl::class,
         // End Localization
         'lang' => \App\Http\Middleware\Api\LangMiddleware::class,
-        'check.customer.auth' => \Modules\Customer\Http\Middleware\CheckCustomerAuth::class,
+        'check.customer.auth' => \Modules\Customer\app\Http\Middleware\CheckCustomerAuth::class,
     ];
 }

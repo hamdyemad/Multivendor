@@ -753,7 +753,7 @@
                                 <div class="row mb-3">
                                     <div class="col-md-12">
                                         <label class="form-label">{{ __('catalogmanagement::product.variant_key') }} <span class="text-danger">*</span></label>
-                                        <select name="variants[__VARIANT_INDEX__][variant_key_id]" class="form-control select2 variant-key-select" required>
+                                        <select class="form-control select2 variant-key-select" required>
                                             <option value="">{{ __('catalogmanagement::product.select_variant_key') }}</option>
                                         </select>
                                     </div>
@@ -765,7 +765,7 @@
                                     <div class="variant-tree-levels">
                                         <!-- Dynamic variant levels will be added here -->
                                     </div>
-                                    <input type="hidden" name="variants[__VARIANT_INDEX__][value_id]" class="selected-variant-id">
+                                    <input type="hidden" name="variants[__VARIANT_INDEX__][variant_configuration_id]" class="selected-variant-id">
                                     <div class="alert alert-info mt-2 selected-variant-path" style="display: none;">
                                         <strong>{{ __('catalogmanagement::product.selected_variant') }}:</strong> <span class="path-text"></span>
                                     </div>
@@ -1483,19 +1483,32 @@
         console.log('✅ Stock row added');
     }
 
-    // Load regions once on page load
-    function loadRegions() {
-        console.log('🌍 Loading regions from API...');
+    // Load regions based on vendor_id
+    function loadRegions(vendorId = null) {
+        console.log('🌍 Loading regions from API...', vendorId ? `for vendor: ${vendorId}` : 'all regions');
+
+        // Get vendor_id from parameter or from the select/input field
+        if (!vendorId) {
+            vendorId = $('#vendor_id').val();
+        }
+
+        const requestData = {
+            select2: true
+        };
+
+        // Add vendor_id to request if available
+        if (vendorId) {
+            requestData.vendor_id = vendorId;
+        }
 
         $.ajax({
-            url: '{{ url("/api/area/regions") }}',
+            url: '/api/area/regions',
             type: 'GET',
             dataType: 'json',
-            data: {
-                select2: true
-            },
+            data: requestData,
             success: function(response) {
-                const data = response.data || response;
+                console.log(response)
+                const data = response.data;
                 regionsData = data.map(function(region) {
                     return {
                         id: region.id,
@@ -1503,10 +1516,40 @@
                     };
                 });
                 console.log('✅ Regions loaded:', regionsData.length, 'regions');
+
+                // Update existing region selects with new data
+                updateRegionSelects();
             },
             error: function(xhr, status, error) {
                 console.error('❌ Error loading regions:', error);
+                // Fallback to empty regions if error
+                regionsData = [];
+                updateRegionSelects();
             }
+        });
+    }
+
+    // Update all existing region selects with new data
+    function updateRegionSelects() {
+        $('.region-select').each(function() {
+            const $select = $(this);
+            const currentValue = $select.val();
+
+            // Clear existing options except the first placeholder
+            $select.find('option:not(:first)').remove();
+
+            // Add new regions
+            regionsData.forEach(function(region) {
+                $select.append(`<option value="${region.id}">${region.name}</option>`);
+            });
+
+            // Restore previous value if it still exists
+            if (currentValue && regionsData.find(r => r.id == currentValue)) {
+                $select.val(currentValue);
+            }
+
+            // Trigger Select2 update
+            $select.trigger('change');
         });
     }
 
@@ -1707,8 +1750,7 @@
     // Event Handlers
     // ============================================
     $(document).ready(function() {
-        // Load regions and variant keys once on page load
-        loadRegions();
+        // Load variant keys once on page load
         loadVariantKeys();
 
         // Show first step
@@ -1752,18 +1794,23 @@
             showStep(targetStep);
         });
 
-        // Auto-load departments on page load if vendor is already selected
+        // Auto-load departments and regions on page load if vendor is already selected
         const initialVendorId = $('#vendor_id').val();
         if (initialVendorId) {
-            console.log('📦 Auto-loading departments for vendor:', initialVendorId);
+            console.log('📦 Auto-loading departments and regions for vendor:', initialVendorId);
             loadDepartmentsByVendor(initialVendorId);
+            loadRegions(initialVendorId);
+        } else {
+            // Load all regions if no vendor is selected initially
+            loadRegions();
         }
 
-        // Vendor change event - Load departments based on vendor
+        // Vendor change event - Load departments and regions based on vendor
         $('#vendor_id').on('change', function() {
             const vendorId = $(this).val();
             console.log('📦 Vendor changed:', vendorId);
             loadDepartmentsByVendor(vendorId);
+            loadRegions(vendorId);
         });
 
         // Department change event - Load categories based on department

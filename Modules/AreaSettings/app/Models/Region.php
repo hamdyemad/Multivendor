@@ -8,7 +8,7 @@ use App\Traits\Translation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
-
+use Illuminate\Support\Facades\DB;
 
 class Region extends Model
 {
@@ -71,6 +71,13 @@ class Region extends Model
                 $q->where('id', $filters['city_id']);
             });
         }
+
+        if (!empty($filters['vendor_id'])) {
+            $query->whereHas('city.country.vendors', function($q) use ($filters) {
+                $q->where('id', $filters['vendor_id']);
+            });
+        }
+
 
         return $query;
     }

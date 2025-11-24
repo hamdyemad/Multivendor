@@ -12611,10 +12611,6 @@ body.top-menu .navbar-left .customizer-trigger+.top-menu {
     white-space: nowrap
 }
 
-.userDatatable table thead tr:not(.footable-filtering) {
-    -webkit-border-radius: 10px;
-    border-radius: 10px
-}
 
 .userDatatable table thead tr:not(.footable-filtering) th {
     color: var(--color-gray);
@@ -12627,14 +12623,10 @@ body.top-menu .navbar-left .customizer-trigger+.top-menu {
 
 .userDatatable table thead tr:not(.footable-filtering) th:first-child {
     border-left: 1px solid var(--border-color);
-    -webkit-border-radius: 10px 0 0 10px;
-    border-radius: 10px 0 0 10px
 }
 
 .userDatatable table thead tr:not(.footable-filtering) th:last-child {
     border-right: 1px solid var(--border-color);
-    -webkit-border-radius: 0 10px 10px 0 !important;
-    border-radius: 0 10px 10px 0 !important
 }
 
 .userDatatable table tbody tr:first-child td {

@@ -37,6 +37,7 @@ return [
 
     // Vendors Withdraw Transactions
     'vendors_withdraw_transactions' => 'معاملات سحب التجار',
+    'vendors_transactions_overview' => 'نظرة عامة على معاملات التجار',
     'Total Needed From Bnaia To Vendors' => 'إجمالي المطلوب من بنايا للتجار',
     'Total Sent Money To Vendors' => 'إجمالي المبلغ المرسل للتجار',
     "Total Vendor's Remaining" => "إجمالي المتبقي للتجار",

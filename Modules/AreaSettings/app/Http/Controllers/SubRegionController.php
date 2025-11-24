@@ -23,7 +23,7 @@ class SubRegionController extends Controller
         $this->middleware('can:area.subregion.index')->only(['index']);
         $this->middleware('can:area.subregion.show')->only(['show']);
         $this->middleware('can:area.subregion.create')->only(['create', 'store']);
-        $this->middleware('can:area.subregion.edit')->only(['edit', 'update']);
+        $this->middleware('can:area.subregion.edit')->only(['edit', 'update', 'changeStatus']);
         $this->middleware('can:area.subregion.delete')->only(['destroy']);
     }
 
@@ -203,6 +203,60 @@ class SubRegionController extends Controller
 
             return redirect()->route('admin.area-settings.subregions.index')
                 ->with('error', __('areasettings::subregion.error_deleting_subregion') . ': ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Change the status of the specified subregion.
+     */
+    public function changeStatus(Request $request, string $id)
+    {
+        // Validate the request
+        $request->validate([
+            'status' => 'required|in:1,2'
+        ]);
+
+        try {
+            $subregion = $this->subregionService->getSubRegionById($id);
+
+            // Get the new status from request (1 = active, 2 = inactive)
+            $newStatus = $request->input('status') == '1';
+
+            // Check if status is actually changing
+            if ($subregion->active == $newStatus) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('areasettings::subregion.status_already_set')
+                ], 422);
+            }
+
+            // Update the subregion status
+            $this->subregionService->updateSubRegion($id, ['active' => $newStatus]);
+
+            // Check if request is AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => __('areasettings::subregion.status_changed_successfully'),
+                    'new_status' => $newStatus,
+                    'status_text' => $newStatus ? __('areasettings::subregion.active') : __('areasettings::subregion.inactive'),
+                    'status_class' => $newStatus ? 'badge-success' : 'badge-danger'
+                ]);
+            }
+
+            return redirect()->route('admin.area-settings.subregions.index')
+                ->with('success', __('areasettings::subregion.status_changed_successfully'));
+        } catch (\Exception $e) {
+            // Check if request is AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('areasettings::subregion.error_changing_status') . ': ' . $e->getMessage()
+                ], 422);
+            }
+
+            return redirect()->route('admin.area-settings.subregions.index')
+                ->with('error', __('areasettings::subregion.error_changing_status') . ': ' . $e->getMessage());
         }
     }
 }

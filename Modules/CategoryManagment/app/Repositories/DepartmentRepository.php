@@ -152,7 +152,7 @@ class DepartmentRepository implements DepartmentRepositoryInterface
         // Update translations
         if (isset($data['translations'])) {
             // Delete existing translations
-            $department->translations()->delete();
+            $department->translations()->forceDelete();
 
             // Create new translations
             foreach ($data['translations'] as $langId => $translation) {

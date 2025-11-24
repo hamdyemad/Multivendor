@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Customer\Actions;
+namespace Modules\Customer\app\Actions;
 
 use Modules\Customer\app\Models\Customer;
 

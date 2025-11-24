@@ -93,7 +93,7 @@
                     <li>
                         <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.allVendorsTransactions', $currentRoute) ? 'active' : '' }}"
                             href="{{ route('admin.allVendorsTransactions') }}">
-                            Vendors Transactions Overview
+                            {{ trans('dashboard.vendors_transactions_overview') }}
                         </a>
                     </li>
 
@@ -253,9 +253,9 @@
         @endcanany
 
         <li
-            class="has-child {{ isParentMenuOpen(['admin.products.index', 'admin.products.create', 'admin.products.show', 'admin.products.edit', 'admin.variant-keys.index', 'admin.variants-configurations.index'], ['admin/products*', 'admin/variant*']) ? 'open' : '' }}">
+            class="has-child {{ isParentMenuOpen(['admin.products.index', 'admin.products.pending', 'admin.products.rejected', 'admin.products.accepted', 'admin.products.create', 'admin.products.show', 'admin.products.edit', 'admin.variant-keys.index', 'admin.variants-configurations.index'], ['admin/products*', 'admin/variant*']) ? 'open' : '' }}">
             <a href="#"
-                class="{{ isParentMenuOpen(['admin.products.index', 'admin.products.create', 'admin.products.show', 'admin.products.edit', 'admin.variant-keys.index', 'admin.variants-configurations.index'], ['admin/products*', 'admin/variant*']) ? 'active' : '' }}">
+                class="{{ isParentMenuOpen(['admin.products.index', 'admin.products.pending', 'admin.products.rejected', 'admin.products.accepted', 'admin.products.create', 'admin.products.show', 'admin.products.edit', 'admin.variant-keys.index', 'admin.variants-configurations.index'], ['admin/products*', 'admin/variant*']) ? 'active' : '' }}">
                 <span class="nav-icon uil uil-box"></span>
                 <span class="menu-text">{{ trans('menu.products.title') }}</span>
                 <span class="toggle-icon"></span>
@@ -266,6 +266,27 @@
                         href="{{ route('admin.products.index') }}">
                         {{ trans('menu.products.all_products') }}
                         <span class="badge badge-round badge-primary ms-1">20</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.products.pending', $currentRoute) ? 'active' : '' }}"
+                        href="{{ route('admin.products.pending') }}">
+                        {{ trans('menu.products.pending_products') }}
+                        <span class="badge badge-round badge-warning ms-1">5</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.products.rejected', $currentRoute) ? 'active' : '' }}"
+                        href="{{ route('admin.products.rejected') }}">
+                        {{ trans('menu.products.rejected_products') }}
+                        <span class="badge badge-round badge-danger ms-1">3</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.products.accepted', $currentRoute) ? 'active' : '' }}"
+                        href="{{ route('admin.products.accepted') }}">
+                        {{ trans('menu.products.accepted_products') }}
+                        <span class="badge badge-round badge-success ms-1">12</span>
                     </a>
                 </li>
                 @canany(['variant-keys.view', 'variant-keys.create'])
@@ -487,7 +508,7 @@
                 <li class="has-child {{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/customers*') ? 'open' : '' }}">
                     <a href="#"
                         class="{{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/customers*') ? 'active' : '' }}">
-                        <span class="nav-icon uil uil-users"></span>
+                        <span class="nav-icon uil uil-user-circle"></span>
                         <span class="menu-text">{{ trans('menu.customers.title') }}</span>
                         <span class="toggle-icon"></span>
                     </a>

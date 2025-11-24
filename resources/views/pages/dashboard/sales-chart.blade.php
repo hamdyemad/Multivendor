@@ -25,12 +25,12 @@
                     aria-labelledby="sales-today-tab">
                     <div class="label-detailed label-detailed--two">
                         <div class="label-detailed__single"><strong
-                                class="label-detailed__total">8,550 EGP</strong> <span
+                                class="label-detailed__total">8,550 {{ __('common.egp') }}</strong> <span
                                 class="label-detailed__status color-success"><img class="svg"
                                     src="img/svg/arrow-success-up.svg" alt="">
                                 <strong>25%</strong></span> </div>
                         <div class="label-detailed__single"><strong
-                                class="label-detailed__total">5,550 EGP</strong> <span
+                                class="label-detailed__total">5,550 {{ __('common.egp') }}</strong> <span
                                 class="label-detailed__status color-danger"><img class="svg"
                                     src="img/svg/arrow-danger-down.svg" alt="">
                                 <strong>15%</strong></span> </div>
@@ -43,12 +43,12 @@
                     aria-labelledby="sales-week-tab">
                     <div class="label-detailed label-detailed--two">
                         <div class="label-detailed__single"><strong
-                                class="label-detailed__total">8,550 EGP</strong> <span
+                                class="label-detailed__total">8,550 {{ __('common.egp') }}</strong> <span
                                 class="label-detailed__status color-success"><img class="svg"
                                     src="img/svg/arrow-success-up.svg" alt="">
                                 <strong>25%</strong></span> </div>
                         <div class="label-detailed__single"><strong
-                                class="label-detailed__total">5,550 EGP</strong> <span
+                                class="label-detailed__total">5,550 {{ __('common.egp') }}</strong> <span
                                 class="label-detailed__status color-danger"><img class="svg"
                                     src="img/svg/arrow-danger-down.svg" alt="">
                                 <strong>15%</strong></span> </div>
@@ -61,12 +61,12 @@
                     aria-labelledby="sales-month-tab">
                     <div class="label-detailed label-detailed--two">
                         <div class="label-detailed__single"><strong
-                                class="label-detailed__total">8,550 EGP</strong> <span
+                                class="label-detailed__total">8,550 {{ __('common.egp') }}</strong> <span
                                 class="label-detailed__status color-success"><img class="svg"
                                     src="img/svg/arrow-success-up.svg" alt="">
                                 <strong>25%</strong></span> </div>
                         <div class="label-detailed__single"><strong
-                                class="label-detailed__total">5,550 EGP</strong> <span
+                                class="label-detailed__total">5,550 {{ __('common.egp') }}</strong> <span
                                 class="label-detailed__status color-danger"><img class="svg"
                                     src="img/svg/arrow-danger-down.svg" alt="">
                                 <strong>15%</strong></span> </div>

@@ -23,7 +23,7 @@
                                     <span class="ms-3">John Smith</span>
                                 </td>
                                 <td>45</td>
-                                <td class="fw-bold text-success">12,450.00 EGP</td>
+                                <td class="fw-bold text-success">12,450.00 {{ __('common.egp') }}</td>
                                 <td>Jan 15, 2024</td>
                                 <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
@@ -39,7 +39,7 @@
                                     <span class="ms-3">Sarah Johnson</span>
                                 </td>
                                 <td>38</td>
-                                <td class="fw-bold text-success">10,890.00 EGP</td>
+                                <td class="fw-bold text-success">10,890.00 {{ __('common.egp') }}</td>
                                 <td>Feb 22, 2024</td>
                                 <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
@@ -55,7 +55,7 @@
                                     <span class="ms-3">Michael Brown</span>
                                 </td>
                                 <td>32</td>
-                                <td class="fw-bold text-success">9,560.00 EGP</td>
+                                <td class="fw-bold text-success">9,560.00 {{ __('common.egp') }}</td>
                                 <td>Mar 10, 2024</td>
                                 <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
@@ -71,7 +71,7 @@
                                     <span class="ms-3">Emily Davis</span>
                                 </td>
                                 <td>28</td>
-                                <td class="fw-bold text-success">8,340.00 EGP</td>
+                                <td class="fw-bold text-success">8,340.00 {{ __('common.egp') }}</td>
                                 <td>Apr 05, 2024</td>
                                 <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
@@ -87,7 +87,7 @@
                                     <span class="ms-3">David Wilson</span>
                                 </td>
                                 <td>25</td>
-                                <td class="fw-bold text-success">7,750.00 EGP</td>
+                                <td class="fw-bold text-success">7,750.00 {{ __('common.egp') }}</td>
                                 <td>May 18, 2024</td>
                                 <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">

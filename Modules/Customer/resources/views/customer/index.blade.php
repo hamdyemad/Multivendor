@@ -1,6 +1,6 @@
 @extends('layout.app')
 @section('title')
-    Customers | ERAMO Store
+    {{ __('customer::customer.customers_management') }}
 @endsection
 
 @section('content')
@@ -13,7 +13,7 @@
                         'url' => route('admin.dashboard'),
                         'icon' => 'uil uil-estate',
                     ],
-                    ['title' => __('customer.customers_management')],
+                    ['title' => __('customer::customer.customers_management')],
                 ]" />
             </div>
         </div>
@@ -22,13 +22,7 @@
             <div class="col-lg-12">
                 <div class="userDatatable global-shadow border-light-0 p-30 bg-white radius-xl w-100 mb-30">
                     <div class="d-flex justify-content-between align-items-center mb-25">
-                        <h4 class="mb-0 fw-500">{{ __('customer.customers_management') }}</h4>
-                    </div>
-
-                    <!-- Info Alert -->
-                    <div class="alert alert-info glowing-alert" role="alert">
-                        <i class="uil uil-lightbulb-alt me-1"></i>
-                        {{ __('common.live_search_info') }}
+                        <h4 class="mb-0 fw-500">{{ __('customer::customer.customers_management') }}</h4>
                     </div>
 
                     {{-- Search & Filters --}}
@@ -41,12 +35,13 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="search" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-search me-1"></i> {{ __('common.search') }}
+                                                <i class="uil uil-search me-1"></i> {{ __('customer::customer.search') }}
+                                                <small class="text-muted">({{ __('customer::customer.real_time') }})</small>
                                             </label>
                                             <input type="text"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                 id="search"
-                                                placeholder="{{ __('customer.search_placeholder') }}"
+                                                placeholder="{{ __('customer::customer.search_placeholder') }}"
                                                 autocomplete="off">
                                         </div>
                                     </div>
@@ -56,14 +51,14 @@
                                         <div class="form-group">
                                             <label for="active" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-check-circle me-1"></i>
-                                                {{ __('customer.status') }}
+                                                {{ __('customer::customer.status') }}
                                             </label>
                                             <select
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="active">
-                                                <option value="">{{ __('customer.all_status') }}</option>
-                                                <option value="1">{{ __('customer.active') }}</option>
-                                                <option value="0">{{ __('customer.inactive') }}</option>
+                                                <option value="">{{ __('customer::customer.all_status') }}</option>
+                                                <option value="1">{{ __('customer::customer.active') }}</option>
+                                                <option value="0">{{ __('customer::customer.inactive') }}</option>
                                             </select>
                                         </div>
                                     </div>
@@ -73,14 +68,14 @@
                                         <div class="form-group">
                                             <label for="email_verified" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-envelope-check me-1"></i>
-                                                {{ __('customer.email_verified') }}
+                                                {{ __('customer::customer.email_verified') }}
                                             </label>
                                             <select
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="email_verified">
-                                                <option value="">{{ __('customer.all') }}</option>
-                                                <option value="1">{{ __('customer.verified') }}</option>
-                                                <option value="0">{{ __('customer.not_verified') }}</option>
+                                                <option value="">{{ __('customer::customer.all') }}</option>
+                                                <option value="1">{{ __('customer::customer.verified') }}</option>
+                                                <option value="0">{{ __('customer::customer.not_verified') }}</option>
                                             </select>
                                         </div>
                                     </div>
@@ -90,7 +85,7 @@
                                         <div class="form-group">
                                             <label for="created_date_from" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-calendar-alt me-1"></i>
-                                                {{ __('common.created_date_from') }}
+                                                {{ __('customer::customer.created_date_from') }}
                                             </label>
                                             <input type="date"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
@@ -103,7 +98,7 @@
                                         <div class="form-group">
                                             <label for="created_date_to" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-calendar-alt me-1"></i>
-                                                {{ __('common.created_date_to') }}
+                                                {{ __('customer::customer.created_date_to') }}
                                             </label>
                                             <input type="date"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
@@ -111,17 +106,23 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-12 d-flex align-items-center gap-2">
-                                        <button type="button" id="exportExcel"
-                                            class="btn btn-primary btn-default btn-squared grow"
-                                            title="{{ __('common.excel') }}">
-                                            <i class="uil uil-file-download-alt me-1"></i> {{ __('common.export_excel') }}
+                                    <div class="col-md-12 d-flex align-items-center">
+                                        <button type="button" id="searchBtn"
+                                            class="btn btn-success btn-default btn-squared me-1"
+                                            title="{{ __('customer::customer.search') }}">
+                                            <i class="uil uil-search me-1"></i>
+                                            {{ __('customer::customer.search') }}
                                         </button>
                                         <button type="button" id="resetFilters"
-                                            class="btn btn-warning btn-default btn-squared grow"
-                                            title="{{ __('common.reset') }}">
+                                            class="btn btn-warning btn-default btn-squared me-1"
+                                            title="{{ __('customer::customer.reset_filters') }}">
                                             <i class="uil uil-redo me-1"></i>
-                                            {{ __('common.reset_filters') }}
+                                            {{ __('customer::customer.reset_filters') }}
+                                        </button>
+                                        <button type="button" id="exportExcel"
+                                            class="btn btn-primary btn-default btn-squared"
+                                            title="{{ __('customer::customer.export_excel') }}">
+                                            <i class="uil uil-file-download-alt me-1"></i> {{ __('customer::customer.export_excel') }}
                                         </button>
                                     </div>
 
@@ -133,14 +134,14 @@
                     {{-- Entries Per Page --}}
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="d-flex align-items-center">
-                            <label class="me-2 mb-0">{{ __('common.show') }}</label>
+                            <label class="me-2 mb-0">{{ __('customer::customer.show') }}</label>
                             <select id="entriesSelect" class="form-select form-select-sm" style="width: auto;">
                                 <option value="10">10</option>
                                 <option value="25">25</option>
                                 <option value="50">50</option>
                                 <option value="100">100</option>
                             </select>
-                            <label class="ms-2 mb-0">{{ __('common.entries') }}</label>
+                            <label class="ms-2 mb-0">{{ __('customer::customer.entries') }}</label>
                         </div>
                     </div>
 
@@ -150,13 +151,13 @@
                             <thead>
                                 <tr class="userDatatable-header">
                                     <th class="text-center"><span class="userDatatable-title">#</span></th>
-                                    <th><span class="userDatatable-title">{{ __('customer.full_name') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('customer.email') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('customer.phone') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('customer.status') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('customer.email_verified') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('customer.created_at') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('common.actions') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ __('customer::customer.full_name') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ __('customer::customer.email') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ __('customer::customer.phone') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ __('customer::customer.status') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ __('customer::customer.email_verified') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ __('customer::customer.created_at') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ __('customer::customer.action') }}</span></th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -169,8 +170,8 @@
     </div>
 
     {{-- Delete Confirmation Modal --}}
-    <x-delete-modal modalId="modal-delete-customer" :title="__('customer.confirm_delete')" :message="__('customer.delete_confirmation')" itemNameId="delete-customer-name"
-        confirmBtnId="confirmDeleteCustomerBtn" :deleteRoute="route('admin.customers.index')" :cancelText="__('customer.cancel')" :deleteText="__('customer.delete_customer')" />
+    <x-delete-modal modalId="modal-delete-customer" :title="__('customer::customer.confirm_delete')" :message="__('customer::customer.delete_confirmation')" itemNameId="delete-customer-name"
+        confirmBtnId="confirmDeleteCustomerBtn" :deleteRoute="route('admin.customers.index')" :cancelText="__('customer::customer.cancel')" :deleteText="__('customer::customer.delete_customer')" />
 @endsection
 
 @push('after-body')
@@ -269,9 +270,9 @@
                         orderable: true,
                         render: function(data, type, row) {
                             if (data) {
-                                return '<div class="userDatatable-content"><span class="badge badge-success badge-lg badge-round">{{ __('customer.active') }}</span></div>';
+                                return '<div class="userDatatable-content"><span class="badge badge-success badge-lg badge-round">{{ __('customer::customer.active') }}</span></div>';
                             } else {
-                                return '<div class="userDatatable-content"><span class="badge badge-danger badge-lg badge-round">{{ __('customer.inactive') }}</span></div>';
+                                return '<div class="userDatatable-content"><span class="badge badge-danger badge-lg badge-round">{{ __('customer::customer.inactive') }}</span></div>';
                             }
                         }
                     },
@@ -281,9 +282,9 @@
                         orderable: true,
                         render: function(data, type, row) {
                             if (data) {
-                                return '<div class="userDatatable-content"><span class="badge badge-success badge-lg badge-round">{{ __('customer.verified') }}</span></div>';
+                                return '<div class="userDatatable-content"><span class="badge badge-success badge-lg badge-round">{{ __('customer::customer.verified') }}</span></div>';
                             } else {
-                                return '<div class="userDatatable-content"><span class="badge badge-warning badge-lg badge-round">{{ __('customer.pending') }}</span></div>';
+                                return '<div class="userDatatable-content"><span class="badge badge-warning badge-lg badge-round">{{ __('customer::customer.pending') }}</span></div>';
                             }
                         }
                     },
@@ -311,11 +312,11 @@
                         render: function(data, type, row) {
                             let actions = '<div class="userDatatable-content">';
                             actions += '<div class="btn-group">';
-                            actions += '<button class="btn btn-outline-primary btn-sm" title="{{ __('common.view') }}">';
-                            actions += '<i class="uil uil-eye"></i>';
+                            actions += '<button class="btn btn-outline-primary btn-sm" title="{{ __('customer::customer.view') }}">';
+                            actions += '<i class="uil uil-eye m-0"></i>';
                             actions += '</button>';
-                            actions += '<button class="btn btn-outline-danger btn-sm delete-btn" data-id="' + data + '" title="{{ __('common.delete') }}">';
-                            actions += '<i class="uil uil-trash"></i>';
+                            actions += '<button class="btn btn-outline-danger btn-sm delete-btn" data-id="' + data + '" title="{{ __('customer::customer.delete') }}">';
+                            actions += '<i class="uil uil-trash m-0"></i>';
                             actions += '</button>';
                             actions += '</div>';
                             actions += '</div>';
@@ -339,61 +340,128 @@
                     exportOptions: {
                         columns: ':not(:last-child)'
                     },
-                    title: '{{ __('customer.customers_management') }}'
+                    title: '{{ __('customer::customer.customers_management') }}'
                 }],
                 searching: false,
                 language: {
-                    lengthMenu: "{{ __('common.show') ?? 'Show' }} _MENU_",
-                    info: "{{ __('common.showing') ?? 'Showing' }} _START_ {{ __('common.to') ?? 'to' }} _END_ {{ __('common.of') ?? 'of' }} _TOTAL_ {{ __('common.entries') ?? 'entries' }}",
-                    infoEmpty: "{{ __('common.showing') ?? 'Showing' }} 0 {{ __('common.to') ?? 'to' }} 0 {{ __('common.of') ?? 'of' }} 0 {{ __('common.entries') ?? 'entries' }}",
-                    infoFiltered: "({{ __('common.filtered_from') ?? 'filtered from' }} _MAX_ {{ __('common.total_entries') ?? 'total entries' }})",
-                    zeroRecords: "{{ __('customer.no_customers_found') ?? 'No customers found' }}",
-                    emptyTable: "{{ __('customer.no_customers_found') ?? 'No customers found' }}",
-                    loadingRecords: "{{ __('common.loading') ?? 'Loading' }}...",
-                    processing: "{{ __('common.processing') ?? 'Processing' }}...",
-                    search: "{{ __('common.search') ?? 'Search' }}:",
+                    lengthMenu: "{{ __('customer::customer.show') }} _MENU_",
+                    info: "{{ __('customer::customer.showing_entries') }}",
+                    infoEmpty: "{{ __('customer::customer.showing_empty') }}",
+                    emptyTable: "{{ __('customer::customer.no_data_available') }}",
+                    zeroRecords: "{{ __('customer::customer.no_customers_found') }}",
+                    loadingRecords: "{{ __('customer::customer.loading') }}",
+                    processing: "{{ __('customer::customer.processing') }}",
+                    search: "{{ __('customer::customer.search') }}:",
                     paginate: {
-                        first: '{{ __('common.first') ?? 'First' }}',
-                        last: '{{ __('common.last') ?? 'Last' }}',
-                        next: '{{ __('common.next') ?? 'Next' }}',
-                        previous: '{{ __('common.previous') ?? 'Previous' }}'
+                        first: "{{ __('customer::customer.first') }}",
+                        last: "{{ __('customer::customer.last') }}",
+                        next: "{{ __('customer::customer.next') }}",
+                        previous: "{{ __('customer::customer.previous') }}"
                     },
-                    aria: {
-                        sortAscending: ": {{ __('common.sort_ascending') ?? 'activate to sort column ascending' }}",
-                        sortDescending: ": {{ __('common.sort_descending') ?? 'activate to sort column descending' }}"
-                    }
                 }
             });
+
+            // Initialize Select2 on all select elements
+            if ($.fn.select2) {
+                $('#entriesSelect, #active, #email_verified').select2({
+                    theme: 'bootstrap-5',
+                    minimumResultsForSearch: Infinity,
+                    width: '100%'
+                });
+            } else {
+                console.error('Select2 is not loaded');
+            }
 
             $('#entriesSelect').on('change', function() {
                 table.page.len($(this).val()).draw();
             });
 
+            // Function to get URL parameter
+            function getUrlParameter(name) {
+                var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+                var results = regex.exec(location.search);
+                return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+            }
+
+            // Function to update URL with filter parameters
+            function updateUrlWithFilters() {
+                const params = new URLSearchParams();
+
+                const search = $('#search').val();
+                const active = $('#active').val();
+                const emailVerified = $('#email_verified').val();
+                const createdDateFrom = $('#created_date_from').val();
+                const createdDateTo = $('#created_date_to').val();
+
+                if (search) params.set('search', search);
+                if (active) params.set('active', active);
+                if (emailVerified) params.set('email_verified', emailVerified);
+                if (createdDateFrom) params.set('created_date_from', createdDateFrom);
+                if (createdDateTo) params.set('created_date_to', createdDateTo);
+
+                const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+                window.history.pushState({}, '', newUrl);
+            }
+
+            // Initialize filters from URL parameters
+            function initializeFiltersFromUrl() {
+                $('#search').val(getUrlParameter('search'));
+                $('#active').val(getUrlParameter('active'));
+                $('#email_verified').val(getUrlParameter('email_verified'));
+                $('#created_date_from').val(getUrlParameter('created_date_from'));
+                $('#created_date_to').val(getUrlParameter('created_date_to'));
+            }
+
+            // Initialize filters from URL
+            initializeFiltersFromUrl();
+
+            // Search button functionality
+            $('#searchBtn').on('click', function() {
+                console.log('Search button clicked, updating URL and reloading table...');
+                updateUrlWithFilters();
+                table.draw();
+            });
+
+            // Search input with debounce
+            let searchTimer;
             $('#search').on('keyup', function() {
-                table.draw();
+                clearTimeout(searchTimer);
+                const searchValue = $(this).val();
+                searchTimer = setTimeout(function() {
+                    updateUrlWithFilters();
+                    table.draw();
+                }, 500);
             });
 
+            // Filter change handlers
             $('#active, #email_verified, #created_date_from, #created_date_to').on('change', function() {
+                updateUrlWithFilters();
                 table.draw();
             });
 
+            // Reset filters button
             $('#resetFilters').on('click', function() {
+                console.log('Resetting all filters...');
+                // Clear all filter inputs
                 $('#search').val('');
-                $('#active').val('');
-                $('#email_verified').val('');
+                $('#active').val('').trigger('change');
+                $('#email_verified').val('').trigger('change');
                 $('#created_date_from').val('');
                 $('#created_date_to').val('');
+
+                // Update URL and reload table
+                updateUrlWithFilters();
                 table.draw();
             });
 
             $('#exportExcel').on('click', function() {
-                alert('{{ __('common.export_excel') }} feature coming soon');
+                alert('{{ __('customer::customer.export_excel') }} feature coming soon');
             });
 
             $(document).on('click', '.delete-btn', function() {
                 const customerId = $(this).data('id');
                 const customerName = $(this).closest('tr').find('td:nth-child(2)').text();
-                
+
                 $('#delete-customer-name').text(customerName);
                 $('#confirmDeleteCustomerBtn').data('customer-id', customerId);
                 $('#modal-delete-customer').modal('show');
@@ -401,7 +469,7 @@
 
             $('#confirmDeleteCustomerBtn').on('click', function() {
                 const customerId = $(this).data('customer-id');
-                
+
                 $.ajax({
                     url: '{{route("admin.customers.destroy", "__customerId__")}}'.replace('__customerId__', customerId),
                     type: 'DELETE',
@@ -411,10 +479,10 @@
                     success: function(response) {
                         $('#modal-delete-customer').modal('hide');
                         table.draw();
-                        alert('{{ __('customer.customer_deleted') }}');
+                        alert('{{ __('customer::customer.customer_deleted') }}');
                     },
                     error: function(xhr) {
-                        alert('{{ __('common.error_deleting') }}');
+                        alert('{{ __('customer::customer.error_deleting') }}');
                     }
                 });
             });

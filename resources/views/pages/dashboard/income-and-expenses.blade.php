@@ -9,11 +9,11 @@
 
             <div class="text-center mb-3" style="font-size: 0.75rem; color: #555;">
                 {{ trans('dashboard.income') }}: <span style="color: #28a745; font-weight: 600;">3,250.0</span>
-                EGP |
+                {{ __('common.egp') }} |
                 {{ trans('dashboard.expenses') }}: <span style="color: #dc3545; font-weight: 600;">0.0</span>
-                EGP |
+                {{ __('common.egp') }} |
                 {{ trans('dashboard.profit') }}: <span style="color: #dc3545; font-weight: 600;">3,250.0</span>
-                EGP
+                {{ __('common.egp') }}
             </div>
 
             <canvas id="monthlyAccountingChart"
@@ -45,11 +45,11 @@
 
             <div class="text-center mb-3" style="font-size: 0.60rem; color: #555;">
                 {{ trans('dashboard.income') }}: <span style="color: #28a745; font-weight: 600;">123,725.1</span>
-                EGP |
+                {{ __('common.egp') }} |
                 {{ trans('dashboard.expenses') }}: <span style="color: #dc3545; font-weight: 600;">1,502,585.1</span>
-                EGP |
+                {{ __('common.egp') }} |
                 {{ trans('dashboard.profit') }}: <span style="color: #dc3545; font-weight: 600;">-1,378,860.1</span>
-                EGP
+                {{ __('common.egp') }}
             </div>
 
             <canvas id="yearlyAccountingChart"

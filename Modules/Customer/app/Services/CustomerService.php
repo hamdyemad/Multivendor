@@ -22,11 +22,19 @@ class CustomerService
     }
 
     /**
+     * Get customers query for DataTable
+     */
+    public function getCustomersQuery(array $filters = [])
+    {
+        return $this->customerRepository->getCustomersQuery($filters);
+    }
+
+    /**
      * Get customer by ID
      */
-    public function find(array $filters = [], $id)
+    public function findById(array $filters = [], $id)
     {
-        return $this->customerRepository->find($filters, $id);
+        return $this->customerRepository->findById($filters, $id);
     }
 
     /**

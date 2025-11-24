@@ -6,12 +6,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Modules\Customer\app\Services\CustomerService;
 use Modules\Customer\app\Interfaces\CustomerRepositoryInterface;
+use Modules\Customer\app\Http\Requests\Dashboard\CustomerRequest;
 
 class CustomerController extends Controller
 {
     public function __construct(
         protected CustomerService $customerService,
-        protected CustomerRepositoryInterface $customerRepository
     ) {}
 
     public function index()
@@ -25,7 +25,7 @@ class CustomerController extends Controller
     {
         $filters = $request->all();
 
-        $query = $this->customerRepository->getCustomersQuery($filters);
+        $query = $this->customerService->getCustomersQuery($filters);
 
         $total = $query->count();
 
@@ -61,30 +61,80 @@ class CustomerController extends Controller
 
     public function create()
     {
-        return view('customer::create');
+        return view('customer::customer.form');
     }
 
-    public function store(Request $request)
+    public function store(CustomerRequest $request)
     {
+        $customer = $this->customerService->createCustomer($request->validated());
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => __('customer::customer.customer_saved'),
+                'redirect' => route('admin.customers.index')
+            ]);
+        }
+
+        return redirect()->route('admin.customers.index')
+            ->with('success', __('customer::customer.customer_saved'));
     }
 
     public function show($id)
     {
-        return view('customer::show');
+        $customer = $this->customerService->findById([], $id);
+
+        if (!$customer) {
+            abort(404);
+        }
+
+        return view('customer::customer.show', compact('customer'));
     }
 
     public function edit($id)
     {
-        return view('customer::edit');
+        $customer = $this->customerService->findById([],$id);
+
+        if (!$customer) {
+            abort(404);
+        }
+
+        return view('customer::customer.form', compact('customer'));
     }
 
-    public function update(Request $request, $id)
+    public function update(CustomerRequest $request, $id)
     {
+        $customer = $this->customerService->findById([], $id);
+
+        if (!$customer) {
+            abort(404);
+        }
+
+        $this->customerService->updateCustomer($id, $request->validated());
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => __('customer::customer.customer_updated'),
+                'redirect' => route('admin.customers.index')
+            ]);
+        }
+
+        return redirect()->route('admin.customers.index')
+            ->with('success', __('customer::customer.customer_updated'));
     }
 
     public function destroy($id)
     {
-        $this->customerRepository->deleteCustomer($id);
-        return response()->json(['success' => true, 'message' => __('customer::customer.customer_deleted')]);
+        try {
+            $this->customerService->deleteCustomer($id);
+            return response()->json([
+                'success' => true,
+                'message' => __('customer::customer.customer_deleted'),
+                'redirect' => route('admin.customers.index')
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
+        }
     }
 }

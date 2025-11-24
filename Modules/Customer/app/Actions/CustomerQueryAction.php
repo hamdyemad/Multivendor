@@ -24,9 +24,21 @@ class CustomerQueryAction
             });
         }
 
-        // Status filter
+        // Status filter (handle both 'status' and 'active' parameters)
         if (isset($filters['status']) && $filters['status'] !== '') {
             $query->where('status', $filters['status']);
+        }
+        if (isset($filters['active']) && $filters['active'] !== '') {
+            $query->where('status', $filters['active']);
+        }
+
+        // Email verification filter
+        if (isset($filters['email_verified']) && $filters['email_verified'] !== '') {
+            if ($filters['email_verified'] == '1') {
+                $query->whereNotNull('email_verified_at');
+            } else {
+                $query->whereNull('email_verified_at');
+            }
         }
 
         // Language filter
@@ -34,13 +46,19 @@ class CustomerQueryAction
             $query->where('lang', $filters['lang']);
         }
 
-        // Date range filters
+        // Date range filters (handle both old and new parameter names)
         if (!empty($filters['created_from'])) {
             $query->whereDate('created_at', '>=', $filters['created_from']);
+        }
+        if (!empty($filters['created_date_from'])) {
+            $query->whereDate('created_at', '>=', $filters['created_date_from']);
         }
 
         if (!empty($filters['created_to'])) {
             $query->whereDate('created_at', '<=', $filters['created_to']);
+        }
+        if (!empty($filters['created_date_to'])) {
+            $query->whereDate('created_at', '<=', $filters['created_date_to']);
         }
 
         // Load relationships

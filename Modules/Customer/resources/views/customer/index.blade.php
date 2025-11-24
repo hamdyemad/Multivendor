@@ -22,7 +22,13 @@
             <div class="col-lg-12">
                 <div class="userDatatable global-shadow border-light-0 p-30 bg-white radius-xl w-100 mb-30">
                     <div class="d-flex justify-content-between align-items-center mb-25">
-                        <h4 class="mb-0 fw-500">{{ __('customer::customer.customers_management') }}</h4>
+                        <h4 class="mb-0 fw-500 fw-bold">{{ __('customer::customer.customers_management') }}</h4>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('admin.customers.create') }}"
+                                class="btn btn-primary btn-default btn-squared text-capitalize">
+                                <i class="uil uil-plus"></i> {{ __('customer::customer.add_customer') }}
+                            </a>
+                        </div>
                     </div>
 
                     {{-- Search & Filters --}}
@@ -171,7 +177,7 @@
 
     {{-- Delete Confirmation Modal --}}
     <x-delete-modal modalId="modal-delete-customer" :title="__('customer::customer.confirm_delete')" :message="__('customer::customer.delete_confirmation')" itemNameId="delete-customer-name"
-        confirmBtnId="confirmDeleteCustomerBtn" :deleteRoute="route('admin.customers.index')" :cancelText="__('customer::customer.cancel')" :deleteText="__('customer::customer.delete_customer')" />
+        confirmBtnId="confirmDeleteCustomerBtn" deleteRoute="{{ rtrim(route('admin.customers.index'), '/') }}" :cancelText="__('customer::customer.cancel')" :deleteText="__('customer::customer.delete_customer')" />
 @endsection
 
 @push('after-body')
@@ -312,12 +318,15 @@
                         render: function(data, type, row) {
                             let actions = '<div class="userDatatable-content">';
                             actions += '<div class="btn-group">';
-                            actions += '<button class="btn btn-outline-primary btn-sm" title="{{ __('customer::customer.view') }}">';
+                            actions += '<a href="' + '{{ route("admin.customers.show", "__id__") }}'.replace('__id__', data) + '" class="btn btn-outline-info btn-sm" title="{{ __('customer::customer.view') }}">';
                             actions += '<i class="uil uil-eye m-0"></i>';
-                            actions += '</button>';
-                            actions += '<button class="btn btn-outline-danger btn-sm delete-btn" data-id="' + data + '" title="{{ __('customer::customer.delete') }}">';
+                            actions += '</a>';
+                            actions += '<a href="' + '{{ route("admin.customers.edit", "__id__") }}'.replace('__id__', data) + '" class="btn btn-outline-primary btn-sm" title="{{ __('customer::customer.edit') }}">';
+                            actions += '<i class="uil uil-edit m-0"></i>';
+                            actions += '</a>';
+                            actions += '<a href="javascript:void(0);" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modal-delete-customer" data-item-id="' + data + '" data-item-name="' + row.full_name + '" title="{{ __('customer::customer.delete') }}">';
                             actions += '<i class="uil uil-trash m-0"></i>';
-                            actions += '</button>';
+                            actions += '</a>';
                             actions += '</div>';
                             actions += '</div>';
                             return actions;
@@ -456,35 +465,6 @@
 
             $('#exportExcel').on('click', function() {
                 alert('{{ __('customer::customer.export_excel') }} feature coming soon');
-            });
-
-            $(document).on('click', '.delete-btn', function() {
-                const customerId = $(this).data('id');
-                const customerName = $(this).closest('tr').find('td:nth-child(2)').text();
-
-                $('#delete-customer-name').text(customerName);
-                $('#confirmDeleteCustomerBtn').data('customer-id', customerId);
-                $('#modal-delete-customer').modal('show');
-            });
-
-            $('#confirmDeleteCustomerBtn').on('click', function() {
-                const customerId = $(this).data('customer-id');
-
-                $.ajax({
-                    url: '{{route("admin.customers.destroy", "__customerId__")}}'.replace('__customerId__', customerId),
-                    type: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-                        $('#modal-delete-customer').modal('hide');
-                        table.draw();
-                        alert('{{ __('customer::customer.customer_deleted') }}');
-                    },
-                    error: function(xhr) {
-                        alert('{{ __('customer::customer.error_deleting') }}');
-                    }
-                });
             });
         });
     </script>

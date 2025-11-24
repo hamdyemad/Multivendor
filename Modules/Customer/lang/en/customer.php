@@ -4,6 +4,10 @@ return [
     // Page titles and headings
     'customers_management' => 'Customers Management',
     'customer_details' => 'Customer Details',
+    'add_customer' => 'Add Customer',
+    'create_customer' => 'Create Customer',
+    'edit_customer' => 'Edit Customer',
+    'view_customer' => 'View Customer',
 
     // Search and filters
     'search' => 'Search',
@@ -59,4 +63,25 @@ return [
     'customer_deleted' => 'Customer deleted successfully',
     'error_deleting' => 'Error deleting customer',
     'live_search_info' => 'Use the filters above to search and filter customers in real-time.',
+
+    // Form fields
+    'first_name' => 'First Name',
+    'last_name' => 'Last Name',
+    'date_of_birth' => 'Date of Birth',
+    'gender' => 'Gender',
+    'male' => 'Male',
+    'female' => 'Female',
+    'password' => 'Password',
+    'password_confirmation' => 'Confirm Password',
+    'save' => 'Save',
+    'update' => 'Update',
+    'cancel' => 'Cancel',
+    'back_to_list' => 'Back to List',
+    'basic_information' => 'Basic Information',
+    'account_information' => 'Account Information',
+    'select_gender' => 'Select Gender',
+    'customer_saved' => 'Customer saved successfully',
+    'customer_updated' => 'Customer updated successfully',
+    'customer_deleted' => 'Customer deleted successfully',
+    'validation_errors' => 'Please fix the following errors:',
 ];

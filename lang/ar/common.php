@@ -186,4 +186,5 @@ return [
     'offer_valid_until' => 'العرض صالح حتى',
     'no_stock_data' => 'لا توجد بيانات مخزون',
     'variants_and_stock' => 'المتغيرات والمخزون',
+    'footer_copyright' => '© :year | تم التطوير بواسطة <a href="https://www.e-ramo.net/ar">إي-رامو للحلول الرقمية</a>',
 ];

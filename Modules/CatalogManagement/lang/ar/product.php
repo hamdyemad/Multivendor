@@ -277,4 +277,10 @@ return [
     'update_stock_pricing' => 'تحديث المخزون والتسعير',
     'stock_pricing_updated' => 'تم تحديث المخزون والتسعير بنجاح',
     'updating_stock_pricing' => 'جاري تحديث المخزون والتسعير',
+
+    // Activation Status
+    'change_activation' => 'تغيير التفعيل',
+    'activation_changed_successfully' => 'تم تغيير حالة تفعيل المنتج بنجاح',
+    'error_changing_activation' => 'خطأ في تغيير حالة تفعيل المنتج',
+    'activation_already_set' => 'المنتج مضبوط بالفعل على حالة التفعيل هذه',
 ];

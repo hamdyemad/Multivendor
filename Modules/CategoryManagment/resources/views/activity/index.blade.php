@@ -251,12 +251,31 @@
                                 return data ? 1 : 0;
                             }
 
-                            // For display, return formatted HTML
+                            // For display, return formatted HTML with switcher (for users with edit permission)
+                            @can('activities.edit')
+                            const isChecked = data ? 'checked' : '';
+                            const switchId = 'status-switch-' + row.id;
+                            const activityName = row.translations && row.translations['en'] ? row.translations['en'].name : (row.translations && row.translations['ar'] ? row.translations['ar'].name : 'Activity #' + row.id);
+
+                            return `<div class="userDatatable-content">
+                                <div class="form-switch">
+                                    <input class="form-check-input status-switcher"
+                                           type="checkbox"
+                                           id="${switchId}"
+                                           data-activity-id="${row.id}"
+                                           data-activity-name="${$('<div>').text(activityName).html()}"
+                                           ${isChecked}
+                                           style="cursor: pointer;">
+                                    <label class="form-check-label" for="${switchId}"></label>
+                                </div>
+                            </div>`;
+                            @else
                             if (data == 1) {
-                                return '<span class="badge badge-success badge-round badge-lg">{{ __('activity.active') }}</span>';
+                                return '<span class="badge badge-success badge-round badge-lg">{{ __('categorymanagment::activity.active') }}</span>';
                             } else {
-                                return '<span class="badge badge-danger badge-round badge-lg">{{ __('activity.inactive') }}</span>';
+                                return '<span class="badge badge-danger badge-round badge-lg">{{ __('categorymanagment::activity.inactive') }}</span>';
                             }
+                            @endcan
                         }
                     },
                     // Created At column
@@ -474,6 +493,107 @@
                 $('#created_date_to').val('');
                 // Clear search and reload table
                 table.search('').ajax.reload();
+            });
+
+            // Status switcher handler
+            $(document).on('change', '.status-switcher', function() {
+                const switcher = $(this);
+                const activityId = switcher.data('activity-id');
+                const activityName = switcher.data('activity-name');
+                const newStatus = switcher.is(':checked') ? 1 : 2; // 1=active, 2=inactive
+
+                // Disable switcher during request
+                switcher.prop('disabled', true);
+
+                // Show loading overlay
+                if (typeof LoadingOverlay !== 'undefined') {
+                    LoadingOverlay.show({
+                        text: '{{ __('categorymanagment::activity.change_status') }}',
+                        subtext: '{{ __('common.please_wait') ?? 'Please wait' }}...'
+                    });
+                }
+
+                // Make AJAX request
+                $.ajax({
+                    url: '{{ route('admin.category-management.activities.change-status', ':id') }}'.replace(':id', activityId),
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        status: newStatus
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Hide loading overlay
+                            if (typeof LoadingOverlay !== 'undefined') {
+                                LoadingOverlay.hide();
+                            }
+
+                            // Show success message
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '{{ __('common.success') ?? 'Success' }}',
+                                    text: response.message,
+                                    timer: 2000,
+                                    showConfirmButton: false,
+                                    toast: true,
+                                    position: 'top-end'
+                                });
+                            }
+
+                            // Reload table to reflect changes
+                            table.ajax.reload(null, false);
+                        } else {
+                            // Hide loading overlay
+                            if (typeof LoadingOverlay !== 'undefined') {
+                                LoadingOverlay.hide();
+                            }
+
+                            // Revert switcher state
+                            switcher.prop('checked', !switcher.is(':checked'));
+
+                            // Show error message
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: '{{ __('common.error') ?? 'Error' }}',
+                                    text: response.message
+                                });
+                            } else {
+                                alert(response.message);
+                            }
+                        }
+                    },
+                    error: function(xhr) {
+                        // Hide loading overlay
+                        if (typeof LoadingOverlay !== 'undefined') {
+                            LoadingOverlay.hide();
+                        }
+
+                        // Revert switcher state
+                        switcher.prop('checked', !switcher.is(':checked'));
+
+                        let errorMessage = '{{ __('categorymanagment::activity.error_changing_status') }}';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+
+                        // Show error message
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: '{{ __('common.error') ?? 'Error' }}',
+                                text: errorMessage
+                            });
+                        } else {
+                            alert(errorMessage);
+                        }
+                    },
+                    complete: function() {
+                        // Re-enable switcher
+                        switcher.prop('disabled', false);
+                    }
+                });
             });
 
             // Delete functionality is now handled by the delete-with-loading component

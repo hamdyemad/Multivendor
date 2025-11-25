@@ -82,4 +82,10 @@ return [
     // Info
     'basic_information' => 'المعلومات الأساسية',
     'departments_list' => 'قائمة الأقسام',
+
+    // Status Change
+    'change_status' => 'تغيير الحالة',
+    'status_changed_successfully' => 'تم تغيير حالة القسم بنجاح',
+    'error_changing_status' => 'خطأ في تغيير حالة القسم',
+    'status_already_set' => 'القسم مضبوط بالفعل على هذه الحالة',
 ];

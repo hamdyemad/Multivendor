@@ -13,24 +13,24 @@ use Modules\CategoryManagment\app\Actions\ActivityAction;
 class ActivityController extends Controller
 {
 
-    public function __construct(protected ActivityService $activityService, 
+    public function __construct(protected ActivityService $activityService,
     protected LanguageService $languageService,
     protected ActivityAction $activityAction)
     {
         $this->middleware('can:activities.index')->only(['index']);
         $this->middleware('can:activities.show')->only(['show']);
         $this->middleware('can:activities.create')->only(['create', 'store']);
-        $this->middleware('can:activities.edit')->only(['edit', 'update']);
+        $this->middleware('can:activities.edit')->only(['edit', 'update', 'changeStatus']);
         $this->middleware('can:activities.delete')->only(['destroy']);
     }
 
     /**
      * Datatable endpoint for server-side processing
      */
-    
+
     public function datatable(Request $request)
     {
-        
+
         // Handle search parameter - could be string (custom input) or array (DataTables)
         $search = $request->get('search');
         if (is_array($search)) {
@@ -38,7 +38,7 @@ class ActivityController extends Controller
         } else {
             $searchValue = $search;
         }
-        
+
         $data = [
             'page' => $request->get('page', 1),
             'draw' => $request->get('draw', 1),
@@ -54,13 +54,13 @@ class ActivityController extends Controller
 
         try {
             $response = $this->activityAction->getDataTable($data);
-            
+
             Log::info('Activity Datatable Response', [
                 'data_count' => count($response['data']),
                 'totalRecords' => $response['totalRecords'],
                 'filteredRecords' => $response['filteredRecords']
             ]);
-            
+
             return response()->json([
                 'draw' => $data['draw'],
                 'data' => $response['data'],
@@ -77,7 +77,7 @@ class ActivityController extends Controller
             Log::error('Activity Datatable Error: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return response()->json([
                 'draw' => $data['draw'],
                 'data' => [],
@@ -121,7 +121,7 @@ class ActivityController extends Controller
 
         try {
             $this->activityService->createActivity($validated);
-            
+
             // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -130,7 +130,7 @@ class ActivityController extends Controller
                     'redirect' => route('admin.category-management.activities.index')
                 ]);
             }
-            
+
             return redirect()->route('admin.category-management.activities.index')
                 ->with('success', __('Activity created successfully'));
         } catch (\Exception $e) {
@@ -141,7 +141,7 @@ class ActivityController extends Controller
                     'message' => __('Error creating activity: ') . $e->getMessage()
                 ], 422);
             }
-            
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', __('Error creating activity: ') . $e->getMessage());
@@ -187,7 +187,7 @@ class ActivityController extends Controller
 
         try {
             $this->activityService->updateActivity($id, $validated);
-            
+
             // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -196,7 +196,7 @@ class ActivityController extends Controller
                     'redirect' => route('admin.category-management.activities.index')
                 ]);
             }
-            
+
             return redirect()->route('admin.category-management.activities.index')
                 ->with('success', __('Activity updated successfully'));
         } catch (\Exception $e) {
@@ -207,7 +207,7 @@ class ActivityController extends Controller
                     'message' => __('Error updating activity: ') . $e->getMessage()
                 ], 422);
             }
-            
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', __('Error updating activity: ') . $e->getMessage());
@@ -221,7 +221,7 @@ class ActivityController extends Controller
     {
         try {
             $this->activityService->deleteActivity($id);
-            
+
             // Check if request is AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -230,7 +230,7 @@ class ActivityController extends Controller
                     'redirect' => route('admin.category-management.activities.index')
                 ]);
             }
-            
+
             return redirect()->route('admin.category-management.activities.index')
                 ->with('success', __('Activity deleted successfully'));
         } catch (\Exception $e) {
@@ -241,9 +241,69 @@ class ActivityController extends Controller
                     'message' => __('Error deleting activity: ') . $e->getMessage()
                 ], 422);
             }
-            
+
             return redirect()->route('admin.category-management.activities.index')
                 ->with('error', __('Error deleting activity: ') . $e->getMessage());
+        }
+    }
+
+    /**
+     * Change the status of the specified activity.
+     */
+    public function changeStatus(Request $request, string $id)
+    {
+        try {
+            $request->validate([
+                'status' => 'required|in:1,2'
+            ]);
+
+            $activity = $this->activityService->getActivityById($id);
+
+            if (!$activity) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('categorymanagment::activity.activity_not_found')
+                ], 404);
+            }
+
+            // Convert status: 1 = active (true), 2 = inactive (false)
+            $newStatus = $request->status == 1;
+
+            // Check if status is already set to the requested value
+            if ($activity->active == $newStatus) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('categorymanagment::activity.status_already_set')
+                ]);
+            }
+
+            // Update the status
+            $activity->active = $newStatus;
+            $activity->save();
+
+            Log::info('Activity status changed', [
+                'activity_id' => $id,
+                'new_status' => $newStatus,
+                'changed_by' => auth()->id()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('categorymanagment::activity.status_changed_successfully'),
+                'new_status' => $newStatus,
+                'status_text' => $newStatus ? __('categorymanagment::activity.active') : __('categorymanagment::activity.inactive')
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error changing activity status: ' . $e->getMessage(), [
+                'activity_id' => $id,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => __('categorymanagment::activity.error_changing_status')
+            ], 500);
         }
     }
 }

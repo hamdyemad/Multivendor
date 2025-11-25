@@ -24,7 +24,7 @@ class SubCategoryController extends Controller
         $this->middleware('can:sub_categories.index')->only(['index']);
         $this->middleware('can:sub_categories.show')->only(['show']);
         $this->middleware('can:sub_categories.create')->only(['create', 'store']);
-        $this->middleware('can:sub_categories.edit')->only(['edit', 'update']);
+        $this->middleware('can:sub_categories.edit')->only(['edit', 'update', 'changeStatus']);
         $this->middleware('can:sub_categories.delete')->only(['destroy']);
     }
 
@@ -202,6 +202,66 @@ class SubCategoryController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => __('Error deleting sub-category')
+            ], 500);
+        }
+    }
+
+    /**
+     * Change the status of the specified sub-category.
+     */
+    public function changeStatus(Request $request, string $id)
+    {
+        try {
+            $request->validate([
+                'status' => 'required|in:1,2'
+            ]);
+
+            $subCategory = $this->subCategoryService->getSubCategoryById($id);
+
+            if (!$subCategory) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('categorymanagment::subcategory.subcategory_not_found')
+                ], 404);
+            }
+
+            // Convert status: 1 = active (true), 2 = inactive (false)
+            $newStatus = $request->status == 1;
+
+            // Check if status is already set to the requested value
+            if ($subCategory->active == $newStatus) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('categorymanagment::subcategory.status_already_set')
+                ]);
+            }
+
+            // Update the status
+            $subCategory->active = $newStatus;
+            $subCategory->save();
+
+            Log::info('SubCategory status changed', [
+                'subcategory_id' => $id,
+                'new_status' => $newStatus,
+                'changed_by' => auth()->id()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('categorymanagment::subcategory.status_changed_successfully'),
+                'new_status' => $newStatus,
+                'status_text' => $newStatus ? __('categorymanagment::subcategory.active') : __('categorymanagment::subcategory.inactive')
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error changing sub-category status: ' . $e->getMessage(), [
+                'subcategory_id' => $id,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => __('categorymanagment::subcategory.error_changing_status')
             ], 500);
         }
     }

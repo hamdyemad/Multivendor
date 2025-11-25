@@ -321,6 +321,62 @@ class ProductController extends Controller
     }
 
     /**
+     * Change product activation status (active/inactive)
+     */
+    public function changeActivation(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'status' => 'required|in:1,2'
+            ]);
+
+            $product = Product::findOrFail($id);
+            $vendorProduct = VendorProduct::where('product_id', $product->id)->firstOrFail();
+
+            // Convert status: 1 = active (true), 2 = inactive (false)
+            $newStatus = $request->status == 1;
+
+            // Check if status is already set to the requested value
+            if ($vendorProduct->is_active == $newStatus) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('catalogmanagement::product.activation_already_set')
+                ]);
+            }
+
+            // Update the activation status on vendor product
+            $vendorProduct->is_active = $newStatus;
+            $vendorProduct->save();
+
+            Log::info('Product activation status changed', [
+                'product_id' => $id,
+                'vendor_product_id' => $vendorProduct->id,
+                'new_status' => $newStatus,
+                'changed_by' => auth()->id()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('catalogmanagement::product.activation_changed_successfully'),
+                'new_status' => $newStatus,
+                'status_text' => $newStatus ? __('common.active') : __('common.inactive')
+            ]);
+
+        } catch (Exception $e) {
+            Log::error('Product activation status change failed', [
+                'product_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => __('catalogmanagement::product.error_changing_activation')
+            ], 500);
+        }
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy($id)

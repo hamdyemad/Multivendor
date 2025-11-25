@@ -82,4 +82,10 @@ return [
     // Info
     'basic_information' => 'Basic Information',
     'departments_list' => 'Departments List',
+
+    // Status Change
+    'change_status' => 'Change Status',
+    'status_changed_successfully' => 'Department status changed successfully',
+    'error_changing_status' => 'Error changing department status',
+    'status_already_set' => 'Department is already set to this status',
 ];

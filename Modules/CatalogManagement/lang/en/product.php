@@ -277,4 +277,10 @@ return [
     'update_stock_pricing' => 'Update Stock & Pricing',
     'stock_pricing_updated' => 'Stock and pricing updated successfully',
     'updating_stock_pricing' => 'Updating stock and pricing',
+
+    // Activation Status
+    'change_activation' => 'Change Activation',
+    'activation_changed_successfully' => 'Product activation status changed successfully',
+    'error_changing_activation' => 'Error changing product activation status',
+    'activation_already_set' => 'Product is already set to this activation status',
 ];

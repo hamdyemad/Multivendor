@@ -26,7 +26,7 @@ class DepartmentController extends Controller
         $this->middleware('can:departments.index')->only(['index']);
         $this->middleware('can:departments.show')->only(['show']);
         $this->middleware('can:departments.create')->only(['create', 'store']);
-        $this->middleware('can:departments.edit')->only(['edit', 'update']);
+        $this->middleware('can:departments.edit')->only(['edit', 'update', 'changeStatus']);
         $this->middleware('can:departments.delete')->only(['destroy']);
     }
 
@@ -266,6 +266,66 @@ class DepartmentController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Error loading departments: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Change the status of the specified department.
+     */
+    public function changeStatus(Request $request, string $id)
+    {
+        try {
+            $request->validate([
+                'status' => 'required|in:1,2'
+            ]);
+
+            $department = $this->departmentService->getDepartmentById($id);
+
+            if (!$department) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('categorymanagment::department.department_not_found')
+                ], 404);
+            }
+
+            // Convert status: 1 = active (true), 2 = inactive (false)
+            $newStatus = $request->status == 1;
+
+            // Check if status is already set to the requested value
+            if ($department->active == $newStatus) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('categorymanagment::department.status_already_set')
+                ]);
+            }
+
+            // Update the status
+            $department->active = $newStatus;
+            $department->save();
+
+            Log::info('Department status changed', [
+                'department_id' => $id,
+                'new_status' => $newStatus,
+                'changed_by' => auth()->id()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('categorymanagment::department.status_changed_successfully'),
+                'new_status' => $newStatus,
+                'status_text' => $newStatus ? __('categorymanagment::department.active') : __('categorymanagment::department.inactive')
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error changing department status: ' . $e->getMessage(), [
+                'department_id' => $id,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => __('categorymanagment::department.error_changing_status')
             ], 500);
         }
     }

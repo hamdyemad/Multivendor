@@ -69,4 +69,14 @@ return [
     // Info
     'basic_information' => 'المعلومات الأساسية',
     'activities_list' => 'قائمة الأنشطة',
+
+    // Status Change
+    'change_status' => 'تغيير الحالة',
+    'change_status_confirmation' => 'هل أنت متأكد من تغيير حالة هذا النشاط؟',
+    'current_status' => 'الحالة الحالية',
+    'new_status' => 'الحالة الجديدة',
+    'confirm_status_change' => 'تأكيد التغيير',
+    'status_changed_successfully' => 'تم تغيير حالة النشاط بنجاح',
+    'error_changing_status' => 'خطأ في تغيير حالة النشاط',
+    'status_already_set' => 'النشاط مضبوط بالفعل على هذه الحالة',
 ];

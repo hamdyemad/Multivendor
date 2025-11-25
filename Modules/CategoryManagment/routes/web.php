@@ -10,11 +10,13 @@ Route::group(
     // Activities
     Route::get('activities/datatable', 'ActivityController@datatable')->name('activities.datatable');
     Route::get('activities/search', 'ActivityController@activitySearch')->name('activities.search');
+    Route::post('activities/{id}/change-status', 'ActivityController@changeStatus')->name('activities.change-status');
     Route::resource('activities', 'ActivityController');
 
     // Departments
     Route::get('departments/datatable', 'DepartmentController@datatable')->name('departments.datatable');
     Route::get('departments/search-activities', 'DepartmentController@searchActivities')->name('departments.search-activities');
+    Route::post('departments/{id}/change-status', 'DepartmentController@changeStatus')->name('departments.change-status');
     Route::resource('departments', 'DepartmentController');
 
     // Categories
@@ -24,5 +26,6 @@ Route::group(
     Route::resource('categories', 'CategoryController');
     // Sub Categories
     Route::get('subcategories/datatable', 'SubCategoryController@datatable')->name('subcategories.datatable');
+    Route::post('subcategories/{id}/change-status', 'SubCategoryController@changeStatus')->name('subcategories.change-status');
     Route::resource('subcategories', 'SubCategoryController');
 });

@@ -20,6 +20,7 @@ Route::group(
     Route::get('products/{product}/stock-management', 'ProductController@stockManagement')->name('products.stock-management');
     Route::post('products/{product}/update-stock-pricing', 'ProductController@updateStockPricing')->name('products.update-stock-pricing');
     Route::post('products/{product}/change-status', 'ProductController@changeStatus')->name('products.change-status');
+    Route::post('products/{product}/change-activation', 'ProductController@changeActivation')->name('products.change-activation');
 
     // Product status-based routes
     Route::get('products/pending', 'ProductController@pending')->name('products.pending');

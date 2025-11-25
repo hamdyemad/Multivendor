@@ -426,10 +426,29 @@
                         orderable: true,
                         searchable: false,
                         className: 'text-center',
-                        render: function(data) {
-                            return data ?
-                                `<span class="badge badge-success badge-round badge-lg"><i class="uil uil-check"></i> ${translations.active}</span>` :
-                                `<span class="badge badge-danger badge-round badge-lg"><i class="uil uil-times"></i> ${translations.inactive}</span>`;
+                        render: function(data, type, row) {
+                            // For sorting, return numeric value
+                            if (type === 'sort' || type === 'type') {
+                                return data ? 1 : 0;
+                            }
+
+                            // For display, return formatted HTML with switcher
+                            const isChecked = data ? 'checked' : '';
+                            const switchId = 'activation-switch-' + row.id;
+                            const productName = row.product_information?.name_en || row.product_information?.name_ar || 'Product #' + row.id;
+
+                            return `<div class="userDatatable-content">
+                                <div class="form-switch">
+                                    <input class="form-check-input activation-switcher"
+                                           type="checkbox"
+                                           id="${switchId}"
+                                           data-product-id="${row.id}"
+                                           data-product-name="${$('<div>').text(productName).html()}"
+                                           ${isChecked}
+                                           style="cursor: pointer;">
+                                    <label class="form-check-label" for="${switchId}"></label>
+                                </div>
+                            </div>`;
                         }
                     },
                     {
@@ -717,6 +736,113 @@
 
                 $('#rejection-reason-group').hide();
                 currentProductId = null;
+            });
+
+            // Activation switcher handler
+            $(document).on('change', '.activation-switcher', function() {
+                const switcher = $(this);
+                const productId = switcher.data('product-id');
+                const productName = switcher.data('product-name');
+                const newStatus = switcher.is(':checked') ? 1 : 2; // 1=active, 2=inactive
+
+                // Disable switcher during request
+                switcher.prop('disabled', true);
+
+                // Show loading overlay
+                if (typeof LoadingOverlay !== 'undefined') {
+                    LoadingOverlay.show({
+                        text: '{{ __('catalogmanagement::product.change_activation') }}',
+                        subtext: '{{ __('common.please_wait') ?? 'Please wait' }}...'
+                    });
+                }
+
+                // Make AJAX request
+                $.ajax({
+                    url: '{{ route('admin.products.change-activation', ':id') }}'.replace(':id', productId),
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        status: newStatus
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Hide loading overlay
+                            if (typeof LoadingOverlay !== 'undefined') {
+                                LoadingOverlay.hide();
+                            }
+
+                            // Show success message
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '{{ __('common.success') ?? 'Success' }}',
+                                    text: response.message,
+                                    timer: 2000,
+                                    showConfirmButton: false,
+                                    toast: true,
+                                    position: 'top-end'
+                                });
+                            } else if (typeof toastr !== 'undefined') {
+                                toastr.success(response.message);
+                            }
+
+                            // Reload table to reflect changes
+                            table.ajax.reload(null, false);
+                        } else {
+                            // Hide loading overlay
+                            if (typeof LoadingOverlay !== 'undefined') {
+                                LoadingOverlay.hide();
+                            }
+
+                            // Revert switcher state
+                            switcher.prop('checked', !switcher.is(':checked'));
+
+                            // Show error message
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: '{{ __('common.error') ?? 'Error' }}',
+                                    text: response.message
+                                });
+                            } else if (typeof toastr !== 'undefined') {
+                                toastr.error(response.message);
+                            } else {
+                                alert(response.message);
+                            }
+                        }
+                    },
+                    error: function(xhr) {
+                        // Hide loading overlay
+                        if (typeof LoadingOverlay !== 'undefined') {
+                            LoadingOverlay.hide();
+                        }
+
+                        // Revert switcher state
+                        switcher.prop('checked', !switcher.is(':checked'));
+
+                        let errorMessage = '{{ __('catalogmanagement::product.error_changing_activation') }}';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+
+                        // Show error message
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: '{{ __('common.error') ?? 'Error' }}',
+                                text: errorMessage
+                            });
+                        } else if (typeof toastr !== 'undefined') {
+                            toastr.error(errorMessage);
+                        } else {
+                            alert(errorMessage);
+                        }
+                    },
+                    complete: function() {
+                        // Re-enable switcher
+                        switcher.prop('disabled', false);
+                    }
+                });
             });
         });
     </script>

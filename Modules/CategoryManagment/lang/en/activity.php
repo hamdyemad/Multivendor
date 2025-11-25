@@ -69,4 +69,14 @@ return [
     // Info
     'basic_information' => 'Basic Information',
     'activities_list' => 'Activities List',
+
+    // Status Change
+    'change_status' => 'Change Status',
+    'change_status_confirmation' => 'Are you sure you want to change the status of this activity?',
+    'current_status' => 'Current Status',
+    'new_status' => 'New Status',
+    'confirm_status_change' => 'Confirm Change',
+    'status_changed_successfully' => 'Activity status changed successfully',
+    'error_changing_status' => 'Error changing activity status',
+    'status_already_set' => 'Activity is already set to this status',
 ];

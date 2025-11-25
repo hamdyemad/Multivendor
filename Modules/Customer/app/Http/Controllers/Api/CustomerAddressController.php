@@ -7,7 +7,7 @@ use App\Traits\Res;
 use Illuminate\Http\Request;
 use Modules\Customer\app\Http\Requests\Api\CreateAddressRequest;
 use Modules\Customer\app\Http\Requests\Api\UpdateAddressRequest;
-use Modules\Customer\Transformers\AddressResource;
+use Modules\Customer\app\Transformers\AddressResource;
 use Modules\Customer\app\Services\Api\CustomerAddressService;
 
 class CustomerAddressController extends Controller

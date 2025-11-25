@@ -1,0 +1,115 @@
+<?php
+
+return [
+    // Page titles and headings
+    'customers_management' => 'Customers Management',
+    'customer_details' => 'Customer Details',
+    'add_customer' => 'Add Customer',
+    'create_customer' => 'Create Customer',
+    'edit_customer' => 'Edit Customer',
+    'view_customer' => 'View Customer',
+
+    // Search and filters
+    'search' => 'Search',
+    'search_placeholder' => 'Search by name, email, or phone...',
+    'real_time' => 'Real-time',
+    'all' => 'All',
+    'show' => 'Show',
+    'entries' => 'entries',
+    'reset_filters' => 'Reset Filters',
+    'export_excel' => 'Export Excel',
+    'created_date_from' => 'Created Date From',
+    'created_date_to' => 'Created Date To',
+
+    // Table headers
+    'full_name' => 'Full Name',
+    'email' => 'Email',
+    'phone' => 'Phone',
+    'status' => 'Status',
+    'email_verified' => 'Email Verified',
+    'created_at' => 'Created At',
+    'action' => 'Action',
+
+    // Status values
+    'active' => 'Active',
+    'inactive' => 'Inactive',
+    'all_status' => 'All Status',
+    'verified' => 'Verified',
+    'not_verified' => 'Not Verified',
+    'pending' => 'Pending',
+
+    // DataTable language
+    'showing_entries' => 'Showing _START_ to _END_ of _TOTAL_ entries',
+    'showing_empty' => 'Showing 0 to 0 of 0 entries',
+    'no_customers_found' => 'No customers found',
+    'no_data_available' => 'No data available in table',
+    'loading' => 'Loading...',
+    'processing' => 'Processing...',
+    'first' => 'First',
+    'last' => 'Last',
+    'next' => 'Next',
+    'previous' => 'Previous',
+
+    // Actions
+    'view' => 'View',
+    'edit' => 'Edit',
+    'delete' => 'Delete',
+    'delete_customer' => 'Delete Customer',
+    'cancel' => 'Cancel',
+
+    // Messages
+    'confirm_delete' => 'Confirm Delete',
+    'delete_confirmation' => 'Are you sure you want to delete this customer?',
+    'customer_deleted' => 'Customer deleted successfully',
+    'error_deleting' => 'Error deleting customer',
+    'live_search_info' => 'Use the filters above to search and filter customers in real-time.',
+
+    // Form fields
+    'first_name' => 'First Name',
+    'last_name' => 'Last Name',
+    'date_of_birth' => 'Date of Birth',
+    'gender' => 'Gender',
+    'male' => 'Male',
+    'female' => 'Female',
+    'password' => 'Password',
+    'password_confirmation' => 'Confirm Password',
+    'save' => 'Save',
+    'update' => 'Update',
+    'cancel' => 'Cancel',
+    'back_to_list' => 'Back to List',
+    'basic_information' => 'Basic Information',
+    'account_information' => 'Account Information',
+    'select_gender' => 'Select Gender',
+    'customer_saved' => 'Customer saved successfully',
+    'customer_updated' => 'Customer updated successfully',
+    'customer_deleted' => 'Customer deleted successfully',
+    'validation_errors' => 'Please fix the following errors:',
+
+    // OTP Email translations
+    'otp_email' => [
+        'email_verification_subject' => 'Verify Your Email Address',
+        'password_reset_subject' => 'Reset Your Password',
+        'default_subject' => 'Verification Code',
+        'email_verification_greeting' => 'Hello,',
+        'email_verification_thank_you' => 'Thank you for registering with :app_name!',
+        'email_verification_intro' => 'To complete your registration, please verify your email address by clicking the button below:',
+        'verify_account_button' => 'Verify Account',
+        'verify_button_expires' => 'This link will expire in :minutes minutes.',
+        'password_reset_greeting' => 'Hello,',
+        'password_reset_intro' => 'We received a request to reset your password. Please use the code below to reset your password:',
+        'password_reset_security_notice' => 'If you did not request a password reset, please ignore this email.',
+        'default_greeting' => 'Hello,',
+        'default_intro' => 'Your verification code is:',
+        'expires_in' => 'Expires in :minutes minutes',
+        'email_verification_ignore' => 'If you did not create this account, please ignore this email.',
+        'security_tips_title' => 'Security Tips:',
+        'security_tip_1' => 'Never share your verification code with anyone.',
+        'security_tip_2' => ':app_name will never ask you for your verification code via email.',
+        'security_tip_3' => 'Your verification code will expire in :minutes minutes.',
+        'best_regards' => 'Best regards,',
+        'team' => ':app_name Team',
+        'footer_copyright' => '© :year :app_name. All rights reserved.',
+        'footer_note' => 'This is an automated email. Please do not reply to this message.',
+        'app_name' => 'E-RAMO Store',
+    ],
+];

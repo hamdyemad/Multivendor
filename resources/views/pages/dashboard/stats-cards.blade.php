@@ -4,7 +4,7 @@
 @endphp
 <style>
     .ap-po-details__titlebar h1 {
-        font-size: 30px !important;
+        font-size: 25px !important;
         font-weight: bold;
         color: var(--color-primary);
     }

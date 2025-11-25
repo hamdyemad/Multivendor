@@ -55,7 +55,7 @@
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
                                                                             id="total_orders">{{ $general_info['orders_price'] }}</span>
-                                                                        EGP</h1>
+                                                                        {{ __('common.egp') }}</h1>
                                                                     <p>Total {{ $vendor_name }}'s Transactions</p>
                                                                 </div>
                                                                 <div class="ap-po-details__icon-area">
@@ -76,7 +76,7 @@
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
                                                                             id="bnaia_balance">{{ $general_info['bnaia_balance'] }}</span>
-                                                                        EGP</h1>
+                                                                        {{ __('common.egp') }}</h1>
                                                                     <p style="font-size: 11px !important;">Bnaia Commission from Transactions <span
                                                                             class="badge text-bg-secondary"
                                                                             style="background-color: #0056b7; border-radius: 5px"
@@ -102,7 +102,7 @@
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
                                                                             id="vendor_balance_money">{{ $general_info['total_vendor_balance'] }}</span>
-                                                                        EGP</h1>
+                                                                        {{ __('common.egp') }}</h1>
                                                                     <p>Total {{ $vendor_name }}'s Credit</p>
                                                                 </div>
                                                                 <div class="ap-po-details__icon-area">
@@ -136,7 +136,7 @@
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
                                                                             id="vendor_balance_after_sent_money">{{ $general_info['total_vendor_balance'] }}</span>
-                                                                        EGP</h1>
+                                                                        {{ __('common.egp') }}</h1>
                                                                     <p>Total Balance Needed</p>
                                                                 </div>
                                                                 <div class="ap-po-details__icon-area">
@@ -157,7 +157,7 @@
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
                                                                             id="total_sent_money">{{ $general_info['total_sent_money'] }}</span>
-                                                                        EGP</h1>
+                                                                        {{ __('common.egp') }}</h1>
                                                                     <p>Total Recieved Money</p>
                                                                 </div>
                                                                 <div class="ap-po-details__icon-area">
@@ -179,7 +179,7 @@
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
                                                                             id="remaining_after_sent_money">{{ $general_info['remaining'] }}</span>
-                                                                        EGP
+                                                                        {{ __('common.egp') }}
                                                                     </h1>
                                                                     <p>Total Remaining</p>
                                                                 </div>
@@ -205,13 +205,13 @@
                                                 class="badge text-bg-secondary"
                                                 style="background-color: #0056b7; border-radius: 5px"><span
                                                     id="amount_max_which_will_be_sent">{{ $general_info['remaining'] }}</span>
-                                                <span style="margin: 0px 4px">EGP</span></span>
+                                                <span style="margin: 0px 4px">{{ __('common.egp') }}</span></span>
 
                                             <span class="badge text-bg-secondary"
                                                 style="background-color: #fa0000; border-radius: 5px"> <span
                                                     style="margin: 0px 3px">Waiting approve :</span> <span
                                                     id="amount_max_which_will_be_sent">{{ $general_info['waiting_approve_requests'] }}</span>
-                                                <span style="margin: 0px 4px">EGP</span></span>
+                                                <span style="margin: 0px 4px">{{ __('common.egp') }}</span></span>
                                         </label>
                                         <input type="text" class="form-control" placeholder="Example: 4,000.50"
                                             name="sent_amount" id="sent_amount" value="{{ old('sent_amount') }}">

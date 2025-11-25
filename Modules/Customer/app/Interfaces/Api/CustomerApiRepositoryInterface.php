@@ -12,7 +12,7 @@ interface CustomerApiRepositoryInterface
 
     public function create(array $data): Customer;
 
-    public function createOtp(string $email, string $otp, string $type, int $expiresInMinutes = 10): CustomerOtp;
+    public function createOtp(string $email, string $otp, string $type, int $expiresInMinutes = 10, ?string $verificationToken = null): CustomerOtp;
 
     public function verifyEmail(Customer $customer): void;
 

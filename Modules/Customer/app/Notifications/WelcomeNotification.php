@@ -29,7 +29,7 @@ class WelcomeNotification extends Notification
 
         return (new MailMessage)
             ->subject(__('customer.welcome_email.subject', ['app_name' => $appName]))
-            ->view('emails.welcome', [
+            ->view('customer::emails.welcome', [
                 'customer' => $notifiable,
                 'appName' => $appName,
             ]);

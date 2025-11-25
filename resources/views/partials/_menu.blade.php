@@ -93,7 +93,7 @@
                     <li>
                         <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.allVendorsTransactions', $currentRoute) ? 'active' : '' }}"
                             href="{{ route('admin.allVendorsTransactions') }}">
-                            Vendors Transactions Overview
+                            {{ trans('dashboard.vendors_transactions_overview') }}
                         </a>
                     </li>
 
@@ -508,7 +508,7 @@
                 <li class="has-child {{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/customers*') ? 'open' : '' }}">
                     <a href="#"
                         class="{{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/customers*') ? 'active' : '' }}">
-                        <span class="nav-icon uil uil-users"></span>
+                        <span class="nav-icon uil uil-user-circle"></span>
                         <span class="menu-text">{{ trans('menu.customers.title') }}</span>
                         <span class="toggle-icon"></span>
                     </a>

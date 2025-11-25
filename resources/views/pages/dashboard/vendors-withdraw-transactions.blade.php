@@ -21,7 +21,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1 style="font-size: 20px;">95,320.00 EGP</h1>
+                                <h1 style="font-size: 20px;">95,320.00 {{ __('common.egp') }}</h1>
                                 <p>{{ trans('dashboard.Total Needed From Bnaia To Vendors') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
@@ -38,7 +38,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1 style="font-size: 20px;">58,750.00 EGP</h1>
+                                <h1 style="font-size: 20px;">58,750.00 {{ __('common.egp') }}</h1>
                                 @if ($user_type == 'super_admin')
                                 <p>{{ trans('dashboard.Total Sent Money To Vendors') }}</p>
                                 @else
@@ -59,7 +59,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1 style="font-size: 20px;">36,570.00 EGP</h1>
+                                <h1 style="font-size: 20px;">36,570.00 {{ __('common.egp') }}</h1>
                                 @if ($user_type == 'super_admin')
                                     <p>{{ trans('dashboard.Total Vendor\'s Remaining') }}</p>
                                 @else

@@ -13,7 +13,7 @@
                         <th><span class="userDatatable-title">{{ trans('dashboard.price') }}</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.total') }}</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.commission') }} %</span></th>
-                        <th><span class="userDatatable-title">{{ trans('dashboard.commission') }} EGP</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.commission') }} {{ __('common.egp') }}</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.actions') }}</span></th>
                     </tr>
                 </thead>
@@ -29,10 +29,10 @@
                                         <span class="ms-3">Fresh</span>
                                     </a>
                                 </td>
-                                <td class="fw-bold text-primary">299.00 EGP</td>
-                                <td class="fw-bold text-success">299.00 EGP</td>
+                                <td class="fw-bold text-primary">299.00 {{ __('common.egp') }}</td>
+                                <td class="fw-bold text-success">299.00 {{ __('common.egp') }}</td>
                                 <td class="fw-bold text-success">10%</td>
-                                <td class="fw-bold text-success">29.90 EGP</td>
+                                <td class="fw-bold text-success">29.90 {{ __('common.egp') }}</td>
                                 <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
@@ -51,10 +51,10 @@
                                         <span class="ms-3">Fresh</span>
                                     </a>
                                 </td>
-                                <td class="fw-bold text-primary">89.99 EGP</td>
-                                <td class="fw-bold text-success">179.98 EGP</td>
+                                <td class="fw-bold text-primary">89.99 {{ __('common.egp') }}</td>
+                                <td class="fw-bold text-success">179.98 {{ __('common.egp') }}</td>
                                 <td class="fw-bold text-success">10%</td>
-                                <td class="fw-bold text-success">18.00 EGP</td>
+                                <td class="fw-bold text-success">18.00 {{ __('common.egp') }}</td>
                                 <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
@@ -73,10 +73,10 @@
                                         <span class="ms-3">Fresh</span>
                                     </a>
                                 </td>
-                                <td class="fw-bold text-primary">45.50 EGP</td>
-                                <td class="fw-bold text-success">136.50 EGP</td>
+                                <td class="fw-bold text-primary">45.50 {{ __('common.egp') }}</td>
+                                <td class="fw-bold text-success">136.50 {{ __('common.egp') }}</td>
                                 <td class="fw-bold text-success">10%</td>
-                                <td class="fw-bold text-success">13.65 EGP</td>
+                                <td class="fw-bold text-success">13.65 {{ __('common.egp') }}</td>
                                 <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
@@ -95,10 +95,10 @@
                                         <span class="ms-3">Fresh</span>
                                     </a>
                                 </td>
-                                <td class="fw-bold text-primary">19.99 EGP</td>
-                                <td class="fw-bold text-success">79.96 EGP</td>
+                                <td class="fw-bold text-primary">19.99 {{ __('common.egp') }}</td>
+                                <td class="fw-bold text-success">79.96 {{ __('common.egp') }}</td>
                                 <td class="fw-bold text-success">10%</td>
-                                <td class="fw-bold text-success">8.00 EGP</td>
+                                <td class="fw-bold text-success">8.00 {{ __('common.egp') }}</td>
                                 <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
                                         <i class="uil uil-eye m-0"></i>
@@ -117,13 +117,13 @@
                                         <span class="ms-3">Fresh</span>
                                     </a>
                                 </td>
-                                <td class="fw-bold text-primary">129.99 EGP</td>
-                                <td class="fw-bold text-success">259.98 EGP</td>
+                                <td class="fw-bold text-primary">129.99 {{ __('common.egp') }}</td>
+                                <td class="fw-bold text-success">259.98 {{ __('common.egp') }}</td>
                                 <td class="fw-bold text-success">10%</td>
-                                <td class="fw-bold text-success">26.00 EGP</td>
+                                <td class="fw-bold text-success">26.00 {{ __('common.egp') }}</td>
                                 <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="uil uil-eye m-0 m-0 m-0"></i>
+                                        <i class="uil uil-eye m-0"></i>
                                     </a>
                                 </td>
                             </tr>

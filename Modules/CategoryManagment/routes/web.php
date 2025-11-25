@@ -19,6 +19,7 @@ Route::group(
 
     // Categories
     Route::get('categories/datatable', 'CategoryController@datatable')->name('categories.datatable');
+    Route::post('categories/{id}/change-status', 'CategoryController@changeStatus')->name('categories.change-status');
     Route::get('categories/search-activities', 'CategoryController@searchActivities')->name('categories.search-activities');
     Route::resource('categories', 'CategoryController');
     // Sub Categories

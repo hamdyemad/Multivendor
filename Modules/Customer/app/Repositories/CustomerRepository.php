@@ -3,6 +3,7 @@
 namespace Modules\Customer\app\Repositories;
 
 use App\Actions\IsPaginatedAction;
+use Carbon\Carbon;
 use Modules\Customer\app\Actions\CustomerQueryAction;
 use Modules\Customer\app\Interfaces\CustomerRepositoryInterface;
 use Modules\Customer\app\Models\Customer;
@@ -30,9 +31,9 @@ class CustomerRepository implements CustomerRepositoryInterface
         return Customer::findOrFail($id);
     }
 
-    public function find(array $filters = [], $id)
+    public function findById(array $filters = [], $id)
     {
-        return $this->query->handle($filters)->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id))->firstOrFail();
+        return $this->query->handle($filters)->where('id', $id)->firstOrFail();
     }
 
     public function createCustomer(array $data)
@@ -42,11 +43,12 @@ class CustomerRepository implements CustomerRepositoryInterface
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],
                 'email' => $data['email'],
-                'password' => $data['password'],
+                'password' => bcrypt($data['password']),
                 'phone' => $data['phone'] ?? null,
                 'image' => $data['image'] ?? null,
                 'status' => $data['status'] ?? true,
                 'lang' => $data['lang'] ?? 'en',
+                'email_verified_at' => Carbon::now(),
             ]);
 
             if (!empty($data['addresses']) && is_array($data['addresses'])) {
@@ -64,7 +66,7 @@ class CustomerRepository implements CustomerRepositoryInterface
         return DB::transaction(function () use ($id, $data) {
             $customer = Customer::findOrFail($id);
 
-            $customer->update([
+            $updateData = [
                 'first_name' => $data['first_name'] ?? $customer->first_name,
                 'last_name' => $data['last_name'] ?? $customer->last_name,
                 'email' => $data['email'] ?? $customer->email,
@@ -72,7 +74,15 @@ class CustomerRepository implements CustomerRepositoryInterface
                 'image' => $data['image'] ?? $customer->image,
                 'status' => $data['status'] ?? $customer->status,
                 'lang' => $data['lang'] ?? $customer->lang,
-            ]);
+                'email_verified_at' => Carbon::now(),
+            ];
+
+            // Only update password if provided
+            if (!empty($data['password'])) {
+                $updateData['password'] = bcrypt($data['password']);
+            }
+
+            $customer->update($updateData);
 
             if (!empty($data['addresses']) && is_array($data['addresses'])) {
                 $customer->addresses()->delete();

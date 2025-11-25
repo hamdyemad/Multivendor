@@ -36,25 +36,44 @@ class SystemSettingServiceProvider extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
-        
+
         // Bind Repository Interfaces to Implementations
         $this->app->bind(
             \Modules\SystemSetting\app\Interfaces\CurrencyRepositoryInterface::class,
             \Modules\SystemSetting\app\Repositories\CurrencyRepository::class
         );
-        
+
         $this->app->bind(
             \Modules\SystemSetting\app\Interfaces\ActivityLogRepositoryInterface::class,
             \Modules\SystemSetting\app\Repositories\ActivityLogRepository::class
         );
-        
+
+        // Message Repository Bindings
+        $this->app->bind(
+            \Modules\SystemSetting\app\Interfaces\MessageRepositoryInterface::class,
+            \Modules\SystemSetting\app\Repositories\MessageRepository::class
+        );
+
+        $this->app->bind(
+            \Modules\SystemSetting\app\Interfaces\Api\MessageApiRepositoryInterface::class,
+            \Modules\SystemSetting\app\Repositories\Api\MessageApiRepository::class
+        );
+
         // Bind Services
         $this->app->bind(
             \Modules\SystemSetting\app\Services\CurrencyService::class
         );
-        
+
         $this->app->bind(
             \Modules\SystemSetting\app\Services\ActivityLogService::class
+        );
+
+        $this->app->bind(
+            \Modules\SystemSetting\app\Services\MessageService::class
+        );
+
+        $this->app->bind(
+            \Modules\SystemSetting\app\Services\Api\MessageApiService::class
         );
     }
 

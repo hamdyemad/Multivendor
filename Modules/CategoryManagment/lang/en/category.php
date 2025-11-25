@@ -82,4 +82,10 @@ return [
     // Info
     'basic_information' => 'Basic Information',
     'categories_list' => 'Categories List',
+
+    // Status Change
+    'change_status' => 'Change Status',
+    'status_changed_successfully' => 'Category status changed successfully',
+    'error_changing_status' => 'Error changing category status',
+    'status_already_set' => 'Category is already set to this status',
 ];

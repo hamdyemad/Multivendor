@@ -138,7 +138,7 @@ class CityRepository implements CityRepositoryInterface
                     }
                 }
             }
-            
+
             return $city;
         });
     }
@@ -150,11 +150,16 @@ class CityRepository implements CityRepositoryInterface
     {
         return DB::transaction(function () use ($id, $data) {
             $city = City::findOrFail($id);
-
-            $city->update([
-                'country_id' => $data['country_id'],
-                'active' => $data['active'] ?? 0,
-            ]);
+            $updatedData = [];
+            (isset($data['country_id'])) ? $updatedData['country_id'] = $data['country_id'] : null;
+            if(isset($data['active'])) {
+                if($data['active'] == 1) {
+                    $updatedData['active'] = 1;
+                } else {
+                    $updatedData['active'] = 0;
+                }
+            }
+            $city->update($updatedData);
 
             // Update translations from nested array
             if (isset($data['translations']) && is_array($data['translations'])) {

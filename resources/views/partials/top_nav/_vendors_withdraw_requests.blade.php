@@ -58,7 +58,7 @@
                                         style="max-width: 180px;">Bnaia is {{ $item->status == "accepted" ? "Sent money to you" : "Reject your request"  }}</a>
                                 </p>
                                 <p>
-                                    <span class="time-posted">Request Value : {{ $item->sent_amount }} EGP</span>
+                                    <span class="time-posted">Request Value : {{ $item->sent_amount }} {{ __('common.egp') }}</span>
                                 </p>
                             @else
                                 <p>
@@ -66,7 +66,7 @@
                                         style="max-width: 180px;">{{ $item->vendor->translations->first()->lang_value }} is sent new withdraw request</a>
                                 </p>
                                 <p>
-                                    <span class="time-posted">Request Value : {{ $item->sent_amount }} EGP</span>
+                                    <span class="time-posted">Request Value : {{ $item->sent_amount }} {{ __('common.egp') }}</span>
                                 </p>
                             @endif
                         </div>

@@ -148,7 +148,7 @@ return [
     'optional' => 'اختياري',
     'please_fix_errors' => 'يرجى إصلاح الأخطاء أدناه',
     'error_occurred' => 'حدث خطأ',
-    'egp' => 'جنيه',
+    'egp' => 'جنيه مصرى',
     'country' => 'الدولة',
     'confirm_delete' => 'تأكيد الحذف',
     'delete_confirmation' => 'هل أنت متأكد من أنك تريد حذف هذا العنصر؟ لا يمكن التراجع عن هذا الإجراء.',
@@ -186,4 +186,5 @@ return [
     'offer_valid_until' => 'العرض صالح حتى',
     'no_stock_data' => 'لا توجد بيانات مخزون',
     'variants_and_stock' => 'المتغيرات والمخزون',
+    'footer_copyright' => '© :year | تم التطوير بواسطة <a href="https://www.e-ramo.net/ar">إي-رامو للحلول الرقمية</a>',
 ];

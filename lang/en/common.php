@@ -186,4 +186,5 @@ return [
     'offer_valid_until' => 'Offer valid until',
     'no_stock_data' => 'No stock data available',
     'variants_and_stock' => 'Variants & Stock',
+    'footer_copyright' => '© :year | Developed By <a href="https://www.e-ramo.net/en">e-RAMO For Digital Solutions</a>',
 ];

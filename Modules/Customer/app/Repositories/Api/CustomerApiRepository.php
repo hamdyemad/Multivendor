@@ -34,13 +34,14 @@ class CustomerApiRepository implements CustomerApiRepositoryInterface
         return $this->createCustomerAction->execute($data);
     }
 
-    public function createOtp(string $email, string $otp, string $type, int $expiresInMinutes = 10): CustomerOtp
+    public function createOtp(string $email, string $otp, string $type, int $expiresInMinutes = 10, ?string $verificationToken = null): CustomerOtp
     {
-        return DB::transaction(function () use ($email, $otp, $type, $expiresInMinutes) {
+        return DB::transaction(function () use ($email, $otp, $type, $expiresInMinutes, $verificationToken) {
             return CustomerOtp::create([
                 'email' => $email,
                 'otp' => $otp,
                 'type' => $type,
+                'verification_token' => $verificationToken,
                 'expires_at' => now()->addMinutes($expiresInMinutes),
             ]);
         });

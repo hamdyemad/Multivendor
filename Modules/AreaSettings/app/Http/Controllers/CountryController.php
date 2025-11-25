@@ -23,7 +23,7 @@ class CountryController extends Controller
         $this->middleware('can:area.country.index')->only(['index']);
         $this->middleware('can:area.country.show')->only(['show']);
         $this->middleware('can:area.country.create')->only(['create', 'store']);
-        $this->middleware('can:area.country.edit')->only(['edit', 'update']);
+        $this->middleware('can:area.country.edit')->only(['edit', 'update', 'changeStatus']);
         $this->middleware('can:area.country.delete')->only(['destroy']);
     }
 
@@ -209,6 +209,60 @@ class CountryController extends Controller
 
             return redirect()->route('admin.area-settings.countries.index')
                 ->with('error', __('Error deleting country: ') . $e->getMessage());
+        }
+    }
+
+    /**
+     * Change the status of the specified country.
+     */
+    public function changeStatus(Request $request, string $id)
+    {
+        // Validate the request
+        $request->validate([
+            'status' => 'required|in:1,2'
+        ]);
+
+        try {
+            $country = $this->countryService->getCountryById($id);
+
+            // Get the new status from request (1 = active, 2 = inactive)
+            $newStatus = $request->input('status') == '1';
+
+            // Check if status is actually changing
+            if ($country->active == $newStatus) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('areasettings::country.status_already_set')
+                ], 422);
+            }
+
+            // Update the country status
+            $this->countryService->updateCountry($id, ['active' => $newStatus]);
+
+            // Check if request is AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => __('areasettings::country.status_changed_successfully'),
+                    'new_status' => $newStatus,
+                    'status_text' => $newStatus ? __('areasettings::country.active') : __('areasettings::country.inactive'),
+                    'status_class' => $newStatus ? 'badge-success' : 'badge-danger'
+                ]);
+            }
+
+            return redirect()->route('admin.area-settings.countries.index')
+                ->with('success', __('areasettings::country.status_changed_successfully'));
+        } catch (\Exception $e) {
+            // Check if request is AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('areasettings::country.error_changing_status') . ': ' . $e->getMessage()
+                ], 422);
+            }
+
+            return redirect()->route('admin.area-settings.countries.index')
+                ->with('error', __('areasettings::country.error_changing_status') . ': ' . $e->getMessage());
         }
     }
 }

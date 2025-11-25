@@ -153,7 +153,7 @@ class SubRegionRepository implements SubRegionRepositoryInterface
                     }
                 }
             }
-            
+
             return $subRegion;
         });
     }
@@ -165,11 +165,16 @@ class SubRegionRepository implements SubRegionRepositoryInterface
     {
         return DB::transaction(function () use ($id, $data) {
             $subRegion = SubRegion::findOrFail($id);
-
-            $subRegion->update([
-                'region_id' => $data['region_id'],
-                'active' => $data['active'] ?? 0,
-            ]);
+            $updatedData = [];
+            (isset($data['region_id'])) ? $updatedData['region_id'] = $data['region_id'] : null;
+            if(isset($data['active'])) {
+                if($data['active'] == 1) {
+                    $updatedData['active'] = 1;
+                } else {
+                    $updatedData['active'] = 0;
+                }
+            }
+            $subRegion->update($updatedData);
 
             // Update translations from nested array
             if (isset($data['translations']) && is_array($data['translations'])) {

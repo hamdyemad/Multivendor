@@ -37,6 +37,7 @@ return [
 
     // Vendors Withdraw Transactions
     'vendors_withdraw_transactions' => 'Vendors Withdraw Transactions',
+    'vendors_transactions_overview' => 'Vendors Transactions Overview',
     'Total Needed From Bnaia To Vendors' => 'Total Needed From Bnaia To Vendors',
     'Total Sent Money To Vendors' => 'Total Sent Money To Vendors',
     "Total Vendor's Remaining" => "Total Vendor's Remaining",

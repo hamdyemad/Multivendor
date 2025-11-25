@@ -1,0 +1,115 @@
+<?php
+
+return [
+    // Page titles and headings
+    'customers_management' => 'إدارة العملاء',
+    'customer_details' => 'تفاصيل العميل',
+    'add_customer' => 'إضافة عميل',
+    'create_customer' => 'إنشاء عميل',
+    'edit_customer' => 'تعديل العميل',
+    'view_customer' => 'عرض العميل',
+
+    // Search and filters
+    'search' => 'بحث',
+    'search_placeholder' => 'البحث بالاسم أو البريد الإلكتروني أو الهاتف...',
+    'real_time' => 'فوري',
+    'all' => 'الكل',
+    'show' => 'عرض',
+    'entries' => 'إدخالات',
+    'reset_filters' => 'إعادة تعيين المرشحات',
+    'export_excel' => 'تصدير إكسل',
+    'created_date_from' => 'تاريخ الإنشاء من',
+    'created_date_to' => 'تاريخ الإنشاء إلى',
+
+    // Table headers
+    'full_name' => 'الاسم الكامل',
+    'email' => 'البريد الإلكتروني',
+    'phone' => 'الهاتف',
+    'status' => 'الحالة',
+    'email_verified' => 'تم التحقق من البريد الإلكتروني',
+    'created_at' => 'تاريخ الإنشاء',
+    'action' => 'الإجراء',
+
+    // Status values
+    'active' => 'نشط',
+    'inactive' => 'غير نشط',
+    'all_status' => 'جميع الحالات',
+    'verified' => 'تم التحقق',
+    'not_verified' => 'لم يتم التحقق',
+    'pending' => 'في الانتظار',
+
+    // DataTable language
+    'showing_entries' => 'عرض _START_ إلى _END_ من _TOTAL_ إدخالات',
+    'showing_empty' => 'عرض 0 إلى 0 من 0 إدخالات',
+    'no_customers_found' => 'لم يتم العثور على عملاء',
+    'no_data_available' => 'لا توجد بيانات متاحة في الجدول',
+    'loading' => 'جاري التحميل...',
+    'processing' => 'جاري المعالجة...',
+    'first' => 'الأول',
+    'last' => 'الأخير',
+    'next' => 'التالي',
+    'previous' => 'السابق',
+
+    // Actions
+    'view' => 'عرض',
+    'edit' => 'تعديل',
+    'delete' => 'حذف',
+    'delete_customer' => 'حذف العميل',
+    'cancel' => 'إلغاء',
+
+    // Messages
+    'confirm_delete' => 'تأكيد الحذف',
+    'delete_confirmation' => 'هل أنت متأكد من حذف هذا العميل؟',
+    'customer_deleted' => 'تم حذف العميل بنجاح',
+    'error_deleting' => 'خطأ في حذف العميل',
+    'live_search_info' => 'استخدم المرشحات أعلاه للبحث وتصفية العملاء في الوقت الفعلي.',
+
+    // Form fields
+    'first_name' => 'الاسم الأول',
+    'last_name' => 'الاسم الأخير',
+    'date_of_birth' => 'تاريخ الميلاد',
+    'gender' => 'الجنس',
+    'male' => 'ذكر',
+    'female' => 'أنثى',
+    'password' => 'كلمة المرور',
+    'password_confirmation' => 'تأكيد كلمة المرور',
+    'save' => 'حفظ',
+    'update' => 'تحديث',
+    'cancel' => 'إلغاء',
+    'back_to_list' => 'العودة للقائمة',
+    'basic_information' => 'المعلومات الأساسية',
+    'account_information' => 'معلومات الحساب',
+    'select_gender' => 'اختر الجنس',
+    'customer_saved' => 'تم حفظ العميل بنجاح',
+    'customer_updated' => 'تم تحديث العميل بنجاح',
+    'customer_deleted' => 'تم حذف العميل بنجاح',
+    'validation_errors' => 'يرجى إصلاح الأخطاء التالية:',
+
+    // OTP Email translations
+    'otp_email' => [
+        'email_verification_subject' => 'تحقق من عنوان بريدك الإلكتروني',
+        'password_reset_subject' => 'إعادة تعيين كلمة المرور',
+        'default_subject' => 'رمز التحقق',
+        'email_verification_greeting' => 'مرحبا،',
+        'email_verification_thank_you' => 'شكرا لتسجيلك في :app_name!',
+        'email_verification_intro' => 'لإكمال التسجيل، يرجى التحقق من عنوان بريدك الإلكتروني بالنقر على الزر أدناه:',
+        'verify_account_button' => 'تحقق من الحساب',
+        'verify_button_expires' => 'سينتهي هذا الرابط في :minutes دقيقة.',
+        'password_reset_greeting' => 'مرحبا،',
+        'password_reset_intro' => 'لقد تلقينا طلب إعادة تعيين كلمة المرور. يرجى استخدام الرمز أدناه لإعادة تعيين كلمة المرور:',
+        'password_reset_security_notice' => 'إذا لم تطلب إعادة تعيين كلمة المرور، يرجى تجاهل هذا البريد الإلكتروني.',
+        'default_greeting' => 'مرحبا،',
+        'default_intro' => 'رمز التحقق الخاص بك هو:',
+        'expires_in' => 'ينتهي في :minutes دقيقة',
+        'email_verification_ignore' => 'إذا لم تقم بإنشاء هذا الحساب، يرجى تجاهل هذا البريد الإلكتروني.',
+        'security_tips_title' => 'نصائح الأمان:',
+        'security_tip_1' => 'لا تشارك رمز التحقق الخاص بك مع أي شخص.',
+        'security_tip_2' => ':app_name لن تطلب منك رمز التحقق عبر البريد الإلكتروني.',
+        'security_tip_3' => 'سينتهي رمز التحقق الخاص بك في :minutes دقيقة.',
+        'best_regards' => 'مع أطيب التحيات،',
+        'team' => 'فريق :app_name',
+        'footer_copyright' => '© :year :app_name. جميع الحقوق محفوظة.',
+        'footer_note' => 'هذا بريد إلكتروني آلي. يرجى عدم الرد على هذه الرسالة.',
+        'app_name' => 'متجر إي رامو',
+    ],
+];

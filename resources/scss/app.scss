@@ -437,3 +437,9 @@ html[dir="rtl"] {
         transform: scale(1.05);
     }
 }
+
+.select2-selection {
+    height: 48px !important;
+    align-items: center !important;
+    display: flex !important;
+}

@@ -15,5 +15,6 @@ class OtpCreated
         public string $otp,
         public string $type,
         public ?int $expiresInMinutes = 10,
+        public ?string $verificationToken = null,
     ) {}
 }

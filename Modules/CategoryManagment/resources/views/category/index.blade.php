@@ -216,10 +216,26 @@
                         name: 'active',
                         orderable: true,
                         className: 'text-center',
-                        render: function(data) {
+                        render: function(data, type, row) {
+                            @can('categories.edit')
+                            const isChecked = data ? 'checked' : '';
+                            const switchId = 'status-switch-' + row.id;
+
+                            return `<div class="form-switch">
+                                <input class="form-check-input status-switcher"
+                                       type="checkbox"
+                                       id="${switchId}"
+                                       data-category-id="${row.id}"
+                                       data-category-name="${$('<div>').text(row.name).html()}"
+                                       ${isChecked}
+                                       style="cursor: pointer;">
+                                <label class="form-check-label" for="${switchId}"></label>
+                            </div>`;
+                            @else
                             return data ?
                                 `<span class="badge badge-success badge-round badge-lg"><i class="uil uil-check"></i> {{ trans('categorymanagment::category.active') }}</span>` :
                                 `<span class="badge badge-danger badge-round badge-lg"><i class="uil uil-times"></i> {{ trans('categorymanagment::category.inactive') }}</span>`;
+                            @endcan
                         }
                     },
                     {
@@ -328,6 +344,107 @@
                 $('#search, #active, #created_date_from, #created_date_to').val('');
                 $('#entriesSelect').val(10);
                 table.search('').page.len(10).ajax.reload();
+            });
+
+            // Status switcher handler
+            $(document).on('change', '.status-switcher', function() {
+                const switcher = $(this);
+                const categoryId = switcher.data('category-id');
+                const categoryName = switcher.data('category-name');
+                const newStatus = switcher.is(':checked') ? 1 : 2; // 1=active, 2=inactive
+
+                // Disable switcher during request
+                switcher.prop('disabled', true);
+
+                // Show loading overlay
+                if (typeof LoadingOverlay !== 'undefined') {
+                    LoadingOverlay.show({
+                        text: '{{ __('categorymanagment::category.change_status') }}',
+                        subtext: '{{ __('common.please_wait') ?? 'Please wait' }}...'
+                    });
+                }
+
+                // Make AJAX request
+                $.ajax({
+                    url: '{{ route('admin.category-management.categories.change-status', ':id') }}'.replace(':id', categoryId),
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        status: newStatus
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Hide loading overlay
+                            if (typeof LoadingOverlay !== 'undefined') {
+                                LoadingOverlay.hide();
+                            }
+
+                            // Show success message
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '{{ __('common.success') ?? 'Success' }}',
+                                    text: response.message,
+                                    timer: 2000,
+                                    showConfirmButton: false,
+                                    toast: true,
+                                    position: 'top-end'
+                                });
+                            }
+
+                            // Reload table to reflect changes
+                            table.ajax.reload(null, false);
+                        } else {
+                            // Hide loading overlay
+                            if (typeof LoadingOverlay !== 'undefined') {
+                                LoadingOverlay.hide();
+                            }
+
+                            // Revert switcher state
+                            switcher.prop('checked', !switcher.is(':checked'));
+
+                            // Show error message
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: '{{ __('common.error') ?? 'Error' }}',
+                                    text: response.message
+                                });
+                            } else {
+                                alert(response.message);
+                            }
+                        }
+                    },
+                    error: function(xhr) {
+                        // Hide loading overlay
+                        if (typeof LoadingOverlay !== 'undefined') {
+                            LoadingOverlay.hide();
+                        }
+
+                        // Revert switcher state
+                        switcher.prop('checked', !switcher.is(':checked'));
+
+                        let errorMessage = '{{ __('categorymanagment::category.error_changing_status') }}';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+
+                        // Show error message
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: '{{ __('common.error') ?? 'Error' }}',
+                                text: errorMessage
+                            });
+                        } else {
+                            alert(errorMessage);
+                        }
+                    },
+                    complete: function() {
+                        // Re-enable switcher
+                        switcher.prop('disabled', false);
+                    }
+                });
             });
 
             // RTL Support in DataTables

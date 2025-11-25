@@ -164,11 +164,16 @@ class RegionRepository implements RegionRepositoryInterface
     {
         return DB::transaction(function () use ($id, $data) {
             $region = Region::findOrFail($id);
-
-            $region->update([
-                'city_id' => $data['city_id'],
-                'active' => $data['active'] ?? 0,
-            ]);
+            $updatedData = [];
+            (isset($data['city_id'])) ? $updatedData['city_id'] = $data['city_id'] : null;
+            if(isset($data['active'])) {
+                if($data['active'] == 1) {
+                    $updatedData['active'] = 1;
+                } else {
+                    $updatedData['active'] = 0;
+                }
+            }
+            $region->update($updatedData);
 
             // Update translations from nested array
             if (isset($data['translations']) && is_array($data['translations'])) {

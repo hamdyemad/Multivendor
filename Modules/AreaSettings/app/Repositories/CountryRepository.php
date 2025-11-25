@@ -24,7 +24,7 @@ class CountryRepository implements CountryRepositoryInterface
     public function getCountriesQuery(array $filters = [])
     {
         $query = Country::with('translations')->filter($filters);
-        
+
         // Debug: Log filters in repository
         \Log::info('CountryRepository filters:', $filters);
 
@@ -64,7 +64,7 @@ class CountryRepository implements CountryRepositoryInterface
                     }
                 }
             }
-            
+
             return $country;
         });
     }
@@ -76,13 +76,18 @@ class CountryRepository implements CountryRepositoryInterface
     {
         return DB::transaction(function () use ($id, $data) {
             $country = Country::findOrFail($id);
-
-            $country->update([
-                'code' => $data['code'],
-                'phone_code' => $data['phone_code'] ?? null,
-                'currency_id' => $data['currency_id'],
-                'active' => $data['active'] ?? 0,
-            ]);
+            $updatedData = [];
+            (isset($data['code'])) ? $updatedData['code'] = $data['code'] : null;
+            (isset($data['phone_code'])) ? $updatedData['phone_code'] = $data['phone_code'] : null;
+            (isset($data['currency_id'])) ? $updatedData['currency_id'] = $data['currency_id'] : null;
+            if(isset($data['active'])) {
+                if($data['active'] == 1) {
+                    $updatedData['active'] = 1;
+                } else {
+                    $updatedData['active'] = 0;
+                }
+            }
+            $country->update($updatedData);
 
             // Update translations from nested array
             if (isset($data['translations']) && is_array($data['translations'])) {

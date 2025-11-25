@@ -90,4 +90,14 @@ return [
     // Info
     'basic_information' => 'المعلومات الأساسية',
     'subregions_list' => 'قائمة المناطق الفرعية',
+
+    // Status Change Modal
+    'change_status' => 'تغيير الحالة',
+    'change_status_confirmation' => 'هل أنت متأكد من تغيير حالة هذه المنطقة الفرعية؟',
+    'current_status' => 'الحالة الحالية',
+    'new_status' => 'الحالة الجديدة',
+    'confirm_status_change' => 'تأكيد التغيير',
+    'status_changed_successfully' => 'تم تغيير حالة المنطقة الفرعية بنجاح',
+    'error_changing_status' => 'خطأ في تغيير حالة المنطقة الفرعية',
+    'status_already_set' => 'المنطقة الفرعية مضبوطة بالفعل على هذه الحالة',
 ];

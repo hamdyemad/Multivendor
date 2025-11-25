@@ -5,20 +5,17 @@
     <div class="dropdown-custom">
         @switch(app()->getLocale())
             @case('en')
-                <a href="javascript:;" class="nav-item-toggle"><img src="{{ asset('assets/img/eng.png') }}" alt="" class="rounded-circle"></a>
+                <a href="javascript:;" class="nav-item-toggle"><img src="{{ asset('assets/img/uk.webp') }}" alt="" class="rounded-circle"></a>
                 @break
             @case('ar')
-                <a href="javascript:;" class="nav-item-toggle"><img src="{{ asset('assets/img/iraq.png') }}" alt="" class="rounded-circle"></a>
-                @break
-            @case('gr')
-                <a href="javascript:;" class="nav-item-toggle"><img src="{{ asset('assets/img/ger.png') }}" alt="" class="rounded-circle"></a>
+                <a href="javascript:;" class="nav-item-toggle"><img src="{{ asset('assets/img/eg.webp') }}" alt="" class="rounded-circle"></a>
                 @break
             @default
                 <a href="javascript:;" class="nav-item-toggle">
                     @if(LaravelLocalization::getCurrentLocale() == 'ar')
-                        <img src="{{ asset('assets/img/iraq.png') }}" alt="" class="rounded-circle">
+                        <img src="{{ asset('assets/img/eg.webp') }}" alt="" class="rounded-circle">
                     @else
-                        <img src="{{ asset('assets/img/eng.png') }}" alt="" class="rounded-circle">
+                        <img src="{{ asset('assets/img/uk.webp') }}" alt="" class="rounded-circle">
                     @endif
                 </a>
                 @break
@@ -28,9 +25,9 @@
                 <a hreflang="{{ $lang->code }}"
                 href="{{ LaravelLocalization::getLocalizedURL($lang->code, null, [], true) }}">
                     @if($lang->code == 'ar')
-                        <img src="{{ asset('assets/img/iraq.png') }}" alt="">
+                        <img src="{{ asset('assets/img/eg.webp') }}" alt="">
                     @else
-                        <img src="{{ asset('assets/img/eng.png') }}" alt="">
+                        <img src="{{ asset('assets/img/uk.webp') }}" alt="">
                     @endif
 
                     @if($lang->code == 'ar')

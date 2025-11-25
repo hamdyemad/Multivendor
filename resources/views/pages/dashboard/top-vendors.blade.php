@@ -11,7 +11,7 @@
                         <th><span class="userDatatable-title">{{ trans('dashboard.vendor_name') }}</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.total_selling') }}</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.commission') }} %</span></th>
-                        <th><span class="userDatatable-title">{{ trans('dashboard.commission') }} EGP</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.commission') }} {{ __('common.egp') }}</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.joined_at') }}</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.actions') }}</span></th>
                     </tr>
@@ -27,9 +27,9 @@
                                         <span class="ms-3">Fresh</span>
                                     </a>
                                 </td>
-                                <td class="fw-bold text-success">85,450.00 EGP</td>
+                                <td class="fw-bold text-success">85,450.00 {{ __('common.egp') }}</td>
                                 <td class="fw-bold text-success">10%</td>
-                                <td class="fw-bold text-success">8,545.00 EGP</td>
+                                <td class="fw-bold text-success">8,545.00 {{ __('common.egp') }}</td>
                                 <td>Jan 10, 2024</td>
                                 <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
@@ -48,9 +48,9 @@
                                         <span class="ms-3">Fresh</span>
                                     </a>
                                 </td>
-                                <td class="fw-bold text-success">72,890.00 EGP</td>
+                                <td class="fw-bold text-success">72,890.00 {{ __('common.egp') }}</td>
                                 <td class="fw-bold text-success">10%</td>
-                                <td class="fw-bold text-success">7,289.00 EGP</td>
+                                <td class="fw-bold text-success">7,289.00 {{ __('common.egp') }}</td>
                                 <td>Feb 15, 2024</td>
                                 <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
@@ -69,9 +69,9 @@
                                         <span class="ms-3">Fresh</span>
                                     </a>
                                 </td>
-                                <td class="fw-bold text-success">65,320.00 EGP</td>
+                                <td class="fw-bold text-success">65,320.00 {{ __('common.egp') }}</td>
                                 <td class="fw-bold text-success">10%</td>
-                                <td class="fw-bold text-success">6,532.00 EGP</td>
+                                <td class="fw-bold text-success">6,532.00 {{ __('common.egp') }}</td>
                                 <td>Mar 20, 2024</td>
                                 <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
@@ -90,9 +90,9 @@
                                         <span class="ms-3">Fresh</span>
                                     </a>
                                 </td>
-                                <td class="fw-bold text-success">58,750.00 EGP</td>
+                                <td class="fw-bold text-success">58,750.00 {{ __('common.egp') }}</td>
                                 <td class="fw-bold text-success">10%</td>
-                                <td class="fw-bold text-success">5,875.00 EGP</td>
+                                <td class="fw-bold text-success">5,875.00 {{ __('common.egp') }}</td>
                                 <td>Apr 12, 2024</td>
                                 <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">
@@ -111,9 +111,9 @@
                                         <span class="ms-3">Fresh</span>
                                     </a>
                                 </td>
-                                <td class="fw-bold text-success">52,180.00 EGP</td>
+                                <td class="fw-bold text-success">52,180.00 {{ __('common.egp') }}</td>
                                 <td class="fw-bold text-success">10%</td>
-                                <td class="fw-bold text-success">5,218.00 EGP</td>
+                                <td class="fw-bold text-success">5,218.00 {{ __('common.egp') }}</td>
                                 <td>May 08, 2024</td>
                                 <td class="actions">
                                     <a href="#" class="btn btn-sm btn-primary">

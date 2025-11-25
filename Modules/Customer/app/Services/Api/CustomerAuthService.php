@@ -10,6 +10,8 @@ use Modules\Customer\app\Interfaces\Api\CustomerApiRepositoryInterface;
 use Modules\Customer\app\Events\OtpCreated;
 use Modules\Customer\app\Events\CustomerEmailVerified;
 use App\Exceptions\InvalidPasswordException;
+use Modules\Customer\app\Models\CustomerOtp;
+use Illuminate\Support\Facades\DB;
 
 class CustomerAuthService
 {
@@ -18,9 +20,9 @@ class CustomerAuthService
         protected ValidateOtpAction $validateOtpAction,
     ) {}
 
-    public function saveOtp(string $email, string $otp, string $type, int $expiresInMinutes = 10)
+    public function saveOtp(string $email, string $otp, string $type, int $expiresInMinutes = 10, ?string $verificationToken = null)
     {
-        return $this->customerRepository->createOtp($email, $otp, $type, $expiresInMinutes);
+        return $this->customerRepository->createOtp($email, $otp, $type, $expiresInMinutes, $verificationToken);
     }
 
     /**
@@ -31,16 +33,18 @@ class CustomerAuthService
         // Check if customer exists
         $customer = $this->customerRepository->getByEmail($email);
 
-        // if (!$customer || $customer->hasVerifiedEmail()) {
-        //     return false;
-        // }
+        if (!$customer || $customer->hasVerifiedEmail()) {
+            return false;
+        }
 
         $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $verificationToken = CustomerOtp::generateVerificationToken();
 
-        event(new OtpCreated($customer, $otp, $cause, $expiresInMinutes));
+        event(new OtpCreated($customer, $otp, $cause, $expiresInMinutes, $verificationToken));
 
         return [
-            'otp' => $otp
+            'otp' => $otp,
+            'verification_token' => $verificationToken
         ];
     }
 
@@ -49,16 +53,20 @@ class CustomerAuthService
      */
     public function registerCustomer(array $data): array
     {
-        $customer = $this->customerRepository->create($data);
+        return DB::transaction(function () use ($data) {
+            $customer = $this->customerRepository->create($data);
 
-        // Send OTP after creating customer
-        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            // Send OTP after creating customer
+            $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $verificationToken = CustomerOtp::generateVerificationToken();
 
-        event(new OtpCreated($customer, $otp, "email_verification", 10));
+            event(new OtpCreated($customer, $otp, "email_verification", 10, $verificationToken));
 
-        return [
-            'otp' => $otp
-        ];
+            return [
+                'otp' => $otp,
+                'verification_token' => $verificationToken
+            ];
+        });
     }
 
     /**
@@ -96,6 +104,43 @@ class CustomerAuthService
     }
 
     /**
+     * Verify email via token (from email button link)
+     */
+    public function verifyEmailToken(string $token): bool
+    {
+        return DB::transaction(function () use ($token) {
+            // Find the OTP record by verification token
+            $otp = CustomerOtp::where('verification_token', $token)
+                ->where('type', 'email_verification')
+                ->where('expires_at', '>', now())
+                ->whereNull('verified_at')
+                ->first();
+
+            if (!$otp) {
+                return false;
+            }
+
+            // Mark OTP as verified
+            $otp->markAsVerified();
+
+            // Get customer by email
+            $customer = $this->customerRepository->getByEmail($otp->email);
+
+            if (!$customer || !$customer->status) {
+                return false;
+            }
+
+            // Verify email
+            $this->customerRepository->verifyEmail($customer);
+
+            // Dispatch event to send welcome notification
+            event(new CustomerEmailVerified($customer));
+
+            return true;
+        });
+    }
+
+    /**
      * Send password reset OTP
      */
     public function sendPasswordResetOtp(string $email, int $expiresInMinutes = 10): bool
@@ -106,9 +151,11 @@ class CustomerAuthService
             return false;
         }
 
-        event(new OtpCreated($customer, str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT), "password_reset", $expiresInMinutes));
+        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        return true;
+        event(new OtpCreated($customer, $otp, "password_reset", $expiresInMinutes));
+
+        return $otp;
     }
 
     /**

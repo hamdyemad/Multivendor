@@ -10,6 +10,7 @@ Route::prefix('auth')->group(function () {
     // Registration flow
     Route::post('register', [CustomerAuthController::class, 'register']);
     Route::post('verify-otp', [CustomerAuthController::class, 'verifyOtp']);
+    Route::post('verify-email-token', [CustomerAuthController::class, 'verifyEmailToken']);
     Route::post('resend-otp', [CustomerAuthController::class, 'resendOtp']);
     Route::post('refresh', [CustomerAuthController::class, 'refresh']);
 

@@ -56,10 +56,16 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $e)
     {
+        // Rollback transactions for errors that need it
+        if ($e instanceof HttpException ||
+            ($e instanceof \Throwable && !($e instanceof ValidationException))) {
+            $this->safeRollback();
+        }
+
         // Handle authentication exceptions
         if ($e instanceof AuthenticationException) {
             if ($request->expectsJson()) {
-                $message = $e->getMessage() ?: config('responses.unauthorized')[app()->getLocale()] ?? 'Unauthorized';
+                $message = config('responses.unauthorized')[app()->getLocale()] ?? 'Unauthorized';
                 return $this->sendRes($message, false, [], [], 401);
             }
         }
@@ -79,63 +85,77 @@ class Handler extends ExceptionHandler
             }
         }
 
-        // Handle database exceptions
-        if ($e instanceof QueryException) {
-            \Illuminate\Support\Facades\Log::error('Database error: ' . $e->getMessage(), [
-                'query' => $e->getSql() ?? 'N/A',
-                'bindings' => $e->getBindings() ?? [],
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-            ]);
-
-            if ($request->expectsJson()) {
-                $message = config('responses.database_error')[app()->getLocale()] ?? 'Database error occurred';
-                $data = app()->isLocal() ? ['error' => $e->getMessage()] : [];
-                return $this->sendRes($message, false, $data, [], 500);
-            }
+        if (!$request->expectsJson()) {
+            return parent::render($request, $e);
         }
 
-        // Handle invalid password exception
-        if ($e instanceof InvalidPasswordException) {
-            if ($request->expectsJson()) {
-                return $this->sendRes($e->getMessage(), false, [], [], 422);
-            }
-        }
+        // Match exception type and handle accordingly
+        return match (true) {
+            $e instanceof QueryException => $this->handleDatabaseException($e),
+            $e instanceof InvalidPasswordException => $this->sendRes($e->getMessage(), false, [], [], 422),
+            $e instanceof HttpException => $this->handleHttpException($e),
+            $e instanceof \Symfony\Component\Mime\Exception\LogicException,
+            $e instanceof \Symfony\Component\Mailer\Exception\TransportException => $this->handleMailException(),
+            $e instanceof ValidationException => parent::render($request, $e),
+            default => $this->handleGenericException($e),
+        };
+    }
 
-        // Handle HTTP exceptions
-        if ($e instanceof HttpException) {
-            // Rollback any pending transactions
-            $this->safeRollback();
+    /**
+     * Handle database exceptions
+     */
+    private function handleDatabaseException(QueryException $e)
+    {
+        \Illuminate\Support\Facades\Log::error('Database error: ' . $e->getMessage(), [
+            'query' => $e->getSql() ?? 'N/A',
+            'bindings' => $e->getBindings() ?? [],
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ]);
 
-            if ($request->expectsJson()) {
-                $message = $e->getMessage() ?: config('responses.http_error')[app()->getLocale()] ?? 'HTTP error occurred';
-                return $this->sendRes($message, false, [], [], $e->getStatusCode());
-            }
-        }
+        $message = config('responses.database_error')[app()->getLocale()] ?? 'Database error occurred';
+        $data = app()->isLocal() ? ['error' => $e->getMessage()] : [];
+        return $this->sendRes($message, false, $data, [], 500);
+    }
 
-        // Handle generic exceptions
-        if ($request->expectsJson() && !($e instanceof ValidationException)) {
-            // Rollback any pending transactions
-            $this->safeRollback();
+    /**
+     * Handle HTTP exceptions
+     */
+    private function handleHttpException(HttpException $e)
+    {
+        $message = $e->getMessage() ?: config('responses.http_error')[app()->getLocale()] ?? 'HTTP error occurred';
+        return $this->sendRes($message, false, [], [], $e->getStatusCode());
+    }
 
-            \Illuminate\Support\Facades\Log::error('Unhandled exception: ' . $e->getMessage(), [
-                'class' => get_class($e),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
-            ]);
+    /**
+     * Handle mail sending exceptions
+     */
+    private function handleMailException()
+    {
+        $message = config('responses.email_send_failed')[app()->getLocale()] ?? 'Could not send email. Please try again later.';
+        return $this->sendRes($message, false, [], [], 500);
+    }
 
-            $data = [
-                'class' => get_class($e),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
-            ];
-            $message = config('responses.error')[app()->getLocale()] ?? 'An error occurred';
-            return $this->sendRes($message, false, $data, [], 500);
-        }
+    /**
+     * Handle generic exceptions
+     */
+    private function handleGenericException(\Throwable $e)
+    {
+        \Illuminate\Support\Facades\Log::error('Unhandled exception: ' . $e->getMessage(), [
+            'class' => get_class($e),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString(),
+        ]);
 
-        return parent::render($request, $e);
+        $data = [
+            'class' => get_class($e),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString(),
+        ];
+        $message = config('responses.error')[app()->getLocale()] ?? 'An error occurred';
+        return $this->sendRes($message, false, $data, [], 500);
     }
 
     public function register()

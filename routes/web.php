@@ -17,6 +17,11 @@ use App\Http\Controllers\ProfileController;
 |
 */
 
+// Landing page (accessible to everyone)
+Route::get('/landing', function() {
+    return view('landing');
+})->name('landing');
+
 Route::group(['prefix' => '/', 'middleware' => 'guest'], function() {
     Route::get('/',[AuthController::class,'login'])->name('login');
     Route::post('/',[AuthController::class,'authenticate'])->name('authenticate');

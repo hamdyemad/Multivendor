@@ -10,6 +10,9 @@ use Modules\Customer\app\Interfaces\Api\CustomerApiRepositoryInterface;
 use Modules\Customer\app\Events\OtpCreated;
 use Modules\Customer\app\Events\CustomerEmailVerified;
 use App\Exceptions\InvalidPasswordException;
+use Modules\Customer\app\Models\CustomerOtp;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CustomerAuthService
 {
@@ -18,9 +21,9 @@ class CustomerAuthService
         protected ValidateOtpAction $validateOtpAction,
     ) {}
 
-    public function saveOtp(string $email, string $otp, string $type, int $expiresInMinutes = 10)
+    public function saveOtp(string $email, string $otp, string $type, int $expiresInMinutes = 10, ?string $verificationToken = null)
     {
-        return $this->customerRepository->createOtp($email, $otp, $type, $expiresInMinutes);
+        return $this->customerRepository->createOtp($email, $otp, $type, $expiresInMinutes, $verificationToken);
     }
 
     /**
@@ -31,16 +34,18 @@ class CustomerAuthService
         // Check if customer exists
         $customer = $this->customerRepository->getByEmail($email);
 
-        // if (!$customer || $customer->hasVerifiedEmail()) {
-        //     return false;
-        // }
+        if (!$customer || $customer->hasVerifiedEmail()) {
+            return false;
+        }
 
         $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $verificationToken = CustomerOtp::generateVerificationToken();
 
-        event(new OtpCreated($customer, $otp, $cause, $expiresInMinutes));
+        event(new OtpCreated($customer, $otp, $cause, $expiresInMinutes, $verificationToken));
 
         return [
-            'otp' => $otp
+            'otp' => $otp,
+            'verification_token' => $verificationToken
         ];
     }
 
@@ -49,16 +54,20 @@ class CustomerAuthService
      */
     public function registerCustomer(array $data): array
     {
-        $customer = $this->customerRepository->create($data);
+        return DB::transaction(function () use ($data) {
+            $customer = $this->customerRepository->create($data);
 
-        // Send OTP after creating customer
-        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            // Send OTP after creating customer
+            $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $verificationToken = CustomerOtp::generateVerificationToken();
 
-        event(new OtpCreated($customer, $otp, "email_verification", 10));
+            event(new OtpCreated($customer, $otp, "email_verification", 10, $verificationToken));
 
-        return [
-            'otp' => $otp
-        ];
+            return [
+                'otp' => $otp,
+                'verification_token' => $verificationToken
+            ];
+        });
     }
 
     /**
@@ -93,6 +102,82 @@ class CustomerAuthService
             "customer" => $customer,
             "tokens" => $tokens
         ];
+    }
+
+    /**
+     * Verify email via token (from email button link)
+     */
+    public function verifyEmailToken(string $token): bool
+    {
+        Log::info('=== EMAIL VERIFICATION STARTED ===', ['token' => substr($token, 0, 10) . '...']);
+
+        return DB::transaction(function () use ($token) {
+            // Find the OTP record by verification token
+            Log::info('Searching for OTP record', ['token' => substr($token, 0, 10) . '...']);
+
+            $otp = CustomerOtp::where('verification_token', $token)
+                ->where('type', 'email_verification')
+                ->where('expires_at', '>', now())
+                ->whereNull('verified_at')
+                ->first();
+
+            if (!$otp) {
+                Log::warning('OTP record not found', [
+                    'token' => substr($token, 0, 10) . '...',
+                    'reason' => 'Token not found, expired, or already verified'
+                ]);
+                return false;
+            }
+
+            Log::info('OTP record found', [
+                'otp_id' => $otp->id,
+                'email' => $otp->email,
+                'type' => $otp->type,
+                'expires_at' => $otp->expires_at
+            ]);
+
+            // Mark OTP as verified
+            Log::info('Marking OTP as verified', ['otp_id' => $otp->id]);
+            $otp->markAsVerified();
+
+            // Get customer by email
+            Log::info('Fetching customer', ['email' => $otp->email]);
+            $customer = $this->customerRepository->getByEmail($otp->email);
+
+            if (!$customer) {
+                Log::warning('Customer not found', ['email' => $otp->email]);
+                return false;
+            }
+
+            if (!$customer->status) {
+                Log::warning('Customer is inactive', ['customer_id' => $customer->id, 'email' => $customer->email]);
+                return false;
+            }
+
+            Log::info('Customer found and active', [
+                'customer_id' => $customer->id,
+                'email' => $customer->email,
+                'email_verified_at' => $customer->email_verified_at
+            ]);
+
+            // Verify email
+            Log::info('Verifying customer email', ['customer_id' => $customer->id]);
+            $this->customerRepository->verifyEmail($customer);
+
+            // Refresh customer to get updated data
+            $customer->refresh();
+            Log::info('Email verified successfully', [
+                'customer_id' => $customer->id,
+                'email_verified_at' => $customer->email_verified_at
+            ]);
+
+            // Dispatch event to send welcome notification
+            Log::info('Dispatching CustomerEmailVerified event', ['customer_id' => $customer->id]);
+            event(new CustomerEmailVerified($customer));
+
+            Log::info('=== EMAIL VERIFICATION COMPLETED SUCCESSFULLY ===', ['customer_id' => $customer->id]);
+            return true;
+        });
     }
 
     /**

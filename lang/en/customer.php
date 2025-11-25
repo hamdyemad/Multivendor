@@ -49,6 +49,8 @@ return [
         'team' => ':app_name Team',
         'footer_copyright' => '© :year :app_name. All rights reserved.',
         'footer_note' => 'This is an automated message, please do not reply to this email.',
+        'verify_account_button' => 'Verify Account',
+        'verify_button_expires' => 'This button will expire in :minutes minutes',
     ],
 
     // Welcome Email Translations
@@ -63,8 +65,15 @@ return [
         'create_wishlist' => 'Create your personal wishlist',
         'track_orders' => 'Track your orders in real-time',
         'manage_profile' => 'Manage your profile and preferences',
+        'complete_profile' => 'Complete Your Profile',
+        'add_address' => 'Add your address information for faster checkout',
+        'explore_products' => 'Explore Products',
+        'secure_transactions' => 'Secure Transactions',
+        'secure_payment' => 'All your transactions are protected with our secure payment gateway',
+        'start_exploring' => 'Start Exploring',
         'need_help' => 'Need help?',
         'support_team' => 'Our support team is here to assist you 24/7. Feel free to reach out if you have any questions.',
+        'security_notice' => 'If you didn\'t create this account, please contact us immediately.',
         'contact_support' => 'Contact Support',
         'exclusive_offers' => 'Exclusive Offers',
         'stay_updated' => 'Stay tuned for exclusive offers and updates tailored just for you!',
@@ -73,5 +82,20 @@ return [
         'footer_copyright' => '© :year :app_name. All rights reserved.',
         'footer_note' => 'This is an automated message, please do not reply to this email.',
         'follow_us' => 'Follow us on social media for the latest updates',
+    ],
+
+    // Email Verification Page Translations
+    'verify_email_page' => [
+        'title' => 'Verify Your Email',
+        'heading' => 'Email Verification',
+        'subtitle' => 'Verify your email address to complete registration',
+        'image_title' => 'Verify Your Email',
+        'image_description' => 'Complete your registration by verifying your email address. Click the button below to confirm.',
+        'instruction' => 'Click the button below to verify your email address and complete your registration.',
+        'button_text' => 'Verify Email',
+        'back_to_login' => 'Back to Login',
+        'no_token_error' => 'No verification token provided. Please use the link from your email.',
+        'success_message' => 'Email verified successfully!',
+        'error_message' => 'Invalid or expired verification link.',
     ],
 ];

@@ -89,6 +89,36 @@ class CustomerAuthController extends Controller
         );
     }
 
+    /**
+     * Verify email via token link (from email button)
+     */
+    public function verifyEmailToken(Request $request)
+    {
+        $request->validate([
+            'token' => 'required|string',
+        ]);
+
+        $result = $this->authService->verifyEmailToken($request->token);
+
+        if (!$result) {
+            return $this->sendRes(
+                config('responses.invalied_otp')[app()->getLocale()],
+                false,
+                [],
+                [],
+                422
+            );
+        }
+
+        return $this->sendRes(
+            config('responses.verification_success')[app()->getLocale()],
+            true,
+            [],
+            [],
+            200
+        );
+    }
+
     public function resendOtp(CheckEmailRequest $request)
     {
         $result = $this->authService->sendEmailVerificationOtp($request->validated()['email']);

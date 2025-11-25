@@ -193,4 +193,16 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         'Helper' => App\Helpers\Helper::class,
     ])->toArray(),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Frontend URL
+    |--------------------------------------------------------------------------
+    |
+    | This is the URL of your frontend application. Used for generating
+    | verification links and other frontend-related URLs in emails.
+    |
+    */
+
+    'frontend_url' => env('FRONTEND_URL', env('APP_URL')),
 ];

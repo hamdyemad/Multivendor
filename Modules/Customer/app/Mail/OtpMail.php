@@ -19,6 +19,7 @@ class OtpMail extends Mailable
         public string $type,
         public int $expiresInMinutes = 10,
         public string $language = 'en',
+        public ?string $verificationToken = null,
     ) {}
 
     public function envelope(): Envelope
@@ -50,6 +51,7 @@ class OtpMail extends Mailable
                 'otp' => $this->otp,
                 'type' => $this->type,
                 'expiresInMinutes' => $this->expiresInMinutes,
+                'verificationToken' => $this->verificationToken,
             ],
         );
     }

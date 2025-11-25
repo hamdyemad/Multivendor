@@ -443,4 +443,8 @@ return [
         "en" => "Address deleted successfully",
         "ar" => "تم حذف العنوان بنجاح"
     ],
+    "email_send_failed" => [
+        "en" => "Could not send email. Please try again later.",
+        "ar" => "تعذر إرسال البريد الإلكتروني. يرجى المحاولة لاحقاً."
+    ],
 ];

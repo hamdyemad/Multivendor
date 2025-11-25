@@ -47,4 +47,12 @@ class CustomerOtp extends Model
     {
         return $this->update(['verified_at' => now()]);
     }
+
+    /**
+     * Generate a unique verification token
+     */
+    public static function generateVerificationToken(): string
+    {
+        return \Illuminate\Support\Str::random(64);
+    }
 }

@@ -14,27 +14,27 @@ class SendOtpEmail
 {
     public function handle(OtpCreated $event): void
     {
-        try {
-            $customer = $event->custoemr;
-            app(CustomerAuthService::class)->saveOtp(
-                email: $customer->email,
-                otp: $event->otp,
-                type: $event->type,
-                expiresInMinutes: $event->expiresInMinutes,
-            );
+        $customer = $event->custoemr;
+        app(CustomerAuthService::class)->saveOtp(
+            email: $customer->email,
+            otp: $event->otp,
+            type: $event->type,
+            expiresInMinutes: $event->expiresInMinutes,
+            verificationToken: $event->verificationToken ?? null,
+        );
 
-            $language = $customer?->language ?? 'en';
+        $language = $customer?->language ?? 'en';
 
-            Mail::to($customer->email)->send(new OtpMail(
-                email: $customer->email,
-                otp: $event->otp,
-                type: $event->type,
-                expiresInMinutes: $event->expiresInMinutes,
-                language: $language,
-            ));
-        } catch (\Exception $e) {
-            Log::error('Failed to send OTP email: ' . $e->getMessage());
-            throw $e;
+        if (!Mail::to($customer->email)->send(new OtpMail(
+            email: $customer->email,
+            otp: $event->otp,
+            type: $event->type,
+            expiresInMinutes: $event->expiresInMinutes,
+            language: $language,
+            verificationToken: $event->verificationToken ?? null,
+        ))) {
+            Log::error('Failed to send OTP email to ' . $customer->email);
+            throw new \Exception('Could not send verification email');
         }
     }
 }

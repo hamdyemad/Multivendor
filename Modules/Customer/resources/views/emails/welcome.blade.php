@@ -1,27 +1,108 @@
-@component('mail::message')
-# Welcome, {{ $customer->first_name }}!
+<!DOCTYPE html>
+<html dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}" lang="{{ app()->getLocale() }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .header {
+            background: linear-gradient(135deg, #0056b7 0%, #cb1037 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 20px 0;
+        }
+        .content h2 {
+            color: #0056b7;
+            font-size: 18px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .content p {
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+        .feature-list li {
+            padding: 10px;
+            background-color: #f9f9f9;
+            margin-bottom: 10px;
+            border-left: 4px solid #0056b7;
+        }
+        .feature-list strong {
+            color: #0056b7;
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #0056b7 0%, #cb1037 100%);
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ __('customer.welcome_email.greeting', ['name' => $customer->first_name]) }}</h1>
+        </div>
 
-Thank you for registering with **e-RAMO Store**. We're excited to have you on board!
+        <div class="content">
+            <p>{{ __('customer.welcome_email.thank_you', ['app_name' => trans('customer.app_name')]) }} {{ __('customer.welcome_email.account_created') }}</p>
 
-Your email has been successfully verified and your account is now active.
+            <center>
+                <a href="{{ url('/landing') }}" class="button">{{ __('customer.welcome_email.start_exploring') }}</a>
+            </center>
 
-@component('mail::button', ['url' => route('home'), 'color' => 'success'])
-Start Shopping
-@endcomponent
+            <h2>{{ __('customer.welcome_email.what_next') }}</h2>
+            <ul class="feature-list">
+                <li><strong>{{ __('customer.welcome_email.complete_profile') }}:</strong> {{ __('customer.welcome_email.add_address') }}</li>
+                <li><strong>{{ __('customer.welcome_email.explore_products') }}:</strong> {{ __('customer.welcome_email.browse_products') }}</li>
+                <li><strong>{{ __('customer.welcome_email.secure_transactions') }}:</strong> {{ __('customer.welcome_email.secure_payment') }}</li>
+            </ul>
 
-## What's Next?
+            <h2>{{ __('customer.welcome_email.need_help') }}</h2>
+            <p>{{ __('customer.welcome_email.support_team') }}</p>
 
-- **Complete Your Profile**: Add your address information for faster checkout
-- **Explore Products**: Browse our wide range of products from trusted vendors
-- **Secure Transactions**: All your transactions are protected with our secure payment gateway
-
-## Need Help?
-
-If you have any questions or need assistance, don't hesitate to reach out to our support team at:
-- Email: support@eramo.com
-- Phone: +20 XXX XXX XXXX
-
-@component('mail::subcopy')
-If you didn't create this account, please contact us immediately.
-@endcomponent
-@endcomponent
+            <div class="footer">
+                <p>{{ __('customer.welcome_email.security_notice') }}</p>
+                <p>{{ __('customer.welcome_email.footer_copyright', ['year' => date('Y'), 'app_name' => trans('customer.app_name')]) }}</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

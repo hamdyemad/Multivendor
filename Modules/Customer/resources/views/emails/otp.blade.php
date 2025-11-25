@@ -55,6 +55,24 @@
             color: #999;
             margin-top: 10px;
         }
+        .verify-button {
+            display: inline-block;
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            margin: 20px 0;
+            transition: background-color 0.3s ease;
+        }
+        .verify-button:hover {
+            background-color: #0056b3;
+        }
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
         .footer {
             text-align: center;
             margin-top: 30px;
@@ -85,10 +103,21 @@
                 <p>{{ trans('customer.otp_email.email_verification_thank_you', ['app_name' => trans('customer.app_name')]) }}</p>
                 <p>{{ trans('customer.otp_email.email_verification_intro') }}</p>
 
-                <div class="otp-box">
-                    <div class="otp-code">{{ $otp }}</div>
-                    <div class="otp-expiry">{{ trans('customer.otp_email.expires_in', ['minutes' => $expiresInMinutes]) }}</div>
-                </div>
+                @if($verificationToken)
+                    <div class="button-container">
+                        <a href="{{ route('verify-email', $verificationToken) }}" class="verify-button">
+                            {{ trans('customer.otp_email.verify_account_button') }}
+                        </a>
+                    </div>
+                    <p style="text-align: center; color: #666; font-size: 14px;">
+                        {{ trans('customer.otp_email.verify_button_expires', ['minutes' => $expiresInMinutes]) }}
+                    </p>
+                @else
+                    <div class="otp-box">
+                        <div class="otp-code">{{ $otp }}</div>
+                        <div class="otp-expiry">{{ trans('customer.otp_email.expires_in', ['minutes' => $expiresInMinutes]) }}</div>
+                    </div>
+                @endif
 
                 <p>{{ trans('customer.otp_email.email_verification_ignore') }}</p>
 

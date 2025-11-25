@@ -51,7 +51,7 @@
                                             <input type="text"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                 id="search"
-                                                placeholder="{{ __('withdraw::withdraw.search_by_vendor_or_admin') }}"
+                                                placeholder="{{ __('common.search') }}"
                                                 autocomplete="off">
                                         </div>
                                     </div>

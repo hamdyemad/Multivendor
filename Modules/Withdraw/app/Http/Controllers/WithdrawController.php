@@ -439,6 +439,20 @@ class WithdrawController extends Controller
             });
         }
 
+        // Filter by vendor
+        if ($request->filled('vendor_filter')) {
+            $query->where('reciever_id', $request->vendor_filter);
+        }
+
+        // Filter by date range
+        if ($request->filled('created_date_from')) {
+            $query->whereDate('created_at', '>=', $request->created_date_from);
+        }
+
+        if ($request->filled('created_date_to')) {
+            $query->whereDate('created_at', '<=', $request->created_date_to);
+        }
+
         $totalRecords = $query->count();
         $dataPaginated = $query->orderBy('created_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
 
@@ -486,7 +500,18 @@ class WithdrawController extends Controller
     {
         $languages = $this->languageService->getAll();
         $vendor = auth()->user()->vendor;
-        return view('withdraw::all_transactions_requests', compact('languages', 'status', 'vendor'));
+
+        // Get vendors for filter dropdown
+        $vendors = Vendor::with(['translations' => function ($q) {
+            $q->where('lang_key', 'name');
+        }])->get()->map(function ($vendor) {
+            return [
+                'id' => $vendor->id,
+                'name' => optional($vendor->translations->first())->lang_value ?? $vendor->name ?? 'Unknown Vendor'
+            ];
+        });
+
+        return view('withdraw::all_transactions_requests', compact('languages', 'status', 'vendor', 'vendors'));
     }
 
     public function changeTransactionRequestsStatus(Request $request)

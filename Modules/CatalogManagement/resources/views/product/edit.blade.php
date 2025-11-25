@@ -59,8 +59,12 @@
                                         @foreach($languages as $language)
                                         <div class="col-md-6 mb-3">
                                             <div class="form-group">
-                                                <label for="title_{{ $language->code }}" class="form-label w-100 {{ (app()->getLocale() == 'ar') ? 'text-start' : '' }}">
-                                                    {{ __('catalogmanagement::product.title') }} ({{ strtoupper($language->code) }})
+                                                <label for="title_{{ $language->code }}" class="form-label w-100 {{ $language->code == 'ar' ? 'text-end' : '' }}" {{ $language->code == 'ar' ? 'dir=rtl' : '' }}>
+                                                    @if($language->code == 'ar')
+                                                        عنوان المنتج
+                                                    @else
+                                                        {{ __('catalogmanagement::product.title') }} ({{ strtoupper($language->code) }})
+                                                    @endif
                                                     <span class="text-danger">*</span>
                                                 </label>
                                                 <input type="text" name="translations[{{ $language->id }}][title]" id="title_{{ $language->code }}"

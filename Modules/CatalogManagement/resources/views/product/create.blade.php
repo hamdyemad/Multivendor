@@ -57,22 +57,38 @@
                                     </h5>
                                     <div class="row">
                                         @foreach($languages as $language)
-                                        <div class="col-md-6 mb-3">
+                                        <div class="col-md-6 mb-3 @if(app()->getLocale() == 'ar') {{ $language->code == 'ar' ? 'order-1' : 'order-2' }} @else {{ $language->code == 'en' ? 'order-1' : 'order-2' }} @endif">
                                             <div class="form-group">
-                                                <label for="title_{{ $language->code }}" class="form-label w-100 {{ (app()->getLocale() == 'ar') ? 'text-start' : '' }}">
-                                                    {{ __('catalogmanagement::product.title') }} ({{ strtoupper($language->code) }})
+                                                <label for="title_{{ $language->code }}" class="form-label w-100"
+                                                    @if($language->code == 'ar' && (app()->getLocale() == 'en' || app()->getLocale() == 'ar'))
+                                                        dir="rtl"
+                                                    @else
+                                                        dir="ltr"
+                                                    @endif
+                                                    >
+                                                    @if($language->code == 'ar')
+                                                        عنوان المنتج
+                                                    @else
+                                                        Title
+                                                    @endif
                                                     <span class="text-danger">*</span>
                                                 </label>
                                                 <input type="text" name="translations[{{ $language->id }}][title]" id="title_{{ $language->code }}"
                                                     class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                     placeholder="{{ $language->code == 'ar' ? 'أدخل عنوان المنتج' : 'Enter product title' }}"
-                                                    dir="{{ $language->code == 'ar' ? 'rtl' : 'ltr' }}"
+                                                    @if($language->code == 'ar' && (app()->getLocale() == 'en' || app()->getLocale() == 'ar'))
+                                                        dir="rtl"
+                                                    @else
+                                                        dir="ltr"
+                                                    @endif
+                                                    {{-- " --}}
                                                     value="{{ isset($product) ? ($product->product && method_exists($product->product, 'getTranslation') ? $product->product->getTranslation('title', $language->code) : (method_exists($product, 'getTranslation') ? $product->getTranslation('title', $language->code) : '')) ?? '' : '' }}">
                                                 <div class="error-message text-danger" id="error-translations-{{ $language->id }}-title" style="display: none;"></div>
                                             </div>
                                         </div>
                                         @endforeach
-
+                                    </div>
+                                    <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <div class="form-group">
                                                 <label for="sku" class="form-label">{{ __('catalogmanagement::product.sku') }} <span class="text-danger">*</span></label>

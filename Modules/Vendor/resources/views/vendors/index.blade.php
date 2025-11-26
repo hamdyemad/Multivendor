@@ -27,7 +27,7 @@
             <div class="col-lg-4 col-md-6 col-sm-6">
                 <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between h-100">
                     <div class="overview-content w-100">
-                        <div class="ap-po-details-content d-flex flex-wrap justify-content-between align-items-center h-100">
+                        <div class="ap-po-details-content h-100">
                             <div class="ap-po-details__titlebar">
                                 <h1 class="ap-po-details__title">{{ $statistics['total_balance'] }} {{ __('common.currency') }}</h1>
                                 <p class="ap-po-details__text text-nowrap">{{ __('vendor::vendor.total_vendors_balance') }}</p>
@@ -44,7 +44,7 @@
             <div class="col-lg-4 col-md-6 col-sm-6">
                 <div class="ap-po-details ap-po-details--3 p-25 radius-xl d-flex justify-content-between h-100">
                     <div class="overview-content w-100">
-                        <div class="ap-po-details-content d-flex flex-wrap justify-content-between align-items-center h-100">
+                        <div class="ap-po-details-content h-100">
                             <div class="ap-po-details__titlebar">
                                 <h1 class="ap-po-details__title">{{ $statistics['total_sent'] }} {{ __('common.currency') }}</h1>
                                 <p class="ap-po-details__text text-nowrap">{{ __('vendor::vendor.total_sent_money') }}</p>
@@ -61,7 +61,7 @@
             <div class="col-lg-4 col-md-6 col-sm-6">
                 <div class="ap-po-details ap-po-details--4 p-25 radius-xl d-flex justify-content-between h-100">
                     <div class="overview-content w-100">
-                        <div class="ap-po-details-content d-flex flex-wrap justify-content-between align-items-center h-100">
+                        <div class="ap-po-details-content h-100">
                             <div class="ap-po-details__titlebar">
                                 <h1 class="ap-po-details__title">{{ $statistics['total_remaining'] }} {{ __('common.currency') }}</h1>
                                 <p class="ap-po-details__text text-nowrap">{{ __('vendor::vendor.total_remaining') }}</p>
@@ -342,31 +342,28 @@
                         orderable: false,
                         render: function(data, type, row) {
                             console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDDDd', row);
-                            // Vendor Logo URL
-                            const logo = row.logo ?
-                                                `<img src="${row.logo}" alt="Vendor Logo" class="rounded-circle me-2" width="40" height="40">` :
-                                                `<div class="rounded-circle bg-secondary-subtle d-flex align-items-center justify-content-center me-2" style="width:40px; height:40px;">
-                                    <i class="uil uil-image text-muted"></i>
-                            </div>`;
 
                             // English Name only
                             const nameEn = row.translations && row.translations['en'] ?
                                 row.translations['en'].name :
                                 '-';
 
+                            // Vendor Email
+                            const email = row.email || '-';
+
                             let html = `
-                                <div class="vendor-card p-2 bg-light-subtle rounded-3 d-flex justify-content-center">
-                                    <div class="d-flex align-items-center mb-2">
-                                        ${logo}
-                                        <div>
-                                            <div class="fw-semibold text-dark text-capitalize">
-                                                ${$('<div>').text(nameEn).html()}
-                                            </div>
+                                <div class="vendor-card p-2 bg-light-subtle rounded-3">
+                                    <div class="d-flex flex-column">
+                                        <div class="fw-semibold text-dark text-capitalize mb-1">
+                                            ${$('<div>').text(nameEn).html()}
+                                        </div>
+                                        <div class="text-muted small">
+                                            <i class="uil uil-envelope me-1"></i>${$('<div>').text(email).html()}
                                         </div>
                                     </div>
+                                </div>
                             `;
 
-                            html += `</div></div>`;
                             return html;
                         }
                     },

@@ -22,8 +22,8 @@ class AddressResource extends JsonResource
             // "longitude" => $this->longitude,
             "is_primary" => $this->is_primary,
             "country" => CountryResource::make($this->country),
-            "city" => $this->city->getTranslation('name', app()->getLocale()),
-            "region" => $this->region->getTranslation('name', app()->getLocale()),
+            "city" => $this->city?->getTranslation('name', app()->getLocale()),
+            "region" => $this->region?->getTranslation('name', app()->getLocale()),
             "subregion" => $this->subregion?->getTranslation('name', app()->getLocale()),
         ];
     }

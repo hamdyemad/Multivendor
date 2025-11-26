@@ -16,7 +16,7 @@ class VendorResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->getTranslation('name', app()->getLocale()) ?? 'N/A',
+            'name' => $this->name,
             'code' => $this->code,
             'symbol' => $this->symbol,
             'active' => $this->active,

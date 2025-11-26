@@ -28,12 +28,14 @@
     'required' => false,
     'disabled' => false,
     'class' => '',
-    'id' => null
+    'id' => null,
+    'dir' => null
 ])
 
 @php
     $componentId = $id ?? 'tags-input-' . Str::random(8);
-    $isRtl = $language === 'ar';
+    // Use explicit dir prop if provided, otherwise fallback to language-based detection
+    $isRtl = $dir ? ($dir === 'rtl') : ($language === 'ar');
     $containerClasses = [
         'tags-input-wrapper',
         $class,
@@ -49,7 +51,7 @@
             type="text"
             class="tags-input form-control"
             placeholder="{{ $isRtl ? $rtlPlaceholder : $placeholder }}"
-            {{ $isRtl ? 'dir=rtl' : '' }}
+            {{ $isRtl ? 'dir=rtl' : 'dir=ltr' }}
             {{ $disabled ? 'disabled' : '' }}
         >
         <input
@@ -58,6 +60,7 @@
             id="{{ $componentId }}"
             value="{{ $value }}"
             {{ $required ? 'required' : '' }}
+
         >
     </div>
 
@@ -272,6 +275,32 @@
                 direction: rtl;
                 text-align: right;
             }
+
+            /* RTL Support based on app locale */
+
+            html[dir="rtl"] .tags-display {{ $isRtl ? 'dir=rtl' : 'dir=ltr' }} {
+                direction: rtl;
+                justify-content: flex-start;
+            }
+
+            html[dir="rtl"] .tag-item {{ $isRtl ? 'dir=rtl' : 'dir=ltr' }} {
+                direction: rtl;
+                text-align: right;
+            }
+
+            html[dir="rtl"] .tag-text {{ $isRtl ? 'dir=rtl' : 'dir=ltr' }} {
+                direction: rtl;
+                text-align: right;
+            }
+
+            @if(app()->getLocale() == 'ar' && !$isRtl)
+                html[dir="rtl"] .tags-display {
+                    direction: ltr;
+                }
+                .text-muted {
+                    direction: ltr;
+                }
+            @endif
 
             /* Animation for tag creation */
             @keyframes tagFadeIn {

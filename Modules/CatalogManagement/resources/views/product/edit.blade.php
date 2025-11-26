@@ -232,25 +232,33 @@
                                     </h5>
                                     <div class="row">
                                         @foreach($languages as $language)
-                                        <div class="col-md-6 mb-3">
+                                        <div class="col-md-6 mb-3 @if(app()->getLocale() == 'ar') {{ $language->code == 'ar' ? 'order-1' : 'order-2' }} @else {{ $language->code == 'en' ? 'order-1' : 'order-2' }} @endif">
                                             <div class="form-group">
-                                                <label for="tags_{{ $language->code }}" class="form-label w-100
-                                                     @if(app()->getLocale() == 'ar') dir='rtl' @endif
-                                                     ">
-                                                    {{ __('common.tags') }} ({{ strtoupper($language->code) }})
+                                                <label for="tags_{{ $language->code }}" class="form-label w-100"
+                                                    @if($language->code == 'ar')
+                                                        dir="rtl"
+                                                    @else
+                                                        dir="ltr"
+                                                    @endif
+                                                    >
+                                                    @if($language->code == 'ar')
+                                                        الوسوم
+                                                    @else
+                                                        Tags
+                                                    @endif
                                                 </label>
                                                 <div>
                                                     <x-tags-input
                                                         name="translations[{{ $language->id }}][tags]"
                                                         :value="isset($product) ? (isset($product->product) && method_exists($product->product, 'getTagsString') ? $product->product->getTagsString($language->code) : (method_exists($product, 'getTagsString') ? $product->getTagsString($language->code) : '')) : old('translations.'.$language->id.'.tags', '')"
-                                                        placeholder="{{ app()->getLocale() == 'ar' ? 'اكتب وسم واضغط انتر' : 'Type a tag and press Enter...' }}"
+                                                        placeholder="{{ $language->code == 'ar' ? 'اكتب وسم واضغط انتر' : 'Type a tag and press Enter...' }}"
                                                         rtl-placeholder="اكتب وسم واضغط انتر"
                                                         language="{{ $language->code }}"
                                                         :allow-duplicates="true"
                                                         theme="primary"
                                                         size="md"
                                                         id="tags_{{ $language->code }}"
-                                                        dir="{{ (app()->getLocale() == 'ar' && $language->code == 'ar') ? 'rtl' : 'ltr' }}"
+                                                        dir="{{ $language->code == 'ar' ? 'rtl' : 'ltr' }}"
                                                     />
                                                 </div>
                                                 <small class="text-muted w-100 d-block" @if($language->code == 'ar') dir="rtl" style="text-align: right;" @endif>{{ $language->code == 'ar' ? 'اضغط انتر أو فاصلة لإنشاء وسم' : 'Press Enter or comma to create a tag' }}</small>

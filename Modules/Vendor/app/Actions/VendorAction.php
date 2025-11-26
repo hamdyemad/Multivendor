@@ -115,7 +115,7 @@ class VendorAction {
             foreach ($languages as $language) {
                 $name = $vendor->getTranslation('name', $language->code) ?? '-';
                 $rowData['translations'][$language->code] = [
-                    'name' => $name,
+                    'name' => truncateString($name, 15),
                     'rtl' => $language->rtl
                 ];
             }

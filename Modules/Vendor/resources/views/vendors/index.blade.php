@@ -355,7 +355,7 @@
                                 '-';
 
                             let html = `
-                                <div class="vendor-card p-2 bg-light-subtle rounded-3">
+                                <div class="vendor-card p-2 bg-light-subtle rounded-3 d-flex justify-content-center">
                                     <div class="d-flex align-items-center mb-2">
                                         ${logo}
                                         <div>
@@ -389,7 +389,7 @@
                         render: function(data, type, row) {
                             let checked = data ? 'checked' : '';
                             return `<div class="userDatatable-content">
-                                <div class="form-check form-switch">
+                                <div class="form-check form-switch d-flex justify-content-center">
                                     <input class="form-check-input status-switch" type="checkbox"
                                         data-id="${row.id}" ${checked} style="cursor: pointer; width: 40px; height: 20px;">
                                 </div>

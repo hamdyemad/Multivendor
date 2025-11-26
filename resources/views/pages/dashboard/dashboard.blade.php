@@ -28,7 +28,6 @@
 
                 {{-- Sales Overview Header --}}
                 @include('pages.dashboard.withdraw-transactions')
-                @include('pages.dashboard.vendors-withdraw-transactions')
                 @include('pages.dashboard.stats-overview')
                 @include('pages.dashboard.income-and-expenses')
 

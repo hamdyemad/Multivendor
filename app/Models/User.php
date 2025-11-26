@@ -95,8 +95,19 @@ class User extends Authenticatable
         return false;
     }
 
-    public function vendor() {
+    public function vendorByUser()
+    {
         return $this->hasOne(Vendor::class, 'user_id');
+    }
+
+    public function vendorById()
+    {
+        return $this->belongsTo(Vendor::class, 'vendor_id');
+    }
+
+    public function getVendorAttribute()
+    {
+        return $this->vendorByUser ?: $this->vendorById;
     }
 
 

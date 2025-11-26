@@ -3,6 +3,7 @@
 namespace Modules\Withdraw\app\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\UserType;
 use App\Services\LanguageService;
 use Illuminate\Http\Request;
 use Modules\Order\app\Models\OrderProduct;
@@ -340,39 +341,57 @@ class WithdrawController extends Controller
 
     public function sendMoneyRequest()
     {
-        if (auth()->user()->user_type->name == "super_admin") {
+        // Only vendor users can access this page
+        if (!in_array(auth()->user()->user_type_id, UserType::vendorIds())) {
             abort(404);
         }
 
-        $languages = $this->languageService->getAll();
-        $general_info = $this->getVendorBalance(auth()->user()->vendor->id);
+        $vendor = auth()->user()->vendor;
 
-        $vendor_name = auth()->user()->vendor->translations[0]->lang_value;
+        // If user doesn't have a vendor directly, try to find by vendor_id
+        if (!$vendor && auth()->user()->vendor_id) {
+            $vendor = \Modules\Vendor\app\Models\Vendor::find(auth()->user()->vendor_id);
+        }
+
+        if (!$vendor) {
+            abort(404, 'Vendor not found');
+        }
+
+        $languages = $this->languageService->getAll();
+        $general_info = $this->getVendorBalance($vendor->id);
+
+        $vendor_name = $vendor->name ?? 'Vendor';
 
         $final_remaining = floatval(str_replace(',', '', $general_info['remaining'])) - floatval(str_replace(',', '', $general_info['waiting_approve_requests']));
 
-        return view('withdraw::send_money_request', compact('languages', 'general_info', 'vendor_name', 'final_remaining'));
+        return view('withdraw::send_money_request', compact('languages', 'general_info', 'vendor_name', 'final_remaining', 'vendor'));
     }
 
     public function sendMoneyRequestAction(Request $request)
     {
-        if (auth()->user()->user_type->name == "super_admin") {
+        // Only vendor users can access this action
+        if (!in_array(auth()->user()->user_type_id, UserType::vendorIds())) {
             abort(404);
         }
 
         $data = $request->all();
 
         $vendor = auth()->user()->vendor;
+        // If user doesn't have a vendor directly, try to find by vendor_id
+        if (!$vendor && auth()->user()->vendor_id) {
+            $vendor = \Modules\Vendor\app\Models\Vendor::find(auth()->user()->vendor_id);
+        }
+
+        if (!$vendor) {
+            return redirect()->back()->with('error', 'Vendor not found!');
+        }
+
         $vendor_id = $vendor->id;
-        $user_id = auth()->user()->id;
 
-        // get latest withdraw transaction for this vendor
-        $orders = OrderProduct::where("vendor_id", $vendor_id);
-        $total_vendor_balance = $orders->sum("price") - ($orders->sum("price") * ($orders->first()->commission / 100));
+        $total_vendor_balance = $vendor->total_balance;
 
-        $last_withdraw = Withdraw::where(function ($q) use ($user_id) {
-            $q->where('sender_id', $user_id)
-                ->orWhere('reciever_id', $user_id);
+        $last_withdraw = Withdraw::where(function ($q) use ($vendor_id) {
+           $q->where('reciever_id', $vendor_id);
         })
             ->where('status', 'accepted')
             ->latest()
@@ -416,10 +435,12 @@ class WithdrawController extends Controller
 
         $query = Withdraw::where("status", $status);
 
-        $vendor = auth()->user()->vendor;
-
-        if ($vendor && $vendor->id) {
-            $query->where("reciever_id", $vendor->id);
+        // If user is vendor, filter to show only their own transactions
+        if (in_array(auth()->user()->user_type_id, UserType::vendorIds())) {
+            $vendor = auth()->user()->vendor;
+            if ($vendor && $vendor->id) {
+                $query->where("reciever_id", $vendor->id);
+            }
         }
         $query->with([
             'vendor.translations' => function ($q) {
@@ -499,17 +520,23 @@ class WithdrawController extends Controller
     public function transactionsRequests($status)
     {
         $languages = $this->languageService->getAll();
-        $vendor = auth()->user()->vendor;
+        $vendors = [];
 
-        // Get vendors for filter dropdown
-        $vendors = Vendor::with(['translations' => function ($q) {
-            $q->where('lang_key', 'name');
-        }])->get()->map(function ($vendor) {
-            return [
-                'id' => $vendor->id,
-                'name' => optional($vendor->translations->first())->lang_value ?? $vendor->name ?? 'Unknown Vendor'
-            ];
-        });
+        // Check if user is a vendor type (not admin)
+        $isVendorUser = in_array(auth()->user()->user_type_id, UserType::vendorIds());
+        $vendor = $isVendorUser ? auth()->user()->vendor : null;
+
+        // Only get vendors for filter dropdown if user is admin (not vendor)
+        if (!$isVendorUser) {
+            $vendors = Vendor::with(['translations' => function ($q) {
+                $q->where('lang_key', 'name');
+            }])->get()->map(function ($vendor) {
+                return [
+                    'id' => $vendor->id,
+                    'name' => optional($vendor->translations->first())->lang_value ?? $vendor->name ?? 'Unknown Vendor'
+                ];
+            });
+        }
 
         return view('withdraw::all_transactions_requests', compact('languages', 'status', 'vendor', 'vendors'));
     }

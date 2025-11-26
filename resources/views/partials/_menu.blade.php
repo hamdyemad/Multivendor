@@ -1,4 +1,5 @@
 @php
+    $user_type_id = auth()->user()->user_type_id;
     $user_type = auth()->user()->user_type->name;
     $vendor = auth()->user()->vendor;
     $currentLocale = LaravelLocalization::getCurrentLocale();
@@ -82,7 +83,7 @@
                 <span class="toggle-icon"></span>
             </a>
             <ul class="px-0">
-                @if ($user_type == 'super_admin')
+                @if (in_array($user_type_id, \App\Models\UserType::adminIds()))
                     <li>
                         <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.sendMoney', $currentRoute) ? 'active' : '' }}"
                             href="{{ route('admin.sendMoney') }}">
@@ -105,7 +106,8 @@
                         </a>
                     </li>
                 @endif
-                @if ($user_type == 'vendor')
+
+                @if (in_array($user_type_id, \App\Models\UserType::vendorIds()))
                     <li>
                         <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.sendMoneyRequest', $currentRoute) ? 'active' : '' }}"
                             href="{{ route('admin.sendMoneyRequest') }}">

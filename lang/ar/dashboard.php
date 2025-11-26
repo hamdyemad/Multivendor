@@ -41,6 +41,8 @@ return [
     'Total Needed From Bnaia To Vendors' => 'إجمالي المطلوب من بنايا للتجار',
     'Total Sent Money To Vendors' => 'إجمالي المبلغ المرسل للتجار',
     "Total Vendor's Remaining" => "إجمالي المتبقي للتجار",
+    'total_received_money' => 'إجمالي المبلغ المستلم',
+    'credit_balance' => 'الرصيد الدائن',
     "Total Expenses" => "إجمالي المصروفات",
     "Total Income (After Delivery)" => "إجمالي الدخل (بعد التسليم)",
     "Net Profit Y.T.D" => "صافي الربح Y.T.D",

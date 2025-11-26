@@ -56,6 +56,7 @@
                                         </div>
                                     </div>
 
+                                    @if(!in_array(auth()->user()->user_type_id, \App\Models\UserType::vendorIds()))
                                     <div class="col-md-2">
                                         <div class="form-group">
                                             <label for="vendor_filter" class="il-gray fs-14 fw-500 mb-10">
@@ -74,8 +75,9 @@
                                             </select>
                                         </div>
                                     </div>
+                                    @endif
 
-                                    <div class="col-md-3">
+                                    <div class="col-md-{{ in_array(auth()->user()->user_type_id, \App\Models\UserType::vendorIds()) ? '4' : '3' }}">
                                         <div class="form-group">
                                             <label for="created_date_from" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-calendar-alt me-1"></i>
@@ -87,7 +89,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-3">
+                                    <div class="col-md-{{ in_array(auth()->user()->user_type_id, \App\Models\UserType::vendorIds()) ? '4' : '3' }}">
                                         <div class="form-group">
                                             <label for="created_date_to" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-calendar-alt me-1"></i>
@@ -295,10 +297,10 @@
             $('#rejectModal').modal('show');
         });
     </script>
-    <script>
-        let vendorExists = @json($vendor ? true : false);
-    </script>
 
+    <script>
+        const isAdmin = @json(in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()));
+    </script>
     <script>
         $(document).ready(function() {
             console.log('Cities page loaded, initializing DataTable...');
@@ -423,25 +425,19 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            if (row.status === 'new') {
-                                if (!vendorExists) {
-                                    return `
-                                        <div class="d-inline-flex gap-1">
-                                            <button class="btn btn-success approve-withdraw" data-id="${row.id}">
-                                                <i class="uil uil-check"></i> {{ __('withdraw::withdraw.approve') }}
-                                            </button>
-                                            <button class="btn btn-danger reject-withdraw" data-id="${row.id}">
-                                                <i class="uil uil-times"></i> {{ __('withdraw::withdraw.reject') }}
-                                            </button>
-                                        </div>`;
-                                } else {
-                                    return '-';
-                                }
-                            } else {
-                                return '-';
+                            if (row.status === 'new' && isAdmin) {
+                                return `
+                                    <div class="d-inline-flex gap-1">
+                                        <button class="btn btn-success approve-withdraw" data-id="${row.id}">
+                                            <i class="uil uil-check"></i> {{ __('withdraw::withdraw.approve') }}
+                                        </button>
+                                        <button class="btn btn-danger reject-withdraw" data-id="${row.id}">
+                                            <i class="uil uil-times"></i> {{ __('withdraw::withdraw.reject') }}
+                                        </button>
+                                    </div>`;
                             }
+                            return '-';
                         }
-
                     }
                 ],
                 pageLength: 10,

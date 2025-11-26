@@ -41,6 +41,8 @@ return [
     'Total Needed From Bnaia To Vendors' => 'Total Needed From Bnaia To Vendors',
     'Total Sent Money To Vendors' => 'Total Sent Money To Vendors',
     "Total Vendor's Remaining" => "Total Vendor's Remaining",
+    'total_received_money' => 'Total Received Money',
+    'credit_balance' => 'Credit Balance',
 
     "Total Expenses" => "Total Expenses",
     "Total Income (After Delivery)" => "Total Income (After Delivery)",

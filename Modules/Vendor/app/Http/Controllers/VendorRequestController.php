@@ -63,7 +63,7 @@ class VendorRequestController extends Controller
                         'name' => $activity->getTranslation('name', app()->getLocale()),
                     ];
                 }),
-                'created_at' => $request->created_at->format('Y-m-d H:i'),
+                'created_at' => $request->created_at,
                 'rejection_reason' => $request->rejection_reason,
             ];
         });

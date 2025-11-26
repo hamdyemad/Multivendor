@@ -61,6 +61,7 @@
             'create' => 'إضافة',
             'create_bank_product' => 'إنشاء منتج بنك',
             'bank_products' => 'منتجات البنك',
+            'stock_management' => 'إدارة المخزون',
             'pending_approval' => 'في انتظار الموافقة',
             'in stock' => 'متوفر',
             'out of stock' => 'غير متوفر',

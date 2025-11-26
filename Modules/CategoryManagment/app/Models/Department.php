@@ -41,6 +41,10 @@ class Department extends Model
         return $imageAttachment ? $imageAttachment->path : null;
     }
 
+    public function getNameAttribute() {
+        return $this->getTranslation('name', app()->getLocale());
+    }
+
     /**
      * Activities relationship
      */

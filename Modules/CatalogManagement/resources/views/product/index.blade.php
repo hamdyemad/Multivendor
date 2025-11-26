@@ -486,7 +486,7 @@
                         name: 'created_at',
                         searchable: false,
                         render: function(data) {
-                            return data ? new Date(data).toLocaleDateString('en-EG') : '—';
+                            return data;
                         }
                     },
                     {

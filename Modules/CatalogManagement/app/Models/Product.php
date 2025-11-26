@@ -289,6 +289,16 @@ class Product extends Model
             });
         }
 
+        // Apply brand filter
+        if (!empty($filters['brand_id'])) {
+            $query->where('brand_id', $filters['brand_id']);
+        }
+
+        // Apply category filter
+        if (!empty($filters['category_id'])) {
+            $query->where('category_id', $filters['category_id']);
+        }
+
         // Active filter
         if (isset($filters['is_active']) && $filters['is_active'] !== '') {
             $query->where('is_active', $filters['is_active']);
@@ -308,3 +318,5 @@ class Product extends Model
     }
 
 }
+
+

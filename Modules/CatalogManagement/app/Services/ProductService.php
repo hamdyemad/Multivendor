@@ -52,6 +52,11 @@ class ProductService
         return $this->productInterface->getVendorProductByProductAndVendor($productId, $vendorId);
     }
 
+    public function getProductsNotInVendor(int $vendorId, string $search = '')
+    {
+        return $this->productInterface->getProductsNotInVendor($vendorId, $search);
+    }
+
     public function saveBankStock(array $data)
     {
         return $this->productInterface->saveBankStock($data);

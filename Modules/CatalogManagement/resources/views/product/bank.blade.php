@@ -88,6 +88,7 @@
                                         </div>
                                     </div>
 
+                                    @if(in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="active" class="il-gray fs-14 fw-500 mb-10">
@@ -103,6 +104,7 @@
                                             </select>
                                         </div>
                                     </div>
+                                    @endif
 
                                     <div class="col-md-3">
                                         <div class="form-group">
@@ -156,9 +158,13 @@
                                     <th><span class="userDatatable-title">{{ __('catalogmanagement::product.product_information') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('catalogmanagement::product.brand') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('catalogmanagement::product.category') }}</span></th>
+                                    @if(in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
                                     <th><span class="userDatatable-title">{{ __('common.activation') }}</span></th>
+                                    @endif
                                     <th><span class="userDatatable-title">{{ __('common.created_at') }}</span></th>
+                                    @if(in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
                                     <th><span class="userDatatable-title">{{ __('common.actions') }}</span></th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -182,6 +188,9 @@
                 inactive: '{{ __('common.inactive') }}'
             };
 
+            // Check if user is admin
+            const isAdmin = {{ in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()) ? 'true' : 'false' }};
+
             let table = $('#bankProductsDataTable').DataTable({
                 processing: true,
                 serverSide: true,
@@ -192,124 +201,143 @@
                         d.search = $('#search').val();
                         d.brand_id = $('#brand_filter').val();
                         d.category_id = $('#category_filter').val();
+                        @if(in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
                         d.active = $('#active').val();
+                        @endif
                         d.created_date_from = $('#created_date_from').val();
                         d.created_date_to = $('#created_date_to').val();
                         d.per_page = $('#entriesSelect').val() || 10;
                     }
                 },
-                columns: [
-                    {
-                        data: 'index',
-                        name: 'index',
-                        orderable: false,
-                        searchable: false,
-                        className: 'text-center fw-bold'
-                    },
-                    {
-                        data: 'product_information',
-                        name: 'product_information',
-                        orderable: false,
-                        searchable: true,
-                        render: function(data, type, row) {
-                            if (!data) return '<span class="text-muted">—</span>';
-                            let html = '<div class="product-info-container">';
-
-                            if (data.name_en && data.name_en !== '-') {
-                                html += `<div class="product-name-item mb-2">
-                                    <span class="language-badge badge bg-primary text-white px-2 py-1 me-2 rounded-pill fw-bold" style="font-size: 10px;">EN</span>
-                                    <span class="product-name text-dark fw-semibold">${$('<div/>').text(data.name_en).html()}</span>
-                                </div>`;
-                            }
-
-                            if (data.name_ar && data.name_ar !== '-') {
-                                html += `<div class="product-name-item">
-                                    <span class="language-badge badge bg-success text-white px-2 py-1 me-2 rounded-pill fw-bold" style="font-size: 10px;">AR</span>
-                                    <span class="product-name text-dark fw-semibold" dir="rtl">${$('<div/>').text(data.name_ar).html()}</span>
-                                </div>`;
-                            }
-
-                            html += '</div>';
-                            return html;
+                columns: (() => {
+                    let columns = [
+                        {
+                            data: 'index',
+                            name: 'index',
+                            orderable: false,
+                            searchable: false,
+                            className: 'text-center fw-bold'
                         },
-                        className: 'text-start'
-                    },
-                    {
-                        data: 'brand',
-                        name: 'brand',
-                        searchable: false,
-                        render: function(data) {
-                            if (!data?.name) return '<span class="text-muted">—</span>';
-                            return `<span class="badge badge-info badge-round badge-lg">${$('<div/>').text(data.name).html()}</span>`;
-                        }
-                    },
-                    {
-                        data: 'category',
-                        name: 'category',
-                        searchable: false,
-                        render: function(data) {
-                            if (!data?.name) return '<span class="text-muted">—</span>';
-                            return `<span class="badge badge-secondary badge-round badge-lg">${$('<div/>').text(data.name).html()}</span>`;
-                        }
-                    },
-                    {
-                        data: 'active',
-                        name: 'active',
-                        orderable: true,
-                        searchable: false,
-                        className: 'text-center',
-                        render: function(data, type, row) {
-                            if (type === 'sort' || type === 'type') {
-                                return data ? 1 : 0;
+                        {
+                            data: 'product_information',
+                            name: 'product_information',
+                            orderable: false,
+                            searchable: true,
+                            render: function(data, type, row) {
+                                if (!data) return '<span class="text-muted">—</span>';
+                                let html = '<div class="product-info-container">';
+
+                                if (data.name_en && data.name_en !== '-') {
+                                    html += `<div class="product-name-item mb-2">
+                                        <span class="language-badge badge bg-primary text-white px-2 py-1 me-2 rounded-pill fw-bold" style="font-size: 10px;">EN</span>
+                                        <span class="product-name text-dark fw-semibold">${$('<div/>').text(data.name_en).html()}</span>
+                                    </div>`;
+                                }
+
+                                if (data.name_ar && data.name_ar !== '-') {
+                                    html += `<div class="product-name-item">
+                                        <span class="language-badge badge bg-success text-white px-2 py-1 me-2 rounded-pill fw-bold" style="font-size: 10px;">AR</span>
+                                        <span class="product-name text-dark fw-semibold" dir="rtl">${$('<div/>').text(data.name_ar).html()}</span>
+                                    </div>`;
+                                }
+
+                                html += '</div>';
+                                return html;
+                            },
+                            className: 'text-start'
+                        },
+                        {
+                            data: 'brand',
+                            name: 'brand',
+                            searchable: false,
+                            orderable: false,
+                            render: function(data) {
+                                if (!data?.name) return '<span class="text-muted">—</span>';
+                                return `<span class="badge badge-info badge-round badge-lg">${$('<div/>').text(data.name).html()}</span>`;
                             }
-
-                            const isChecked = data ? 'checked' : '';
-                            const switchId = 'activation-switch-' + row.id;
-                            const productName = row.product_information?.name_en || row.product_information?.name_ar || 'Product #' + row.id;
-
-                            return `<div class="userDatatable-content">
-                                <div class="form-switch">
-                                    <input class="form-check-input activation-switcher"
-                                           type="checkbox"
-                                           id="${switchId}"
-                                           data-product-id="${row.id}"
-                                           data-product-name="${$('<div>').text(productName).html()}"
-                                           ${isChecked}
-                                           style="cursor: pointer;">
-                                    <label class="form-check-label" for="${switchId}"></label>
-                                </div>
-                            </div>`;
+                        },
+                        {
+                            data: 'category',
+                            name: 'category',
+                            searchable: false,
+                            orderable: false,
+                            render: function(data) {
+                                if (!data?.name) return '<span class="text-muted">—</span>';
+                                return `<span class="badge badge-secondary badge-round badge-lg">${$('<div/>').text(data.name).html()}</span>`;
+                            }
                         }
-                    },
-                    {
+                    ];
+
+                    // Add activation column only for admin users
+                    if (isAdmin) {
+                        columns.push({
+                            data: 'active',
+                            name: 'active',
+                            orderable: false,
+                            searchable: false,
+                            className: 'text-center',
+                            render: function(data, type, row) {
+                                if (type === 'sort' || type === 'type') {
+                                    return data ? 1 : 0;
+                                }
+
+                                const isChecked = data ? 'checked' : '';
+                                const switchId = 'activation-switch-' + row.id;
+                                const productName = row.product_information?.name_en || row.product_information?.name_ar || 'Product #' + row.id;
+
+                                return `<div class="userDatatable-content">
+                                    <div class="form-switch">
+                                        <input class="form-check-input activation-switcher"
+                                               type="checkbox"
+                                               id="${switchId}"
+                                               data-product-id="${row.id}"
+                                               data-product-name="${$('<div>').text(productName).html()}"
+                                               ${isChecked}
+                                               style="cursor: pointer;">
+                                        <label class="form-check-label" for="${switchId}"></label>
+                                    </div>
+                                </div>`;
+                            }
+                        });
+                    }
+
+                    // Add created_at column
+                    columns.push({
                         data: 'created_at',
                         name: 'created_at',
                         searchable: false,
-                        render: function(data) {
-                            return data ? new Date(data).toLocaleDateString('en-EG') : '—';
-                        }
-                    },
-                    {
-                        data: null,
                         orderable: false,
-                        searchable: false,
-                        className: 'text-center',
                         render: function(data) {
-                            const showUrl = "{{ route('admin.products.show', ':id') }}".replace(':id', data.id);
-                            const editUrl = "{{ route('admin.products.edit', ':id') }}".replace(':id', data.id);
-
-                            return `
-                            <div class="orderDatatable_actions d-inline-flex gap-1">
-                                <a href="${showUrl}" class="view btn btn-primary table_action_father" title="{{ trans('common.view') }}">
-                                    <i class="uil uil-eye table_action_icon"></i>
-                                </a>
-                                <a href="${editUrl}" class="edit btn btn-warning table_action_father" title="{{ trans('common.edit') }}">
-                                    <i class="uil uil-edit table_action_icon"></i>
-                                </a>
-                            </div>`;
+                            return data;
                         }
+                    });
+
+                    // Add actions column only for admin users
+                    if (isAdmin) {
+                        columns.push({
+                            data: null,
+                            orderable: false,
+                            searchable: false,
+                            className: 'text-center',
+                            render: function(data) {
+                                const bankViewUrl = "{{ route('admin.products.bank.view', ':id') }}".replace(':id', data.id);
+                                const editUrl = "{{ route('admin.products.edit', ':id') }}".replace(':id', data.id);
+
+                                return `
+                                <div class="orderDatatable_actions d-inline-flex gap-1">
+                                    <a href="${bankViewUrl}" class="view btn btn-info table_action_father" title="{{ trans('catalogmanagement::product.view_bank_product') }}">
+                                        <i class="uil uil-eye table_action_icon"></i>
+                                    </a>
+                                    <a href="${editUrl}" class="edit btn btn-warning table_action_father" title="{{ trans('common.edit') }}">
+                                        <i class="uil uil-edit table_action_icon"></i>
+                                    </a>
+                                </div>`;
+                            }
+                        });
                     }
-                ],
+
+                    return columns;
+                })(),
                 pageLength: 10,
                 lengthMenu: [10, 25, 50, 100],
                 order: [[5, 'desc']],
@@ -345,9 +373,15 @@
             });
 
             // Filters
+            @if(in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
             $('#brand_filter, #category_filter, #active').on('select2:select select2:clear change', function() {
                 table.ajax.reload();
             });
+            @else
+            $('#brand_filter, #category_filter').on('select2:select select2:clear change', function() {
+                table.ajax.reload();
+            });
+            @endif
 
             // Date filters
             $('#created_date_from, #created_date_to').on('change', function() {
@@ -357,12 +391,17 @@
             // Reset
             $('#resetFilters').on('click', function() {
                 $('#search').val('');
+                @if(in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
                 $('#brand_filter, #category_filter, #active').val(null).trigger('change');
+                @else
+                $('#brand_filter, #category_filter').val(null).trigger('change');
+                @endif
                 $('#created_date_from, #created_date_to').val('');
                 table.ajax.reload();
             });
 
-            // Activation switcher handler
+            // Activation switcher handler (admin only)
+            @if(in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
             $(document).on('change', '.activation-switcher', function() {
                 const switcher = $(this);
                 const productId = switcher.data('product-id');
@@ -442,6 +481,7 @@
                     }
                 });
             });
+            @endif
         });
     </script>
 @endpush

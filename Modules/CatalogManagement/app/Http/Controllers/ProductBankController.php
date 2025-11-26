@@ -100,7 +100,7 @@ class ProductBankController extends Controller
                     'configuration_type' => $product->configuration_type,
                     'vendor_count' => $product->vendorProducts()->count(),
                     'created_by' => $product->createdByUser?->name ?? ($product->vendor?->getTranslation('name', app()->getLocale()) ?? 'System'),
-                    'created_at' => $product->created_at->format('Y-m-d H:i'),
+                    'created_at' => $product->created_at,
                     'actions' => view('catalogmanagement::product-bank.actions', compact('product'))->render()
                 ];
             }
@@ -218,6 +218,7 @@ class ProductBankController extends Controller
             'brand', 'department', 'category', 'subCategory', 'vendor', 'createdByUser',
             'variants.variantConfiguration', 'vendorProducts.vendor', 'attachments'
         ])->findOrFail($id);
+
 
         return view('catalogmanagement::product-bank.show', compact('product'));
     }

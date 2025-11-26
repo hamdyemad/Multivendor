@@ -602,7 +602,7 @@ class ProductRepository implements ProductInterface
                 'price' => $variant->price,
                 'has_discount' => $variant->has_discount,
                 'price_before_discount' => $variant->price_before_discount,
-                'discount_end_date' => $variant->discount_end_date ? $variant->discount_end_date->format('Y-m-d') : null,
+                'discount_end_date' => $variant->discount_end_date,
                 'variant_configuration_id' => $variant->variant_configuration_id,
                 'variant_name' => $variant->variantConfiguration ? $variant->variantConfiguration->name : null,
                 'stocks' => $variant->stocks->map(function($stock) {
@@ -619,6 +619,13 @@ class ProductRepository implements ProductInterface
             'id' => $vendorProduct->id,
             'configuration_type' => $vendorProduct->configuration_type,
             'tax_id' => $vendorProduct->tax_id,
+            'sku' => $vendorProduct->sku,
+            'points' => $vendorProduct->points,
+            'max_per_order' => $vendorProduct->max_per_order,
+            'video_link' => $vendorProduct->video_link,
+            'is_active' => $vendorProduct->is_active,
+            'is_featured' => $vendorProduct->is_featured,
+            'offer_date_view' => $vendorProduct->offer_date_view,
             'variants' => $variants
         ];
     }
@@ -632,29 +639,36 @@ class ProductRepository implements ProductInterface
             $productId = $data['product_id'];
             $vendorId = $data['vendor_id'];
             $vendorProductId = $data['vendor_product_id'] ?? null;
-            $configurationType = $data['configuration_type'];
-            $taxId = $data['tax_id'];
 
             // Find or create VendorProduct
             if ($vendorProductId) {
+                // EXISTING vendor product - only update stock data, not general settings
                 $vendorProduct = VendorProduct::findOrFail($vendorProductId);
+                $configurationType = $vendorProduct->configuration_type;
             } else {
-                $vendorProduct = VendorProduct::create([
+                // NEW vendor product - create with all general settings
+                $configurationType = $data['configuration_type'];
+                $taxId = $data['tax_id'] ?? null;
+
+                $vendorProductData = [
                     'product_id' => $productId,
                     'vendor_id' => $vendorId,
                     'configuration_type' => $configurationType,
                     'tax_id' => $taxId,
+                    'sku' => $data['sku'] ?? null,
+                    'points' => $data['points'] ?? 0,
+                    'max_per_order' => $data['max_per_order'] ?? 10,
+                    'video_link' => $data['video_link'] ?? null,
+                    'is_active' => isset($data['is_active']) ? (bool) $data['is_active'] : true,
+                    'is_featured' => isset($data['is_featured']) ? (bool) $data['is_featured'] : false,
+                    'offer_date_view' => isset($data['offer_date_view']) ? (bool) $data['offer_date_view'] : false,
                     'status' => VendorProduct::STATUS_APPROVED,
-                    'is_active' => true
-                ]);
+                ];
+
+                $vendorProduct = VendorProduct::create($vendorProductData);
             }
 
-            // Update configuration type and tax
-            $vendorProduct->update([
-                'configuration_type' => $configurationType,
-                'tax_id' => $taxId
-            ]);
-
+            // Handle stock data (for both new and existing)
             if ($configurationType === 'simple') {
                 $this->handleSimpleBankStock($vendorProduct, $data);
             } else {
@@ -764,6 +778,65 @@ class ProductRepository implements ProductInterface
         // Delete stocks not in the processed list
         if (!empty($processedStockIds)) {
             $variant->stocks()->whereNotIn('id', $processedStockIds)->delete();
+        }
+    }
+
+    /**
+     * Get products that are not in VendorProduct for a specific vendor
+     */
+    public function getProductsNotInVendor(int $vendorId, string $search = '')
+    {
+        try {
+            Log::info('Getting products not in vendor', ['vendor_id' => $vendorId, 'search' => $search]);
+
+            $query = Product::with(['translations', 'brand.translations', 'department.translations', 'category.translations', 'subCategory.translations', 'attachments'])
+                ->whereNotExists(function ($query) use ($vendorId) {
+                    $query->select('id')
+                        ->from('vendor_products')
+                        ->whereColumn('vendor_products.product_id', 'products.id')
+                        ->where('vendor_products.vendor_id', $vendorId);
+                });
+
+            if (!empty($search)) {
+                $query->whereHas('translations', function ($q) use ($search) {
+                    $q->where('lang_value', 'like', '%' . $search . '%');
+                });
+            }
+
+            $products = $query->limit(50)->get();
+            Log::info('Found products', ['count' => $products->count()]);
+
+            return $products->map(function ($product) {
+                try {
+                    return [
+                        'id' => $product->id,
+                        'title_en' => $product->getTranslation('title', 'en') ?? '-',
+                        'title_ar' => $product->getTranslation('title', 'ar') ?? '-',
+                        'brand' => $product->brand ? ($product->brand->getTranslation('name', app()->getLocale()) ?? $product->brand->name ?? '-') : '-',
+                        'department' => $product->department ? ($product->department->getTranslation('name', app()->getLocale()) ?? $product->department->name ?? '-') : '-',
+                        'category' => $product->category ? ($product->category->getTranslation('name', app()->getLocale()) ?? $product->category->name ?? '-') : '-',
+                        'sub_category' => $product->subCategory ? ($product->subCategory->getTranslation('name', app()->getLocale()) ?? $product->subCategory->name ?? '-') : '-',
+                        'image' => $product->attachments->where('type', 'main_image')->first()?->path ?? null,
+                        'created_at' => $product->created_at ? (is_string($product->created_at) ? $product->created_at : $product->created_at->format('Y-m-d')) : date('Y-m-d'),
+                    ];
+                } catch (\Exception $e) {
+                    Log::error('Error processing product', ['product_id' => $product->id, 'error' => $e->getMessage()]);
+                    return [
+                        'id' => $product->id,
+                        'title_en' => 'Error loading product',
+                        'title_ar' => 'خطأ في تحميل المنتج',
+                        'brand' => '-',
+                        'department' => '-',
+                        'category' => '-',
+                        'sub_category' => '-',
+                        'image' => null,
+                        'created_at' => $product->created_at ? (is_string($product->created_at) ? $product->created_at : $product->created_at->format('Y-m-d')) : date('Y-m-d'),
+                    ];
+                }
+            })->toArray();
+        } catch (\Exception $e) {
+            Log::error('Error in getProductsNotInVendor', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            throw $e;
         }
     }
 

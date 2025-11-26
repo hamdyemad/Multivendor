@@ -70,58 +70,13 @@ class ProductAction {
                 'product.category',
                 'product.translations',
                 'vendor'
-            ]);
+            ])->filter($filters);
 
             if($vendorId) {
                 $query->where('vendor_id', $vendorId);
                 $totalRecords = $query->count();
             } else {
                 $totalRecords = VendorProduct::count();
-            }
-            // Apply filters on the related product
-            if (!empty($filters['search'])) {
-                $search = $filters['search'];
-                $query->whereHas('product', function($q) use ($search) {
-                    $q->where(function($subQ) use ($search) {
-                        $subQ->whereHas('translations', function($transQ) use ($search) {
-                            $transQ->where('lang_value', 'like', "%{$search}%");
-                        });
-                    });
-                });
-            }
-
-            // Filter by vendor (for admin users)
-            if (!empty($filters['vendor_id'])) {
-                $query->where('vendor_id', $filters['vendor_id']);
-            }
-
-            // Filter by brand
-            if (!empty($filters['brand_id'])) {
-                $query->whereHas('product', function($q) use ($filters) {
-                    $q->where('brand_id', $filters['brand_id']);
-                });
-            }
-
-            // Filter by category
-            if (!empty($filters['category_id'])) {
-                $query->whereHas('product', function($q) use ($filters) {
-                    $q->where('category_id', $filters['category_id']);
-                });
-            }
-
-            if (isset($filters['is_active']) && $filters['is_active'] !== '') {
-                $query->where('is_active', $filters['is_active']);
-            }
-
-            if (!empty($filters['status'])) {
-                $query->where('status', $filters['status']);
-            }
-
-            // Filter by product type (product/bank)
-            if (!empty($filters['type'])) {
-                $query->whereHas('product', function($q) use ($filters) {
-                    $q->where('type', $filters['type']);
-                });
             }
 
             $filteredRecords = $query->count();
@@ -161,7 +116,7 @@ class ProductAction {
                     // For bank products, use Product.is_active; for regular products, use VendorProduct.is_active
                     'active' => $item->is_active,
                     'status' => $item->status,
-                    'product_type' => $product->type ?? 'product',
+                    'product_type' => $product->type,
                     'created_at' => $item->created_at,
                 ];
 
@@ -238,46 +193,15 @@ class ProductAction {
 
             // Build query for bank products (directly from Product table)
             $query = Product::with(['brand', 'category', 'translations'])
+                ->filter($filters)
                 ->where('type', Product::TYPE_BANK);
 
-            // Apply search filter
-            if (!empty($filters['search'])) {
-                $searchTerm = $filters['search'];
-                $query->where(function($q) use ($searchTerm) {
-                    $q->whereHas('translations', function($tq) use ($searchTerm) {
-                        $tq->where('lang_key', 'title')
-                           ->where('lang_value', 'like', "%{$searchTerm}%");
-                    })
-                    ->orWhere('sku', 'like', "%{$searchTerm}%");
-                });
-            }
 
-            // Apply brand filter
-            if (!empty($filters['brand_id'])) {
-                $query->where('brand_id', $filters['brand_id']);
-            }
-
-            // Apply category filter
-            if (!empty($filters['category_id'])) {
-                $query->where('category_id', $filters['category_id']);
-            }
-
-            // Apply active filter (Product.is_active)
-            if (!empty($filters['is_active'])) {
-                $isActive = $filters['is_active'] == 1;
-                $query->where('is_active', $isActive);
-            }
-
-            // Apply date filters
-            if (!empty($filters['created_date_from'])) {
-                $query->whereDate('created_at', '>=', $filters['created_date_from']);
-            }
-            if (!empty($filters['created_date_to'])) {
-                $query->whereDate('created_at', '<=', $filters['created_date_to']);
-            }
 
             // Get total count before pagination
-            $totalRecords = Product::where('type', Product::TYPE_BANK)->count();
+            $totalQuery = Product::where('type', Product::TYPE_BANK);
+
+            $totalRecords = $totalQuery->count();
             $filteredRecords = $query->count();
 
             // Apply pagination

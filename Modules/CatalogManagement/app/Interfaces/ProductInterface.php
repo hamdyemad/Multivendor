@@ -14,5 +14,6 @@ interface ProductInterface
     // Bank Stock Management
     public function searchBankProducts(string $search = '', int $perPage = 20);
     public function getVendorProductByProductAndVendor(int $productId, int $vendorId);
+    public function getProductsNotInVendor(int $vendorId, string $search = '');
     public function saveBankStock(array $data);
 }

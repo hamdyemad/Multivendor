@@ -451,6 +451,17 @@
                                                 </div>
                                             </div>
 
+                                            {{-- Product Slug --}}
+                                            <div class="col-md-6">
+                                                <div class="view-item">
+                                                    <label
+                                                        class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.slug') }}</label>
+                                                    <p class="fs-15 color-dark fw-500">
+                                                        <code>{{ $product->product->slug ?? '-' }}</code>
+                                                    </p>
+                                                </div>
+                                            </div>
+
                                             {{-- Tax is vendor-specific and shown in vendor products section --}}
                                         </div>
                                     </div>
@@ -465,7 +476,7 @@
                                     <div class="card-body">
                                         <div class="row">
                                             {{-- Points --}}
-                                            <div class="col-md-3 mb-3">
+                                            <div class="col-md-4 mb-3">
                                                 <div class="p-3 border rounded" style="background: #fff3cd;">
                                                     <small class="text-muted d-block mb-1">{{ __('catalogmanagement::product.points') }}</small>
                                                     <div class="fw-bold text-warning" style="font-size: 18px;">
@@ -475,7 +486,7 @@
                                             </div>
 
                                             {{-- Max Per Order --}}
-                                            <div class="col-md-3 mb-3">
+                                            <div class="col-md-4 mb-3">
                                                 <div class="p-3 border rounded" style="background: #e7f3ff;">
                                                     <small class="text-muted d-block mb-1">{{ __('catalogmanagement::product.max_per_order') }}</small>
                                                     <div class="fw-bold text-info" style="font-size: 18px;">
@@ -485,7 +496,7 @@
                                             </div>
 
                                             {{-- Tax --}}
-                                            <div class="col-md-3 mb-3">
+                                            <div class="col-md-4 mb-3">
                                                 <div class="p-3 border rounded" style="background: #f8f9fa;">
                                                     <small class="text-muted d-block mb-1">{{ __('catalogmanagement::product.tax') }}</small>
                                                     <div class="fw-bold text-dark" style="font-size: 16px;">
@@ -500,7 +511,7 @@
                                             </div>
 
                                             {{-- Featured --}}
-                                            <div class="col-md-3 mb-3">
+                                            <div class="col-md-4 mb-3">
                                                 <div class="p-3 border rounded" style="background: {{ $product->is_featured ? '#d4edda' : '#f8d7da' }};">
                                                     <small class="text-muted d-block mb-1">{{ __('catalogmanagement::product.featured') }}</small>
                                                     <div class="fw-bold {{ $product->is_featured ? 'text-success' : 'text-danger' }}" style="font-size: 16px;">
@@ -511,7 +522,7 @@
                                             </div>
 
                                             {{-- Status --}}
-                                            <div class="col-md-3 mb-3">
+                                            <div class="col-md-4 mb-3">
                                                 <div class="p-3 border rounded" style="background: {{ $product->is_active ? '#d4edda' : '#f8d7da' }};">
                                                     <small class="text-muted d-block mb-1">{{ __('common.status') }}</small>
                                                     <div class="fw-bold {{ $product->is_active ? 'text-success' : 'text-danger' }}" style="font-size: 16px;">
@@ -522,7 +533,7 @@
                                             </div>
 
                                             {{-- Approval Status --}}
-                                            <div class="col-md-3 mb-3">
+                                            <div class="col-md-4 mb-3">
                                                 <div class="p-3 border rounded" style="background:
                                                     @if($product->status === 'approved') #d4edda
                                                     @elseif($product->status === 'rejected') #f8d7da

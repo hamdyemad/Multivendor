@@ -7,35 +7,39 @@
     $currentUrl = Request::url();
 
     // Helper function to check if menu item is active
-    function isMenuActive($routes, $currentRoute = null, $urlPatterns = [])
-    {
-        global $currentLocale;
+    if (!function_exists('isMenuActive')) {
+        function isMenuActive($routes, $currentRoute = null, $urlPatterns = [])
+        {
+            global $currentLocale;
 
-        if ($currentRoute && is_array($routes)) {
-            if (in_array($currentRoute, $routes)) {
-                return true;
+            if ($currentRoute && is_array($routes)) {
+                if (in_array($currentRoute, $routes)) {
+                    return true;
+                }
+            } elseif ($currentRoute && is_string($routes)) {
+                if ($currentRoute === $routes) {
+                    return true;
+                }
             }
-        } elseif ($currentRoute && is_string($routes)) {
-            if ($currentRoute === $routes) {
-                return true;
+
+            // Check URL patterns
+            foreach ($urlPatterns as $pattern) {
+                if (Request::is($currentLocale . '/' . $pattern)) {
+                    return true;
+                }
             }
+
+            return false;
         }
-
-        // Check URL patterns
-        foreach ($urlPatterns as $pattern) {
-            if (Request::is($currentLocale . '/' . $pattern)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     // Helper function to check if parent menu should be open
-    function isParentMenuOpen($childRoutes, $urlPatterns = [])
-    {
-        global $currentRoute;
-        return isMenuActive($childRoutes, $currentRoute, $urlPatterns);
+    if (!function_exists('isParentMenuOpen')) {
+        function isParentMenuOpen($childRoutes, $urlPatterns = [])
+        {
+            global $currentRoute;
+            return isMenuActive($childRoutes, $currentRoute, $urlPatterns);
+        }
     }
 
     $new_transactions = 0;
@@ -170,37 +174,11 @@
                 </li>
             </ul>
         </li>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        @canany(['activities.index', 'departments.index', 'categories.index', 'sub_categories.index'])
-            <li class="menu-title mt-30">
-                <span>{{ trans('menu.sections.catalog management') }}</span>
-            </li>
-            @if ($user_type == 'super_admin')
+        @if(in_array($user_type_id, \App\Models\UserType::adminIds()))
+            @canany(['activities.index', 'departments.index', 'categories.index', 'sub_categories.index'])
+                <li class="menu-title mt-30">
+                    <span>{{ trans('menu.sections.catalog management') }}</span>
+                </li>
                 <li
                     class="has-child {{ isParentMenuOpen(['admin.category-management.activities.index', 'admin.category-management.departments.index', 'admin.category-management.categories.index', 'admin.category-management.subcategories.index'], ['admin/category-management*']) ? 'open' : '' }}">
                     <a href="#"
@@ -251,62 +229,98 @@
                         @endcan
                     </ul>
                 </li>
-            @endif
-        @endcanany
+            @endcanany
+        @endif
 
         <li
-            class="has-child {{ isParentMenuOpen(['admin.products.index', 'admin.products.pending', 'admin.products.rejected', 'admin.products.accepted', 'admin.products.create', 'admin.products.show', 'admin.products.edit', 'admin.variant-keys.index', 'admin.variants-configurations.index'], ['admin/products*', 'admin/variant*']) ? 'open' : '' }}">
+            class="has-child {{ isParentMenuOpen(['admin.products.index', 'admin.products.pending', 'admin.products.rejected', 'admin.products.accepted', 'admin.products.create', 'admin.products.show', 'admin.products.edit', 'admin.products.bank', 'admin.variant-keys.index', 'admin.variants-configurations.index'], ['admin/products*', 'admin/variant*']) ? 'open' : '' }}">
             <a href="#"
-                class="{{ isParentMenuOpen(['admin.products.index', 'admin.products.pending', 'admin.products.rejected', 'admin.products.accepted', 'admin.products.create', 'admin.products.show', 'admin.products.edit', 'admin.variant-keys.index', 'admin.variants-configurations.index'], ['admin/products*', 'admin/variant*']) ? 'active' : '' }}">
+                class="{{ isParentMenuOpen(['admin.products.index', 'admin.products.pending', 'admin.products.rejected', 'admin.products.accepted', 'admin.products.create', 'admin.products.show', 'admin.products.edit', 'admin.products.bank', 'admin.variant-keys.index', 'admin.variants-configurations.index'], ['admin/products*', 'admin/variant*']) ? 'active' : '' }}">
                 <span class="nav-icon uil uil-box"></span>
                 <span class="menu-text">{{ trans('menu.products.title') }}</span>
                 <span class="toggle-icon"></span>
             </a>
             <ul class="px-0">
                 <li>
+                    <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.products.bank', $currentRoute) ? 'active' : '' }}"
+                        href="{{ route('admin.products.bank') }}">
+                        {{ trans('menu.products.bank_products') }}
+                        <span class="badge badge-round badge-info ms-1">
+                            {{ \Modules\CatalogManagement\app\Models\Product::where('type', 'bank')->count() }}
+                        </span>
+                    </a>
+                </li>
+                <li>
                     <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.products.index', 'admin.products.create', 'admin.products.show', 'admin.products.edit'], $currentRoute) ? 'active' : '' }}"
                         href="{{ route('admin.products.index') }}">
                         {{ trans('menu.products.all_products') }}
-                        <span class="badge badge-round badge-primary ms-1">20</span>
+                        <span class="badge badge-round badge-primary ms-1">
+                            @if(in_array($user_type_id, \App\Models\UserType::adminIds()))
+                                {{ \Modules\CatalogManagement\app\Models\Product::count() }}
+                            @else
+                                {{ \Modules\CatalogManagement\app\Models\VendorProduct::where('vendor_id', auth()->user()->vendor->id ?? 0)->count() }}
+                            @endif
+                        </span>
                     </a>
                 </li>
                 <li>
                     <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.products.pending', $currentRoute) ? 'active' : '' }}"
                         href="{{ route('admin.products.pending') }}">
                         {{ trans('menu.products.pending_products') }}
-                        <span class="badge badge-round badge-warning ms-1">5</span>
+                        <span class="badge badge-round badge-warning ms-1">
+                            @if(in_array($user_type_id, \App\Models\UserType::adminIds()))
+                                {{ \Modules\CatalogManagement\app\Models\VendorProduct::where('status', 'pending')->count() }}
+                            @else
+                                {{ \Modules\CatalogManagement\app\Models\VendorProduct::where('status', 'pending')->where('vendor_id', auth()->user()->vendor->id ?? 0)->count() }}
+                            @endif
+                        </span>
                     </a>
                 </li>
                 <li>
                     <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.products.rejected', $currentRoute) ? 'active' : '' }}"
                         href="{{ route('admin.products.rejected') }}">
                         {{ trans('menu.products.rejected_products') }}
-                        <span class="badge badge-round badge-danger ms-1">3</span>
+                        <span class="badge badge-round badge-danger ms-1">
+                            @if(in_array($user_type_id, \App\Models\UserType::adminIds()))
+                                {{ \Modules\CatalogManagement\app\Models\VendorProduct::where('status', 'rejected')->count() }}
+                            @else
+                                {{ \Modules\CatalogManagement\app\Models\VendorProduct::where('status', 'rejected')->where('vendor_id', auth()->user()->vendor->id ?? 0)->count() }}
+                            @endif
+                        </span>
                     </a>
                 </li>
                 <li>
                     <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.products.accepted', $currentRoute) ? 'active' : '' }}"
                         href="{{ route('admin.products.accepted') }}">
                         {{ trans('menu.products.accepted_products') }}
-                        <span class="badge badge-round badge-success ms-1">12</span>
+                        <span class="badge badge-round badge-success ms-1">
+                            @if(in_array($user_type_id, \App\Models\UserType::adminIds()))
+                                {{ \Modules\CatalogManagement\app\Models\VendorProduct::where('status', 'approved')->count() }}
+                            @else
+                                {{ \Modules\CatalogManagement\app\Models\VendorProduct::where('status', 'approved')->where('vendor_id', auth()->user()->vendor->id ?? 0)->count() }}
+                            @endif
+                        </span>
                     </a>
                 </li>
-                @canany(['variant-keys.view', 'variant-keys.create'])
-                    <li>
-                        <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.variant-keys.index', $currentRoute) ? 'active' : '' }}"
-                            href="{{ route('admin.variant-keys.index') }}">
-                            {{ trans('menu.variant configurations.variant config keys') }}
-                            <span class="badge badge-round badge-primary ms-1">20</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.variants-configurations.index', $currentRoute) ? 'active' : '' }}"
-                            href="{{ route('admin.variants-configurations.index') }}">
-                            {{ trans('menu.variant configurations.variant config') }}
-                            <span class="badge badge-round badge-primary ms-1">10</span>
-                        </a>
-                    </li>
-                @endcanany
+
+                @if(in_array($user_type_id, \App\Models\UserType::adminIds()))
+                    @canany(['variant-keys.view', 'variant-keys.create'])
+                        <li>
+                            <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.variant-keys.index', $currentRoute) ? 'active' : '' }}"
+                                href="{{ route('admin.variant-keys.index') }}">
+                                {{ trans('menu.variant configurations.variant config keys') }}
+                                <span class="badge badge-round badge-primary ms-1">{{ \Modules\CatalogManagement\app\Models\VariantConfigurationKey::count() }}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.variants-configurations.index', $currentRoute) ? 'active' : '' }}"
+                                href="{{ route('admin.variants-configurations.index') }}">
+                                {{ trans('menu.variant configurations.variant config') }}
+                                <span class="badge badge-round badge-primary ms-1">{{ \Modules\CatalogManagement\app\Models\VariantsConfiguration::count() }}</span>
+                            </a>
+                        </li>
+                    @endcanany
+                @endif
             </ul>
         </li>
 

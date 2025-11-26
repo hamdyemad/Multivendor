@@ -36,6 +36,10 @@ class SubCategory extends Model
         return $imageAttachment ? $imageAttachment->path : null;
     }
 
+    public function getNameAttribute() {
+        return $this->getTranslation('name', app()->getLocale()) ?? '--';
+    }
+
     /**
      * Category relationship
      */

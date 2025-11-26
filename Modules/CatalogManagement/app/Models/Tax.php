@@ -14,4 +14,9 @@ class Tax extends Model
 
     protected $table = 'taxes';
     protected $guarded = [];
+
+
+    public function getNameAttribute() {
+        return $this->getTranslation('name', app()->getLocale()) ?? '';
+    }
 }

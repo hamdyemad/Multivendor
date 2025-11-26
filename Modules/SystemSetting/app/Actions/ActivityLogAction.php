@@ -122,7 +122,7 @@ class ActivityLogAction
                 'model' => __("activity_log.models." . class_basename($log->model ?? 'Unknown')),
                 'description' => $log->translated_description,
                 'ip_address' => $log->ip_address,
-                'created_at' => $log->created_at->format('Y-m-d H:i:s'),
+                'created_at' => $log->created_at,
                 'created_at_formatted' => $log->created_at->diffForHumans(),
             ];
         }

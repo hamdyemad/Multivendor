@@ -94,7 +94,7 @@ class VendorProductController extends Controller
                     'category' => $product->category?->getTranslation('name', app()->getLocale()) ?? 'N/A',
                     'configuration_type' => $product->configuration_type,
                     'variants_count' => $product->variants()->count(),
-                    'created_at' => $product->created_at->format('Y-m-d'),
+                    'created_at' => $product->created_at,
                     'actions' => view('catalogmanagement::vendor-products.available-actions', compact('product'))->render()
                 ];
             }
@@ -314,7 +314,7 @@ class VendorProductController extends Controller
                     'total_stock' => $totalStock,
                     'is_active' => $vendorProduct->is_active,
                     'is_featured' => $vendorProduct->is_featured,
-                    'created_at' => $vendorProduct->created_at->format('Y-m-d'),
+                    'created_at' => $vendorProduct->created_at,
                     'actions' => view('catalogmanagement::vendor-products.my-products-actions', compact('vendorProduct'))->render()
                 ];
             }

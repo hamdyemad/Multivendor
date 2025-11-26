@@ -69,6 +69,7 @@
             'create' => 'create',
             'create_bank_product' => 'create bank product',
             'bank_products' => 'bank products',
+            'stock_management' => 'stock management',
             'pending_approval' => 'pending approval',
             'in stock' => 'in stock',
             'out of stock' => 'out of stock',

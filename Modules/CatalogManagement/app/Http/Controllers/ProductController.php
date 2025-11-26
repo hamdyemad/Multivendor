@@ -184,6 +184,12 @@ class ProductController extends Controller
     public function show($id)
     {
         $product = $this->productService->getProductById($id);
+        if(in_array(auth()->user()->user_type_id, UserType::vendorIds())) {
+            $vendor = auth()->user()->vendor;
+            if($product->vendor_id != $vendor->id) {
+                return abort(401);
+            }
+        }
         $languages = $this->languageService->getAll();
         $data = [
             'title' => __('catalogmanagement::product.product_details'),
@@ -199,6 +205,12 @@ class ProductController extends Controller
     public function edit($id)
     {
         $product = $this->productService->getProductById($id);
+        if(in_array(auth()->user()->user_type_id, UserType::vendorIds())) {
+            $vendor = auth()->user()->vendor;
+            if($product->vendor_id != $vendor->id) {
+                return abort(401);
+            }
+        }
         $languages = $this->languageService->getAll();
         $brands = $this->brandService->getAllBrands([], 0);
         $brands = BrandResource::collection($brands)->resolve();
@@ -554,6 +566,48 @@ class ProductController extends Controller
     }
 
     /**
+     * Display bank product details (main product data only)
+     */
+    public function bankView($id)
+    {
+        try {
+            // Get the bank product directly from Product model (not VendorProduct)
+            $product = Product::with(['brand', 'category', 'subCategory', 'department', 'createdByUser', 'mainImage', 'additionalImages', 'variants.variantConfiguration.key', 'variants.variantConfiguration.parent_data'])
+                ->where('type', Product::TYPE_BANK)
+                ->findOrFail($id);
+            // Check vendor access for vendor users
+            if (in_array(Auth::user()->user_type_id, UserType::vendorIds())) {
+                $vendor = Auth::user()->vendor;
+                if ($vendor) {
+                    // Check if vendor has access to this bank product
+                    $hasAccess = $product->vendors()->where('vendor_id', $vendor->id)->exists();
+                    if (!$hasAccess) {
+                        return abort(403, 'Unauthorized access to this bank product');
+                    }
+                }
+            }
+
+            $languages = $this->languageService->getAll();
+
+            $data = [
+                'title' => __('catalogmanagement::product.view_bank_product'),
+                'product' => $product,
+                'languages' => $languages,
+            ];
+
+            return view('catalogmanagement::product.bank-view', $data);
+
+        } catch (Exception $e) {
+            Log::error('Bank product view error: ' . $e->getMessage(), [
+                'product_id' => $id,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return abort(404, 'Bank product not found');
+        }
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy($id)
@@ -663,18 +717,38 @@ class ProductController extends Controller
     public function bankStockManagement(Request $request)
     {
         $languages = $this->languageService->getAll();
+        $isVendorUser = in_array(auth()->user()->user_type_id, UserType::vendorIds());
 
-        // Get vendors for selection
-        $vendors = Vendor::with('translations')->get()->map(function($vendor) {
+        // Get taxes for dropdown
+        $taxes = $this->taxService->getAllTaxes([], 0);
+        $taxes = TaxResource::collection($taxes)->map(function($tax) {
             return [
-                'id' => $vendor->id,
-                'name' => $vendor->name
+                'id' => $tax->id,
+                'name' => $tax->name
             ];
         });
 
+        // For vendor users, only show their own vendor
+        if ($isVendorUser) {
+            $vendor = auth()->user()->vendor;
+            $vendors = $vendor ? collect([[
+                'id' => $vendor->id,
+                'name' => $vendor->name
+            ]]) : collect([]);
+        } else {
+            // Admin users can see all vendors
+            $vendors = Vendor::with('translations')->get()->map(function($vendor) {
+                return [
+                    'id' => $vendor->id,
+                    'name' => $vendor->name
+                ];
+            });
+        }
         return view('catalogmanagement::product.bank-stock-management', compact(
             'languages',
-            'vendors'
+            'vendors',
+            'taxes',
+            'isVendorUser'
         ));
     }
 
@@ -709,6 +783,41 @@ class ProductController extends Controller
         } catch (Exception $e) {
             Log::error('Get vendor product error: ' . $e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get products not in VendorProduct for a specific vendor
+     */
+    public function getProductsNotInVendor(Request $request)
+    {
+        try {
+            $vendorId = (int) $request->get('vendor_id');
+            $search = $request->get('search', '');
+
+            // Validate vendor ID
+            if (!$vendorId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vendor ID is required',
+                    'products' => []
+                ]);
+            }
+
+            $products = $this->productService->getProductsNotInVendor($vendorId, $search);
+
+            return response()->json([
+                'success' => true,
+                'products' => $products
+            ]);
+        } catch (Exception $e) {
+            Log::error('Get products not in vendor error: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while fetching products',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 

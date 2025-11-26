@@ -21,9 +21,11 @@ Route::group(
     // Product Bank routes (must be before resource to avoid conflict with {product} parameter)
     Route::get('products/bank', 'ProductController@bankProducts')->name('products.bank');
     Route::get('products/bank/datatable', 'ProductController@bankDatatable')->name('products.bank.datatable');
+    Route::get('products/bank/{id}/view', 'ProductController@bankView')->name('products.bank.view');
     Route::get('products/bank/stock-management', 'ProductController@bankStockManagement')->name('products.bank.stock-management');
     Route::get('products/bank/search', 'ProductController@searchBankProducts')->name('products.bank.search');
     Route::get('products/bank/vendor-product', 'ProductController@getVendorProduct')->name('products.bank.vendor-product');
+    Route::get('products/bank/products-not-in-vendor', 'ProductController@getProductsNotInVendor')->name('products.bank.products-not-in-vendor');
     Route::post('products/bank/save-stock', 'ProductController@saveBankStock')->name('products.bank.save-stock');
 
     // Product status-based routes (must be before resource)

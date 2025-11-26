@@ -125,7 +125,7 @@ class RoleService
             $row[] = $permissionsHtml;
 
             // Created at
-            $row[] = '<div class="userDatatable-content">' . e($role->created_at->format('Y-m-d H:i')) . '</div>';
+            $row[] = '<div class="userDatatable-content">' . e($role->created_at) . '</div>';
 
             // Actions
             $actionsHtml = '<ul class="orderDatatable_actions mb-0 d-flex flex-wrap justify-content-start">

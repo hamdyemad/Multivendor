@@ -4,21 +4,70 @@
     <input type="hidden" name="vendor_id" id="form_vendor_id">
     <input type="hidden" name="vendor_product_id" id="form_vendor_product_id">
 
-    <!-- Configuration Type -->
-    <div class="card mb-4">
+    <!-- General Settings (only shown for NEW vendor products) -->
+    <div class="card mb-4" id="general-settings-section">
+        <div class="card-header">
+            <h6 class="mb-0"><i class="uil uil-setting me-2"></i>{{ __('catalogmanagement::product.general_settings') }}</h6>
+        </div>
         <div class="card-body">
-            <h5 class="mb-4">
-                <i class="uil uil-setting"></i>
-                {{ __('catalogmanagement::product.configuration_type') }}
-            </h5>
             <div class="row">
-                <div class="col-md-6 mb-3">
+                <div class="col-md-4 mb-3">
                     <label for="configuration_type" class="form-label">{{ __('catalogmanagement::product.product_type') }} <span class="text-danger">*</span></label>
-                    <select name="configuration_type" id="configuration_type" class="form-control select2">
+                    <select name="configuration_type" id="configuration_type" class="form-control ih-medium ip-gray radius-xs b-light px-15 select2">
                         <option value="">{{ __('catalogmanagement::product.select_product_type') }}</option>
                         <option value="simple">{{ __('catalogmanagement::product.simple_product') }}</option>
                         <option value="variants">{{ __('catalogmanagement::product.with_variants') }}</option>
                     </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="tax_id" class="form-label">{{ __('catalogmanagement::product.tax') }}</label>
+                    <select name="tax_id" id="tax_id" class="form-control ih-medium ip-gray radius-xs b-light px-15 select2">
+                        <option value="">{{ __('catalogmanagement::product.select_tax') }}</option>
+                        @foreach($taxes as $tax)
+                            <option value="{{ $tax['id'] }}">{{ $tax['name'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="vendor_sku" class="form-label">{{ __('catalogmanagement::product.vendor_sku') }}</label>
+                    <input type="text" name="sku" id="vendor_sku" class="form-control ih-medium ip-gray radius-xs b-light px-15" placeholder="{{ __('catalogmanagement::product.enter_vendor_sku') }}">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="points" class="form-label">{{ __('catalogmanagement::product.points') }}</label>
+                    <input type="number" name="points" id="points" class="form-control ih-medium ip-gray radius-xs b-light px-15" min="0" value="0">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="max_per_order" class="form-label">{{ __('catalogmanagement::product.max_per_order') }}</label>
+                    <input type="number" name="max_per_order" id="max_per_order" class="form-control ih-medium ip-gray radius-xs b-light px-15" min="1" value="10">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="video_link" class="form-label">{{ __('catalogmanagement::product.video_link') }}</label>
+                    <input type="url" name="video_link" id="video_link" class="form-control ih-medium ip-gray radius-xs b-light px-15" placeholder="https://youtube.com/...">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label mb-2">{{ __('catalogmanagement::product.is_active') }}</label>
+                    <div class="form-check form-switch form-switch-lg">
+                        <input type="hidden" name="is_active" value="0">
+                        <input class="form-check-input" type="checkbox" name="is_active" id="is_active" value="1" checked>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label mb-2">{{ __('catalogmanagement::product.is_featured') }}</label>
+                    <div class="form-check form-switch form-switch-lg">
+                        <input type="hidden" name="is_featured" value="0">
+                        <input class="form-check-input" type="checkbox" name="is_featured" id="is_featured" value="1">
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label mb-2">{{ __('catalogmanagement::product.offer_date_view') }}</label>
+                    <div class="form-check form-switch form-switch-lg">
+                        <input type="hidden" name="offer_date_view" value="0">
+                        <input class="form-check-input" type="checkbox" name="offer_date_view" id="offer_date_view" value="1">
+                    </div>
                 </div>
             </div>
         </div>
@@ -34,16 +83,16 @@
                 <div class="row mb-4">
                     <div class="col-md-6">
                         <label class="form-label fw-bold">{{ __('catalogmanagement::product.sku') }} <span class="text-danger">*</span></label>
-                        <input type="text" name="sku" id="simple_sku" class="form-control">
+                        <input type="text" name="sku" id="simple_sku" class="form-control ih-medium ip-gray radius-xs b-light px-15">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-bold">{{ __('catalogmanagement::product.price') }} <span class="text-danger">*</span></label>
-                        <input type="number" name="price" id="simple_price" class="form-control" step="0.01" min="0">
+                        <input type="number" name="price" id="simple_price" class="form-control ih-medium ip-gray radius-xs b-light px-15" step="0.01" min="0">
                     </div>
                 </div>
 
                 <div class="mb-4">
-                    <label class="form-label fw-bold mb-0">{{ __('catalogmanagement::product.enable_discount_offer') }}</label>
+                    <label class="form-label fw-bold mb-2">{{ __('catalogmanagement::product.enable_discount_offer') }}</label>
                     <div class="form-check form-switch form-switch-lg">
                         <input type="hidden" name="has_discount" value="0">
                         <input type="checkbox" name="has_discount" class="form-check-input" id="simple_discount" value="1">
@@ -52,11 +101,11 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">{{ __('catalogmanagement::product.price_before_discount') }}</label>
-                                <input type="number" name="price_before_discount" class="form-control" step="0.01" min="0">
+                                <input type="number" name="price_before_discount" class="form-control ih-medium ip-gray radius-xs b-light px-15" step="0.01" min="0">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">{{ __('catalogmanagement::product.discount_end_date') }}</label>
-                                <input type="date" name="discount_end_date" class="form-control">
+                                <input type="date" name="discount_end_date" class="form-control ih-medium ip-gray radius-xs b-light px-15">
                             </div>
                         </div>
                     </div>
@@ -133,7 +182,7 @@
             <div class="row mb-3">
                 <div class="col-md-12">
                     <label class="form-label">{{ __('catalogmanagement::product.variant_key') }} <span class="text-danger">*</span></label>
-                    <select class="form-control select2 variant-key-select" required>
+                    <select class="form-control ih-medium ip-gray radius-xs b-light px-15 select2 variant-key-select" required>
                         <option value="">{{ __('catalogmanagement::product.select_variant_key') }}</option>
                     </select>
                 </div>
@@ -151,15 +200,15 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label fw-bold">{{ __('catalogmanagement::product.sku') }} <span class="text-danger">*</span></label>
-                        <input type="text" name="variants[__VARIANT_INDEX__][sku]" class="form-control">
+                        <input type="text" name="variants[__VARIANT_INDEX__][sku]" class="form-control ih-medium ip-gray radius-xs b-light px-15">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-bold">{{ __('catalogmanagement::product.price') }} <span class="text-danger">*</span></label>
-                        <input type="number" name="variants[__VARIANT_INDEX__][price]" class="form-control" step="0.01" min="0">
+                        <input type="number" name="variants[__VARIANT_INDEX__][price]" class="form-control ih-medium ip-gray radius-xs b-light px-15" step="0.01" min="0">
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label fw-bold mb-0">{{ __('catalogmanagement::product.enable_discount_offer') }}</label>
+                    <label class="form-label fw-bold mb-2">{{ __('catalogmanagement::product.enable_discount_offer') }}</label>
                     <div class="form-check form-switch form-switch-lg">
                         <input type="hidden" name="variants[__VARIANT_INDEX__][has_discount]" value="0">
                         <input type="checkbox" name="variants[__VARIANT_INDEX__][has_discount]" class="form-check-input variant-discount-switch" value="1">
@@ -168,11 +217,11 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <label class="form-label">{{ __('catalogmanagement::product.price_before_discount') }}</label>
-                                <input type="number" name="variants[__VARIANT_INDEX__][price_before_discount]" class="form-control" step="0.01" min="0">
+                                <input type="number" name="variants[__VARIANT_INDEX__][price_before_discount]" class="form-control ih-medium ip-gray radius-xs b-light px-15" step="0.01" min="0">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">{{ __('catalogmanagement::product.discount_end_date') }}</label>
-                                <input type="date" name="variants[__VARIANT_INDEX__][discount_end_date]" class="form-control">
+                                <input type="date" name="variants[__VARIANT_INDEX__][discount_end_date]" class="form-control ih-medium ip-gray radius-xs b-light px-15">
                             </div>
                         </div>
                     </div>

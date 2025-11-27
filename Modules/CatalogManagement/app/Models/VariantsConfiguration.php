@@ -22,6 +22,10 @@ class VariantsConfiguration extends Model
         return $query->whereNull("parent_id");
     }
 
+    public function getNameAttribute() {
+        return $this->getTranslation('name', app()->getLocale());
+    }
+
     // relationships
     public function key()
     {

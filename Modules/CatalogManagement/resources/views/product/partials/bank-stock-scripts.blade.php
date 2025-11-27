@@ -4,89 +4,106 @@
 
     const config = {
         routes: {
-            getProductsNotInVendor: '{{ route("admin.products.bank.products-not-in-vendor") }}',
-            getVendorProduct: '{{ route("admin.products.bank.vendor-product") }}',
-            saveStock: '{{ route("admin.products.bank.save-stock") }}',
-            variantKeys: '{{ route("admin.api.variant-keys") }}',
-            variantsByKey: '{{ route("admin.api.variants-by-key") }}'
-        },
-        translations: {
-            newVendorProduct: '{{ __("catalogmanagement::product.new_vendor_product") }}',
-            existingVendorProduct: '{{ __("catalogmanagement::product.existing_vendor_product") }}',
-            willCreateNew: '{{ __("catalogmanagement::product.will_create_new_vendor_product") }}',
-            willEditExisting: '{{ __("catalogmanagement::product.will_edit_existing_vendor_product") }}',
-            selectRegion: '{{ __("catalogmanagement::product.select_region") }}',
-            selectOption: '{{ __("common.select_option") }}'
+            bankProductsApi: '{{ route("admin.products.bank.api.products") }}',
+            taxesApi: '{{ route("admin.products.bank.api.taxes") }}',
+            regionsApi: '/api/area/regions',
+            saveStock: '{{ route("admin.products.bank.save-stock") }}'
         }
+    };
+
+    // Translations
+    const translations = {
+        pricing_and_details: '{{ __("catalogmanagement::product.pricing_and_details") }}',
+        stock_management: '{{ __("catalogmanagement::product.stock_management") }}',
+        vendor_sku: '{{ __("catalogmanagement::product.vendor_sku") }}',
+        price: '{{ __("catalogmanagement::product.price") }}',
+        has_discount: '{{ __("catalogmanagement::product.has_discount") }}',
+        price_before_discount: '{{ __("catalogmanagement::product.price_before_discount") }}',
+        discount: '{{ __("catalogmanagement::product.discount") }}',
+        discount_end_date: '{{ __("catalogmanagement::product.discount_end_date") }}',
+        tax: '{{ __("catalogmanagement::product.tax") }}',
+        region: '{{ __("catalogmanagement::product.region") }}',
+        quantity: '{{ __("catalogmanagement::product.quantity") }}',
+        alert_quantity: '{{ __("catalogmanagement::product.alert_quantity") }}',
+        add_stock_entry: '{{ __("catalogmanagement::product.add_stock_entry") }}',
+        select_region: '{{ __("catalogmanagement::product.select_region") }}',
+        select_tax: '{{ __("catalogmanagement::product.select_tax") }}',
+        enter_variant_sku: '{{ __("catalogmanagement::product.enter_variant_sku") }}',
+        enter_sku: '{{ __("catalogmanagement::product.enter_sku") }}',
+        brand: '{{ __("catalogmanagement::product.brand") }}',
+        category: '{{ __("catalogmanagement::product.category") }}',
+        select_product: '{{ __("catalogmanagement::product.select_product") }}',
+        product_selected: '{{ __("catalogmanagement::product.product_selected") }}',
+        manage_variants_stock: '{{ __("catalogmanagement::product.manage_variants_stock") }}',
+        product_variants_stock: '{{ __("catalogmanagement::product.product_variants_stock") }}'
     };
 
     const isVendorUser = {{ $isVendorUser ? 'true' : 'false' }};
     let selectedVendorId = {{ $isVendorUser ? ($vendors->first()['id'] ?? 'null') : 'null' }};
-
-    // Debug logging
-    console.log('User type:', isVendorUser ? 'Vendor' : 'Admin');
-    console.log('Selected vendor ID:', selectedVendorId);
-    let selectedProducts = [];
-    let availableProducts = [];
-    let selectedProductsData = [];
-    let variantCounter = 1000;
-    let stockRowCounter = 0;
-    let variantKeysData = [];
+    let selectedProduct = null;
     let regionsData = [];
+    let stockRowCounter = 0;
 
     $(document).ready(function() {
-        if (!isVendorUser) {
-            initVendorSelect();
-        } else {
-            // For vendor users, immediately load their regions and show search interface
-            loadRegions(); // Load vendor-specific regions first
-            loadProductsNotInVendor(); // Show search interface without loading products
-        }
-        initEventHandlers();
-        loadVariantKeys();
-        // Note: loadRegions() is called conditionally above based on user type
+        console.log('Initializing bank stock management...');
+
+        // Add a small delay to ensure all other scripts have loaded
+        setTimeout(function() {
+            // Hide any loading overlays that might be showing
+            if (typeof LoadingOverlay !== 'undefined') {
+                LoadingOverlay.hide();
+            }
+            $('.loading-overlay').hide();
+            $('#loading-overlay').hide();
+            $('[data-loading]').hide();
+
+            // Hide any toastr messages that might be showing
+            if (typeof toastr !== 'undefined') {
+                toastr.clear();
+            }
+
+            if (!isVendorUser) {
+                initVendorSelect();
+            } else {
+                // For vendor users, just show the product search step without triggering any loading
+                $('#step-products').addClass('completed');
+                $('#products-container').show();
+                console.log('Vendor user - product search enabled');
+            }
+            initEventHandlers();
+            loadRegions();
+
+            console.log('Bank stock management initialized successfully');
+        }, 100); // Small delay to let other scripts finish
     });
 
-    // Step 1: Initialize vendor selection
+    // Step 1: Vendor Selection
     function initVendorSelect() {
-        console.log('🔧 Initializing vendor select');
         const $vendorSelect = $('#vendor_select');
-        console.log('Vendor select element found:', $vendorSelect.length > 0);
-
         $vendorSelect.select2({ theme: 'bootstrap-5', width: '100%' });
-        console.log('Select2 initialized');
 
         $vendorSelect.on('change', function() {
-            console.log('🏪 Vendor selection changed');
-
-            // Reset everything when vendor changes
-            resetWorkflow();
-
             selectedVendorId = $(this).val();
-            console.log('Selected vendor ID:', selectedVendorId);
+            console.log('🏪 Vendor selected:', selectedVendorId);
 
             if (selectedVendorId) {
-                console.log('✅ Vendor selected, showing info and enabling products step');
+                console.log('✅ Enabling product search for vendor:', selectedVendorId);
                 showVendorInfo();
-                loadRegions(); // Load vendor-specific regions
-                loadProductsNotInVendor(); // Show search interface without loading products
+                enableProductSearch();
             } else {
-                console.log('❌ No vendor selected, hiding steps');
+                console.log('❌ No vendor selected, disabling steps');
                 hideVendorInfo();
-                hideProductsStep();
-                hideStockManagement();
+                hideProductSearch();
+                hideVariantManagement();
             }
         });
     }
 
     function showVendorInfo() {
-        console.log('📋 Showing vendor info');
         const vendorName = $('#vendor_select option:selected').text();
-        console.log('Vendor name:', vendorName);
         $('#vendor-name').text(vendorName);
         $('#vendor-info').show();
         $('#step-vendor').addClass('completed');
-        enableProductsStep();
     }
 
     function hideVendorInfo() {
@@ -94,505 +111,867 @@
         $('#step-vendor').removeClass('completed');
     }
 
-    // Step 2: Enable and load products not in vendor
-    function enableProductsStep() {
-        console.log('🛍️ Enabling products step');
-        const $productsStep = $('#step-products');
-
-        // Enable the step visually
-        $productsStep.css({
+    // Step 2: Product Search
+    function enableProductSearch() {
+        $('#step-products').css({
             opacity: 1,
-            pointerEvents: 'auto',
-            border: '2px solid #28a745',
-            borderRadius: '8px',
-            backgroundColor: '#f8fff9'
-        });
-
-        // Add active class for styling
-        $productsStep.addClass('step-active');
-
-        // Scroll to the products step smoothly
-        $('html, body').animate({
-            scrollTop: $productsStep.offset().top - 100
-        }, 800);
-
-        console.log('Products step enabled and highlighted');
+            pointerEvents: 'auto'
+        }).addClass('completed');
+        $('#products-container').show();
     }
 
-    function hideProductsStep() {
-        const $productsStep = $('#step-products');
-
-        // Reset visual styling
-        $productsStep.css({
+    function hideProductSearch() {
+        $('#step-products').css({
             opacity: 0.5,
-            pointerEvents: 'none',
-            border: 'none',
-            backgroundColor: 'transparent'
-        });
-
-        // Remove active classes
-        $productsStep.removeClass('completed step-active');
-
-        selectedProducts = [];
-        updateSelectedProductsCount();
-
-        console.log('Products step hidden and reset');
+            pointerEvents: 'none'
+        }).removeClass('completed');
+        $('#products-container').hide();
+        selectedProduct = null;
     }
 
-    function loadProductsNotInVendor(searchTerm = '') {
-        console.log('Loading products for vendor ID:', selectedVendorId, 'Search term:', searchTerm);
+    function hideVariantManagement() {
+        $('#step-variant-stock-management').hide();
+    }
 
-        if (!selectedVendorId) {
-            console.error('No vendor ID selected');
-            if (typeof toastr !== 'undefined') toastr.error('Please select a vendor first');
+    // Product Search Functions
+    function searchProducts(searchTerm) {
+        console.log('🔍 Searching products with term:', searchTerm);
+        console.log('📦 Selected vendor ID:', selectedVendorId);
+        console.log('🔗 Search URL:', config.routes.getBankProducts);
+
+        if (!searchTerm || searchTerm.length < 2) {
+            $('#products-list').html('<div class="col-12 text-center py-4"><p class="text-muted">Enter product name to search...</p></div>');
             return;
         }
 
-        // Show search container immediately when vendor is selected
-        $('#products-container').show();
-
-        // If no search term, show empty state with search prompt
-        if (!searchTerm || searchTerm.trim().length < 2) {
-            const searchToFindText = '{{ __("catalogmanagement::product.search_to_find_products") }}';
-            const enterProductNameText = '{{ __("catalogmanagement::product.enter_product_name_to_search") }}';
-
-            $('#products-list').html(`
-                <div class="col-12">
-                    <div class="text-center py-5">
-                        <i class="uil uil-search" style="font-size: 48px; color: #ccc;"></i>
-                        <h6 class="text-muted mt-3">${searchToFindText}</h6>
-                        <p class="text-muted">${enterProductNameText}</p>
-                    </div>
-                </div>
-            `);
-            $('#no-products').hide();
+        if (!selectedVendorId) {
+            console.error('❌ No vendor selected');
+            $('#products-list').html('<div class="col-12 text-center py-4"><p class="text-danger">Please select a vendor first</p></div>');
             return;
         }
 
         $('#products-loading').show();
         $('#products-list').hide();
 
+        const requestData = {
+            search: searchTerm,
+            vendor_id: selectedVendorId
+        };
+
+        console.log('📤 Request data:', requestData);
+
         $.ajax({
-            url: config.routes.getProductsNotInVendor,
+            url: config.routes.bankProductsApi,
             type: 'GET',
             data: {
-                vendor_id: selectedVendorId,
-                search: searchTerm.trim()
+                type: 'search',
+                search: searchTerm,
+                vendor_id: selectedVendorId
             },
             success: function(response) {
-                console.log('Products response:', response);
+                console.log('✅ Search response:', response);
+                console.log('📊 Response structure check:', {
+                    hasSuccess: !!response.success,
+                    hasData: !!response.data,
+                    hasProducts: !!(response.data && response.data.products),
+                    productsLength: response.data && response.data.products ? response.data.products.length : 0,
+                    productsListElement: $('#products-list').length
+                });
+
                 $('#products-loading').hide();
 
-                if (response.success && response.products && response.products.length > 0) {
-                    availableProducts = response.products;
-                    displayProducts(response.products);
-                    $('#products-list').show();
-                    $('#no-products').hide();
+                if (response.success && response.data && response.data.products && response.data.products.length > 0) {
+                    console.log('📋 Found products:', response.data.products.length);
+                    console.log('🎯 Calling displayProducts with:', response.data.products);
+
+                    // Store products globally for later use
+                    window.currentProducts = response.data.products;
+
+                    displayProducts(response.data.products);
+                    console.log('✅ Products displayed, showing products list');
                 } else {
-                    console.log('No products found for search:', searchTerm);
-                    const noProductsFoundText = '{{ __("catalogmanagement::product.no_products_found_for_search") }}';
-
-                    $('#products-list').html(`
-                        <div class="col-12">
-                            <div class="text-center py-4">
-                                <i class="uil uil-search" style="font-size: 48px; color: #ccc;"></i>
-                                <h6 class="text-muted mt-3">${noProductsFoundText}</h6>
-                                <p class="text-muted">"${searchTerm}"</p>
-                            </div>
-                        </div>
-                    `);
-                    $('#products-list').show();
-                    $('#no-products').hide();
+                    console.log('❌ No products found or invalid response structure');
+                    $('#products-list').html('<div class="col-12 text-center py-4"><p class="text-muted">No products found</p></div>');
                 }
-            },
-            error: function(xhr) {
-                $('#products-loading').hide();
-                console.error('AJAX Error loading products:', xhr);
-                console.error('Response text:', xhr.responseText);
-
-                let errorMessage = '{{ __("common.error") }}';
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    errorMessage = xhr.responseJSON.message;
-                } else if (xhr.responseJSON && xhr.responseJSON.error) {
-                    errorMessage = xhr.responseJSON.error;
-                }
-
-                if (typeof toastr !== 'undefined') toastr.error(errorMessage);
-                $('#products-list').html(`
-                    <div class="col-12">
-                        <div class="alert alert-danger">
-                            <i class="uil uil-exclamation-triangle me-2"></i>
-                            ${errorMessage}
-                        </div>
-                    </div>
-                `);
                 $('#products-list').show();
+                console.log('👁️ Products list visibility:', $('#products-list').is(':visible'));
+            },
+            error: function(xhr, status, error) {
+                console.error('❌ Search error:', xhr, status, error);
+                console.error('Response text:', xhr.responseText);
+                $('#products-loading').hide();
+                $('#products-list').html('<div class="col-12 text-center py-4"><p class="text-danger">Error loading products: ' + error + '</p></div>').show();
             }
         });
     }
 
     function displayProducts(products) {
-        const container = $('#products-list');
-        container.empty();
+        console.log('🎨 displayProducts called with:', products);
+        console.log('📍 Products list element exists:', $('#products-list').length > 0);
 
-        products.forEach(function(product) {
-            const productCard = createProductCard(product);
-            container.append(productCard);
+        let html = '';
+        products.forEach(function(product, index) {
+            console.log(`🔍 Processing product ${index + 1}:`, {
+                id: product.id,
+                name: product.name,
+                brand: product.brand,
+                department: product.department,
+                category: product.category,
+                sub_category: product.sub_category,
+                image: product.image
+            });
+
+            html += `
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="product-card" data-product-id="${product.id}">
+                        <div class="d-flex align-items-start">
+                            <img src="${product.image || '/images/default-product.png'}" alt="${product.name}" class="product-image me-3" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                            <div class="product-info flex-grow-1">
+                                <h6 class="mb-1">${product.name}</h6>
+                                <div class="product-details">
+                                    ${product.brand ? `<small class="text-muted d-block"><i class="uil uil-tag-alt me-1"></i><strong>Brand:</strong> ${product.brand}</small>` : ''}
+                                    ${product.department ? `<small class="text-muted d-block"><i class="uil uil-building me-1"></i><strong>Department:</strong> ${product.department}</small>` : ''}
+                                    ${product.category ? `<small class="text-muted d-block"><i class="uil uil-layer-group me-1"></i><strong>Category:</strong> ${product.category}</small>` : ''}
+                                    ${product.sub_category ? `<small class="text-muted d-block"><i class="uil uil-sitemap me-1"></i><strong>Sub Category:</strong> ${product.sub_category}</small>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
         });
 
-        // Initialize product search
-        $('#product-search').off('input').on('input', function() {
-            const searchTerm = $(this).val().toLowerCase();
-            filterProducts(searchTerm);
+        console.log('📝 Generated HTML length:', html.length);
+        console.log('🎯 Setting HTML to products-list');
+        $('#products-list').html(html);
+        console.log('✅ HTML set, products-list children count:', $('#products-list').children().length);
+    }
+
+    function selectProduct(productId) {
+        $('.product-card').removeClass('selected');
+        $(`.product-card[data-product-id="${productId}"]`).addClass('selected');
+
+        selectedProduct = productId;
+        $('#selected_product_id').val(productId);
+
+        // Find the product data from the stored products
+        const product = window.currentProducts?.find(p => p.id == productId);
+
+        if (product) {
+            $('#selected-product-name').text(product.name);
+            $('#selected-product-summary').show();
+
+            console.log('🔍 Selected product configuration type:', product.configuration_type);
+
+            // Check if product is simple or has variants
+            if (product.configuration_type === 'simple') {
+                console.log('📦 Simple product - showing direct stock management');
+                showSimpleProductStockManagement(product);
+            } else {
+                console.log('🎛️ Variant product - loading variants');
+                loadProductVariants(productId);
+            }
+        } else {
+            console.error('❌ Product data not found for ID:', productId);
+            loadProductVariants(productId); // Fallback to variant loading
+        }
+    }
+
+    // Step 3: Variant Management
+    function loadProductVariants(productId) {
+        $('#step-variant-stock-management').show();
+        $('#variants-loading').show();
+        $('#variants-container').empty();
+
+        $.ajax({
+            url: config.routes.bankProductsApi,
+            type: 'GET',
+            data: {
+                type: 'vendor_product',
+                product_id: productId,
+                vendor_id: selectedVendorId
+            },
+            success: function(response) {
+                $('#variants-loading').hide();
+                if (response.success && response.data && response.data.variants && response.data.variants.length > 0) {
+                    displayVariants(response.data.variants);
+                    $('#selected-product-info').show();
+                    populateProductInfo(response.data.product);
+                } else {
+                    $('#no-variants-state').show();
+                }
+            },
+            error: function() {
+                $('#variants-loading').hide();
+                $('#variants-container').html('<div class="alert alert-danger">Error loading variants</div>');
+            }
         });
     }
 
-    function createProductCard(product) {
-        const imageUrl = product.image ? `/storage/${product.image}` : '/images/placeholder.png';
+    function showSimpleProductStockManagement(product) {
+        console.log('📦 Setting up simple product stock management for:', product.name);
 
-        // Get the appropriate title based on current locale
-        const currentLocale = '{{ app()->getLocale() }}';
-        let productTitle = '';
+        $('#step-variant-stock-management').show();
+        $('#variants-loading').hide();
 
-        if (currentLocale === 'ar') {
-            productTitle = product.title_ar || product.title_en || '-';
-        } else {
-            productTitle = product.title_en || product.title_ar || '-';
-        }
+        // Create simple product stock form
+        const simpleProductHtml = `
+            <div class="simple-product-stock">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="uil uil-package me-2"></i>
+                            ${translations.stock_management}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Product Info -->
+                            <div class="col-md-4">
+                                <div class="product-info-section">
+                                    <img src="${product.image || '/images/default-product.png'}"
+                                         alt="${product.name}"
+                                         class="img-fluid rounded mb-3"
+                                         style="max-height: 200px; object-fit: cover;">
+                                    <h6>${product.name}</h6>
+                                    <p class="text-muted mb-1">
+                                        <i class="uil uil-tag-alt me-1"></i>
+                                        Brand: ${product.brand || 'N/A'}
+                                    </p>
+                                    <p class="text-muted mb-1">
+                                        <i class="uil uil-layer-group me-1"></i>
+                                        Category: ${product.category || 'N/A'}
+                                    </p>
+                                </div>
+                            </div>
 
-        return `
-            <div class="col-md-6 col-lg-4 mb-3">
-                <div class="product-card position-relative" data-product-id="${product.id}">
-                    <input type="radio" name="selected_product" class="product-radio position-absolute" style="top: 10px; right: 10px; z-index: 10;" value="${product.id}">
-                    <div class="d-flex align-items-center">
-                        <img src="${imageUrl}" alt="Product" class="product-image me-3">
-                        <div class="product-info flex-grow-1">
-                            <h6 class="mb-1">${productTitle}</h6>
-                            <div class="product-meta">
-                                <small><strong>Brand:</strong> ${product.brand}</small><br>
-                                <small><strong>Department:</strong> ${product.department}</small><br>
-                                <small><strong>Category:</strong> ${product.category}</small><br>
-                                <small><strong>Sub Category:</strong> ${product.sub_category}</small>
+                            <!-- Stock Management Form -->
+                            <div class="col-md-8">
+                                <form id="simple-product-form">
+                                    <input type="hidden" name="product_id" value="${product.id}">
+                                    <input type="hidden" name="vendor_id" value="${selectedVendorId}">
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">SKU</label>
+                                            <input type="text" class="form-control ih-medium ip-gray radius-xs b-light px-15" name="sku"
+                                                   placeholder="Enter SKU" value="${product.sku || ''}">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Price <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control ih-medium ip-gray radius-xs b-light px-15" name="price"
+                                                   placeholder="0.00" step="0.01" min="0" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-group">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <label class="form-label text-dark fw-medium mb-0">${translations.has_discount}</label>
+                                                    <div class="form-check form-switch form-switch-lg">
+                                                        <input class="form-check-input discount-switch" type="checkbox"
+                                                               id="hasDiscountSimple" name="has_discount"
+                                                               onchange="toggleSimpleDiscountFields()">
+                                                        <label class="form-check-label" for="hasDiscountSimple"></label>
+                                                    </div>
+                                                </div>
+                                                <div class="discount-fields" id="simpleDiscountFields" style="display: none;">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">${translations.price_before_discount}</label>
+                                                        <input type="number" class="form-control ih-medium ip-gray radius-xs b-light px-15" name="price_before_discount"
+                                                               placeholder="0.00" step="0.01" min="0">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">${translations.discount_end_date}</label>
+                                                        <input type="datetime-local" class="form-control ih-medium ip-gray radius-xs b-light px-15" name="discount_end_date">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Tax</label>
+                                            <select class="form-select" name="tax_id">
+                                                <option value="">Select Tax</option>
+                                                <!-- Tax options will be populated -->
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Stock Management -->
+                                    <div class="stock-section mt-4">
+                                        <h6 class="mb-3">
+                                            <i class="uil uil-cube me-2"></i>
+                                            ${translations.stock_management}
+                                        </h6>
+                                        <div id="simple-stock-rows">
+                                            <!-- Stock rows will be added here -->
+                                        </div>
+                                        <button type="button" class="btn btn-outline-primary btn-sm"
+                                                onclick="addSimpleStockRow()">
+                                            <i class="uil uil-plus me-1"></i>
+                                            ${translations.add_stock_entry}
+                                        </button>
+                                    </div>
+
+                                    <!-- Save/Cancel buttons removed as requested -->
+                                </form>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         `;
+
+        $('#variants-container').html(simpleProductHtml);
+
+        // Populate tax options first
+        populateTaxOptions();
+
+        // Add initial stock row
+        addSimpleStockRow();
+
+        // Initialize Select2 after population
+        setTimeout(() => {
+            $('select[name="tax_id"]').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Select Tax'
+            });
+        }, 500);
+
+        // Setup form submission
+        setupSimpleProductForm();
     }
 
-    function filterProducts(searchTerm) {
-        $('#products-list .product-card').each(function() {
-            const productCard = $(this);
-            const productText = productCard.text().toLowerCase();
+    function populateProductInfo(product) {
+        $('#product-image').attr('src', product.image || '/images/default-product.png');
+        $('#product-title').text(product.name);
+        $('#product-category').text(product.category || 'No Category');
+    }
 
-            if (productText.includes(searchTerm)) {
-                productCard.parent().show();
-            } else {
-                productCard.parent().hide();
-            }
+    function displayVariants(variants) {
+        console.log('🎛️ Displaying variants for variant product:', variants);
+
+        let html = '<div class="variants-management">';
+
+        variants.forEach(function(variant, index) {
+            html += createVariantManagementBox(variant, index);
+        });
+
+        html += '</div>';
+
+        // No save/cancel buttons needed - removed as requested
+
+        $('#variants-container').html(html);
+
+        // Populate region and tax options first
+        populateRegionOptions();
+        populateAllTaxOptions();
+
+        // Initialize Select2 for region and tax selects after population
+        setTimeout(() => {
+            $('.region-select').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Select Region'
+            });
+            $('.tax-select').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Select Tax'
+            });
+        }, 500);
+
+        // Add initial stock row for each variant
+        variants.forEach(function(variant, index) {
+            addVariantStockRow(index);
         });
     }
 
-    // Event handlers
+    function createVariantManagementBox(variant, index) {
+        return `
+            <div class="variant-management-box mb-4" data-variant-index="${index}">
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">
+                                <i class="uil uil-cube me-2"></i>
+                                ${variant.name || `Variant ${variant.id}`}
+                            </h6>
+                            <div class="variant-info">
+                                <span class="badge bg-primary">ID: ${variant.id}</span>
+                                ${variant.key ? `<span class="badge bg-info ms-1">${variant.key.name}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form class="variant-form" data-variant-id="${variant.id}">
+                            <input type="hidden" name="variants[${index}][id]" value="${variant.id}">
+                            <input type="hidden" name="variants[${index}][variant_configuration_id]" value="${variant.variant_configuration_id || ''}">
+                            <input type="hidden" name="product_id" value="${selectedProduct}">
+                            <input type="hidden" name="vendor_id" value="${selectedVendorId}">
+
+                            <!-- Pricing Section -->
+                            <div class="pricing-section mb-4">
+                                <h6 class="section-title">
+                                    <i class="uil uil-money-bill me-2"></i>
+                                    ${translations.pricing_and_details}
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">${translations.vendor_sku} <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control ih-medium ip-gray radius-xs b-light px-15" name="variants[${index}][sku]"
+                                               placeholder="${translations.enter_variant_sku}" value="${variant.sku || ''}" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">${translations.price} <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control ih-medium ip-gray radius-xs b-light px-15" name="variants[${index}][price]"
+                                               placeholder="0.00" step="0.01" min="0" value="${variant.price || ''}" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Tax</label>
+                                        <select class="form-select tax-select" name="variants[${index}][tax_id]">
+                                            <option value="">Select Tax</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-group">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <label class="form-label text-dark fw-medium mb-0">${translations.has_discount}</label>
+                                                <div class="form-check form-switch form-switch-lg">
+                                                    <input class="form-check-input discount-switch" type="checkbox"
+                                                           id="hasDiscount${index}" name="variants[${index}][has_discount]"
+                                                           onchange="toggleDiscountFields(${index})">
+                                                    <label class="form-check-label" for="hasDiscount${index}"></label>
+                                                </div>
+                                            </div>
+                                            <div class="discount-fields" id="discountFields${index}" style="display: none;">
+                                                <div class="mb-3">
+                                                    <label class="form-label">${translations.price_before_discount}</label>
+                                                    <input type="number" class="form-control ih-medium ip-gray radius-xs b-light px-15" name="variants[${index}][price_before_discount]"
+                                                           placeholder="0.00" step="0.01" min="0">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">${translations.discount_end_date}</label>
+                                                    <input type="datetime-local" class="form-control ih-medium ip-gray radius-xs b-light px-15" name="variants[${index}][discount_end_date]">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- Stock Management Section -->
+                            <div class="stock-section">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="section-title mb-0">
+                                        <i class="uil uil-package me-2"></i>
+                                        ${translations.stock_management}
+                                    </h6>
+                                    <button type="button" class="btn btn-outline-primary btn-sm"
+                                            onclick="addVariantStockRow(${index})">
+                                        <i class="uil uil-plus me-1"></i>
+                                        ${translations.add_stock_entry}
+                                    </button>
+                                </div>
+                                <div class="variant-stock-rows" id="variant-stock-rows-${index}">
+                                    <!-- Stock rows will be added here -->
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function createVariantHtml(variant, totalStock) {
+        // Keep old function for backward compatibility if needed
+        const template = $('#existing-variant-template').html();
+        let html = template
+            .replace(/__VARIANT_ID__/g, variant.id)
+            .replace(/__VARIANT_NAME__/g, variant.name || `Variant ${variant.id}`)
+            .replace(/__VARIANT_SKU__/g, variant.sku || '')
+            .replace(/__VARIANT_PRICE__/g, variant.price || 0)
+            .replace(/__VARIANT_CONFIG_ID__/g, variant.variant_configuration_id || '')
+            .replace(/__TOTAL_STOCK__/g, totalStock);
+
+        // Add existing stock rows
+        const $temp = $(html);
+        const $stockTBody = $temp.find(`#variant-${variant.id}-stock-rows`);
+
+        if (variant.stocks && variant.stocks.length > 0) {
+            variant.stocks.forEach(function(stock, index) {
+                const stockHtml = createStockRowHtml(variant.id, stock, index);
+                $stockTBody.append(stockHtml);
+            });
+        }
+
+        return $temp[0].outerHTML;
+    }
+
+    function createStockRowHtml(variantId, stock, index) {
+        const template = $('#stock-row-template').html();
+        return template
+            .replace(/__VARIANT_ID__/g, variantId)
+            .replace(/__STOCK_INDEX__/g, index)
+            .replace(/__STOCK_ID__/g, stock.id || '')
+            .replace(/__STOCK_QUANTITY__/g, stock.quantity || 0);
+    }
+
+    // Event Handlers
     function initEventHandlers() {
-        // Product search functionality
-        let searchTimer;
-        $(document).on('keyup', '#product-search', function() {
+        // Product search
+        let searchTimeout;
+        $('#product-search').on('input', function() {
+            clearTimeout(searchTimeout);
             const searchTerm = $(this).val();
 
-            // Clear previous timer
-            clearTimeout(searchTimer);
-
-            // Set new timer to avoid too many requests
-            searchTimer = setTimeout(() => {
-                loadProductsNotInVendor(searchTerm);
-            }, 500); // Wait 500ms after user stops typing
+            searchTimeout = setTimeout(() => {
+                searchProducts(searchTerm);
+            }, 500);
         });
 
-        // Clear search when input is cleared
-        $(document).on('input', '#product-search', function() {
-            const searchTerm = $(this).val();
-            if (searchTerm === '') {
-                loadProductsNotInVendor('');
-            }
+        // Product selection
+        $(document).on('click', '.product-card', function() {
+            const productId = $(this).data('product-id');
+            selectProduct(productId);
         });
 
-        // Product selection (radio button)
-        $(document).on('change', '.product-radio', function() {
-            // Remove selected class from all cards
-            $('.product-card').removeClass('selected');
-
-            const productCard = $(this).closest('.product-card');
-            const productId = parseInt(productCard.data('product-id'));
-
-            // Add selected class to current card
-            productCard.addClass('selected');
-
-            // Update selected products array (single product only)
-            selectedProducts = [productId];
-
-            updateSelectedProductsCount();
-        });
-
-        // Product card click (select radio)
-        $(document).on('click', '.product-card', function(e) {
-            if (e.target.type !== 'radio') {
-                const radio = $(this).find('.product-radio');
-                radio.prop('checked', true).trigger('change');
-            }
-        });
-
-        // Proceed to stock management button (now integrated in Step 3)
-        $(document).on('click', '#proceed-to-stock', function() {
-            showStockManagement(); // This will hide Step 4 since stock is now in Step 3
-        });
-
-        // Product type change handler
-        $(document).on('change', 'input[name="product_type"]', function() {
-            const productType = $(this).val();
-            console.log('Product type changed to:', productType);
-
-            // Show/hide variant tree section
-            if (productType === 'variants') {
-                $('#add-new-variants-section').show();
-                // Hide Step 4 - variants handle stock in Step 3
-                $('#step-stock-management').hide();
-            } else {
-                $('#add-new-variants-section').hide();
-                // Clear any existing variants
-                $('#variants-container').empty();
-                $('#variants-empty-state').show();
-                // Hide Step 4 - simple products handle stock in Step 3
-                $('#step-stock-management').hide();
-            }
-        });
-
-        // Add variant button
-        $(document).on('click', '#add-variant-btn', function() {
-            addVariantBox();
-        });
-
-        // Remove variant
-        $(document).on('click', '.remove-variant-btn', function() {
-            const $variantBox = $(this).closest('.variant-box');
-            $variantBox.remove();
-
-            // Show empty state if no variants
-            if ($('#variants-container .variant-box').length === 0) {
-                $('#variants-empty-state').show();
-            }
-
-            console.log('🗑️ Variant removed');
-        });
-
-        // Variant key selection
-        $(document).on('change', '.variant-key-select', function() {
-            const keyId = $(this).val();
-            const variantIndex = $(this).closest('.variant-box').data('variant-index');
-
-            if (keyId) {
-                console.log('🔑 Variant key selected:', keyId, 'for variant:', variantIndex);
-                loadVariantsByKey(variantIndex, keyId);
-            } else {
-                // Clear tree if key is deselected
-                $(`#variant-${variantIndex} .variant-tree-container`).hide();
-                $(`#variant-${variantIndex}-pricing-stock`).hide().empty();
-            }
-        });
-
-        // Variant value selection (tree navigation)
-        $(document).on('change', '.variant-value-select', function() {
-            const $select = $(this);
-            const variantId = $select.val();
-            const variantIndex = $select.data('variant-index');
-            const level = $select.data('level');
-
-            // Get the stored key ID
-            const keyId = $(`#variant-${variantIndex}`).data('current-key-id');
-            const $levelsContainer = $(`#variant-${variantIndex} .variant-tree-levels`);
-
-            // Clear all child levels after the current level
-            $levelsContainer.find('.variant-level').each(function() {
-                if (parseInt($(this).data('level')) > level) {
-                    $(this).remove();
-                }
-            });
-
-            // Hide pricing/stock when changing selection
-            $(`#variant-${variantIndex}-pricing-stock`).hide().empty();
-            $(`#variant-${variantIndex} .selected-variant-path`).hide();
-
-            if (!variantId) {
-                console.log('🗑️ Variant deselected at level:', level);
-                return;
-            }
-
-            // Build selected path
-            const selectedPath = [];
-            $(`#variant-${variantIndex} .variant-value-select`).each(function(index) {
-                if (index <= level && $(this).val()) {
-                    const selectedText = $(this).find('option:selected').text();
-                    selectedPath.push(selectedText);
-                }
-            });
-
-            const $selectedOption = $select.find('option:selected');
-            const hasChildren = $selectedOption.data('has-children');
-
-            console.log('🌳 Variant selected:', variantId, 'Has children:', hasChildren);
-
-            if (hasChildren) {
-                // Load children
-                loadChildVariants(variantIndex, variantId, level, selectedPath, keyId);
-            } else {
-                // This is a leaf node - finalize selection
-                finalizeVariantSelection(variantIndex, variantId, selectedPath);
-            }
-        });
-
-        // Discount checkbox toggle (for both simple and variant products)
-        $(document).on('change', 'input[name*="has_discount"], input[name="has_discount"]', function() {
-            const index = $(this).attr('id').replace('discount_', '');
-            const discountFields = $('#discount_fields_' + index);
-
-            if ($(this).is(':checked')) {
-                discountFields.show();
-            } else {
-                discountFields.hide();
-                discountFields.find('input').val('');
-            }
-        });
-
-        // Add stock row button
-        $(document).on('click', '.add-stock-row', function() {
-            const productIndex = $(this).data('product-index');
-            const stockContainer = $('#stock_rows_' + productIndex);
-            const currentRows = stockContainer.find('.stock-row').length;
-
-            const selectRegionText = '{{ __("catalogmanagement::product.select_region") }}';
-            const quantityText = '{{ __("catalogmanagement::product.quantity") }}';
-
-            const newRowHtml = `
-                <div class="row stock-row mt-2">
-                    <div class="col-md-4">
-                        <select name="region_id" class="form-control ih-medium ip-gray radius-xs b-light px-15 select2">
-                            <option value="">${selectRegionText}</option>
-                            <!-- Regions will be loaded dynamically -->
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <input type="number" name="stock" class="form-control ih-medium ip-gray radius-xs b-light px-15" placeholder="${quantityText}" min="0">
-                    </div>
-                    <div class="col-md-2">
-                        <button type="button" class="btn btn-outline-danger btn-sm remove-stock-row">
-                            <i class="uil uil-minus m-0"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            stockContainer.append(newRowHtml);
-            stockContainer.find('.select2').last().select2({ theme: 'bootstrap-5', width: '100%' });
-            updateRegionDropdowns();
-        });
-
-        // Remove stock row button
-        $(document).on('click', '.remove-stock-row', function() {
-            $(this).closest('.stock-row').remove();
-        });
-
-        // Add variant button
-        $(document).on('click', '.add-variant-btn', function() {
-            const productIndex = $(this).data('product-index');
-            addVariant(productIndex);
-        });
-
-        // Remove variant button
-        $(document).on('click', '.remove-variant-btn', function() {
-            const productIndex = $(this).data('product-index');
-            const variantIndex = $(this).data('variant-index');
-
-            $(this).closest('.variant-box').remove();
-
-            // Show empty state if no variants left
-            if ($(`#variants-container-${productIndex} .variant-box`).length === 0) {
-                $(`#variants-empty-state-${productIndex}`).show();
-            }
-        });
-
-        // Variant discount toggle
-        $(document).on('change', '.variant-discount-toggle', function() {
-            const productIndex = $(this).closest('.variant-box').find('input[name*="[variant_key_id]"]').attr('name').match(/\[(\d+)\]/)[1];
-            const variantIndex = $(this).closest('.variant-box').data('variant-index');
-            const discountFields = $(`#variant_discount_fields_${productIndex}_${variantIndex}`);
-
-            if ($(this).is(':checked')) {
-                discountFields.show();
-            } else {
-                discountFields.hide();
-                discountFields.find('input').val('');
-            }
-        });
-
-        // Variant key change handler
-        $(document).on('change', '[id^="variant_key_"]', function() {
-            const keyId = $(this).val();
-            const productIndex = $(this).attr('id').match(/variant_key_(\d+)_(\d+)/)[1];
-            const variantIndex = $(this).attr('id').match(/variant_key_(\d+)_(\d+)/)[2];
-
-            if (keyId) {
-                loadVariantValues(keyId, productIndex, variantIndex);
-            } else {
-                const selectVariantValueText = '{{ __("catalogmanagement::product.select_variant_value") }}';
-                $(`#variant_value_${productIndex}_${variantIndex}`).empty()
-                    .append(`<option value="">${selectVariantValueText}</option>`);
-            }
-        });
-
-        // Add variant stock row
+        // Stock management
         $(document).on('click', '.add-variant-stock-row', function() {
-            const productIndex = $(this).data('product-index');
-            const variantIndex = $(this).data('variant-index');
-            const stockContainer = $(`#variant_stock_rows_${productIndex}_${variantIndex}`);
-            const currentRows = stockContainer.find('.stock-row').length;
-
-            const selectRegionText = '{{ __("catalogmanagement::product.select_region") }}';
-            const quantityText = '{{ __("catalogmanagement::product.quantity") }}';
-
-            const newRowHtml = `
-                <div class="row stock-row mb-2">
-                    <div class="col-md-4">
-                        <select name="variants[${variantIndex}][stocks][${currentRows}][region_id]" class="form-control ih-medium ip-gray radius-xs b-light px-15 select2">
-                            <option value="">${selectRegionText}</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <input type="number" name="variants[${variantIndex}][stocks][${currentRows}][stock]" class="form-control ih-medium ip-gray radius-xs b-light px-15" placeholder="${quantityText}" min="0">
-                    </div>
-                    <div class="col-md-2">
-                        <button type="button" class="btn btn-outline-danger btn-sm remove-variant-stock-row">
-                            <i class="uil uil-minus m-0"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            stockContainer.append(newRowHtml);
-            stockContainer.find('.select2').last().select2({ theme: 'bootstrap-5', width: '100%' });
-            updateRegionDropdowns();
+            const variantId = $(this).data('variant-id');
+            addStockRow(variantId);
         });
 
-        // Remove variant stock row
-        $(document).on('click', '.remove-variant-stock-row', function() {
-            $(this).closest('.stock-row').remove();
+        $(document).on('click', '.remove-stock-row', function() {
+            $(this).closest('tr').remove();
+            updateTotalStock();
         });
 
-        // Save vendor products button
-        $(document).on('click', '#save-vendor-products', function() {
-            saveVendorProducts();
+        $(document).on('input', '.stock-quantity', function() {
+            updateTotalStock();
+        });
+
+        // Save button
+        $('#save-variant-stocks').on('click', function() {
+            saveVariantStocks();
         });
     }
+
+    // Stock Management Functions
+    function addStockRow(variantId) {
+        const stockHtml = createStockRowHtml(variantId, {}, stockRowCounter++);
+        $(`#variant-${variantId}-stock-rows`).append(stockHtml);
+
+        // Initialize Select2 for new row
+        $(`#variant-${variantId}-stock-rows tr:last .region-select`).select2({ theme: 'bootstrap-5', width: '100%' });
+        populateRegionOptions();
+    }
+
+    function updateTotalStock() {
+        $('.existing-variant-card').each(function() {
+            const $card = $(this);
+            let total = 0;
+
+            $card.find('.stock-quantity').each(function() {
+                total += parseInt($(this).val()) || 0;
+            });
+
+            $card.find('.total-stock-display').text(total);
+        });
+    }
+
+    function saveVariantStocks() {
+        const formData = $('#vendor-product-form').serialize();
+
+        $.ajax({
+            url: config.routes.saveStock,
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                if (response.success) {
+                    toastr.success(response.message || 'Stocks saved successfully');
+                } else {
+                    toastr.error(response.message || 'Error saving stocks');
+                }
+            },
+            error: function() {
+                toastr.error('Error saving stocks');
+            }
+        });
+    }
+
+    // Load regions
+    function loadRegions() {
+        // Mock regions data - replace with actual API call
+        regionsData = [
+            { id: 1, name: 'Region 1' },
+            { id: 2, name: 'Region 2' },
+            { id: 3, name: 'Region 3' }
+        ];
+        populateRegionOptions();
+    }
+
+    function populateRegionOptions() {
+        // Fetch vendor-specific regions
+        if (selectedVendorId) {
+            $.ajax({
+                url: config.routes.regionsApi,
+                type: 'GET',
+                data: {
+                    vendor_id: selectedVendorId
+                },
+                success: function(response) {
+                    const regions = response.data || response.regions || response;
+
+                    const options = regions.map(region =>
+                        `<option value="${region.id}">${region.name}</option>`
+                    ).join('');
+
+                    $('.region-select').each(function() {
+                        const currentValue = $(this).val();
+                        $(this).html('<option value="">Select Region</option>' + options);
+                        if (currentValue) {
+                            $(this).val(currentValue);
+                        }
+                    });
+
+                    console.log('✅ Region options populated for vendor:', selectedVendorId, regions.length);
+                },
+                error: function(xhr, status, error) {
+                    console.error('❌ Error fetching regions:', error);
+                    // Fallback to static regions or blade data
+                    populateRegionsFromBladeData();
+                }
+            });
+        } else {
+            // Fallback if no vendor selected
+            populateRegionsFromBladeData();
+        }
+    }
+
+    function populateRegionsFromBladeData() {
+        // Use regions from regionsData or blade template
+        let regions = regionsData || [];
+
+        // If regionsData is empty, try to get from blade
+        if (regions.length === 0) {
+            // You can pass regions from blade template like taxes
+            regions = @json($regions ?? []);
+        }
+
+        const options = regions.map(region =>
+            `<option value="${region.id}">${region.name}</option>`
+        ).join('');
+
+        $('.region-select').each(function() {
+            const currentValue = $(this).val();
+            $(this).html('<option value="">Select Region</option>' + options);
+            if (currentValue) {
+                $(this).val(currentValue);
+            }
+        });
+
+        console.log('✅ Region options populated from fallback data:', regions.length);
+    }
+
+     // Variant value selection (tree navigation)
+    $(document).on('change', '.variant-value-select', function() {
+        const $select = $(this);
+        const variantId = $select.val();
+        const variantIndex = $select.data('variant-index');
+        const level = $select.data('level');
+
+        // Get the stored key ID
+        const keyId = $(`#variant-${variantIndex}`).data('current-key-id');
+        const $levelsContainer = $(`#variant-${variantIndex} .variant-tree-levels`);
+
+        // Clear all child levels after the current level
+        $levelsContainer.find('.variant-level').each(function() {
+            if (parseInt($(this).data('level')) > level) {
+                $(this).remove();
+            }
+        });
+
+        // Hide pricing/stock when changing selection
+        $(`#variant-${variantIndex}-pricing-stock`).hide().empty();
+        $(`#variant-${variantIndex} .selected-variant-path`).hide();
+
+        if (!variantId) {
+            console.log('🗑️ Variant deselected at level:', level);
+            return;
+        }
+
+        // Build selected path
+        const selectedPath = [];
+        $(`#variant-${variantIndex} .variant-value-select`).each(function(index) {
+            if (index <= level && $(this).val()) {
+                const selectedText = $(this).find('option:selected').text();
+                selectedPath.push(selectedText);
+            }
+        });
+
+        const $selectedOption = $select.find('option:selected');
+        const hasChildren = $selectedOption.data('has-children');
+
+        console.log('🌳 Variant selected:', variantId, 'Has children:', hasChildren);
+
+        if (hasChildren) {
+            // Load children
+            loadChildVariants(variantIndex, variantId, level, selectedPath, keyId);
+        } else {
+            // This is a leaf node - finalize selection
+            finalizeVariantSelection(variantIndex, variantId, selectedPath);
+        }
+    });
+
+    // Discount checkbox toggle (for both simple and variant products)
+    $(document).on('change', 'input[name*="has_discount"], input[name="has_discount"]', function() {
+        const index = $(this).attr('id').replace('discount_', '');
+        const discountFields = $('#discount_fields_' + index);
+
+        if ($(this).is(':checked')) {
+            discountFields.show();
+        } else {
+            discountFields.hide();
+            discountFields.find('input').val('');
+        }
+    });
+
+    // Add stock row button
+    $(document).on('click', '.add-stock-row', function() {
+        const productIndex = $(this).data('product-index');
+        const stockContainer = $('#stock_rows_' + productIndex);
+        const currentRows = stockContainer.find('.stock-row').length;
+
+        const selectRegionText = '{{ __("catalogmanagement::product.select_region") }}';
+        const quantityText = '{{ __("catalogmanagement::product.quantity") }}';
+
+        const newRowHtml = `
+            <div class="row stock-row mt-2">
+                <div class="col-md-4">
+                    <select name="region_id" class="form-control ih-medium ip-gray radius-xs b-light px-15 select2">
+                        <option value="">${selectRegionText}</option>
+                        <!-- Regions will be loaded dynamically -->
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <input type="number" name="stock" class="form-control ih-medium ip-gray radius-xs b-light px-15" placeholder="${quantityText}" min="0">
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-stock-row">
+                        <i class="uil uil-minus m-0"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        stockContainer.append(newRowHtml);
+        stockContainer.find('.select2').last().select2({ theme: 'bootstrap-5', width: '100%' });
+        updateRegionDropdowns();
+    });
+
+    // Remove stock row button
+    $(document).on('click', '.remove-stock-row', function() {
+        $(this).closest('.stock-row').remove();
+    });
+
+    // Add variant button
+    $(document).on('click', '.add-variant-btn', function() {
+        const productIndex = $(this).data('product-index');
+        addVariant(productIndex);
+    });
+
+    // Remove variant button
+    $(document).on('click', '.remove-variant-btn', function() {
+        const productIndex = $(this).data('product-index');
+        const variantIndex = $(this).data('variant-index');
+
+        $(this).closest('.variant-box').remove();
+
+        // Show empty state if no variants left
+        if ($(`#variants-container-${productIndex} .variant-box`).length === 0) {
+            $(`#variants-empty-state-${productIndex}`).show();
+        }
+    });
+
+    // Variant discount toggle
+    $(document).on('change', '.variant-discount-toggle', function() {
+        const productIndex = $(this).closest('.variant-box').find('input[name*="[variant_key_id]"]').attr('name').match(/\[(\d+)\]/)[1];
+        const variantIndex = $(this).closest('.variant-box').data('variant-index');
+        const discountFields = $(`#variant_discount_fields_${productIndex}_${variantIndex}`);
+
+        if ($(this).is(':checked')) {
+            discountFields.show();
+        } else {
+            discountFields.hide();
+            discountFields.find('input').val('');
+        }
+    });
+
+    // Variant key change handler
+    $(document).on('change', '[id^="variant_key_"]', function() {
+        const keyId = $(this).val();
+        const productIndex = $(this).attr('id').match(/variant_key_(\d+)_(\d+)/)[1];
+        const variantIndex = $(this).attr('id').match(/variant_key_(\d+)_(\d+)/)[2];
+
+        if (keyId) {
+            loadVariantValues(keyId, productIndex, variantIndex);
+        } else {
+            const selectVariantValueText = '{{ __("catalogmanagement::product.select_variant_value") }}';
+            $(`#variant_value_${productIndex}_${variantIndex}`).empty()
+                .append(`<option value="">${selectVariantValueText}</option>`);
+        }
+    });
+
+    // Add variant stock row
+    $(document).on('click', '.add-variant-stock-row', function() {
+        const productIndex = $(this).data('product-index');
+        const variantIndex = $(this).data('variant-index');
+        const stockContainer = $(`#variant_stock_rows_${productIndex}_${variantIndex}`);
+        const currentRows = stockContainer.find('.stock-row').length;
+
+        const selectRegionText = '{{ __("catalogmanagement::product.select_region") }}';
+        const quantityText = '{{ __("catalogmanagement::product.quantity") }}';
+
+        const newRowHtml = `
+            <div class="row stock-row mb-2">
+                <div class="col-md-4">
+                    <select name="variants[${variantIndex}][stocks][${currentRows}][region_id]" class="form-control ih-medium ip-gray radius-xs b-light px-15 select2">
+                        <option value="">${selectRegionText}</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <input type="number" name="variants[${variantIndex}][stocks][${currentRows}][stock]" class="form-control ih-medium ip-gray radius-xs b-light px-15" placeholder="${quantityText}" min="0">
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-variant-stock-row">
+                        <i class="uil uil-minus m-0"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        stockContainer.append(newRowHtml);
+        stockContainer.find('.select2').last().select2({ theme: 'bootstrap-5', width: '100%' });
+        updateRegionDropdowns();
+    });
+
+    // Remove variant stock row
+    $(document).on('click', '.remove-variant-stock-row', function() {
+        $(this).closest('.stock-row').remove();
+    });
+
+    // Save vendor products button
+    $(document).on('click', '#save-vendor-products', function() {
+        saveVendorProducts();
+    });
+
 
     function updateSelectedProductsCount() {
         const count = selectedProducts.length;
@@ -1843,6 +2222,299 @@
             $(this).remove();
         });
     }
+
+    // Variant Product Stock Management Helper Functions
+    function addVariantStockRow(variantIndex) {
+        const stockRowHtml = `
+            <div class="variant-stock-row mb-3 p-3 border rounded">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label">${translations.region}</label>
+                        <select class="form-select region-select" name="variants[${variantIndex}][stocks][${stockRowCounter}][region_id]" required>
+                            <option value="">${translations.select_region}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">${translations.quantity}</label>
+                        <input type="number" class="form-control ih-medium ip-gray radius-xs b-light px-15" name="variants[${variantIndex}][stocks][${stockRowCounter}][quantity]"
+                               placeholder="0" min="0" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">${translations.alert_quantity}</label>
+                        <input type="number" class="form-control ih-medium ip-gray radius-xs b-light px-15" name="variants[${variantIndex}][stocks][${stockRowCounter}][alert_quantity]"
+                               placeholder="0" min="0">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-outline-danger btn-sm"
+                                onclick="removeVariantStockRow(this)">
+                            <i class="uil uil-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        $(`#variant-stock-rows-${variantIndex}`).append(stockRowHtml);
+
+        // Populate region options for the new row
+        populateRegionOptions();
+
+        // Initialize Select2 for the new region select
+        setTimeout(() => {
+            $(`#variant-stock-rows-${variantIndex} .region-select:last`).select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Select Region'
+            });
+        }, 100);
+
+        stockRowCounter++;
+    }
+
+    function removeVariantStockRow(button) {
+        $(button).closest('.variant-stock-row').remove();
+    }
+
+    function populateAllTaxOptions() {
+        // Fetch taxes from the backend
+        $.ajax({
+            url: config.routes.taxesApi,
+            type: 'GET',
+            success: function(response) {
+                const taxes = response.data || response.taxes || response;
+
+                $('.tax-select').each(function() {
+                    const taxSelect = $(this);
+                    taxSelect.html('<option value="">Select Tax</option>');
+
+                    if (taxes && taxes.length > 0) {
+                        taxes.forEach(tax => {
+                            taxSelect.append(`<option value="${tax.id}">${tax.name} (${tax.rate}%)</option>`);
+                        });
+                    }
+                });
+
+                console.log('✅ Tax options populated:', taxes.length);
+            },
+            error: function(xhr, status, error) {
+                console.error('❌ Error fetching taxes:', error);
+                // Fallback to blade data if available
+                populateTaxesFromBladeData();
+            }
+        });
+    }
+
+    function populateTaxesFromBladeData() {
+        // Use taxes passed from the blade template
+        const taxes = @json($taxes ?? []);
+
+        $('.tax-select').each(function() {
+            const taxSelect = $(this);
+            taxSelect.html('<option value="">Select Tax</option>');
+
+            if (taxes && taxes.length > 0) {
+                taxes.forEach(tax => {
+                    taxSelect.append(`<option value="${tax.id}">${tax.name} ${tax.rate ? '(' + tax.rate + '%)' : ''}</option>`);
+                });
+            }
+        });
+
+        console.log('✅ Tax options populated from blade data:', taxes.length);
+    }
+
+    function saveAllVariantsStock() {
+        console.log('💾 Saving all variants stock...');
+
+        // Collect all variant forms data
+        const allVariantsData = new FormData();
+        let hasErrors = false;
+
+        $('.variant-form').each(function(index) {
+            const form = $(this);
+            const variantId = form.data('variant-id');
+
+            // Validate required fields
+            const requiredFields = form.find('[required]');
+            requiredFields.each(function() {
+                if (!$(this).val()) {
+                    $(this).addClass('is-invalid');
+                    hasErrors = true;
+                } else {
+                    $(this).removeClass('is-invalid');
+                }
+            });
+
+            // Collect form data
+            const formData = new FormData(this);
+            for (let [key, value] of formData.entries()) {
+                allVariantsData.append(key, value);
+            }
+        });
+
+        if (hasErrors) {
+            showAlert('Validation Error', 'Please fill in all required fields', 'error');
+            return;
+        }
+
+        // Add global data
+        allVariantsData.append('product_id', selectedProduct);
+        allVariantsData.append('vendor_id', selectedVendorId);
+        allVariantsData.append('type', 'variants');
+
+        $.ajax({
+            url: config.routes.saveStock,
+            type: 'POST',
+            data: allVariantsData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    console.log('✅ All variants stock saved successfully');
+                    showAlert('Success', 'All variants stock saved successfully!', 'success');
+                    // Optionally reset or redirect
+                } else {
+                    console.error('❌ Error saving variants stock:', response.message);
+                    showAlert('Error', response.message || 'Error saving variants stock', 'error');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('❌ AJAX error saving variants stock:', error);
+                showAlert('Error', 'Error saving variants stock: ' + error, 'error');
+            }
+        });
+    }
+
+    // Simple Product Stock Management Helper Functions
+    function addSimpleStockRow() {
+        const stockRowHtml = `
+            <div class="stock-row mb-3 p-3 border rounded">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label">${translations.region}</label>
+                        <select class="form-select region-select" name="stocks[${stockRowCounter}][region_id]" required>
+                            <option value="">${translations.select_region}</option>
+                            <!-- Region options will be populated -->
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">${translations.quantity}</label>
+                        <input type="number" class="form-control ih-medium ip-gray radius-xs b-light px-15" name="stocks[${stockRowCounter}][quantity]"
+                               placeholder="0" min="0" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">${translations.alert_quantity}</label>
+                        <input type="number" class="form-control ih-medium ip-gray radius-xs b-light px-15" name="stocks[${stockRowCounter}][alert_quantity]"
+                               placeholder="0" min="0">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-outline-danger btn-sm"
+                                onclick="removeSimpleStockRow(this)">
+                            <i class="uil uil-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        $('#simple-stock-rows').append(stockRowHtml);
+
+        // Populate region options for the new row
+        populateRegionOptions();
+
+        // Initialize Select2 for the new region select
+        setTimeout(() => {
+            $('#simple-stock-rows .region-select:last').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: translations.select_region
+            });
+        }, 100);
+
+        stockRowCounter++;
+    }
+
+    function removeSimpleStockRow(button) {
+        $(button).closest('.stock-row').remove();
+    }
+
+    function populateTaxOptions() {
+        // Use the same tax population logic as variants
+        populateAllTaxOptions();
+    }
+
+    function setupSimpleProductForm() {
+        $('#simple-product-form').on('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            console.log('💾 Saving simple product stock...');
+
+            $.ajax({
+                url: config.routes.saveStock,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        console.log('✅ Simple product stock saved successfully');
+                        showAlert('Success', 'Product stock saved successfully!', 'success');
+                        // Optionally reset form or redirect
+                    } else {
+                        console.error('❌ Error saving stock:', response.message);
+                        showAlert('Error', response.message || 'Error saving stock', 'error');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('❌ AJAX error saving stock:', error);
+                    showAlert('Error', 'Error saving stock: ' + error, 'error');
+                }
+            });
+        });
+    }
+
+    function cancelStockManagement() {
+        $('#step-variant-stock-management').hide();
+        selectedProduct = null;
+        $('.product-card').removeClass('selected');
+    }
+
+    // Discount switcher functions
+    function toggleDiscountFields(variantIndex) {
+        const checkbox = $(`#hasDiscount${variantIndex}`);
+        const discountFields = $(`#discountFields${variantIndex}`);
+
+        if (checkbox.is(':checked')) {
+            discountFields.slideDown();
+        } else {
+            discountFields.slideUp();
+            // Clear discount fields when disabled
+            discountFields.find('input').val('');
+        }
+    }
+
+    function toggleSimpleDiscountFields() {
+        const checkbox = $('#hasDiscountSimple');
+        const discountFields = $('#simpleDiscountFields');
+
+        if (checkbox.is(':checked')) {
+            discountFields.slideDown();
+        } else {
+            discountFields.slideUp();
+            // Clear discount fields when disabled
+            discountFields.find('input').val('');
+        }
+    }
+
+    // Make functions globally accessible
+    window.toggleDiscountFields = toggleDiscountFields;
+    window.toggleSimpleDiscountFields = toggleSimpleDiscountFields;
+    window.addVariantStockRow = addVariantStockRow;
+    window.removeVariantStockRow = removeVariantStockRow;
+    window.addSimpleStockRow = addSimpleStockRow;
+    window.removeSimpleStockRow = removeSimpleStockRow;
+    window.cancelStockManagement = cancelStockManagement;
 
 })(jQuery);
 </script>

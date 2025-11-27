@@ -26,6 +26,7 @@ use Modules\CatalogManagement\app\Http\Requests\Product\UpdateProductRequest;
 use Modules\CatalogManagement\app\Http\Requests\Product\UpdateStockPricingRequest;
 use Modules\Vendor\app\Services\VendorService;
 use App\Models\UserType;
+use App\Traits\Res;
 use Illuminate\Support\Facades\Auth;
 use Modules\CatalogManagement\app\Actions\ProductAction;
 use Modules\CatalogManagement\app\Http\Resources\VariantsConfigurationKeyResource;
@@ -36,6 +37,7 @@ use Modules\Vendor\app\Models\Vendor;
 
 class ProductController extends Controller
 {
+    use Res;
     public function __construct(
         protected ProductService $productService,
         protected VariantConfigurationKeyService $variantConfigurationKeyService,
@@ -711,142 +713,6 @@ class ProductController extends Controller
         }
     }
 
-    /**
-     * Bank Stock Management - Display page to manage vendor product stocks from bank
-     */
-    public function bankStockManagement(Request $request)
-    {
-        $languages = $this->languageService->getAll();
-        $isVendorUser = in_array(auth()->user()->user_type_id, UserType::vendorIds());
-
-        // Get taxes for dropdown
-        $taxes = $this->taxService->getAllTaxes([], 0);
-        $taxes = TaxResource::collection($taxes)->map(function($tax) {
-            return [
-                'id' => $tax->id,
-                'name' => $tax->name
-            ];
-        });
-
-        // For vendor users, only show their own vendor
-        if ($isVendorUser) {
-            $vendor = auth()->user()->vendor;
-            $vendors = $vendor ? collect([[
-                'id' => $vendor->id,
-                'name' => $vendor->name
-            ]]) : collect([]);
-        } else {
-            // Admin users can see all vendors
-            $vendors = Vendor::with('translations')->get()->map(function($vendor) {
-                return [
-                    'id' => $vendor->id,
-                    'name' => $vendor->name
-                ];
-            });
-        }
-        return view('catalogmanagement::product.bank-stock-management', compact(
-            'languages',
-            'vendors',
-            'taxes',
-            'isVendorUser'
-        ));
-    }
-
-    /**
-     * Search bank products for Select2 AJAX
-     */
-    public function searchBankProducts(Request $request)
-    {
-        try {
-            $search = $request->get('search', '');
-            $result = $this->productService->searchBankProducts($search);
-
-            return response()->json($result);
-        } catch (Exception $e) {
-            Log::error('Bank product search error: ' . $e->getMessage());
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-
-    /**
-     * Get vendor product for a specific product and vendor combination
-     */
-    public function getVendorProduct(Request $request)
-    {
-        try {
-            $productId = (int) $request->get('product_id');
-            $vendorId = (int) $request->get('vendor_id');
-
-            $vendorProduct = $this->productService->getVendorProductByProductAndVendor($productId, $vendorId);
-
-            return response()->json(['vendor_product' => $vendorProduct]);
-        } catch (Exception $e) {
-            Log::error('Get vendor product error: ' . $e->getMessage());
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-
-    /**
-     * Get products not in VendorProduct for a specific vendor
-     */
-    public function getProductsNotInVendor(Request $request)
-    {
-        try {
-            $vendorId = (int) $request->get('vendor_id');
-            $search = $request->get('search', '');
-
-            // Validate vendor ID
-            if (!$vendorId) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Vendor ID is required',
-                    'products' => []
-                ]);
-            }
-
-            $products = $this->productService->getProductsNotInVendor($vendorId, $search);
-
-            return response()->json([
-                'success' => true,
-                'products' => $products
-            ]);
-        } catch (Exception $e) {
-            Log::error('Get products not in vendor error: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while fetching products',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Save bank product stock for a vendor (create or update VendorProduct)
-     */
-    public function saveBankStock(Request $request)
-    {
-        try {
-            $data = $request->all();
-            $this->productService->saveBankStock($data);
-
-            return response()->json([
-                'success' => true,
-                'message' => __('catalogmanagement::product.bank_stock_saved_successfully')
-            ]);
-
-        } catch (Exception $e) {
-            Log::error('Save bank stock error: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => __('catalogmanagement::product.error_saving_bank_stock'),
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
 
     /**
      * Display pending products

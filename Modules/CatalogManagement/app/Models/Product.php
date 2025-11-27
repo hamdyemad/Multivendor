@@ -53,6 +53,86 @@ class Product extends Model
         return $this->type === self::TYPE_BANK;
     }
 
+
+    // Start Getters
+
+    public function getNameAttribute()
+    {
+        return $this->getTranslation('title', app()->getLocale());
+    }
+
+    public function getTitleAttribute()
+    {
+        return $this->getTranslation('title', app()->getLocale());
+    }
+
+    public function getDetailsAttribute()
+    {
+        return $this->getTranslation('details', app()->getLocale());
+    }
+
+    public function getSummaryAttribute()
+    {
+        return $this->getTranslation('summary', app()->getLocale());
+    }
+
+    public function getFeaturesAttribute()
+    {
+        return $this->getTranslation('features', app()->getLocale());
+    }
+
+    public function getInstructionsAttribute()
+    {
+        return $this->getTranslation('instructions', app()->getLocale());
+    }
+
+    public function getExtraDescriptionAttribute()
+    {
+        return $this->getTranslation('extra_description', app()->getLocale());
+    }
+
+    public function getMaterialAttribute()
+    {
+        return $this->getTranslation('material', app()->getLocale());
+    }
+
+    public function getTagsAttribute()
+    {
+        return $this->getTranslation('tags', app()->getLocale());
+    }
+
+    public function getMetaTitleAttribute()
+    {
+        return $this->getTranslation('meta_title', app()->getLocale());
+    }
+
+    public function getMetaKeywordsAttribute()
+    {
+        return $this->getTranslation('meta_keywords', app()->getLocale());
+    }
+
+    public function getMetaDescriptionAttribute()
+    {
+        return $this->getTranslation('meta_description', app()->getLocale());
+    }
+
+    public function getCurrencyAttribute()
+    {
+        return $this->vendor->country->currency ?? null;
+    }
+    // End Getters
+
+
+
+    /**
+     * Get the route key for the model
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
+
     /**
      * Get all attachments for the product
      */
@@ -156,78 +236,6 @@ class Product extends Model
                     ->withTimestamps();
     }
 
-    // Start Getters
-    public function getTitleAttribute()
-    {
-        return $this->getTranslation('title', app()->getLocale());
-    }
-
-    public function getDetailsAttribute()
-    {
-        return $this->getTranslation('details', app()->getLocale());
-    }
-
-    public function getSummaryAttribute()
-    {
-        return $this->getTranslation('summary', app()->getLocale());
-    }
-
-    public function getFeaturesAttribute()
-    {
-        return $this->getTranslation('features', app()->getLocale());
-    }
-
-    public function getInstructionsAttribute()
-    {
-        return $this->getTranslation('instructions', app()->getLocale());
-    }
-
-    public function getExtraDescriptionAttribute()
-    {
-        return $this->getTranslation('extra_description', app()->getLocale());
-    }
-
-    public function getMaterialAttribute()
-    {
-        return $this->getTranslation('material', app()->getLocale());
-    }
-
-    public function getTagsAttribute()
-    {
-        return $this->getTranslation('tags', app()->getLocale());
-    }
-
-    public function getMetaTitleAttribute()
-    {
-        return $this->getTranslation('meta_title', app()->getLocale());
-    }
-
-    public function getMetaKeywordsAttribute()
-    {
-        return $this->getTranslation('meta_keywords', app()->getLocale());
-    }
-
-    public function getMetaDescriptionAttribute()
-    {
-        return $this->getTranslation('meta_description', app()->getLocale());
-    }
-
-    public function getCurrencyAttribute()
-    {
-        return $this->vendor->country->currency ?? null;
-    }
-    // End Getters
-
-
-
-    /**
-     * Get the route key for the model
-     */
-    public function getRouteKeyName()
-    {
-        return 'slug';
-    }
-
     /**
      * Get tags as a comma-separated string for a specific language
      */
@@ -312,6 +320,22 @@ class Product extends Model
         // Date to filter
         if (!empty($filters['created_date_to'])) {
             $query->whereDate('created_at', '<=', $filters['created_date_to']);
+        }
+
+        // Type filter (e.g., TYPE_BANK)
+        if (!empty($filters['type'])) {
+            $query->where('type', $filters['type']);
+        }
+
+        // Exclude products already in a specific vendor's catalog
+        if (!empty($filters['exclude_vendor_id'])) {
+            $vendorId = $filters['exclude_vendor_id'];
+            $query->whereNotExists(function ($subQuery) use ($vendorId) {
+                $subQuery->select('id')
+                    ->from('vendor_products')
+                    ->whereColumn('vendor_products.product_id', 'products.id')
+                    ->where('vendor_products.vendor_id', $vendorId);
+            });
         }
 
         $query->orderBy('created_at', 'desc');

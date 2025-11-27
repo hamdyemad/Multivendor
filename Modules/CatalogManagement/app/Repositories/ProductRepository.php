@@ -12,6 +12,7 @@ use Modules\CatalogManagement\app\Models\Product;
 use Modules\CatalogManagement\app\Models\VendorProduct;
 use App\Models\UserType;
 use Illuminate\Support\Facades\Auth;
+use Modules\CatalogManagement\app\Http\Resources\BankProductResource;
 
 class ProductRepository implements ProductInterface
 {
@@ -21,6 +22,34 @@ class ProductRepository implements ProductInterface
         return ($perPage == 0) ? $query->get() : $query->latest()->paginate($perPage);
     }
 
+    public function getAllBankProducts(array $filters = [], int $perPage = 10)
+    {
+        // Bank-specific relationships
+        $with = [
+            'brand',
+            'department',
+            'category',
+            'subCategory',
+            'variants',
+            'translations',
+            'brand.translations',
+            'department.translations',
+            'category.translations',
+            'subCategory.translations',
+            'mainImage',
+            'variants.variantConfiguration.key.translations',
+            'variants.variantConfiguration.translations'
+        ];
+
+        // Add bank-specific filters
+        $bankFilters = array_merge($filters, [
+            'type' => Product::TYPE_BANK,
+            'is_active' => true,
+        ]);
+
+        $query = Product::with($with)->filter($bankFilters);
+        return ($perPage == 0) ? $query->get() : $query->latest()->paginate($perPage);
+    }
 
     public function getProductById($id)
     {
@@ -546,34 +575,20 @@ class ProductRepository implements ProductInterface
     /**
      * Search bank products for Select2 AJAX
      */
-    public function searchBankProducts(string $search = '', int $perPage = 20)
+    public function searchBankProducts(string $search = '', ?int $vendorId = null, int $perPage = 20)
     {
-        $query = Product::where('type', Product::TYPE_BANK)
-            ->where('is_active', true)
-            ->with(['translations', 'brand.translations', 'category.translations', 'mainImage']);
+        // Build filters array
+        $filters = [
+            'search' => $search,
+            'exclude_vendor_id' => $vendorId, // Exclude products already in this vendor's catalog
+        ];
 
-        if ($search) {
-            $query->whereHas('translations', function($query) use ($search) {
-                $query->where('lang_value', 'like', "%{$search}%");
-            });
-        }
-
-        $products = $query->paginate($perPage);
-
-        $data = $products->map(function($product) {
-            return [
-                'id' => $product->id,
-                'sku' => $product->sku,
-                'title_en' => $product->getTranslation('title', 'en') ?? '-',
-                'title_ar' => $product->getTranslation('title', 'ar') ?? '-',
-                'brand' => $product->brand ? ($product->brand->getTranslation('name', app()->getLocale()) ?? $product->brand->name) : '-',
-                'category' => $product->category ? ($product->category->getTranslation('name', app()->getLocale()) ?? $product->category->name) : '-',
-                'image' => $product->mainImage ? asset('storage/' . $product->mainImage->path) : null
-            ];
-        });
+        // Use the dedicated getAllBankProducts method
+        $products = $this->getAllBankProducts($filters, $perPage);
 
         return [
-            'data' => $data,
+            'success' => true,
+            'products' => BankProductResource::collection($products->items()),
             'current_page' => $products->currentPage(),
             'last_page' => $products->lastPage(),
             'total' => $products->total()

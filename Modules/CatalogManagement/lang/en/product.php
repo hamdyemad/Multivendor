@@ -388,4 +388,14 @@ return [
     'simple_product_configuration' => 'Simple Product Configuration',
     'no_variants_added' => 'No variants added yet. Click "Add Variant" to create one.',
     'enable_discount_offer' => 'Enable Discount Offer',
+
+    // Bank Stock Management Translations
+    'pricing_and_details' => 'Pricing & Details',
+    'alert_quantity' => 'Alert Quantity',
+    'add_stock_entry' => 'Add Stock Entry',
+    'enter_variant_sku' => 'Enter variant SKU',
+    'select_product' => 'Select Product',
+    'product_selected' => 'Product Selected',
+    'manage_variants_stock' => 'Manage Variants Stock',
+    'product_variants_stock' => 'Product Variants Stock',
 ];

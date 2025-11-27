@@ -30,4 +30,15 @@ class DepartmentApiRepository implements DepartmentApiRepositoryInterface
         return $this->query->handle($filters)->with('activeCategories')->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id))->firstOrFail();
     }
 
+    /**
+     * Get departments by brand ID or slug
+     */
+    public function getDepartmentsByBrand($brandId)
+    {
+        return $this->query->handle([])
+            ->byBrand($brandId)
+            ->distinct()
+            ->get();
+    }
+
 }

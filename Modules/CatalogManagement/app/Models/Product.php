@@ -2,20 +2,21 @@
 
 namespace Modules\CatalogManagement\app\Models;
 
+use App\Models\BaseModel;
 use App\Models\Attachment;
 use App\Models\User;
 use App\Traits\Translation;
 use App\Models\Traits\HumanDates;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
+use Modules\CatalogManagement\app\Http\Requests\Api\ProductReviewRequest;
 use Modules\CategoryManagment\app\Models\Category;
 use Modules\CategoryManagment\app\Models\Department;
 use Modules\CategoryManagment\app\Models\SubCategory;
 use Modules\Vendor\app\Models\Vendor;
 
-class Product extends Model
+class Product extends BaseModel
 {
     use HasFactory, SoftDeletes, Translation, HumanDates;
 
@@ -156,6 +157,16 @@ class Product extends Model
                     ->withTimestamps();
     }
 
+    // public function reviews()
+    // {
+    //     return $this->hasMany(ProductReview::class);
+    // }
+
+    // public function approvedReviews()
+    // {
+    //     return $this->reviews()->where('is_approved', true);
+    // }
+
     // Start Getters
     public function getTitleAttribute()
     {
@@ -265,46 +276,76 @@ class Product extends Model
     }
 
     /**
-     * Scope to filter products based on various criteria
+     * Apply custom search logic for Product
+     * Searches by title, brand, and category in addition to translations
+     */
+    protected function applyCustomSearch(Builder $query, string $search): Builder
+    {
+        return $query->orWhereHas('brand', function($subQ) use ($search) {
+                $subQ->whereHas('translations', function($subSubQ) use ($search) {
+                    $subSubQ->where('lang_value', 'like', "%{$search}%");
+                });
+            })
+            ->orWhereHas('category', function($subQ) use ($search) {
+                $subQ->whereHas('translations', function($subSubQ) use ($search) {
+                    $subSubQ->where('lang_value', 'like', "%{$search}%");
+                });
+            });
+    }
+
+    /**
+     * Scope: Filter by price range (through variants)
+     */
+    public function scopePriceRange(Builder $query, $minPrice = null, $maxPrice = null)
+    {
+        if ($minPrice || $maxPrice) {
+            $query->whereHas('variants', function($subQ) use ($minPrice, $maxPrice) {
+                if ($minPrice) {
+                    $subQ->where('price', '>=', $minPrice);
+                }
+                if ($maxPrice) {
+                    $subQ->where('price', '<=', $maxPrice);
+                }
+            });
+        }
+        return $query;
+    }
+
+    /**
+     * Scope: Filter featured products
+     */
+    public function scopeFeatured(Builder $query)
+    {
+        return $query->where('is_featured', true);
+    }
+
+    public function scopeActive(Builder $query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Scope: Override filter to add price range and featured filters
      */
     public function scopeFilter(Builder $query, array $filters)
     {
-        // Search filter
-        if (!empty($filters['search'])) {
-            $search = $filters['search'];
-            $query->where(function($q) use ($search) {
-                $q->whereHas('translations', function($query) use ($search) {
-                    $query->where('lang_value', 'like', "%{$search}%");
-                })
-                ->orWhereHas('brand', function($query) use ($search) {
-                    $query->whereHas('translations', function($subQuery) use ($search) {
-                        $subQuery->where('lang_value', 'like', "%{$search}%");
-                    });
-                })
-                ->orWhereHas('category', function($query) use ($search) {
-                    $query->whereHas('translations', function($subQuery) use ($search) {
-                        $subQuery->where('lang_value', 'like', "%{$search}%");
-                    });
-                });
-            });
+        // Call parent filter scope from trait
+        parent::scopeFilter($query, $filters);
+
+        // Price range filter
+        if (!empty($filters['min_price']) || !empty($filters['max_price'])) {
+            $query->priceRange(
+                $filters['min_price'] ?? null,
+                $filters['max_price'] ?? null
+            );
         }
 
-        // Active filter
-        if (isset($filters['is_active']) && $filters['is_active'] !== '') {
-            $query->where('is_active', $filters['is_active']);
-        }
+        // Featured filter
+        // if (!empty($filters['featured'])) {
+        //     $query->featured();
+        // }
 
-        // Date from filter
-        if (!empty($filters['created_date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['created_date_from']);
-        }
-
-        // Date to filter
-        if (!empty($filters['created_date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['created_date_to']);
-        }
-
-        $query->orderBy('created_at', 'desc');
+        return $query;
     }
 
 }

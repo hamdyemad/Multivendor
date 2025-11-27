@@ -2,22 +2,26 @@
 
 namespace Modules\CategoryManagment\app\Models;
 
+use App\Models\BaseModel;
 use App\Models\Attachment;
 use App\Traits\HasSlug;
 use App\Models\Traits\HumanDates;
 use App\Traits\Translation;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Modules\CatalogManagement\app\Models\Product;
 
-class Department extends Model
+class Department extends BaseModel
 {
     use HasFactory, SoftDeletes, Translation, HumanDates, HasSlug;
 
     protected $guarded = [];
 
+    // ============================================
+    // RELATIONSHIPS
+    // ============================================
 
     /**
      * Attachments relationship
@@ -27,10 +31,25 @@ class Department extends Model
         return $this->morphMany(Attachment::class, 'attachable');
     }
 
-    public function scopeActive($query)
+    /**
+     * Activities relationship
+     */
+    public function activities()
     {
-        return $query->where('active', true);
+        return $this->belongsToMany(Activity::class, 'activities_departments', 'department_id', 'activity_id');
     }
+
+    /**
+     * Categories relationship
+     */
+    public function categories()
+    {
+        return $this->hasMany(Category::class);
+    }
+
+    // ============================================
+    // GETTERS & ACCESSORS
+    // ============================================
 
     /**
      * Get department image
@@ -42,71 +61,65 @@ class Department extends Model
     }
 
     /**
-     * Activities relationship
+     * Get department description
      */
-    public function activities() {
-        return $this->belongsToMany(Activity::class, 'activities_departments', 'department_id', 'activity_id');
-    }
-
-    public function activeActivities() {
-        return $this->activities()->active();
-    }
-
-    public function categories() {
-        return $this->hasMany(Category::class);
-    }
-
-    public function activeCategories() {
-        return $this->categories()->active();
-    }
-
     public function getDescriptionAttribute()
     {
         return $this->getTranslation('description', app()->getLocale()) ?? '-';
     }
 
-    public function scopeFilter(Builder $query, array $filters)
+    /**
+     * Get active activities
+     */
+    public function activeActivities()
     {
-        if (!empty($filters['search'])) {
-            $search = $filters['search'];
-            $query->where(function($q) use ($search) {
-                $q->whereHas('translations', function($query) use ($search) {
-                    $query->where('lang_value', 'like', "%{$search}%");
-                });
-            });
-        }
-
-        // Active filter
-        if (isset($filters['active']) && $filters['active'] !== '') {
-            $query->where('active', $filters['active']);
-        }
-
-        // Date from filter
-        if (!empty($filters['created_date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['created_date_from']);
-        }
-
-        // Date to filter
-        if (!empty($filters['created_date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['created_date_to']);
-        }
-
-        if (!empty($filters['activity_ids'])) {
-            $query->whereHas('activities', function($q) use ($filters) {
-                $q->whereIn('activity_id', $filters['activity_ids']);
-            });
-        }
-
-        if (!empty($filters['vendor_id'])) {
-            // Get activity IDs that belong to this vendor
-            $vendorActivityIds = DB::table('vendors_activities')
-                ->where('vendor_id', $filters['vendor_id'])
-                ->pluck('activity_id')
-                ->toArray();
-            $query->whereHas('activities', function($q) use ($vendorActivityIds) {
-                $q->whereIn('activity_id', $vendorActivityIds);
-            });
-        }
-        return $query;
+        return $this->activities()->active();
     }
+
+    /**
+     * Get active categories
+     */
+    public function activeCategories()
+    {
+        return $this->categories()->active();
+    }
+
+    /**
+     * Override scopeByVendor for Department
+     * Department filters by vendor through activities → vendors relationship
+     */
+    public function scopeByVendor(Builder $query, $vendorIdentifier)
+    {
+        return $query->whereHas('activities', function($q) use ($vendorIdentifier) {
+            $q->whereHas('vendors', function($subQ) use ($vendorIdentifier) {
+                $subQ->where('id', $vendorIdentifier)
+                    ->orWhere('slug', $vendorIdentifier);
+            });
+        });
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    public function activeProducts()
+    {
+        return $this->products()->active();
+    }
+
+    /**
+     * Override scopeByBrand for Department
+     * Department filters by brand through products relationship
+     */
+    public function scopeByBrand(Builder $query, $brandIdentifier)
+    {
+        return $query->whereHas('activeProducts', function ($q) use ($brandIdentifier) {
+            $q->whereHas('brand', function ($subQ) use ($brandIdentifier) {
+                $subQ->where('id', $brandIdentifier)
+                    ->orWhere('slug', $brandIdentifier);
+            });
+        });
+    }
+
 }

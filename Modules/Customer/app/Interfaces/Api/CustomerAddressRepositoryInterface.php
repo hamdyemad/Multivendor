@@ -2,6 +2,7 @@
 
 namespace Modules\Customer\app\Interfaces\Api;
 
+use Modules\Customer\app\DTOs\GetAddressesDTO;
 use Modules\Customer\app\Models\Customer;
 use Modules\Customer\app\Models\CustomerAddress;
 
@@ -11,7 +12,7 @@ interface CustomerAddressRepositoryInterface
 
     public function updateAddress($addressId, Customer $customer, array $data): CustomerAddress;
 
-    public function getAddresses(array $data, Customer $customer);
+    public function getAddresses(GetAddressesDTO $dto, Customer $customer);
 
     public function getAddressById($addressId, Customer $customer): ?CustomerAddress;
 

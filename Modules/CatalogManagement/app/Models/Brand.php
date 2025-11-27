@@ -4,6 +4,7 @@ namespace Modules\CatalogManagement\app\Models;
 
 use App\Models\Attachment;
 use App\Models\Traits\HumanDates;
+use App\Traits\HasSlug;
 use App\Traits\Translation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Brand extends Model
 {
-    use HasFactory, Translation, SoftDeletes, HumanDates;
+    use HasFactory, Translation, SoftDeletes, HumanDates, HasSlug;
 
     protected $table = 'brands';
     protected $guarded = [];
@@ -40,10 +41,4 @@ class Brand extends Model
         return $this->morphOne(Attachment::class, 'attachable')->where('type', 'cover');
     }
 
-    // Getters
-
-    public function getNameAttribute()
-    {
-        return $this->getTranslation('name', app()->getLocale()) ?? '-';
-    }
 }

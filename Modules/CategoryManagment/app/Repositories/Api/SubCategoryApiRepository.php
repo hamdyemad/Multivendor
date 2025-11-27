@@ -30,4 +30,28 @@ class SubCategoryApiRepository implements SubCategoryApiRepositoryInterface
         return $this->query->handle($filters)->with('category')->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id))->firstOrFail();
     }
 
+    /**
+     * Get sub-categories by category ID or slug
+     */
+    public function getSubCategoriesByCategory($categoryId)
+    {
+        return $this->query->handle([])
+            ->byMain($categoryId)
+            ->with('category')
+            ->get();
+    }
+
+    /**
+     * Get sub-category by ID or slug
+     */
+    public function getSubCategoryById($subCategoryId)
+    {
+        $subCategory = $this->query->handle([])
+            ->byIdOrSlug($subCategoryId)
+            ->with('category')
+            ->first();
+
+        return $subCategory ? collect([$subCategory]) : collect();
+    }
+
 }

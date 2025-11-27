@@ -30,4 +30,15 @@ class CategoryApiRepository implements CategoryApiRepositoryInterface
         return $this->query->handle($filters)->with(['activeSubs', 'department'])->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id))->firstOrFail();
     }
 
+    /**
+     * Get categories by department ID or slug
+     */
+    public function getCategoriesByDepartment($departmentId)
+    {
+        return $this->query->handle([])
+            ->byDepartment($departmentId)
+            ->with('department')
+            ->get();
+    }
+
 }

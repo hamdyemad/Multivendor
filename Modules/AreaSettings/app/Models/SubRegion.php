@@ -2,15 +2,15 @@
 
 namespace Modules\AreaSettings\app\Models;
 
+use App\Models\BaseModel;
 use App\Models\Traits\HumanDates;
 use App\Traits\HasSlug;
 use App\Traits\Translation;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 
 
-class SubRegion extends Model
+class SubRegion extends BaseModel
 {
     use Translation, SoftDeletes, HumanDates, HasSlug;
 
@@ -22,41 +22,18 @@ class SubRegion extends Model
         return $this->belongsTo(Region::class, 'region_id');
     }
 
-    public function scopeActive($query)
+    /**
+     * Override filter scope to add subregion-specific filters
+     * Calls parent filter from HasFilterScopes trait and adds custom filters
+     */
+    public function scopeFilter(Builder $query, array $filters)
     {
-        return $query->where('active', true);
-    }
+        // Call parent filter scope from HasFilterScopes trait
+        parent::scopeFilter($query, $filters);
 
-    public function scopeFilter(Builder $query, array $filters) {
-        // Search filter
-        if (!empty($filters['search'])) {
-            $search = $filters['search'];
-            $query->where(function($q) use ($search) {
-                $q->whereHas('translations', function($query) use ($search) {
-                    $query->where('lang_value', 'like', "%{$search}%");
-                });
-            });
-        }
-
-        // Active filter
-        if (isset($filters['active']) && $filters['active'] !== '') {
-            $query->where('active', $filters['active']);
-        }
-
-        // Date from filter
-        if (!empty($filters['created_date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['created_date_from']);
-        }
-
-        // Date to filter
-        if (!empty($filters['created_date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['created_date_to']);
-        }
-
+        // Filter by region
         if (!empty($filters['region_id'])) {
-            $query->whereHas('region', function($q) use ($filters) {
-                $q->where('id', $filters['region_id']);
-            });
+            $query->where('region_id', $filters['region_id']);
         }
 
         return $query;

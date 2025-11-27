@@ -2,6 +2,7 @@
 
 namespace Modules\Customer\app\Services\Api;
 
+use Modules\Customer\app\DTOs\GetAddressesDTO;
 use Modules\Customer\app\Interfaces\Api\CustomerAddressRepositoryInterface;
 use Modules\Customer\app\Models\Customer;
 
@@ -31,7 +32,8 @@ class CustomerAddressService
      */
     public function getAddresses(array $data, Customer $customer)
     {
-        return $this->addressRepository->getAddresses($data, $customer);
+        $dto = GetAddressesDTO::fromArray($data);
+        return $this->addressRepository->getAddresses($dto, $customer);
     }
 
     /**

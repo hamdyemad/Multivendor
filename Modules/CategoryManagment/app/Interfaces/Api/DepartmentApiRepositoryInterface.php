@@ -13,4 +13,9 @@ interface DepartmentApiRepositoryInterface
      * Get activity by ID
      */
     public function find(array $filters = [], $id);
+
+    /**
+     * Get departments by brand ID or slug
+     */
+    public function getDepartmentsByBrand($brandId);
 }

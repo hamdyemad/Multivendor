@@ -13,4 +13,9 @@ interface CategoryApiRepositoryInterface
      * Get activity by ID
      */
     public function find(array $filters = [], $id);
+
+    /**
+     * Get categories by department ID or slug
+     */
+    public function getCategoriesByDepartment($departmentId);
 }

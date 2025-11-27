@@ -2,9 +2,9 @@
 
 namespace Modules\Vendor\app\Models;
 
+use App\Models\BaseModel;
 use App\Traits\Translation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
 use App\Models\Attachment;
@@ -16,7 +16,7 @@ use Modules\CategoryManagment\app\Models\Activity;
 use Modules\Order\app\Models\OrderProduct;
 use Modules\Withdraw\app\Models\Withdraw;
 
-class Vendor extends Model
+class Vendor extends BaseModel
 {
     use HasFactory, SoftDeletes, Translation, HumanDates, HasSlug;
 
@@ -215,45 +215,34 @@ class Vendor extends Model
 
     // Scopes
 
-    public function scopeFilter(Builder $query, $filters)
+    /**
+     * Apply custom search logic for Vendor
+     * Searches in vendor name translations and user email
+     */
+    protected function applyCustomSearch(Builder $query, string $search): Builder
     {
+        return $query->orWhereHas('user', function ($q) use ($search) {
+            $q->where('email', 'like', "%{$search}%");
+        });
+    }
 
-        // Filter by active status
+    /**
+     * Override filter scope to add vendor-specific filters
+     * Calls parent filter from HasFilterScopes trait and adds custom filters
+     */
+    public function scopeFilter(Builder $query, array $filters)
+    {
+        // Call parent filter scope from HasFilterScopes trait
+        parent::scopeFilter($query, $filters);
+
+        // Filter by ID
         if (isset($filters['id']) && $filters['id'] !== '') {
             $query->where('id', $filters['id']);
         }
 
-        // Search in translations or user email
-        if (!empty($filters['search'])) {
-            $searchTerm = $filters['search'];
-            $query->where(function ($q) use ($searchTerm) {
-                $q->whereHas('translations', function ($query) use ($searchTerm) {
-                    $query->where('lang_key', 'name')
-                        ->where('lang_value', 'like', '%' . $searchTerm . '%');
-                })
-                    ->orWhereHas('user', function ($query) use ($searchTerm) {
-                        $query->where('email', 'like', '%' . $searchTerm . '%');
-                    });
-            });
-        }
-
-        // Filter by active status
-        if (isset($filters['active']) && $filters['active'] !== '') {
-            $query->where('active', $filters['active']);
-        }
-
         // Filter by country
         if (!empty($filters['country_id'])) {
-            $query->where('country_id', $filters['country_id']);
-        }
-
-        // Filter by date range
-        if (!empty($filters['created_date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['created_date_from']);
-        }
-
-        if (!empty($filters['created_date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['created_date_to']);
+            $query->byCountry($filters['country_id']);
         }
 
         return $query;

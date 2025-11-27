@@ -14,6 +14,12 @@ use Modules\CatalogManagement\app\Interfaces\ProductInterface;
 use Modules\CatalogManagement\app\Repositories\ProductRepository;
 use Modules\CatalogManagement\app\Interfaces\PricingStockRepositoryInterface;
 use Modules\CatalogManagement\app\Repositories\PricingStockRepository;
+use Modules\CatalogManagement\app\Interfaces\Api\ProductApiRepositoryInterface;
+use Modules\CatalogManagement\app\Repositories\Api\ProductApiRepository;
+use Modules\CatalogManagement\app\Services\Api\ProductApiService;
+use Modules\CatalogManagement\app\Actions\ProductQueryAction;
+use App\Actions\IsPaginatedAction;
+use Modules\CategoryManagment\app\Services\Api\CategoryApiService;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -66,6 +72,31 @@ class CatalogManagementServiceProvider extends ServiceProvider
         $this->app->bind(
             ProductInterface::class,
             ProductRepository::class
+        );
+
+        // Register API repository and service bindings
+        $this->app->singleton(ProductQueryAction::class);
+
+        $this->app->singleton(IsPaginatedAction::class);
+
+        $this->app->bind(
+            ProductApiRepositoryInterface::class,
+            function ($app) {
+                return new ProductApiRepository(
+                    $app->make(ProductQueryAction::class),
+                    $app->make(IsPaginatedAction::class),
+                    $app->make(CategoryApiService::class)
+                );
+            }
+        );
+
+        $this->app->singleton(
+            ProductApiService::class,
+            function ($app) {
+                return new ProductApiService(
+                    $app->make(ProductApiRepositoryInterface::class)
+                );
+            }
         );
     }
 

@@ -3,6 +3,7 @@
 namespace Modules\Customer\app\Repositories\Api;
 
 use App\Actions\IsPaginatedAction;
+use Modules\Customer\app\DTOs\GetAddressesDTO;
 use Modules\Customer\app\Interfaces\Api\CustomerAddressRepositoryInterface;
 use Modules\Customer\app\Models\Customer;
 use Modules\Customer\app\Models\CustomerAddress;
@@ -33,10 +34,13 @@ class CustomerAddressRepository implements CustomerAddressRepositoryInterface
         return $address;
     }
 
-    public function getAddresses(array $data, Customer $customer)
+    public function getAddresses(GetAddressesDTO $dto, Customer $customer)
     {
-        $paginated = isset($data["paginated"]) ? true : false;
-        $result = $this->paginated->handle($customer->addresses(), $paginated, $data["per_page"] ?? null);
+        // Get addresses with filters applied
+        $query = $customer->addresses()->filter($dto->getFilters());
+
+        // Handle pagination
+        $result = $this->paginated->handle($query, $dto->paginated, $dto->per_page);
         return $result;
     }
 
@@ -48,7 +52,7 @@ class CustomerAddressRepository implements CustomerAddressRepositoryInterface
     public function deleteAddress($addressId, Customer $customer): bool
     {
         $address = $this->getAddressById($addressId, $customer);
-        
+
         return $address->delete();
     }
 }

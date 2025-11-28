@@ -3,6 +3,7 @@
 namespace Modules\Vendor\app\Services\Api;
 
 use Illuminate\Notifications\AnonymousNotifiable;
+use Modules\Vendor\app\DTOs\VendorFilterDTO;
 use Modules\Vendor\app\Interfaces\Api\VendorApiRepositoryInterface;
 use Modules\Vendor\app\Notifications\VendorRequestNotification;
 
@@ -18,17 +19,17 @@ class VendorApiService
     /**
      * Get all Vendors with filters and pagination
      */
-    public function getAllVendors(array $filters = [])
+    public function getAllVendors(VendorFilterDTO $dto)
     {
-        return $this->VendorRepository->getAllVendors($filters);
+        return $this->VendorRepository->getAllVendors($dto);
     }
 
     /**
      * Get Vendor by ID
      */
-    public function find(array $filters = [], $id)
+    public function find(VendorFilterDTO $dto, $id)
     {
-        return $this->VendorRepository->find($filters, $id);
+        return $this->VendorRepository->find($dto, $id);
     }
 
     /**

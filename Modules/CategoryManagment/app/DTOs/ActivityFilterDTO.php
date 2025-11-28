@@ -1,36 +1,38 @@
 <?php
 
-namespace App\DTOs;
+namespace Modules\CategoryManagment\app\DTOs;
+use App\DTOs\FilterDTO;
 
-/**
- * Activity Filter DTO
- *
- * Supported Filters:
- * - search: Search by name/translation
- * - active: Filter by active status (true/false)
- * - created_date_from: Filter from date (YYYY-MM-DD)
- * - created_date_to: Filter to date (YYYY-MM-DD)
- * - per_page: Items per page
- * - paginated: Enable pagination
- */
 class ActivityFilterDTO extends FilterDTO
 {
     private array $errors = [];
 
     public function __construct(
         public ?string $search = null,
-        public ?bool $active = null,
         public ?string $created_date_from = null,
         public ?string $created_date_to = null,
         public ?int $per_page = null,
         public bool $paginated = false,
     ) {}
 
+    /**
+     * Create DTO from HTTP request
+     */
+    public static function fromRequest($request): self
+    {
+        return new self(
+            search: $request->input('search'),
+            created_date_from: $request->input('created_date_from'),
+            created_date_to: $request->input('created_date_to'),
+            per_page: $request->integer('per_page', 15),
+            paginated: $request->boolean('paginated', false)
+        );
+    }
+
     public function toArray(): array
     {
         return array_filter([
             'search' => $this->search,
-            'active' => $this->active,
             'created_date_from' => $this->created_date_from,
             'created_date_to' => $this->created_date_to,
             'per_page' => $this->per_page,
@@ -43,11 +45,11 @@ class ActivityFilterDTO extends FilterDTO
         $this->errors = [];
 
         if ($this->created_date_from && !$this->isValidDate($this->created_date_from)) {
-            $this->errors[] = 'created_date_from must be a valid date (YYYY-MM-DD)';
+            $this->errors['created_date_from'][] = __('validation.created_date_from_invalid');
         }
 
         if ($this->created_date_to && !$this->isValidDate($this->created_date_to)) {
-            $this->errors[] = 'created_date_to must be a valid date (YYYY-MM-DD)';
+            $this->errors['created_date_to'][] = __('validation.created_date_to_invalid');
         }
 
         return count($this->errors) === 0;

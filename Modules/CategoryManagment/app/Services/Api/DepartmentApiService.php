@@ -2,6 +2,7 @@
 
 namespace Modules\CategoryManagment\app\Services\Api;
 
+use Modules\CategoryManagment\app\DTOs\DepartmentFilterDTO;
 use Modules\CategoryManagment\app\Interfaces\Api\DepartmentApiRepositoryInterface;
 
 class DepartmentApiService
@@ -16,16 +17,16 @@ class DepartmentApiService
     /**
      * Get all Departments with filters and pagination
      */
-    public function getAllDepartments(array $filters = [])
+    public function getAllDepartments(DepartmentFilterDTO $dto)
     {
-        return $this->DepartmentRepository->getAllDepartments($filters);
+        return $this->DepartmentRepository->getAllDepartments($dto);
     }
 
     /**
      * Get Department by ID
      */
-    public function find(array $filters = [],$id)
+    public function find(DepartmentFilterDTO $dto, $id)
     {
-        return $this->DepartmentRepository->find($filters, $id);
+        return $this->DepartmentRepository->find($dto, $id);
     }
 }

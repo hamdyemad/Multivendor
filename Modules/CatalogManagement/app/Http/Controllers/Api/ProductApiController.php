@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Traits\Res;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Modules\CatalogManagement\app\DTOs\ProductFilterDTO;
 use Modules\CatalogManagement\app\Services\Api\ProductApiService;
 use Modules\CatalogManagement\app\Http\Resources\Api\ProductResource;
 use Modules\CatalogManagement\app\Http\Requests\Api\ProductReviewRequest;
@@ -24,8 +25,19 @@ class ProductApiController extends Controller
      */
     public function index(Request $request)
     {
-        $filters = $request->all();
-        $products = $this->productService->getAllProducts($filters);
+        $dto = ProductFilterDTO::fromRequest($request);
+
+        if (!$dto->validate()) {
+            return $this->sendRes(
+                config('responses.validation')[app()->getLocale()],
+                false,
+                [],
+                $dto->getErrors(),
+                422
+            );
+        }
+
+        $products = $this->productService->getAllProducts($dto);
 
         return $this->sendRes(
             config('responses.success')[app()->getLocale()],
@@ -42,8 +54,19 @@ class ProductApiController extends Controller
      */
     public function getByDepartment(Request $request, string $departmentId)
     {
-        $filters = $request->all();
-        $products = $this->productService->getProductsByDepartment($departmentId, $filters);
+        $dto = ProductFilterDTO::fromRequest($request);
+
+        if (!$dto->validate()) {
+            return $this->sendRes(
+                config('responses.validation')[app()->getLocale()],
+                false,
+                [],
+                $dto->getErrors(),
+                422
+            );
+        }
+
+        $products = $this->productService->getProductsByDepartment($departmentId, $dto);
 
         return $this->sendRes(
             config('responses.success'),
@@ -82,36 +105,24 @@ class ProductApiController extends Controller
     }
 
     /**
-     * Search products
-     * GET /api/products/search
-     */
-    public function search(Request $request)
-    {
-        $request->validate([
-            'q' => 'required|string|min:2',
-        ]);
-
-        $query = $request->input('q');
-        $filters = $request->all();
-        $products = $this->productService->searchProducts($query, $filters);
-
-        return $this->sendRes(
-            config('responses.success'),
-            true,
-            ProductResource::collection($products),
-            [],
-            200
-        );
-    }
-
-    /**
      * Get featured products
      * GET /api/products/featured
      */
     public function featured(Request $request)
     {
-        $filters = $request->all();
-        $products = $this->productService->getFeaturedProducts($filters);
+        $dto = ProductFilterDTO::fromRequest($request);
+
+        if (!$dto->validate()) {
+            return $this->sendRes(
+                config('responses.validation')[app()->getLocale()],
+                false,
+                [],
+                $dto->getErrors(),
+                422
+            );
+        }
+
+        $products = $this->productService->getFeaturedProducts($dto);
 
         return $this->sendRes(
             config('responses.success'),
@@ -128,8 +139,19 @@ class ProductApiController extends Controller
      */
     public function bestSelling(Request $request)
     {
-        $filters = $request->all();
-        $products = $this->productService->getBestSellingProducts($filters);
+        $dto = ProductFilterDTO::fromRequest($request);
+
+        if (!$dto->validate()) {
+            return $this->sendRes(
+                config('responses.validation')[app()->getLocale()],
+                false,
+                [],
+                $dto->getErrors(),
+                422
+            );
+        }
+
+        $products = $this->productService->getBestSellingProducts($dto);
 
         return $this->sendRes(
             config('responses.success'),
@@ -146,8 +168,19 @@ class ProductApiController extends Controller
      */
     public function latest(Request $request)
     {
-        $filters = $request->all();
-        $products = $this->productService->getLatestProducts($filters);
+        $dto = ProductFilterDTO::fromRequest($request);
+
+        if (!$dto->validate()) {
+            return $this->sendRes(
+                config('responses.validation')[app()->getLocale()],
+                false,
+                [],
+                $dto->getErrors(),
+                422
+            );
+        }
+
+        $products = $this->productService->getLatestProducts($dto);
 
         return $this->sendRes(
             config('responses.success'),
@@ -164,8 +197,19 @@ class ProductApiController extends Controller
      */
     public function specialOffers(Request $request)
     {
-        $filters = $request->all();
-        $products = $this->productService->getSpecialOfferProducts($filters);
+        $dto = ProductFilterDTO::fromRequest($request);
+
+        if (!$dto->validate()) {
+            return $this->sendRes(
+                config('responses.validation')[app()->getLocale()],
+                false,
+                [],
+                $dto->getErrors(),
+                422
+            );
+        }
+
+        $products = $this->productService->getSpecialOfferProducts($dto);
 
         return $this->sendRes(
             config('responses.success'),
@@ -182,8 +226,19 @@ class ProductApiController extends Controller
      */
     public function hotDeals(Request $request)
     {
-        $filters = $request->all();
-        $products = $this->productService->getHotDeals($filters);
+        $dto = ProductFilterDTO::fromRequest($request);
+
+        if (!$dto->validate()) {
+            return $this->sendRes(
+                config('responses.validation')[app()->getLocale()],
+                false,
+                [],
+                $dto->getErrors(),
+                422
+            );
+        }
+
+        $products = $this->productService->getHotDeals($dto);
 
         return $this->sendRes(
             config('responses.success'),
@@ -200,8 +255,19 @@ class ProductApiController extends Controller
      */
     public function top(Request $request)
     {
-        $filters = $request->all();
-        $products = $this->productService->getTopProducts($filters);
+        $dto = ProductFilterDTO::fromRequest($request);
+
+        if (!$dto->validate()) {
+            return $this->sendRes(
+                config('responses.validation')[app()->getLocale()],
+                false,
+                [],
+                $dto->getErrors(),
+                422
+            );
+        }
+
+        $products = $this->productService->getTopProducts($dto);
 
         return $this->sendRes(
             config('responses.success'),
@@ -218,8 +284,19 @@ class ProductApiController extends Controller
      */
     public function star(Request $request)
     {
-        $filters = $request->all();
-        $products = $this->productService->getStarProducts($filters);
+        $dto = ProductFilterDTO::fromRequest($request);
+
+        if (!$dto->validate()) {
+            return $this->sendRes(
+                config('responses.validation')[app()->getLocale()],
+                false,
+                [],
+                $dto->getErrors(),
+                422
+            );
+        }
+
+        $products = $this->productService->getStarProducts($dto);
 
         return $this->sendRes(
             config('responses.success'),
@@ -291,8 +368,19 @@ class ProductApiController extends Controller
      */
     public function filters(Request $request)
     {
-        $filters = $request->all();
-        $filterData = $this->productService->getFilters($filters);
+        // $dto = ProductFilterDTO::fromRequest($request);
+
+        // if (!$dto->validate()) {
+        //     return $this->sendRes(
+        //         config('responses.validation')[app()->getLocale()],
+        //         false,
+        //         [],
+        //         $dto->getErrors(),
+        //         422
+        //     );
+        // }
+
+        $filterData = $this->productService->getFilters($request->all());
 
         return $this->sendRes(
             config('responses.success'),
@@ -309,8 +397,19 @@ class ProductApiController extends Controller
      */
     public function categories(Request $request)
     {
-        $filters = $request->all();
-        $categories = $this->productService->getCategoriesByFilters($filters);
+        // $dto = ProductFilterDTO::fromRequest($request);
+
+        // if (!$dto->validate()) {
+        //     return $this->sendRes(
+        //         config('responses.validation')[app()->getLocale()],
+        //         false,
+        //         null,
+        //         $dto->getErrors(),
+        //         422
+        //     );
+        // }
+
+        $categories = $this->productService->getCategoriesByFilters($request->all());
 
         return $this->sendRes(
             config('responses.success'),
@@ -327,8 +426,19 @@ class ProductApiController extends Controller
      */
     public function brands(Request $request)
     {
-        $filters = $request->all();
-        $brands = $this->productService->getBrandsByFilters($filters);
+        // $dto = ProductFilterDTO::fromRequest($request);
+
+        // if (!$dto->validate()) {
+        //     return $this->sendRes(
+        //         config('responses.validation')[app()->getLocale()],
+        //         false,
+        //         null,
+        //         $dto->getErrors(),
+        //         422
+        //     );
+        // }
+
+        $brands = $this->productService->getBrandsByFilters($request->all());
 
         return $this->sendRes(
             config('responses.success'),
@@ -345,8 +455,19 @@ class ProductApiController extends Controller
      */
     public function priceRange(Request $request)
     {
-        $filters = $request->all();
-        $priceRange = $this->productService->getPriceByFilters($filters);
+        // $dto = ProductFilterDTO::fromRequest($request);
+
+        // if (!$dto->validate()) {
+        //     return $this->sendRes(
+        //         config('responses.validation')[app()->getLocale()],
+        //         false,
+        //         null,
+        //         $dto->getErrors(),
+        //         422
+        //     );
+        // }
+
+        $priceRange = $this->productService->getPriceByFilters($request->all());
 
         return $this->sendRes(
             config('responses.success'),
@@ -363,8 +484,19 @@ class ProductApiController extends Controller
      */
     public function tags(Request $request)
     {
-        $filters = $request->all();
-        $tags = $this->productService->getTagsByFilters($filters);
+        $dto = ProductFilterDTO::fromRequest($request);
+
+        // if (!$dto->validate()) {
+        //     return $this->sendRes(
+        //         config('responses.validation')[app()->getLocale()],
+        //         false,
+        //         null,
+        //         $dto->getErrors(),
+        //         422
+        //     );
+        // }
+
+        $tags = $this->productService->getTagsByFilters($request->all());
 
         return $this->sendRes(
             config('responses.success'),
@@ -381,8 +513,19 @@ class ProductApiController extends Controller
      */
     public function inputs(Request $request)
     {
-        $filters = $request->all();
-        $inputs = $this->productService->getInputsByFilters($filters);
+        // $dto = ProductFilterDTO::fromRequest($request);
+
+        // if (!$dto->validate()) {
+        //     return $this->sendRes(
+        //         config('responses.validation')[app()->getLocale()],
+        //         false,
+        //         null,
+        //         $dto->getErrors(),
+        //         422
+        //     );
+        // }
+
+        $inputs = $this->productService->getInputsByFilters($request->all());
 
         return $this->sendRes(
             config('responses.success'),
@@ -399,8 +542,19 @@ class ProductApiController extends Controller
      */
     public function variants(Request $request)
     {
-        $filters = $request->all();
-        $variants = $this->productService->getTreesByFilters($filters);
+        // $dto = ProductFilterDTO::fromRequest($request);
+
+        // if (!$dto->validate()) {
+        //     return $this->sendRes(
+        //         config('responses.validation')[app()->getLocale()],
+        //         false,
+        //         null,
+        //         $dto->getErrors(),
+        //         422
+        //     );
+        // }
+
+        $variants = $this->productService->getTreesByFilters($request->all());
 
         return $this->sendRes(
             config('responses.success'),

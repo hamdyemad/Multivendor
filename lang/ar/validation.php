@@ -151,6 +151,30 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Custom Product Filter Validations
+    |--------------------------------------------------------------------------
+    */
+    'min_price_positive' => 'يجب أن يكون السعر الأدنى رقماً موجباً',
+    'max_price_positive' => 'يجب أن يكون السعر الأقصى رقماً موجباً',
+    'min_price_max_price' => 'لا يمكن أن يكون السعر الأدنى أكبر من أو يساوي السعر الأقصى',
+    'sort_by_invalid' => 'يجب أن يكون sort_by أحد الخيارات التالية: created_at, name, price, rating, views, sales',
+    'sort_type_invalid' => 'يجب أن يكون sort_type إما asc أو desc',
+    'country_id_not_exist' => 'الدولة غير موجودة',
+    'city_id_not_exist' => 'المدينة غير موجودة',
+    'region_id_not_exist' => 'المنطقة غير موجودة',
+    'subregion_id_not_exist' => 'المنطقة الفرعية غير موجودة',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Category Filter Validations
+    |--------------------------------------------------------------------------
+    */
+    'created_date_from_invalid' => 'يجب أن يكون created_date_from تاريخاً صحيحاً (YYYY-MM-DD)',
+    'created_date_to_invalid' => 'يجب أن يكون created_date_to تاريخاً صحيحاً (YYYY-MM-DD)',
+    'activity_ids_invalid' => 'يجب أن يكون activity_ids مصفوفة',
+
+    /*
+    |--------------------------------------------------------------------------
     | Custom Validation Attributes
     |--------------------------------------------------------------------------
     |

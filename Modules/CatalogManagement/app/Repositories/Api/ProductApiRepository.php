@@ -11,6 +11,7 @@ use Modules\CatalogManagement\app\Models\Brand;
 use Modules\CatalogManagement\app\Models\VariantConfigurationKey;
 use Modules\CatalogManagement\app\Models\VariantsConfiguration;
 use Illuminate\Support\Facades\Auth;
+use Modules\CatalogManagement\app\DTOs\ProductFilterDTO;
 use Modules\CategoryManagment\app\Services\Api\CategoryApiService;
 
 class ProductApiRepository implements ProductApiRepositoryInterface
@@ -24,18 +25,18 @@ class ProductApiRepository implements ProductApiRepositoryInterface
     /**
      * Get all products with filtering and pagination
      */
-    public function getAllProducts(array $filters)
+    public function getAllProducts(ProductFilterDTO $dto)
     {
-        $paginated = isset($filters["paginated"]) ? true : false;
+        $filters = $dto->toArray();
         $query = $this->query->handle($filters);
-        $result = $this->paginated->handle($query, $paginated, $filters["per_page"] ?? null);
+        $result = $this->paginated->handle($query, $dto->paginated, $dto->per_page);
         return $result;
     }
 
     /**
      * Get products by department
      */
-    public function getProductsByDepartment(string $departmentId, array $filters)
+    public function getProductsByDepartment(string $departmentId, ProductFilterDTO $filters)
     {
         $filters['department_id'] = $departmentId;
         return $this->getAllProducts($filters);
@@ -44,7 +45,7 @@ class ProductApiRepository implements ProductApiRepositoryInterface
     /**
      * Get specific product by ID or slug
      */
-    public function getProductByIdOrSlug(string $identifier, array $filters = [])
+    public function getProductByIdOrSlug(string $identifier, ProductFilterDTO $filters)
     {
         $query = $this->query->handle($filters);
 
@@ -61,7 +62,7 @@ class ProductApiRepository implements ProductApiRepositoryInterface
     /**
      * Get featured products
      */
-    public function getFeaturedProducts(array $filters)
+    public function getFeaturedProducts(ProductFilterDTO $filters)
     {
         $filters['featured'] = true;
         return $this->getAllProducts($filters);
@@ -70,7 +71,7 @@ class ProductApiRepository implements ProductApiRepositoryInterface
     /**
      * Get best selling products
      */
-    public function getBestSellingProducts(array $filters)
+    public function getBestSellingProducts(ProductFilterDTO $filters)
     {
         $filters['sort_by'] = 'sales';
         return $this->getAllProducts($filters);
@@ -79,7 +80,7 @@ class ProductApiRepository implements ProductApiRepositoryInterface
     /**
      * Get latest products
      */
-    public function getLatestProducts(array $filters)
+    public function getLatestProducts(ProductFilterDTO $filters)
     {
         $filters['sort_by'] = 'created_at';
         return $this->getAllProducts($filters);
@@ -88,7 +89,7 @@ class ProductApiRepository implements ProductApiRepositoryInterface
     /**
      * Get special offer products
      */
-    public function getSpecialOfferProducts(array $filters)
+    public function getSpecialOfferProducts(ProductFilterDTO $filters)
     {
         // This would need a special scope in the model
         $filters['has_discount'] = true;
@@ -98,7 +99,7 @@ class ProductApiRepository implements ProductApiRepositoryInterface
     /**
      * Get hot deals
      */
-    public function getHotDeals(array $filters)
+    public function getHotDeals(ProductFilterDTO $filters)
     {
         $limit = $filters['limit'] ?? 3;
         $filters['has_discount'] = true;
@@ -109,21 +110,12 @@ class ProductApiRepository implements ProductApiRepositoryInterface
     /**
      * Get top products
      */
-    public function getTopProducts(array $filters)
+    public function getTopProducts(ProductFilterDTO $filters)
     {
         $limit = $filters['limit'] ?? 3;
         $filters['sort_by'] = 'sales';
         $query = $this->query->handle($filters);
         return $query->limit($limit)->get();
-    }
-
-    /**
-     * Get star products
-     */
-    public function getStarProducts(array $filters)
-    {
-        $filters['sort_by'] = 'rating';
-        return $this->getAllProducts($filters);
     }
 
     /**

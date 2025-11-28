@@ -2,18 +2,19 @@
 
 namespace Modules\CatalogManagement\app\Interfaces\Api;
 
+use Modules\CatalogManagement\app\DTOs\ProductFilterDTO;
+
 interface ProductApiRepositoryInterface
 {
-    public function getAllProducts(array $filters);
-    public function getProductsByDepartment(string $departmentId, array $filters);
-    public function getProductByIdOrSlug(string $identifier, array $filters = []);
-    public function getFeaturedProducts(array $filters);
-    public function getBestSellingProducts(array $filters);
-    public function getLatestProducts(array $filters);
-    public function getSpecialOfferProducts(array $filters);
-    public function getHotDeals(array $filters);
-    public function getTopProducts(array $filters);
-    public function getStarProducts(array $filters);
+    public function getAllProducts(ProductFilterDTO $filters);
+    public function getProductsByDepartment(string $departmentId, ProductFilterDTO $filters);
+    public function getProductByIdOrSlug(string $identifier, ProductFilterDTO $filters);
+    public function getFeaturedProducts(ProductFilterDTO $filters);
+    public function getBestSellingProducts(ProductFilterDTO $filters);
+    public function getLatestProducts(ProductFilterDTO $filters);
+    public function getSpecialOfferProducts(ProductFilterDTO $filters);
+    public function getHotDeals(ProductFilterDTO $filters);
+    public function getTopProducts(ProductFilterDTO $filters);
     public function getProductVariantsKeys(string $productId);
     public function storeProductReview(array $data);
     public function getFilters(array $filters);
@@ -25,6 +26,8 @@ interface ProductApiRepositoryInterface
     public function getTreesByFilters(array $filters);
     public function countSoldProducts(string $productId, ?string $variantId = null);
     public function incrementProductViews(string $productId);
+
+
 
     /**
      * Get filters by occasion

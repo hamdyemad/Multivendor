@@ -2,8 +2,10 @@
 
 namespace Modules\CatalogManagement\app\Services\Api;
 
+use Modules\CatalogManagement\app\DTOs\ProductFilterDTO;
 use Modules\CatalogManagement\app\Interfaces\Api\ProductApiRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
+use Modules\CatalogManagment\app\DTOs\ProductFilterDTO as DTOsProductFilterDTO;
 
 class ProductApiService
 {
@@ -14,15 +16,15 @@ class ProductApiService
     /**
      * Get all products with filtering and pagination
      */
-    public function getAllProducts(array $filters)
+    public function getAllProducts(ProductFilterDTO $dto)
     {
-        return $this->repository->getAllProducts($filters);
+        return $this->repository->getAllProducts($dto);
     }
 
     /**
      * Get products by department
      */
-    public function getProductsByDepartment(string $departmentId, array $filters)
+    public function getProductsByDepartment(string $departmentId, ProductFilterDTO $filters)
     {
         return $this->repository->getProductsByDepartment($departmentId, $filters);
     }
@@ -30,7 +32,7 @@ class ProductApiService
     /**
      * Get specific product by ID or slug
      */
-    public function getProductByIdOrSlug(string $identifier, array $filters = [])
+    public function getProductByIdOrSlug(string $identifier, DTOsProductFilterDTO $filters)
     {
         $product = $this->repository->getProductByIdOrSlug($identifier, $filters);
 
@@ -43,17 +45,9 @@ class ProductApiService
     }
 
     /**
-     * Search products
-     */
-    public function searchProducts(string $query, array $filters)
-    {
-        return $this->repository->searchProducts($query, $filters);
-    }
-
-    /**
      * Get featured products
      */
-    public function getFeaturedProducts(array $filters)
+    public function getFeaturedProducts(ProductFilterDTO $filters)
     {
         return $this->repository->getFeaturedProducts($filters);
     }
@@ -61,7 +55,7 @@ class ProductApiService
     /**
      * Get best selling products
      */
-    public function getBestSellingProducts(array $filters)
+    public function getBestSellingProducts(ProductFilterDTO $filters)
     {
         return $this->repository->getBestSellingProducts($filters);
     }
@@ -69,7 +63,7 @@ class ProductApiService
     /**
      * Get latest products
      */
-    public function getLatestProducts(array $filters)
+    public function getLatestProducts(ProductFilterDTO $filters)
     {
         return $this->repository->getLatestProducts($filters);
     }
@@ -77,7 +71,7 @@ class ProductApiService
     /**
      * Get special offer products
      */
-    public function getSpecialOfferProducts(array $filters)
+    public function getSpecialOfferProducts(ProductFilterDTO $filters)
     {
         return $this->repository->getSpecialOfferProducts($filters);
     }
@@ -85,7 +79,7 @@ class ProductApiService
     /**
      * Get hot deals
      */
-    public function getHotDeals(array $filters)
+    public function getHotDeals(ProductFilterDTO $filters)
     {
         return $this->repository->getHotDeals($filters);
     }
@@ -93,7 +87,7 @@ class ProductApiService
     /**
      * Get top products
      */
-    public function getTopProducts(array $filters)
+    public function getTopProducts(ProductFilterDTO $filters)
     {
         return $this->repository->getTopProducts($filters);
     }
@@ -101,7 +95,7 @@ class ProductApiService
     /**
      * Get star products
      */
-    public function getStarProducts(array $filters)
+    public function getStarProducts(ProductFilterDTO $filters)
     {
         return $this->repository->getStarProducts($filters);
     }

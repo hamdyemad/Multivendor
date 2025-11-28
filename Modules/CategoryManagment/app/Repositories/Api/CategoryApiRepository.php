@@ -4,6 +4,7 @@ namespace Modules\CategoryManagment\app\Repositories\Api;
 
 use App\Actions\IsPaginatedAction;
 use Modules\CategoryManagment\app\Actions\CategoryQueryAction;
+use Modules\CategoryManagment\app\DTOs\CategoryFilterDTO;
 use Modules\CategoryManagment\app\Interfaces\Api\CategoryApiRepositoryInterface;
 
 class CategoryApiRepository implements CategoryApiRepositoryInterface
@@ -13,11 +14,11 @@ class CategoryApiRepository implements CategoryApiRepositoryInterface
     /**
      * Get all Categories with filters and pagination
      */
-    public function getAllCategories(array $filters = [])
+    public function getAllCategories(CategoryFilterDTO $dto)
     {
-        $paginated = isset($filters["paginated"]) ? true : false;
+        $filters = $dto->toArray();
         $query = $this->query->handle($filters);
-        $result = $this->paginated->handle($query, $paginated, $filters["per_page"] ?? null);
+        $result = $this->paginated->handle($query, $dto->paginated, $dto->per_page);
         return $result;
     }
 
@@ -25,8 +26,9 @@ class CategoryApiRepository implements CategoryApiRepositoryInterface
     /**
      * Get Category by ID
      */
-    public function find(array $filters = [], $id)
+    public function find(CategoryFilterDTO $dto, $id)
     {
+        $filters = $dto->toArray();
         return $this->query->handle($filters)->with(['activeSubs', 'department'])->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id))->firstOrFail();
     }
 

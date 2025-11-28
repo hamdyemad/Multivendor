@@ -2,7 +2,7 @@
 
 namespace Modules\CatalogManagement\app\Actions;
 
-use Modules\CatalogManagement\app\Models\Product;
+use Modules\CatalogManagement\app\Models\VendorProduct;
 
 class ProductQueryAction
 {
@@ -11,9 +11,9 @@ class ProductQueryAction
      */
     public function handle(array $filters = [])
     {
-        $query = Product::query()
+        $query = VendorProduct::query()
             ->active()
-            ->with(['brand', 'department', 'category', 'subCategory', 'variants', 'attachments']);
+            ->with(['product', 'brand', 'department', 'category', 'subCategory', 'variants', 'attachments']);
 
         if (!empty($filters)) {
             $query->filter($filters);

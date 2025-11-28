@@ -2,6 +2,7 @@
 
 namespace Modules\CategoryManagment\app\Services\Api;
 
+use Modules\CategoryManagment\app\DTOs\CategoryFilterDTO;
 use Modules\CategoryManagment\app\Interfaces\Api\SubCategoryApiRepositoryInterface;
 
 class SubCategoryApiService
@@ -16,16 +17,16 @@ class SubCategoryApiService
     /**
      * Get all SubCategories with filters and pagination
      */
-    public function getAllSubCategories(array $filters = [])
+    public function getAllSubCategories(CategoryFilterDTO $dto)
     {
-        return $this->SubCategoryRepository->getAllSubCategories($filters);
+        return $this->SubCategoryRepository->getAllSubCategories($dto);
     }
 
     /**
      * Get SubCategory by ID
      */
-    public function find(array $filters = [],$id)
+    public function find(CategoryFilterDTO $dto, $id)
     {
-        return $this->SubCategoryRepository->find($filters, $id);
+        return $this->SubCategoryRepository->find($dto, $id);
     }
 }

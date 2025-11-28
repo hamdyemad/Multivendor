@@ -2,6 +2,8 @@
 
 namespace Modules\CategoryManagment\app\Services\Api;
 
+use Modules\CategoryManagment\app\DTOs\CategoryFilterDTO;
+use Modules\CategoryManagment\app\DTOs\DepartmentFilterDTO;
 use Modules\CategoryManagment\app\Interfaces\Api\CategoryApiRepositoryInterface;
 use Modules\CategoryManagment\app\Interfaces\Api\DepartmentApiRepositoryInterface;
 use Modules\CategoryManagment\app\Interfaces\Api\SubCategoryApiRepositoryInterface;
@@ -25,17 +27,17 @@ class CategoryApiService
     /**
      * Get all categories with filters and pagination
      */
-    public function getAllCategories(array $filters = [])
+    public function getAllCategories(CategoryFilterDTO $dto)
     {
-        return $this->CategoryRepository->getAllCategories($filters);
+        return $this->CategoryRepository->getAllCategories($dto);
     }
 
     /**
      * Get Category by ID
      */
-    public function find(array $filters = [], $id)
+    public function find(CategoryFilterDTO $dto, $id)
     {
-        return $this->CategoryRepository->find($filters, $id);
+        return $this->CategoryRepository->find($dto, $id);
     }
 
     /**
@@ -60,10 +62,12 @@ class CategoryApiService
 
         // If brand_id only, return all departments that have products from this brand
         if (!empty($filters['brand_id'])) {
+            $dto = new DepartmentFilterDTO(brand_id: $filters['brand_id']);
             return $this->DepartmentRepository->getDepartmentsByBrand($filters['brand_id']);
         }
 
         // Return all active departments
-        return $this->DepartmentRepository->getAllDepartments(['active' => true]);
+        $dto = new DepartmentFilterDTO(active: true);
+        return $this->DepartmentRepository->getAllDepartments($dto);
     }
 }

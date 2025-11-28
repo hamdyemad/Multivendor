@@ -5,6 +5,7 @@ namespace Modules\Vendor\app\Repositories\Api;
 use App\Actions\IsPaginatedAction;
 use Illuminate\Support\Facades\DB;
 use Modules\Vendor\app\Actions\Api\VendorQueryAction;
+use Modules\Vendor\app\DTOs\VendorFilterDTO;
 use Modules\Vendor\app\Interfaces\Api\VendorApiRepositoryInterface;
 use Modules\Vendor\app\Models\VendorRequest;
 
@@ -15,19 +16,20 @@ class VendorApiRepository implements VendorApiRepositoryInterface
     /**
      * Get all Vendors with filters and pagination
      */
-    public function getAllVendors(array $filters = [])
+    public function getAllVendors(VendorFilterDTO $dto)
     {
-        $paginated = isset($filters["paginated"]) ? true : false;
+        $filters = $dto->toArray();
         $query = $this->query->handle($filters);
-        $result = $this->paginated->handle($query, $paginated, $filters["per_page"] ?? null);
+        $result = $this->paginated->handle($query, $dto->paginated, $dto->per_page);
         return $result;
     }
 
     /**
      * Get Vendor by ID
      */
-    public function find(array $filters = [], $id)
+    public function find(VendorFilterDTO $dto, $id)
     {
+        $filters = $dto->toArray();
         return $this->query->handle($filters)->with('activeActivities')->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id))->firstOrFail();
     }
 

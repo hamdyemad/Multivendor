@@ -4,6 +4,7 @@ namespace Modules\CategoryManagment\app\Repositories\Api;
 
 use App\Actions\IsPaginatedAction;
 use Modules\CategoryManagment\app\Actions\DepartmentQueryAction;
+use Modules\CategoryManagment\app\DTOs\DepartmentFilterDTO;
 use Modules\CategoryManagment\app\Interfaces\Api\DepartmentApiRepositoryInterface;
 
 class DepartmentApiRepository implements DepartmentApiRepositoryInterface
@@ -13,11 +14,11 @@ class DepartmentApiRepository implements DepartmentApiRepositoryInterface
     /**
      * Get all Departments with filters and pagination
      */
-    public function getAllDepartments(array $filters = [])
+    public function getAllDepartments(DepartmentFilterDTO $dto)
     {
-        $paginated = isset($filters["paginated"]) ? true : false;
+        $filters = $dto->toArray();
         $query = $this->query->handle($filters);
-        $result = $this->paginated->handle($query, $paginated, $filters["per_page"] ?? null);
+        $result = $this->paginated->handle($query, $dto->paginated, $dto->per_page);
         return $result;
     }
 
@@ -25,8 +26,9 @@ class DepartmentApiRepository implements DepartmentApiRepositoryInterface
     /**
      * Get Department by ID
      */
-    public function find(array $filters = [], $id)
+    public function find(DepartmentFilterDTO $dto, $id)
     {
+        $filters = $dto->toArray();
         return $this->query->handle($filters)->with('activeCategories')->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id))->firstOrFail();
     }
 

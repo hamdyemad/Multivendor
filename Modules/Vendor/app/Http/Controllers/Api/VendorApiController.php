@@ -5,6 +5,7 @@ namespace Modules\Vendor\app\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Traits\Res;
 use Illuminate\Http\Request;
+use Modules\Vendor\app\DTOs\VendorFilterDTO;
 use Modules\Vendor\app\Http\Resources\Api\VendorApiResource;
 use Modules\Vendor\app\Http\Resources\Api\VendorRequestResource;
 use Modules\Vendor\app\Http\Requests\CreateVendorRequestRequest;
@@ -21,14 +22,38 @@ class VendorApiController extends Controller
 
     public function index(Request $request)
     {
-        $vendors = $this->VendorService->getAllVendors($request->all());
+        $dto = VendorFilterDTO::fromRequest($request);
+
+        if (!$dto->validate()) {
+            return $this->sendRes(
+                config('responses.validation')[app()->getLocale()],
+                false,
+                [],
+                $dto->getErrors(),
+                422
+            );
+        }
+
+        $vendors = $this->VendorService->getAllVendors($dto);
 
         return $this->sendRes(config('responses.success')[app()->getLocale()], true, VendorApiResource::collection($vendors));
     }
 
     public function show(Request $request, $id)
     {
-        $vendor = $this->VendorService->find($request->all(), $id);
+        $dto = VendorFilterDTO::fromRequest($request);
+
+        if (!$dto->validate()) {
+            return $this->sendRes(
+                config('responses.validation')[app()->getLocale()],
+                false,
+                [],
+                $dto->getErrors(),
+                422
+            );
+        }
+
+        $vendor = $this->VendorService->find($dto, $id);
 
         return $this->sendRes(config('responses.success')[app()->getLocale()], true, VendorApiResource::make($vendor));
     }

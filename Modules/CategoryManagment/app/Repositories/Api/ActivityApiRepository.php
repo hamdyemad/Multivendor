@@ -4,6 +4,7 @@ namespace Modules\CategoryManagment\app\Repositories\Api;
 
 use App\Actions\IsPaginatedAction;
 use Modules\CategoryManagment\app\Actions\ActivityQueryAction;
+use Modules\CategoryManagment\app\DTOs\ActivityFilterDTO;
 use Modules\CategoryManagment\app\Interfaces\Api\ActivityApiRepositoryInterface;
 
 class ActivityApiRepository implements ActivityApiRepositoryInterface
@@ -13,11 +14,11 @@ class ActivityApiRepository implements ActivityApiRepositoryInterface
     /**
      * Get all activities with filters and pagination
      */
-    public function getAllActivities(array $filters = [])
+    public function getAllActivities(ActivityFilterDTO $dto)
     {
-        $paginated = isset($filters["paginated"]) ? true : false;
+        $filters = $dto->toArray();
         $query = $this->query->handle($filters);
-        $result = $this->paginated->handle($query, $paginated, $filters["per_page"] ?? null);
+        $result = $this->paginated->handle($query, $dto->paginated, $dto->per_page);
         return $result;
     }
 
@@ -25,8 +26,9 @@ class ActivityApiRepository implements ActivityApiRepositoryInterface
     /**
      * Get activity by ID
      */
-    public function find(array $filters = [], $id)
+    public function find(ActivityFilterDTO $dto, $id)
     {
+        $filters = $dto->toArray();
         return $this->query->handle($filters)->with('activeDepartments')->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id))->firstOrFail();
     }
 

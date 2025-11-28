@@ -265,6 +265,10 @@ trait HasFilterScopes
             $query->bySubRegion($filters['sub_region_id']);
         }
 
+        if (!empty($filters['limit'])) {
+            $query->limit($filters['limit']);
+        }
+
         return $query;
     }
 }

@@ -7,12 +7,7 @@ use Modules\CatalogManagement\app\DTOs\ProductFilterDTO;
 interface ProductApiRepositoryInterface
 {
     public function getAllProducts(ProductFilterDTO $filters);
-    public function getProductsByDepartment(string $departmentId, ProductFilterDTO $filters);
-    public function getProductByIdOrSlug(string $identifier, ProductFilterDTO $filters);
-    public function getFeaturedProducts(ProductFilterDTO $filters);
-    public function getBestSellingProducts(ProductFilterDTO $filters);
-    public function getLatestProducts(ProductFilterDTO $filters);
-    public function getSpecialOfferProducts(ProductFilterDTO $filters);
+    public function getProductByIdOrSlug(string $identifier, string $vendorId);
     public function getHotDeals(ProductFilterDTO $filters);
     public function getTopProducts(ProductFilterDTO $filters);
     public function getProductVariantsKeys(string $productId);
@@ -24,7 +19,6 @@ interface ProductApiRepositoryInterface
     public function getTagsByFilters(array $filters);
     public function getInputsByFilters(array $filters);
     public function getTreesByFilters(array $filters);
-    public function countSoldProducts(string $productId, ?string $variantId = null);
     public function incrementProductViews(string $productId);
 
 

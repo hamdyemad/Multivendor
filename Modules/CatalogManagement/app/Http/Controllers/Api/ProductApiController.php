@@ -20,10 +20,7 @@ class ProductApiController extends Controller
         protected ProductApiService $productService
     ) {}
 
-    /**
-     * Get all products with filtering and pagination
-     * GET /api/products
-     */
+
     public function index(Request $request)
     {
         $dto = ProductFilterDTO::fromRequest($request);
@@ -49,14 +46,10 @@ class ProductApiController extends Controller
         );
     }
 
-    /**
-     * Get products by department
-     * GET /api/products/department/{id}
-     */
     public function getByDepartment(Request $request, string $departmentId)
     {
         $dto = ProductFilterDTO::fromRequest($request);
-
+        $dto->department_id = $departmentId;
         if (!$dto->validate()) {
             return $this->sendRes(
                 config('responses.validation')[app()->getLocale()],
@@ -67,12 +60,12 @@ class ProductApiController extends Controller
             );
         }
 
-        $products = $this->productService->getProductsByDepartment($departmentId, $dto);
+        $products = $this->productService->getAllProducts($dto);
 
         return $this->sendRes(
-            config('responses.success'),
+            config('responses.success')[app()->getLocale()],
             true,
-            ProductResource::collection($products),
+            VendorProductResource::collection($products),
             [],
             200
         );
@@ -82,13 +75,13 @@ class ProductApiController extends Controller
      * Get specific product by ID or slug
      * GET /api/products/{id}
      */
-    public function show(string $identifier)
+    public function show(string $identifier, string $vendorId)
     {
-        $product = $this->productService->getProductByIdOrSlug($identifier);
+        $product = $this->productService->getProductByIdOrSlug($identifier, $vendorId);
 
         if (!$product) {
             return $this->sendRes(
-                config('responses.product_not_found'),
+                config('responses.product_not_found')[app()->getLocale()],
                 false,
                 [],
                 [],
@@ -97,9 +90,9 @@ class ProductApiController extends Controller
         }
 
         return $this->sendRes(
-            config('responses.success'),
+            config('responses.success')[app()->getLocale()],
             true,
-            new ProductResource($product),
+            new VendorProductResource($product),
             [],
             200
         );
@@ -113,6 +106,7 @@ class ProductApiController extends Controller
     {
         $dto = ProductFilterDTO::fromRequest($request);
 
+        $dto->featured = true;
         if (!$dto->validate()) {
             return $this->sendRes(
                 config('responses.validation')[app()->getLocale()],
@@ -123,12 +117,12 @@ class ProductApiController extends Controller
             );
         }
 
-        $products = $this->productService->getFeaturedProducts($dto);
+        $products = $this->productService->getAllProducts($dto);
 
         return $this->sendRes(
-            config('responses.success'),
+            config('responses.success')[app()->getLocale()],
             true,
-            ProductResource::collection($products),
+            VendorProductResource::collection($products),
             [],
             200
         );
@@ -142,6 +136,9 @@ class ProductApiController extends Controller
     {
         $dto = ProductFilterDTO::fromRequest($request);
 
+        $dto->sort_by = 'sales';
+        $dto->sort_type = 'desc';
+
         if (!$dto->validate()) {
             return $this->sendRes(
                 config('responses.validation')[app()->getLocale()],
@@ -152,12 +149,12 @@ class ProductApiController extends Controller
             );
         }
 
-        $products = $this->productService->getBestSellingProducts($dto);
+        $products = $this->productService->getAllProducts($dto);
 
         return $this->sendRes(
-            config('responses.success'),
+            config('responses.success')[app()->getLocale()],
             true,
-            ProductResource::collection($products),
+            VendorProductResource::collection($products),
             [],
             200
         );
@@ -170,7 +167,8 @@ class ProductApiController extends Controller
     public function latest(Request $request)
     {
         $dto = ProductFilterDTO::fromRequest($request);
-
+        $dto->sort_by = 'created_at';
+        $dto->sort_type = 'desc';
         if (!$dto->validate()) {
             return $this->sendRes(
                 config('responses.validation')[app()->getLocale()],
@@ -181,12 +179,12 @@ class ProductApiController extends Controller
             );
         }
 
-        $products = $this->productService->getLatestProducts($dto);
+        $products = $this->productService->getAllProducts($dto);
 
         return $this->sendRes(
-            config('responses.success'),
+            config('responses.success')[app()->getLocale()],
             true,
-            ProductResource::collection($products),
+            VendorProductResource::collection($products),
             [],
             200
         );
@@ -200,6 +198,8 @@ class ProductApiController extends Controller
     {
         $dto = ProductFilterDTO::fromRequest($request);
 
+        $dto->has_discount = true;
+
         if (!$dto->validate()) {
             return $this->sendRes(
                 config('responses.validation')[app()->getLocale()],
@@ -210,12 +210,12 @@ class ProductApiController extends Controller
             );
         }
 
-        $products = $this->productService->getSpecialOfferProducts($dto);
+        $products = $this->productService->getAllProducts($dto);
 
         return $this->sendRes(
-            config('responses.success'),
+            config('responses.success')[app()->getLocale()],
             true,
-            ProductResource::collection($products),
+            VendorProductResource::collection($products),
             [],
             200
         );
@@ -239,12 +239,12 @@ class ProductApiController extends Controller
             );
         }
 
-        $products = $this->productService->getHotDeals($dto);
+        $products = $this->productService->getAllProducts($dto);
 
         return $this->sendRes(
             config('responses.success'),
             true,
-            ProductResource::collection($products),
+            VendorProductResource::collection($products),
             [],
             200
         );
@@ -257,6 +257,9 @@ class ProductApiController extends Controller
     public function top(Request $request)
     {
         $dto = ProductFilterDTO::fromRequest($request);
+        $dto->sort_by = 'sales';
+        $dto->sort_type = 'desc';
+        $dto->limit = 3;
 
         if (!$dto->validate()) {
             return $this->sendRes(
@@ -268,41 +271,12 @@ class ProductApiController extends Controller
             );
         }
 
-        $products = $this->productService->getTopProducts($dto);
+        $products = $this->productService->getAllProducts($dto);
 
         return $this->sendRes(
-            config('responses.success'),
+            config('responses.success')[app()->getLocale()],
             true,
-            ProductResource::collection($products),
-            [],
-            200
-        );
-    }
-
-    /**
-     * Get star products
-     * GET /api/products/star
-     */
-    public function star(Request $request)
-    {
-        $dto = ProductFilterDTO::fromRequest($request);
-
-        if (!$dto->validate()) {
-            return $this->sendRes(
-                config('responses.validation')[app()->getLocale()],
-                false,
-                [],
-                $dto->getErrors(),
-                422
-            );
-        }
-
-        $products = $this->productService->getStarProducts($dto);
-
-        return $this->sendRes(
-            config('responses.success'),
-            true,
-            ProductResource::collection($products),
+            VendorProductResource::collection($products),
             [],
             200
         );
@@ -561,24 +535,6 @@ class ProductApiController extends Controller
             config('responses.success'),
             true,
             $variants,
-            [],
-            200
-        );
-    }
-
-    /**
-     * Count sold products
-     * GET /api/products/{id}/sold-count
-     */
-    public function soldCount(string $productId, Request $request)
-    {
-        $variantId = $request->input('variant_id');
-        $count = $this->productService->countSoldProducts($productId, $variantId);
-
-        return $this->sendRes(
-            config('responses.success'),
-            true,
-            ['count' => $count],
             [],
             200
         );

@@ -27,6 +27,8 @@ class Product extends BaseModel
         'configuration_type' => 'string',
     ];
 
+    protected $slugFrom = 'title';
+
     // Product type constants
     const TYPE_PRODUCT = 'product';
     const TYPE_BANK = 'bank';
@@ -227,6 +229,14 @@ class Product extends BaseModel
     public function getCurrencyAttribute()
     {
         return $this->vendor->country->currency ?? null;
+    }
+
+    public function getTagsArrayAttribute()
+    {
+        if($this->tags){
+            return explode(',', $this->getTranslation('tags', app()->getLocale()));
+        }
+        return [];
     }
     // End Getters
 

@@ -431,7 +431,7 @@ class ProductRepository implements ProductInterface
                             'variant_configuration_id' => $variantConfigId,
                             'sku' => $sku,
                             'price' => $variantData['price'] ?? 0,
-                            // 'has_discount' => $hasVariantDiscount,
+                            'has_discount' => $hasVariantDiscount,
                             'price_before_discount' => $hasVariantDiscount ? ($variantData['price_before_discount'] ?? 0) : 0,
                             'discount_end_date' => $hasVariantDiscount ? ($variantData['discount_end_date'] ?? null) : null,
                         ];

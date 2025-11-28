@@ -109,6 +109,42 @@ class VendorProduct extends BaseModel
         return $query;
     }
 
+    public function scopeByDepartment(Builder $query, $departmentIdentifier)
+    {
+        return $query->whereHas('product', function($subQ) use ($departmentIdentifier) {
+            $subQ->whereHas('department', function($subSubQ) use ($departmentIdentifier) {
+                $subSubQ->where('id', $departmentIdentifier)->orWhere('slug', $departmentIdentifier);
+            });
+        });
+    }
+
+    public function scopeByCategory(Builder $query, $categoryIdentifier)
+    {
+        return $query->whereHas('product', function($subQ) use ($categoryIdentifier) {
+            $subQ->whereHas('category', function($subSubQ) use ($categoryIdentifier) {
+                $subSubQ->where('id', $categoryIdentifier)->orWhere('slug', $categoryIdentifier);
+            });
+        });
+    }
+
+    public function scopeBySubCategory(Builder $query, $subCategoryIdentifier)
+    {
+        return $query->whereHas('product', function($subQ) use ($subCategoryIdentifier) {
+            $subQ->whereHas('subCategory', function($subSubQ) use ($subCategoryIdentifier) {
+                $subSubQ->where('id', $subCategoryIdentifier)->orWhere('slug', $subCategoryIdentifier);
+            });
+        });
+    }
+
+    public function scopeByBrand(Builder $query, $brandIdentifier)
+    {
+        return $query->whereHas('product', function($subQ) use ($brandIdentifier) {
+            $subQ->whereHas('brand', function($subSubQ) use ($brandIdentifier) {
+                $subSubQ->where('id', $brandIdentifier)->orWhere('slug', $brandIdentifier);
+            });
+        });
+    }
+
     /**
      * Scope: Filter featured products
      */
@@ -120,6 +156,19 @@ class VendorProduct extends BaseModel
     public function scopeActive(Builder $query)
     {
         return $query->where('is_active', true);
+    }
+
+    public function scopeHasDiscount(Builder $query)
+    {
+        $query->whereHas('variants', function($subQ) {
+            $subQ->whereNotNull('discount_end_date')->where('discount_end_date', '>', now());
+        });
+
+        $query->with(['variants' => function($subQ) {
+            $subQ->whereNotNull('discount_end_date')->where('discount_end_date', '>', now());
+        }]);
+
+        return $query;
     }
 
     public function scopeStatus(Builder $query, $status)
@@ -146,6 +195,11 @@ class VendorProduct extends BaseModel
         // Featured filter
         if (!empty($filters['featured'])) {
             $query->featured();
+        }
+
+        // Active filter
+        if (!empty($filters['has_discount'])) {
+            $query->hasDiscount();
         }
 
         return $query;

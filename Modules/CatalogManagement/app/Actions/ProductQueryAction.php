@@ -16,12 +16,12 @@ class ProductQueryAction
             ->status(VendorProduct::STATUS_APPROVED)
             ->with([
                 'product' => function ($q) {
-                    $q->with(['brand', 'department', 'category', 'subCategory', 'variants', 'attachments']);
+                    $q->with(['brand', 'variants', 'attachments']);
                 },
                 'vendor',
                 'tax',
                 'variants' => function ($q) {
-                    $q->with(['variantConfiguration', 'stocks.region']);
+                    $q->with(['variantConfiguration']);
                 }
             ]);
 
@@ -45,7 +45,13 @@ class ProductQueryAction
 
         switch ($sortBy) {
             case 'name':
-                $query->orderByRaw("JSON_UNQUOTE(JSON_EXTRACT(translations, '$.title')) {$sortType}");
+                $query->join('translations', function ($join) {
+                    $join->on('products.id', '=', 'translations.translatable_id')
+                         ->where('translations.translatable_type', 'Modules\\CatalogManagement\\app\\Models\\Product')
+                         ->where('translations.lang_key', 'name');
+                })
+                ->orderBy('translations.lang_value', $sortType)
+                ->select('products.*')->distinct('products.id');
                 break;
             case 'price':
                 $query->orderByRaw("(SELECT MIN(price) FROM variants_configurations WHERE product_id = products.id) {$sortType}");

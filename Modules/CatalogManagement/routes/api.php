@@ -13,13 +13,14 @@ Route::prefix('variant-configurations')->group(function () {
 // Product API Routes (Public)
 Route::prefix('products')->group(function () {
     // Product listing and search
-    Route::get('/', [ProductApiController::class, 'index']);
-    Route::get('/featured', [ProductApiController::class, 'featured']); // missing key in db (featured)
-    Route::get('/best-selling', [ProductApiController::class, 'bestSelling']);   // missing key in db (sales)
-    Route::get('/latest', [ProductApiController::class, 'latest']);
-    Route::get('/special-offers', [ProductApiController::class, 'specialOffers']); // should make a seeder for the variants with the product to see result
+    Route::get('/', [ProductApiController::class, 'index']); // Done
+    Route::get('/featured', [ProductApiController::class, 'featured']); // Done
+    Route::get('/best-selling', [ProductApiController::class, 'bestSelling']); // Done
+    Route::get('/latest', [ProductApiController::class, 'latest']); // Done
+    Route::get('/special-offers', [ProductApiController::class, 'specialOffers']); // Done
+    Route::get('/{departmentId}/department', [ProductApiController::class, 'getByDepartment']); // Done
+    Route::get('/top', [ProductApiController::class, 'top']); // Done
     Route::get('/hot-deals', [ProductApiController::class, 'hotDeals']);
-    Route::get('/top', [ProductApiController::class, 'top']); // missing key in db (sales)
 
     // Filters
     Route::get('/filters', [ProductApiController::class, 'filters']);
@@ -29,16 +30,15 @@ Route::prefix('products')->group(function () {
     // Route::get('/filters/bundle-category/{id}', [ProductApiController::class, 'filtersByBundleCategory']);
     Route::get('/categories', [ProductApiController::class, 'categories']);
     Route::get('/brands', [ProductApiController::class, 'brands']);
-    Route::get('/price-range', [ProductApiController::class, 'priceRange']); // should make a seeder for the variants with the product to see result
+    Route::get('/price-range', [ProductApiController::class, 'priceRange']);
     Route::get('/tags', [ProductApiController::class, 'tags']);
     Route::get('/inputs', [ProductApiController::class, 'inputs']);
-    Route::get('/variants', [ProductApiController::class, 'variants']);  // should make a seeder for the variants with the product to see result
+    Route::get('/variants', [ProductApiController::class, 'variants']);
 
     // Product details
-    Route::get('/{id}', [ProductApiController::class, 'show']);
-    Route::get('/{id}/variants-keys', [ProductApiController::class, 'variantsKeys']); // should make a seeder for the variants with the product to see result
+    Route::get('specific-product/{id}/{vendorId}', [ProductApiController::class, 'show']);
+    Route::get('/{id}/variants-keys', [ProductApiController::class, 'variantsKeys']);
     Route::get('/{id}/sold-count', [ProductApiController::class, 'soldCount']);
-    Route::get('/department/{id}', [ProductApiController::class, 'getByDepartment']);
 
     // Reviews (authenticated)
     // Route::post('/{id}/reviews', [ProductApiController::class, 'storeReview'])->middleware('auth:sanctum'); // Need Review Model

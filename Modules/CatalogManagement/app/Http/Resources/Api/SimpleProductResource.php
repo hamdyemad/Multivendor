@@ -4,11 +4,8 @@ namespace Modules\CatalogManagement\app\Http\Resources\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Modules\CategoryManagment\app\Http\Resources\Api\LightCategoryApiResource;
-use Modules\CategoryManagment\app\Http\Resources\Api\LightDepartmentApiResource;
-use Modules\CategoryManagment\app\Http\Resources\Api\LightSubCategoryApiResource;
 
-class ProductResource extends JsonResource
+class SimpleProductResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -19,8 +16,7 @@ class ProductResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'show_end_offer_at_section' => true,
-            'image' => $this->mainImage->path,
+            'image' => $this->getProductImage(),
             'name' => $this->title,
             'slug' => $this->slug,
             'points' => $this->points ?? 0,
@@ -41,12 +37,7 @@ class ProductResource extends JsonResource
             'status' => $this->is_active ? 'Active' : 'Inactive',
             'limitation' => 2000,
             'is_fav' => false,
-            'size_color_type' => $this->configuration_type,
-            'variants' => ProductVariantResource::collection($this->whenLoaded('variants')),
-            'brand' => LightBrandApiResource::make($this->whenLoaded('brand')),
-            'tags' => [],
-            'meta_description' => $this->meta_description,
-            'meta_keywords' => $this->meta_keywords ?? [],
+            'size_color_type' => $this->getConfigurationType(),
         ];
     }
 
@@ -71,5 +62,16 @@ class ProductResource extends JsonResource
             return $this->variants->sum('stock') ?? 0;
         }
         return 0;
+    }
+
+    /**
+     * Get configuration type
+     */
+    private function getConfigurationType(): string
+    {
+        if ($this->configuration_type === 'with_variants') {
+            return 'with_variants';
+        }
+        return 'without_any';
     }
 }

@@ -5,7 +5,7 @@ namespace Modules\CatalogManagement\app\Http\Resources\Api;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TaxResource extends JsonResource
+class LightBrandApiResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,10 +18,19 @@ class TaxResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'tax_rate' => (float) $this->tax_rate,
-            'active' => $this->active,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'logo' => $this->formatImage($this->logo),
         ];
+    }
+
+    /**
+     * Format image path to full URL
+     */
+    private function formatImage($imagePath): ?string
+    {
+        if (!$imagePath) {
+            return null;
+        }
+
+        return url(asset('storage/' . $imagePath->path));
     }
 }

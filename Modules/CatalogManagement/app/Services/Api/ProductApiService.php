@@ -2,10 +2,9 @@
 
 namespace Modules\CatalogManagement\app\Services\Api;
 
-use Modules\CatalogManagement\app\DTOs\ProductFilterDTO;
 use Modules\CatalogManagement\app\Interfaces\Api\ProductApiRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
-use Modules\CatalogManagment\app\DTOs\ProductFilterDTO as DTOsProductFilterDTO;
+use Modules\CatalogManagement\app\DTOs\ProductFilterDTO;
 
 class ProductApiService
 {
@@ -22,19 +21,11 @@ class ProductApiService
     }
 
     /**
-     * Get products by department
-     */
-    public function getProductsByDepartment(string $departmentId, ProductFilterDTO $filters)
-    {
-        return $this->repository->getProductsByDepartment($departmentId, $filters);
-    }
-
-    /**
      * Get specific product by ID or slug
      */
-    public function getProductByIdOrSlug(string $identifier, DTOsProductFilterDTO $filters)
+    public function getProductByIdOrSlug(string $identifier, string $vendorId)
     {
-        $product = $this->repository->getProductByIdOrSlug($identifier, $filters);
+        $product = $this->repository->getProductByIdOrSlug($identifier, $vendorId);
 
         if ($product) {
             // Increment views
@@ -42,38 +33,6 @@ class ProductApiService
         }
 
         return $product;
-    }
-
-    /**
-     * Get featured products
-     */
-    public function getFeaturedProducts(ProductFilterDTO $filters)
-    {
-        return $this->repository->getFeaturedProducts($filters);
-    }
-
-    /**
-     * Get best selling products
-     */
-    public function getBestSellingProducts(ProductFilterDTO $filters)
-    {
-        return $this->repository->getBestSellingProducts($filters);
-    }
-
-    /**
-     * Get latest products
-     */
-    public function getLatestProducts(ProductFilterDTO $filters)
-    {
-        return $this->repository->getLatestProducts($filters);
-    }
-
-    /**
-     * Get special offer products
-     */
-    public function getSpecialOfferProducts(ProductFilterDTO $filters)
-    {
-        return $this->repository->getSpecialOfferProducts($filters);
     }
 
     /**
@@ -91,15 +50,7 @@ class ProductApiService
     {
         return $this->repository->getTopProducts($filters);
     }
-
-    /**
-     * Get star products
-     */
-    public function getStarProducts(ProductFilterDTO $filters)
-    {
-        return $this->repository->getStarProducts($filters);
-    }
-
+    
     /**
      * Get product variants keys
      */
@@ -191,13 +142,5 @@ class ProductApiService
     public function getTreesByFilters(array $filters)
     {
         return $this->repository->getTreesByFilters($filters);
-    }
-
-    /**
-     * Count sold products
-     */
-    public function countSoldProducts(string $productId, ?string $variantId = null)
-    {
-        return $this->repository->countSoldProducts($productId, $variantId);
     }
 }

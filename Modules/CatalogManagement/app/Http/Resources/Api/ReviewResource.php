@@ -4,9 +4,8 @@ namespace Modules\CatalogManagement\app\Http\Resources\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Modules\AreaSettings\app\Resources\RegionResource;
 
-class VendorProductVariantStockResource extends JsonResource
+class ReviewResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,10 +16,12 @@ class VendorProductVariantStockResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'vendor_product_variant_id' => $this->vendor_product_variant_id,
-            'region_id' => $this->region_id,
-            'quantity' => $this->quantity,
-            'region' => RegionResource::make($this->whenLoaded('region')),
+            'customer_id' => $this->customer_id,
+            'customer_name' => $this->customer_name ?? null,
+            'rating' => $this->rating,
+            'title' => $this->title,
+            'comment' => $this->comment,
+            'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

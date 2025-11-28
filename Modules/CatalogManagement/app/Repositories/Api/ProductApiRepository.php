@@ -34,66 +34,37 @@ class ProductApiRepository implements ProductApiRepositoryInterface
     }
 
     /**
-     * Get products by department
-     */
-    public function getProductsByDepartment(string $departmentId, ProductFilterDTO $filters)
-    {
-        $filters['department_id'] = $departmentId;
-        return $this->getAllProducts($filters);
-    }
-
-    /**
      * Get specific product by ID or slug
      */
-    public function getProductByIdOrSlug(string $identifier, ProductFilterDTO $filters)
+    public function getProductByIdOrSlug(string $identifier, string $vendorId)
     {
-        $query = $this->query->handle($filters);
+        $query = $this->query->handle([]);
 
         return $query->where(function ($q) use ($identifier) {
                 $q->where('id', $identifier)
-                    ->orWhere('slug', $identifier);
+                ->orWhereHas('product', function ($subQ) use ($identifier) {
+                    $subQ->where('slug', $identifier);
+                });
+            })->where(function ($q) use ($vendorId) {
+                $q->byVendor($vendorId);
             })
-            // ->with([
-            //     'approvedReviews'
-            // ])
+            ->with([
+                // 'approvedReviews',
+                'product' => function ($q) {
+                    $q->with(['department', 'category', 'subCategory']);
+                },
+            ])
             ->first();
     }
 
     /**
-     * Get featured products
+     * Increment product views
      */
-    public function getFeaturedProducts(ProductFilterDTO $filters)
+    public function incrementProductViews(string $productId)
     {
-        $filters['featured'] = true;
-        return $this->getAllProducts($filters);
-    }
+        $query = $this->query->handle([]);
 
-    /**
-     * Get best selling products
-     */
-    public function getBestSellingProducts(ProductFilterDTO $filters)
-    {
-        $filters['sort_by'] = 'sales';
-        return $this->getAllProducts($filters);
-    }
-
-    /**
-     * Get latest products
-     */
-    public function getLatestProducts(ProductFilterDTO $filters)
-    {
-        $filters['sort_by'] = 'created_at';
-        return $this->getAllProducts($filters);
-    }
-
-    /**
-     * Get special offer products
-     */
-    public function getSpecialOfferProducts(ProductFilterDTO $filters)
-    {
-        // This would need a special scope in the model
-        $filters['has_discount'] = true;
-        return $this->getAllProducts($filters);
+        return $query->where('id', $productId)->increment('views');
     }
 
     /**
@@ -278,25 +249,4 @@ class ProductApiRepository implements ProductApiRepositoryInterface
             ])
             ->get();
     }
-
-    /**
-     * Count sold products
-     */
-    public function countSoldProducts(string $productId, ?string $variantId = null)
-    {
-        // This would depend on your order structure
-        // For now, returning 0
-        return 0;
-    }
-
-    /**
-     * Increment product views
-     */
-    public function incrementProductViews(string $productId)
-    {
-        Product::query()
-            ->where('id', $productId)
-            ->increment('views');
-    }
-
 }

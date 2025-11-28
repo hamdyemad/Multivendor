@@ -5,7 +5,7 @@ namespace Modules\CatalogManagement\app\Http\Resources\Api;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class VariantConfigurationResource extends JsonResource
+class VariantConfigurationKeyResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -19,10 +19,8 @@ class VariantConfigurationResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->{"name_{$locale}"} ?? null,
-            'color' => $this->color ?? null,
-            'parent' => VariantConfigurationResource::make($this->whenLoaded('parent_data')),
-            'children' => VariantConfigurationResource::collection($this->whenLoaded('childrenRecursive')),
-            'key' => VariantConfigurationKeyResource::make($this->whenLoaded('key')),
+            'parent' => VariantConfigurationKeyResource::make($this->whenLoaded('parent')),
+            'children' => VariantConfigurationKeyResource::collection($this->whenLoaded('childrenKeys')),
         ];
     }
 }

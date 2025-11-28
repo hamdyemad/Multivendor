@@ -24,6 +24,7 @@ class ProductFilterDTO extends FilterDTO
         public ?string $category_id = null,
         public ?string $sub_category_id = null,
         public ?string $vendor_id = null,
+        public ?bool $has_discount = null,
         public ?float $min_price = null,
         public ?float $max_price = null,
         public ?bool $featured = null,
@@ -35,6 +36,7 @@ class ProductFilterDTO extends FilterDTO
         public ?string $subregion_id = null,
         public ?int $per_page = null,
         public bool $paginated = false,
+        public ?int $limit = null,
     ) {}
 
     /**
@@ -49,6 +51,7 @@ class ProductFilterDTO extends FilterDTO
             category_id: $request->input('category_id'),
             sub_category_id: $request->input('sub_category_id'),
             vendor_id: $request->input('vendor_id'),
+            has_discount: $request->boolean('has_discount', null),
             min_price: $request->input('min_price') ? (float) $request->input('min_price') : null,
             max_price: $request->input('max_price') ? (float) $request->input('max_price') : null,
             featured: $request->boolean('featured', null),
@@ -59,7 +62,8 @@ class ProductFilterDTO extends FilterDTO
             region_id: $request->input('region_id', null),
             subregion_id: $request->input('subregion_id', null),
             per_page: $request->integer('per_page', 15),
-            paginated: $request->boolean('paginated', false)
+            paginated: $request->boolean('paginated', false),
+            limit: $request->integer('limit', null)
         );
     }
 
@@ -72,6 +76,7 @@ class ProductFilterDTO extends FilterDTO
             'category_id' => $this->category_id,
             'sub_category_id' => $this->sub_category_id,
             'vendor_id' => $this->vendor_id,
+            'has_discount' => $this->has_discount,
             'min_price' => $this->min_price,
             'max_price' => $this->max_price,
             'featured' => $this->featured,
@@ -81,6 +86,7 @@ class ProductFilterDTO extends FilterDTO
             'city_id' => $this->city_id,
             'region_id' => $this->region_id,
             'subregion_id' => $this->subregion_id,
+            'limit' => $this->limit,
         ], fn($value) => $value !== null);
     }
 
@@ -142,6 +148,10 @@ class ProductFilterDTO extends FilterDTO
 
         if ($this->vendor_id && !$this->vendorExists($this->vendor_id)) {
             $this->errors['vendor_id'][] = __('validation.vendor_id_not_exist');
+        }
+
+        if ($this->has_discount && !in_array($this->has_discount, [true, false])) {
+            $this->errors['has_discount'][] = __('validation.has_discount_invalid');
         }
 
         return count($this->errors) === 0;

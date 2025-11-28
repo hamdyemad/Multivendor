@@ -150,7 +150,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Custom Product Filter Validations
+    | Custom Filter Validations
     |--------------------------------------------------------------------------
     */
     'min_price_positive' => 'min_price must be a positive number',
@@ -162,15 +162,15 @@ return [
     'city_id_not_exist' => 'city_id does not exist',
     'region_id_not_exist' => 'region_id does not exist',
     'subregion_id_not_exist' => 'subregion_id does not exist',
-
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Category Filter Validations
-    |--------------------------------------------------------------------------
-    */
+    'department_id_not_exist' => 'department_id does not exist',
+    'category_id_not_exist' => 'category_id does not exist',
+    'sub_category_id_not_exist' => 'sub_category_id does not exist',
+    'brand_id_not_exist' => 'brand_id does not exist',
+    'vendor_id_not_exist' => 'vendor_id does not exist',
     'created_date_from_invalid' => 'created_date_from must be a valid date (YYYY-MM-DD)',
     'created_date_to_invalid' => 'created_date_to must be a valid date (YYYY-MM-DD)',
     'activity_ids_invalid' => 'activity_ids must be an array',
+    'char_invalid' => 'char must be a valid character',
 
     /*
     |--------------------------------------------------------------------------

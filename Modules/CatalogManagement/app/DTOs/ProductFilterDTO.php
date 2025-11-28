@@ -7,6 +7,11 @@ use Modules\AreaSettings\app\Models\City;
 use Modules\AreaSettings\app\Models\Country;
 use Modules\AreaSettings\app\Models\Region;
 use Modules\AreaSettings\app\Models\SubRegion;
+use Modules\CatalogManagement\app\Models\Brand;
+use Modules\CategoryManagment\app\Models\Category;
+use Modules\CategoryManagment\app\Models\Department;
+use Modules\CategoryManagment\app\Models\SubCategory;
+use Modules\Vendor\app\Models\Vendor;
 
 class ProductFilterDTO extends FilterDTO
 {
@@ -103,20 +108,40 @@ class ProductFilterDTO extends FilterDTO
             $this->errors['sort_type'][] = __('validation.sort_type_invalid');
         }
 
-        if ($this->country_id && !Country::where('id', $this->country_id)->exists()) {
+        if ($this->country_id && !$this->countryExists($this->country_id)) {
             $this->errors['country_id'][] = __('validation.country_id_not_exist');
         }
 
-        if ($this->city_id && !City::where('id', $this->city_id)->exists()) {
+        if ($this->city_id && !$this->cityExists($this->city_id)) {
             $this->errors['city_id'][] = __('validation.city_id_not_exist');
         }
 
-        if ($this->region_id && !Region::where('id', $this->region_id)->exists()) {
+        if ($this->region_id && !$this->regionExists($this->region_id)) {
             $this->errors['region_id'][] = __('validation.region_id_not_exist');
         }
 
-        if ($this->subregion_id && !SubRegion::where('id', $this->subregion_id)->exists()) {
+        if ($this->subregion_id && !$this->subregionExists($this->subregion_id)) {
             $this->errors['subregion_id'][] = __('validation.subregion_id_not_exist');
+        }
+
+        if ($this->department_id && !$this->departmentExists($this->department_id)) {
+            $this->errors['department_id'][] = __('validation.department_id_not_exist');
+        }
+
+        if ($this->category_id && !$this->categoryExists($this->category_id)) {
+            $this->errors['category_id'][] = __('validation.category_id_not_exist');
+        }
+
+        if ($this->sub_category_id && !$this->subCategoryExists($this->sub_category_id)) {
+            $this->errors['sub_category_id'][] = __('validation.sub_category_id_not_exist');
+        }
+
+        if ($this->brand_id && !$this->brandExists($this->brand_id)) {
+            $this->errors['brand_id'][] = __('validation.brand_id_not_exist');
+        }
+
+        if ($this->vendor_id && !$this->vendorExists($this->vendor_id)) {
+            $this->errors['vendor_id'][] = __('validation.vendor_id_not_exist');
         }
 
         return count($this->errors) === 0;
@@ -125,5 +150,50 @@ class ProductFilterDTO extends FilterDTO
     public function getErrors(): array
     {
         return $this->errors;
+    }
+
+    private function countryExists(string $countryId): bool
+    {
+        return Country::where('id', $countryId)->orWhere('slug', $countryId)->exists();
+    }
+
+    private function cityExists(string $cityId): bool
+    {
+        return City::where('id', $cityId)->orWhere('slug', $cityId)->exists();
+    }
+
+    private function regionExists(string $regionId): bool
+    {
+        return Region::where('id', $regionId)->orWhere('slug', $regionId)->exists();
+    }
+
+    private function subregionExists(string $subregionId): bool
+    {
+        return SubRegion::where('id', $subregionId)->orWhere('slug', $subregionId)->exists();
+    }
+
+    private function departmentExists(string $departmentId): bool
+    {
+        return Department::where('id', $departmentId)->orWhere('slug', $departmentId)->exists();
+    }
+
+    private function categoryExists(string $categoryId): bool
+    {
+        return Category::where('id', $categoryId)->orWhere('slug', $categoryId)->exists();
+    }
+
+    private function subCategoryExists(string $subCategoryId): bool
+    {
+        return SubCategory::where('id', $subCategoryId)->orWhere('slug', $subCategoryId)->exists();
+    }
+
+    private function brandExists(string $brandId): bool
+    {
+        return Brand::where('id', $brandId)->orWhere('slug', $brandId)->exists();
+    }
+
+    private function vendorExists(string $vendorId): bool
+    {
+        return Vendor::where('id', $vendorId)->orWhere('slug', $vendorId)->exists();
     }
 }

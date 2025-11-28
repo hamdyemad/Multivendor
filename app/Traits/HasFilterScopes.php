@@ -195,6 +195,13 @@ trait HasFilterScopes
             });
         }
 
+        if(!empty($filters['char']))
+        {
+            $query->whereHas('translations', function($subQ) use ($filters) {
+                $subQ->where('lang_value', 'like', "{$filters['char']}%");
+            });
+        }
+
         // Active filter
         if (isset($filters['active']) && $filters['active'] !== '') {
             $query->isActive($filters['active']);

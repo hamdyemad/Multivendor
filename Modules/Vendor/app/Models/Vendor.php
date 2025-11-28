@@ -133,13 +133,6 @@ class Vendor extends BaseModel
         return $this->hasMany(\Modules\CatalogManagement\app\Models\VendorProductVariant::class);
     }
 
-
-    // Getters
-
-    public function getNameAttribute()
-    {
-        return $this->getTranslation('name', app()->getLocale()) ?? '--';
-    }
         /**
      * Get meta keywords as array for specific language
      */
@@ -226,6 +219,16 @@ class Vendor extends BaseModel
         });
     }
 
+    public function scopeByDepartment(Builder $query, $departmentIdentifier)
+    {
+        return $query->whereHas('activeActivities', function ($q) use ($departmentIdentifier) {
+            $q->whereHas('departments', function ($q) use ($departmentIdentifier) {
+                $q->where('departments.id', $departmentIdentifier)
+                ->orWhere('departments.slug', $departmentIdentifier);
+            });
+        });
+    }
+
     /**
      * Override filter scope to add vendor-specific filters
      * Calls parent filter from HasFilterScopes trait and adds custom filters
@@ -243,6 +246,11 @@ class Vendor extends BaseModel
         // Filter by country
         if (!empty($filters['country_id'])) {
             $query->byCountry($filters['country_id']);
+        }
+
+        // Filter by department
+        if (!empty($filters['department_id'])) {
+            $query->byDepartment($filters['department_id']);
         }
 
         return $query;

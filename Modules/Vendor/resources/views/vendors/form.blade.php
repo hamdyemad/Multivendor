@@ -244,6 +244,100 @@
                                                 @enderror
                                             </div>
                                         </div>
+                                        {{-- Social Media Section --}}
+                                <div class="col-12 mb-2">
+                                    <h6 class="fw-500">{{ trans('catalogmanagement::brand.social_media') }}</h6>
+                                </div>
+
+                                {{-- Facebook URL --}}
+                                <div class="col-md-6 mb-25">
+                                    <div class="form-group">
+                                        <label for="facebook_url" class="il-gray fs-14 fw-500 mb-10">
+                                            {{ trans('catalogmanagement::brand.facebook_url') }}
+                                        </label>
+                                        <input type="url"
+                                               class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('facebook_url') is-invalid @enderror"
+                                               id="facebook_url"
+                                               name="facebook_url"
+                                               value="{{ old('facebook_url', $vendor->facebook_url ?? '') }}"
+                                               placeholder="https://facebook.com/your-brand">
+                                        @error('facebook_url')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                {{-- Twitter URL --}}
+                                <div class="col-md-6 mb-25">
+                                    <div class="form-group">
+                                        <label for="twitter_url" class="il-gray fs-14 fw-500 mb-10">
+                                            {{ trans('catalogmanagement::brand.twitter_url') }}
+                                        </label>
+                                        <input type="url"
+                                               class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('twitter_url') is-invalid @enderror"
+                                               id="twitter_url"
+                                               name="twitter_url"
+                                               value="{{ old('twitter_url', $vendor->twitter_url ?? '') }}"
+                                               placeholder="https://twitter.com/your-brand">
+                                        @error('twitter_url')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                {{-- Instagram URL --}}
+                                <div class="col-md-6 mb-25">
+                                    <div class="form-group">
+                                        <label for="instagram_url" class="il-gray fs-14 fw-500 mb-10">
+                                            {{ trans('catalogmanagement::brand.instagram_url') }}
+                                        </label>
+                                        <input type="url"
+                                               class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('instagram_url') is-invalid @enderror"
+                                               id="instagram_url"
+                                               name="instagram_url"
+                                               value="{{ old('instagram_url', $vendor->instagram_url ?? '') }}"
+                                               placeholder="https://instagram.com/your-brand">
+                                        @error('instagram_url')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                {{-- LinkedIn URL --}}
+                                <div class="col-md-6 mb-25">
+                                    <div class="form-group">
+                                        <label for="linkedin_url" class="il-gray fs-14 fw-500 mb-10">
+                                            {{ trans('catalogmanagement::brand.linkedin_url') }}
+                                        </label>
+                                        <input type="url"
+                                               class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('linkedin_url') is-invalid @enderror"
+                                               id="linkedin_url"
+                                               name="linkedin_url"
+                                               value="{{ old('linkedin_url', $vendor->linkedin_url ?? '') }}"
+                                               placeholder="https://linkedin.com/company/your-brand">
+                                        @error('linkedin_url')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                {{-- Pinterest URL --}}
+                                <div class="col-md-6 mb-25">
+                                    <div class="form-group">
+                                        <label for="pinterest_url" class="il-gray fs-14 fw-500 mb-10">
+                                            {{ trans('catalogmanagement::brand.pinterest_url') }}
+                                        </label>
+                                        <input type="url"
+                                               class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('pinterest_url') is-invalid @enderror"
+                                               id="pinterest_url"
+                                               name="pinterest_url"
+                                               value="{{ old('pinterest_url', $vendor->pinterest_url ?? '') }}"
+                                               placeholder="https://pinterest.com/your-brand">
+                                        @error('pinterest_url')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
                                         <!-- Activities Selection -->
                                         <div class="col-md-6 mb-3">
                                             <div class="form-group">

@@ -27,6 +27,11 @@ class VendorApiResource extends JsonResource
             'logo' => $this->formatImage($this->logo),
             'banner' => $this->formatImage($this->banner),
             'active' => (bool) $this->active,
+            'facebook' => $this->facebook_url,
+            'instagram' => $this->instagram_url,
+            'x' => $this->twitter_url,
+            'linkedin' => $this->linkedin_url,
+            'pinterest' => $this->pinterest_url,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

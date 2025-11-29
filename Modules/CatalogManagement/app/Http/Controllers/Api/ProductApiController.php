@@ -11,6 +11,7 @@ use Modules\CatalogManagement\app\Services\Api\ProductApiService;
 use Modules\CatalogManagement\app\Http\Resources\Api\ProductResource;
 use Modules\CatalogManagement\app\Http\Resources\Api\VendorProductResource;
 use Modules\CatalogManagement\app\Http\Requests\Api\ProductReviewRequest;
+use Modules\CatalogManagement\app\Http\Resources\Api\VariantConfigurationKeyResource;
 use Modules\CategoryManagment\app\Http\Resources\Api\GeneralResoruce;
 
 class ProductApiController extends Controller
@@ -328,9 +329,12 @@ class ProductApiController extends Controller
             config('responses.success')[app()->getLocale()],
             true,
             [
-                'category_info' => empty($filterData['category_info']) ? [] : GeneralResoruce::make($filterData['category_info']),
-                'categories' => GeneralResoruce::collection($filterData['categories']),
-                'brands' => GeneralResoruce::collection($filterData['brands']),
+                'category_info' => empty($filterData['category_info']) ? [] : GeneralResoruce::make($filterData['category_info'])->resolve(),
+                'categories' => GeneralResoruce::collection($filterData['categories'])->resolve(),
+                'brands' => GeneralResoruce::collection($filterData['brands'])->resolve(),
+                'tags' => $filterData['tags'],
+                'trees' => $filterData['trees'] ? VariantConfigurationKeyResource::collection($filterData['trees'])->resolve() : [],
+                'biggest_price' => isset($filterData["price"]) ? collect($filterData['price']) : collect(),
             ],
             [],
             200

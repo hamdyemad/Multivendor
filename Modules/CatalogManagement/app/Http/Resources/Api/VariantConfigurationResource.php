@@ -16,13 +16,23 @@ class VariantConfigurationResource extends JsonResource
     {
         $locale = app()->getLocale();
 
-        return [
+        $data = [
             'id' => $this->id,
-            'name' => $this->{"name_{$locale}"} ?? null,
+            'name' => $this->name ?? null,
             'color' => $this->color ?? null,
-            'parent' => VariantConfigurationResource::make($this->whenLoaded('parent_data')),
-            'children' => VariantConfigurationResource::collection($this->whenLoaded('childrenRecursive')),
-            'key' => VariantConfigurationKeyResource::make($this->whenLoaded('key')),
         ];
+
+        // Include children with their keys if they exist
+        if ($this->relationLoaded('childrenRecursive') && $this->childrenRecursive->isNotEmpty()) {
+            $data['children'] = $this->childrenRecursive->map(function ($child) {
+                return [
+                    'key_id' => $child->key_id,
+                    'key_name' => $child->key?->name,
+                    'options' => VariantConfigurationResource::collection($child->childrenRecursive ?? collect()),
+                ];
+            });
+        }
+
+        return $data;
     }
 }

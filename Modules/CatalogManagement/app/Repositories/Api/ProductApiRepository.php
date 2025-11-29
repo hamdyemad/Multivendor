@@ -112,12 +112,9 @@ class ProductApiRepository implements ProductApiRepositoryInterface
         $query = $this->query->handle($filters)
             ->whereHas('variants');
 
-        $maxPrice = $query->max(DB::raw('(SELECT MAX(price) FROM variants_configurations WHERE product_id = products.id)'));
+        $maxPrice = $query->max(DB::raw('(SELECT MAX(price) FROM vendor_product_variants WHERE vendor_product_id = vendor_products.id)'));
 
-        return [
-            'min' => 0,
-            'max' => $maxPrice ?? 0,
-        ];
+        return $maxPrice ?? 0;
     }
 
     /**
@@ -125,16 +122,14 @@ class ProductApiRepository implements ProductApiRepositoryInterface
      */
     public function getTagsByFilters(array $filters)
     {
-        $query = $this->query->handle($filters);
-
+        $products = $this->query->handle($filters)->get();
         $tags = [];
-        foreach ($query->get() as $product) {
-            if ($product->tags) {
-                $tags = array_merge($tags, explode(',', $product->tags));
-            }
+        foreach ($products as $product) {
+            $productTags = $product->product->tags_array;
+            $tags = array_merge($tags, $productTags);
         }
 
-        return array_unique($tags);
+        return array_unique(array_filter($tags));
     }
 
     /**
@@ -153,11 +148,20 @@ class ProductApiRepository implements ProductApiRepositoryInterface
     public function getTreesByFilters(array $filters)
     {
         return VariantConfigurationKey::query()
-            ->whereNull('parent_id')
+            ->whereNull('parent_key_id')
             ->with([
                 'variants' => function ($q) {
                     $q->whereNull('parent_id')
-                        ->with('childrenRecursive.key');
+                        ->with(['childrenRecursive', 'childrenRecursive.key', 'childrenRecursive.translations', 'childrenRecursive.key.translations']);
+                },
+                'childrenKeys' => function ($q) {
+                    $q->with([
+                        'variants' => function ($q2) {
+                            $q2->whereNull('parent_id')
+                                ->with(['childrenRecursive', 'childrenRecursive.key']);
+                        },
+                        'childrenKeys'
+                    ]);
                 }
             ])
             ->get();

@@ -61,10 +61,9 @@ class ProductApiService
             'category_info' => $this->CategoryService->getCategoriesByIds($filters),
             'categories' => $this->CategoryService->getCategoriesByFilters($filters),
             'brands' => $this->BrandService->getAllBrands($brandDto),
-            // 'price_range' => $this->repository->getPriceByFilters($filters),
-            // 'tags' => $this->repository->getTagsByFilters($filters),
-            // 'inputs' => $this->repository->getInputsByFilters($filters),
-            // 'variants' => $this->repository->getTreesByFilters($filters),
+            'price' => $this->repository->getPriceByFilters($filters),
+            'tags' => $this->repository->getTagsByFilters($filters),
+            'trees' => $this->repository->getTreesByFilters($filters),
         ];
     }
 

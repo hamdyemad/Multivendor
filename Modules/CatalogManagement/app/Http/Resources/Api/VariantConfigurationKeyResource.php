@@ -4,6 +4,7 @@ namespace Modules\CatalogManagement\app\Http\Resources\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Modules\CatalogManagement\app\Http\Resources\Api\VariantConfigurationResource;
 
 class VariantConfigurationKeyResource extends JsonResource
 {
@@ -14,12 +15,10 @@ class VariantConfigurationKeyResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $locale = app()->getLocale();
-
         return [
-            'id' => $this->id,
-            'name' => $this->{"name_{$locale}"} ?? null,
-            'parent' => VariantConfigurationKeyResource::make($this->whenLoaded('parent')),
+            'key_id' => $this->id,
+            'key_name' => $this->name,
+            'options' => VariantConfigurationResource::collection($this->whenLoaded('variants')),
             'children' => VariantConfigurationKeyResource::collection($this->whenLoaded('childrenKeys')),
         ];
     }

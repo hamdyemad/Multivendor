@@ -193,4 +193,7 @@ return [
     'error_loading_categories' => 'خطأ في تحميل الفئات',
     'error_loading_sub_categories' => 'خطأ في تحميل الفئات الفرعية',
     'error_loading_brands' => 'خطأ في تحميل العلامات التجارية',
+    'note' => 'ملاحظة',
+    'trashed' => 'محذوف',
+    'restore' => 'استعادة',
 ];

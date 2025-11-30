@@ -72,10 +72,51 @@
             }
             initEventHandlers();
             loadRegions();
+            loadTaxes();
 
             console.log('Bank stock management initialized successfully');
         }, 100); // Small delay to let other scripts finish
     });
+
+    // Reset function to clear all form data when vendor changes
+    function resetAllFormData() {
+        console.log('🔄 Resetting all form data due to vendor change');
+
+        // Reset global variables
+        selectedProduct = null;
+
+        // Clear product search and selection
+        $('#product-search').val('');
+        $('#products-list').empty();
+        $('#selected-product-summary').hide();
+        $('#selected-product-name').text('');
+        $('#selected_product_id').val('');
+        $('#selected_vendor_id').val(selectedVendorId || '');
+
+        // Reset product step
+        $('#step-products').removeClass('completed');
+        $('#products-container').hide();
+        $('#no-products').hide();
+
+        // Clear and hide variant management
+        $('#variants-container').empty();
+        $('#step-variant-stock-management').hide();
+        $('#variants-loading').hide();
+        $('#no-variants-state').hide();
+
+        // Reset form
+        $('#vendor-product-form')[0].reset();
+
+        // Reset global vendor product fields
+        $('#tax_id').val('').trigger('change');
+        $('#max_per_order').val('');
+
+        // Clear any validation errors
+        $('.is-invalid').removeClass('is-invalid');
+        $('.error-message').hide();
+
+        console.log('✅ All form data reset successfully');
+    }
 
     // Step 1: Vendor Selection
     function initVendorSelect() {
@@ -85,6 +126,9 @@
         $vendorSelect.on('change', function() {
             selectedVendorId = $(this).val();
             console.log('🏪 Vendor selected:', selectedVendorId);
+
+            // Always reset everything when vendor changes
+            resetAllFormData();
 
             if (selectedVendorId) {
                 console.log('✅ Enabling product search for vendor:', selectedVendorId);
@@ -889,6 +933,21 @@
             saveForm();
         });
 
+        // Clear validation errors on global vendor product fields
+        $('#tax_id').on('change', function() {
+            if ($(this).val()) {
+                $(this).removeClass('is-invalid');
+                $('#error-tax_id').hide();
+            }
+        });
+
+        $('#max_per_order').on('input', function() {
+            if ($(this).val() && parseInt($(this).val()) >= 1) {
+                $(this).removeClass('is-invalid');
+                $('#error-max_per_order').hide();
+            }
+        });
+
         // Clear validation errors on focus/input for any form field
         $(document).on('focus input change', 'input, select, textarea', function() {
             clearFieldError($(this));
@@ -898,6 +957,41 @@
         $(document).on('blur', 'select', function() {
             if ($(this).val()) {
                 clearFieldError($(this));
+            }
+        });
+
+        // Clear validation errors for variant SKU fields
+        $(document).on('input', 'input[name*="[sku]"]', function() {
+            const $input = $(this);
+            if ($input.val() && $input.val().trim()) {
+                $input.removeClass('is-invalid');
+                $input.next('.error-message').hide();
+            }
+        });
+
+        // Clear validation errors for variant price fields
+        $(document).on('input', 'input[name*="[price]"]', function() {
+            const $input = $(this);
+            if ($input.val() && parseFloat($input.val()) > 0) {
+                $input.removeClass('is-invalid');
+                $input.next('.error-message').hide();
+            }
+        });
+
+        // Clear validation errors for stock quantity fields
+        $(document).on('input', 'input[name*="[quantity]"], .stock-quantity', function() {
+            const $input = $(this);
+            if ($input.val() && parseInt($input.val()) >= 0) {
+                $input.removeClass('is-invalid');
+                $input.next('.error-message').hide();
+            }
+        });
+
+        // Clear validation errors for region select fields
+        $(document).on('change', 'select[name*="[region_id]"]', function() {
+            const $select = $(this);
+            if ($select.val()) {
+                $select.removeClass('is-invalid');
             }
         });
     }
@@ -931,49 +1025,145 @@
         let isValid = true;
         let errors = [];
 
+        // Validate global vendor product fields
+        const taxId = $('#tax_id').val();
+        if (!taxId || taxId === '') {
+            errors.push('Tax selection is required');
+            $('#tax_id').addClass('is-invalid');
+            $('#error-tax_id').text('Tax is required').show();
+            isValid = false;
+        } else {
+            $('#tax_id').removeClass('is-invalid');
+            $('#error-tax_id').hide();
+        }
+
+        const maxPerOrder = $('#max_per_order').val();
+        if (!maxPerOrder || parseInt(maxPerOrder) < 1) {
+            errors.push('Max per order must be at least 1');
+            $('#max_per_order').addClass('is-invalid');
+            $('#error-max_per_order').text('Max per order is required and must be at least 1').show();
+            isValid = false;
+        } else {
+            $('#max_per_order').removeClass('is-invalid');
+            $('#error-max_per_order').hide();
+        }
+
+        // Debug: Check what variant elements exist
+        const variantElements = $('.variant-management-box, .existing-variant-card');
+        console.log('🔍 Found variant elements:', variantElements.length);
+        console.log('🔍 Variant elements:', variantElements);
+
+        // Also check for variants container content
+        const variantsContainer = $('#variants-container');
+        console.log('🔍 Variants container HTML:', variantsContainer.html());
+
+        // Check if there are any products selected
+        if (!selectedProduct) {
+            errors.push('Please select a product first');
+            isValid = false;
+            console.log('❌ No product selected');
+        } else {
+            console.log('✅ Product selected:', selectedProduct);
+        }
+
         // Validate each variant
-        $('.variant-management-box').each(function(index) {
-            const variantName = $(this).find('h6').text() || `Variant ${index + 1}`;
+        $('.variant-management-box, .existing-variant-card').each(function(index) {
+            const $variant = $(this);
+            const variantName = $variant.find('h6 .variant-name').text() || $variant.find('h6').text() || `Variant ${index + 1}`;
 
             // Check SKU
-            const sku = $(this).find('input[name*="[sku]"]').val();
+            const $skuInput = $variant.find('input[name*="[sku]"]');
+            const sku = $skuInput.val();
             if (!sku || sku.trim() === '') {
                 errors.push(`${variantName}: SKU is required`);
+                $skuInput.addClass('is-invalid');
+                // Find or create error message element
+                let $errorElement = $skuInput.next('.error-message');
+                if ($errorElement.length === 0) {
+                    $errorElement = $('<div class="error-message text-danger" style="font-size: 0.875rem; margin-top: 0.25rem;"></div>');
+                    $skuInput.after($errorElement);
+                }
+                $errorElement.text('SKU is required').show();
                 isValid = false;
+            } else {
+                $skuInput.removeClass('is-invalid');
+                $skuInput.next('.error-message').hide();
             }
 
             // Check Price
-            const price = $(this).find('input[name*="[price]"]').val();
+            const $priceInput = $variant.find('input[name*="[price]"]');
+            const price = $priceInput.val();
             if (!price || parseFloat(price) <= 0) {
                 errors.push(`${variantName}: Price must be greater than 0`);
+                $priceInput.addClass('is-invalid');
+                // Find or create error message element
+                let $errorElement = $priceInput.next('.error-message');
+                if ($errorElement.length === 0) {
+                    $errorElement = $('<div class="error-message text-danger" style="font-size: 0.875rem; margin-top: 0.25rem;"></div>');
+                    $priceInput.after($errorElement);
+                }
+                $errorElement.text('Price must be greater than 0').show();
                 isValid = false;
-            }
-
-            // Check Tax
-            const tax = $(this).find('select[name*="[tax_id]"]').val();
-            if (!tax || tax === '') {
-                errors.push(`${variantName}: Tax selection is required`);
-                isValid = false;
+            } else {
+                $priceInput.removeClass('is-invalid');
+                $priceInput.next('.error-message').hide();
             }
 
             // Check Stock Management (at least one stock entry with region and quantity)
-            const stockRows = $(this).find('.variant-stock-row');
+            const stockRows = $variant.find('.stock-row, .variant-stock-row');
             let hasValidStock = false;
+            let stockErrors = [];
 
             stockRows.each(function() {
-                const region = $(this).find('select[name*="[region_id]"]').val();
-                const quantity = $(this).find('input[name*="[quantity]"]').val();
+                const $row = $(this);
+                const $regionSelect = $row.find('select[name*="[region_id]"]');
+                const $quantityInput = $row.find('input[name*="[quantity]"], .stock-quantity');
+                const region = $regionSelect.val();
+                const quantity = $quantityInput.val();
 
-                if (region && quantity && parseInt(quantity) >= 0) {
-                    hasValidStock = true;
+                // Validate region selection
+                if (!region || region === '') {
+                    $regionSelect.addClass('is-invalid');
+                    stockErrors.push('Region is required');
+                } else {
+                    $regionSelect.removeClass('is-invalid');
+                }
+
+                // Validate quantity
+                if (!quantity || parseInt(quantity) < 0) {
+                    $quantityInput.addClass('is-invalid');
+                    // Find or create error message element for quantity
+                    let $errorElement = $quantityInput.next('.error-message');
+                    if ($errorElement.length === 0) {
+                        $errorElement = $('<div class="error-message text-danger" style="font-size: 0.875rem; margin-top: 0.25rem;"></div>');
+                        $quantityInput.after($errorElement);
+                    }
+                    $errorElement.text('Quantity is required and must be 0 or greater').show();
+                    stockErrors.push('Quantity is required');
+                } else {
+                    $quantityInput.removeClass('is-invalid');
+                    $quantityInput.next('.error-message').hide();
+                    if (region && region !== '') {
+                        hasValidStock = true;
+                    }
                 }
             });
 
-            if (!hasValidStock) {
-                errors.push(`${variantName}: At least one stock entry with region and quantity is required`);
+            if (!hasValidStock && stockRows.length > 0) {
+                errors.push(`${variantName}: At least one valid stock entry with region and quantity is required`);
+                isValid = false;
+            } else if (stockRows.length === 0) {
+                errors.push(`${variantName}: At least one stock entry is required`);
                 isValid = false;
             }
         });
+
+        // Debug: Final validation summary
+        console.log('🔍 Final validation summary:');
+        console.log('  - Total errors:', errors.length);
+        console.log('  - Errors:', errors);
+        console.log('  - Is valid:', isValid);
+        console.log('  - Variant elements processed:', $('.variant-management-box, .existing-variant-card').length);
 
         // Show validation errors
         if (!isValid) {
@@ -1024,9 +1214,7 @@
                     // Clear validation errors on success
                     clearValidationErrors();
                     showBootstrapAlert('success', response.message || 'Stocks saved successfully!');
-
-                    // Optionally reload the product data
-                    // loadProductVariants(selectedProduct);
+                    window.location.href = '{{ route("admin.products.index") }}';
                 } else {
                     showBootstrapAlert('danger', response.message || 'Error saving stocks');
                 }
@@ -2283,9 +2471,9 @@
                         toastr.success(response.message || '{{ __("catalogmanagement::product.vendor_products_saved_successfully") }}');
                     }
 
-                    // Redirect back to bank products page
+                    // Redirect to products page
                     setTimeout(function() {
-                        window.location.href = '{{ route("admin.products.bank") }}';
+                        window.location.href = '{{ route("admin.products.index") }}';
                     }, 1500);
                 } else {
                     if (typeof toastr !== 'undefined') {
@@ -2392,6 +2580,46 @@
                 regionsData = [];
             }
         });
+    }
+
+    // Load taxes for the tax dropdown from controller data
+    function loadTaxes() {
+        console.log('Loading taxes from controller data...');
+
+        try {
+            // Get taxes from the controller data passed via window.bankStockConfig
+            const taxes = window.bankStockConfig?.taxes || [];
+            console.log('Taxes from controller:', taxes);
+
+            // Update tax dropdown
+            const $taxSelect = $('#tax_id');
+            $taxSelect.empty().append('<option value="">{{ __("common.select_option") }}</option>');
+
+            taxes.forEach(tax => {
+                const taxName = tax.name || `Tax ${tax.id}`;
+                const percentage = tax.percentage || 0;
+                $taxSelect.append(`<option value="${tax.id}">${taxName}</option>`);
+            });
+
+            // Reinitialize Select2 for tax dropdown
+            $taxSelect.select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: '{{ __("catalogmanagement::product.select_tax") }}'
+            });
+
+            console.log('Taxes loaded successfully from controller data');
+            return Promise.resolve();
+        } catch (error) {
+            console.error('Error loading taxes from controller data:', error);
+            // Initialize empty dropdown with Select2 as fallback
+            $('#tax_id').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: '{{ __("catalogmanagement::product.select_tax") }}'
+            });
+            return Promise.reject(error);
+        }
     }
 
     function updateRegionDropdowns() {
@@ -2962,7 +3190,11 @@
                 if (response.success) {
                     console.log('✅ All variants stock saved successfully');
                     showAlert('Success', 'All variants stock saved successfully!', 'success');
-                    // Optionally reset or redirect
+
+                    // Redirect to products page after 1.5 seconds
+                    setTimeout(function() {
+                        window.location.href = '{{ route("admin.products.index") }}';
+                    }, 1500);
                 } else {
                     console.error('❌ Error saving variants stock:', response.message);
                     showAlert('Error', response.message || 'Error saving variants stock', 'error');
@@ -3068,7 +3300,11 @@
                     if (response.success) {
                         console.log('✅ Simple product stock saved successfully');
                         showAlert('Success', 'Product stock saved successfully!', 'success');
-                        // Optionally reset form or redirect
+
+                        // Redirect to products page after 1.5 seconds
+                        setTimeout(function() {
+                            window.location.href = '{{ route("admin.products.index") }}';
+                        }, 1500);
                     } else {
                         console.error('❌ Error saving stock:', response.message);
                         showAlert('Error', response.message || 'Error saving stock', 'error');

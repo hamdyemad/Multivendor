@@ -17,4 +17,8 @@ interface ProductInterface
     public function getVendorProductByProductAndVendor(int $productId, int $vendorId);
     public function getProductsNotInVendor(int $vendorId, string $search = '');
     public function saveBankStock(array $data);
+
+    // Status Management
+    public function changeVendorProductStatus(int $productId, array $data);
+    public function changeProductActivation(int $productId, bool $isActive);
 }

@@ -112,7 +112,7 @@
 @endpush
 
 @section('content')
-    <div class="container-fluid">
+    <div class="container-fluid mb-4">
         <div class="row">
             <div class="col-lg-12">
                 <x-breadcrumb :items="[
@@ -197,6 +197,104 @@
                                                                     style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
                                                                     @if($translation)
                                                                         {!! $translation !!}
+                                                                    @else
+                                                                        --
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Summary --}}
+                                            <div class="col-md-12">
+                                                <div class="view-item box-items-translations">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('common.summary') }}</label>
+                                                    <div class="row">
+                                                        @foreach ($languages as $lang)
+                                                            @php
+                                                                $translation = $product->getTranslation('summary', $lang->code);
+                                                            @endphp
+                                                            <div class="col-md-6 mb-3">
+                                                                <small class="text-muted d-block" style="@if ($lang->code == 'ar') direction: rtl; text-align: right; @endif">{{ $lang->code }}:</small>
+                                                                <div class="fs-15 color-dark mb-0" style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
+                                                                    @if($translation)
+                                                                        {!! $translation !!}
+                                                                    @else
+                                                                        --
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Features --}}
+                                            <div class="col-md-12">
+                                                <div class="view-item box-items-translations">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('common.features') }}</label>
+                                                    <div class="row">
+                                                        @foreach ($languages as $lang)
+                                                            @php
+                                                                $translation = $product->getTranslation('features', $lang->code);
+                                                            @endphp
+                                                            <div class="col-md-6 mb-3">
+                                                                <small class="text-muted d-block" style="@if ($lang->code == 'ar') direction: rtl; text-align: right; @endif">{{ $lang->code }}:</small>
+                                                                <div class="fs-15 color-dark mb-0" style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
+                                                                    @if($translation)
+                                                                        {!! $translation !!}
+                                                                    @else
+                                                                        --
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Instructions --}}
+                                            <div class="col-md-12">
+                                                <div class="view-item box-items-translations">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('common.instructions') }}</label>
+                                                    <div class="row">
+                                                        @foreach ($languages as $lang)
+                                                            @php
+                                                                $translation = $product->getTranslation('instructions', $lang->code);
+                                                            @endphp
+                                                            <div class="col-md-6 mb-3">
+                                                                <small class="text-muted d-block" style="@if ($lang->code == 'ar') direction: rtl; text-align: right; @endif">{{ $lang->code }}:</small>
+                                                                <div class="fs-15 color-dark mb-0" style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
+                                                                    @if($translation)
+                                                                        {!! $translation !!}
+                                                                    @else
+                                                                        --
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Tags --}}
+                                            <div class="col-md-12">
+                                                <div class="view-item box-items-translations">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('common.tags') }}</label>
+                                                    <div class="row">
+                                                        @foreach ($languages as $lang)
+                                                            @php
+                                                                $translation = $product->getTranslation('tags', $lang->code);
+                                                            @endphp
+                                                            <div class="col-md-6 mb-3">
+                                                                <small class="text-muted d-block" style="@if ($lang->code == 'ar') direction: rtl; text-align: right; @endif">{{ $lang->code }}:</small>
+                                                                <div class="fs-15 color-dark mb-0" style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
+                                                                    @if($translation)
+                                                                        @foreach(explode(',', $translation) as $tag)
+                                                                            <span class="badge badge-light-primary badge-pill">{{ $tag }}</span>
+                                                                        @endforeach
                                                                     @else
                                                                         --
                                                                     @endif
@@ -465,6 +563,32 @@
                                                 </div>
                                             </div>
 
+                                            {{-- Meta Keywords --}}
+                                            <div class="col-md-12">
+                                                <div class="view-item box-items-translations">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.meta_keywords') }}</label>
+                                                    <div class="row">
+                                                        @foreach ($languages as $lang)
+                                                            @php
+                                                                $translation = $product->getTranslation('meta_keywords', $lang->code);
+                                                            @endphp
+                                                            <div class="col-md-6 mb-3">
+                                                                <small class="text-muted d-block"
+                                                                    style="@if ($lang->code == 'ar') direction: rtl; text-align: right; @endif">{{ $lang->code }}:</small>
+                                                                <div class="fs-15 color-dark mb-0"
+                                                                    style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
+                                                                    @if($translation)
+                                                                        {{ $translation }}
+                                                                    @else
+                                                                        --
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+
 
                                         </div>
                                     </div>
@@ -485,7 +609,21 @@
                                             <img src="{{ asset('storage/' . $product->mainImage->path) }}"
                                                  alt="{{ $product->title }}"
                                                  class="img-fluid rounded shadow-sm"
-                                                 style="max-height: 300px; object-fit: cover;">
+                                                 style="max-height: 300px; object-fit: cover; cursor: pointer;"
+                                                 onclick="openMainImageModal()">
+
+                                            {{-- Main Image Modal --}}
+                                            <div class="modal fade" id="mainImageModal" tabindex="-1" aria-labelledby="mainImageModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog modal-lg modal-dialog-centered">
+                                                    <div class="modal-content">
+                                                        <div class="modal-body p-0 d-flex justify-content-center align-items-center" style="min-height: 500px; background: #f8f9fa;">
+                                                            <img src="{{ asset('storage/' . $product->mainImage->path) }}"
+                                                                 alt="{{ $product->title }}"
+                                                                 style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         @else
                                             <div class="text-muted py-5">
                                                 <i class="uil uil-image" style="font-size: 4rem; opacity: 0.3;"></i>
@@ -566,6 +704,124 @@
                 </div>
             </div>
         </div>
+
+        {{-- Vendor Products Management --}}
+        @if(auth()->user() && in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
+        <div class="row mt-4">
+            <div class="col-lg-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom py-20">
+                        <h5 class="mb-0 fw-500">
+                            <i class="uil uil-store me-2"></i>{{ __('catalogmanagement::product.vendor_products') ?? 'Vendor Products' }}
+                            <span class="badge badge-primary badge-round badge-lg ms-2 text-white" id="vendor-products-counter">
+                                @php
+                                    $totalVendorProducts = $product->vendorProducts()->withTrashed()->count();
+                                @endphp
+                                {{ $totalVendorProducts }}
+                            </span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {{-- Filter Section --}}
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="vendor-filter" class="il-gray fs-14 fw-500 mb-10">
+                                        <i class="uil uil-filter me-1"></i>
+                                        {{ __('catalogmanagement::product.filter_by_vendor') ?? 'Filter by Vendor' }}
+                                    </label>
+                                    <select id="vendor-filter" class="form-control select2">
+                                        <option value="">{{ __('common.all') }}</option>
+                                        @php
+                                            $allVendorProducts = $product->vendorProducts()->with('vendor')->withTrashed()->get();
+                                            $uniqueVendors = $allVendorProducts->pluck('vendor')->unique('id')->filter();
+                                        @endphp
+                                        @foreach($uniqueVendors as $vendor)
+                                            @if($vendor)
+                                                <option value="{{ $vendor->id }}">{{ $vendor->name }}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="status-filter" class="il-gray fs-14 fw-500 mb-10">
+                                        <i class="uil uil-filter me-1"></i>
+                                        {{ __('common.status') }}
+                                    </label>
+                                    <select id="status-filter" class="form-control select2">
+                                        <option value="">{{ __('common.all') }}</option>
+                                        <option value="active">{{ __('common.active') }}</option>
+                                        <option value="trashed">{{ __('common.trashed') }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table id="productsDataTable" class="table mb-0 table-bordered table-hover">
+                                <thead class="userDatatable-header">
+                                    <tr>
+                                        <th class="text-center" width="80">#</th>
+                                        <th>{{ __('catalogmanagement::product.vendor') }}</th>
+                                        <th class="text-center" width="150">{{ __('common.actions') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vendor-products-tbody">
+                                    @php
+                                        $vendorProducts = $product->vendorProducts()->with('vendor')->withTrashed()->get();
+                                    @endphp
+                                    @forelse($vendorProducts as $index => $vendorProduct)
+                                        <tr class="{{ $vendorProduct->trashed() ? 'table-secondary' : '' }} vendor-product-row"
+                                            data-vendor-id="{{ $vendorProduct->vendor_id ?? '' }}"
+                                            data-status="{{ $vendorProduct->trashed() ? 'trashed' : 'active' }}">
+                                            <td class="text-center row-index">{{ $index + 1 }}</td>
+                                            <td>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <span class="me-2">{{ $vendorProduct->vendor->name ?? 'N/A' }}</span>
+                                                    @if($vendorProduct->trashed())
+                                                        <span class="badge badge-danger badge-lg badge-round">{{ __('common.trashed') }}</span>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="d-flex gap-1 justify-content-center">
+                                                    @if($vendorProduct->trashed())
+                                                        <button type="button"
+                                                            class="btn btn-success btn-sm restore-vendor-product"
+                                                            data-vendor-product-id="{{ $vendorProduct->id }}"
+                                                            data-vendor-name="{{ $vendorProduct->vendor->name ?? 'Vendor' }}"
+                                                            title="{{ __('common.restore') }}">
+                                                            <i class="uil uil-redo m-0"></i>
+                                                        </button>
+                                                    @else
+                                                        <button type="button"
+                                                            class="btn btn-danger btn-sm trash-vendor-product"
+                                                            data-vendor-product-id="{{ $vendorProduct->id }}"
+                                                            data-vendor-name="{{ $vendorProduct->vendor->name ?? 'Vendor' }}"
+                                                            title="{{ __('common.delete') }}">
+                                                            <i class="uil uil-trash-alt m-0"></i>
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="3" class="text-center text-muted py-4">
+                                                {{ __('catalogmanagement::product.no_vendors_found') ?? 'No vendors found for this product' }}
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 
 @endsection
@@ -584,5 +840,270 @@ function openImageModal(index) {
         modal.show();
     }
 }
+
+/**
+ * Open main image modal
+ */
+function openMainImageModal() {
+    const modalElement = document.getElementById('mainImageModal');
+    if (modalElement) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    }
+}
+
+/**
+ * Initialize Select2 for vendor filter
+ */
+$('#vendor-filter, #status-filter').select2({
+    width: '100%',
+    theme: 'bootstrap-5',
+    placeholder: '{{ __("common.select_option") }}'
+});
+
+/**
+ * Filter vendor products table
+ */
+function filterVendorProducts() {
+    const selectedVendor = $('#vendor-filter').val();
+    const selectedStatus = $('#status-filter').val();
+
+    console.log('Filtering - Vendor:', selectedVendor, 'Status:', selectedStatus);
+
+    let visibleCount = 0;
+
+    $('.vendor-product-row').each(function() {
+        const row = $(this);
+        const vendorId = String(row.data('vendor-id'));
+        const status = String(row.data('status'));
+
+        console.log('Row - Vendor ID:', vendorId, 'Status:', status);
+
+        let showRow = true;
+
+        // Filter by vendor
+        if (selectedVendor && selectedVendor !== '' && vendorId !== selectedVendor) {
+            showRow = false;
+        }
+
+        // Filter by status
+        if (selectedStatus && selectedStatus !== '' && status !== selectedStatus) {
+            showRow = false;
+        }
+
+        if (showRow) {
+            row.show();
+            visibleCount++;
+            // Update row index
+            row.find('.row-index').text(visibleCount);
+        } else {
+            row.hide();
+        }
+    });
+
+    console.log('Visible rows:', visibleCount);
+
+    // Update counter badge
+    const totalCount = $('.vendor-product-row').length;
+    if (selectedVendor || selectedStatus) {
+        $('#vendor-products-counter').text(visibleCount + ' / ' + totalCount);
+    } else {
+        $('#vendor-products-counter').text(totalCount);
+    }
+
+    // Show/hide empty message
+    $('#no-results-row').remove();
+    if (visibleCount === 0) {
+        $('#vendor-products-tbody').append(`
+            <tr id="no-results-row">
+                <td colspan="3" class="text-center text-muted py-4">
+                    {{ __('catalogmanagement::product.no_vendors_found') ?? 'No vendors found for this product' }}
+                </td>
+            </tr>
+        `);
+    }
+}
+
+/**
+ * Filter change event handlers
+ */
+$('#vendor-filter, #status-filter').on('change', function() {
+    console.log('Filter changed');
+    filterVendorProducts();
+});
+
+/**
+ * Initialize on page load
+ */
+$(document).ready(function() {
+    console.log('Page ready - initializing filters');
+    filterVendorProducts();
+});
+
+/**
+ * Trash Vendor Product Handler
+ */
+$(document).on('click', '.trash-vendor-product', function() {
+    const btn = $(this);
+    const vendorProductId = btn.data('vendor-product-id');
+    const vendorName = btn.data('vendor-name');
+
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: '<i class="uil uil-trash-alt text-danger"></i> {{ __("common.delete") }}',
+            html: `<div class="text-center py-3">
+                       <div class="mb-3">
+                           <span class="badge bg-danger badge-lg badge-round px-3 py-2 fs-6">${vendorName}</span>
+                       </div>
+                       <p class="mb-2">{{ __("catalogmanagement::product.confirm_trash_vendor_product") ?? "Are you sure you want to trash this vendor product?" }}</p>
+                       <p class="text-muted small mb-0">{{ __("catalogmanagement::product.trash_vendor_product_note") ?? "You can restore it later if needed." }}</p>
+                   </div>`,
+            icon: null,
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#868e96',
+            confirmButtonText: '<i class="uil uil-trash-alt me-1"></i> {{ __("common.delete") ?? "Delete" }}',
+            cancelButtonText: '<i class="uil uil-times me-1"></i> {{ __("common.cancel") ?? "Cancel" }}',
+            customClass: {
+                popup: 'swal2-lg',
+                title: 'fs-5 fw-bold',
+                confirmButton: 'btn btn-danger px-4 me-1',
+                cancelButton: 'btn btn-secondary px-4 me-1'
+            },
+            buttonsStyling: false,
+            showCloseButton: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Make AJAX request to trash the vendor product
+                $.ajax({
+                    url: '{{ route("admin.products.bank.vendor-product.trash", ":id") }}'.replace(':id', vendorProductId),
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '{{ __("common.success") ?? "Success" }}',
+                                text: response.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: '{{ __("common.error") ?? "Error" }}',
+                                text: response.message
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMessage = '{{ __("common.error_occurred") }}';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: '{{ __("common.error") ?? "Error" }}',
+                            text: errorMessage
+                        });
+                    }
+                });
+            }
+        });
+    } else {
+        // Fallback without SweetAlert
+        if (confirm('{{ __("catalogmanagement::product.confirm_trash_vendor_product") ?? "Are you sure you want to trash this vendor product?" }}')) {
+            window.location.href = '{{ route("admin.products.bank.vendor-product.trash", ":id") }}'.replace(':id', vendorProductId);
+        }
+    }
+});
+
+/**
+ * Restore Vendor Product Handler
+ */
+$(document).on('click', '.restore-vendor-product', function() {
+    const btn = $(this);
+    const vendorProductId = btn.data('vendor-product-id');
+    const vendorName = btn.data('vendor-name');
+
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: '<i class="uil uil-redo text-success"></i> {{ __("common.restore") }}',
+            html: `<div class="text-center py-3">
+                       <div class="mb-3">
+                           <span class="badge bg-success badge-lg badge-round px-3 py-2 fs-6">${vendorName}</span>
+                       </div>
+                       <p class="mb-2">{{ __("catalogmanagement::product.confirm_restore_vendor_product") ?? "Are you sure you want to restore this vendor product?" }}</p>
+                       <p class="text-muted small mb-0">{{ __("catalogmanagement::product.restore_vendor_product_note") ?? "This will make the product available again." }}</p>
+                   </div>`,
+            icon: null,
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#868e96',
+            confirmButtonText: '<i class="uil uil-redo me-1"></i> {{ __("common.restore") ?? "Restore" }}',
+            cancelButtonText: '<i class="uil uil-times me-1"></i> {{ __("common.cancel") ?? "Cancel" }}',
+            customClass: {
+                popup: 'swal2-lg',
+                title: 'fs-5 fw-bold',
+                confirmButton: 'btn btn-success px-4 me-1',
+                cancelButton: 'btn btn-secondary px-4 me-1'
+            },
+            buttonsStyling: false,
+            showCloseButton: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Make AJAX request to restore the vendor product
+                $.ajax({
+                    url: '{{ route("admin.products.bank.vendor-product.restore", ":id") }}'.replace(':id', vendorProductId),
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '{{ __("common.success") ?? "Success" }}',
+                                text: response.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: '{{ __("common.error") ?? "Error" }}',
+                                text: response.message
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMessage = '{{ __("common.error_occurred") }}';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: '{{ __("common.error") ?? "Error" }}',
+                            text: errorMessage
+                        });
+                    }
+                });
+            }
+        });
+    } else {
+        // Fallback without SweetAlert
+        if (confirm('{{ __("catalogmanagement::product.confirm_restore_vendor_product") ?? "Are you sure you want to restore this vendor product?" }}')) {
+            window.location.href = '{{ route("admin.products.bank.vendor-product.restore", ":id") }}'.replace(':id', vendorProductId);
+        }
+    }
+});
 </script>
 @endpush

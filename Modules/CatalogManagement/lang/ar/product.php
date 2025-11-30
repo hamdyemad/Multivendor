@@ -297,6 +297,7 @@ return [
     'activation_changed_successfully' => 'تم تغيير حالة تفعيل المنتج بنجاح',
     'error_changing_activation' => 'خطأ في تغيير حالة تفعيل المنتج',
     'activation_already_set' => 'المنتج مضبوط بالفعل على حالة التفعيل هذه',
+    'activation_updated_to' => 'تم تحديث تفعيل المنتج إلى :status',
 
     // Product Bank
     'bank_products' => 'بنك المنتجات',
@@ -418,4 +419,32 @@ return [
     'search_regions' => 'بحث في المناطق...',
     'of' => 'من',
     'regions' => 'مناطق',
+
+    // Bank Stock Management - Global Vendor Product Settings
+    'vendor_product_settings' => 'إعدادات منتج التاجر',
+    'global_settings_note' => 'هذه الإعدادات تنطبق على جميع متغيرات هذا المنتج لهذا التاجر.',
+    'enter_max_per_order' => 'أدخل الحد الأقصى لكل طلب',
+
+    // Bank Product Selection
+    'related_bank_product_message' => 'هذا المنتج لديه بالفعل منتج مرتبط في البنك يمكنك اختياره',
+    'select_bank_product' => 'اختر منتج البنك',
+    'error_loading_bank_products' => 'خطأ في تحميل منتجات البنك',
+    'vendor_already_has_this_bank_product' => 'هذا التاجر لديه بالفعل منتج البنك هذا مُعيّن له',
+    'vendor_product_replaced_with_bank_product' => 'تم استبدال منتج التاجر بمنتج البنك المحدد',
+    'selected_product_is_not_bank_product' => 'المنتج المحدد ليس منتج بنك',
+    'assign_to_bank_product' => 'تعيين لمنتج بنك موجود',
+    'assign_to_bank_product_hint' => 'فعّل لتعيين هذا التاجر لمنتج بنك موجود بدلاً من إنشاء منتج جديد',
+
+    // Vendor Product Management
+    'vendor_products' => 'منتجات التجار',
+    'no_vendors_found' => 'لم يتم العثور على تجار لهذا المنتج',
+    'filter_by_vendor' => 'تصفية حسب التاجر',
+    'confirm_trash_vendor_product' => 'هل أنت متأكد من أنك تريد حذف منتج التاجر هذا؟',
+    'trash_vendor_product_note' => 'يمكنك استعادته لاحقًا إذا لزم الأمر.',
+    'confirm_restore_vendor_product' => 'هل أنت متأكد من أنك تريد استعادة منتج التاجر هذا؟',
+    'restore_vendor_product_note' => 'سيؤدي هذا إلى جعل المنتج متاحًا مرة أخرى.',
+    'vendor_product_trashed_successfully' => 'تم حذف منتج التاجر بنجاح',
+    'vendor_product_restored_successfully' => 'تم استعادة منتج التاجر بنجاح',
+    'error_trashing_vendor_product' => 'خطأ في حذف منتج التاجر',
+    'error_restoring_vendor_product' => 'خطأ في استعادة منتج التاجر',
 ];

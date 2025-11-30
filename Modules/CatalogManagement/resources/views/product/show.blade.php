@@ -139,7 +139,7 @@
                             <a href="{{ route('admin.products.index') }}" class="btn btn-light btn-sm">
                                 <i class="uil uil-arrow-left me-2"></i>{{ __('common.back_to_list') }}
                             </a>
-                            <a href="{{ route('admin.products.edit', $product->product->id) }}" class="btn btn-primary btn-sm">
+                            <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-primary btn-sm">
                                 <i class="uil uil-edit me-2"></i>{{ __('common.edit') }}
                             </a>
                         </div>

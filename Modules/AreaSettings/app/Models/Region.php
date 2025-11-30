@@ -25,6 +25,10 @@ class Region extends BaseModel
     public function city() {
         return $this->belongsTo(City::class, 'city_id');
     }
+
+    public function selected_vendors() {
+        return $this->belongsToMany(\Modules\Vendor\app\Models\Vendor::class, 'vendor_regions', 'region_id', 'vendor_id');
+    }
     // End Relations
 
 
@@ -40,6 +44,7 @@ class Region extends BaseModel
             $q->where('vendors.id', $vendorIdentifier)
                 ->orWhere('vendors.slug', $vendorIdentifier);
         });
+
     }
 
     /**
@@ -59,7 +64,15 @@ class Region extends BaseModel
         // Filter by vendor (through city.country.vendors)
         if (!empty($filters['vendor_id'])) {
             $query->byVendor($filters['vendor_id']);
+            // Filter by vendor selected regions (through vendor_regions table)
+            if (!empty($filters['vendor_selected_regions'])) {
+                $vendorId = $filters['vendor_id'];
+                $query->whereHas('selected_vendors', function($q) use ($vendorId) {
+                    $q->where('vendor_regions.vendor_id', $vendorId);
+                });
+            }
         }
+
 
         return $query;
     }

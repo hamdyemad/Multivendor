@@ -26,10 +26,6 @@ class UpdateStockPricingRequest extends FormRequest
         $rules = [
             // Configuration Type (Step 3)
             'configuration_type' => 'required|in:simple,variants',
-
-            // Global Vendor Product fields
-            'tax_id' => 'required|exists:taxes,id',
-            'max_per_order' => 'required|integer|min:1',
         ];
 
         // Simple product validation
@@ -123,8 +119,6 @@ class UpdateStockPricingRequest extends FormRequest
     {
         return [
             'configuration_type' => __('catalogmanagement::product.configuration_type'),
-            'tax_id' => __('catalogmanagement::product.tax'),
-            'max_per_order' => __('catalogmanagement::product.max_per_order'),
             'price' => __('catalogmanagement::product.price'),
             'stocks.*.region_id' => __('catalogmanagement::product.region'),
             'stocks.*.quantity' => __('catalogmanagement::product.quantity'),
@@ -141,11 +135,6 @@ class UpdateStockPricingRequest extends FormRequest
     {
         return [
             'configuration_type.required' => __('catalogmanagement::product.configuration_type_required'),
-            'tax_id.required' => __('catalogmanagement::product.tax_required'),
-            'tax_id.exists' => __('catalogmanagement::product.tax_invalid'),
-            'max_per_order.required' => __('catalogmanagement::product.max_per_order_required'),
-            'max_per_order.integer' => __('catalogmanagement::product.max_per_order_integer'),
-            'max_per_order.min' => __('catalogmanagement::product.max_per_order_min'),
             'price.required' => __('catalogmanagement::product.price_required'),
             'price.numeric' => __('catalogmanagement::product.price_numeric'),
             'price.min' => __('catalogmanagement::product.price_min'),

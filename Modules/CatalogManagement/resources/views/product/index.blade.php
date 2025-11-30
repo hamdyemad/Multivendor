@@ -6,6 +6,15 @@
     trans('catalogmanagement::product.products_management')))
 )
 
+@push('styles')
+<style>
+    /* Fix Select2 dropdown z-index in modal */
+    .select2-container--open {
+        z-index: 99999 !important;
+    }
+</style>
+@endpush
+
 @section('content')
     <div class="container-fluid">
         <div class="row">
@@ -148,6 +157,22 @@
 
                                     <div class="col-md-3">
                                         <div class="form-group">
+                                            <label for="product_type" class="il-gray fs-14 fw-500 mb-10">
+                                                <i class="uil uil-layers me-1"></i>
+                                                {{ __('catalogmanagement::product.product_type') }}
+                                            </label>
+                                            <select
+                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                id="product_type">
+                                                <option value="">{{ __('common.all') }}</option>
+                                                <option value="bank" @if(request('product_type') == 'bank') selected @endif>{{ __('catalogmanagement::product.bank') }}</option>
+                                                <option value="product" @if(request('product_type') == 'product') selected @endif>{{ __('catalogmanagement::product.product') }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-group">
                                             <label for="active" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-check-circle me-1"></i>
                                                 {{ __('common.active_status') }}
@@ -242,8 +267,6 @@
                                     @if(auth()->user() && in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
                                         <th><span class="userDatatable-title">{{ __('catalogmanagement::product.vendor') }}</span></th>
                                     @endif
-                                    <th><span class="userDatatable-title">{{ __('catalogmanagement::product.brand') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('catalogmanagement::product.category') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('catalogmanagement::product.approval_status') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('common.activation') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('common.created_at') }}</span></th>
@@ -295,6 +318,36 @@
                         </select>
                     </div>
 
+                    <div class="form-group mb-3" id="bank-product-group">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div>
+                                <label class="form-label il-gray fs-14 fw-500 mb-0">
+                                    {{ __('catalogmanagement::product.assign_to_bank_product') }}
+                                </label>
+                                <small class="text-muted d-block">{{ __('catalogmanagement::product.assign_to_bank_product_hint') }}</small>
+                            </div>
+                            <div class="form-check form-switch form-switch-lg">
+                                <input class="form-check-input" type="checkbox" role="switch" id="bank-product-switch">
+                            </div>
+                        </div>
+
+                        <div id="bank-product-select-group" style="display: none;">
+                            <div class="alert alert-info mb-2">
+                                <i class="uil uil-info-circle me-1"></i>
+                                <span>{{ __('catalogmanagement::product.related_bank_product_message') }}</span>
+                            </div>
+                            <label for="bank-product-select" class="form-label il-gray fs-14 fw-500 align-center">
+                                {{ __('catalogmanagement::product.select_bank_product') }}
+                            </label>
+                            <select class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select select2" id="bank-product-select">
+                                <option value="">{{ __('common.select_option') }}</option>
+                                @foreach ($bankProducts as $item)
+                                    <option value="{{ $item['id'] }}">{{ $item['name'] }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="form-group" id="rejection-reason-group" style="display: none;">
                         <label for="rejection-reason" class="form-label il-gray fs-14 fw-500 align-center">
                             {{ __('catalogmanagement::product.rejection_reason') }}
@@ -335,6 +388,7 @@
             if (urlParams.has('vendor_id')) $('#vendor_filter').val(urlParams.get('vendor_id')).trigger('change');
             if (urlParams.has('brand_id')) $('#brand_filter').val(urlParams.get('brand_id')).trigger('change');
             if (urlParams.has('category_id')) $('#category_filter').val(urlParams.get('category_id')).trigger('change');
+            if (urlParams.has('product_type')) $('#product_type').val(urlParams.get('product_type')).trigger('change');
             if (urlParams.has('active')) $('#active').val(urlParams.get('active')).trigger('change');
             if (urlParams.has('status')) $('#status').val(urlParams.get('status')).trigger('change');
             if (urlParams.has('created_date_from')) $('#created_date_from').val(urlParams.get('created_date_from'));
@@ -351,6 +405,7 @@
                         d.vendor_id = $('#vendor_filter').val();
                         d.brand_id = $('#brand_filter').val();
                         d.category_id = $('#category_filter').val();
+                        d.product_type = $('#product_type').val();
                         d.active = $('#active').val();
                         d.status = $('#status').val();
                         @if(isset($statusFilter) && $statusFilter)
@@ -377,6 +432,7 @@
                             if (!data) return '<span class="text-muted">—</span>';
                             let html = '<div class="product-info-container">';
 
+                            // Product Names
                             if (data.name_en && data.name_en !== '-') {
                                 html += `<div class="product-name-item mb-2">
                                     <span class="language-badge badge bg-primary text-white px-2 py-1 me-2 rounded-pill fw-bold" style="font-size: 10px;">EN</span>
@@ -385,11 +441,37 @@
                             }
 
                             if (data.name_ar && data.name_ar !== '-') {
-                                html += `<div class="product-name-item">
+                                html += `<div class="product-name-item mb-2">
                                     <span class="language-badge badge bg-success text-white px-2 py-1 me-2 rounded-pill fw-bold" style="font-size: 10px;">AR</span>
                                     <span class="product-name text-dark fw-semibold" dir="rtl" style="font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${$('<div/>').text(data.name_ar).html()}</span>
                                 </div>`;
                             }
+
+                            // Product Type
+                            const productType = row.product_type === 'bank' ? 'Bank Product' : 'Regular Product';
+                            const typeClass = row.product_type === 'bank' ? 'bg-info' : 'bg-secondary';
+                            html += `<div class="mb-2">
+                                <span class="badge ${typeClass} text-white px-2 py-1 rounded-pill fw-bold" style="font-size: 10px;">
+                                    <i class="uil ${row.product_type === 'bank' ? 'uil-database' : 'uil-box'} me-1"></i>
+                                    ${productType}
+                                </span>
+                            </div>`;
+
+                            // Brand and Category
+                            html += '<div class="product-meta-info">';
+                            if (row.brand && row.brand.name) {
+                                html += `<div class="mb-1">
+                                    <small class="text-muted">{{ __('catalogmanagement::product.brand') }}:</small>
+                                    <span class="badge badge-secondary badge-round badge-lg ms-1">${$('<div/>').text(row.brand.name).html()}</span>
+                                </div>`;
+                            }
+                            if (row.category && row.category.name) {
+                                html += `<div class="mb-1">
+                                    <small class="text-muted">{{ __('catalogmanagement::product.category') }}:</small>
+                                    <span class="badge badge-secondary badge-round badge-lg ms-1">${$('<div/>').text(row.category.name).html()}</span>
+                                </div>`;
+                            }
+                            html += '</div>';
 
                             html += '</div>';
                             return html;
@@ -410,26 +492,6 @@
                         }
                     },
                     @endif
-                    {
-                        data: 'brand',
-                        name: 'brand',
-                        searchable: false,
-                        orderable: false,
-                        render: function(data) {
-                            if (!data?.name) return '<span class="text-muted">—</span>';
-                            return `<span class="badge badge-info badge-round badge-lg">${$('<div/>').text(data.name).html()}</span>`;
-                        }
-                    },
-                    {
-                        data: 'category',
-                        name: 'category',
-                        searchable: false,
-                        orderable: false,
-                        render: function(data) {
-                            if (!data?.name) return '<span class="text-muted">—</span>';
-                            return `<span class="badge badge-secondary badge-round badge-lg">${$('<div/>').text(data.name).html()}</span>`;
-                        }
-                    },
                     {
                         data: 'status',
                         name: 'status',
@@ -484,6 +546,7 @@
                     {
                         data: 'created_at',
                         name: 'created_at',
+                        orderable: false,
                         searchable: false,
                         render: function(data) {
                             return data;
@@ -495,10 +558,10 @@
                         searchable: false,
                         className: 'text-center',
                         render: function(data) {
-                            const showUrl = "{{ route('admin.products.show', ':id') }}".replace(':id', data.id);
-                            const editUrl = "{{ route('admin.products.edit', ':id') }}".replace(':id', data.id);
-                            const destroyUrl = "{{ route('admin.products.destroy', ':id') }}".replace(':id', data.id);
-                            const stockPricingUrl = "{{ route('admin.products.stock-management', ':id') }}".replace(':id', data.id);
+                            const showUrl = "{{ route('admin.products.show', ':id') }}".replace(':id', data.vendor_product_id);
+                            const editUrl = "{{ route('admin.products.edit', ':id') }}".replace(':id', data.vendor_product_id);
+                            const destroyUrl = "{{ route('admin.products.destroy', ':id') }}".replace(':id', data.vendor_product_id);
+                            const stockPricingUrl = "{{ route('admin.products.stock-management', ':id') }}".replace(':id', data.vendor_product_id);
 
                             let actions = `
                             <div class="orderDatatable_actions d-inline-flex gap-1">
@@ -516,32 +579,24 @@
 
                             // Add approve/reject button and move to bank for admin users only
                             @if(auth()->user() && in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
-                            actions += `
-                                <a href="javascript:void(0);" class="change-status btn btn-success table_action_father"
-                                   data-bs-toggle="modal" data-bs-target="#modal-change-status"
-                                   data-item-id="${data.id}"
-                                   data-item-status="${data.status || ''}"
-                                   data-item-name="${data.product_information?.name_en || 'Product'}"
-                                   title="{{ trans('catalogmanagement::product.change_status') }}">
-                                    <i class="uil uil-check-circle table_action_icon"></i>
-                                </a>`;
-
-                            // Add move to bank button (only if not already a bank product)
-                            if (data.product_type !== 'bank') {
-                                actions += `
-                                <a href="javascript:void(0);" class="move-to-bank btn btn-secondary table_action_father"
-                                   data-item-id="${data.id}"
-                                   data-item-name="${data.product_information?.name_en || data.product_information?.name_ar || 'Product'}"
-                                   title="{{ trans('catalogmanagement::product.move_to_bank') }}">
-                                    <i class="uil uil-database table_action_icon"></i>
-                                </a>`;
-                            }
+                                if(data.status == 'pending') {
+                                    actions += `
+                                        <a href="javascript:void(0);" class="change-status btn btn-success table_action_father"
+                                        data-bs-toggle="modal" data-bs-target="#modal-change-status"
+                                        data-item-id="${data.id}"
+                                        data-item-status="${data.status || ''}"
+                                        data-item-name="${data.product_information?.name_en || 'Product'}"
+                                        data-item-type="${data.product_type || ''}"
+                                        title="{{ trans('catalogmanagement::product.change_status') }}">
+                                            <i class="uil uil-check-circle table_action_icon"></i>
+                                        </a>`;
+                                }
                             @endif
 
                             actions += `
                                 <a href="javascript:void(0);" class="remove delete-product btn btn-danger table_action_father"
                                    data-bs-toggle="modal" data-bs-target="#modal-delete-product"
-                                   data-item-id="${data.id}"
+                                   data-item-id="${data.vendor_product_id}"
                                    data-item-name="${data.product_information?.name_en || data.product_information?.name_ar || 'Product'}"
                                    data-url="${destroyUrl}"
                                    title="{{ trans('common.delete') }}">
@@ -557,9 +612,9 @@
                 lengthMenu: [10, 25, 50, 100],
                 order: [
                     @if(auth()->user() && in_array(auth()->user()->user_type_id, [\App\Models\UserType::SUPER_ADMIN_TYPE, \App\Models\UserType::ADMIN_TYPE]))
-                        [5, 'desc'] // Created at column for admin users (with vendor column)
+                        [4, 'desc'] // Created at column for admin users (with vendor column)
                     @else
-                        [4, 'desc'] // Created at column for vendor users (without vendor column)
+                        [3, 'desc'] // Created at column for vendor users (without vendor column)
                     @endif
                 ],
                 language: {
@@ -609,6 +664,7 @@
                 const vendor = $('#vendor_filter').val();
                 const brand = $('#brand_filter').val();
                 const category = $('#category_filter').val();
+                const productType = $('#product_type').val();
                 const active = $('#active').val();
                 const status = $('#status').val();
                 const dateFrom = $('#created_date_from').val();
@@ -618,6 +674,7 @@
                 if (vendor) params.set('vendor_id', vendor);
                 if (brand) params.set('brand_id', brand);
                 if (category) params.set('category_id', category);
+                if (productType) params.set('product_type', productType);
                 if (active) params.set('active', active);
                 if (status) params.set('status', status);
                 if (dateFrom) params.set('created_date_from', dateFrom);
@@ -637,7 +694,7 @@
             });
 
             // Filters - Use 'select2:select' and 'select2:clear' events for Select2 dropdowns
-            $('#vendor_filter, #brand_filter, #category_filter, #active, #status').on('select2:select select2:clear change', function() {
+            $('#vendor_filter, #brand_filter, #category_filter, #product_type, #active, #status').on('select2:select select2:clear change', function() {
                 table.ajax.reload();
             });
 
@@ -654,8 +711,13 @@
                 // Clear regular inputs
                 $('#search, #created_date_from, #created_date_to').val('');
 
-                // Clear dropdowns properly
-                $('#vendor_filter, #brand_filter, #category_filter, #active, #status').val(null).trigger('change');
+                // Clear Select2 dropdowns properly - set to empty value and trigger change
+                $('#vendor_filter').val('').trigger('change');
+                $('#brand_filter').val('').trigger('change');
+                $('#category_filter').val('').trigger('change');
+                $('#product_type').val('').trigger('change');
+                $('#active').val('').trigger('change');
+                $('#status').val('').trigger('change');
 
                 // Reload table
                 table.ajax.reload();
@@ -669,10 +731,13 @@
             // Change Status Modal Handler
             let currentProductId = null;
 
+            let currentProductType = ''; // Store product type for later use
+
             $(document).on('click', '.change-status', function() {
                 currentProductId = $(this).data('item-id');
                 const productName = $(this).data('item-name');
                 const currentStatus = $(this).data('item-status');
+                currentProductType = $(this).data('item-type');
 
                 $('#status-product-name').text(productName);
                 $('#product-status').val(currentStatus);
@@ -684,12 +749,31 @@
                 } else {
                     $('#rejection-reason-group').hide();
                 }
+
+                // Hide bank product group if product type is 'bank'
+                if (currentProductType === 'bank') {
+                    $('#bank-product-group').hide();
+                } else {
+                    $('#bank-product-group').show();
+                }
             });
 
-            // Show/hide rejection reason field based on selected status
+
+            // Show/hide rejection reason and bank product fields based on selected status
             $('#product-status').on('change', function() {
-                if ($(this).val() === 'rejected') {
+                const selectedStatus = $(this).val();
+
+                if (selectedStatus === 'rejected') {
                     $('#rejection-reason-group').slideDown();
+                } else if (selectedStatus === 'approved' && currentProductType !== 'bank') {
+                    $('#rejection-reason-group').slideUp();
+
+                    // Clear rejection reason - check if CKEditor is initialized
+                    if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances['rejection-reason']) {
+                        CKEDITOR.instances['rejection-reason'].setData('');
+                    } else {
+                        $('#rejection-reason').val('');
+                    }
                 } else {
                     $('#rejection-reason-group').slideUp();
 
@@ -702,9 +786,22 @@
                 }
             });
 
+
+            // Bank product switch toggle handler
+            $('#bank-product-switch').on('change', function() {
+                if ($(this).is(':checked')) {
+                    $('#bank-product-select-group').slideDown();
+                } else {
+                    $('#bank-product-select-group').slideUp();
+                    // Clear the selection when hiding
+                    $('#bank-product-select').val(null).trigger('change');
+                }
+            });
+
             // Confirm Status Change
             $('#confirmChangeStatusBtn').on('click', function() {
                 const newStatus = $('#product-status').val();
+                const selectedBankProduct = $('#bank-product-select').val();
 
                 // Get rejection reason - check if CKEditor is initialized
                 let rejectionReason = '';
@@ -722,6 +819,7 @@
 
                 console.log('Status:', newStatus);
                 console.log('Rejection Reason:', rejectionReason);
+                console.log('Selected Bank Product:', selectedBankProduct);
 
                 if (!newStatus) {
                     toastr.error('{{ __("catalogmanagement::product.please_select_status") }}');
@@ -737,14 +835,21 @@
                 const originalText = btn.html();
                 btn.prop('disabled', true).html('<i class="uil uil-spinner-alt spin-animation me-1"></i>{{ __("common.updating") }}...');
 
+                const requestData = {
+                    _token: '{{ csrf_token() }}',
+                    status: newStatus,
+                    rejection_reason: rejectionReason
+                };
+
+                // Add bank product ID if selected
+                if (selectedBankProduct) {
+                    requestData.bank_product_id = selectedBankProduct;
+                }
+
                 $.ajax({
                     url: '{{ route("admin.products.change-status", ":id") }}'.replace(':id', currentProductId),
                     method: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        status: newStatus,
-                        rejection_reason: rejectionReason
-                    },
+                    data: requestData,
                     success: function(response) {
                         if (response.success) {
                             toastr.success(response.message || '{{ __("catalogmanagement::product.status_updated_successfully") }}');
@@ -764,9 +869,27 @@
                 });
             });
 
+            // Initialize Select2 when modal is shown
+            $('#modal-change-status').on('shown.bs.modal', function() {
+                const bankSelect = $('#bank-product-select');
+                if (!bankSelect.hasClass('select2-hidden-accessible')) {
+                    bankSelect.select2({
+                        dropdownParent: $('#modal-change-status'),
+                        width: '100%',
+                        placeholder: '{{ __("common.select_option") }}'
+                    });
+                }
+            });
+
             // Reset modal when closed
             $('#modal-change-status').on('hidden.bs.modal', function() {
                 $('#product-status').val('');
+
+                // Reset bank product switch and selection
+                $('#bank-product-switch').prop('checked', false);
+                $('#bank-product-select-group').hide();
+                const bankSelect = $('#bank-product-select');
+                bankSelect.val(null).trigger('change');
 
                 // Clear rejection reason - check if CKEditor is initialized
                 if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances['rejection-reason']) {

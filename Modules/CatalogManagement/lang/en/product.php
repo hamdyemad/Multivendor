@@ -299,6 +299,7 @@ return [
     'activation_changed_successfully' => 'Product activation status changed successfully',
     'error_changing_activation' => 'Error changing product activation status',
     'activation_already_set' => 'Product is already set to this activation status',
+    'activation_updated_to' => 'Product activation updated to :status',
 
     // Product Bank
     'bank_products' => 'Bank Products',
@@ -424,4 +425,32 @@ return [
     'search_regions' => 'Search regions...',
     'of' => 'of',
     'regions' => 'regions',
+
+    // Bank Stock Management - Global Vendor Product Settings
+    'vendor_product_settings' => 'Vendor Product Settings',
+    'global_settings_note' => 'These settings apply to all variants of this product for this vendor.',
+    'enter_max_per_order' => 'Enter max per order',
+
+    // Bank Product Selection
+    'related_bank_product_message' => 'This product has already a related product in a bank you can choose it',
+    'select_bank_product' => 'Select Bank Product',
+    'error_loading_bank_products' => 'Error loading bank products',
+    'vendor_already_has_this_bank_product' => 'This vendor already has this bank product assigned',
+    'vendor_product_replaced_with_bank_product' => 'Vendor product has been replaced with the selected bank product',
+    'selected_product_is_not_bank_product' => 'The selected product is not a bank product',
+    'assign_to_bank_product' => 'Assign to Existing Bank Product',
+    'assign_to_bank_product_hint' => 'Enable to assign this vendor to an existing bank product instead of creating a new one',
+
+    // Vendor Product Management
+    'vendor_products' => 'Vendor Products',
+    'no_vendors_found' => 'No vendors found for this product',
+    'filter_by_vendor' => 'Filter by Vendor',
+    'confirm_trash_vendor_product' => 'Are you sure you want to trash this vendor product?',
+    'trash_vendor_product_note' => 'You can restore it later if needed.',
+    'confirm_restore_vendor_product' => 'Are you sure you want to restore this vendor product?',
+    'restore_vendor_product_note' => 'This will make the product available again.',
+    'vendor_product_trashed_successfully' => 'Vendor product trashed successfully',
+    'vendor_product_restored_successfully' => 'Vendor product restored successfully',
+    'error_trashing_vendor_product' => 'Error trashing vendor product',
+    'error_restoring_vendor_product' => 'Error restoring vendor product',
 ];

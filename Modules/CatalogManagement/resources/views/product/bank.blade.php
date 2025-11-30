@@ -331,13 +331,6 @@
                                         <i class="uil uil-eye table_action_icon"></i>
                                     </a>`;
 
-                                // Only admins can edit bank products
-                                if (isAdmin) {
-                                    actionsHtml += `<a href="${editUrl}" class="edit btn btn-warning table_action_father" title="{{ trans('common.edit') }}">
-                                        <i class="uil uil-edit table_action_icon"></i>
-                                    </a>`;
-                                }
-
                                 actionsHtml += `</div>`;
                                 return actionsHtml;
                             }

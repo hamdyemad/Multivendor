@@ -191,4 +191,7 @@ return [
     'error_loading_categories' => 'Error loading categories',
     'error_loading_sub_categories' => 'Error loading sub categories',
     'error_loading_brands' => 'Error loading brands',
+    'note' => 'Note',
+    'trashed' => 'Trashed',
+    'restore' => 'Restore',
 ];

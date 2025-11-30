@@ -68,7 +68,7 @@ class ProductRepository implements ProductInterface
             'variants.variantConfiguration.key', // Load variant key
             'variants.variantConfiguration.parent_data.key', // Load parent keys
             'variants.variantConfiguration.parent_data.parent_data.key',
-        ])->where('product_id', $id)->firstOrFail();
+        ])->findOrFail($id);
     }
 
     public function createProduct(array $data)
@@ -158,6 +158,16 @@ class ProductRepository implements ProductInterface
                 ]
             );
 
+            // Update vendor product fields (for both new and existing records)
+            $vendorProduct->update([
+                'tax_id' => $data['tax_id'],
+                'sku' => $data['sku'] ?? null,
+                'max_per_order' => $data['max_per_order'],
+                'is_active' => $data['is_active'] ?? false,
+                'is_featured' => $data['is_featured'] ?? false,
+                'status' => in_array($currentUser->user_type_id, UserType::vendorIds()) ? 'pending' : 'approved',
+            ]);
+
             // Update translations
             $this->storeTranslations($product, $data);
 
@@ -177,36 +187,23 @@ class ProductRepository implements ProductInterface
     public function deleteProduct(int $id)
     {
         return DB::transaction(function () use ($id) {
-            // Find VendorProduct by product_id (not by vendorProduct id)
+            // Find VendorProduct by its own id (not by product_id)
             $vendorProduct = VendorProduct::with(['product.attachments', 'variants'])
-                ->where('product_id', $id)
+                ->where('id', $id)
                 ->first();
 
             if (!$vendorProduct) {
                 throw new \Exception(__('catalogmanagement::product.product_not_found'));
             }
 
-            // Delete associated images
-            foreach ($vendorProduct->product->attachments as $attachment) {
-                Storage::disk('public')->delete($attachment->path);
-                $attachment->delete();
-            }
-
-            // Delete translations
-            $vendorProduct->product->translations()->delete();
-
             // Delete variants and their stocks
             foreach ($vendorProduct->variants as $variant) {
                 $variant->stocks()->delete();
                 $variant->delete();
             }
-            $vendorProduct->product->delete();
-            if($vendorProduct->product->variants){
-                $vendorProduct->product->variants()->delete();
-            }
-            // Delete the product (soft delete)
-            $vendorProduct->delete();
 
+            // Delete the vendor product (soft delete)
+            $vendorProduct->delete();
 
             return true;
         });
@@ -241,6 +238,20 @@ class ProductRepository implements ProductInterface
 
                 foreach ($translationFields as $field) {
                     if (isset($fields[$field])) {
+
+                        if($field == 'title' && $language->code == 'en') {
+                            // $originalSlug = $slug;
+                            if(Product::where('slug', Str::slug($fields[$field]))->exists()) {
+                                $product->update([
+                                    'slug' => Str::slug($fields[$field]) . '-' . rand(1, 1000)
+                                ]);
+                            } else {
+                                $product->update([
+                                    'slug' => Str::slug($fields[$field])
+                                ]);
+                            }
+                        }
+
                         Log::info('Creating translation', [
                             'field' => $field,
                             'language' => $language->code,
@@ -529,7 +540,6 @@ class ProductRepository implements ProductInterface
                 'vendor_id' => $vendorId,
                 'tax_id' => $taxId,
                 'sku' => $data['sku'] ?? null,
-                'points' => $data['points'] ?? 0,
                 'max_per_order' => $data['max_per_order'] ?? 10,
                 'video_link' => $data['video_link'] ?? null,
                 'is_active' => isset($data['is_active']) ? (bool) $data['is_active'] : true,
@@ -665,7 +675,6 @@ class ProductRepository implements ProductInterface
             'configuration_type' => $vendorProduct->configuration_type,
             'tax_id' => $vendorProduct->tax_id,
             'sku' => $vendorProduct->sku,
-            'points' => $vendorProduct->points,
             'max_per_order' => $vendorProduct->max_per_order,
             'video_link' => $vendorProduct->video_link,
             'is_active' => $vendorProduct->is_active,
@@ -734,6 +743,108 @@ class ProductRepository implements ProductInterface
             Log::error('Error in getProductsNotInVendor', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             throw $e;
         }
+    }
+
+    /**
+     * Change vendor product status (approve/reject) with optional bank product assignment
+     */
+    public function changeVendorProductStatus(int $productId, array $data)
+    {
+        return DB::transaction(function () use ($productId, $data) {
+            $product = Product::findOrFail($productId);
+            $vendorProduct = VendorProduct::where('product_id', $product->id)->firstOrFail();
+
+            // Handle bank product assignment on approval
+            if ($data['status'] == 'approved' && isset($data['bank_product_id'])) {
+                // Verify the bank product exists and is of type bank
+                $bankProduct = Product::findOrFail($data['bank_product_id']);
+
+                if ($bankProduct->type !== Product::TYPE_BANK) {
+                    throw new \Exception(__('catalogmanagement::product.selected_product_is_not_bank_product'));
+                }
+
+                // Get the vendor from the current vendor product
+                $vendorId = $vendorProduct->vendor_id;
+
+                // Check if vendor already has this bank product
+                $existingVendorProduct = VendorProduct::where('vendor_id', $vendorId)
+                    ->where('product_id', $data['bank_product_id'])
+                    ->first();
+
+                if ($existingVendorProduct) {
+                    throw new \Exception(__('catalogmanagement::product.vendor_already_has_this_bank_product'));
+                }
+
+                // Store original vendor product data before deletion
+                $originalVendorProductData = [
+                    'tax_id' => $vendorProduct->tax_id,
+                    'sku' => $vendorProduct->sku,
+                    'max_per_order' => $vendorProduct->max_per_order,
+                    'is_active' => $vendorProduct->is_active,
+                    'is_featured' => $vendorProduct->is_featured,
+                ];
+
+                // Delete the current vendor product
+                $vendorProduct->delete();
+
+                // Optionally delete the original product if it's not a bank product
+                if ($product->type !== Product::TYPE_BANK) {
+                    $product->delete();
+                }
+
+                // Create a new vendor product linking to the bank product
+                VendorProduct::create([
+                    'vendor_id' => $vendorId,
+                    'product_id' => $bankProduct->id,
+                    'tax_id' => $originalVendorProductData['tax_id'],
+                    'sku' => $originalVendorProductData['sku'],
+                    'max_per_order' => $originalVendorProductData['max_per_order'],
+                    'is_active' => $originalVendorProductData['is_active'],
+                    'is_featured' => $originalVendorProductData['is_featured'],
+                    'status' => 'approved',
+                    'rejection_reason' => null
+                ]);
+
+                return ['message' => __('catalogmanagement::product.vendor_product_replaced_with_bank_product')];
+            }
+
+            // Normal status update without bank product assignment
+            if ($data['status'] == 'approved') {
+                $product->update([
+                    'type' => Product::TYPE_BANK
+                ]);
+            }
+
+            $vendorProduct->update([
+                'status' => $data['status'],
+                'rejection_reason' => $data['status'] === 'rejected' ? ($data['rejection_reason'] ?? null) : null
+            ]);
+
+            return ['message' => __('catalogmanagement::product.status_updated_successfully')];
+        });
+    }
+
+    /**
+     * Change product activation status (active/inactive)
+     */
+    public function changeProductActivation(int $productId, bool $isActive)
+    {
+        return DB::transaction(function () use ($productId, $isActive) {
+            $product = Product::findOrFail($productId);
+            $vendorProduct = VendorProduct::where('product_id', $product->id)->firstOrFail();
+
+            // Check if status is already set to the requested value
+            if ($vendorProduct->is_active === $isActive) {
+                throw new \Exception(__('catalogmanagement::product.activation_already_set'));
+            }
+
+            $vendorProduct->update([
+                'is_active' => $isActive
+            ]);
+
+            $statusText = $isActive ? __('common.active') : __('common.inactive');
+            return ['message' => __('catalogmanagement::product.activation_updated_to', ['status' => $statusText])];
+        });
     }
 
 }

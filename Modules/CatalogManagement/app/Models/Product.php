@@ -19,15 +19,13 @@ use Modules\Vendor\app\Models\Vendor;
 
 class Product extends BaseModel
 {
-    use HasFactory, SoftDeletes, Translation, HumanDates, HasSlug;
+    use HasFactory, SoftDeletes, Translation, HumanDates;
 
     protected $guarded = [];
     protected $casts = [
         'is_active' => 'boolean',
         'configuration_type' => 'string',
     ];
-
-    protected $slugFrom = 'title';
 
     // Product type constants
     const TYPE_PRODUCT = 'product';
@@ -127,14 +125,6 @@ class Product extends BaseModel
     // End Getters
 
 
-
-    /**
-     * Get the route key for the model
-     */
-    public function getRouteKeyName()
-    {
-        return 'slug';
-    }
 
 
     /**

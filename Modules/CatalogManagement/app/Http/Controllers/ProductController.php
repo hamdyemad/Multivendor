@@ -29,8 +29,10 @@ use App\Models\UserType;
 use App\Traits\Res;
 use Illuminate\Support\Facades\Auth;
 use Modules\CatalogManagement\app\Actions\ProductAction;
+use Modules\CatalogManagement\app\Http\Resources\BankProductResource;
 use Modules\CatalogManagement\app\Http\Resources\VariantsConfigurationKeyResource;
 use Modules\CatalogManagement\app\Models\Brand;
+use Modules\CatalogManagement\app\Services\BankService;
 use Modules\CatalogManagement\app\Services\VariantConfigurationKeyService;
 use Modules\CategoryManagment\app\Http\Resources\CategoryResource;
 use Modules\Vendor\app\Models\Vendor;
@@ -50,6 +52,7 @@ class ProductController extends Controller
         protected TaxService $taxService,
         protected VendorService $vendorService,
         protected ProductAction $productAction,
+        protected BankService $productBankService,
     ) {
     }
     /**
@@ -305,20 +308,19 @@ class ProductController extends Controller
         try {
             $request->validate([
                 'status' => 'required|in:pending,approved,rejected',
-                'rejection_reason' => 'required_if:status,rejected|nullable|string|max:500'
+                'rejection_reason' => 'required_if:status,rejected|nullable|string|max:500',
+                'bank_product_id' => 'nullable|exists:products,id'
             ]);
 
-            $product = Product::findOrFail($id);
-            $vendorProduct = VendorProduct::where('product_id', $product->id)->firstOrFail();
-
-            $vendorProduct->update([
+            $result = $this->productService->changeVendorProductStatus($id, [
                 'status' => $request->status,
-                'rejection_reason' => $request->status === 'rejected' ? $request->rejection_reason : null
+                'rejection_reason' => $request->rejection_reason,
+                'bank_product_id' => $request->bank_product_id
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => __('catalogmanagement::product.status_updated_successfully')
+                'message' => $result['message']
             ]);
         } catch (Exception $e) {
             Log::error('Product status change failed', [
@@ -329,7 +331,7 @@ class ProductController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => __('common.error_occurred')
+                'message' => $e->getMessage()
             ], 500);
         }
     }
@@ -341,39 +343,19 @@ class ProductController extends Controller
     {
         try {
             $request->validate([
-                'status' => 'required|in:1,2'
+                'status' => 'required|in:1,2' // 1=active, 2=inactive
             ]);
-
-            $product = Product::findOrFail($id);
-            $vendorProduct = VendorProduct::where('product_id', $product->id)->firstOrFail();
 
             // Convert status: 1 = active (true), 2 = inactive (false)
-            $newStatus = $request->status == 1;
+            $isActive = $request->status == 1;
 
-            // Check if status is already set to the requested value
-            if ($vendorProduct->is_active == $newStatus) {
-                return response()->json([
-                    'success' => false,
-                    'message' => __('catalogmanagement::product.activation_already_set')
-                ]);
-            }
-
-            // Update the activation status on vendor product
-            $vendorProduct->is_active = $newStatus;
-            $vendorProduct->save();
-
-            Log::info('Product activation status changed', [
-                'product_id' => $id,
-                'vendor_product_id' => $vendorProduct->id,
-                'new_status' => $newStatus,
-                'changed_by' => auth()->id()
-            ]);
+            $result = $this->productService->changeProductActivation($id, $isActive);
 
             return response()->json([
                 'success' => true,
-                'message' => __('catalogmanagement::product.activation_changed_successfully'),
-                'new_status' => $newStatus,
-                'status_text' => $newStatus ? __('common.active') : __('common.inactive')
+                'message' => $result['message'],
+                'new_status' => $isActive,
+                'status_text' => $isActive ? __('common.active') : __('common.inactive')
             ]);
 
         } catch (Exception $e) {
@@ -385,60 +367,7 @@ class ProductController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => __('catalogmanagement::product.error_changing_activation')
-            ], 500);
-        }
-    }
-
-    /**
-     * Move product to bank (admin only)
-     */
-    public function moveToBank(Request $request, $id)
-    {
-        try {
-            // Check if user is admin
-            $currentUser = Auth::user();
-            if (!in_array($currentUser->user_type_id, UserType::adminIds())) {
-                return response()->json([
-                    'success' => false,
-                    'message' => __('common.unauthorized')
-                ], 403);
-            }
-
-            $product = Product::findOrFail($id);
-
-            // Check if already a bank product
-            if ($product->type === Product::TYPE_BANK) {
-                return response()->json([
-                    'success' => false,
-                    'message' => __('catalogmanagement::product.already_bank_product')
-                ]);
-            }
-
-            // Move to bank
-            $product->type = Product::TYPE_BANK;
-            $product->save();
-
-            Log::info('Product moved to bank', [
-                'product_id' => $id,
-                'moved_by' => auth()->id()
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => __('catalogmanagement::product.moved_to_bank_successfully')
-            ]);
-
-        } catch (Exception $e) {
-            Log::error('Move product to bank failed', [
-                'product_id' => $id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => __('catalogmanagement::product.error_moving_to_bank')
+                'message' => $e->getMessage()
             ], 500);
         }
     }
@@ -781,6 +710,92 @@ class ProductController extends Controller
             });
         }
 
-        return view('catalogmanagement::product.index', compact('languages', 'vendors', 'brands', 'categories', 'statusFilter'));
+        $bankProducts = $this->productBankService->getAllBankProducts();
+        $bankProducts = BankProductResource::collection($bankProducts)->resolve();
+        return view('catalogmanagement::product.index', compact('languages', 'vendors', 'brands', 'categories', 'statusFilter', 'bankProducts'));
+    }
+
+    /**
+     * Trash vendor product (soft delete)
+     */
+    public function trashVendorProduct($id)
+    {
+        try {
+            // Check if user is admin
+            $currentUser = Auth::user();
+            if (!in_array($currentUser->user_type_id, UserType::adminIds())) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('common.unauthorized')
+                ], 403);
+            }
+
+            $vendorProduct = VendorProduct::findOrFail($id);
+            $vendorProduct->delete(); // Soft delete
+
+            Log::info('Vendor product trashed', [
+                'vendor_product_id' => $id,
+                'trashed_by' => auth()->id()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('catalogmanagement::product.vendor_product_trashed_successfully')
+            ]);
+
+        } catch (Exception $e) {
+            Log::error('Trash vendor product failed', [
+                'vendor_product_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => __('catalogmanagement::product.error_trashing_vendor_product')
+            ], 500);
+        }
+    }
+
+    /**
+     * Restore vendor product
+     */
+    public function restoreVendorProduct($id)
+    {
+        try {
+            // Check if user is admin
+            $currentUser = Auth::user();
+            if (!in_array($currentUser->user_type_id, UserType::adminIds())) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('common.unauthorized')
+                ], 403);
+            }
+
+            $vendorProduct = VendorProduct::withTrashed()->findOrFail($id);
+            $vendorProduct->restore();
+
+            Log::info('Vendor product restored', [
+                'vendor_product_id' => $id,
+                'restored_by' => auth()->id()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('catalogmanagement::product.vendor_product_restored_successfully')
+            ]);
+
+        } catch (Exception $e) {
+            Log::error('Restore vendor product failed', [
+                'vendor_product_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => __('catalogmanagement::product.error_restoring_vendor_product')
+            ], 500);
+        }
     }
 }

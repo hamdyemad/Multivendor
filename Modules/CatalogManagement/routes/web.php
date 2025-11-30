@@ -34,6 +34,9 @@ Route::group(
             Route::get('', 'ProductController@bankProducts')->name('products.bank');
             Route::get('datatable', 'ProductController@bankDatatable')->name('products.bank.datatable');
             Route::get('{id}/view', 'ProductController@bankView')->name('products.bank.view');
+            // Vendor Product Management routes
+            Route::post('vendor-product/{id}/trash', 'ProductController@trashVendorProduct')->name('products.bank.vendor-product.trash');
+            Route::post('vendor-product/{id}/restore', 'ProductController@restoreVendorProduct')->name('products.bank.vendor-product.restore');
             // Bank Stock Management routes - moved to BankController
             Route::get('stock-management', 'BankController@stockManagement')->name('products.bank.stock-management');
             Route::get('api/products', 'BankController@getProducts')->name('products.bank.api.products');

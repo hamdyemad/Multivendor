@@ -212,54 +212,6 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Global Vendor Product Information (Tax & Max Per Order) -->
-                                            <div class="card mt-4" id="global-vendor-product-section">
-                                                <div class="card-header">
-                                                    <h6 class="mb-0" style="font-weight: 600; font-size: 16px;">
-                                                        <i class="uil uil-building me-2"></i>
-                                                        {{ __('catalogmanagement::product.vendor_product_settings') ?? 'Vendor Product Settings' }}
-                                                    </h6>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="row">
-                                                        <div class="col-md-6 mb-3">
-                                                            <div class="form-group">
-                                                                <label for="tax_id" class="form-label fw-bold">{{ __('catalogmanagement::product.tax') }} <span class="text-danger">*</span></label>
-                                                                <select name="tax_id" id="tax_id" class="form-control select2">
-                                                                    <option value="">{{ __('common.select_option') }}</option>
-                                                                    @if(isset($taxes))
-                                                                        @foreach($taxes as $tax)
-                                                                            <option value="{{ $tax['id'] }}" {{ isset($product) && $product->tax_id == $tax['id'] ? 'selected' : '' }}>
-                                                                                {{ $tax['name'] }} ({{ $tax['percentage'] }}%)
-                                                                            </option>
-                                                                        @endforeach
-                                                                    @endif
-                                                                </select>
-                                                                <div class="error-message text-danger" id="error-tax_id" style="display: none;"></div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-6 mb-3">
-                                                            <div class="form-group">
-                                                                <label for="max_per_order" class="form-label fw-bold">{{ __('catalogmanagement::product.max_per_order') }} <span class="text-danger">*</span></label>
-                                                                <input type="number" name="max_per_order" id="max_per_order" class="form-control" min="1" placeholder="{{ __('catalogmanagement::product.enter_max_per_order') ?? 'Enter max per order' }}" value="{{ isset($product) ? $product->max_per_order : '' }}" required>
-                                                                <div class="error-message text-danger" id="error-max_per_order" style="display: none;"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-12">
-                                                            <div class="alert alert-info d-flex align-items-center" role="alert">
-                                                                <i class="uil uil-info-circle me-2"></i>
-                                                                <div>
-                                                                    <strong>{{ __('common.note') }}:</strong>
-                                                                    {{ __('catalogmanagement::product.global_settings_note') ?? 'These settings apply to all variants of this product for this vendor.' }}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
                                             <!-- Variant Information (shown only for variant products) -->
                                             <div class="variant-configuration-section">
                                             @if(isset($product) && $configurationType === 'variants' && $product->variants->count() > 0)
@@ -1010,6 +962,7 @@
         // Add vendor_id to request if available
         if (vendorId) {
             requestData.vendor_id = vendorId;
+            requestData.vendor_selected_regions = true;
         }
 
         $.ajax({

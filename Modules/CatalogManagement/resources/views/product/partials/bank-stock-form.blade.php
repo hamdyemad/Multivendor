@@ -35,10 +35,6 @@
             </div>
             <div class="row">
                 <div class="col-md-4 mb-3">
-                    <label for="points" class="form-label">{{ __('catalogmanagement::product.points') }}</label>
-                    <input type="number" name="points" id="points" class="form-control ih-medium ip-gray radius-xs b-light px-15" min="0" value="0">
-                </div>
-                <div class="col-md-4 mb-3">
                     <label for="max_per_order" class="form-label">{{ __('catalogmanagement::product.max_per_order') }}</label>
                     <input type="number" name="max_per_order" id="max_per_order" class="form-control ih-medium ip-gray radius-xs b-light px-15" min="1" value="10">
                 </div>

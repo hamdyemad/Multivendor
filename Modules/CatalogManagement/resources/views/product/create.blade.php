@@ -1515,6 +1515,7 @@
         // Add vendor_id to request if available
         if (vendorId) {
             requestData.vendor_id = vendorId;
+            requestData.vendor_selected_regions = true;
         }
 
         $.ajax({

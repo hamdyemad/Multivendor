@@ -42,6 +42,7 @@ class ProductAction {
                 'vendor_id' => $data['vendor_id'] ?? null,
                 'brand_id' => $data['brand_id'] ?? null,
                 'category_id' => $data['category_id'] ?? null,
+                'product_type' => $data['product_type'] ?? null,
                 'is_active' => $data['active'] ?? null,
                 'status' => $data['status'] ?? null,
                 'created_date_from' => $data['created_date_from'] ?? '',
@@ -107,6 +108,12 @@ class ProductAction {
                 $query->where('vendor_id', $filters['vendor_id']);
             }
 
+            if (!empty($filters['product_type'])) {
+                $query->whereHas('product', function($q) use ($filters) {
+                    $q->where('type', $filters['product_type']);
+                });
+            }
+
             if (isset($filters['is_active']) && $filters['is_active'] !== '') {
                 $query->where('is_active', (bool)$filters['is_active']);
             }
@@ -150,6 +157,7 @@ class ProductAction {
 
                 $rowData = [
                     'id' => $product->id,
+                    'vendor_product_id' => $item->id,
                     'index' => $index++,
                     'product_information' => [
                         'name_en' => truncateString($nameEn),

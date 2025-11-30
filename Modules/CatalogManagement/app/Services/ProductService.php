@@ -40,4 +40,20 @@ class ProductService
     {
         return $this->productInterface->updateStockAndPricing($id, $data);
     }
+
+    /**
+     * Change vendor product status
+     */
+    public function changeVendorProductStatus(int $productId, array $data)
+    {
+        return $this->productInterface->changeVendorProductStatus($productId, $data);
+    }
+
+    /**
+     * Change product activation status
+     */
+    public function changeProductActivation(int $productId, bool $isActive)
+    {
+        return $this->productInterface->changeProductActivation($productId, $isActive);
+    }
 }

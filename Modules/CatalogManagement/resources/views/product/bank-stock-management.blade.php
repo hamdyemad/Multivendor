@@ -143,6 +143,122 @@
         background-color: #e9ecef;
         border-color: var(--color-primary);
     }
+
+    /* Form Group and Error Message Styling */
+    .form-group {
+        margin-bottom: 1.5rem;
+        min-height: 80px; /* Ensure consistent height for form groups */
+    }
+
+    .error-message {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: block;
+        width: 100%;
+        line-height: 1.4;
+    }
+
+    .form-control.is-invalid {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+
+    .select2-container--bootstrap-5 .select2-selection.is-invalid {
+        border-color: #dc3545 !important;
+    }
+
+    /* Stock Management Table Styling */
+    .table td {
+        vertical-align: middle;
+        padding: 12px 8px;
+    }
+
+    .stock-row td {
+        position: relative;
+    }
+
+    .stock-row .form-control {
+        margin-bottom: 0;
+    }
+
+    .stock-row .error-message {
+        position: absolute;
+        top: 100%;
+        left: 8px;
+        right: 8px;
+        z-index: 10;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-size: 0.75rem;
+        margin-top: 2px;
+    }
+
+    /* Ensure table rows have enough space for error messages */
+    .variant-stock-rows tr {
+        height: auto;
+        min-height: 60px;
+    }
+
+    .variant-stock-rows td {
+        padding-bottom: 25px; /* Extra space for error messages */
+    }
+
+    /* Global vendor product section styling */
+    #global-vendor-product-section .form-group {
+        min-height: 85px; /* Slightly more space for global fields */
+    }
+
+    #global-vendor-product-section .error-message {
+        margin-top: 0.5rem;
+    }
+
+    /* Additional error message styling for dynamically generated content */
+    .invalid-feedback {
+        display: block;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+        color: #dc3545;
+        line-height: 1.4;
+    }
+
+    /* Ensure proper spacing in variant cards */
+    .existing-variant-card .form-group {
+        margin-bottom: 1rem;
+        min-height: 70px;
+    }
+
+    .existing-variant-card .error-message {
+        margin-top: 0.25rem;
+        font-size: 0.8rem;
+    }
+
+    /* Stock table specific adjustments */
+    .table .form-control {
+        border: 1px solid #ced4da;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    .table .form-control:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    /* Alert styling for better error presentation */
+    .alert.alert-danger {
+        border-left: 4px solid #dc3545;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+    }
+
+    .alert.alert-warning {
+        border-left: 4px solid #ffc107;
+        background-color: #fff3cd;
+        border-color: #ffeaa7;
+        color: #856404;
+    }
 </style>
 @endpush
 
@@ -247,6 +363,48 @@
                                     <input type="hidden" id="selected_vendor_id" name="vendor_id" value="{{ $isVendorUser ? $vendors->first()['id'] ?? '' : '' }}">
                                     <input type="hidden" id="selected_product_id" name="product_id">
                                     <input type="hidden" name="configuration_type" value="variants">
+
+                                    <!-- Global Vendor Product Information (Tax & Max Per Order) -->
+                                    <div class="card mb-4" id="global-vendor-product-section">
+                                        <div class="card-header">
+                                            <h6 class="mb-0" style="font-weight: 600; font-size: 16px;">
+                                                <i class="uil uil-building me-2"></i>
+                                                {{ __('catalogmanagement::product.vendor_product_settings') ?? 'Vendor Product Settings' }}
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="form-group">
+                                                        <label for="tax_id" class="form-label fw-bold">{{ __('catalogmanagement::product.tax') }} <span class="text-danger">*</span></label>
+                                                        <select name="tax_id" id="tax_id" class="form-control select2">
+                                                            <option value="">{{ __('common.select_option') }}</option>
+                                                            <!-- Tax options will be populated via JavaScript -->
+                                                        </select>
+                                                        <div class="error-message text-danger" id="error-tax_id" style="display: none;"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="form-group">
+                                                        <label for="max_per_order" class="form-label fw-bold">{{ __('catalogmanagement::product.max_per_order') }} <span class="text-danger">*</span></label>
+                                                        <input type="number" name="max_per_order" id="max_per_order" class="form-control ih-medium ip-gray radius-xs b-light px-15" min="1" placeholder="{{ __('catalogmanagement::product.enter_max_per_order') ?? 'Enter max per order' }}" required>
+                                                        <div class="error-message text-danger" id="error-max_per_order" style="display: none;"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="alert alert-info d-flex align-items-center" role="alert">
+                                                        <i class="uil uil-info-circle me-2"></i>
+                                                        <div>
+                                                            <strong>{{ __('common.note') }}:</strong>
+                                                            {{ __('catalogmanagement::product.global_settings_note') ?? 'These settings apply to all variants of this product for this vendor.' }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     <!-- Existing Variants Section -->
                                     <div class="card" id="variants-management-section">
@@ -388,5 +546,24 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    // Pass taxes data from controller to JavaScript
+    window.bankStockConfig = {
+        taxes: @json($taxes->map(function($tax) {
+            return [
+                'id' => $tax->id,
+                'name' => $tax->name,
+                'percentage' => $tax->percentage ?? 0
+            ];
+        })),
+        isVendorUser: @json($isVendorUser),
+        vendors: @json($vendors->map(function($vendor) {
+            return [
+                'id' => $vendor->id,
+                'name' => $vendor->name
+            ];
+        }))
+    };
+</script>
 @include('catalogmanagement::product.partials.bank-stock-scripts')
 @endpush

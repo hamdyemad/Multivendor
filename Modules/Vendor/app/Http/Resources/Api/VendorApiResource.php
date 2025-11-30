@@ -24,8 +24,8 @@ class VendorApiResource extends JsonResource
             'country_name' => $this->whenLoaded('country', $this->country?->name),
             'type' => $this->type,
             'activities' => ActivityApiResource::collection($this->whenLoaded('activeActivities')),
-            'logo' => $this->formatImage($this->logo),
-            'banner' => $this->formatImage($this->banner),
+            'logo' => formatImage($this->logo),
+            'banner' => formatImage($this->banner),
             'active' => (bool) $this->active,
             'facebook' => $this->facebook_url,
             'instagram' => $this->instagram_url,
@@ -35,18 +35,5 @@ class VendorApiResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
-    }
-
-
-    /**
-     * Format image path to full URL
-     */
-    private function formatImage($imagePath): ?string
-    {
-        if (!$imagePath) {
-            return null;
-        }
-
-        return url(asset('storage/' . $imagePath->path));
     }
 }

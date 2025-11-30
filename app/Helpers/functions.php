@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Attachment;
 use App\Models\Language;
 use App\Models\Permession;
 use App\Models\Role;
@@ -943,6 +944,10 @@ function formatImage($imagePath): ?string
         return null;
     }
 
-    return url(asset('storage/' . $imagePath->path));
+    if ($imagePath instanceof Attachment) {
+        return url(asset('storage/' . $imagePath->path));
+    }
+
+    return url(asset('storage/' . $imagePath));
 }
 

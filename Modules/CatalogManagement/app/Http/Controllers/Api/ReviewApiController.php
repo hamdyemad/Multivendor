@@ -27,7 +27,7 @@ class ReviewApiController extends Controller
 
         $review = $this->reviewService->createReview($data, $vendorProductId);
 
-        if($review)
+        if(!$review)
         {
             return $this->sendRes(
                 config('responses.product_not_found')[app()->getLocale()],

@@ -141,19 +141,6 @@
                                     </div>
                                 </div>
 
-                                {{-- Department Image --}}
-                                <div class="col-md-6 mb-25">
-                                    <x-image-upload
-                                        id="department_image"
-                                        name="image"
-                                        :label="trans('categorymanagment::department.image')"
-                                        :placeholder="trans('categorymanagment::department.click_to_upload_image')"
-                                        :recommendedSize="trans('categorymanagment::department.recommended_size')"
-                                        :existingImage="isset($department) && $department->image ? $department->image : null"
-                                        aspectRatio="square"
-                                    />
-                                </div>
-
                                 {{-- Activation Switcher --}}
                                 <div class="col-md-6 mb-25">
                                     <div class="form-group">
@@ -176,6 +163,33 @@
                                         @enderror
                                     </div>
                                 </div>
+
+                                {{-- Department Image --}}
+                                <div class="col-md-6 mb-25">
+                                    <x-image-upload
+                                        id="department_image"
+                                        name="image"
+                                        :label="trans('categorymanagment::department.image')"
+                                        :placeholder="trans('categorymanagment::department.click_to_upload_image')"
+                                        :recommendedSize="trans('categorymanagment::department.recommended_size')"
+                                        :existingImage="isset($department) && $department->image ? $department->image : null"
+                                        aspectRatio="square"
+                                    />
+                                </div>
+
+                                <div class="col-md-6 mb-25">
+                                    <x-image-upload
+                                        id="department_icon"
+                                        name="icon"
+                                        :label="trans('categorymanagment::department.icon')"
+                                        :placeholder="trans('categorymanagment::department.click_to_upload_icon')"
+                                        :recommendedSize="trans('categorymanagment::department.recommended_size_for_icon')"
+                                        :existingImage="isset($department) && $department->icon ? $department->icon : null"
+                                        aspectRatio="square"
+                                    />
+                                </div>
+
+
                             </div>
 
                             <div class="d-flex justify-content-end gap-15 mt-30">

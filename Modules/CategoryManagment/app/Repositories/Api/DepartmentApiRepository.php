@@ -29,7 +29,7 @@ class DepartmentApiRepository implements DepartmentApiRepositoryInterface
     public function find(DepartmentFilterDTO $dto, $id)
     {
         $filters = $dto->toArray();
-        return $this->query->handle($filters)->with('activeCategories')->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id))->firstOrFail();
+        return $this->query->handle($filters)->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id))->firstOrFail();
     }
 
     /**

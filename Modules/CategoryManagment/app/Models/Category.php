@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\CategoryManagment\app\Models\DepartmentTranslation;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Builder;
-
+use Modules\CatalogManagement\app\Models\Product;
 
 class Category extends BaseModel
 {
@@ -38,6 +38,15 @@ class Category extends BaseModel
         return $imageAttachment ? $imageAttachment->path : null;
     }
 
+    /**
+     * Get category icon
+     */
+    public function getIconAttribute()
+    {
+        $iconAttachment = $this->attachments()->where('type', 'icon')->first();
+        return $iconAttachment ? $iconAttachment->path : null;
+    }
+
     public function getTypeAttribute()
     {
         return 'category';
@@ -58,6 +67,18 @@ class Category extends BaseModel
     public function activeSubs()
     {
         return $this->subs()->active();
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    public function activeProducts()
+    {
+        return $this->products()->whereHas('vendorProducts', function($q){
+            $q->where('is_active', true);
+        });
     }
 
     public function getDescriptionAttribute()

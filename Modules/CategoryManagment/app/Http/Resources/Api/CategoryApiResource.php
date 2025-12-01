@@ -4,7 +4,7 @@ namespace Modules\CategoryManagment\app\Http\Resources\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
+use Modules\CategoryManagment\app\Http\Resources\Api\SubCategoryApiResource;
 
 class CategoryApiResource extends JsonResource
 {
@@ -20,10 +20,12 @@ class CategoryApiResource extends JsonResource
             'id' => $this->id,
             'slug' => $this->slug,
             'name' => $this->name,
-            'description' => $this->description,
+            'summary' => $this->description,
             'image' => formatImage($this->image),
-            'active' => $this->active,
+            'icon' => formatImage($this->icon),
             'department' => new DepartmentApiResource($this->whenLoaded('department')),
+            'sub_categories' => SubCategoryApiResource::collection($this->whenLoaded('activeSubs')),
+            'products_count' => $this->active_products_count ?? 0,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

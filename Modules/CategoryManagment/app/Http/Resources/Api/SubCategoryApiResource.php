@@ -4,7 +4,6 @@ namespace Modules\CategoryManagment\app\Http\Resources\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 class SubCategoryApiResource extends JsonResource
 {
@@ -15,15 +14,17 @@ class SubCategoryApiResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-
         return [
             'id' => $this->id,
-            'slug' => $this->slug,
             'name' => $this->name,
-            'description' => $this->description,
+            'slug' => $this->slug,
+            'parent' => new CategoryApiResource($this->whenLoaded('category')),
+            'parent_department' => $this->whenLoaded('category', function() {
+                return $this->category->department ? new DepartmentApiResource($this->category->department) : null;
+            }),
             'image' => formatImage($this->image),
-            'active' => $this->active,
-            'category' => new CategoryApiResource($this->whenLoaded('category')),
+            'icon' => formatImage($this->icon),
+            'products_count' => $this->active_products_count ?? 0,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

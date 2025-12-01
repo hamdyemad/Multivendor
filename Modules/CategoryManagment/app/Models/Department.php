@@ -60,6 +60,12 @@ class Department extends BaseModel
         return $imageAttachment ? $imageAttachment->path : null;
     }
 
+    public function getIconAttribute()
+    {
+        $iconAttachment = $this->attachments()->where('type', 'icon')->first();
+        return $iconAttachment ? $iconAttachment->path : null;
+    }
+
     public function getNameAttribute() {
         return $this->getTranslation('name', app()->getLocale());
     }
@@ -110,7 +116,9 @@ class Department extends BaseModel
 
     public function activeProducts()
     {
-        return $this->products()->active();
+        return $this->products()->whereHas('vendorProducts', function($q){
+            $q->where('is_active', true);
+        });
     }
 
     /**

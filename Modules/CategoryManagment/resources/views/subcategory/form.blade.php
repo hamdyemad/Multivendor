@@ -108,18 +108,6 @@
                                         @enderror
                                     </div>
                                 </div>
-                                {{-- Sub Category Image --}}
-                                <div class="col-md-6 mb-25">
-                                    <x-image-upload
-                                        id="sub_category_image"
-                                        name="image"
-                                        :label="trans('categorymanagment::subcategory.image')"
-                                        :placeholder="trans('categorymanagment::subcategory.click_to_upload_image')"
-                                        :recommendedSize="trans('categorymanagment::subcategory.recommended_size')"
-                                        :existingImage="isset($subCategory) && $subCategory->image ? $subCategory->image : null"
-                                        aspectRatio="square"
-                                    />
-                                </div>
 
                                 {{-- Activation Switcher --}}
                                 <div class="col-md-6 mb-25">
@@ -143,6 +131,33 @@
                                         @enderror
                                     </div>
                                 </div>
+
+                                {{-- Sub Category Image --}}
+                                <div class="col-md-6 mb-25">
+                                    <x-image-upload
+                                        id="sub_category_image"
+                                        name="image"
+                                        :label="trans('categorymanagment::subcategory.image')"
+                                        :placeholder="trans('categorymanagment::subcategory.click_to_upload_image')"
+                                        :recommendedSize="trans('categorymanagment::subcategory.recommended_size')"
+                                        :existingImage="isset($subCategory) && $subCategory->image ? $subCategory->image : null"
+                                        aspectRatio="square"
+                                    />
+                                </div>
+
+                                <div class="col-md-6 mb-25">
+                                    <x-image-upload
+                                        id="category_icon"
+                                        name="icon"
+                                        :label="trans('categorymanagment::subcategory.icon')"
+                                        :placeholder="trans('categorymanagment::subcategory.click_to_upload_icon')"
+                                        :recommendedSize="trans('categorymanagment::subcategory.recommended_size_for_icon')"
+                                        :existingImage="isset($subCategory) && $subCategory->icon ? $subCategory->icon : null"
+                                        aspectRatio="square"
+                                    />
+                                </div>
+
+
                             </div>
 
                             <div class="d-flex justify-content-end gap-15 mt-30">

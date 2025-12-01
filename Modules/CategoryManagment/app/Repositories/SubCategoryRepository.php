@@ -180,6 +180,15 @@ class SubCategoryRepository implements SubCategoryRepositoryInterface
             ]);
         }
 
+        // Handle icon upload
+        if (isset($data['icon'])) {
+            $path = $data['icon']->store("subcategories/{$subCategory->id}", 'public');
+            $subCategory->attachments()->create([
+                'path' => $path,
+                'type' => 'icon'
+            ]);
+        }
+
         return $subCategory;
     }
 
@@ -244,6 +253,25 @@ class SubCategoryRepository implements SubCategoryRepositoryInterface
             ]);
         }
 
+        // Handle icon upload
+        if (isset($data['icon']) && $data['icon'] instanceof \Illuminate\Http\UploadedFile) {
+            // Delete old icon if exists
+            $oldIcon = $subCategory->attachments()->where('type', 'icon')->first();
+            if ($oldIcon) {
+                if(Storage::disk('public')->exists($oldIcon->path)) {
+                    Storage::disk('public')->delete($oldIcon->path);
+                }
+                $oldIcon->delete();
+            }
+
+            // Store new icon
+            $path = $data['icon']->store("subcategories/{$subCategory->id}", 'public');
+            $subCategory->attachments()->create([
+                'path' => $path,
+                'type' => 'icon'
+            ]);
+        }
+
         return $subCategory;
     }
 
@@ -253,6 +281,14 @@ class SubCategoryRepository implements SubCategoryRepositoryInterface
     public function deleteSubCategory(int $id)
     {
         $subCategory = SubCategory::findOrFail($id);
+        $oldImage = $subCategory->attachments()->where('type', 'image')->first();
+        $oldIcon = $subCategory->attachments()->where('type', 'icon')->first();
+        if ($oldImage) {
+            $oldImage->delete();
+        }
+        if ($oldIcon) {
+            $oldIcon->delete();
+        }
         $subCategory->translations()->delete();
         $subCategory->delete();
         return true;

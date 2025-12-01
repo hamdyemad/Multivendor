@@ -29,6 +29,7 @@ class DepartmentRequest extends FormRequest
             'activities.*' => ['required', 'exists:activities,id'],
             'active' => 'nullable|boolean',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ];
 
         return $rules;

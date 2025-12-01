@@ -31,6 +31,10 @@ return [
     'select_category' => 'Select category',
     'click_to_upload_image' => 'Click to upload image',
     'recommended_size' => 'Recommended size: 800x600',
+    'recommended_size_for_icon' => 'Recommended size for icon: 50x50',
+    'click_to_upload_icon' => 'Click to upload icon',
+    'icon' => 'Icon',
+    'image' => 'Image',
 
     // Table Headers
     'name_en' => 'Name (English)',

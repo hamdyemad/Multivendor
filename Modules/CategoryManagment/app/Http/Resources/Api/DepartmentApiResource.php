@@ -27,10 +27,12 @@ class DepartmentApiResource extends JsonResource
             'id' => $this->id,
             'slug' => $this->slug,
             'image' => formatImage($this->image),
+            'icon' => formatImage($this->icon), // TODO add icon in dashboard
             'name' => $this->name,
             'description' => $this->description,
-            'active' => $this->active,
             'activities' => ActivityApiResource::collection($this->whenLoaded('activeActivities')),
+            'categories' => CategoryApiResource::collection($this->whenLoaded('activeCategories')),
+            'products_count' => $this->active_products_count ?? 0,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

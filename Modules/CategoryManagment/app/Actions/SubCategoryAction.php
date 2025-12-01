@@ -76,7 +76,8 @@ class SubCategoryAction {
             $filters['sortBy'] = $sortBy;
             // Get subcategories with pagination and sorting
             $subCategoriesQuery = $this->subCategoryRepositoryInterface->getSubCategoriesQuery($filters);
-            $subCategories = $subCategoriesQuery->skip($start)->take($perPage)->get();
+            $subCategoriesPaginated = $subCategoriesQuery->paginate($perPage, ['*'], 'page', $page);
+            $subCategories = $subCategoriesPaginated->items();
 
             // Return raw data - rendering will be handled by DataTables in the view
             $data = [];
@@ -121,7 +122,7 @@ class SubCategoryAction {
                 'data' => $data,
                 'totalRecords' => $totalRecords,
                 'filteredRecords' => $filteredRecords,
-                'dataPaginated' => $subCategories
+                'dataPaginated' => $subCategoriesPaginated
             ];
 
         } catch (\Exception $e) {

@@ -27,6 +27,7 @@ class CategoryRequest extends FormRequest
             'department_id' => 'required|exists:departments,id',
             'active' => 'nullable|boolean',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ];
 
         return $rules;

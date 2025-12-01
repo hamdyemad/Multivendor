@@ -21,8 +21,11 @@ return [
     'inactive' => 'Inactive',
     'select_activities' => 'Select Activities',
     'image' => 'Department Image',
+    'icon' => 'Department Icon',
     'click_to_upload_image' => 'Click to upload department image',
+    "click_to_upload_icon" => 'Click to upload department icon',
     'recommended_size' => 'Recommended size: 800x600px',
+    'recommended_size_for_icon' => 'Recommended size for icon: 50x50px',
 
     // Placeholders
     'enter_department_name_english' => 'Enter department name in English',

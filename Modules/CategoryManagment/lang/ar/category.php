@@ -34,6 +34,10 @@ return [
     'select_activities' => 'اختر الأنشطة',
     'click_to_upload_image' => 'انقر لرفع صورة',
     'recommended_size' => 'الحجم الموصى به: 800x600',
+    'recommended_size_for_icon' => 'الحجم الموصى به: 50x50',
+    'click_to_upload_icon' => 'انقر لرفع أيقونة',
+    'icon' => 'الايقونة',
+    'image' => 'الصورة',
 
     // Table Headers
     'name_en' => 'الاسم (إنجليزي)',

@@ -127,6 +127,15 @@ class CategoryRepository implements CategoryRepositoryInterface
             ]);
         }
 
+        // Handle icon upload
+        if (isset($data['icon'])) {
+            $path = $data['icon']->store("categories/$category->id", 'public');
+            $category->attachments()->create([
+                'path' => $path,
+                'type' => 'icon'
+            ]);
+        }
+
         return $category;
     }
 
@@ -191,6 +200,25 @@ class CategoryRepository implements CategoryRepositoryInterface
             ]);
         }
 
+        // Handle icon upload
+        if (isset($data['icon']) && $data['icon']) {
+            // Delete old icon if exists
+            $oldIcon = $category->attachments()->where('type', 'icon')->first();
+            if ($oldIcon) {
+                if(Storage::disk('public')->exists($oldIcon->path)) {
+                    Storage::disk('public')->delete($oldIcon->path);
+                }
+                $oldIcon->delete();
+            }
+
+            // Store new icon
+            $path = $data['icon']->store("categories/{$category->id}", 'public');
+            $category->attachments()->create([
+                'path' => $path,
+                'type' => 'icon'
+            ]);
+        }
+
         return $category;
     }
 
@@ -200,6 +228,14 @@ class CategoryRepository implements CategoryRepositoryInterface
     public function deleteCategory(int $id)
     {
         $category = Category::findOrFail($id);
+        $oldImage = $category->attachments()->where('type', 'image')->first();
+        $oldIcon = $category->attachments()->where('type', 'icon')->first();
+        if ($oldImage) {
+            $oldImage->delete();
+        }
+        if ($oldIcon) {
+            $oldIcon->delete();
+        }
         $category->translations()->delete();
         $category->delete();
         return true;

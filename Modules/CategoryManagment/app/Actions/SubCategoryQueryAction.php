@@ -8,7 +8,11 @@ class SubCategoryQueryAction
 {
     public function handle(array $filters = [])
     {
-        $query = SubCategory::query()->with('translations')->active()->filter($filters);
+        $query = SubCategory::query()
+                    ->active()
+                    ->withCount('activeProducts')
+                    ->with(['category','category.department', 'translations'])
+                    ->filter($filters);
         return $query;
     }
 }

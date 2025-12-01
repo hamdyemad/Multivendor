@@ -202,16 +202,23 @@ class AutoProductSeeder extends Seeder
             'is_featured' => $this->faker->boolean(20),
         ]);
 
-        // Get or create a default "Standard" variant configuration for simple products
-        $standardConfig = VariantsConfiguration::where('key_id', 1)
-            ->whereHas('translations', function($q) {
-                $q->where('lang_key', 'name')->where('lang_value', 'Standard');
-            })->first();
+        // Get any available variant configuration for simple products
+        $standardConfig = null;
+        $variantKeys = VariantConfigurationKey::all();
 
-        if (!$standardConfig) {
-            $colorKey = VariantConfigurationKey::find(1);
+        foreach ($variantKeys as $key) {
+            $configs = VariantsConfiguration::where('key_id', $key->id)->first();
+            if ($configs) {
+                $standardConfig = $configs;
+                break;
+            }
+        }
+
+        // If no configurations found, create a default one
+        if (!$standardConfig && !$variantKeys->isEmpty()) {
+            $firstKey = $variantKeys->first();
             $standardConfig = VariantsConfiguration::create([
-                'key_id' => $colorKey->id,
+                'key_id' => $firstKey->id,
                 'parent_id' => null,
             ]);
 

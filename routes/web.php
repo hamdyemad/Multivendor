@@ -57,7 +57,10 @@ Route::get('/permissions/reset', function() {
 
 Route::get('/seeder', function() {
     try {
-        $exitCode = \Artisan::call('db:seed', ['--class' => 'AutoProductSeeder']);
+        $exitCode = \Artisan::call('db:seed', [
+            '--class' => 'AutoProductSeeder',
+            '--force' => true
+        ]);
         $output = \Artisan::output();
 
         if ($exitCode === 0) {

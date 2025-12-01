@@ -100,7 +100,8 @@ class Vendor extends BaseModel
 
     public function reviews()
     {
-        return $this->hasMany(Review::class, 'reviewable_id')->where('reviewable_type', 'VendorProduct');
+        return $this->morphMany(Review::class, 'reviewable')
+                ->where('reviewable_type', 'Vendor');
     }
 
     /**

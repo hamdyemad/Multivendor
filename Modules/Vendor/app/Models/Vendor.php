@@ -12,6 +12,7 @@ use App\Traits\HasSlug;
 use App\Models\Traits\HumanDates;
 use Illuminate\Database\Eloquent\Builder;
 use Modules\AreaSettings\app\Models\Country;
+use Modules\CatalogManagement\Models\Review;
 use Modules\CategoryManagment\app\Models\Activity;
 use Modules\Order\app\Models\OrderProduct;
 use Modules\Withdraw\app\Models\Withdraw;
@@ -25,6 +26,8 @@ class Vendor extends BaseModel
     // HasSlug trait configuration
     protected $slugWithRandomSuffix = true;
     protected $slugSuffixLength = 6;
+    protected $appends = ['reviews_count', 'average_rating'];
+
 
 
     public function total_orders(){
@@ -93,6 +96,11 @@ class Vendor extends BaseModel
     public function documents()
     {
         return $this->morphMany(Attachment::class, 'attachable')->where('type', 'docs');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'reviewable_id')->where('reviewable_type', 'VendorProduct');
     }
 
     /**
@@ -195,6 +203,16 @@ class Vendor extends BaseModel
     public function getTotalRemainingAttribute()
     {
         return $this->total_balance - $this->total_sent_money;
+    }
+
+    public function getReviewsCountAttribute()
+    {
+        return intval($this->reviews()->count());
+    }
+
+    public function getAverageRatingAttribute()
+    {
+        return intval($this->reviews()->avg('star') ?? 0);
     }
 
     /**

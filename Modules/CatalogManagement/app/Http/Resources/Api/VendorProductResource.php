@@ -26,7 +26,8 @@ class VendorProductResource extends JsonResource
             'slug' => $this->product->slug,
 
             'sku' => $this->sku,
-            'points' => $this->points,
+            'star' => $this->average_rating ?? 0,
+            'num_of_user_review' => $this->reviews_count ?? 0,
             'limitation' => $this->max_per_order,
             'is_active' => $this->is_active,
             'is_featured' => $this->is_featured,
@@ -40,8 +41,7 @@ class VendorProductResource extends JsonResource
             'matrial' => $this->product->material,
             'video_link' => $this->product->video_link,
 
-            'star' => $this->product->average_rating ?? 0,
-            'num_of_user_review' => $this->product->reviews_count ?? 0,
+
             'number_of_sale' => $this->sales,
             'views' => $this->views,
             'stock' => $this->total_stock ?? 0,

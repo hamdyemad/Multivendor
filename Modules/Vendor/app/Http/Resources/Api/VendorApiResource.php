@@ -19,6 +19,8 @@ class VendorApiResource extends JsonResource
             'id' => $this->id,
             'slug' => $this->slug,
             'name' => $this->name,
+            'star' => $this->average_rating ?? 0,
+            'num_of_user_review' => $this->reviews_count ?? 0,
             'description' => $this->description,
             'country_id' => $this->country_id,
             'country_name' => $this->whenLoaded('country', $this->country?->name),

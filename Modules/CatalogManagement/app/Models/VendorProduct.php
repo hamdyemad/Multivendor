@@ -9,6 +9,7 @@ use App\Models\Traits\HumanDates;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Vendor\app\Models\Vendor;
 use Illuminate\Database\Eloquent\Builder;
+use Modules\CatalogManagement\Models\Review;
 
 
 class VendorProduct extends BaseModel
@@ -28,6 +29,8 @@ class VendorProduct extends BaseModel
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
     ];
+
+    protected $appends = ['reviews_count', 'average_rating'];
 
     /**
      * Get all available status values
@@ -71,6 +74,14 @@ class VendorProduct extends BaseModel
     public function variants()
     {
         return $this->hasMany(VendorProductVariant::class);
+    }
+
+    /**
+     * Get reviews for this vendor product
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'reviewable_id')->where('reviewable_type', 'VendorProduct');
     }
 
     public function highestDiscountVariant()
@@ -209,5 +220,15 @@ class VendorProduct extends BaseModel
         }
 
         return $query;
+    }
+
+    public function getReviewsCountAttribute()
+    {
+        return intval($this->reviews()->count());
+    }
+
+    public function getAverageRatingAttribute()
+    {
+        return intval($this->reviews()->avg('star') ?? 0);
     }
 }

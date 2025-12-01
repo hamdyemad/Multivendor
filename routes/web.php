@@ -58,8 +58,8 @@ Route::get('/permissions/reset', function() {
 Route::get('/seeder', function() {
     try {
         $exitCode = \Artisan::call('db:seed', [
-            // '--class' => 'AutoProductSeeder',
-            '--class' => 'OrderStageSeeder',
+            '--class' => 'AutoProductSeeder',
+            // '--class' => 'OrderStageSeeder',
             '--force' => true
         ]);
         $output = \Artisan::output();

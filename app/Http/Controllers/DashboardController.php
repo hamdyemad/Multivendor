@@ -13,4 +13,8 @@ class DashboardController extends Controller
         ];
         return view('pages.dashboard.dashboard', $data);
     }
+
+    public function test() {
+
+    }
 }

@@ -56,6 +56,33 @@ Route::get('/permissions/reset', function() {
 
 
 Route::get('/seeder', function() {
-    \Artisan::call('db:seed', ['--class' => 'AutoProductSeeder']);
-    return 'AutoProductSeeder completed successfully! Check your database for the new products.';
+    try {
+        $exitCode = \Artisan::call('db:seed', ['--class' => 'AutoProductSeeder']);
+        $output = \Artisan::output();
+
+        if ($exitCode === 0) {
+            return response()->json([
+                'success' => true,
+                'message' => 'AutoProductSeeder completed successfully!',
+                'output' => $output,
+                'exit_code' => $exitCode
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Seeder failed to run',
+                'output' => $output, // This will show the actual error from the seeder
+                'exit_code' => $exitCode
+            ], 500);
+        }
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Exception occurred while running seeder',
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
 });

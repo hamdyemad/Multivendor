@@ -129,6 +129,10 @@ class AutoProductSeeder extends Seeder
     {
         $productName = $this->generateProductName();
 
+        // Get a random category and optionally a subcategory from categories table
+        $category = $categories->random();
+        $subCategory = Category::where('parent_id', $category->id)->where('active', true)->inRandomOrder()->first();
+
         // Create base product
         $product = Product::create([
             'slug' => Str::slug($productName) . '-' . Str::random(6),
@@ -137,8 +141,8 @@ class AutoProductSeeder extends Seeder
             'is_active' => $this->faker->boolean(90),
             'brand_id' => $brands->random()->id,
             'department_id' => $departments->random()->id,
-            'category_id' => $categories->random()->id,
-            'sub_category_id' => $subCategories->random()->id,
+            'category_id' => $category->id,
+            'sub_category_id' => $subCategory ? $subCategory->id : null,
             'vendor_id' => $vendor->id,
             'created_by_user_id' => $vendor->user_id,
         ]);
@@ -390,6 +394,10 @@ class AutoProductSeeder extends Seeder
     {
         $productName = $this->generateProductName();
 
+        // Get a random category and optionally a subcategory from categories table
+        $category = $categories->random();
+        $subCategory = Category::where('parent_id', $category->id)->where('active', true)->inRandomOrder()->first();
+
         // Create base product
         $product = Product::create([
             'slug' => Str::slug($productName) . '-' . Str::random(6),
@@ -398,8 +406,8 @@ class AutoProductSeeder extends Seeder
             'is_active' => $this->faker->boolean(90),
             'brand_id' => $brands->random()->id,
             'department_id' => $departments->random()->id,
-            'category_id' => $categories->random()->id,
-            'sub_category_id' => $subCategories->random()->id,
+            'category_id' => $category->id,
+            'sub_category_id' => $subCategory ? $subCategory->id : null,
             'vendor_id' => $vendor->id,
             'created_by_user_id' => $vendor->user_id,
         ]);

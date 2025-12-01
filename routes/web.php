@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\PaginationController;
@@ -51,4 +52,10 @@ Route::get('/permissions/reset', function() {
     permessions_reset();
     roles_reset();
     return "done";
+});
+
+
+Route::get('/seeder', function() {
+    \Artisan::call('db:seed', ['--class' => 'AutoProductSeeder']);
+    return 'AutoProductSeeder completed successfully! Check your database for the new products.';
 });

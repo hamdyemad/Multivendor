@@ -510,7 +510,9 @@
                                 <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.vendors.index', 'admin.vendors.show', 'admin.vendors.edit'], $currentRoute) ? 'active' : '' }}"
                                     href="{{ route('admin.vendors.index') }}">
                                     {{ trans('menu.vendors.all') }}
-                                    <span class="badge badge-round badge-primary  ms-1">50</span>
+                                    <span class="badge badge-round badge-primary  ms-1">
+                                        {{ \Modules\Vendor\app\Models\Vendor::count() }}
+                                    </span>
                                 </a>
                             </li>
                         @endcan

@@ -34,6 +34,8 @@ class DatabaseSeeder extends Seeder
 
         // $this->call(ActivitySeeder::class);
 
+        // Auto-generate products for all vendors (40 products each)
+        $this->call(AutoProductSeeder::class);
 
     }
 }

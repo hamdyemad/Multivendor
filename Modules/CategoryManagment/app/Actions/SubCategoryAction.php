@@ -24,9 +24,11 @@ class SubCategoryAction {
     public function getDataTable($data)
     {
         try {
-            // Get pagination parameters
-            $perPage = $data['per_page'] ?? $data['length'] ?? 10;
-            $page = $data['page'] ?? 1;
+            // Get pagination parameters from DataTables
+            $perPage = isset($data['length']) && $data['length'] > 0 ? (int)$data['length'] : 10;
+            $start = isset($data['start']) && $data['start'] >= 0 ? (int)$data['start'] : 0;
+            // Calculate page number from start offset
+            $page = $perPage > 0 ? floor($start / $perPage) + 1 : 1;
 
             // Get sorting parameters
             $sortType = $data['sort_type'] ?? 'id';
@@ -74,13 +76,14 @@ class SubCategoryAction {
             $filters['sortBy'] = $sortBy;
             // Get subcategories with pagination and sorting
             $subCategoriesQuery = $this->subCategoryRepositoryInterface->getSubCategoriesQuery($filters);
-            $subCategories = $subCategoriesQuery->paginate($perPage, ['*'], 'page', $page);
+            $subCategories = $subCategoriesQuery->skip($start)->take($perPage)->get();
 
             // Return raw data - rendering will be handled by DataTables in the view
             $data = [];
-            foreach ($subCategories as $index => $subCategory) {
+            $index = $start + 1; // Start index from the correct offset
+            foreach ($subCategories as $subCategory) {
                 $rowData = [
-                    'index' => $index + 1,
+                    'index' => $index++,
                     'id' => $subCategory->id,
                     'translations' => [],
                     'category' => null,

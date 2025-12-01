@@ -13,8 +13,11 @@ class PromocodeAction
 
     public function getDatatableData(array $data)
     {
-        $perPage = $data['per_page'] ?? $data['length'] ?? 10;
-        $page = $data['page'] ?? 1;
+        // Get pagination parameters from DataTables
+        $perPage = isset($data['length']) && $data['length'] > 0 ? (int)$data['length'] : 10;
+        $start = isset($data['start']) && $data['start'] >= 0 ? (int)$data['start'] : 0;
+        // Calculate page number from start offset
+        $page = $perPage > 0 ? floor($start / $perPage) + 1 : 1;
 
         $filters = [
             'active' => $data['active'] ?? null,
@@ -46,7 +49,7 @@ class PromocodeAction
         $promocodes = $query->paginate($perPage, ['*'], 'page', $page);
 
         $formattedData = [];
-        $index = ($page - 1) * $perPage + 1;
+        $index = $start + 1; // Start index from the correct offset
         foreach ($promocodes as $promocode) {
             $formattedData[] = [
                 'index' => $index++,

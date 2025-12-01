@@ -193,7 +193,9 @@
                                 <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.category-management.activities.index', $currentRoute) ? 'active' : '' }}"
                                     href="{{ route('admin.category-management.activities.index') }}">
                                     {{ trans('menu.activities.title') }}
-                                    <span class="badge badge-round badge-primary ms-1">8</span>
+                                    <span class="badge badge-round badge-primary ms-1">
+                                        {{ \Modules\CategoryManagment\app\Models\Activity::count() }}
+                                    </span>
                                 </a>
                             </li>
                         @endcan
@@ -203,7 +205,9 @@
                                 <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.category-management.departments.index', $currentRoute) ? 'active' : '' }}"
                                     href="{{ route('admin.category-management.departments.index') }}">
                                     {{ trans('menu.category managment.department') }}
-                                    <span class="badge badge-round badge-primary ms-1">8</span>
+                                    <span class="badge badge-round badge-primary ms-1">
+                                        {{ \Modules\CategoryManagment\app\Models\Department::count() }}
+                                    </span>
                                 </a>
                             </li>
                         @endcan
@@ -213,7 +217,9 @@
                                 <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.category-management.categories.index', $currentRoute) ? 'active' : '' }}"
                                     href="{{ route('admin.category-management.categories.index') }}">
                                     {{ trans('menu.category managment.main category') }}
-                                    <span class="badge badge-round badge-primary ms-1">25</span>
+                                    <span class="badge badge-round badge-primary ms-1">
+                                        {{ \Modules\CategoryManagment\app\Models\Category::count() }}
+                                    </span>
                                 </a>
                             </li>
                         @endcan
@@ -223,7 +229,9 @@
                                 <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.category-management.subcategories.index', $currentRoute) ? 'active' : '' }}"
                                     href="{{ route('admin.category-management.subcategories.index') }}">
                                     {{ trans('menu.category managment.sub category') }}
-                                    <span class="badge badge-round badge-primary ms-1">45</span>
+                                    <span class="badge badge-round badge-primary ms-1">
+                                        {{ \Modules\CategoryManagment\app\Models\SubCategory::count() }}
+                                    </span>
                                 </a>
                             </li>
                         @endcan

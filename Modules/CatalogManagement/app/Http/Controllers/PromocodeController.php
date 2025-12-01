@@ -29,6 +29,7 @@ class PromocodeController extends Controller
         $dataPaginated = $result['dataPaginated'];
 
         return response()->json([
+            'draw' => intval($request->input('draw', 1)), // Required for DataTables pagination
             'data' => $result['data'],
             'recordsTotal' => $result['totalRecords'],
             'recordsFiltered' => $result['filteredRecords'],

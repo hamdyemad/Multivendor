@@ -24,9 +24,11 @@ class CategoryAction {
     public function getDataTable($data)
     {
         try {
-            // Get pagination parameters
-            $perPage = $data['per_page'] ?? $data['length'] ?? 10;
-            $page = $data['page'] ?? 1;
+            // Get pagination parameters from DataTables
+            $perPage = isset($data['length']) && $data['length'] > 0 ? (int)$data['length'] : 10;
+            $start = isset($data['start']) && $data['start'] >= 0 ? (int)$data['start'] : 0;
+            // Calculate page number from start offset
+            $page = $perPage > 0 ? floor($start / $perPage) + 1 : 1;
 
             // Get sorting parameters
             $orderColumnIndex = $data['orderColumnIndex'] ?? 0;
@@ -92,9 +94,10 @@ class CategoryAction {
 
             // Return raw data - rendering will be handled by DataTables in the view
             $data = [];
-            foreach ($categories as $index => $category) {
+            $index = $start + 1; // Start index from the correct offset
+            foreach ($categories as $category) {
                 $rowData = [
-                    'index' => $index + 1,
+                    'index' => $index++,
                     'id' => $category->id,
                     'translations' => [],
                     'department' => null,

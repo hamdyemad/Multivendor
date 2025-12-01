@@ -12,13 +12,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // First, clean up orphaned products with non-existent sub_category_id
-        DB::statement('
-            DELETE FROM products
-            WHERE sub_category_id IS NOT NULL
-            AND sub_category_id NOT IN (SELECT id FROM sub_categories)
-        ');
-
         // Check if foreign key exists and drop it
         $foreignKeyExists = DB::select("
             SELECT CONSTRAINT_NAME
@@ -30,14 +23,21 @@ return new class extends Migration
         ");
 
         if (!empty($foreignKeyExists)) {
-            DB::statement('ALTER TABLE products DROP FOREIGN KEY products_sub_category_id_foreign');
+            Schema::table('products', function (Blueprint $table) {
+                $table->dropForeign(['sub_category_id']);
+            });
         }
 
+        // Recreate the foreign key to reference sub_categories table
         Schema::table('products', function (Blueprint $table) {
-            $table->unsignedBigInteger('sub_category_id')->nullable()->change();
-            $table->foreign('sub_category_id')->references('id')->on('sub_categories')->onDelete('cascade');
+            $table->foreign('sub_category_id')
+                  ->references('id')
+                  ->on('sub_categories')
+                  ->onDelete('cascade');
         });
     }
+
+
 
     /**
      * Reverse the migrations.
@@ -46,8 +46,14 @@ return new class extends Migration
     {
         Schema::table('products', function (Blueprint $table) {
             $table->dropForeign(['sub_category_id']);
-            $table->unsignedBigInteger('sub_category_id')->nullable(false)->change();
-            $table->foreign('sub_category_id')->references('id')->on('sub_categories')->onDelete('cascade');
+        });
+
+        // Restore the old foreign key to categories table
+        Schema::table('products', function (Blueprint $table) {
+            $table->foreign('sub_category_id')
+                  ->references('id')
+                  ->on('categories')
+                  ->onDelete('cascade');
         });
     }
 };

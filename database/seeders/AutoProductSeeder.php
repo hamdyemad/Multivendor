@@ -129,6 +129,18 @@ class AutoProductSeeder extends Seeder
     {
         $productName = $this->generateProductName();
 
+        // Get a random category
+        $category = $categories->random();
+
+        // Get a random subcategory that belongs to this category (if any exist)
+        $subCategoryId = null;
+        if ($subCategories->isNotEmpty()) {
+            $categorySubCategories = $subCategories->where('category_id', $category->id);
+            if ($categorySubCategories->isNotEmpty()) {
+                $subCategoryId = $categorySubCategories->random()->id;
+            }
+        }
+
         // Create base product
         $product = Product::create([
             'slug' => Str::slug($productName) . '-' . Str::random(6),
@@ -137,8 +149,8 @@ class AutoProductSeeder extends Seeder
             'is_active' => $this->faker->boolean(90),
             'brand_id' => $brands->random()->id,
             'department_id' => $departments->random()->id,
-            'category_id' => $categories->random()->id,
-            'sub_category_id' => $subCategories->random()->id,
+            'category_id' => $category->id,
+            'sub_category_id' => $subCategoryId,
             'vendor_id' => $vendor->id,
             'created_by_user_id' => $vendor->user_id,
         ]);
@@ -390,6 +402,18 @@ class AutoProductSeeder extends Seeder
     {
         $productName = $this->generateProductName();
 
+        // Get a random category
+        $category = $categories->random();
+
+        // Get a random subcategory that belongs to this category (if any exist)
+        $subCategoryId = null;
+        if ($subCategories->isNotEmpty()) {
+            $categorySubCategories = $subCategories->where('category_id', $category->id);
+            if ($categorySubCategories->isNotEmpty()) {
+                $subCategoryId = $categorySubCategories->random()->id;
+            }
+        }
+
         // Create base product
         $product = Product::create([
             'slug' => Str::slug($productName) . '-' . Str::random(6),
@@ -398,8 +422,8 @@ class AutoProductSeeder extends Seeder
             'is_active' => $this->faker->boolean(90),
             'brand_id' => $brands->random()->id,
             'department_id' => $departments->random()->id,
-            'category_id' => $categories->random()->id,
-            'sub_category_id' => $subCategories->random()->id,
+            'category_id' => $category->id,
+            'sub_category_id' => $subCategoryId,
             'vendor_id' => $vendor->id,
             'created_by_user_id' => $vendor->user_id,
         ]);

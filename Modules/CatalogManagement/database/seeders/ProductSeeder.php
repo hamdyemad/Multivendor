@@ -500,7 +500,6 @@ class ProductSeeder extends Seeder
                 'product_id' => $product->id,
                 'tax_id' => $taxes[0]->id,
                 'sku' => $productData['slug'] . '-sku',
-                'points' => rand(10, 100),
                 'max_per_order' => 10,
                 'is_active' => true,
                 'is_featured' => rand(0, 1) ? true : false,

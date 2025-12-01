@@ -21,16 +21,27 @@ class ReviewApiController extends Controller
     /**
      * Store a new review (authenticated customers only)
      */
-    public function store(StoreReviewRequest $request, $vendorProductId)
+    public function store(StoreReviewRequest $request, $reviewableId, $reviewableType)
     {
         $data = $request->validated();
+        if($reviewableType != 'products' && $reviewableType != 'vendors')
+        {
+            return $this->sendRes(
+                config('responses.invalid_reviewable_type')[app()->getLocale()],
+                true,
+                [],
+                [],
+                404
+            );
+        }
 
-        $review = $this->reviewService->createReview($data, $vendorProductId);
+        $review = $this->reviewService->createReview($data, $reviewableId, $reviewableType);
 
         if(!$review)
         {
+            $message = $reviewableType == "products" ? config('responses.product_not_found')[app()->getLocale()] : config('responses.vendor_not_found')[app()->getLocale()];
             return $this->sendRes(
-                config('responses.product_not_found')[app()->getLocale()],
+                $message,
                 true,
                 [],
                 [],
@@ -50,10 +61,11 @@ class ReviewApiController extends Controller
     /**
      * Get reviews for a specific vendor product (approved only)
      */
-    public function getByVendorProduct(Request $request, $vendorProductId)
+    public function getByReviewable(Request $request, $reviewableType, $reviewableId)
     {
         $dto = ReviewFilterDTO::fromRequest($request);
-        $dto->vendor_product_id = $vendorProductId;
+        $dto->reviewable_id = $reviewableId;
+        $dto->reviewable_type = $reviewableType == "products" ? "VendorProduct" : "Vendor";
         $dto->status = 'approved';
 
         if (!$dto->validate()) {
@@ -66,7 +78,8 @@ class ReviewApiController extends Controller
             );
         }
 
-        $reviews = $this->reviewService->getReviewsByVendorProduct($dto);
+
+        $reviews = $this->reviewService->getReviews($dto);
 
         return $this->sendRes(
             config('responses.success')[app()->getLocale()],

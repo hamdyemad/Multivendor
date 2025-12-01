@@ -16,7 +16,8 @@ class ReviewResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'vendor_product_id' => $this->vendor_product_id,
+            'reviewable_id' => $this->reviewable_id,
+            'reviewable_type' => $this->reviewable_type == "VendorProduct" ? "products" : "vendors",
             'customer_id' => $this->customer_id,
             'customer' => [
                 'id' => $this->customer?->id,
@@ -25,8 +26,6 @@ class ReviewResource extends JsonResource
             ],
             'review' => $this->review,
             'star' => $this->star,
-            'status' => $this->status,
-            'rejection_reason' => $this->rejection_reason,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

@@ -38,11 +38,12 @@ Route::prefix('products')->group(function () {
     // Route::get('/filters/bundle-category/{id}', [ProductApiController::class, 'filtersByBundleCategory']);
 
 
-    Route::get('/{vendorProductId}/reviews', [ReviewApiController::class, 'getByVendorProduct']);
 });
+
+Route::get('{reviewableType}/{reviewableId}/reviews', [ReviewApiController::class, 'getByReviewable']);
 
 // Review Routes (authenticated)
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/products/{vendorProductId}/reviews', [ReviewApiController::class, 'store']);
+    Route::post('/{reviewableType}/{reviewableId}/reviews', [ReviewApiController::class, 'store']);
     Route::get('/reviews/my-reviews', [ReviewApiController::class, 'getCustomerReviews']);
 });

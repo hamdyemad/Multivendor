@@ -6,6 +6,7 @@ use App\DTOs\FilterDTO;
 use Illuminate\Http\Request;
 use Modules\CatalogManagement\app\Models\VendorProduct;
 use Modules\Customer\app\Models\Customer;
+use Modules\Vendor\app\Models\Vendor;
 use PhpParser\Node\Scalar\String_;
 
 class ReviewFilterDTO extends FilterDTO
@@ -13,7 +14,8 @@ class ReviewFilterDTO extends FilterDTO
     private array $errors = [];
 
     public function __construct(
-        public ?int $vendor_product_id = null,
+        public ?int $reviewable_id = null,
+        public ?string $reviewable_type = null,
         public ?string $customer_id = null,
         public ?string $status = null,
         public ?int $min_star = null,
@@ -30,7 +32,8 @@ class ReviewFilterDTO extends FilterDTO
     public static function fromRequest(Request $request): self
     {
         return new self(
-            vendor_product_id: $request->filled('vendor_product_id') ? $request->integer('vendor_product_id') : null,
+            reviewable_id: $request->filled('reviewable_id') ? $request->integer('reviewable_id') : null,
+            reviewable_type: $request->filled('reviewable_type') ? $request->input('reviewable_type') : null,
             customer_id: $request->filled('customer_id') ? $request->integer('customer_id') : null,
             status: $request->filled('status') ? $request->input('status') : null,
             min_star: $request->filled('min_star') ? $request->integer('min_star') : null,
@@ -45,7 +48,8 @@ class ReviewFilterDTO extends FilterDTO
     public function toArray(): array
     {
         return array_filter([
-            'vendor_product_id' => $this->vendor_product_id,
+            'reviewable_id' => $this->reviewable_id,
+            'reviewable_type' => $this->reviewable_type,
             'customer_id' => $this->customer_id,
             'status' => $this->status,
             'min_star' => $this->min_star,
@@ -86,8 +90,16 @@ class ReviewFilterDTO extends FilterDTO
             $this->errors['sort_type'][] = __('validation.sort_type_invalid');
         }
 
-        if ($this->vendor_product_id !== null && !$this->vendorProductExists($this->vendor_product_id)) {
-            $this->errors['vendor_product_id'][] = __('validation.vendor_product_id_not_exist');
+        if ($this->reviewable_id !== null) {
+            if ($this->reviewable_type == 'products') {
+                if (!$this->vendorProductExists($this->reviewable_id)) {
+                    $this->errors['reviewable_id'][] = __('validation.product_not_found');
+                }
+            } elseif ($this->reviewable_type == 'vendors') {
+                if (!$this->vendorExists($this->reviewable_id)) {
+                    $this->errors['reviewable_id'][] = __('validation.vendor_not_found');
+                }
+            }
         }
 
         if ($this->customer_id !== null && !$this->customerExists($this->customer_id)) {
@@ -105,6 +117,11 @@ class ReviewFilterDTO extends FilterDTO
     private function vendorProductExists(int $vendorProductId): bool
     {
         return VendorProduct::where('id', $vendorProductId)->exists();
+    }
+
+    private function vendorExists(int $vendorId): bool
+    {
+        return Vendor::where('id', $vendorId)->exists();
     }
 
     private function customerExists(String $customerId): bool

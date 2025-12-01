@@ -22,7 +22,8 @@ class Review extends BaseModel
     protected $table = 'reviews';
 
     protected $fillable = [
-        'vendor_product_id',
+        'reviewable_id',
+        'reviewable_type',
         'customer_id',
         'review',
         'star',
@@ -134,6 +135,16 @@ class Review extends BaseModel
         return $query->where('star', '<=', $maxStar);
     }
 
+    public function scopeByReviewable(Builder $query, int $reviewableId, string $reviewableType)
+    {
+        return $query->where('reviewable_id', $reviewableId)->where('reviewable_type', $reviewableType);
+    }
+
+    public function scopeByReviewableType(Builder $query, string $reviewableType)
+    {
+        return $query->where('reviewable_type', $reviewableType);
+    }
+
     /**
      * Scope: Filter reviews
      */
@@ -145,8 +156,12 @@ class Review extends BaseModel
             $query->byStatus($filters['status']);
         }
 
-        if (!empty($filters['vendor_product_id'])) {
-            $query->byVendorProduct($filters['vendor_product_id']);
+        if (!empty($filters['reviewable_id']) && !empty($filters['reviewable_type'])) {
+            $query->byReviewable($filters['reviewable_id'], $filters['reviewable_type']);
+        }
+
+        if (!empty($filters['reviewable_type'])) {
+            $query->byReviewableType($filters['reviewable_type']);
         }
 
         if (!empty($filters['customer_id'])) {

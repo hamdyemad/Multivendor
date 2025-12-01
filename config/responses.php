@@ -455,4 +455,12 @@ return [
         "en" => "Message sent successfully",
         "ar" => "تم ارسال الرسالة بنجاح"
     ],
+    "invalid_reviewable_type" => [
+        "en" => "Invalid reviewable type",
+        "ar" => "نوع المراجعة غير صحيح"
+    ],
+    "vendor_not_found" => [
+        "en" => "Vendor Not Found",
+        "ar" => "المورد غير موجود"
+    ]
 ];

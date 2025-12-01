@@ -4,6 +4,7 @@ namespace Modules\CatalogManagement\app\Http\Resources\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Modules\CategoryManagment\app\Http\Resources\Api\GeneralResoruce;
 use Modules\CategoryManagment\app\Http\Resources\Api\LightCategoryApiResource;
 use Modules\CategoryManagment\app\Http\Resources\Api\LightDepartmentApiResource;
 use Modules\CategoryManagment\app\Http\Resources\Api\LightSubCategoryApiResource;
@@ -52,14 +53,14 @@ class VendorProductResource extends JsonResource
             'meta_description' => $this->product->meta_description,
             'meta_keywords' => $this->product->meta_keywords ?? [],
             'vendor' => LightVendorResource::make($this->whenLoaded('vendor')),
-            'brand' => LightBrandApiResource::make($this->product->brand),
+            'brand' => GeneralResoruce::make($this->product->brand),
             'tax' => TaxResource::make($this->tax),
             'variants' => $this->relationLoaded('highestDiscountVariant')
                 ? VendorProductVariantResource::collection(collect([$this->highestDiscountVariant])->filter())
                 : VendorProductVariantResource::collection($this->whenLoaded('variants')),
-            'department' => LightDepartmentApiResource::make($this->product->department),
-            'category' => LightCategoryApiResource::make($this->product->category),
-            'sub_category' => LightSubCategoryApiResource::make($this->product->subCategory),
+            'department' => GeneralResoruce::make($this->product->department),
+            'category' => GeneralResoruce::make($this->product->category),
+            'sub_category' => GeneralResoruce::make($this->product->subCategory),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

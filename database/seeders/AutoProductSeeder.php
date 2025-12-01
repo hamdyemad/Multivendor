@@ -454,65 +454,73 @@ class AutoProductSeeder extends Seeder
             'is_featured' => $this->faker->boolean(20),
         ]);
 
-        // Get available variant configurations
-        $colorKey = VariantConfigurationKey::find(1);
-        $sizeKey = VariantConfigurationKey::find(2);
+        // Get available variant configurations dynamically
+        $variantKeys = VariantConfigurationKey::all();
 
-        $availableColors = VariantsConfiguration::where('key_id', $colorKey->id)->get();
-        $availableSizes = VariantsConfiguration::where('key_id', $sizeKey->id)->get();
+        // Find the first key that has configurations to use for variants
+        $primaryKey = null;
+        $availableConfigs = collect();
 
-        // Decide variant type (color + size or just color)
-        $useSize = $this->faker->boolean(60);
-        $selectedColors = $availableColors->random($this->faker->numberBetween(2, min(4, $availableColors->count())));
-        $selectedSizes = $useSize ? $availableSizes->random($this->faker->numberBetween(2, min(4, $availableSizes->count()))) : collect([null]);
+        foreach ($variantKeys as $key) {
+            $configs = VariantsConfiguration::where('key_id', $key->id)->get();
+            if ($configs->isNotEmpty()) {
+                $primaryKey = $key;
+                $availableConfigs = $configs;
+                break;
+            }
+        }
+
+        // If no configurations found, skip variant creation
+        if (!$primaryKey || $availableConfigs->isEmpty()) {
+            echo "  ⚠️ No variant configurations found, skipping variant product\n";
+            return;
+        }
+
+        // Select random configurations for this product
+        $selectedConfigs = $availableConfigs->random($this->faker->numberBetween(1, min(3, $availableConfigs->count())));
 
         // Create variants
-        foreach ($selectedColors as $colorConfig) {
-            foreach ($selectedSizes as $sizeConfig) {
-                $colorName = $colorConfig->getTranslation('name', 'en');
-                $sizeName = $sizeConfig ? $sizeConfig->getTranslation('name', 'en') : null;
-                $variantTitle = $sizeName ? "$colorName - $sizeName" : $colorName;
+        foreach ($selectedConfigs as $config) {
+            $configName = $config->getTranslation('name', 'en') ?? 'Variant';
+            $variantTitle = $configName;
 
-                $price = $this->faker->randomFloat(2, 50, 5000);
-                $hasDiscount = $this->faker->boolean(30);
+            $price = $this->faker->randomFloat(2, 50, 5000);
+            $hasDiscount = $this->faker->boolean(30);
 
-                // Create product variant with proper variant configuration ID
-                $variant = ProductVariant::create([
-                    'product_id' => $product->id,
-                    'variant_configuration_id' => $colorConfig->id, // Use the color configuration ID
+            // Create product variant with proper variant configuration ID
+            $variant = ProductVariant::create([
+                'product_id' => $product->id,
+                'variant_configuration_id' => $config->id,
+            ]);
+
+            // Store variant translation
+            foreach ($languages as $langCode => $language) {
+                $translatedTitle = $config->getTranslation('name', $langCode) ?? $variantTitle;
+                $variant->translations()->create([
+                    'lang_id' => $language->id,
+                    'lang_key' => 'title',
+                    'lang_value' => $translatedTitle,
                 ]);
+            }
 
-                // Store variant translation
-                foreach ($languages as $langCode => $language) {
-                    $colorTranslated = $colorConfig->getTranslation('name', $langCode);
-                    $sizeTranslated = $sizeConfig ? $sizeConfig->getTranslation('name', $langCode) : null;
-                    $translatedTitle = $sizeTranslated ? "$colorTranslated - $sizeTranslated" : $colorTranslated;
-                    $variant->translations()->create([
-                        'lang_id' => $language->id,
-                        'lang_key' => 'title',
-                        'lang_value' => $translatedTitle,
-                    ]);
-                }
+            // Create vendor product variant
+            $vendorProductVariant = VendorProductVariant::create([
+                'vendor_product_id' => $vendorProduct->id,
+                'variant_configuration_id' => $config->id,
+                'sku' => $vendorProduct->sku . '-' . strtoupper(substr($configName, 0, 3)),
+                'price' => $price,
+                'has_discount' => $hasDiscount,
+                'price_before_discount' => $hasDiscount ? $price * $this->faker->randomFloat(2, 1.15, 1.5) : 0,
+                'discount_end_date' => $hasDiscount ? $this->faker->dateTimeBetween('now', '+3 months') : null,
+            ]);
 
-                // Create vendor product variant
-                $vendorProductVariant = VendorProductVariant::create([
-                    'vendor_product_id' => $vendorProduct->id,
-                    'variant_configuration_id' => $colorConfig->id,
-                    'sku' => $vendorProduct->sku . '-' . strtoupper(substr($colorName, 0, 3)) . ($sizeName ? '-' . $sizeName : ''),
-                    'price' => $price,
-                    'has_discount' => $hasDiscount,
-                    'price_before_discount' => $hasDiscount ? $price * $this->faker->randomFloat(2, 1.15, 1.5) : 0,
-                    'discount_end_date' => $hasDiscount ? $this->faker->dateTimeBetween('now', '+3 months') : null,
+            // Create regional stock
+            foreach ($regions->random($this->faker->numberBetween(2, min(5, $regions->count()))) as $region) {
+                VendorProductVariantStock::create([
+                    'vendor_product_variant_id' => $vendorProductVariant->id,
+                    'region_id' => $region->id,
+                    'quantity' => $this->faker->numberBetween(5, 200),
                 ]);
-
-                // Create regional stock
-                foreach ($regions->random($this->faker->numberBetween(2, min(5, $regions->count()))) as $region) {
-                    VendorProductVariantStock::create([
-                        'vendor_product_variant_id' => $vendorProductVariant->id,
-                        'region_id' => $region->id,
-                        'quantity' => $this->faker->numberBetween(5, 200),
-                    ]);
-                }
             }
         }
     }

@@ -82,4 +82,30 @@ class BundleCategory extends BaseModel
         $locale = $locale ?? app()->getLocale();
         return $this->getTranslation('seo_keywords', $locale);
     }
+
+
+    public function scopeFilter(Builder $query, array $filters)
+    {
+         // Apply filters
+        if (!empty($filters['search'])) {
+            $query->whereHas('translations', function ($q) use ($filters) {
+                $q->where('lang_value', 'like', '%' . $filters['search'] . '%')
+                  ->where('lang_key', 'name');
+            });
+        }
+
+        if (isset($filters['active']) && $filters['active'] !== '') {
+            $query->where('active', $filters['active']);
+        }
+
+        if (!empty($filters['created_date_from'])) {
+            $query->whereDate('created_at', '>=', $filters['created_date_from']);
+        }
+
+        if (!empty($filters['created_date_to'])) {
+            $query->whereDate('created_at', '<=', $filters['created_date_to']);
+        }
+        return $query;
+
+    }
 }

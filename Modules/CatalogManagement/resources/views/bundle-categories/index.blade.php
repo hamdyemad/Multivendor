@@ -155,20 +155,11 @@
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="deleteBundleCategoryModal" tabindex="-1" aria-labelledby="deleteBundleCategoryModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteBundleCategoryModalLabel">{{ trans('catalogmanagement::bundle_category.delete_bundle_category') }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>{{ trans('catalogmanagement::bundle_category.delete_confirmation') }}</p>
-                    <p><strong id="bundleCategoryNameToDelete"></strong></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ trans('main.cancel') }}</button>
+    {{-- Delete Modal --}}
+    <x-delete-with-loading modalId="modal-delete-bundle-category" tableId="bundleCategoriesDataTable" deleteButtonClass="delete-bundle-category"
+        :title="trans('main.confirm delete')" :message="trans('main.are you sure you want to delete this')" itemNameId="delete-bundle-category-name" confirmBtnId="confirmDeleteBundleCategoryBtn"
+        :cancelText="trans('main.cancel')" :deleteText="trans('main.delete')" :loadingDeleting="trans('main.deleting')" :loadingPleaseWait="trans('main.please wait')" :loadingDeletedSuccessfully="trans('main.deleted success')" :loadingRefreshing="trans('main.refreshing')"
+        :errorDeleting="trans('main.error on delete')" />
 
 @endsection
 
@@ -274,7 +265,7 @@
                                     data-bs-toggle="modal"
                                     data-bs-target="#modal-delete-bundle-category"
                                     data-item-id="${row.id}"
-                                    data-item-name="${row.first_name}"
+                                    data-item-name="${row.translations && row.translations.en ? row.translations.en.name : 'Bundle Category'}"
                                     title="{{ trans('catalogmanagement::bundle_category.delete_bundle_category') }}">
                                         <i class="uil uil-trash-alt table_action_icon"></i>
                                     </a>
@@ -394,5 +385,14 @@
                 });
             });
         });
+    </script>
+
+    {{-- Delete Modal Configuration --}}
+    <script>
+        // Configure delete functionality
+        window.deleteConfig = {
+            url: '{{ url("admin/bundle-categories") }}',
+            token: '{{ csrf_token() }}'
+        };
     </script>
 @endpush

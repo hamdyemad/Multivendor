@@ -33,6 +33,7 @@ return [
 
     // Additional Information
     'additional_information' => 'معلومات إضافية',
+    'basic_information' => 'المعلومات الأساسية',
 
     // Actions
     'cancel' => 'إلغاء',

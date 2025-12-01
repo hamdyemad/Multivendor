@@ -243,8 +243,9 @@ class ProductRepository implements ProductInterface
                         if($field == 'title' && $language->code == 'en') {
                             // $originalSlug = $slug;
                             if(Product::where('slug', Str::slug($fields[$field]))->exists()) {
+                                $model = Product::where('slug', Str::slug($fields[$field]))->first();
                                 $product->update([
-                                    'slug' => Str::slug($fields[$field]) . '-' . rand(1, 1000)
+                                    'slug' => $model->slug . '-' . rand(1, 1000)
                                 ]);
                             } else {
                                 $product->update([

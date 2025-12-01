@@ -4,62 +4,92 @@
 
 @push('styles')
 <style>
-/* Bundle Category View Styling */
+/* Custom styling for bundle category show view */
+.card-holder {
+    border: 1px solid #e3e6f0;
+    border-radius: 0.35rem;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    color: white;
+    border-bottom: 1px solid #e3e6f0;
+    padding: 1rem 1.25rem;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+}
+
 .view-item {
-    margin-bottom: 20px;
+    margin-bottom: 1rem;
 }
 
 .view-item label {
     font-weight: 600;
-    color: #5a5f7d;
-    margin-bottom: 8px;
-}
-
-.view-item p {
-    color: #272b41;
-    font-size: 15px;
-}
-
-.card-holder {
-    border: 1px solid #e3e6f0;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.card-holder .card-header {
-    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
-    color: white;
-    padding: 15px 20px;
-    border-radius: 8px 8px 0 0;
-}
-
-.card-holder .card-header h3 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.card-holder .card-body {
-    padding: 25px;
+    color: #5a5c69;
+    margin-bottom: 0.5rem;
 }
 
 .box-items-translations {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 6px;
-    margin-bottom: 15px;
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    border: 1px solid #e3e6f0;
 }
 
-.box-items-translations label {
-    color: #2c3e50;
-    font-weight: 600;
-    margin-bottom: 12px;
+.badge {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+}
+
+.badge-success {
+    background-color: #1cc88a;
+}
+
+.badge-secondary {
+    background-color: #858796;
+}
+
+/* Image hover and click styles */
+.bundle-image-wrapper {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.bundle-image-wrapper:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.bundle-image-wrapper::after {
+    content: '🔍';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 10px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.bundle-image-wrapper:hover::after {
+    opacity: 1;
 }
 </style>
 @endpush
 
 @section('content')
-    <div class="container-fluid">
+    <div class="container-fluid mb-4">
         <div class="row">
             <div class="col-lg-12">
                 <x-breadcrumb :items="[
@@ -74,24 +104,24 @@
             <div class="col-lg-12">
                 <div class="card border-0 shadow-sm mb-3">
                     <div class="card-header bg-white border-bottom py-20 d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 fw-500">{{ trans('catalogmanagement::bundle_category.bundle_category_details') }}</h5>
+                        <h5 class="mb-0 fw-500">{{ trans('catalogmanagement::bundle_category.view_bundle_category') }}</h5>
                         <div class="d-flex gap-10">
                             <a href="{{ route('admin.bundle-categories.index') }}" class="btn btn-light btn-sm">
-                                <i class="uil uil-arrow-left me-2"></i>{{ trans('common.back_to_list') }}
+                                <i class="uil uil-arrow-left me-2"></i>{{ __('common.back_to_list') }}
                             </a>
                             <a href="{{ route('admin.bundle-categories.edit', $bundleCategory->id) }}" class="btn btn-primary btn-sm">
-                                <i class="uil uil-edit me-2"></i>{{ trans('common.edit') }}
+                                <i class="uil uil-edit me-2"></i>{{ __('common.edit') }}
                             </a>
                         </div>
                     </div>
                     <div class="card-body">
                         <div class="row">
+                            {{-- Basic Information --}}
                             <div class="col-md-8 order-2 order-md-1">
-                                {{-- Basic Information --}}
                                 <div class="card card-holder">
                                     <div class="card-header">
                                         <h3>
-                                            <i class="uil uil-info-circle me-1"></i>{{ trans('catalogmanagement::bundle_category.basic_information') ?? 'Basic Information' }}
+                                            <i class="uil uil-info-circle me-1"></i>{{ __('catalogmanagement::bundle_category.basic_information') }}
                                         </h3>
                                     </div>
                                     <div class="card-body">
@@ -99,7 +129,7 @@
                                             {{-- Bundle Category Names --}}
                                             <div class="col-md-12">
                                                 <div class="view-item box-items-translations">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('catalogmanagement::bundle_category.name') }}</label>
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::bundle_category.name') }}</label>
                                                     <div class="row">
                                                         @foreach($languages as $lang)
                                                             @php
@@ -125,12 +155,12 @@
                                             {{-- Status --}}
                                             <div class="col-md-6">
                                                 <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('main.status') }}</label>
-                                                    <p class="fs-15 color-dark">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::bundle_category.status') }}</label>
+                                                    <p class="fs-15 color-dark fw-500">
                                                         @if($bundleCategory->active)
-                                                            <span class="badge badge-round badge-success badge-lg">{{ trans('main.active') }}</span>
+                                                            <span class="badge badge-success badge-lg badge-round">{{ __('catalogmanagement::bundle_category.active') }}</span>
                                                         @else
-                                                            <span class="badge badge-round badge-secondary badge-lg">{{ trans('main.inactive') }}</span>
+                                                            <span class="badge badge-secondary badge-lg badge-round">{{ __('catalogmanagement::bundle_category.inactive') }}</span>
                                                         @endif
                                                     </p>
                                                 </div>
@@ -139,7 +169,7 @@
                                             {{-- Slug --}}
                                             <div class="col-md-6">
                                                 <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('main.slug') }}</label>
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('main.slug') }}</label>
                                                     <p class="fs-15 color-dark fw-500">
                                                         <code>{{ $bundleCategory->slug ?? '-' }}</code>
                                                     </p>
@@ -149,9 +179,9 @@
                                             {{-- Created Date --}}
                                             <div class="col-md-6">
                                                 <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('main.created_at') }}</label>
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('main.created_at') }}</label>
                                                     <p class="fs-15 color-dark fw-500">
-                                                        {{ $bundleCategory->created_at->format('Y-m-d H:i:s') }}
+                                                        {{ $bundleCategory->created_at }}
                                                     </p>
                                                 </div>
                                             </div>
@@ -159,47 +189,51 @@
                                             {{-- Updated Date --}}
                                             <div class="col-md-6">
                                                 <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('main.updated_at') }}</label>
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('main.updated_at') }}</label>
                                                     <p class="fs-15 color-dark fw-500">
-                                                        {{ $bundleCategory->updated_at->format('Y-m-d H:i:s') }}
+                                                        {{ $bundleCategory->updated_at }}
                                                     </p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
                             {{-- Bundle Category Image --}}
                             <div class="col-md-4 order-1 order-md-2">
                                 <div class="card card-holder">
                                     <div class="card-header">
                                         <h3>
-                                            <i class="uil uil-image me-1"></i>{{ trans('catalogmanagement::bundle_category.image') }}
+                                            <i class="uil uil-image me-1"></i>{{ __('catalogmanagement::bundle_category.image') }}
                                         </h3>
                                     </div>
                                     <div class="card-body text-center">
                                         @if($bundleCategory->image)
-                                            <img src="{{ asset('storage/' . $bundleCategory->image) }}"
-                                                 alt="{{ $bundleCategory->getTranslation('name', app()->getLocale()) }}"
-                                                 class="img-fluid rounded border shadow-sm"
-                                                 style="max-width: 100%; max-height: 300px; object-fit: cover;">
-                                        @else
-                                            <div class="bg-light border rounded d-flex align-items-center justify-content-center"
-                                                 style="width: 100%; height: 250px;">
-                                                <i class="uil uil-image fs-48 text-muted"></i>
+                                            <div class="bundle-image-wrapper" onclick="openBundleImageModal()">
+                                                <img src="{{ asset('storage/' . $bundleCategory->image) }}"
+                                                     alt="{{ $bundleCategory->getTranslation('name') }}"
+                                                     class="img-fluid rounded border shadow-sm"
+                                                     style="max-height: 300px; object-fit: cover; width: 100%;">
                                             </div>
-                                            <p class="text-muted mt-2">{{ trans('catalogmanagement::bundle_category.no_image') }}</p>
+                                        @else
+                                            <div class="d-flex flex-column align-items-center justify-content-center" style="height: 200px;">
+                                                <i class="uil uil-image-slash text-muted" style="font-size: 3rem;"></i>
+                                                <p class="text-muted mt-2">{{ __('catalogmanagement::bundle_category.no_image') }}</p>
+                                            </div>
                                         @endif
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                                {{-- SEO Information --}}
-                                <div class="card card-holder mt-3">
+                        {{-- SEO Information --}}
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <div class="card card-holder">
                                     <div class="card-header">
                                         <h3>
-                                            <i class="uil uil-search me-1"></i>{{ trans('catalogmanagement::bundle_category.seo_information') }}
+                                            <i class="uil uil-search me-1"></i>{{ __('catalogmanagement::bundle_category.seo_information') }}
                                         </h3>
                                     </div>
                                     <div class="card-body">
@@ -207,7 +241,7 @@
                                             {{-- SEO Titles --}}
                                             <div class="col-md-12">
                                                 <div class="view-item box-items-translations">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('catalogmanagement::bundle_category.seo_title') }}</label>
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::bundle_category.seo_title') }}</label>
                                                     <div class="row">
                                                         @foreach($languages as $lang)
                                                             @php
@@ -233,7 +267,7 @@
                                             {{-- SEO Descriptions --}}
                                             <div class="col-md-12">
                                                 <div class="view-item box-items-translations">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('catalogmanagement::bundle_category.seo_description') }}</label>
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::bundle_category.seo_description') }}</label>
                                                     <div class="row">
                                                         @foreach($languages as $lang)
                                                             @php
@@ -259,7 +293,7 @@
                                             {{-- SEO Keywords --}}
                                             <div class="col-md-12">
                                                 <div class="view-item box-items-translations">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('catalogmanagement::bundle_category.seo_keywords') }}</label>
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::bundle_category.seo_keywords') }}</label>
                                                     <div class="row">
                                                         @foreach($languages as $lang)
                                                             @php
@@ -293,9 +327,40 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    {{-- Image Modal --}}
+    @if($bundleCategory->image)
+        <div class="modal fade" id="bundleImageModal" tabindex="-1" aria-labelledby="bundleImageModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-body p-0 d-flex justify-content-center align-items-center" style="min-height: 500px; background: #f8f9fa;">
+                        <img src="{{ asset('storage/' . $bundleCategory->image) }}"
+                             alt="{{ $bundleCategory->getTranslation('name') }}"
+                             style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 @endsection
+
+@push('scripts')
+<script>
+    /**
+     * Open bundle category image modal
+     */
+    function openBundleImageModal() {
+        const modalElement = document.getElementById('bundleImageModal');
+        if (modalElement) {
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+        }
+    }
+</script>
+@endpush

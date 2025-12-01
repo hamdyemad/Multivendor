@@ -39,7 +39,7 @@ class ReviewService
         }
 
         $data["reviewable_id"] = $result->id;
-        $data["reviewable_type"] = class_basename($result);
+        $data["reviewable_type"] = get_class($result);
         return $this->reviewRepository->createReview($data);
     }
 

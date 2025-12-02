@@ -174,8 +174,6 @@ class DepartmentRepository implements DepartmentRepositoryInterface
                 'path' => $path,
                 'type' => 'icon'
             ]);
-
-            dd($department->attachments()->get());
         }
 
         // Update translations

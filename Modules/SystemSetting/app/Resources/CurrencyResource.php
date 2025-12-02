@@ -20,7 +20,7 @@ class CurrencyResource extends JsonResource
             'code' => $this->code,
             'symbol' => $this->symbol,
             'use_image' => $this->use_image,
-            'image' => asset('/storage/' . $this->image),
+            'image' => ($this->image) ? asset('/storage/' . $this->image) : '',
             'active' => $this->active,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

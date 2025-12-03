@@ -85,8 +85,25 @@ class SubCategory extends BaseModel
         parent::scopeFilter($query, $filters);
 
         if (!empty($filters['main_category_id'])) {
-            $query->where('category_id', $filters['main_category_id']);
+            $query
+            ->where('category_id', $filters['main_category_id'])
+            ->orWhereHas('category', function($q) use($filters) {
+                $q
+                ->where('id', $filters['main_category_id'])
+                ->orWhere('slug', $filters['main_category_id']);
+            });
         }
+
+        if (!empty($filters['category_id'])) {
+            $query
+            ->where('category_id', $filters['category_id'])
+            ->orWhereHas('category', function($q) use($filters) {
+                $q
+                ->where('id', $filters['category_id'])
+                ->orWhere('slug', $filters['category_id']);
+            });
+        }
+
     }
 
 }

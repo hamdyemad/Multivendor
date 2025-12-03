@@ -18,7 +18,6 @@ class SubCategoryApiController extends Controller
     public function index(Request $request)
     {
         $dto = CategoryFilterDTO::fromRequest($request);
-
         if (!$dto->validate()) {
             return $this->sendRes(
                 config('responses.validation')[app()->getLocale()],

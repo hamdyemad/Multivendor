@@ -23,7 +23,6 @@ class SubCategoryController extends Controller
             $filters = $request->all();
             // Only show active subcategories in dropdown
             $filters['active'] = 1;
-
             $subCategories = $this->subCategoryService->getAllSubCategories($filters, 0);
             if($request->select2) {
                 // Simple data structure for dropdown

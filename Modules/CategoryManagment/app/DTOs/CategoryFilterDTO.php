@@ -15,6 +15,7 @@ class CategoryFilterDTO extends FilterDTO
         public ?string $created_date_to = null,
         public ?string $department_id = null,
         public ?string $main_category_id = null,
+        public ?string $category_id = null,
         public ?int $per_page = null,
         public ?string $paginated = null,
     ) {}
@@ -30,6 +31,7 @@ class CategoryFilterDTO extends FilterDTO
             created_date_to: $request->input('created_date_to'),
             department_id: $request->input('department_id'),
             main_category_id: $request->input('main_category_id'),
+            category_id: $request->input('category_id'),
             per_page: $request->integer('per_page', 15),
             paginated: $request->input('paginated', null)
         );
@@ -43,6 +45,7 @@ class CategoryFilterDTO extends FilterDTO
             'created_date_to' => $this->created_date_to,
             'department_id' => $this->department_id,
             'main_category_id' => $this->main_category_id,
+            'category_id' => $this->category_id,
             'per_page' => $this->per_page,
             'paginated' => $this->paginated,
         ], fn($value) => $value !== null);
@@ -66,6 +69,10 @@ class CategoryFilterDTO extends FilterDTO
 
         if ($this->main_category_id && !$this->categoryExists($this->main_category_id)) {
             $this->errors['main_category_id'][] = __('validation.category_id_not_exist');
+        }
+
+        if ($this->category_id && !$this->categoryExists($this->category_id)) {
+            $this->errors['category_id'][] = __('validation.category_id_not_exist');
         }
 
         return count($this->errors) === 0;

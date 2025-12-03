@@ -80,6 +80,38 @@ class Customer extends Authenticatable
         return $query->whereNotNull('email_verified_at');
     }
 
+    /**
+     * Scope to filter customers
+     */
+    public function scopeFilter($query, array $filters)
+    {
+        // Search filter
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        // Active filter
+        if (isset($filters['active'])) {
+            $query->where('status', $filters['active']);
+        }
+
+        // Date range filters
+        if (!empty($filters['created_date_from'])) {
+            $query->whereDate('created_at', '>=', $filters['created_date_from']);
+        }
+
+        if (!empty($filters['created_date_to'])) {
+            $query->whereDate('created_at', '<=', $filters['created_date_to']);
+        }
+
+        return $query;
+    }
+
     public function getFullNameAttribute()
     {
         return $this->first_name . ' ' . $this->last_name;

@@ -31,6 +31,7 @@ Route::middleware(['auth:sanctum', 'check.customer.auth'])->prefix('auth')->grou
     Route::get('profile', [CustomerApiController::class, 'profile']);
     Route::post('update-profile', [CustomerApiController::class, 'updateProfile']);
     Route::post('change-language', [CustomerApiController::class, 'changeLanguage']);
+    Route::get('my-addresses', [CustomerApiController::class, 'myAddresses']);
 });
 
 // Address routes (authentication required)
@@ -39,4 +40,10 @@ Route::middleware(['auth:sanctum', 'check.customer.auth'])->prefix('addresses')-
     Route::get('', [CustomerAddressController::class, 'index']);
     Route::get('{addressId}', [CustomerAddressController::class, 'show']);
     Route::post('{addressId}', [CustomerAddressController::class, 'update']);
+});
+
+// Customer listing routes (no authentication required - for order creation)
+Route::prefix('customers')->group(function () {
+    Route::get('', [CustomerApiController::class, 'index']);
+    Route::get('{customerId}/addresses', [CustomerApiController::class, 'getAddresses']);
 });

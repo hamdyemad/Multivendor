@@ -117,7 +117,7 @@ class OrderController extends Controller
      */
     public function create()
     {
-        // Implementation here
+        return view('order::orders.create');
     }
 
     /**

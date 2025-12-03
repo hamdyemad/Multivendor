@@ -102,4 +102,20 @@ return [
     'total_orders' => 'إجمالي الطلبات',
     'total_product_price' => 'إجمالي سعر المنتجات',
     'income' => 'الدخل',
+
+    // Form Fields
+    'reason' => 'السبب',
+    'select' => 'اختر',
+    'product_name' => 'اسم المنتج',
+    'price' => 'السعر',
+    'please_select_product' => 'يرجى اختيار منتج',
+    'customer_information' => 'معلومات العميل',
+    'customer_type' => 'نوع العميل',
+    'existing_customer' => 'عميل موجود',
+    'external_customer' => 'عميل خارجي',
+    'select_customer' => 'اختر العميل',
+    'no_products_found' => 'لم يتم العثور على منتجات',
+    'no_customers_found' => 'لم يتم العثور على عملاء',
+    'loading_customers' => 'جاري تحميل العملاء...',
+    'select_address' => 'اختر العنوان',
 ];

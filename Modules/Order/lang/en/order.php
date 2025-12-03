@@ -102,4 +102,20 @@ return [
     'total_orders' => 'Total Orders',
     'total_product_price' => 'Total Product Price',
     'income' => 'Income',
+
+    // Form Fields
+    'reason' => 'Reason',
+    'select' => 'Select',
+    'product_name' => 'Product Name',
+    'price' => 'Price',
+    'please_select_product' => 'Please select a product',
+    'customer_information' => 'Customer Information',
+    'customer_type' => 'Customer Type',
+    'existing_customer' => 'Existing Customer',
+    'external_customer' => 'External Customer',
+    'select_customer' => 'Select Customer',
+    'no_products_found' => 'No products found',
+    'no_customers_found' => 'No customers found',
+    'loading_customers' => 'Loading customers...',
+    'select_address' => 'Select Address',
 ];

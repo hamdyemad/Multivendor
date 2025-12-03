@@ -194,5 +194,25 @@ class CustomerApiRepository implements CustomerApiRepositoryInterface
 
         return $customer;
     }
+
+    /**
+     * Get all customers with filtering and pagination
+     */
+    public function getAllCustomers(array $filters = [], int $perPage = 15)
+    {
+        $query = Customer::filter($filters)
+            ->with(['addresses'])
+            ->orderBy('created_at', 'desc');
+
+        return $query->paginate($perPage);
+    }
+
+    /**
+     * Get customer with addresses
+     */
+    public function getCustomerWithAddresses(int $customerId)
+    {
+        return Customer::with(['addresses'])->find($customerId);
+    }
 }
 

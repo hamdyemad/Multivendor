@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
 use App\Models\Attachment;
-use App\Traits\HasSlug;
 use App\Models\Traits\HumanDates;
 use Illuminate\Database\Eloquent\Builder;
 use Modules\AreaSettings\app\Models\Country;
@@ -21,13 +20,10 @@ use Modules\Withdraw\app\Models\Withdraw;
 
 class Vendor extends BaseModel
 {
-    use HasFactory, SoftDeletes, Translation, HumanDates, HasSlug, CountryCheckIdTrait;
+    use HasFactory, SoftDeletes, Translation, HumanDates, CountryCheckIdTrait;
 
     protected $guarded = [];
 
-    // HasSlug trait configuration
-    protected $slugWithRandomSuffix = true;
-    protected $slugSuffixLength = 6;
     protected $appends = ['reviews_count', 'average_rating'];
 
 
@@ -173,6 +169,10 @@ class Vendor extends BaseModel
     {
         $keywords = $this->getMetaKeywordsArray($languageCode);
         return implode(', ', $keywords);
+    }
+
+    public function getNameAttribute() {
+        return $this->getTranslation('name', app()->getLocale());
     }
 
     /**

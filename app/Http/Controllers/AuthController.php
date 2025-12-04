@@ -38,7 +38,14 @@ class AuthController extends Controller {
     public function authenticate(LoginRequest $request){
         $res = $this->userService->login($request);
         if(isset($res) && $res['status']) {
-            return redirect()->intended(route('admin.dashboard'))->with('success','Welcome back !');
+            // Get country code from session or default
+            $countryCode = strtolower(session('country_code', 'sa'));
+            $locale = app()->getLocale() ?: 'en';
+
+            // Build the dashboard URL directly to avoid duplication
+            $dashboardUrl = "/{$locale}/{$countryCode}/admin/dashboard";
+
+            return redirect()->intended($dashboardUrl)->with('success','Welcome back !');
         } else {
             return redirect()->route('login')->with('message', $res['message']);
         }

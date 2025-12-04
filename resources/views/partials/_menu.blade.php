@@ -437,7 +437,7 @@
                                 <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.taxes.index', 'admin.taxes.show', 'admin.taxes.edit'], $currentRoute) ? 'active' : '' }}"
                                     href="{{ route('admin.taxes.index') }}">
                                     {{ trans('menu.taxes.all') }}
-                                    <span class="badge badge-round badge-primary ms-1">12</span>
+                                    <span class="badge badge-round badge-primary ms-1">{{ \Modules\CatalogManagement\app\Models\Tax::count() }}</span>
                                 </a>
                             </li>
                         @endcan

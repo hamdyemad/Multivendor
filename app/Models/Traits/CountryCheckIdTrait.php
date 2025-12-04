@@ -34,10 +34,15 @@ trait CountryCheckIdTrait
             ?? null;
 
         if (!$code) {
-            return null;
+            if(request('country_id')) {
+                $countryId = Country::where('id', request('country_id'))->value('id');
+            } else {
+                $countryId = Country::default()->value('id');
+            }
+        } else {
+            $countryId = Country::where('code', $code)->value('id');
         }
 
-        $countryId = Country::where('code', $code)->value('id');
         return $countryId;
     }
 

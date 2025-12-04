@@ -109,7 +109,7 @@ class VendorProductVariant extends Model
      */
     public function getVariantNameAttribute()
     {
-        return $this->variantConfiguration->name;
+        return $this->variantConfiguration->name ?? '--';
     }
 
     /**

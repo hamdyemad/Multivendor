@@ -383,37 +383,39 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
+                            let viewUrl = "{{ route('admin.area-settings.cities.show', ':id') }}".replace(":id", row.id);
+                            let editUrl = "{{ route('admin.area-settings.cities.edit', ':id') }}".replace(":id", row.id);
                             return `
-    <div class="orderDatatable_actions d-inline-flex gap-1">
-        @can('area.city.show')
-        <a href="{{ url('admin/area-settings/cities') }}/${row.id}"
-           class="view btn btn-primary table_action_father"
-           title="{{ trans('common.view') }}">
-            <i class="uil uil-eye table_action_icon"></i>
-        </a>
-        @endcan
+                                <div class="orderDatatable_actions d-inline-flex gap-1">
+                                    @can('area.city.show')
+                                    <a href="${viewUrl}"
+                                    class="view btn btn-primary table_action_father"
+                                    title="{{ trans('common.view') }}">
+                                        <i class="uil uil-eye table_action_icon"></i>
+                                    </a>
+                                    @endcan
 
-        @can('area.city.edit')
-        <a href="{{ url('admin/area-settings/cities') }}/${row.id}/edit"
-           class="edit btn btn-warning table_action_father"
-           title="{{ trans('common.edit') }}">
-            <i class="uil uil-edit table_action_icon"></i>
-        </a>
-        @endcan
+                                    @can('area.city.edit')
+                                    <a href="${editUrl}"
+                                    class="edit btn btn-warning table_action_father"
+                                    title="{{ trans('common.edit') }}">
+                                        <i class="uil uil-edit table_action_icon"></i>
+                                    </a>
+                                    @endcan
 
-        @can('area.city.delete')
-        <a href="javascript:void(0);"
-           class="remove delete-city btn btn-danger table_action_father"
-           data-bs-toggle="modal"
-           data-bs-target="#modal-delete-city"
-           data-item-id="${row.id}"
-           data-item-name="${row.display_name}"
-           title="{{ trans('common.delete') }}">
-            <i class="uil uil-trash-alt table_action_icon"></i>
-        </a>
-        @endcan
-    </div>
-`;
+                                    @can('area.city.delete')
+                                    <a href="javascript:void(0);"
+                                    class="remove delete-city btn btn-danger table_action_father"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modal-delete-city"
+                                    data-item-id="${row.id}"
+                                    data-item-name="${row.display_name}"
+                                    title="{{ trans('common.delete') }}">
+                                        <i class="uil uil-trash-alt table_action_icon"></i>
+                                    </a>
+                                    @endcan
+                                </div>
+                            `;
 
                         }
                     }

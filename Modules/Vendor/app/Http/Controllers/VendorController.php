@@ -15,6 +15,7 @@ use Modules\CategoryManagment\app\Http\Resources\ActivityResource;
 use Modules\CategoryManagment\app\Services\ActivityService;
 use Modules\Vendor\app\Actions\VendorAction;
 use Modules\Vendor\app\Http\Requests\Vendor\VendorRequest;
+use Modules\Vendor\app\Models\Vendor;
 
 class VendorController extends Controller {
 
@@ -28,7 +29,6 @@ class VendorController extends Controller {
 
     public function index() {
         $languages = $this->languageService->getAll();
-
         // Get vendor statistics
         $statistics = \Modules\Vendor\app\Models\Vendor::getVendorsStatistics();
 

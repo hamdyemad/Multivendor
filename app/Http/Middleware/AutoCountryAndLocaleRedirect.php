@@ -63,6 +63,24 @@ class AutoCountryAndLocaleRedirect
                 // Check if second segment is a valid country code
                 $country = Country::where('code', $secondSegment)->first();
                 if ($country) {
+                    // For vendor users: enforce their vendor's country
+                    if (auth()->check()) {
+                        $user = auth()->user();
+                        // Vendor or Vendor User (type 3 or 4)
+                        if (($user->user_type_id == 3 || $user->user_type_id == 4) && $user->vendor && $user->vendor->country) {
+                            $vendorCountryCode = strtoupper($user->vendor->country->code);
+
+                            // If URL country doesn't match vendor's country, redirect to vendor's country
+                            if ($secondSegment !== $vendorCountryCode) {
+                                // Rebuild path with vendor's country
+                                $segments[1] = strtolower($vendorCountryCode);
+                                $newPath = '/' . implode('/', $segments);
+                                session()->put('country_code', $vendorCountryCode);
+                                return redirect($newPath);
+                            }
+                        }
+                    }
+
                     // Already in correct format: /locale/countryCode/...
                     session()->put('country_code', $country->code);
                     return $next($request);

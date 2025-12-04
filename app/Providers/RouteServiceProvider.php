@@ -120,21 +120,29 @@ class RouteServiceProvider extends ServiceProvider
     protected function setUrlDefaults()
     {
         try {
-            // Get country code from URL segment or session
-            $countryCode = request()->segment(2) ?? session('country_code', 'sa');
+            // Get country code from URL segment (segment 2 is after locale)
+            // URL format: /{locale}/{countryCode}/admin/...
+            $urlCountryCode = request()->segment(2);
 
-            // Validate if it's a real country code
-            if ($countryCode) {
-                $country = Country::where('code', strtoupper($countryCode))->first();
-                if (!$country) {
-                    $countryCode = session('country_code', 'sa');
+            // Validate if it's a real country code (2 letters)
+            $countryCode = null;
+            if ($urlCountryCode && strlen($urlCountryCode) === 2) {
+                $country = Country::where('code', strtoupper($urlCountryCode))->first();
+                if ($country) {
+                    $countryCode = strtolower($urlCountryCode);
+                    // Store in session for future use
+                    session(['country_code' => $country->code]);
                 }
             }
 
+            // Fallback to session or default
+            if (!$countryCode) {
+                $countryCode = strtolower(session('country_code', 'sa'));
+            }
+
             // Set URL defaults so route() automatically includes country code
-            // This makes route('name', $id) work as route('name', ['countryCode' => $country, 'activity' => $id])
             URL::defaults([
-                'countryCode' => strtolower($countryCode),
+                'countryCode' => $countryCode,
             ]);
 
         } catch (\Exception $e) {

@@ -2,6 +2,7 @@
     $user_type_id = auth()->user()->user_type_id;
     $user_type = auth()->user()->user_type->name;
     $vendor = auth()->user()->vendor;
+    // dd(auth()->user());
 
     // Calculate withdraw statistics
     $totalNeeded = 0;
@@ -34,7 +35,7 @@
             @if (in_array($user_type_id, \App\Models\UserType::adminIds()))
                 {{ trans('dashboard.withdraw_transactions') }}
             @else
-                {{ trans('dashboard.withdraw_transactions') }} {{ $vendor->translations->first()->lang_value }}
+                {{ trans('dashboard.withdraw_transactions') }} {{ $vendor->name ?? '--' }}
             @endif
 
         </div>
@@ -88,7 +89,7 @@
                                 @if (in_array($user_type_id, \App\Models\UserType::adminIds()))
                                     <p>{{ trans('dashboard.Total Vendor\'s Remaining') }}</p>
                                 @else
-                                    <p>{{ $vendor->translations->first()->lang_value }}'s {{ trans('dashboard.credit_balance') }}</p>
+                                    <p>{{ $vendor->name ?? '--' }}'s {{ trans('dashboard.credit_balance') }}</p>
                                 @endif
                             </div>
                             <div class="ap-po-details__icon-area">

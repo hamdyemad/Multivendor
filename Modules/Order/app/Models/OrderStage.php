@@ -6,15 +6,15 @@ use App\Models\BaseModel;
 use App\Models\Traits\HumanDates;
 use App\Traits\HasSlug;
 use App\Traits\Translation;
-use App\Models\Traits\CountryCheckIdTrait;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
+use Modules\AreaSettings\app\Models\Country;
 
 class OrderStage extends BaseModel
 {
-    use HasFactory, SoftDeletes, Translation, HumanDates, HasSlug, CountryCheckIdTrait;
+    use HasFactory, SoftDeletes, Translation, HumanDates, HasSlug;
 
     protected $guarded = [];
 
@@ -22,6 +22,11 @@ class OrderStage extends BaseModel
         'active' => 'boolean',
         'is_system' => 'boolean',
     ];
+
+
+    public function country() {
+        return $this->belongsTo(Country::class);
+    }
 
     /**
      * Get type attribute

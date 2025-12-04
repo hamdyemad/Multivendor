@@ -1003,8 +1003,12 @@ function currency(): string
 function current_country()
 {
     try {
-        $countryCode = session('country_code') ?? 'eg';
-        $country = \Modules\AreaSettings\app\Models\Country::where('code', $countryCode)->first();
+        $countryCode = session('country_code');
+        if($countryCode) {
+            $country = \Modules\AreaSettings\app\Models\Country::where('code', $countryCode)->first();
+        } else {
+            $country = \Modules\AreaSettings\app\Models\Country::default()->first();
+        }
         if ($country) {
             return $country;
         }

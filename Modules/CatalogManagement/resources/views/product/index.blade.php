@@ -579,7 +579,7 @@
 
                             // Add approve/reject button and move to bank for admin users only
                             @if(auth()->user() && in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
-                                if(data.status == 'pending') {
+                                if(data.product_type == 'product') {
                                     actions += `
                                         <a href="javascript:void(0);" class="change-status btn btn-success table_action_father"
                                         data-bs-toggle="modal" data-bs-target="#modal-change-status"

@@ -55,6 +55,7 @@ class VendorRepository implements VendorInterface
         return DB::transaction(function () use ($data) {
             // $role = rand(0, 9999);
             $userData = [
+                'slug' => \Str::uuid(),
                 'email' => $data['email'],
                 'password' => $data['password'],
                 'active' => $data['active'] ?? false,
@@ -261,6 +262,20 @@ class VendorRepository implements VendorInterface
 
                 // Update or create name translation
                 if (!empty($fields['name'])) {
+                    if($language->code == 'en') {
+                        // $originalSlug = $slug;
+                        if(Vendor::where('slug', Str::slug($fields['name']))->exists()) {
+                            $model = Vendor::where('slug', Str::slug($fields['name']))->first();
+                            $vendor->update([
+                                'slug' => $model->slug . '-' . rand(1, 1000)
+                            ]);
+                        } else {
+                            $vendor->update([
+                                'slug' => Str::slug($fields['name'])
+                            ]);
+                        }
+                    }
+
                     $vendor->translations()->updateOrCreate(
                         [
                             'lang_id' => $language->id,

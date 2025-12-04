@@ -245,7 +245,7 @@ class ProductRepository implements ProductInterface
                             if(Product::where('slug', Str::slug($fields[$field]))->exists()) {
                                 $model = Product::where('slug', Str::slug($fields[$field]))->first();
                                 $product->update([
-                                    'slug' => $model->slug . '-' . rand(1, 1000)
+                                    'slug' => $model->slug . '-' . rand(1, 999999999)
                                 ]);
                             } else {
                                 $product->update([
@@ -340,11 +340,11 @@ class ProductRepository implements ProductInterface
             }
 
             // Prepare variant data with discount logic
-            $hasDiscount = $data['has_discount'] ?? false;
+            $hasDiscount = filter_var($data['has_discount'] ?? false, FILTER_VALIDATE_BOOLEAN);
             $variantData = [
                 'sku' => $vendorProduct->sku,
                 'price' => ($data['price'] ?? 0),
-                // 'has_discount' => $hasDiscount,
+                'has_discount' => $hasDiscount,
                 'price_before_discount' => $hasDiscount ? ($data['price_before_discount'] ?? 0) : 0,
                 'discount_end_date' => $hasDiscount ? ($data['discount_end_date'] ?? null) : null,
                 'variant_configuration_id' => null, // Simple products don't have variant configuration
@@ -424,7 +424,7 @@ class ProductRepository implements ProductInterface
 
                     if ($existingProductVariant) {
                         // Prepare variant data with discount logic
-                        $hasVariantDiscount = $variantData['has_discount'] ?? false;
+                        $hasVariantDiscount = filter_var($variantData['has_discount'] ?? false, FILTER_VALIDATE_BOOLEAN);
                         $updateData = [
                             'sku' => $variantData['sku'] ?? null,
                             'price' => $variantData['price'] ?? 0,
@@ -457,7 +457,7 @@ class ProductRepository implements ProductInterface
                         }
 
                         // Prepare variant data with discount logic for creation
-                        $hasVariantDiscount = $variantData['has_discount'] ?? false;
+                        $hasVariantDiscount = filter_var($variantData['has_discount'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
                         // Generate SKU if not provided (required field)
                         $sku = $variantData['sku'] ?? null;

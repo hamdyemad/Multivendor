@@ -339,10 +339,12 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
+                            let viewUrl = "{{ route('admin.area-settings.countries.show', ':id') }}".replace(":id", row.id);
+                            let editUrl = "{{ route('admin.area-settings.countries.edit', ':id') }}".replace(":id", row.id);
                             return `
                                 <div class="orderDatatable_actions d-inline-flex gap-1">
                                     @can('area.country.show')
-                                    <a href="{{ url('admin/area-settings/countries') }}/${row.id}"
+                                    <a href="${viewUrl}"
                                     class="view btn btn-primary table_action_father"
                                     title="{{ trans('common.view') }}">
                                         <i class="uil uil-eye table_action_icon"></i>
@@ -350,7 +352,7 @@
                                     @endcan
 
                                     @can('area.country.edit')
-                                    <a href="{{ url('admin/area-settings/countries') }}/${row.id}/edit"
+                                    <a href="${editUrl}"
                                     class="edit btn btn-warning table_action_father"
                                     title="{{ trans('common.edit') }}">
                                         <i class="uil uil-edit table_action_icon"></i>

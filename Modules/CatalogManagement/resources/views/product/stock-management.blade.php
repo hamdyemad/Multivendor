@@ -1415,6 +1415,50 @@
         }
     }
 
+    // Reindex all stock rows to ensure sequential indices before form submission
+    function reindexStockRows() {
+        console.log('🔄 Reindexing stock rows...');
+
+        // Reindex simple product stocks
+        $('#simple-stock-rows tr.stock-row').each(function(index) {
+            const $row = $(this);
+
+            // Update hidden inputs
+            $row.find('input[name*="[id]"]').attr('name', `stocks[${index}][id]`);
+            $row.find('input[name*="[variant_id]"]').attr('name', `stocks[${index}][variant_id]`);
+
+            // Update region select
+            $row.find('select[name*="[region_id]"]').attr('name', `stocks[${index}][region_id]`);
+
+            // Update quantity input
+            $row.find('input[name*="[quantity]"]').attr('name', `stocks[${index}][quantity]`);
+        });
+
+        // Reindex variant stocks
+        $('.variant-configuration-section').each(function() {
+            const $section = $(this);
+            const variantIndex = $section.find('input[name*="[id]"]').first().attr('name')?.match(/variants\[(\d+)\]/)?.[1];
+
+            if (variantIndex !== undefined) {
+                $section.find('tr.stock-row').each(function(stockIndex) {
+                    const $row = $(this);
+
+                    // Update hidden inputs
+                    $row.find('input[name*="[id]"]').attr('name', `variants[${variantIndex}][stocks][${stockIndex}][id]`);
+                    $row.find('input[name*="[variant_id]"]').attr('name', `variants[${variantIndex}][stocks][${stockIndex}][variant_id]`);
+
+                    // Update region select
+                    $row.find('select[name*="[region_id]"]').attr('name', `variants[${variantIndex}][stocks][${stockIndex}][region_id]`);
+
+                    // Update quantity input
+                    $row.find('input[name*="[quantity]"]').attr('name', `variants[${variantIndex}][stocks][${stockIndex}][quantity]`);
+                });
+            }
+        });
+
+        console.log('✅ Stock rows reindexed');
+    }
+
     // Add stock row for variant product
     function addVariantStockRow(variantIndex) {
         // Try existing variant structure first, then new variant structure
@@ -1903,6 +1947,9 @@
                 toastr.error('{{ __("catalogmanagement::product.configuration_type_required") }}');
                 return false;
             }
+
+            // Reindex stock rows before submission to ensure sequential indices
+            reindexStockRows();
 
             console.log('✅ Submitting stock management form');
 

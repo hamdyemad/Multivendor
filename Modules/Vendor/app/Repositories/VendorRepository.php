@@ -269,6 +269,7 @@ class VendorRepository implements VendorInterface
                             $vendor->update([
                                 'slug' => $model->slug . '-' . rand(1, 1000)
                             ]);
+
                         } else {
                             $vendor->update([
                                 'slug' => Str::slug($fields['name'])

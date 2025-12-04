@@ -1,10 +1,14 @@
 @php
     $user = auth()->user();
     $user_type_id = $user->user_type_id ?? null;
-    $user_type = $user->user_type->name ?? 'Unknown';
+    $user_type = $user->user_type?->name ?? 'Unknown';
     $vendor = $user->vendor ?? null;
     $currentLocale = LaravelLocalization::getCurrentLocale();
-    $currentRoute = Request::route() ? Request::route()->getName() : null;
+    try {
+        $currentRoute = Request::route() ? Request::route()->getName() : null;
+    } catch (\Exception $e) {
+        $currentRoute = null;
+    }
     $currentUrl = Request::url();
 
     // Helper function to check if menu item is active
@@ -78,7 +82,7 @@
     <ul class="sidebar_nav">
         <li>
             <a href="{{ route('admin.dashboard') }}"
-                class="{{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/dashboard') ? 'active' : '' }}">
+                class="{{ Request::is('admin/dashboard') ? 'active' : '' }}">
                 <span class="nav-icon uil uil-create-dashboard"></span>
                 <span class="menu-text">{{ trans('menu.dashboard.title') }}</span>
             </a>

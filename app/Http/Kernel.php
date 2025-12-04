@@ -18,11 +18,12 @@ class Kernel extends HttpKernel
         // \App\Http\Middleware\TrustHosts::class,
         \Illuminate\Http\Middleware\HandleCors::class,
         \App\Http\Middleware\TrustProxies::class,
+        \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
-        // \App\Http\Middleware\SetCountryCodeInUrl::class,
+        \App\Http\Middleware\SetLanguage::class,
 
     ];
 
@@ -40,17 +41,14 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            \App\Http\Middleware\SetLanguage::class,
             \App\Http\Middleware\CheckUserBlocked::class,
-            // \App\Http\Middleware\AutoCountryAndLocaleRedirect::class, // DISABLED - No country code redirects
-            // \App\Http\Middleware\SetVendorCountrySession::class,
+            \App\Http\Middleware\SetAdminRouteDefaults::class,
         ],
 
         'api' => [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            \App\Http\Middleware\SetLanguage::class,
         ],
     ];
 
@@ -85,5 +83,9 @@ class Kernel extends HttpKernel
         // End Localization
         'lang' => \App\Http\Middleware\Api\LangMiddleware::class,
         'check.customer.auth' => \Modules\Customer\app\Http\Middleware\CheckCustomerAuth::class,
+
+        'setLanguageCountry' => \App\Http\Middleware\SetLanguageCountry::class,
+        'setAdminRouteDefaults' => \App\Http\Middleware\SetAdminRouteDefaults::class,
+
     ];
 }

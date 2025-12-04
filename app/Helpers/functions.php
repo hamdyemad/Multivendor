@@ -1014,6 +1014,6 @@ function current_country()
         }
         return '';
     } catch (\Exception $e) {
-        return ''; // Fallback in case of error
+        return null; // Fallback in case of error
     }
 }

@@ -1,7 +1,7 @@
 <div class="col-12 col-md-6 mb-25">
     <div class="card border-0 px-25">
         <div class="card-header px-0 border-0">
-            <span style="font-weight: bold">{{ trans('dashboard.total_sales') }}</span>
+            <h6 style="font-weight: bold">{{ trans('dashboard.total_sales') }}</h6>
             <div class="card-extra">
                 <ul class="card-tab-links nav-tabs nav" role="tablist">
                     <li>

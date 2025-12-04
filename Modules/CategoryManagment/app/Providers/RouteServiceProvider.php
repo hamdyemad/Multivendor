@@ -36,10 +36,13 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapWebRoutes(): void
     {
-        Route::middleware(['web', 'auth', 'localeSessionRedirect', 'localizationRedirect', 'localeViewPath', 'setLocaleFromUrl'])
-        ->prefix(LaravelLocalization::setLocale() . '/{countryCode}')
-        ->namespace('Modules\CategoryManagment\app\Http\Controllers')
-        ->group(module_path($this->name, '/routes/web.php'));
+        Route::middleware(['web', 'auth', 'setLanguageCountry',
+            'setAdminRouteDefaults',
+            'localizationRedirect',
+            'localeViewPath'])
+            ->prefix('{lang}/{countryCode}/admin')
+            ->as('admin.')
+            ->group(module_path($this->name, '/routes/web.php'));
     }
 
     /**

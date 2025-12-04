@@ -472,23 +472,6 @@
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
                                 <h1>98</h1>
-                                <p>{{ trans('dashboard.total_positions') }}</p>
-                            </div>
-                            <div class="ap-po-details__icon-area">
-                                <div class="svg-icon order-bg-opacity-primary color-primary">
-                                    <i class="uil uil-briefcase-alt"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-4 mb-25">
-                <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
-                    <div class="overview-content w-100">
-                        <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
-                            <div class="ap-po-details__titlebar">
-                                <h1>98</h1>
                                 <p>{{ trans('dashboard.total_advertisments') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">

@@ -37,6 +37,27 @@ Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index
 Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
 
+// Country switch route - updates URL with new country code
+Route::get('/switch-country/{countryCode}', function($countryCode) {
+    $countryCode = strtoupper($countryCode);
+    session()->put('country_code', $countryCode);
+
+    // Get current URL and replace country code
+    $previousUrl = url()->previous();
+    $parsedUrl = parse_url($previousUrl);
+    $path = $parsedUrl['path'] ?? '';
+    $segments = explode('/', trim($path, '/'));
+
+    // URL format: /{lang}/{country}/admin/...
+    // Replace segment 1 (country code) with new country code
+    if (count($segments) >= 3 && $segments[2] === 'admin') {
+        // segments[0] = lang, segments[1] = country, segments[2] = admin, ...
+        $segments[1] = strtolower($countryCode);
+    }
+
+    $newPath = '/' . implode('/', $segments);
+    return redirect($newPath);
+})->name('switch_country');
 
 // Route::get('/seeder', function () {
 //     try {

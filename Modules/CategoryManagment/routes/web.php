@@ -4,8 +4,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(
 [
-	'prefix' => 'admin/category-management',
-    'as' => 'admin.category-management.'
+	'prefix' => 'category-management',
+    'as' => 'category-management.'
 ], function(){
     // Activities
     Route::get('activities/datatable', 'ActivityController@datatable')->name('activities.datatable');

@@ -5,7 +5,7 @@ use Modules\SystemSetting\app\Http\Controllers\CurrencyController;
 use Modules\SystemSetting\app\Http\Controllers\ActivityLogController;
 use Modules\SystemSetting\app\Http\Controllers\MessageController;
 
-Route::group(['prefix' => 'admin/system-settings', 'as' => 'admin.system-settings.'], function() {
+Route::group(['prefix' => 'system-settings', 'as' => 'system-settings.'], function() {
     // Currencies
     Route::get('currencies/datatable', [CurrencyController::class, 'datatable'])->name('currencies.datatable');
     Route::resource('currencies', CurrencyController::class);

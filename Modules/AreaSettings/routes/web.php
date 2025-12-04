@@ -7,7 +7,7 @@ use Modules\AreaSettings\app\Http\Controllers\CityController;
 use Modules\AreaSettings\app\Http\Controllers\RegionController;
 use Modules\AreaSettings\app\Http\Controllers\SubRegionController;
 
-Route::group(['prefix' => 'admin/area-settings', 'as' => 'admin.area-settings.'], function() {
+Route::group(['prefix' => 'area-settings', 'as' => 'area-settings.'], function() {
     // Countries
     Route::get('countries/datatable', [CountryController::class, 'datatable'])->name('countries.datatable');
     Route::post('countries/{id}/change-status', [CountryController::class, 'changeStatus'])->name('countries.change-status');

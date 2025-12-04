@@ -5,9 +5,8 @@
 
     try {
         $countries = \Modules\AreaSettings\app\Models\Country::where('active', 1)->get();
-        // URL structure: /locale/countryCode/... (e.g., /en/eg/admin/dashboard)
-        // So locale is segment(1) and country is segment(2)
-        $currentCountryCode = strtoupper(request()->segment(2) ?? session('country_code', 'EG'));
+        // Get country code from session or default to EG
+        $currentCountryCode = strtoupper(session('country_code', 'EG'));
         $currentCountry = $countries->firstWhere('code', $currentCountryCode) ?? $countries->first();
     } catch (\Exception $e) {
         // Silently fail - use defaults
@@ -33,13 +32,13 @@
             </div>
             @foreach ($countries as $country)
                 @php
-                    // Build URL with new country code
-                    // URL structure: /locale/countryCode/rest... (e.g., /en/eg/admin/dashboard)
-                    $currentUrl = request()->path();
-                    $segments = explode('/', $currentUrl);
+                    // Build the new URL with the selected country code
+                    $currentUrl = request()->getPathInfo();
+                    $segments = explode('/', trim($currentUrl, '/'));
 
-                    // Replace country code (second segment, index 1) with new country code
-                    if (count($segments) >= 2) {
+                    // URL format: /{lang}/{country}/admin/...
+                    if (count($segments) >= 3 && $segments[2] === 'admin') {
+                        // Replace segment 1 (country code) with new country code
                         $segments[1] = strtolower($country->code);
                     }
 
@@ -131,4 +130,5 @@
         margin-left: 0;
     }
 </style>
+
 @endif

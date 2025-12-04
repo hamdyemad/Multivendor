@@ -18,58 +18,74 @@ class UserAction {
 
     public function login($request) {
         $remember = $request->filled('remember');
-        $user = User::with(['vendorByUser', 'vendorById', 'user_type'])->where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->first();
 
         if($user) {
             // Check if user account is inactive
             if(!$user->active()) {
-                $this->logActivityForUser(
-                    user: $user,
-                    action: 'login_failed',
-                    descriptionKey: 'activity_log.login_failed_inactive',
-                    descriptionParams: [],
-                    model: $user,
-                    properties: ['email' => $user->email]
-                );
+                try {
+                    $this->logActivityForUser(
+                        user: $user,
+                        action: 'login_failed',
+                        descriptionKey: 'activity_log.login_failed_inactive',
+                        descriptionParams: [],
+                        model: $user,
+                        properties: ['email' => $user->email]
+                    );
+                } catch (\Exception $e) {
+                    // Ignore logging errors
+                }
                 return $this->sendData(__('auth.account_not_activated'), false);
             }
 
             // Check if user account is blocked
             if(!$user->blocked()) {
-                $this->logActivityForUser(
-                    user: $user,
-                    action: 'login_failed',
-                    descriptionKey: 'activity_log.login_failed_blocked',
-                    descriptionParams: [],
-                    model: $user,
-                    properties: ['email' => $user->email]
-                );
+                try {
+                    $this->logActivityForUser(
+                        user: $user,
+                        action: 'login_failed',
+                        descriptionKey: 'activity_log.login_failed_blocked',
+                        descriptionParams: [],
+                        model: $user,
+                        properties: ['email' => $user->email]
+                    );
+                } catch (\Exception $e) {
+                    // Ignore logging errors
+                }
                 return $this->sendData(__('auth.account_blocked'), false);
             }
         }
 
         if(Auth::attempt(['email'=>$request->email,'password'=>$request->password], $remember)){
             // Log successful login
-            $this->logActivity(
-                action: 'login',
-                descriptionKey: 'activity_log.login_success',
+            try {
+                $this->logActivity(
+                    action: 'login',
+                    descriptionKey: 'activity_log.login_success',
                     descriptionParams: [],
                     model: $user,
                     properties: ['email' => $user->email]
-            );
+                );
+            } catch (\Exception $e) {
+                // Ignore logging errors
+            }
 
             return $this->sendData('',true);
         }else{
             // Log failed login attempt - invalid credentials
             if ($user) {
-                $this->logActivityForUser(
-                    user: $user,
-                    action: 'login_failed',
-                    descriptionKey: 'activity_log.login_failed_credentials',
-                    descriptionParams: [],
-                    model: $user,
-                    properties: ['email' => $user->email]
-                );
+                try {
+                    $this->logActivityForUser(
+                        user: $user,
+                        action: 'login_failed',
+                        descriptionKey: 'activity_log.login_failed_credentials',
+                        descriptionParams: [],
+                        model: $user,
+                        properties: ['email' => $user->email]
+                    );
+                } catch (\Exception $e) {
+                    // Ignore logging errors
+                }
             }
 
             return $this->sendData(__('auth.invalid_credentials'), false);

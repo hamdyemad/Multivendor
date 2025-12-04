@@ -38,7 +38,7 @@ class AuthController extends Controller {
     public function authenticate(LoginRequest $request){
         $res = $this->userService->login($request);
         if(isset($res) && $res['status']) {
-            return redirect()->intended(route('admin.dashboard'))->with('success','Welcome back !');
+            return redirect('/admin/dashboard')->with('success','Welcome back !');
         } else {
             return redirect()->route('login')->with('message', $res['message']);
         }

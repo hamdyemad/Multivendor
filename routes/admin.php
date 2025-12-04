@@ -26,32 +26,19 @@ use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 | contains the "web" middleware group. Now create something great!
 |
 */
-// Global route group with country code and language prefix
-Route::group(
-[
-    'prefix' => LaravelLocalization::setLocale() . '/{countryCode}',
-    'middleware' => [
-        'localeSessionRedirect',
-        'localizationRedirect',
-        'localeViewPath',
-        'setLocaleFromUrl',
-        'auth',
-    ],
-], function(){
+// Admin routes
+Route::group(['prefix' => 'admin', 'as' => 'admin.'], function() {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::group(['prefix' => 'admin', 'as' => 'admin.'], function() {
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // Admin Management
+    Route::prefix('admin-management')->name('admin-management.')->group(function() {
+        Route::get('/roles/datatable', [RoleController::class, 'datatable'])->name('roles.data');
+        Route::resource('roles', RoleController::class);
 
-        // Admin Management
-        Route::prefix('admin-management')->name('admin-management.')->group(function() {
-            Route::get('/roles/datatable', [RoleController::class, 'datatable'])->name('roles.data');
-            Route::resource('roles', RoleController::class);
-
-            Route::get('/admins/datatable', [AdminController::class, 'datatable'])->name('admins.datatable');
-            Route::resource('admins', AdminController::class);
-        });
-
+        Route::get('/admins/datatable', [AdminController::class, 'datatable'])->name('admins.datatable');
+        Route::resource('admins', AdminController::class);
     });
+
 });
 
 

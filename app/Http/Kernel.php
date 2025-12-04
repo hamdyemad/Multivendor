@@ -42,8 +42,8 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SetLanguage::class,
             \App\Http\Middleware\CheckUserBlocked::class,
-            \App\Http\Middleware\AutoCountryAndLocaleRedirect::class,
-            \App\Http\Middleware\SetVendorCountrySession::class,
+            // \App\Http\Middleware\AutoCountryAndLocaleRedirect::class, // DISABLED - No country code redirects
+            // \App\Http\Middleware\SetVendorCountrySession::class,
         ],
 
         'api' => [

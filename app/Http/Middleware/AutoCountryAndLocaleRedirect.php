@@ -13,6 +13,20 @@ class AutoCountryAndLocaleRedirect
     {
         $path = trim($request->getPathInfo(), '/');
 
+        // Skip middleware for certain routes that don't need locale/country code
+        $skipRoutes = ['landing', 'login', 'authenticate', 'forgetPassword.index', 'forgetPassword.store', 'forgetPassword.reset', 'forgetPassword.reset-store', 'switch_lang', 'switch_country', 'permissions/reset'];
+
+        foreach ($skipRoutes as $route) {
+            if (strpos($path, $route) !== false) {
+                return $next($request);
+            }
+        }
+
+        // Also skip if path is empty (root) and user is not authenticated
+        if (empty($path) && !auth()->check()) {
+            return $next($request);
+        }
+
         // Set default country code in session if not already set
         if (!session()->has('country_code')) {
             try {

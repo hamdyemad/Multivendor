@@ -39,23 +39,23 @@ class RouteServiceProvider extends ServiceProvider
     public function boot()
     {
         // Global handler for all routes
-        Route::matched(function ($event) {
-            $route = $event->route;
-            if (!$route) return;
+        // Route::matched(function ($event) {
+        //     $route = $event->route;
+        //     if (!$route) return;
 
-            $params = $route->parameters();
+        //     $params = $route->parameters();
 
-            // Only if there are at least 2 parameters
-            if (count($params) >= 2) {
-                $keys = array_keys($params);
+        //     // Only if there are at least 2 parameters
+        //     if (count($params) >= 2) {
+        //         $keys = array_keys($params);
 
-                $firstKey = $keys[0];   // 'countryCode'
-                $secondKey = $keys[1];  // 'activity'
+        //         $firstKey = $keys[0];   // 'countryCode'
+        //         $secondKey = $keys[1];  // 'activity'
 
-                // Replace first parameter value with the second
-                $route->setParameter($firstKey, $params[$secondKey]);
-            }
-        });
+        //         // Replace first parameter value with the second
+        //         $route->setParameter($firstKey, $params[$secondKey]);
+        //     }
+        // });
 
 
         $this->configureRateLimiting();
@@ -85,17 +85,17 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         // Set URL defaults only for web routes (not API) after all routes are registered
-        $this->app->booted(function () {
-            $this->app['router']->matched(function ($event) {
-                $route = $event->route;
-                if (!$route) return;
+        // $this->app->booted(function () {
+        //     $this->app['router']->matched(function ($event) {
+        //         $route = $event->route;
+        //         if (!$route) return;
 
-                // Only set URL defaults for web routes, not API routes
-                if (!$route->getPrefix() || !str_starts_with($route->getPrefix(), 'api')) {
-                    $this->setUrlDefaults();
-                }
-            });
-        });
+        //         // Only set URL defaults for web routes, not API routes
+        //         if (!$route->getPrefix() || !str_starts_with($route->getPrefix(), 'api')) {
+        //             $this->setUrlDefaults();
+        //         }
+        //     });
+        // });
     }
 
     /**

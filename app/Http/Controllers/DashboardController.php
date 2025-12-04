@@ -11,7 +11,7 @@ class DashboardController extends Controller
         $data = [
             'title' => __('menu.dashboard.title'),
         ];
-
+        return $data;
         return view('pages.dashboard.dashboard', $data);
     }
 

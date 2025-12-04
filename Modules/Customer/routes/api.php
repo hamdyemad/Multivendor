@@ -42,8 +42,10 @@ Route::middleware(['auth:sanctum', 'check.customer.auth'])->prefix('addresses')-
     Route::post('{addressId}', [CustomerAddressController::class, 'update']);
 });
 
-// Customer listing routes (no authentication required - for order creation)
 Route::prefix('customers')->group(function () {
     Route::get('', [CustomerApiController::class, 'index']);
     Route::get('{customerId}/addresses', [CustomerApiController::class, 'getAddresses']);
+    Route::post('{customerId}/addresses', [CustomerAddressController::class, 'storeAddress']);
 });
+
+

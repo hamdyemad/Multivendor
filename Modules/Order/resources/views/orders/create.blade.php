@@ -97,12 +97,31 @@
                                                     {{ trans('order::order.customer_address') }}
                                                     <span class="text-danger">*</span>
                                                 </label>
-                                                <select
-                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                    id="customer_address_select" name="customer_address_id">
-                                                    <option value="">{{ trans('order::order.select_address') }}
-                                                    </option>
-                                                </select>
+                                                <div class="d-flex gap-2">
+                                                    <select
+                                                        class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                        id="customer_address_select" name="customer_address_id">
+                                                        <option value="">{{ trans('order::order.select_address') }}
+                                                        </option>
+                                                    </select>
+                                                    <button type="button" class="btn btn-primary" id="addNewAddressBtn"
+                                                        title="Add new address">
+                                                        <i class="uil uil-plus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- No Address Message --}}
+                                    <div class="row" id="no_address_section" style="display: none;">
+                                        <div class="col-md-12 mb-25">
+                                            <div class="alert alert-info" role="alert">
+                                                <i class="uil uil-info-circle me-2"></i>
+                                                {{ trans('order::order.customer_has_no_address') }}
+                                                <button type="button" class="btn btn-sm btn-primary ms-2" id="createAddressBtn">
+                                                    <i class="uil uil-plus me-1"></i>{{ trans('order::order.create_address') }}
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -442,6 +461,138 @@
     </div>
     </div>
 
+    {{-- Add Address Modal --}}
+    <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title" id="addAddressModalLabel">
+                        <i class="uil uil-map-pin me-2"></i>{{ trans('order::order.add_new_address') }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addAddressForm" novalidate>
+                        <div id="addressFormErrors" class="alert alert-danger" style="display: none;"></div>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-25">
+                                <div class="form-group">
+                                    <label class="il-gray fs-14 fw-500 mb-10 d-block">
+                                        {{ trans('order::order.address_title') }}
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control ih-medium ip-gray radius-xs b-light px-15 address-required"
+                                        id="address_title" name="address_title" placeholder="e.g., Home, Office"
+                                        data-field="title">
+                                    <small class="text-danger d-none error-message"></small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-25">
+                                <div class="form-group">
+                                    <label class="il-gray fs-14 fw-500 mb-10 d-block">
+                                        {{ trans('order::order.country') }}
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select address-required"
+                                        id="address_country_id" name="address_country_id"
+                                        data-field="country_id">
+                                        <option value="">{{ __('common.select') }}</option>
+                                    </select>
+                                    <small class="text-danger d-none error-message"></small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-25">
+                                <div class="form-group">
+                                    <label class="il-gray fs-14 fw-500 mb-10 d-block">
+                                        {{ trans('order::order.city') }}
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select address-required"
+                                        id="address_city_id" name="address_city_id" disabled
+                                        data-field="city_id">
+                                        <option value="">{{ __('common.select') }}</option>
+                                    </select>
+                                    <small class="text-danger d-none error-message"></small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-25">
+                                <div class="form-group">
+                                    <label class="il-gray fs-14 fw-500 mb-10 d-block">
+                                        {{ trans('order::order.region') }}
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select address-required"
+                                        id="address_region_id" name="address_region_id" disabled
+                                        data-field="region_id">
+                                        <option value="">{{ __('common.select') }}</option>
+                                    </select>
+                                    <small class="text-danger d-none error-message"></small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-25">
+                                <div class="form-group">
+                                    <label class="il-gray fs-14 fw-500 mb-10 d-block">
+                                        {{ trans('order::order.sub_region') }}
+                                    </label>
+                                    <select class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                        id="address_subregion_id" name="address_subregion_id" disabled
+                                        data-field="subregion_id">
+                                        <option value="">{{ __('common.select') }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-25">
+                                <div class="form-group">
+                                    <label class="il-gray fs-14 fw-500 mb-10 d-block">
+                                        {{ trans('order::order.customer_address') }}
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control ih-medium ip-gray radius-xs b-light px-15 address-required"
+                                        id="address_address" name="address_address"
+                                        placeholder="Enter full address"
+                                        data-field="address">
+                                    <small class="text-danger d-none error-message"></small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-25">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="address_is_primary"
+                                        name="address_is_primary">
+                                    <label class="form-check-label" for="address_is_primary">
+                                        {{ trans('order::order.set_as_primary') }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light btn-default" data-bs-dismiss="modal">
+                        <i class="uil uil-times me-1"></i>{{ trans('main.cancel') }}
+                    </button>
+                    <button type="button" class="btn btn-primary" id="saveAddressBtn">
+                        <i class="uil uil-check me-1"></i>{{ trans('main.save') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @push('scripts')
         <script>
             $(document).ready(function() {
@@ -714,13 +865,18 @@
                                         );
                                 });
                                 $('#customer_address_section').show();
+                                $('#no_address_section').hide();
                             } else {
                                 $('#customer_address_section').hide();
+                                $('#no_address_section').show();
                             }
 
                             $('#customer_email').val(email);
                             $('#customer_phone').val(phone);
                             $('#customer_address').val('');
+
+                            // Store current customer ID for address creation
+                            $('#addAddressForm').data('customer-id', customerId);
                         }
                     });
                 }
@@ -729,6 +885,239 @@
                 $('#customer_address_select').on('change', function() {
                     const address = $(this).find('option:selected').data('address');
                     $('#customer_address').val(address);
+                });
+
+                // Load countries for address modal
+                function loadCountries() {
+                    $.ajax({
+                        url: '/api/area/countries',
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(response) {
+                            const countrySelect = $('#address_country_id');
+                            if (response.data && response.data.length > 0) {
+                                response.data.forEach(country => {
+                                    countrySelect.append(
+                                        `<option value="${country.id}">${country.name || country.title}</option>`
+                                    );
+                                });
+                            }
+                        }
+                    });
+                }
+
+                // Load cities based on country
+                $('#address_country_id').on('change', function() {
+                    const countryId = $(this).val();
+                    const citySelect = $('#address_city_id');
+
+                    citySelect.empty().append('<option value="">{{ __('common.select') }}</option>').prop('disabled', true);
+                    $('#address_region_id').empty().append('<option value="">{{ __('common.select') }}</option>').prop('disabled', true);
+                    $('#address_subregion_id').empty().append('<option value="">{{ __('common.select') }}</option>').prop('disabled', true);
+
+                    if (!countryId) return;
+
+                    $.ajax({
+                        url: `/api/area/countries/${countryId}/cities`,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.data && response.data.length > 0) {
+                                response.data.forEach(city => {
+                                    citySelect.append(
+                                        `<option value="${city.id}">${city.name || city.title}</option>`
+                                    );
+                                });
+                                citySelect.prop('disabled', false);
+                            }
+                        }
+                    });
+                });
+
+                // Load regions based on city
+                $('#address_city_id').on('change', function() {
+                    const cityId = $(this).val();
+                    const regionSelect = $('#address_region_id');
+
+                    regionSelect.empty().append('<option value="">{{ __('common.select') }}</option>').prop('disabled', true);
+                    $('#address_subregion_id').empty().append('<option value="">{{ __('common.select') }}</option>').prop('disabled', true);
+
+                    if (!cityId) return;
+
+                    $.ajax({
+                        url: `/api/area/cities/${cityId}/regions`,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.data && response.data.length > 0) {
+                                response.data.forEach(region => {
+                                    regionSelect.append(
+                                        `<option value="${region.id}">${region.name || region.title}</option>`
+                                    );
+                                });
+                                regionSelect.prop('disabled', false);
+                            }
+                        }
+                    });
+                });
+
+                // Load sub-regions based on region
+                $('#address_region_id').on('change', function() {
+                    const regionId = $(this).val();
+                    const subregionSelect = $('#address_subregion_id');
+
+                    subregionSelect.empty().append('<option value="">{{ __('common.select') }}</option>').prop('disabled', true);
+
+                    if (!regionId) return;
+
+                    $.ajax({
+                        url: `/api/area/regions/${regionId}/subregions`,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.data && response.data.length > 0) {
+                                response.data.forEach(subregion => {
+                                    subregionSelect.append(
+                                        `<option value="${subregion.id}">${subregion.name || subregion.title}</option>`
+                                    );
+                                });
+                                subregionSelect.prop('disabled', false);
+                            }
+                        }
+                    });
+                });
+
+                // Open add address modal
+                $('#addNewAddressBtn, #createAddressBtn').on('click', function() {
+                    const customerId = $('#selected_customer_id').val();
+                    if (!customerId) {
+                        showAlert('warning', '{{ trans('order::order.please_select_customer') }}');
+                        return;
+                    }
+
+                    // Pre-fill email and phone if available
+                    const email = $('#customer_email').val();
+                    const phone = $('#customer_phone').val();
+
+                    $('#address_email').val(email);
+                    $('#address_phone').val(phone);
+
+                    const modal = new bootstrap.Modal(document.getElementById('addAddressModal'));
+                    modal.show();
+                });
+
+                // Validate address form
+                function validateAddressForm() {
+                    let isValid = true;
+                    const requiredFields = $('#addAddressForm').find('.address-required');
+                    
+                    // Clear previous errors
+                    $('#addAddressForm').find('.error-message').addClass('d-none').text('');
+                    $('#addAddressForm').find('.address-required').removeClass('is-invalid');
+                    $('#addressFormErrors').hide().html('');
+
+                    requiredFields.each(function() {
+                        const value = $(this).val();
+                        if (!value || value === '') {
+                            isValid = false;
+                            $(this).addClass('is-invalid');
+                            $(this).closest('.form-group').find('.error-message').removeClass('d-none').text('This field is required');
+                        }
+                    });
+
+                    return isValid;
+                }
+
+                // Real-time validation on input change
+                $('#addAddressForm').find('.address-required').on('change keyup', function() {
+                    const value = $(this).val();
+                    if (value && value !== '') {
+                        $(this).removeClass('is-invalid');
+                        $(this).closest('.form-group').find('.error-message').addClass('d-none').text('');
+                    }
+                });
+
+                // Save new address - Remove previous handlers to prevent multiple submissions
+                $('#saveAddressBtn').off('click').on('click', function() {
+                    // Validate form first
+                    if (!validateAddressForm()) {
+                        showAlert('warning', 'Please fill in all required fields');
+                        return;
+                    }
+
+                    const customerId = $('#selected_customer_id').val();
+                    const formData = {
+                        title: $('#address_title').val(),
+                        country_id: $('#address_country_id').val(),
+                        city_id: $('#address_city_id').val(),
+                        region_id: $('#address_region_id').val(),
+                        subregion_id: $('#address_subregion_id').val() || null,
+                        address: $('#address_address').val(),
+                        phone: $('#address_phone').val(),
+                        email: $('#address_email').val() || null,
+                        is_primary: $('#address_is_primary').is(':checked') ? 1 : 0
+                    };
+
+                    $.ajax({
+                        url: `/api/customers/${customerId}/addresses`,
+                        type: 'POST',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify(formData),
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            if (response.success && response.data) {
+                                // Get the new address from response
+                                const newAddress = response.data;
+                                
+                                // Close modal immediately
+                                const modal = bootstrap.Modal.getInstance(document.getElementById('addAddressModal'));
+                                if (modal) {
+                                    modal.hide();
+                                }
+                                
+                                // Fill the address field with the created address
+                                $('#customer_address').val(newAddress.address);
+                                
+                                // Add new address to dropdown
+                                const addressSelect = $('#customer_address_select');
+                                const addressOption = `<option value="${newAddress.id}" data-address="${newAddress.address}">${newAddress.title} - ${newAddress.address}</option>`;
+                                addressSelect.append(addressOption);
+                                
+                                // Select the new address in dropdown
+                                addressSelect.val(newAddress.id);
+                                
+                                // Show success message
+                                showAlert('success', '{{ trans('order::order.address_created_successfully') }}');
+                                
+                                // Reset form
+                                $('#addAddressForm')[0].reset();
+                                $('#address_country_id').val('');
+                                $('#address_city_id').empty().append('<option value="">{{ __('common.select') }}</option>').prop('disabled', true);
+                                $('#address_region_id').empty().append('<option value="">{{ __('common.select') }}</option>').prop('disabled', true);
+                                $('#address_subregion_id').empty().append('<option value="">{{ __('common.select') }}</option>').prop('disabled', true);
+                                $('#addressFormErrors').hide().html('');
+                            }
+                        },
+                        error: function(xhr) {
+                            let errorMessage = '{{ trans('order::order.error_creating_address') }}';
+                            
+                            if (xhr.status === 422 && xhr.responseJSON?.errors) {
+                                const errors = xhr.responseJSON.errors;
+                                let errorHtml = '<ul class="mb-0">';
+                                $.each(errors, function(key, value) {
+                                    errorHtml += '<li>' + value[0] + '</li>';
+                                });
+                                errorHtml += '</ul>';
+                                $('#addressFormErrors').html(errorHtml).show();
+                            } else {
+                                errorMessage = xhr.responseJSON?.message || errorMessage;
+                                showAlert('danger', errorMessage);
+                            }
+                        }
+                    });
                 });
 
                 // Hide customer suggestions on blur
@@ -754,6 +1143,7 @@
 
                 loadAllProducts();
                 loadAllCustomers();
+                loadCountries();
 
                 // Add Fee
                 $('#addFeeBtn').on('click', function() {

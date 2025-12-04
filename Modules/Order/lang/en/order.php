@@ -118,4 +118,18 @@ return [
     'no_customers_found' => 'No customers found',
     'loading_customers' => 'Loading customers...',
     'select_address' => 'Select Address',
+
+    // Address Management
+    'add_new_address' => 'Add New Address',
+    'create_address' => 'Create Address',
+    'customer_has_no_address' => 'This customer has no saved addresses. Please create one.',
+    'address_title' => 'Address Title',
+    'country' => 'Country',
+    'city' => 'City',
+    'region' => 'Region',
+    'sub_region' => 'Sub Region',
+    'set_as_primary' => 'Set as Primary Address',
+    'address_created_successfully' => 'Address created successfully',
+    'error_creating_address' => 'Error creating address',
+    'please_select_customer' => 'Please select a customer first',
 ];

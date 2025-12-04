@@ -9,6 +9,8 @@ use Modules\Customer\app\Models\CustomerPasswordResetToken;
 interface CustomerApiRepositoryInterface
 {
     public function getByEmail(string $email): ?Customer;
+    
+    public function getById(string $id): ?Customer;
 
     public function create(array $data): Customer;
 

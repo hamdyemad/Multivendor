@@ -118,4 +118,18 @@ return [
     'no_customers_found' => 'لم يتم العثور على عملاء',
     'loading_customers' => 'جاري تحميل العملاء...',
     'select_address' => 'اختر العنوان',
+    
+    // Address Management
+    'add_new_address' => 'إضافة عنوان جديد',
+    'create_address' => 'إنشاء عنوان',
+    'customer_has_no_address' => 'هذا العميل ليس لديه عناوين محفوظة. يرجى إنشاء واحد.',
+    'address_title' => 'عنوان العنوان',
+    'country' => 'الدولة',
+    'city' => 'المدينة',
+    'region' => 'المنطقة',
+    'sub_region' => 'المنطقة الفرعية',
+    'set_as_primary' => 'تعيين كعنوان أساسي',
+    'address_created_successfully' => 'تم إنشاء العنوان بنجاح',
+    'error_creating_address' => 'خطأ في إنشاء العنوان',
+    'please_select_customer' => 'يرجى اختيار عميل أولاً',
 ];

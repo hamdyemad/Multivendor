@@ -81,28 +81,21 @@ class SubCategory extends BaseModel
         return $this->getTranslation('description', app()->getLocale()) ?? '-';
     }
 
+    public function scopeByCategory(Builder $query, $category)
+    {
+        $query->whereHas('category', function($q) use($category) {
+            $q->where('id', $category)->orWhere('slug', $category);
+        });
+    }
+
     public function scopeFilter(Builder $query, array $filters)
     {
         parent::scopeFilter($query, $filters);
 
-        if (!empty($filters['main_category_id'])) {
-            $query
-            ->where('category_id', $filters['main_category_id'])
-            ->orWhereHas('category', function($q) use($filters) {
-                $q
-                ->where('id', $filters['main_category_id'])
-                ->orWhere('slug', $filters['main_category_id']);
-            });
-        }
+        $category = $filters['main_category_id'] ?? $filters['category_id'] ?? null;
 
-        if (!empty($filters['category_id'])) {
-            $query
-            ->where('category_id', $filters['category_id'])
-            ->orWhereHas('category', function($q) use($filters) {
-                $q
-                ->where('id', $filters['category_id'])
-                ->orWhere('slug', $filters['category_id']);
-            });
+        if (!empty($category)) {
+            $query->byCategory($category);
         }
 
     }

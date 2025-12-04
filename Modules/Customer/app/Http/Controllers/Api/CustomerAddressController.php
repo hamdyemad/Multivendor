@@ -9,12 +9,13 @@ use Modules\Customer\app\Http\Requests\Api\CreateAddressRequest;
 use Modules\Customer\app\Http\Requests\Api\UpdateAddressRequest;
 use Modules\Customer\app\Transformers\AddressResource;
 use Modules\Customer\app\Services\Api\CustomerAddressService;
+use Modules\Customer\app\Services\Api\CustomerAuthService;
 
 class CustomerAddressController extends Controller
 {
     use Res;
 
-    public function __construct(protected CustomerAddressService $addressService)
+    public function __construct(protected CustomerAddressService $addressService, protected CustomerAuthService $customerService)
     {}
 
     /**
@@ -107,6 +108,22 @@ class CustomerAddressController extends Controller
         return $this->sendRes(
             config('responses.address_deleted')[app()->getLocale()] ?? 'Address deleted successfully',
             true
+        );
+    }
+
+
+    public function storeAddress(CreateAddressRequest $request, $customerId)
+    {
+        $validated = $request->validated();
+        $customer = $this->customerService->getById($customerId);
+        $address = $this->addressService->createAddress($customer, $validated);
+
+        return $this->sendRes(
+            config('responses.address_created')[app()->getLocale()] ?? 'Address created successfully',
+            true,
+            AddressResource::make($address),
+            [],
+            201
         );
     }
 }

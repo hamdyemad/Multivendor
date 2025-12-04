@@ -33,6 +33,12 @@ class CustomerAuthService
         event(new OtpCreated($customer, $otp, $cause, $expiresInMinutes, $verificationToken));
     }
 
+    public function getById($customerId)
+    {
+        return $this->customerRepository->getById($customerId);
+
+    }
+
     /**
      * Send OTP for email verification
      */

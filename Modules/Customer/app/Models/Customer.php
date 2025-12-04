@@ -17,6 +17,14 @@ class Customer extends Authenticatable
 
     protected $guarded = [];
 
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Modules\Customer\database\factories\CustomerFactory::new();
+    }
+
     protected $appends = ['full_name'];
 
     protected $hidden = [

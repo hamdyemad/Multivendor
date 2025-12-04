@@ -17,7 +17,7 @@ class ActivitySeeder extends Seeder
         $faker = Faker::create();
 
         Activity::factory()
-            ->count(10000000)
+            ->count(10) // Reasonable count
             ->create()
             ->each(function ($activity) use ($faker) {
                 $activity->setTranslation('name', 'en', $faker->words(2, true));

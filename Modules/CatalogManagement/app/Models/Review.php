@@ -15,6 +15,14 @@ class Review extends BaseModel
 {
     use HasFactory, SoftDeletes, HumanDates, CountryCheckIdTrait;
 
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Modules\CatalogManagement\database\factories\ReviewFactory::new();
+    }
+
     // Status constants
     const STATUS_PENDING = 'pending';
     const STATUS_APPROVED = 'approved';

@@ -1,6 +1,6 @@
 
 
-<nav class="navbar navbar-light">
+<nav class="navbar navbar-light" style="box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);">
     <div class="navbar-left">
         <div class="logo-area">
             <a class="navbar-brand" href="{{ route('admin.dashboard') }}">

@@ -11,6 +11,7 @@ use Modules\CatalogManagement\app\Services\Api\ProductApiService;
 use Modules\CatalogManagement\app\Http\Resources\Api\ProductResource;
 use Modules\CatalogManagement\app\Http\Resources\Api\VendorProductResource;
 use Modules\CatalogManagement\app\Http\Requests\Api\ProductReviewRequest;
+use Modules\CatalogManagement\app\Http\Resources\Api\SimpleProductResource;
 use Modules\CatalogManagement\app\Http\Resources\Api\VariantConfigurationKeyResource;
 use Modules\CategoryManagment\app\Http\Resources\Api\GeneralResoruce;
 
@@ -395,6 +396,36 @@ class ProductApiController extends Controller
             config('responses.success')[app()->getLocale()],
             true,
             $variants,
+            [],
+            200
+        );
+    }
+
+    /**
+     * Get all vendor product variants with their product details
+     * Used for order creation - returns every variant with its product
+     * GET /api/products/variants-all
+     */
+    public function variantsAll(Request $request)
+    {
+        $dto = ProductFilterDTO::fromRequest($request);
+
+        if (!$dto->validate()) {
+            return $this->sendRes(
+                config('responses.validation')[app()->getLocale()],
+                false,
+                [],
+                $dto->getErrors(),
+                422
+            );
+        }
+
+        $products = $this->productService->getVariantsWithProduct($dto->toArray());
+
+        return $this->sendRes(
+            config('responses.success')[app()->getLocale()],
+            true,
+            SimpleProductResource::collection($products),
             [],
             200
         );

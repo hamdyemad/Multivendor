@@ -22,6 +22,7 @@ Route::prefix('products')->middleware('auth.optional:sanctum')->group(function (
     Route::get('/best-selling', [ProductApiController::class, 'bestSelling']);
     Route::get('/latest', [ProductApiController::class, 'latest']);
     Route::get('/special-offers', [ProductApiController::class, 'specialOffers']);
+    Route::get('/variants-all', [ProductApiController::class, 'variantsAll']);
     Route::get('/{departmentId}/department', [ProductApiController::class, 'getByDepartment']);
     Route::get('/top', [ProductApiController::class, 'top']);
     Route::get('specific-product/{id}/{vendorId}', [ProductApiController::class, 'show']);

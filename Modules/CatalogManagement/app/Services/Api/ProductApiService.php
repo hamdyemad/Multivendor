@@ -89,4 +89,13 @@ class ProductApiService
     {
         return $this->repository->getTreesByFilters($filters);
     }
+
+    /**
+     * Get all vendor product variants with their product details
+     * Used for order creation
+     */
+    public function getVariantsWithProduct(array $filters)
+    {
+        return $this->repository->getVariantsWithProduct($filters);
+    }
 }

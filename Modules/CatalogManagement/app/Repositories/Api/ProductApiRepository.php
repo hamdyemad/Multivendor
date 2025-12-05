@@ -154,4 +154,23 @@ class ProductApiRepository implements ProductApiRepositoryInterface
             ])
             ->get();
     }
+
+    public function getVariantsWithProduct(array $filters)
+    {
+        $query = $this->query->handle($filters);
+        $query->with([
+            'product' => function ($subQ) {
+                $subQ->with(['brand', 'department', 'category', 'subCategory']);
+            },
+            'variants' => function ($subQ) {
+                $subQ->with(['variantConfiguration', 'stocks']);
+            },
+            'tax'
+        ]);
+
+        $result = $this->paginated->handle($query, $filters['paginated'] ?? false, $filters['per_page'] ?? 15);
+
+        return $result;
+    }
+
 }

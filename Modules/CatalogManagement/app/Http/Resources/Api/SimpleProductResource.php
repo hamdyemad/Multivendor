@@ -4,6 +4,8 @@ namespace Modules\CatalogManagement\app\Http\Resources\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Modules\SystemSetting\app\Resources\CurrencyResource;
+use Modules\CatalogManagement\app\Http\Resources\Api\TaxResource;
 
 class SimpleProductResource extends JsonResource
 {
@@ -16,62 +18,35 @@ class SimpleProductResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'image' => $this->getProductImage(),
-            'name' => $this->title,
-            'slug' => $this->slug,
+            'vendor_id' => $this->vendor_id,
+            'product_id' => $this->product_id,
+            'slug' => $this->product->slug,
             'points' => $this->points ?? 0,
             'sku' => $this->sku,
-            'details' => $this->details,
-            'summary' => $this->summary,
-            'instructions' => $this->instructions,
-            'features' => $this->features,
-            'extras' => $this->extra_description,
             'star' => $this->average_rating ?? 0,
             'num_of_user_review' => $this->reviews_count ?? 0,
-            'number_of_sale' => $this->sales ?? 0,
-            'video_link' => null,
-            'stock' => $this->getTotalStock(),
+            'limitation' => $this->max_per_order,
+            'status' => $this->is_featured ? __('catalogmanagement::product.featured') : __('catalogmanagement::product.active'),
+            'image' => formatImage($this->product->mainImage),
+            'name' => $this->product->title,
+            'details' => $this->product->details,
+            'summary' => $this->product->summary,
+            'instructions' => $this->product->instructions,
+            'features' => $this->product->features,
+            'extras' => $this->product->extra_description,
+            'matrial' => $this->product->material,
+            'video_link' => $this->product->video_link,
+            'number_of_sale' => $this->sales,
             'views' => $this->views,
-            'matrial' => $this->material,
-            'shipping' => null,
-            'status' => $this->is_active ? 'Active' : 'Inactive',
-            'limitation' => 2000,
+            'stock' => $this->total_stock ?? 0,
             'is_fav' => false,
-            'size_color_type' => $this->getConfigurationType(),
+            'configuration_type' => $this->product->configuration_type,
+            'tags' => $this->product->tags_array,
+            'currency' => CurrencyResource::make($this->product->currency),
+            'meta_description' => $this->product->meta_description,
+            'meta_keywords' => $this->product->meta_keywords ?? [],
+            'tax' => TaxResource::make($this->tax),
+            'variants' => VendorProductVariantResource::collection($this->whenLoaded('variants')),
         ];
-    }
-
-    /**
-     * Get product image from first attachment
-     */
-    private function getProductImage(): ?string
-    {
-        if ($this->relationLoaded('attachments') && $this->attachments->count() > 0) {
-            $image = $this->attachments->first();
-            return url(asset('storage/' . $image->url));
-        }
-        return null;
-    }
-
-    /**
-     * Get total stock from variants
-     */
-    private function getTotalStock(): int
-    {
-        if ($this->relationLoaded('variants')) {
-            return $this->variants->sum('stock') ?? 0;
-        }
-        return 0;
-    }
-
-    /**
-     * Get configuration type
-     */
-    private function getConfigurationType(): string
-    {
-        if ($this->configuration_type === 'with_variants') {
-            return 'with_variants';
-        }
-        return 'without_any';
     }
 }

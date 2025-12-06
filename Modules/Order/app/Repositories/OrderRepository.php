@@ -28,31 +28,6 @@ class OrderRepository implements OrderRepositoryInterface
     {
         $query = Order::query();
 
-        // Search filter
-        if (!empty($filters['search'])) {
-            $search = $filters['search'];
-            $query->where(function ($q) use ($search) {
-                $q->where('id', 'like', "%{$search}%")
-                  ->orWhere('customer_name', 'like', "%{$search}%")
-                  ->orWhere('customer_email', 'like', "%{$search}%");
-            });
-        }
-
-        // Stage filter
-        if (!empty($filters['stage_id'])) {
-            $query->where('stage_id', $filters['stage_id']);
-        }
-
-        // Date range filters
-        if (!empty($filters['created_date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['created_date_from']);
-        }
-
-        if (!empty($filters['created_date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['created_date_to']);
-        }
-
-        // Eager load relationships
         $query->with(['stage', 'customer', 'products']);
 
         return $query;
@@ -63,7 +38,8 @@ class OrderRepository implements OrderRepositoryInterface
      */
     public function getOrderById($id)
     {
-        // Implementation here
+        return Order::with(['stage', 'customer', 'products', 'extraFeesDiscounts'])
+            ->findOrFail($id);
     }
 
     /**
@@ -158,5 +134,112 @@ class OrderRepository implements OrderRepositoryInterface
     public function getDatatableData(array $filters)
     {
         // Implementation here
+    }
+
+    /**
+     * Create order record (used in pipeline)
+     *
+     * @param array $orderData Order data with all calculated values
+     * @return Order
+     */
+    public function storeOrder(array $orderData): Order
+    {
+        return Order::create($orderData);
+    }
+
+    /**
+     * Sync order products with taxes (used in pipeline)
+     *
+     * @param Order $order
+     * @param array $productsData Array of product data with taxes and translations
+     * @return void
+     */
+    public function syncOrderProducts(Order $order, array $productsData): void
+    {
+        foreach ($productsData as $product) {
+            // Create order product with all data
+            $orderProduct = OrderProduct::create([
+                'order_id' => $order->id,
+                'vendor_product_id' => $product['vendor_product_id'],
+                'vendor_product_variant_id' => $product['vendor_product_variant_id'] ?? null,
+                'vendor_id' => $product['vendor_id'],
+                'quantity' => $product['quantity'],
+                'price' => $product['price'],
+                'commission' => $product['commission'] ?? 0,
+            ]);
+
+            // Save translations for product name (EN and AR)
+            if (!empty($product['translations'])) {
+                foreach ($product['translations'] as $lang => $translationData) {
+                    $orderProduct->setTranslation('name', $lang, $translationData['name']);
+                }
+                $orderProduct->save();
+            }
+
+            // Sync taxes with translations if present
+            if (!empty($product['tax_id'])) {
+                $orderProductTax = $orderProduct->taxes()->create([
+                    'tax_id' => $product['tax_id'],
+                    'percentage' => $product['tax_rate'] ?? 0,
+                ]);
+
+                // Save tax translations (EN and AR)
+                if (!empty($product['tax_translations'])) {
+                    foreach ($product['tax_translations'] as $lang => $taxTitle) {
+                        $orderProductTax->setTranslation('tax_title', $lang, $taxTitle);
+                    }
+                    $orderProductTax->save();
+                }
+            }
+        }
+    }
+
+    /**
+     * Sync order extras (fees and discounts) (used in pipeline)
+     *
+     * @param Order $order
+     * @param array $fees Array of fee data
+     * @param array $discounts Array of discount data
+     * @return void
+     */
+    public function syncOrderExtras(Order $order, array $fees, string $type): void
+    {
+        // Create fee records
+        foreach ($fees as $fee) {
+            OrderExtraFeeDiscount::create([
+                'order_id' => $order->id,
+                'cost' => $fee['amount'],
+                'reason' => $fee['reason'],
+                'type' => $type,
+            ]);
+        }
+    }
+
+    /**
+     * Update product sales counters (used in pipeline)
+     *
+     * @param array $productSalesData Array with product_id => quantity
+     * @return void
+     */
+    public function updateProductSales(array $productSalesData): void
+    {
+        foreach ($productSalesData as $productId => $quantity) {
+            DB::table('products')
+                ->where('id', $productId)
+                ->increment('sales', $quantity);
+        }
+    }
+
+    /**
+     * Update pricing status to reserved (used in pipeline)
+     *
+     * @param int $priceId
+     * @return void
+     */
+    public function updatePricingStatus(int $priceId): void
+    {
+        DB::table('pricing')
+            ->where('id', $priceId)
+            ->update(['status' => 'reserved']);
     }
 }

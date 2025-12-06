@@ -83,7 +83,7 @@
                                                     style="display: none; top: 100%; left: 0; z-index: 1000; max-height: 300px; overflow-y: auto;">
                                                 </div>
                                             </div>
-                                            <input type="hidden" id="selected_customer_id" value="">
+                                            <input type="hidden" id="selected_customer_id" name="selected_customer_id" value="">
                                         </div>
                                     </div>
                                 </div>
@@ -316,6 +316,7 @@
 
                             {{-- Hidden input for selected product --}}
                             <input type="hidden" id="selected_product_id" value="">
+                            <input type="hidden" id="selected_product_variant_id" value="">
                             <input type="hidden" id="selected_product_name" value="">
                             <input type="hidden" id="selected_product_price" value="">
                             <input type="hidden" id="selected_product_limitation" value="">
@@ -357,6 +358,10 @@
                                 </div>
                             </div>
                         </div>
+
+                        {{-- Hidden inputs for fees and discounts --}}
+                        <input type="hidden" id="feesData" name="feesData" value="[]">
+                        <input type="hidden" id="discountsData" name="discountsData" value="[]">
                     </form>
                 </div>
             </div>
@@ -436,10 +441,6 @@
                         <span class="fw-bold fs-16 text-primary" id="grandTotal">0.00
                             {{ __('common.currency') }}</span>
                     </div>
-
-                    {{-- Hidden inputs for fees and discounts --}}
-                    <input type="hidden" id="feesData" name="fees" value="[]">
-                    <input type="hidden" id="discountsData" name="discounts" value="[]">
                 </div>
             </div>
         </div>
@@ -694,7 +695,8 @@
                                     `;
                                         });
                                     } else {
-                                        // Fallback if no variants
+                                        // Fallback if no variants - should not happen with current API
+                                        // but if it does, use product.id as both product and variant ID
                                         html += `
                                     <div class="p-2 border-bottom cursor-pointer product-suggestion"
                                          data-id="${product.id}"
@@ -724,14 +726,16 @@
 
                     // Product suggestion click
                     $(document).on('click', '.product-suggestion', function() {
-                        const id = $(this).data('id');
+                        const productId = $(this).data('product-id');
+                        const variantId = $(this).data('id');
                         const name = $(this).data('name');
                         const price = $(this).data('price');
                         const limitation = $(this).data('limitation') || 0;
                         const taxRate = $(this).data('tax-rate') || 0;
 
                         console.log('Product selected:', {
-                            id,
+                            productId,
+                            variantId,
                             name,
                             price,
                             limitation,
@@ -739,7 +743,8 @@
                         });
 
                         $('#product_search').val(name);
-                        $('#selected_product_id').val(id);
+                        $('#selected_product_id').val(productId);
+                        $('#selected_product_variant_id').val(variantId);
                         $('#selected_product_name').val(name);
                         $('#selected_product_price').val(price);
                         $('#selected_product_limitation').val(limitation);
@@ -1238,20 +1243,20 @@
                         updateSummary();
                     });
 
-                    // Add Product
-                    $('#addProductBtn').on('click', function() {
+                    // Add Product to Order
+                    $('#addProductBtn').click(function() {
                         const productId = $('#selected_product_id').val();
+                        const variantId = $('#selected_product_variant_id').val() || null;
                         const productName = $('#selected_product_name').val();
-                        const priceValue = $('#selected_product_price').val();
-                        const productPrice = parseFloat(priceValue) || 0;
+                        const productPrice = parseFloat($('#selected_product_price').val()) || 0;
                         const quantity = parseInt($('#product_quantity').val()) || 1;
                         const limitation = parseInt($('#selected_product_limitation').val()) || 0;
                         const taxRate = parseFloat($('#selected_product_tax_rate').val()) || 0;
 
                         console.log('Adding product:', {
                             productId,
+                            variantId,
                             productName,
-                            priceValue,
                             productPrice,
                             quantity,
                             limitation,
@@ -1288,19 +1293,23 @@
                             existingProduct.total = existingProduct.price * existingProduct.quantity;
                         } else {
                             products.push({
-                                id: productId,
+                                // Minimal data for server (form submission)
+                                vendor_product_id: productId,
+                                vendor_product_variant_id: variantId,
+                                quantity: quantity,
+                                // Display data for UI (not sent to server)
+                                id: productId + (variantId ? '_' + variantId : ''), // Unique ID for UI
                                 name: productName,
                                 price: productPrice,
-                                quantity: quantity,
-                                total: productTotal,
-                                limitation: limitation,
-                                taxRate: taxRate
+                                total: productTotal
                             });
                         }
 
                         renderProductsTable();
+                        // Reset form fields
                         $('#product_search').val('');
                         $('#selected_product_id').val('');
+                        $('#selected_product_variant_id').val('');
                         $('#selected_product_name').val('');
                         $('#selected_product_price').val('');
                         $('#selected_product_limitation').val('');
@@ -1315,7 +1324,7 @@
                     // Remove Product
                     $(document).on('click', '.remove-product', function() {
                         const productId = $(this).data('product-id');
-                        products = products.filter(p => p.id != productId);
+                        products = products.filter(p => p.id !== productId);
                         renderProductsTable();
                         updateSummary();
                     });
@@ -1425,6 +1434,41 @@
                     $('#createOrderForm').on('submit', function(e) {
                         e.preventDefault();
 
+                        // Collect fees and discounts BEFORE creating FormData
+                        let fees = [];
+                        let discounts = [];
+
+                        $('.fee-item').each(function() {
+                            fees.push({
+                                reason: $(this).find('.fee-reason').val(),
+                                amount: parseFloat($(this).find('.fee-amount').val()) || 0
+                            });
+                        });
+
+                        $('.discount-item').each(function() {
+                            discounts.push({
+                                reason: $(this).find('.discount-reason').val(),
+                                amount: parseFloat($(this).find('.discount-amount').val()) || 0
+                            });
+                        });
+
+                        // Prepare products with only required fields
+                        const productsForServer = products.map(p => ({
+                            vendor_product_id: p.vendor_product_id,
+                            vendor_product_variant_id: p.vendor_product_variant_id,
+                            quantity: p.quantity
+                        }));
+
+                        // Update hidden inputs with collected data
+                        $('#feesData').val(JSON.stringify(fees));
+                        $('#discountsData').val(JSON.stringify(discounts));
+                        $('#productsData').val(JSON.stringify(productsForServer));
+
+                        // Debug logging
+                        console.log('Products for server:', productsForServer);
+                        console.log('Fees collected:', fees);
+                        console.log('Discounts collected:', discounts);
+
                         if (typeof LoadingOverlay !== 'undefined') {
                             LoadingOverlay.show({
                                 text: '{{ trans('order::order.create_order') }}',
@@ -1445,7 +1489,7 @@
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             },
                             success: function(response) {
-                                if (response.success) {
+                                if (response.status) {
                                     if (typeof LoadingOverlay !== 'undefined') {
                                         LoadingOverlay.showSuccess(
                                             response.message,
@@ -1469,28 +1513,84 @@
                                     LoadingOverlay.hide();
                                 }
 
+                                let errorMessage = '{{ trans('order::order.error_creating_order') }}';
+                                let errorDetails = [];
+
+                                // Check if we have a response
+                                if (!xhr.responseJSON) {
+                                    // Network error or server didn't respond
+                                    if (xhr.status === 0) {
+                                        errorMessage = 'Network error. Please check your connection and try again.';
+                                    } else if (xhr.status === 500) {
+                                        errorMessage = 'Server error. Please try again later.';
+                                    } else if (xhr.status === 403) {
+                                        errorMessage = 'You do not have permission to create orders.';
+                                    } else if (xhr.status === 404) {
+                                        errorMessage = 'The requested resource was not found.';
+                                    }
+                                    showAlert('danger', errorMessage);
+                                    return;
+                                }
+
+                                // Handle validation errors (422)
                                 if (xhr.status === 422) {
-                                    const errors = xhr.responseJSON.errors;
-                                    let errorHtml = '<ul class="mb-0">';
-                                    $.each(errors, function(key, value) {
-                                        errorHtml += '<li>' + value[0] + '</li>';
+                                    if (xhr.responseJSON?.errors) {
+                                        const errors = xhr.responseJSON.errors;
+                                        $.each(errors, function(key, value) {
+                                            if (Array.isArray(value)) {
+                                                errorDetails.push(value[0]);
+                                            } else {
+                                                errorDetails.push(value);
+                                            }
+                                        });
+                                    }
+                                }
+                                // Handle other errors
+                                else if (xhr.responseJSON?.message) {
+                                    errorMessage = xhr.responseJSON.message;
+                                }
+                                // Handle errors array (from backend exceptions)
+                                else if (xhr.responseJSON?.errors && Array.isArray(xhr.responseJSON.errors)) {
+                                    errorDetails = xhr.responseJSON.errors;
+                                }
+
+                                // Build error HTML
+                                let errorHtml = errorMessage;
+                                if (errorDetails.length > 0) {
+                                    errorHtml += '<ul class="mb-0 mt-2">';
+                                    errorDetails.forEach(function(error) {
+                                        errorHtml += '<li>' + error + '</li>';
                                     });
                                     errorHtml += '</ul>';
-                                    showAlert('danger', errorHtml);
-                                } else {
-                                    const message = xhr.responseJSON?.message ||
-                                        '{{ trans('order::order.error_creating_order') }}';
-                                    showAlert('danger', message);
                                 }
+
+                                console.error('Order creation error:', {
+                                    status: xhr.status,
+                                    message: errorMessage,
+                                    details: errorDetails,
+                                    response: xhr.responseJSON
+                                });
+
+                                showAlert('danger', errorHtml);
                             }
                         });
                     });
 
                     // Alert function
                     function showAlert(type, message) {
+                        let icon = 'uil-info-circle';
+                        if (type === 'danger') {
+                            icon = 'uil-exclamation-circle';
+                        } else if (type === 'success') {
+                            icon = 'uil-check-circle';
+                        } else if (type === 'warning') {
+                            icon = 'uil-alert-triangle';
+                        }
+
                         const alertHtml = `
                     <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                        ${message}
+                        <i class="uil ${icon} me-2"></i>
+                        <span>${message}</span>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 `;

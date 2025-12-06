@@ -2,6 +2,8 @@
 
 namespace Modules\Order\app\Models;
 
+use App\Models\BaseModel;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,7 +14,7 @@ use Modules\AreaSettings\app\Models\Country;
 use Modules\AreaSettings\app\Models\City;
 use Modules\AreaSettings\app\Models\Region;
 
-class Order extends Model
+class Order extends BaseModel
 {
     use HasFactory;
 
@@ -41,6 +43,8 @@ class Order extends Model
         'total_product_price',
         'items_count',
         'total_price',
+        'total_fees',
+        'total_discounts',
         'stage_id',
         'country_id',
         'city_id',
@@ -56,9 +60,25 @@ class Order extends Model
         'total_tax' => 'decimal:2',
         'total_product_price' => 'decimal:2',
         'total_price' => 'decimal:2',
+        'total_fees' => 'decimal:2',
+        'total_discounts' => 'decimal:2',
         'refunded_amount' => 'decimal:2',
         'customer_promo_code_value' => 'decimal:2',
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->order_number = self::generateOrderNumber();
+        });
+    }
+
+    public static function generateOrderNumber()
+    {
+        return 'ORD-' . str_pad(self::count() + 1, 6, '0', STR_PAD_LEFT);
+    }
 
     /**
      * Get the customer associated with the order.
@@ -122,5 +142,32 @@ class Order extends Model
     public function extraFeesDiscounts(): HasMany
     {
         return $this->hasMany(OrderExtraFeeDiscount::class);
+    }
+
+    protected function applyCustomSearch(Builder $query, string $search): Builder
+    {
+        return $query->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                    ->orWhere('order_number', $search)
+                    ->orWhere('customer_name', 'like', "%{$search}%")
+                    ->orWhere('customer_email', 'like', "%{$search}%");
+            });
+    }
+
+    public function scopeFilter(Builder $query, array $filters)
+    {
+        // Search filter
+        if (!empty($filters['search'])) {
+            $query->applyCustomSearch($filters['search']);
+            unset($filters['search']);
+        }
+
+        parent::scopeFilter($query, $filters);
+
+        // Stage filter
+        if (!empty($filters['stage_id'])) {
+            $query->where('stage_id', $filters['stage_id']);
+        }
+        return $query;
     }
 }

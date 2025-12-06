@@ -60,4 +60,28 @@ class CustomerService
     {
         return $this->customerRepository->deleteCustomer($id);
     }
+
+    /**
+     * Get customer with full details by ID
+     */
+    public function getCustomerWithDetails($customerId)
+    {
+        return $this->customerRepository->getCustomerWithDetails($customerId);
+    }
+
+    /**
+     * Get customer address by ID
+     */
+    public function getCustomerAddress($addressId)
+    {
+        return $this->customerRepository->getCustomerAddress($addressId);
+    }
+
+    /**
+     * Get all customer addresses
+     */
+    public function getCustomerAddresses($customerId)
+    {
+        return $this->customerRepository->getCustomerAddresses($customerId);
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace Modules\Order\app\Models;
 
+use App\Traits\Translation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,7 @@ use Modules\CatalogManagement\app\Models\VendorProductVariant;
 
 class OrderProduct extends Model
 {
-    use HasFactory;
+    use HasFactory, Translation;
 
     public static function newFactory()
     {
@@ -21,12 +22,12 @@ class OrderProduct extends Model
 
     protected $fillable = [
         'order_id',
-        'vendor_id',
-        'price',
-        'commission',
         'vendor_product_id',
         'vendor_product_variant_id',
         'quantity',
+        'price',
+        'vendor_id',
+        'commission',
     ];
 
     /**

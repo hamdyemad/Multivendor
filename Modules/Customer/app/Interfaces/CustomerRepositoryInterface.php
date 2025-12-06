@@ -34,5 +34,11 @@ interface CustomerRepositoryInterface
     public function deletePasswordResetToken(string $email): void;
 
     public function getCustomerCount(): int;
+
+    public function getCustomerWithDetails($customerId);
+
+    public function getCustomerAddress($addressId);
+
+    public function getCustomerAddresses($customerId);
 }
 

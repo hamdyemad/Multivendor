@@ -150,4 +150,31 @@ class CustomerRepository implements CustomerRepositoryInterface
     {
         return Customer::count();
     }
+
+    /**
+     * Get customer with full details by ID
+     */
+    public function getCustomerWithDetails($customerId)
+    {
+        return Customer::with(['addresses', 'fcmTokens'])->findOrFail($customerId);
+    }
+
+    /**
+     * Get customer address by ID
+     */
+    public function getCustomerAddress($addressId)
+    {
+        return \Modules\Customer\app\Models\CustomerAddress::with(['country', 'city', 'region', 'subregion'])
+            ->findOrFail($addressId);
+    }
+
+    /**
+     * Get all customer addresses
+     */
+    public function getCustomerAddresses($customerId)
+    {
+        return \Modules\Customer\app\Models\CustomerAddress::where('customer_id', $customerId)
+            ->with(['country', 'city', 'region', 'subregion'])
+            ->get();
+    }
 }

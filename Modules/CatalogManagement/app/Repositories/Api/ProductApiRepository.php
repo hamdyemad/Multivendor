@@ -69,12 +69,94 @@ class ProductApiRepository implements ProductApiRepositoryInterface
         return $query->where('id', $productId)->increment('views');
     }
 
+    public function incrementProductSales(string $productId, $quantity)
+    {
+        $query = $this->query->handle([]);
+
+        return $query->where('id', $productId)->increment('sales', $quantity);
+    }
+
     /**
      * Store product review
      */
     public function findProduct(string $id)
     {
         return $this->query->handle([])->where('id', $id)->first();
+    }
+
+    /**
+     * Find vendor product with all relationships for order creation pipeline
+     */
+    public function findProductForOrder(string $id)
+    {
+        $vendorProduct = $this->query->handle([])
+            ->where('id', $id)
+            ->with([
+                'product' => function ($q) {
+                    $q->with([
+                        'brand',
+                        'department' => function ($q) {
+                            $q->select('id', 'commission');
+                        },
+                        'category',
+                        'subCategory',
+                        'translations'
+                    ]);
+                },
+                'vendor',
+                'tax' => function ($q) {
+                    $q->with('translations');
+                },
+                'variants' => function ($q) {
+                    $q->with('variantConfiguration', 'stocks');
+                }
+            ])
+            ->first();
+
+        if (!$vendorProduct) {
+            return null;
+        }
+
+        // Extract product translations using getTranslation method
+        $productNameEn = $vendorProduct->product->getTranslation('title', 'en') ?? $vendorProduct->product->title;
+        $productNameAr = $vendorProduct->product->getTranslation('title', 'ar') ?? $vendorProduct->product->title;
+
+        // Extract tax translations using getTranslation method
+        $taxNameEn = $vendorProduct->tax?->getTranslation('name', 'en') ?? ($vendorProduct->tax?->name ?? '');
+        $taxNameAr = $vendorProduct->tax?->getTranslation('name', 'ar') ?? ($vendorProduct->tax?->name ?? '');
+
+        // Return formatted array for pipeline
+        return [
+            'id' => $vendorProduct->id,
+            'product' => [
+                'id' => $vendorProduct->product->id,
+                'title' => $vendorProduct->product->title,
+                'title_en' => $productNameEn,
+                'title_ar' => $productNameAr,
+                'translations' => $vendorProduct->product->translations->toArray(),
+                'department' => [
+                    'id' => $vendorProduct->product->department->id,
+                    'commission' => $vendorProduct->product->department->commission,
+                ],
+                'brand' => $vendorProduct->product->brand,
+                'category' => $vendorProduct->product->category,
+                'subCategory' => $vendorProduct->product->subCategory,
+            ],
+            'vendor' => [
+                'id' => $vendorProduct->vendor->id,
+                'name' => $vendorProduct->vendor->name,
+            ],
+            'price' => $vendorProduct->price,
+            'tax' => [
+                'id' => $vendorProduct->tax?->id,
+                'name' => $vendorProduct->tax?->name,
+                'name_en' => $taxNameEn,
+                'name_ar' => $taxNameAr,
+                'tax_rate' => $vendorProduct->tax?->tax_rate ?? 0,
+            ],
+            'max_per_order' => $vendorProduct->max_per_order,
+            'variants' => $vendorProduct->variants,
+        ];
     }
 
     /**

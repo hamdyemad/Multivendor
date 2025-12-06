@@ -59,14 +59,23 @@ return [
 
     // Validation Messages
     'order_id_required' => 'رقم الطلب مطلوب',
+    'customer_required' => 'يرجى اختيار عميل',
     'customer_name_required' => 'اسم العميل مطلوب',
     'customer_email_required' => 'بريد العميل الإلكتروني مطلوب',
     'customer_email_invalid' => 'يجب أن يكون بريد العميل الإلكتروني صحيحاً',
     'customer_phone_required' => 'هاتف العميل مطلوب',
+    'customer_address_required' => 'عنوان العميل مطلوب',
+    'address_required' => 'يرجى اختيار عنوان',
+    'products_required' => 'يرجى إضافة 3 منتجات على الأقل إلى الطلب',
     'total_price_required' => 'السعر الإجمالي مطلوب',
     'total_price_numeric' => 'يجب أن يكون السعر الإجمالي رقماً',
     'stage_id_required' => 'المرحلة مطلوبة',
     'stage_id_exists' => 'المرحلة المختارة غير موجودة',
+
+    // Pipeline Error Messages
+    'product_not_found' => 'المنتج برقم :id غير موجود أو بيانات غير صحيحة',
+    'product_id_not_found' => 'معرف المنتج غير موجود لمنتج البائع :id',
+    'vendor_id_not_found' => 'معرف البائع غير موجود لمنتج البائع :id',
 
     // Actions
     'add_product' => 'إضافة منتج',
@@ -118,7 +127,7 @@ return [
     'no_customers_found' => 'لم يتم العثور على عملاء',
     'loading_customers' => 'جاري تحميل العملاء...',
     'select_address' => 'اختر العنوان',
-    
+
     // Address Management
     'add_new_address' => 'إضافة عنوان جديد',
     'create_address' => 'إنشاء عنوان',

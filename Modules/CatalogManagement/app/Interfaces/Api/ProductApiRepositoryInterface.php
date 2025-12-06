@@ -13,6 +13,7 @@ interface ProductApiRepositoryInterface
     public function getTagsByFilters(array $filters);
     public function getTreesByFilters(array $filters);
     public function incrementProductViews(string $productId);
+    public function incrementProductSales(string $productId, $quantity);
     public function getVariantsWithProduct(array $filters);
 
 

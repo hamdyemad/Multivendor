@@ -2,6 +2,8 @@
 
 namespace Modules\Order\app\Interfaces;
 
+use Modules\Order\app\Models\Order;
+
 interface OrderRepositoryInterface
 {
     /**
@@ -68,4 +70,29 @@ interface OrderRepositoryInterface
      * Get datatable data
      */
     public function getDatatableData(array $filters);
+
+    /**
+     * Create order record (used in pipeline)
+     */
+    public function storeOrder(array $orderData);
+
+    /**
+     * Sync order products with taxes (used in pipeline)
+     */
+    public function syncOrderProducts(Order $order, array $productsData): void;
+
+    /**
+     * Sync order extras (fees and discounts) (used in pipeline)
+     */
+    public function syncOrderExtras(Order $order, array $fees, string $type): void;
+
+    /**
+     * Update product sales counters (used in pipeline)
+     */
+    public function updateProductSales(array $productSalesData);
+
+    /**
+     * Update pricing status to reserved (used in pipeline)
+     */
+    public function updatePricingStatus(int $priceId);
 }

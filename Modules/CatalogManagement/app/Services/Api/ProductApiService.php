@@ -39,12 +39,23 @@ class ProductApiService
         return $product;
     }
 
-    /**
-     * Store product review
-     */
+    public function incrementProductSales($productId, $quantity = 1)
+    {
+        return $this->repository->incrementProductSales($productId, $quantity);
+    }
+
+
     public function findProduct(string $productId)
     {
         return $this->repository->findProduct($productId);
+    }
+
+    /**
+     * Find vendor product with all relationships for order creation pipeline
+     */
+    public function findProductForOrder(string $productId)
+    {
+        return $this->repository->findProductForOrder($productId);
     }
 
     /**

@@ -2,7 +2,18 @@
 
 namespace Modules\Order\app\Services;
 
+use Illuminate\Pipeline\Pipeline;
+use Illuminate\Support\Facades\DB;
 use Modules\Order\app\Interfaces\OrderRepositoryInterface;
+use Modules\Order\app\Pipelines\ValidateProducts;
+use Modules\Order\app\Pipelines\FetchUserData;
+use Modules\Order\app\Pipelines\CalculateProductPrices;
+use Modules\Order\app\Pipelines\CalculateExtras;
+use Modules\Order\app\Pipelines\CalculateFinalTotal;
+use Modules\Order\app\Pipelines\CreateOrder;
+use Modules\Order\app\Pipelines\SyncOrderProducts;
+use Modules\Order\app\Pipelines\SyncExtras;
+use Modules\Order\app\Pipelines\UpdateProductSales;
 
 class OrderService
 {
@@ -11,11 +22,31 @@ class OrderService
     ) {}
 
     /**
-     * Create a new order
+     * Create a new order using pipeline pattern
      */
     public function createOrder(array $data)
     {
-        // Implementation here
+        return DB::transaction(function () use ($data) {
+            $result = app(Pipeline::class)
+                ->send([
+                    'data' => $data,
+                    'context' => [],
+                ])
+                ->through([
+                    ValidateProducts::class,
+                    FetchUserData::class,
+                    CalculateProductPrices::class,
+                    CalculateExtras::class,
+                    CalculateFinalTotal::class,
+                    CreateOrder::class,
+                    SyncOrderProducts::class,
+                    SyncExtras::class,
+                    UpdateProductSales::class,
+                ])
+                ->thenReturn();
+
+            return $result['context']['order'];
+        });
     }
 
     /**
@@ -31,7 +62,7 @@ class OrderService
      */
     public function getOrderById($id)
     {
-        // Implementation here
+        return $this->orderRepository->getOrderById($id);
     }
 
     /**

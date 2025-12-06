@@ -326,7 +326,7 @@
                         orderable: false,
                         searchable: false,
                         render: function(data) {
-                            return data ? `$${parseFloat(data).toFixed(2)}` : '-';
+                            return data ? ` ${parseFloat(data).toFixed(2)}` : '-';
                         }
                     },
                     {
@@ -428,8 +428,12 @@
                                 totalOrders = response.recordsFiltered || response.recordsTotal || 0;
 
                                 response.data.forEach(order => {
-                                    totalProductPrice += parseFloat(order.total_price || 0);
-                                    totalIncome += parseFloat(order.total_price || 0);
+                                    totalProductPrice += parseFloat(order.total_product_price || 0);
+                                    
+                                    // Only add to income if order is delivered
+                                    if (order.stage_id === 3) {
+                                        totalIncome += parseFloat(order.total_price || 0);
+                                    }
                                 });
 
                                 // Update card displays

@@ -77,4 +77,9 @@ class OrderProduct extends Model
     {
         return $this->hasMany(OrderFulfillment::class);
     }
+
+    public function getProductTitleAttribute()
+    {
+        return $this->getTranslation('name', app()->getLocale());
+    }
 }

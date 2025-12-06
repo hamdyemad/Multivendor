@@ -1,5 +1,5 @@
 @extends('layout.app')
-@section('title', trans('order::order.create_order'))
+@section('title', trans('order.create_order'))
 @section('content')
     <div style="padding: 20px;">
         <div class="row">
@@ -10,8 +10,8 @@
                         'url' => route('admin.dashboard'),
                         'icon' => 'uil uil-estate',
                     ],
-                    ['title' => trans('order::order.order_management'), 'url' => route('admin.orders.index')],
-                    ['title' => trans('order::order.create_order')],
+                    ['title' => trans('order.order_management'), 'url' => route('admin.orders.index')],
+                    ['title' => trans('order.create_order')],
                 ]" />
             </div>
         </div>
@@ -20,7 +20,7 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-bottom py-20">
                     <h5 class="mb-0 fw-500">
-                        {{ trans('order::order.create_order') }}
+                        {{ trans('order.create_order') }}
                     </h5>
                 </div>
                 <div class="card-body">
@@ -33,7 +33,7 @@
                         {{-- Customer Selection Section --}}
                         <div class="mb-30">
                             <h6 class="fw-500 mb-20">
-                                <i class="uil uil-user me-2"></i>{{ trans('order::order.customer_information') }}
+                                <i class="uil uil-user me-2"></i>{{ trans('order.customer_information') }}
                             </h6>
 
                             {{-- Customer Type Selection --}}
@@ -41,7 +41,7 @@
                                 <div class="col-12">
                                     <div class="form-group">
                                         <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                                            {{ trans('order::order.customer_type') }}
+                                            {{ trans('order.customer_type') }}
                                             <span class="text-danger">*</span>
                                         </label>
                                         <div class="btn-group w-100" role="group">
@@ -49,14 +49,14 @@
                                                 id="existing_customer" value="existing" checked>
                                             <label class="btn btn-outline-primary" for="existing_customer">
                                                 <i
-                                                    class="uil uil-database me-1"></i>{{ trans('order::order.existing_customer') }}
+                                                    class="uil uil-database me-1"></i>{{ trans('order.existing_customer') }}
                                             </label>
 
                                             <input type="radio" class="btn-check" name="customer_type"
                                                 id="external_customer" value="external">
                                             <label class="btn btn-outline-primary" for="external_customer">
                                                 <i
-                                                    class="uil uil-user-plus me-1"></i>{{ trans('order::order.external_customer') }}
+                                                    class="uil uil-user-plus me-1"></i>{{ trans('order.external_customer') }}
                                             </label>
                                         </div>
                                     </div>
@@ -69,14 +69,14 @@
                                     <div class="col-md-12 mb-25">
                                         <div class="form-group">
                                             <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                                                {{ trans('order::order.select_customer') }}
+                                                {{ trans('order.select_customer') }}
                                                 <span class="text-danger">*</span>
                                             </label>
                                             <div class="position-relative">
                                                 <input type="text"
                                                     class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                     id="customer_search"
-                                                    placeholder="{{ __('common.search') }} {{ trans('order::order.customer_name') }}..."
+                                                    placeholder="{{ __('common.search') }} {{ trans('order.customer_name') }}..."
                                                     autocomplete="off">
                                                 <div class="position-absolute w-100 bg-white border rounded-bottom shadow-sm"
                                                     id="customer_suggestions"
@@ -93,14 +93,14 @@
                                     <div class="col-md-12 mb-25">
                                         <div class="form-group">
                                             <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                                                {{ trans('order::order.customer_address') }}
+                                                {{ trans('order.customer_address') }}
                                                 <span class="text-danger">*</span>
                                             </label>
                                             <div class="d-flex gap-2">
                                                 <select
                                                     class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                     id="customer_address_select" name="customer_address_id">
-                                                    <option value="">{{ trans('order::order.select_address') }}
+                                                    <option value="">{{ trans('order.select_address') }}
                                                     </option>
                                                 </select>
                                                 <button type="button" class="btn btn-primary" id="addNewAddressBtn"
@@ -117,11 +117,11 @@
                                     <div class="col-md-12 mb-25">
                                         <div class="alert alert-info" role="alert">
                                             <i class="uil uil-info-circle me-2"></i>
-                                            {{ trans('order::order.customer_has_no_address') }}
+                                            {{ trans('order.customer_has_no_address') }}
                                             <button type="button" class="btn btn-sm btn-primary ms-2"
                                                 id="createAddressBtn">
                                                 <i
-                                                    class="uil uil-plus me-1"></i>{{ trans('order::order.create_address') }}
+                                                    class="uil uil-plus me-1"></i>{{ trans('order.create_address') }}
                                             </button>
                                         </div>
                                     </div>
@@ -132,24 +132,24 @@
                                     <div class="col-md-6 mb-25">
                                         <div class="form-group">
                                             <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                                                {{ trans('order::order.customer_email') }}
+                                                {{ trans('order.customer_email') }}
                                             </label>
                                             <input type="email"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                 id="customer_email" name="customer_email"
-                                                placeholder="{{ trans('order::order.customer_email') }}" readonly>
+                                                placeholder="{{ trans('order.customer_email') }}" readonly>
                                         </div>
                                     </div>
 
                                     <div class="col-md-6 mb-25">
                                         <div class="form-group">
                                             <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                                                {{ trans('order::order.customer_phone') }}
+                                                {{ trans('order.customer_phone') }}
                                             </label>
                                             <input type="tel"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                 id="customer_phone" name="customer_phone"
-                                                placeholder="{{ trans('order::order.customer_phone') }}" readonly>
+                                                placeholder="{{ trans('order.customer_phone') }}" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -158,12 +158,12 @@
                                     <div class="col-md-12 mb-25">
                                         <div class="form-group">
                                             <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                                                {{ trans('order::order.customer_address') }}
+                                                {{ trans('order.customer_address') }}
                                             </label>
                                             <input type="text"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                 id="customer_address" name="customer_address"
-                                                placeholder="{{ trans('order::order.customer_address') }}" readonly>
+                                                placeholder="{{ trans('order.customer_address') }}" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -175,13 +175,13 @@
                                     <div class="col-md-6 mb-25">
                                         <div class="form-group">
                                             <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                                                {{ trans('order::order.customer_name') }}
+                                                {{ trans('order.customer_name') }}
                                                 <span class="text-danger">*</span>
                                             </label>
                                             <input type="text"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                 id="external_customer_name" name="external_customer_name"
-                                                placeholder="{{ trans('order::order.customer_name') }}">
+                                                placeholder="{{ trans('order.customer_name') }}">
                                             @error('external_customer_name')
                                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                                             @enderror
@@ -191,13 +191,13 @@
                                     <div class="col-md-6 mb-25">
                                         <div class="form-group">
                                             <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                                                {{ trans('order::order.customer_email') }}
+                                                {{ trans('order.customer_email') }}
                                                 <span class="text-danger">*</span>
                                             </label>
                                             <input type="email"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                 id="external_customer_email" name="external_customer_email"
-                                                placeholder="{{ trans('order::order.customer_email') }}">
+                                                placeholder="{{ trans('order.customer_email') }}">
                                             @error('external_customer_email')
                                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                                             @enderror
@@ -209,13 +209,13 @@
                                     <div class="col-md-6 mb-25">
                                         <div class="form-group">
                                             <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                                                {{ trans('order::order.customer_phone') }}
+                                                {{ trans('order.customer_phone') }}
                                                 <span class="text-danger">*</span>
                                             </label>
                                             <input type="tel"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                 id="external_customer_phone" name="external_customer_phone"
-                                                placeholder="{{ trans('order::order.customer_phone') }}">
+                                                placeholder="{{ trans('order.customer_phone') }}">
                                             @error('external_customer_phone')
                                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                                             @enderror
@@ -225,13 +225,13 @@
                                     <div class="col-md-6 mb-25">
                                         <div class="form-group">
                                             <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                                                {{ trans('order::order.customer_address') }}
+                                                {{ trans('order.customer_address') }}
                                                 <span class="text-danger">*</span>
                                             </label>
                                             <input type="text"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                 id="external_customer_address" name="external_customer_address"
-                                                placeholder="{{ trans('order::order.customer_address') }}">
+                                                placeholder="{{ trans('order.customer_address') }}">
                                             @error('external_customer_address')
                                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                                             @enderror
@@ -244,7 +244,7 @@
                         {{-- Order Details Section --}}
                         <div class="mb-30">
                             <h6 class="fw-500 mb-20">
-                                <i class="uil uil-receipt me-2"></i>{{ trans('order::order.order_details') }}
+                                <i class="uil uil-receipt me-2"></i>{{ trans('order.order_details') }}
                             </h6>
 
                             <div class="row">
@@ -252,7 +252,7 @@
                                 <div class="col-md-6 mb-25">
                                     <div class="form-group">
                                         <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                                            {{ trans('order::order.shipping') }}
+                                            {{ trans('order.shipping') }}
                                         </label>
                                         <input type="number"
                                             class="form-control ih-medium ip-gray radius-xs b-light px-15"
@@ -269,21 +269,21 @@
                         {{-- Products Section --}}
                         <div class="mb-30">
                             <h6 class="fw-500 mb-20">
-                                <i class="uil uil-shopping-bag me-2"></i>{{ trans('order::order.add_product') }}
+                                <i class="uil uil-shopping-bag me-2"></i>{{ trans('order.add_product') }}
                             </h6>
 
                             <div class="row mb-20">
                                 <div class="col-md-8 mb-25">
                                     <div class="form-group">
                                         <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                                            {{ trans('order::order.add_product') }}
+                                            {{ trans('order.add_product') }}
                                             <span class="text-danger">*</span>
                                         </label>
                                         <div class="position-relative">
                                             <input type="text"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                 id="product_search"
-                                                placeholder="{{ __('common.search') }} {{ trans('order::order.product_name') }}..."
+                                                placeholder="{{ __('common.search') }} {{ trans('order.product_name') }}..."
                                                 autocomplete="off">
                                             <div class="position-absolute w-100 bg-white border rounded-bottom shadow-sm"
                                                 id="product_suggestions"
@@ -296,7 +296,7 @@
                                 <div class="col-md-4 mb-25">
                                     <div class="form-group">
                                         <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                                            {{ trans('order::order.items_count') }}
+                                            {{ trans('order.items_count') }}
                                             <small class="text-muted" id="limitationText"></small>
                                         </label>
                                         <div class="input-group">
@@ -307,7 +307,7 @@
                                             <button type="button" class="btn btn-primary" id="addProductBtn"
                                                 disabled>
                                                 <i
-                                                    class="uil uil-plus me-1"></i>{{ trans('order::order.add_product') }}
+                                                    class="uil uil-plus me-1"></i>{{ trans('order.add_product') }}
                                             </button>
                                         </div>
                                     </div>
@@ -326,11 +326,11 @@
                                 <table class="table table-sm table-bordered" id="productsTable">
                                     <thead class="table-light">
                                         <tr>
-                                            <th>{{ trans('order::order.product_name') }}</th>
-                                            <th class="text-center">{{ trans('order::order.price') }}</th>
-                                            <th class="text-center">{{ trans('order::order.items_count') }}</th>
-                                            <th class="text-center">{{ trans('order::order.tax') }}</th>
-                                            <th class="text-center">{{ trans('order::order.total') }}</th>
+                                            <th>{{ trans('order.product_name') }}</th>
+                                            <th class="text-center">{{ trans('order.price') }}</th>
+                                            <th class="text-center">{{ trans('order.items_count') }}</th>
+                                            <th class="text-center">{{ trans('order.tax') }}</th>
+                                            <th class="text-center">{{ trans('order.total') }}</th>
                                             <th class="text-center">{{ __('common.actions') }}</th>
                                         </tr>
                                     </thead>
@@ -354,7 +354,7 @@
                                     </a>
                                     <button type="submit" class="btn btn-primary btn-squared" id="submitBtn">
                                         <i class="uil uil-check me-1"></i>
-                                        {{ trans('order::order.create_order') }}
+                                        {{ trans('order.create_order') }}
                                     </button>
                                 </div>
                             </div>
@@ -371,7 +371,7 @@
             <div class="card border-0 shadow-sm" style="position: sticky; top: 20px; height: fit-content;">
                 <div class="card-header bg-white border-bottom py-20">
                     <h5 class="mb-0 fw-500">
-                        {{ trans('order::order.order_summary') }}
+                        {{ trans('order.order_summary') }}
                     </h5>
                 </div>
                 <div class="card-body">
@@ -379,7 +379,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-15 pb-15 border-bottom">
                         <div class="d-flex align-items-center">
                             <i class="uil uil-receipt text-warning me-2" style="font-size: 18px;"></i>
-                            <span class="fw-500">{{ trans('order::order.subtotal') }}</span>
+                            <span class="fw-500">{{ trans('order.subtotal') }}</span>
                         </div>
                         <span class="fw-500" id="subtotal">0.00 {{ __('common.currency') }}</span>
                     </div>
@@ -388,7 +388,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-15 pb-15 border-bottom">
                         <div class="d-flex align-items-center">
                             <i class="uil uil-truck text-info me-2" style="font-size: 18px;"></i>
-                            <span class="fw-500">{{ trans('order::order.shipping') }}</span>
+                            <span class="fw-500">{{ trans('order.shipping') }}</span>
                         </div>
                         <span class="fw-500" id="shippingDisplay">0.00 {{ __('common.currency') }}</span>
                     </div>
@@ -398,7 +398,7 @@
                         id="taxSection" style="display: none;">
                         <div class="d-flex align-items-center">
                             <i class="uil uil-chart-pie text-info me-2" style="font-size: 18px;"></i>
-                            <span class="fw-500">{{ trans('order::order.tax') }}</span>
+                            <span class="fw-500">{{ trans('order.tax') }}</span>
                         </div>
                         <span class="fw-500" id="totalTax">0.00 {{ __('common.currency') }}</span>
                     </div>
@@ -408,10 +408,10 @@
                         <div class="d-flex justify-content-between align-items-center mb-10">
                             <div class="d-flex align-items-center">
                                 <i class="uil uil-plus-circle text-success me-2" style="font-size: 18px;"></i>
-                                <span class="fw-500">{{ trans('order::order.add_fee') }}</span>
+                                <span class="fw-500">{{ trans('order.add_fee') }}</span>
                             </div>
                             <button type="button" class="btn btn-sm btn-success" id="addFeeBtn">
-                                <i class="uil uil-plus me-1"></i>{{ trans('order::order.add_fee') }}
+                                <i class="uil uil-plus me-1"></i>{{ trans('order.add_fee') }}
                             </button>
                         </div>
                         <div id="feesContainer"></div>
@@ -423,10 +423,10 @@
                         <div class="d-flex justify-content-between align-items-center mb-10">
                             <div class="d-flex align-items-center">
                                 <i class="uil uil-gift text-danger me-2" style="font-size: 18px;"></i>
-                                <span class="fw-500">{{ trans('order::order.add_discount') }}</span>
+                                <span class="fw-500">{{ trans('order.add_discount') }}</span>
                             </div>
                             <button type="button" class="btn btn-sm btn-warning" id="addDiscountBtn">
-                                <i class="uil uil-plus me-1"></i>{{ trans('order::order.add_discount') }}
+                                <i class="uil uil-plus me-1"></i>{{ trans('order.add_discount') }}
                             </button>
                         </div>
                         <div id="discountsContainer"></div>
@@ -437,7 +437,7 @@
                     <div class="d-flex justify-content-between align-items-center pt-15">
                         <div class="d-flex align-items-center">
                             <i class="uil uil-receipt text-primary me-2" style="font-size: 18px;"></i>
-                            <span class="fw-500 fs-16">{{ trans('order::order.total') }}</span>
+                            <span class="fw-500 fs-16">{{ trans('order.total') }}</span>
                         </div>
                         <span class="fw-bold fs-16 text-primary" id="grandTotal">0.00
                             {{ __('common.currency') }}</span>
@@ -454,7 +454,7 @@
                 <div class="modal-content">
                     <div class="modal-header bg-light">
                         <h5 class="modal-title" id="addAddressModalLabel">
-                            <i class="uil uil-map-pin me-2"></i>{{ trans('order::order.add_new_address') }}
+                            <i class="uil uil-map-pin me-2"></i>{{ trans('order.add_new_address') }}
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -466,7 +466,7 @@
                                 <div class="col-md-12 mb-25">
                                     <div class="form-group">
                                         <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                                            {{ trans('order::order.address_title') }}
+                                            {{ trans('order.address_title') }}
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="text"
@@ -482,7 +482,7 @@
                                 <div class="col-md-6 mb-25">
                                     <div class="form-group">
                                         <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                                            {{ trans('order::order.country') }}
+                                            {{ trans('order.country') }}
                                             <span class="text-danger">*</span>
                                         </label>
                                         <select
@@ -497,7 +497,7 @@
                                 <div class="col-md-6 mb-25">
                                     <div class="form-group">
                                         <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                                            {{ trans('order::order.city') }}
+                                            {{ trans('order.city') }}
                                             <span class="text-danger">*</span>
                                         </label>
                                         <select
@@ -514,7 +514,7 @@
                                 <div class="col-md-6 mb-25">
                                     <div class="form-group">
                                         <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                                            {{ trans('order::order.region') }}
+                                            {{ trans('order.region') }}
                                             <span class="text-danger">*</span>
                                         </label>
                                         <select
@@ -530,7 +530,7 @@
                                 <div class="col-md-6 mb-25">
                                     <div class="form-group">
                                         <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                                            {{ trans('order::order.sub_region') }}
+                                            {{ trans('order.sub_region') }}
                                         </label>
                                         <select class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                             id="address_subregion_id" name="address_subregion_id" disabled
@@ -545,7 +545,7 @@
                                 <div class="col-md-12 mb-25">
                                     <div class="form-group">
                                         <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                                            {{ trans('order::order.customer_address') }}
+                                            {{ trans('order.customer_address') }}
                                             <span class="text-danger">*</span>
                                         </label>
                                         <input type="text"
@@ -563,7 +563,7 @@
                                         <input class="form-check-input" type="checkbox" id="address_is_primary"
                                             name="address_is_primary">
                                         <label class="form-check-label" for="address_is_primary">
-                                            {{ trans('order::order.set_as_primary') }}
+                                            {{ trans('order.set_as_primary') }}
                                         </label>
                                     </div>
                                 </div>
@@ -719,7 +719,7 @@
                                 suggestions.html(html).show();
                             } else {
                                 suggestions.html(
-                                    '<div class="p-2 text-muted">{{ trans('order::order.no_products_found') }}</div>'
+                                    '<div class="p-2 text-muted">{{ trans('order.no_products_found') }}</div>'
                                 ).show();
                             }
                         }, 300);
@@ -806,7 +806,7 @@
                             if (!allCustomers || allCustomers.length === 0) {
                                 console.log('Customers not loaded yet, loading...');
                                 suggestions.html(
-                                    '<div class="p-2 text-muted">{{ trans('order::order.loading_customers') }}</div>'
+                                    '<div class="p-2 text-muted">{{ trans('order.loading_customers') }}</div>'
                                 ).show();
                                 return;
                             }
@@ -842,7 +842,7 @@
                                 suggestions.html(html).show();
                             } else {
                                 suggestions.html(
-                                    '<div class="p-2 text-muted">{{ trans('order::order.no_customers_found') }}</div>'
+                                    '<div class="p-2 text-muted">{{ trans('order.no_customers_found') }}</div>'
                                 ).show();
                             }
                         }, 300);
@@ -873,7 +873,7 @@
                                 const addressSelect = $('#customer_address_select');
                                 addressSelect.empty();
                                 addressSelect.append(
-                                    '<option value="">{{ trans('order::order.select_address') }}</option>');
+                                    '<option value="">{{ trans('order.select_address') }}</option>');
 
                                 if (response.data && response.data.length > 0) {
                                     response.data.forEach(address => {
@@ -1014,7 +1014,7 @@
                     $('#addNewAddressBtn, #createAddressBtn').on('click', function() {
                         const customerId = $('#selected_customer_id').val();
                         if (!customerId) {
-                            showAlert('warning', '{{ trans('order::order.please_select_customer') }}');
+                            showAlert('warning', '{{ trans('order.please_select_customer') }}');
                             return;
                         }
 
@@ -1122,7 +1122,7 @@
 
                                     // Show success message
                                     showAlert('success',
-                                        '{{ trans('order::order.address_created_successfully') }}');
+                                        '{{ trans('order.address_created_successfully') }}');
 
                                     // Reset form
                                     $('#addAddressForm')[0].reset();
@@ -1141,7 +1141,7 @@
                             },
                             error: function(xhr) {
                                 let errorMessage =
-                                '{{ trans('order::order.error_creating_address') }}';
+                                '{{ trans('order.error_creating_address') }}';
 
                                 if (xhr.status === 422 && xhr.responseJSON?.errors) {
                                     const errors = xhr.responseJSON.errors;
@@ -1191,7 +1191,7 @@
                     <div class="fee-item mb-10 p-10 rounded" data-fee-id="${feeId}">
                         <div class="row g-2">
                             <div class="col-md-6">
-                                <input type="text" class="form-control fee-reason" placeholder="{{ trans('order::order.reason') }}" required style="background-color: transparent; border: 1px solid #ddd;">
+                                <input type="text" class="form-control fee-reason" placeholder="{{ trans('order.reason') }}" required style="background-color: transparent; border: 1px solid #ddd;">
                             </div>
                             <div class="col-md-4">
                                 <input type="number" class="form-control fee-amount" placeholder="0.00" step="0.01" min="0" required style="background-color: transparent; border: 1px solid #ddd;">
@@ -1215,7 +1215,7 @@
                     <div class="discount-item mb-10 p-10 rounded" data-discount-id="${discountId}">
                         <div class="row g-2">
                             <div class="col-md-6">
-                                <input type="text" class="form-control discount-reason" placeholder="{{ trans('order::order.reason') }}" required style="background-color: transparent; border: 1px solid #ddd;">
+                                <input type="text" class="form-control discount-reason" placeholder="{{ trans('order.reason') }}" required style="background-color: transparent; border: 1px solid #ddd;">
                             </div>
                             <div class="col-md-4">
                                 <input type="number" class="form-control discount-amount" placeholder="0.00" step="0.01" min="0" required style="background-color: transparent; border: 1px solid #ddd;">
@@ -1265,7 +1265,7 @@
                         });
 
                         if (!productId) {
-                            showAlert('warning', '{{ trans('order::order.please_select_product') }}');
+                            showAlert('warning', '{{ trans('order.please_select_product') }}');
                             return;
                         }
 
@@ -1438,9 +1438,74 @@
                             updateSummary();
                         });
 
+                    // Form validation function
+                    function validateForm() {
+                        let errors = [];
+                        
+                        // Check customer selection
+                        const customerType = $('input[name="customer_type"]:checked').val();
+                        
+                        if (customerType === 'existing') {
+                            const customerId = $('#selected_customer_id').val();
+                            const addressId = $('#customer_address_select').val();
+                            
+                            if (!customerId || customerId.trim() === '') {
+                                errors.push('{{ trans('order.select_customer') }} is required');
+                            }
+                            if (!addressId || addressId.trim() === '') {
+                                errors.push('{{ trans('order.customer_address') }} is required');
+                            }
+                        } else if (customerType === 'external') {
+                            const name = $('#external_customer_name').val();
+                            const email = $('#external_customer_email').val();
+                            const phone = $('#external_customer_phone').val();
+                            const address = $('#external_customer_address').val();
+                            
+                            if (!name || name.trim() === '') {
+                                errors.push('{{ trans('order.customer_name') }} is required');
+                            }
+                            if (!email || email.trim() === '') {
+                                errors.push('{{ trans('order.customer_email') }} is required');
+                            } else if (!isValidEmail(email)) {
+                                errors.push('{{ trans('order.customer_email') }} must be valid');
+                            }
+                            if (!phone || phone.trim() === '') {
+                                errors.push('{{ trans('order.customer_phone') }} is required');
+                            }
+                            if (!address || address.trim() === '') {
+                                errors.push('{{ trans('order.customer_address') }} is required');
+                            }
+                        }
+                        
+                        // Check products
+                        if (!products || products.length === 0) {
+                            errors.push('{{ trans('order.add_product') }} - At least one product is required');
+                        }
+                        
+                        return errors;
+                    }
+                    
+                    // Email validation helper
+                    function isValidEmail(email) {
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        return emailRegex.test(email);
+                    }
+
                     // Form submission
                     $('#createOrderForm').on('submit', function(e) {
                         e.preventDefault();
+
+                        // Validate form first
+                        const validationErrors = validateForm();
+                        if (validationErrors.length > 0) {
+                            let errorHtml = '<strong>{{ trans('order.validation_error') }}:</strong><ul class="mb-0 mt-2">';
+                            validationErrors.forEach(function(error) {
+                                errorHtml += '<li>' + error + '</li>';
+                            });
+                            errorHtml += '</ul>';
+                            showAlert('danger', errorHtml);
+                            return;
+                        }
 
                         // Collect fees and discounts BEFORE creating FormData
                         let fees = [];
@@ -1479,7 +1544,7 @@
 
                         if (typeof LoadingOverlay !== 'undefined') {
                             LoadingOverlay.show({
-                                text: '{{ trans('order::order.create_order') }}',
+                                text: '{{ trans('order.create_order') }}',
                                 subtext: '{{ trans('main.please wait') }}'
                             });
                         }
@@ -1521,7 +1586,7 @@
                                     LoadingOverlay.hide();
                                 }
 
-                                let errorMessage = '{{ trans('order::order.error_creating_order') }}';
+                                let errorMessage = '{{ trans('order.error_creating_order') }}';
                                 let errorDetails = [];
 
                                 // Check if we have a response
@@ -1641,5 +1706,5 @@
 
     {{-- Include Loading Overlay Component --}}
     @push('after-body')
-        <x-loading-overlay :loadingText="trans('order::order.create_order')" :loadingSubtext="trans('main.please wait')" />
+        <x-loading-overlay :loadingText="trans('order.create_order')" :loadingSubtext="trans('main.please wait')" />
     @endpush

@@ -78,6 +78,7 @@ class OrderController extends Controller
                     'customer_name' => $order->customer_name,
                     'customer_email' => $order->customer_email,
                     'total_price' => $order->total_price,
+                    'total_product_price' => $order->total_product_price,
                     'items_count' => $itemsCount,
                     'stage' => $order->stage,
                     'created_at' => $order->created_at ? $order->created_at->format('Y-m-d H:i') : '-',

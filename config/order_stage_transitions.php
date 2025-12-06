@@ -34,6 +34,8 @@ return [
         // From "Deliver" stage
         'deliver' => [
             'want-to-return',   // Can request return after delivery
+            'in-progress-return', // Move to processing return
+            'refund',
         ],
 
         // From "Cancel" stage
@@ -44,7 +46,7 @@ return [
         // From "Want To Return" stage
         'want-to-return' => [
             'in-progress-return', // Move to processing return
-            'refund',  
+            'refund',
         ],
 
         // From "In Progress Return" stage

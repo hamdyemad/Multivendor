@@ -80,9 +80,17 @@
             e.preventDefault();
             const stageId = $('#newStage').val();
             const orderId = $('#orderId').val();
+            const selectedStage = orderStages.find(s => s.id == stageId);
 
             if (!stageId) {
                 alert('{{ trans('order::order.select_stage') }}');
+                return;
+            }
+
+            // Check if selected stage requires fulfillment (in-progress)
+            if (selectedStage && selectedStage.slug === 'in-progress') {
+                // Redirect to fulfillment page instead of changing stage directly
+                window.location.href = '{{ url('admin/order-fulfillments') }}/' + orderId + '/allocate';
                 return;
             }
 

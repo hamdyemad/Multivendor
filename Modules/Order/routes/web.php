@@ -22,4 +22,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'adminGu
 
     // Resource routes
     Route::resource('orders', OrderController::class);
+
+    // Order Fulfillment Management
+    Route::prefix('order-fulfillments')->name('order-fulfillments.')->group(function () {
+        Route::get('{orderId}/allocate', [\Modules\Order\app\Http\Controllers\OrderFulfillmentController::class, 'show'])->name('show');
+        Route::post('{orderId}/allocate', [\Modules\Order\app\Http\Controllers\OrderFulfillmentController::class, 'allocate'])->name('allocate');
+    });
 });

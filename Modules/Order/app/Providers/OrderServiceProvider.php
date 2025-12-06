@@ -13,6 +13,8 @@ use Modules\Order\app\Repositories\Api\OrderStageApiRepository;
 use Modules\Order\app\Actions\WishlistQueryAction;
 use Modules\Order\app\Interfaces\OrderRepositoryInterface;
 use Modules\Order\app\Repositories\OrderRepository;
+use Modules\Order\app\Interfaces\OrderFulfillmentRepositoryInterface;
+use Modules\Order\app\Repositories\OrderFulfillmentRepository;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -66,6 +68,12 @@ class OrderServiceProvider extends ServiceProvider
         $this->app->bind(
             OrderStageApiRepositoryInterface::class,
             OrderStageApiRepository::class
+        );
+
+        // Register order fulfillment repository bindings
+        $this->app->bind(
+            OrderFulfillmentRepositoryInterface::class,
+            OrderFulfillmentRepository::class
         );
 
         // Register wishlist query action

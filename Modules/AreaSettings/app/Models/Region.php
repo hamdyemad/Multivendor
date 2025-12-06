@@ -9,6 +9,8 @@ use App\Traits\Translation;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Modules\CatalogManagement\app\Models\VariantStock;
+use Modules\Order\app\Models\OrderFulfillment;
 
 class Region extends BaseModel
 {
@@ -29,6 +31,14 @@ class Region extends BaseModel
     public function selected_vendors() {
         return $this->belongsToMany(\Modules\Vendor\app\Models\Vendor::class, 'vendor_regions', 'region_id', 'vendor_id');
     }
+
+    public function stocks() {
+        return $this->hasMany(VariantStock::class, 'region_id');
+    }
+
+    public function fulfillments() {
+        return $this->hasMany(OrderFulfillment::class, 'region_id');
+    }
     // End Relations
 
 
@@ -37,6 +47,29 @@ class Region extends BaseModel
         return $this->getTranslation('name', app()->getLocale());
     }
     // End Geters
+
+    /**
+     * Get available stock for a variant in this region
+     * Available = Total Stock - Allocated Stock (from fulfillments)
+     */
+    public function getAvailableStockForVariant($variantId)
+    {
+        // Get total stock for this variant in this region
+        $variantStock = $this->stocks()
+            ->where('product_variant_id', $variantId)
+            ->first();
+
+        $totalStock = $variantStock ? $variantStock->quantity : 0;
+
+        // Get allocated stock from fulfillments using the relation
+        $allocatedStock = $this->fulfillments()->where('status', 'delivered')
+            ->whereHas('orderProduct', function($query) use ($variantId) {
+                $query->where('vendor_product_variant_id', $variantId);
+            })
+            ->sum('allocated_quantity');
+
+        return $totalStock - $allocatedStock;
+    }
 
     public function scopeByVendor(Builder $query, $vendorIdentifier)
     {

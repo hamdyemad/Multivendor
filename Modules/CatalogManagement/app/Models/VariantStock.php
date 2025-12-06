@@ -12,7 +12,7 @@ class VariantStock extends Model
 {
     use HasFactory, SoftDeletes, Translation;
 
-    protected $table = 'variant_stocks';
+    protected $table = 'product_variant_stocks';
     protected $fillable = [
         'product_variant_id',
         'region_id',

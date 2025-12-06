@@ -217,7 +217,7 @@ class VendorProductVariant extends Model
      */
     public function getCountDeliveredProductAttribute()
     {
-        return $this->fulfillments()
+        return (int) $this->fulfillments()
             ->where('status', 'delivered')
             ->sum('allocated_quantity');
     }

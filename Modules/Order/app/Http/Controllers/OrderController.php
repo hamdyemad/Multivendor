@@ -8,6 +8,7 @@ use Modules\Order\app\Services\OrderService;
 use Modules\Order\app\Http\Requests\CreateOrderRequest;
 use Modules\Order\app\Http\Requests\StoreOrderRequest;
 use Modules\Order\app\Http\Requests\UpdateOrderRequest;
+use Modules\Order\app\Http\Requests\ChangeOrderStageRequest;
 use Modules\Order\app\Http\Requests\AddProductToOrderRequest;
 use Modules\Order\app\Http\Requests\AddExtraFeeDiscountRequest;
 use Modules\Order\app\Http\Requests\CreateFulfillmentRequest;
@@ -168,66 +169,15 @@ class OrderController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing the specified order
-     */
-    public function edit($id)
-    {
-        // Implementation here
-    }
 
-    /**
-     * Update the specified order
-     */
-    public function update($id, UpdateOrderRequest $request)
-    {
-        // Implementation here
-    }
-
-    /**
-     * Delete the specified order
-     */
-    public function destroy($id)
-    {
-        // Implementation here
-    }
-
-    /**
-     * Get order with all products
-     */
-    public function getOrderWithProducts($id)
-    {
-        // Implementation here
-    }
-
-    /**
-     * Add product to order
-     */
-    public function addProduct($orderId, AddProductToOrderRequest $request)
-    {
-        // Implementation here
-    }
-
-    /**
-     * Remove product from order
-     */
-    public function removeProduct($orderId, $orderProductId)
-    {
-        // Implementation here
-    }
 
     /**
      * Change order stage
      */
-    public function changeStage($id, Request $request)
+    public function changeStage($id, ChangeOrderStageRequest $request)
     {
         try {
-            $request->validate([
-                'stage_id' => 'required|exists:order_stages,id',
-            ]);
-
-            $order = Order::findOrFail($id);
-            $order->update(['stage_id' => $request->stage_id]);
+            $order = $this->orderService->changeOrderStage($id, $request->stage_id);
 
             return response()->json([
                 'status' => true,
@@ -241,69 +191,5 @@ class OrderController extends Controller
                 'errors' => [$e->getMessage()]
             ], 422);
         }
-    }
-
-    /**
-     * Update order status/stage
-     */
-    public function updateStatus($id, Request $request)
-    {
-        // Implementation here
-    }
-
-    /**
-     * Add extra fee or discount to order
-     */
-    public function addExtraFeeDiscount($orderId, AddExtraFeeDiscountRequest $request)
-    {
-        // Implementation here
-    }
-
-    /**
-     * Get order fulfillments
-     */
-    public function getFulfillments($orderId)
-    {
-        // Implementation here
-    }
-
-    /**
-     * Create fulfillment for order product
-     */
-    public function createFulfillment($orderId, CreateFulfillmentRequest $request)
-    {
-        // Implementation here
-    }
-
-    /**
-     * Update fulfillment status
-     */
-    public function updateFulfillmentStatus($fulfillmentId, Request $request)
-    {
-        // Implementation here
-    }
-
-    /**
-     * Get order summary/totals
-     */
-    public function getSummary($id)
-    {
-        // Implementation here
-    }
-
-    /**
-     * Print order invoice
-     */
-    public function printInvoice($id)
-    {
-        // Implementation here
-    }
-
-    /**
-     * Export orders to CSV/Excel
-     */
-    public function export(Request $request)
-    {
-        // Implementation here
     }
 }

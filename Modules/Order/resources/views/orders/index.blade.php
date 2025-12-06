@@ -509,7 +509,7 @@
                 const stageId = $('#newStage').val();
 
                 if (!stageId) {
-                    alert('{{ trans('order::order.please_select_stage') }}');
+                    toastr.warning('{{ trans('order.please_select_stage') }}');
                     return;
                 }
 
@@ -538,44 +538,22 @@
                         if (modal) modal.hide();
 
                         // Show success message
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                icon: 'success',
-                                title: '{{ __('common.success') }}',
-                                text: response.message || '{{ trans('order::order.stage_updated_successfully') }}',
-                                timer: 2000,
-                                showConfirmButton: false,
-                                toast: true,
-                                position: 'top-end'
-                            });
-                        }
+                        toastr.success(response.message || '{{ trans('order.stage_updated_successfully') }}');
 
                         // Reload table
-                        table.ajax.reload();
+                        setTimeout(() => table.ajax.reload(), 1500);
                     },
                     error: function(xhr) {
                         if (typeof LoadingOverlay !== 'undefined') {
                             LoadingOverlay.hide();
                         }
 
-                        let errorMessage = '{{ trans('order::order.error_updating_stage') }}';
+                        let errorMessage = '{{ trans('order.error_updating_stage') }}';
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             errorMessage = xhr.responseJSON.message;
                         }
 
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                icon: 'error',
-                                title: '{{ __('common.error') }}',
-                                text: errorMessage,
-                                timer: 3000,
-                                showConfirmButton: false,
-                                toast: true,
-                                position: 'top-end'
-                            });
-                        } else {
-                            alert(errorMessage);
-                        }
+                        toastr.error(errorMessage);
                     }
                 });
             });

@@ -52,7 +52,7 @@
                 },
                 error: function(xhr) {
                     console.error('Error loading order stages:', xhr);
-                    alert('{{ trans('common.error') }}');
+                    toastr.error('{{ trans('common.error') }}');
                 }
             });
         }
@@ -83,7 +83,7 @@
             const selectedStage = orderStages.find(s => s.id == stageId);
 
             if (!stageId) {
-                alert('{{ trans('order::order.select_stage') }}');
+                toastr.warning('{{ trans('order.select_stage') }}');
                 return;
             }
 
@@ -107,15 +107,15 @@
                 },
                 success: function(response) {
                     if (response.status) {
-                        alert(response.message);
-                        location.reload();
+                        toastr.success(response.message);
+                        setTimeout(() => location.reload(), 1500);
                     } else {
-                        alert(response.message || '{{ trans('common.error_occurred') }}');
+                        toastr.error(response.message || '{{ trans('common.error_occurred') }}');
                     }
                 },
                 error: function(xhr) {
                     const errorMessage = xhr.responseJSON?.message || '{{ trans('common.error_occurred') }}';
-                    alert(errorMessage);
+                    toastr.error(errorMessage);
                 },
                 complete: function() {
                     $submitBtn.prop('disabled', false).html(originalText);

@@ -66,82 +66,10 @@ class OrderService
     }
 
     /**
-     * Update order
+     * Change order stage and update fulfillments
      */
-    public function updateOrder($id, array $data)
+    public function changeOrderStage($id, $stageId)
     {
-        // Implementation here
-    }
-
-    /**
-     * Delete order
-     */
-    public function deleteOrder($id)
-    {
-        // Implementation here
-    }
-
-    /**
-     * Get order with products
-     */
-    public function getOrderWithProducts($id)
-    {
-        // Implementation here
-    }
-
-    /**
-     * Add product to order
-     */
-    public function addProductToOrder($orderId, array $productData)
-    {
-        // Implementation here
-    }
-
-    /**
-     * Remove product from order
-     */
-    public function removeProductFromOrder($orderId, $orderProductId)
-    {
-        // Implementation here
-    }
-
-    /**
-     * Update order status
-     */
-    public function updateOrderStatus($id, $stageId)
-    {
-        // Implementation here
-    }
-
-    /**
-     * Add extra fee or discount
-     */
-    public function addExtraFeeDiscount($orderId, array $data)
-    {
-        // Implementation here
-    }
-
-    /**
-     * Get order fulfillments
-     */
-    public function getOrderFulfillments($orderId)
-    {
-        // Implementation here
-    }
-
-    /**
-     * Create fulfillment
-     */
-    public function createFulfillment($orderId, array $data)
-    {
-        // Implementation here
-    }
-
-    /**
-     * Get datatable data
-     */
-    public function getDatatableData(array $filters)
-    {
-        // Implementation here
+        return $this->orderRepository->changeOrderStage($id, $stageId);
     }
 }

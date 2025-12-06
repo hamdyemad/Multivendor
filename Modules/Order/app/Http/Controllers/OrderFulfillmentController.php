@@ -5,8 +5,8 @@ namespace Modules\Order\app\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Modules\Order\app\Services\OrderFulfillmentService;
 use Modules\Order\app\Services\OrderStageTransitionService;
+use Modules\Order\app\Http\Requests\AllocateFulfillmentRequest;
 use Modules\Order\app\Models\Order;
-use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class OrderFulfillmentController extends Controller
@@ -35,15 +35,8 @@ class OrderFulfillmentController extends Controller
     /**
      * Save stock allocations and update order stage
      */
-    public function allocate(Request $request, $orderId)
+    public function allocate(AllocateFulfillmentRequest $request, $orderId)
     {
-        $request->validate([
-            'allocations' => 'required|array',
-            'allocations.*.order_product_id' => 'required|exists:order_products,id',
-            'allocations.*.region_id' => 'required|exists:regions,id',
-            'allocations.*.quantity' => 'required|integer|min:0',
-        ]);
-
         try {
             $order = Order::findOrFail($orderId);
 
@@ -58,11 +51,11 @@ class OrderFulfillmentController extends Controller
             $order->update(['stage_id' => $inProgressStage->id]);
 
             return redirect()->route('admin.orders.show', $orderId)
-                ->with('success', trans('order::order.fulfillment_completed_successfully'));
+                ->with('success', trans('order.fulfillment_completed_successfully'));
         } catch (ValidationException $e) {
             throw $e;
         } catch (\Exception $e) {
-            return back()->withInput()->with('error', trans('order::order.fulfillment_error') . ': ' . $e->getMessage());
+            return back()->withInput()->with('error', trans('order.fulfillment_error') . ': ' . $e->getMessage());
         }
     }
 }

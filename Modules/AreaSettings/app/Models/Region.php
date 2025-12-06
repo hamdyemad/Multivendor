@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Modules\CatalogManagement\app\Models\VariantStock;
+use Modules\CatalogManagement\app\Models\VendorProductVariantStock;
 use Modules\Order\app\Models\OrderFulfillment;
 
 class Region extends BaseModel
@@ -33,7 +34,7 @@ class Region extends BaseModel
     }
 
     public function stocks() {
-        return $this->hasMany(VariantStock::class, 'region_id');
+        return $this->hasMany(VendorProductVariantStock::class, 'region_id');
     }
 
     public function fulfillments() {
@@ -56,13 +57,13 @@ class Region extends BaseModel
     {
         // Get total stock for this variant in this region
         $variantStock = $this->stocks()
-            ->where('product_variant_id', $variantId)
+            ->where('vendor_product_variant_id', $variantId)
             ->first();
 
         $totalStock = $variantStock ? $variantStock->quantity : 0;
 
         // Get allocated stock from fulfillments using the relation
-        $allocatedStock = $this->fulfillments()->where('status', 'delivered')
+        $allocatedStock = $this->fulfillments()->whereIn('status', ['delivered', 'shipped'])
             ->whereHas('orderProduct', function($query) use ($variantId) {
                 $query->where('vendor_product_variant_id', $variantId);
             })

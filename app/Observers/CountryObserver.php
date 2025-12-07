@@ -39,17 +39,32 @@ class CountryObserver
             return;
         }
 
+        // Skip if country_id is already set
+        if ($model->country_id !== null) {
+            return;
+        }
+
         try {
-            // Get country code from session
+            $country = null;
+
+            // Try to get country from session first
             $countryCode = session('country_code');
 
-            if (!$countryCode) {
-                return;
+            if ($countryCode) {
+                $country = Country::where('code', strtoupper($countryCode))->first();
             }
 
-            // Find country by code
-            $country = Country::where('code', strtoupper($countryCode))->first();
+            // If no country from session, try to get default country
+            if (!$country) {
+                $country = Country::where('default', true)->first();
+            }
 
+            // If still no country, get first active country
+            if (!$country) {
+                $country = Country::where('active', true)->first();
+            }
+
+            // Set country_id if found
             if ($country) {
                 $model->country_id = $country->id;
             }

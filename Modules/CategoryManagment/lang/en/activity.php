@@ -15,6 +15,7 @@ return [
     'description' => 'Description',
     'description_english' => 'Description',
     'description_arabic' => 'Description',
+    'commission' => 'Commission',
     'activation' => 'Activation',
     'status' => 'Status',
     'active' => 'Active',

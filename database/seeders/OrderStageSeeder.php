@@ -14,6 +14,7 @@ class OrderStageSeeder extends Seeder
      */
     public function run(): void
     {
+        OrderStage::latest()->forceDelete();
         // Get English and Arabic languages
         $languages = Language::whereIn('code', ['en', 'ar'])->get()->keyBy('code');
 
@@ -97,27 +98,39 @@ class OrderStageSeeder extends Seeder
                 continue;
             }
 
-            // Create the order stage
-            $orderStage = OrderStage::create([
-                'slug' => $stageData['slug'],
-                'color' => $stageData['color'],
-                'active' => true,
-                'is_system' => true, // Mark as system stage (cannot be deleted)
-                'sort_order' => $stageData['sort_order'],
-            ]);
+            try {
+                // Create the order stage
+                $orderStage = OrderStage::create([
+                    'slug' => $stageData['slug'],
+                    'color' => $stageData['color'],
+                    'active' => true,
+                    'is_system' => true, // Mark as system stage (cannot be deleted)
+                    'sort_order' => $stageData['sort_order'],
+                ]);
 
-            // Add translations
-            foreach ($stageData['names'] as $langCode => $name) {
-                if (isset($languages[$langCode])) {
-                    $orderStage->translations()->create([
-                        'lang_id' => $languages[$langCode]->id,
-                        'lang_key' => 'name',
-                        'lang_value' => $name,
-                    ]);
+                $this->command->info("Created order stage: {$stageData['names']['en']} (ID: {$orderStage->id})");
+
+                // Add translations
+                $translationsCreated = 0;
+                foreach ($stageData['names'] as $langCode => $name) {
+                    if (isset($languages[$langCode])) {
+                        try {
+                            $translation = $orderStage->translations()->create([
+                                'lang_id' => $languages[$langCode]->id,
+                                'lang_key' => 'name',
+                                'lang_value' => $name,
+                            ]);
+                            $translationsCreated++;
+                            $this->command->info("  ✓ Translation created: {$langCode} => {$name}");
+                        } catch (\Exception $e) {
+                            $this->command->error("  ✗ Failed to create translation for {$langCode}: {$e->getMessage()}");
+                        }
+                    }
                 }
+                $this->command->info("  Total translations created: {$translationsCreated}");
+            } catch (\Exception $e) {
+                $this->command->error("Error creating stage {$stageData['names']['en']}: {$e->getMessage()}");
             }
-
-            $this->command->info("Created order stage: {$stageData['names']['en']}");
         }
 
         $this->command->info('Order stages seeded successfully!');

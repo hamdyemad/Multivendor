@@ -27,6 +27,8 @@ class Activity extends Model
         return \Database\Factories\ActivityFactory::new();
     }
 
+
+
     public function departments()
     {
         return $this->belongsToMany(Department::class, 'activities_departments', 'activity_id', 'department_id');

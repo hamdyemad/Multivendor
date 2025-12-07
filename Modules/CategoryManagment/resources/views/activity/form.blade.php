@@ -114,6 +114,30 @@
                                     </div>
                                 @endforeach
 
+                                {{-- Commission Field --}}
+                                <div class="col-md-6 mb-25">
+                                    <div class="form-group">
+                                        <label for="commission" class="il-gray fs-14 fw-500 mb-10">
+                                            {{ trans('categorymanagment::activity.commission') }}
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="number"
+                                                   class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('commission') is-invalid @enderror"
+                                                   id="commission"
+                                                   name="commission"
+                                                   value="{{ isset($activity) ? ($activity->commission ?? 0) : old('commission', 0) }}"
+                                                   placeholder="0.00"
+                                                   step="0.01"
+                                                   min="0"
+                                                   max="100">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        @error('commission')
+                                            <div class="invalid-feedback d-block" style="display: block !important;">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
                                 {{-- Activation Switcher --}}
                                 <div class="col-md-6 mb-25">
                                     <div class="form-group">

@@ -175,14 +175,15 @@ class VariantConfigurationSeeder extends Seeder
                     ]);
                 }
 
-                echo "  ✓ Created key: {$keyNameEn}\n";
+                echo "  ✓ Created key: {$keyNameEn} (ID: {$variantKey->id})\n";
                 $keysCreated++;
             } else {
                 $variantKey = $existingKey;
-                echo "  ⏭️ Key exists: {$keyNameEn}\n";
+                echo "  ⏭️ Key exists: {$keyNameEn} (ID: {$variantKey->id})\n";
             }
 
             // Create values for this key
+            echo "    Creating values for key ID: {$variantKey->id}\n";
             foreach ($keyData['values'] as $valueData) {
                 // Check if value already exists for this key
                 $existingValue = VariantsConfiguration::where('key_id', $variantKey->id)
@@ -194,6 +195,7 @@ class VariantConfigurationSeeder extends Seeder
                     try {
                         $config = VariantsConfiguration::create([
                             'key_id' => $variantKey->id,
+                            'country_id' => $countryId,
                             'parent_id' => null,
                         ]);
 
@@ -205,13 +207,13 @@ class VariantConfigurationSeeder extends Seeder
                             ]);
                         }
 
-                        echo "    ✓ Created value: {$valueData['en']}\n";
+                        echo "    ✓ Created value: {$valueData['en']} (ID: {$config->id}, Key ID: {$config->key_id})\n";
                         $valuesCreated++;
                     } catch (\Exception $e) {
-                        echo "    ⏭️ Error creating value {$valueData['en']}: {$e->getMessage()}\n";
+                        echo "    ❌ Error creating value {$valueData['en']}: {$e->getMessage()}\n";
                     }
                 } else {
-                    echo "    ⏭️ Value exists: {$valueData['en']}\n";
+                    echo "    ⏭️ Value exists: {$valueData['en']} (ID: {$existingValue->id})\n";
                 }
             }
         }

@@ -102,10 +102,9 @@ class VendorAction {
                 'active' => $vendor->active,
                 'created_at' => $vendor->created_at,
             ];
-
             // Add translations for each language
             foreach ($languages as $language) {
-                $name = $vendor->getTranslation('name', $language->code) ?? '-';
+                $name = $vendor->name;
                 $rowData['translations'][$language->code] = [
                     'name' => truncateString($name, 15),
                     'rtl' => $language->rtl

@@ -14,10 +14,14 @@ use App\Http\Controllers\AreaSettings\RegionController;
 use App\Http\Controllers\AreaSettings\SubRegionController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\ActivityController;
+use App\Models\Translation;
 use Database\Seeders\ActivitySeeder;
+use Database\Seeders\AreaSettingsSeeder;
 use Database\Seeders\AutoProductSeeder;
 use Database\Seeders\BrandSeeder;
 use Database\Seeders\CategoryDepartmentSeeder;
+use Database\Seeders\CustomerSeeder;
+use Database\Seeders\OrderSeeder;
 use Database\Seeders\OrderStageSeeder;
 use Database\Seeders\TaxSeeder;
 use Database\Seeders\VariantConfigurationSeeder;
@@ -56,6 +60,11 @@ Route::get('seeder', function () {
         // Seeders in order of dependency
         $seeders = [
             [
+                'class' => AreaSettingsSeeder::class,
+                'name' => 'Area Settings Seeder',
+                'description' => 'Creates cities, regions, and subregions for Egypt and Saudi Arabia',
+            ],
+            [
                 'class' => TaxSeeder::class,
                 'name' => 'Tax Seeder',
                 'description' => 'Creates tax rates (VAT 15%, 10%, 5%, etc.)',
@@ -76,14 +85,14 @@ Route::get('seeder', function () {
                 'description' => 'Creates activities, departments, categories, subcategories, brands, and regions',
             ],
             [
-                'class' => VendorSeeder::class,
-                'name' => 'Vendor Seeder',
-                'description' => 'Creates vendors with country_id and translations',
-            ],
-            [
                 'class' => BrandSeeder::class,
                 'name' => 'Brand Seeder',
                 'description' => 'Creates brands with country_id and translations',
+            ],
+            [
+                'class' => VendorSeeder::class,
+                'name' => 'Vendor Seeder',
+                'description' => 'Creates vendors with country_id and translations',
             ],
             [
                 'class' => OrderStageSeeder::class,
@@ -96,14 +105,19 @@ Route::get('seeder', function () {
                 'description' => 'Creates products with variants for each vendor',
             ],
             [
-                'class' => OrderDatabaseSeeder::class,
-                'name' => 'Order Database Seeder',
-                'description' => 'Creates customers, orders, and order products',
-            ],
-            [
                 'class' => ReviewSeeder::class,
                 'name' => 'Review Seeder',
                 'description' => 'Creates customer reviews for products and vendors',
+            ],
+            [
+                'class' => CustomerSeeder::class,
+                'name' => 'Customer Seeder',
+                'description' => 'Creates 10 sample customers with contact information',
+            ],
+            [
+                'class' => OrderSeeder::class,
+                'name' => 'Order Seeder',
+                'description' => 'Creates 30 sample orders with products, pricing, and shipping',
             ],
         ];
 
@@ -168,13 +182,17 @@ Route::get('/truncate', function(Illuminate\Http\Request $request) {
         abort(403, 'Unauthorized');
     }
     DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+    Translation::latest()->forceDelete();
     $tables = [
-        'activities','activities_departments', 'activity_logs',
+        'activities','activities_departments', 'activity_logs','cities', 'regions', 'subregions', 'vendor_regions',
         'attachments', 'brands', 'bundle_categories', 'categories',
-        'customers', 'customer_addresses', 'customer_fcm_tokens',
+        'departments',
+        'customers',
+        'customer_addresses', 'customer_fcm_tokens',
         'customer_otps','customer_password_reset_tokens',
-        'departments', 'orders', 'order_extra_fees_discounts',
+        'orders', 'order_extra_fees_discounts',
         'order_fulfillments', 'order_products', 'order_product_taxes',
+
         'products', 'product_variants', 'promocodes', 'reviews', 'sub_categories',
         'taxes', 'translations', 'variants_configurations', 'variants_configurations_keys',
         'vendors', 'vendors_activities', 'vendor_products', 'vendor_product_variants',

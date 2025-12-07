@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Language;
 use Modules\CatalogManagement\app\Models\Tax;
+use Modules\AreaSettings\app\Models\Country;
 
 class TaxSeeder extends Seeder
 {
@@ -37,6 +38,18 @@ class TaxSeeder extends Seeder
         $created = 0;
         $skipped = 0;
 
+
+        // Get country_id from session
+        $countryCode = session('country_code', 'EG');
+        $country = Country::where('code', strtoupper($countryCode))->first();
+
+        if (!$country) {
+            $country = Country::first();
+        }
+
+        $countryId = $country ? $country->id : null;
+
+
         foreach ($this->taxesData as $taxData) {
             // Check if tax with this rate already exists (primary check)
             $existingTax = Tax::where('tax_rate', $taxData['rate'])->first();
@@ -60,6 +73,7 @@ class TaxSeeder extends Seeder
 
             try {
                 $tax = Tax::create([
+                    'country_id' => $countryId,
                     'slug' => $slug,
                     'tax_rate' => $taxData['rate'],
                     'active' => true,

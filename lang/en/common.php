@@ -18,6 +18,7 @@ return [
     'back' => 'Back',
     'search' => 'Search',
     'filter' => 'Filter',
+    'information' => 'Information',
     'export' => 'Export',
     'import' => 'Import',
     'download' => 'Download',

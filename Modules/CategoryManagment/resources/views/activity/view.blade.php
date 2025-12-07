@@ -77,6 +77,15 @@
                                                     </div>
                                                 </div>
                                             @endforeach
+                                            {{-- Commission --}}
+                                            <div class="col-md-6">
+                                                <div class="view-item">
+                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('categorymanagment::activity.commission') }}</label>
+                                                    <p class="fs-15 color-dark">
+                                                        <span class="badge badge-info badge-round badge-lg">{{ $activity->commission ?? 0 }}%</span>
+                                                    </p>
+                                                </div>
+                                            </div>
                                             <div class="col-md-6">
                                                 <div class="view-item">
                                                     <label class="il-gray fs-14 fw-500 mb-10">{{ __('activity.activation') }}</label>

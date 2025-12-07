@@ -10,7 +10,6 @@ use App\Models\Traits\CountryCheckIdTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Vendor\app\Models\Vendor;
 use Illuminate\Database\Eloquent\Builder;
-use Modules\CatalogManagement\Models\Review;
 use Modules\Order\app\Models\Wishlist;
 use Illuminate\Support\Facades\Auth;
 

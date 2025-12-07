@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Modules\CatalogManagement\app\Http\Requests\Api\ProductReviewRequest;
+use Modules\CategoryManagment\app\Models\Activity;
 use Modules\CategoryManagment\app\Models\Category;
 use Modules\CategoryManagment\app\Models\Department;
 use Modules\CategoryManagment\app\Models\SubCategory;
@@ -165,9 +166,7 @@ class Product extends BaseModel
         return $this->belongsTo(Brand::class);
     }
 
-    /**
-     * Get the department
-     */
+
     public function department()
     {
         return $this->belongsTo(Department::class);

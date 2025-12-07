@@ -92,15 +92,6 @@
                                                     </p>
                                                 </div>
                                             </div>
-                                            {{-- Commission --}}
-                                            <div class="col-md-6">
-                                                <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('categorymanagment::department.commission') }}</label>
-                                                    <p class="fs-15 color-dark">
-                                                        <span class="badge badge-info badge-round badge-lg">{{ $department->commission ?? 0 }}%</span>
-                                                    </p>
-                                                </div>
-                                            </div>
                                             {{-- Activation Status --}}
                                             <div class="col-md-6">
                                                 <div class="view-item">

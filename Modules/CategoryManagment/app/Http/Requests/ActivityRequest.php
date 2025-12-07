@@ -26,6 +26,7 @@ class ActivityRequest extends FormRequest
             'translations' => 'required|array',
             'translations.*.name' => 'required|string|max:255',
             'translations.*.description' => 'nullable|string',
+            'commission' => 'nullable|numeric|min:0|max:100',
             'active' => 'nullable|boolean',
         ];
 

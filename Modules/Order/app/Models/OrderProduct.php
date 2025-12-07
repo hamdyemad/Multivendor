@@ -6,14 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Models\Traits\CountryCheckIdTrait;
 use Modules\Order\database\factories\OrderProductFactory;
 use Modules\CatalogManagement\app\Models\VendorProduct;
 use Modules\CatalogManagement\app\Models\VendorProductVariant;
 
 class OrderProduct extends Model
 {
-    use HasFactory, CountryCheckIdTrait;
+    use HasFactory;
 
     public static function newFactory()
     {

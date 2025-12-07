@@ -79,7 +79,6 @@ class DepartmentRepository implements DepartmentRepositoryInterface
     {
         $department = Department::create([
             'active' => $data['active'] ?? 1,
-            'commission' => $data['commission'] ?? 0,
         ]);
 
         // Store translations
@@ -137,7 +136,6 @@ class DepartmentRepository implements DepartmentRepositoryInterface
 
         $updateData = [
             'active' => $data['active'] ?? 1,
-            'commission' => $data['commission'] ?? 0,
         ];
 
         $department->update($updateData);

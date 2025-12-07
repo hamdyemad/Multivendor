@@ -8,6 +8,7 @@ use Modules\CategoryManagment\app\Services\ActivityService;
 use Modules\CategoryManagment\app\Http\Requests\ActivityRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Modules\CatalogManagement\app\Models\VendorProduct;
 use Modules\CategoryManagment\app\Actions\ActivityAction;
 
 class ActivityController extends Controller
@@ -98,6 +99,14 @@ class ActivityController extends Controller
      */
     public function index(Request $request)
     {
+        // $vendorProduct = VendorProduct::with(['product.department.activities'])->latest()->first();
+        // return $vendorProduct->tax->tax_rate;
+        // $activies = $vendorProduct->product->department->activities;
+        // $commissionsRate = 0;
+        // foreach($activies as $activity) {
+        //     $commissionsRate+= $activity->commission;
+        // }
+        // return $commissionsRate;
         // Get languages for table headers
         $languages = $this->languageService->getAll();
         return view('categorymanagment::activity.index', compact('languages'));

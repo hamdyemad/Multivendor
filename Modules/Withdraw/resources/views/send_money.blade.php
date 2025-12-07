@@ -47,7 +47,7 @@
                                             <option value="">{{ __('withdraw::withdraw.select_vendor') }}</option>
                                             @foreach ($vendors as $vendor)
                                                 <option value="{{ $vendor->id }}">
-                                                    {{ $vendor->translation_name->lang_value }}</option>
+                                                    {{ $vendor->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -304,7 +304,7 @@
             function getVendorBalance(vendor_id) {
                 let url = "{{ route('admin.getVendorBalance', ':vendor_id') }}";
                 url = url.replace(':vendor_id', vendor_id);
-
+                console.log(url)
                 $.ajax({
                     url: url,
                     type: "GET",

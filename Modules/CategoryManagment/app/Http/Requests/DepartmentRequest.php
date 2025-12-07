@@ -25,7 +25,6 @@ class DepartmentRequest extends FormRequest
             'translations' => 'required|array',
             'translations.*.name' => 'required|string|max:255',
             'translations.*.description' => 'nullable|string',
-            'commission' => ['nullable', 'numeric', 'min:0'],
             'activities' => ['required', 'array'],
             'activities.*' => ['required', 'exists:activities,id'],
             'active' => 'nullable|boolean',

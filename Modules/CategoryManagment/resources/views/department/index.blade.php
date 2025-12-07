@@ -135,10 +135,6 @@
                                     @endforeach
                                     <th>
                                         <span
-                                            class="userDatatable-title">{{ trans('categorymanagment::department.commission') }}</span>
-                                    </th>
-                                    <th>
-                                        <span
                                             class="userDatatable-title">{{ trans('categorymanagment::department.activation') }}</span>
                                     </th>
                                     <th>
@@ -264,14 +260,6 @@
                             }
                         },
                     @endforeach
-                    // Commission column
-                    {
-                        data: 'commission',
-                        name: 'commission',
-                        render: function(data) {
-                            return data ? parseFloat(data).toFixed(2) + '%' : '0.00%';
-                        }
-                    },
                     // Active Status column
                     {
                         data: 'active',

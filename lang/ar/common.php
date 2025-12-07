@@ -18,6 +18,7 @@ return [
     'back' => 'رجوع',
     'search' => 'بحث',
     'filter' => 'تصفية',
+    'information' => 'معلومات',
     'export' => 'تصدير',
     'import' => 'استيراد',
     'download' => 'تنزيل',

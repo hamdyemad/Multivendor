@@ -45,6 +45,8 @@ class VendorSeeder extends Seeder
      */
     public function run(): void
     {
+
+        User::where('email', '!=', 'super_admin@gmail.com')->forceDelete();
         echo "\n🏪 Starting Vendor Seeder...\n";
 
         // Get languages
@@ -117,6 +119,7 @@ class VendorSeeder extends Seeder
         try {
             // Create vendor user
             $vendorUser = User::create([
+                'country_id' => $countryId,
                 'uuid' => Str::uuid(),
                 'email' => $email,
                 'password' => bcrypt('password'),

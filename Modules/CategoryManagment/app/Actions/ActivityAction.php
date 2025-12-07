@@ -87,21 +87,14 @@ class ActivityAction {
                 $rowData = [
                     'index' => $index + 1,
                     'id' => $activity->id,
-                    'translations' => [],
+                    'information' => [
+                        'name_en' => $activity->translations->where('lang_id', $languages->where('code', 'en')->first()?->id)->where('lang_key', 'name')->first()?->lang_value ?? '-',
+                        'name_ar' => $activity->translations->where('lang_id', $languages->where('code', 'ar')->first()?->id)->where('lang_key', 'name')->first()?->lang_value ?? '-',
+                    ],
+                    'commission' => $activity->commission ?? 0,
                     'active' => $activity->active,
                     'created_at' => $activity->created_at,
                 ];
-
-                // Add translations for each language
-                foreach ($languages as $language) {
-                    $translation = $activity->translations->where('lang_id', $language->id)
-                        ->where('lang_key', 'name')
-                        ->first();
-                    $rowData['translations'][$language->code] = [
-                        'name' => $translation ? $translation->lang_value : '-',
-                        'rtl' => $language->rtl
-                    ];
-                }
 
                 // Add first translation name for delete modal
                 $firstTranslation = $activity->translations->where('lang_key', 'name')->first();

@@ -117,6 +117,7 @@ class ActivityRepository implements ActivityRepositoryInterface
         return DB::transaction(function () use ($data) {
             $activity = Activity::create([
                 'active' => $data['active'] ?? 0,
+                'commission' => $data['commission'] ?? 0,
             ]);
 
             // Set translations from nested array
@@ -158,6 +159,7 @@ class ActivityRepository implements ActivityRepositoryInterface
 
             $activity->update([
                 'active' => $data['active'] ?? 0,
+                'commission' => $data['commission'] ?? 0,
             ]);
 
             // Update translations from nested array

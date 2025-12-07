@@ -15,6 +15,7 @@ return [
     'description' => 'الوصف',
     'description_english' => 'الوصف',
     'description_arabic' => 'الوصف',
+    'commission' => 'العمولة',
     'activation' => 'التفعيل',
     'status' => 'الحالة',
     'active' => 'نشط',

@@ -144,29 +144,48 @@ class AutoProductSeeder extends Seeder
 
     private function createSimpleProduct($vendor, $languages, $brands, $departments, $categories, $subCategories, $taxes, $regions, $countryId)
     {
-        $productName = $this->generateProductName();
-        $category = $categories->random();
-        $subCategoryId = null;
-        if ($subCategories->isNotEmpty()) {
-            $categorySubCategories = $subCategories->where('category_id', $category->id);
-            if ($categorySubCategories->isNotEmpty()) {
-                $subCategoryId = $categorySubCategories->random()->id;
-            }
-        }
+        try {
+            $productName = $this->generateProductName();
 
-        $product = Product::create([
-            'slug' => Str::slug($productName) . '-' . Str::random(6),
-            'type' => Product::TYPE_PRODUCT,
-            'configuration_type' => 'simple',
-            'is_active' => $this->faker->boolean(90),
-            'brand_id' => $brands->random()->id,
-            'department_id' => $departments->random()->id,
-            'category_id' => $category->id,
-            'sub_category_id' => $subCategoryId,
-            'vendor_id' => $vendor->id,
-            'created_by_user_id' => $vendor->user_id,
-            'country_id' => $countryId,
-        ]);
+            // Check if collections are empty before using random()
+            if ($categories->isEmpty()) {
+                throw new \Exception('Categories collection is empty');
+            }
+            $category = $categories->random();
+
+            if ($brands->isEmpty()) {
+                throw new \Exception('Brands collection is empty');
+            }
+
+            if ($departments->isEmpty()) {
+                throw new \Exception('Departments collection is empty');
+            }
+
+            if ($taxes->isEmpty()) {
+                throw new \Exception('Taxes collection is empty');
+            }
+
+            $subCategoryId = null;
+            if ($subCategories->isNotEmpty()) {
+                $categorySubCategories = $subCategories->where('category_id', $category->id);
+                if ($categorySubCategories->isNotEmpty()) {
+                    $subCategoryId = $categorySubCategories->random()->id;
+                }
+            }
+
+            $product = Product::create([
+                'slug' => Str::slug($productName) . '-' . Str::random(6),
+                'type' => Product::TYPE_PRODUCT,
+                'configuration_type' => 'simple',
+                'is_active' => $this->faker->boolean(90),
+                'brand_id' => $brands->random()->id,
+                'department_id' => $departments->random()->id,
+                'category_id' => $category->id,
+                'sub_category_id' => $subCategoryId,
+                'vendor_id' => $vendor->id,
+                'created_by_user_id' => $vendor->user_id,
+                'country_id' => $countryId,
+            ]);
 
         foreach ($languages as $langCode => $language) {
             $product->translations()->createMany([
@@ -202,27 +221,16 @@ class AutoProductSeeder extends Seeder
             'sku' => strtoupper($this->faker->bothify('SKU-####-????')),
             'max_per_order' => $this->faker->numberBetween(1, 10),
             'is_featured' => $this->faker->boolean(20),
+            'country_id' => $countryId,
         ]);
 
-        // Single variant for simple product
-        $variant = ProductVariant::create([
-            'product_id' => $product->id,
-            'variant_configuration_id' => null,
-        ]);
-
-        foreach ($languages as $langCode => $language) {
-            $variant->translations()->create([
-                'lang_id' => $language->id,
-                'lang_key' => 'title',
-                'lang_value' => $langCode === 'en' ? 'Standard' : 'قياسي',
-            ]);
-        }
 
         $vendorProductVariant = VendorProductVariant::create([
             'vendor_product_id' => $vendorProduct->id,
             'variant_configuration_id' => null,
             'sku' => $vendorProduct->sku,
             'price' => $this->faker->randomFloat(2, 50, 5000),
+            'price_before_discount' => 0,
             'has_discount' => false,
         ]);
 
@@ -236,33 +244,55 @@ class AutoProductSeeder extends Seeder
                 ]);
             }
         }
+        } catch (\Exception $e) {
+            throw $e;
+        }
     }
 
     private function createVariantProduct($vendor, $languages, $brands, $departments, $categories, $subCategories, $taxes, $regions, $variantKeys, $countryId)
     {
-        $productName = $this->generateProductName();
-        $category = $categories->random();
-        $subCategoryId = null;
-        if ($subCategories->isNotEmpty()) {
-            $categorySubCategories = $subCategories->where('category_id', $category->id);
-            if ($categorySubCategories->isNotEmpty()) {
-                $subCategoryId = $categorySubCategories->random()->id;
-            }
-        }
+        try {
+            $productName = $this->generateProductName();
 
-        $product = Product::create([
-            'slug' => Str::slug($productName) . '-' . Str::random(6),
-            'type' => Product::TYPE_PRODUCT,
-            'configuration_type' => 'variants',
-            'is_active' => $this->faker->boolean(90),
-            'brand_id' => $brands->random()->id,
-            'department_id' => $departments->random()->id,
-            'category_id' => $category->id,
-            'sub_category_id' => $subCategoryId,
-            'vendor_id' => $vendor->id,
-            'created_by_user_id' => $vendor->user_id,
-            'country_id' => $countryId,
-        ]);
+            // Check if collections are empty before using random()
+            if ($categories->isEmpty()) {
+                throw new \Exception('Categories collection is empty');
+            }
+            $category = $categories->random();
+
+            if ($brands->isEmpty()) {
+                throw new \Exception('Brands collection is empty');
+            }
+
+            if ($departments->isEmpty()) {
+                throw new \Exception('Departments collection is empty');
+            }
+
+            if ($taxes->isEmpty()) {
+                throw new \Exception('Taxes collection is empty');
+            }
+
+            $subCategoryId = null;
+            if ($subCategories->isNotEmpty()) {
+                $categorySubCategories = $subCategories->where('category_id', $category->id);
+                if ($categorySubCategories->isNotEmpty()) {
+                    $subCategoryId = $categorySubCategories->random()->id;
+                }
+            }
+
+            $product = Product::create([
+                'slug' => Str::slug($productName) . '-' . Str::random(6),
+                'type' => Product::TYPE_PRODUCT,
+                'configuration_type' => 'variants',
+                'is_active' => $this->faker->boolean(90),
+                'brand_id' => $brands->random()->id,
+                'department_id' => $departments->random()->id,
+                'category_id' => $category->id,
+                'sub_category_id' => $subCategoryId,
+                'vendor_id' => $vendor->id,
+                'created_by_user_id' => $vendor->user_id,
+                'country_id' => $countryId,
+            ]);
 
         foreach ($languages as $langCode => $language) {
             $product->translations()->createMany([
@@ -288,6 +318,7 @@ class AutoProductSeeder extends Seeder
             'sku' => strtoupper($this->faker->bothify('SKU-####-????')),
             'max_per_order' => $this->faker->numberBetween(1, 10),
             'is_featured' => $this->faker->boolean(20),
+            'country_id' => $countryId,
         ]);
 
         // Get variant keys for this country
@@ -316,8 +347,7 @@ class AutoProductSeeder extends Seeder
 
             $variant = ProductVariant::create([
                 'product_id' => $product->id,
-                'variant_key_id' => $variantKey->id,
-                'variant_value_id' => $selectedValue->id,
+                'variant_configuration_id' => $selectedValue->id,
             ]);
 
             foreach ($languages as $langCode => $language) {
@@ -331,7 +361,7 @@ class AutoProductSeeder extends Seeder
 
             $vendorProductVariant = VendorProductVariant::create([
                 'vendor_product_id' => $vendorProduct->id,
-                'product_variant_id' => $variant->id,
+                'variant_configuration_id' => $selectedValue->id,
                 'sku' => $vendorProduct->sku . '-' . strtoupper(substr($variantTitle, 0, 3)),
                 'price' => $price,
                 'has_discount' => $hasDiscount,
@@ -349,6 +379,9 @@ class AutoProductSeeder extends Seeder
                     ]);
                 }
             }
+        }
+        } catch (\Exception $e) {
+            throw $e;
         }
     }
 

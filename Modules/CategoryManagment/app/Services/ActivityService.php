@@ -64,13 +64,13 @@ class ActivityService
                 'search' => $search,
                 'active' => 1
             ];
-            
+
             // Get query from repository
             $query = $this->activityRepository->getAllActivitiesQuery($filters);
-            
+
             // Count total for pagination
             $total = $query->count();
-            
+
             // Get paginated activities
             $activities = $query->skip(($page - 1) * $perPage)
                 ->take($perPage)
@@ -78,11 +78,11 @@ class ActivityService
 
             // Format results for Select2
             $results = $activities->map(function ($activity) {
-                $activityName = $activity->getTranslation('name', app()->getLocale()) 
-                    ?: $activity->getTranslation('name', 'en') 
+                $activityName = $activity->getTranslation('name', app()->getLocale())
+                    ?: $activity->getTranslation('name', 'en')
                     ?: $activity->getTranslation('name', 'ar')
                     ?: 'Activity #' . $activity->id;
-                    
+
                 return [
                     'id' => $activity->id,
                     'text' => $activityName
@@ -122,7 +122,7 @@ class ActivityService
         try {
             // Validate and prepare data
             $preparedData = $this->prepareActivityData($data);
-            
+
             return $this->activityRepository->createActivity($preparedData);
         } catch (\Exception $e) {
             Log::error('Error creating activity: ' . $e->getMessage());
@@ -138,7 +138,7 @@ class ActivityService
         try {
             // Validate and prepare data
             $preparedData = $this->prepareActivityData($data);
-            
+
             return $this->activityRepository->updateActivity($id, $preparedData);
         } catch (\Exception $e) {
             Log::error('Error updating activity: ' . $e->getMessage());
@@ -180,6 +180,7 @@ class ActivityService
         return [
             'translations' => $data['translations'] ?? [],
             'active' => $data['active'] ?? 0,
+            'commission' => $data['commission'] ?? 0,
         ];
     }
 }

@@ -56,6 +56,7 @@ class VendorController extends Controller {
         ];
 
         $response = $this->vendorAction->getDataTable($data);
+        return $response;
         return response()->json([
             'data' => $response['data'],
             'recordsTotal' => $response['totalRecords'],
@@ -66,7 +67,7 @@ class VendorController extends Controller {
             'total' => $response['dataPaginated']->total(),
             'from' => $response['dataPaginated']->firstItem(),
             'to' => $response['dataPaginated']->lastItem()
-        ]);
+        ], 200, [], JSON_UNESCAPED_UNICODE);
     }
 
 

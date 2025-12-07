@@ -61,32 +61,69 @@ class AppServiceProvider extends ServiceProvider
         // Note: URL defaults are set by SetAdminRouteDefaults middleware
         // so route() helper will automatically include lang and country
 
-        // foreach (File::allFiles(app_path('Models')) as $modelFile) {
-        //     $modelClass = 'App\\Models\\' . $modelFile->getBasename('.php');
-        //     if (class_exists($modelClass) && is_subclass_of($modelClass, Model::class)) {
-        //         $modelClass::observe(GlobalModelObserver::class);
-        //         $modelClass::observe(CountryObserver::class);
-        //     }
-        // }
+        // Register observers for App models
+        $this->registerAppModelObservers();
 
+        // Register observers for Module models
+        $this->registerModuleModelObservers();
+    }
 
-        // // Modules
-        // $modulesPath = base_path('Modules');
-        // foreach (File::directories($modulesPath) as $module) {
-        //     $moduleName = basename($module);
-        //     $modelsPath = $module . '/app/Models';
+    /**
+     * Register observers for all App models
+     */
+    private function registerAppModelObservers(): void
+    {
+        try {
+            foreach (File::allFiles(app_path('Models')) as $modelFile) {
+                $modelClass = 'App\\Models\\' . $modelFile->getBasename('.php');
+                if (class_exists($modelClass) && is_subclass_of($modelClass, Model::class)) {
+                    $modelClass::observe(GlobalModelObserver::class);
+                    $modelClass::observe(CountryObserver::class);
+                }
+            }
+        } catch (\Exception $e) {
+            Log::warning('Error registering App model observers: ' . $e->getMessage());
+        }
+    }
 
-        //     if (File::exists($modelsPath)) {
-        //         foreach (File::allFiles($modelsPath) as $modelFile) {
-        //             $modelClass = "Modules\\{$moduleName}\\app\\Models\\" . $modelFile->getBasename('.php');
-        //             if (class_exists($modelClass) && is_subclass_of($modelClass, Model::class)) {
-        //                 $modelClass::observe(CountryObserver::class);
-        //                 $modelClass::observe(GlobalModelObserver::class);
-        //             } else {
-        //             }
-        //         }
-        //     }
-        // }
+    /**
+     * Register observers for all Module models
+     */
+    private function registerModuleModelObservers(): void
+    {
+        try {
+            $modulesPath = base_path('Modules');
+            if (!File::exists($modulesPath)) {
+                return;
+            }
+
+            // Use cache to avoid scanning on every request
+            $cacheKey = 'module_models_observers_registered';
+
+            if (Cache::has($cacheKey)) {
+                return;
+            }
+
+            foreach (File::directories($modulesPath) as $module) {
+                $moduleName = basename($module);
+                $modelsPath = $module . '/app/Models';
+
+                if (File::exists($modelsPath)) {
+                    foreach (File::allFiles($modelsPath) as $modelFile) {
+                        $modelClass = "Modules\\{$moduleName}\\app\\Models\\" . $modelFile->getBasename('.php');
+                        if (class_exists($modelClass) && is_subclass_of($modelClass, Model::class)) {
+                            $modelClass::observe(CountryObserver::class);
+                            $modelClass::observe(GlobalModelObserver::class);
+                        }
+                    }
+                }
+            }
+
+            // Mark as registered in cache (expires in 24 hours)
+            Cache::put($cacheKey, true, 86400);
+        } catch (\Exception $e) {
+            Log::warning('Error registering Module model observers: ' . $e->getMessage());
+        }
 
     }
 

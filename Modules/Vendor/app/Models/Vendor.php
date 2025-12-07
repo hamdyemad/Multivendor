@@ -106,9 +106,8 @@ class Vendor extends BaseModel
     {
         return $query->where('active', true);
     }
-    /**
-     * Get vendor products (bank products added by this vendor)
-     */
+
+
     public function vendorProducts()
     {
         return $this->hasMany(\Modules\CatalogManagement\app\Models\VendorProduct::class);

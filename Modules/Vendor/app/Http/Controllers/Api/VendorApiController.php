@@ -34,7 +34,6 @@ class VendorApiController extends Controller
             );
         }
         $vendors = $this->VendorService->getAllVendors($dto);
-        return $vendors;
         return $this->sendRes(config('responses.success')[app()->getLocale()], true, VendorApiResource::collection($vendors));
     }
 

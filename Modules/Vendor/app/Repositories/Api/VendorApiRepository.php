@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Modules\Vendor\app\Actions\Api\VendorQueryAction;
 use Modules\Vendor\app\DTOs\VendorFilterDTO;
 use Modules\Vendor\app\Interfaces\Api\VendorApiRepositoryInterface;
+use Modules\Vendor\app\Models\Vendor;
 use Modules\Vendor\app\Models\VendorRequest;
 
 class VendorApiRepository implements VendorApiRepositoryInterface

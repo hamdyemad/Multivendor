@@ -11,10 +11,11 @@ class VendorQueryAction
      */
     public function handle(array $filters = [])
     {
-        $query = Vendor::query()->with('translations')->active();
-
-        // Load relationships
-        $query->with(['translations', 'country', 'logo', 'banner']);
+        $query = Vendor::query()
+            ->with('translations', 'country', 'logo', 'banner')
+            ->withCount('vendorProducts')
+            ->active()
+            ;
 
         if (!empty($filters)) {
             $query->filter($filters);

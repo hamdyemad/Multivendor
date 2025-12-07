@@ -116,18 +116,24 @@ class OccasionController extends Controller
             $validated = $request->validated();
             $occasion = $this->occasionService->createOccasion($validated);
 
+            // Get the count of products added to the occasion
+            $productsCount = $occasion->occasionProducts()->count();
+            $successMessage = trans('catalogmanagement::occasion.occasion_created') .
+                             ($productsCount > 0 ? ' (' . $productsCount . ' ' . trans('catalogmanagement::occasion.products_added') . ')' : '');
+
             // Handle AJAX requests
             if ($request->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => trans('catalogmanagement::occasion.occasion_created'),
+                    'message' => $successMessage,
                     'data' => $occasion,
+                    'products_count' => $productsCount,
                     'redirect' => route('admin.occasions.index')
                 ]);
             }
 
             return redirect()->route('admin.occasions.index')
-                ->with('success', trans('catalogmanagement::occasion.occasion_created'));
+                ->with('success', $successMessage);
         } catch (\Exception $e) {
             // Handle AJAX requests
             if ($request->ajax()) {

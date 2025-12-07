@@ -333,9 +333,9 @@
                             <x-multilingual-input
                                 name="name"
                                 :label="trans('catalogmanagement::occasion.name')"
-                                :labelAr="trans('catalogmanagement::occasion.name')"
+                                :labelAr="'اسم العرض'"
                                 :placeholder="trans('catalogmanagement::occasion.enter_occasion_name')"
-                                :placeholderAr="trans('catalogmanagement::occasion.enter_occasion_name')"
+                                :placeholderAr="'اسم العرض'"
                                 :languages="$languages"
                                 :model="$occasion ?? null"
                                 :required="true"
@@ -345,9 +345,9 @@
                             <x-multilingual-input
                                 name="title"
                                 :label="trans('catalogmanagement::occasion.title')"
-                                :labelAr="trans('catalogmanagement::occasion.title')"
+                                :labelAr="'العنوان'"
                                 :placeholder="trans('catalogmanagement::occasion.enter_occasion_title')"
-                                :placeholderAr="trans('catalogmanagement::occasion.enter_occasion_title')"
+                                :placeholderAr="'العنوان'"
                                 :languages="$languages"
                                 :model="$occasion ?? null"
                             />
@@ -356,9 +356,9 @@
                             <x-multilingual-input
                                 name="sub_title"
                                 :label="trans('catalogmanagement::occasion.sub_title')"
-                                :labelAr="trans('catalogmanagement::occasion.sub_title')"
+                                :labelAr="'العنوان الفرعى'"
                                 :placeholder="trans('catalogmanagement::occasion.enter_occasion_sub_title')"
-                                :placeholderAr="trans('catalogmanagement::occasion.enter_occasion_sub_title')"
+                                :placeholderAr="'العنوان الفرعى'"
                                 :languages="$languages"
                                 :model="$occasion ?? null"
                             />
@@ -1096,63 +1096,6 @@
                     // Hide loading overlay and reset progress bar
                     LoadingOverlay.hide();
 
-                    // Handle validation errors
-                    if (error.errors) {
-                        Object.keys(error.errors).forEach(field => {
-                            // Convert Laravel dot notation to HTML bracket notation
-                            let fieldName = field.replace(/\.(\d+)\./g, '[$1][').replace(/\.(\w+)$/, '[$1]');
-                            if (fieldName.includes('[') && !fieldName.endsWith(']')) {
-                                fieldName += ']';
-                            }
-
-                            // Try multiple selectors to find the input
-                            let input = document.querySelector(`[name="${fieldName}"]`) ||
-                                       document.querySelector(`[name="${field}"]`) ||
-                                       document.querySelector(`input[name*="${field.split('.').pop()}"]`) ||
-                                       document.querySelector(`textarea[name*="${field.split('.').pop()}"]`) ||
-                                       document.querySelector(`select[name*="${field.split('.').pop()}"]`);
-
-                            if (input) {
-                                input.classList.add('is-invalid');
-
-                                // Add invalid border to image upload container if it's an image field
-                                if (field === 'image') {
-                                    const imageContainer = input.closest('.dm-uploader');
-                                    if (imageContainer) {
-                                        imageContainer.style.border = '1px solid #dc3545';
-                                        imageContainer.style.borderRadius = '4px';
-                                    }
-                                }
-
-                                // Remove any existing error message for this field
-                                const existingError = input.parentNode.querySelector('.invalid-feedback');
-                                if (existingError) {
-                                    existingError.remove();
-                                }
-
-                                // Get language information from the input's data-lang attribute or label
-                                let languageName = '';
-                                const langCode = input.getAttribute('data-lang');
-                                if (langCode) {
-                                    const label = input.parentNode.querySelector('label');
-                                    if (label) {
-                                        const labelText = label.textContent;
-                                        const match = labelText.match(/\(([^)]+)\)/);
-                                        if (match) {
-                                            languageName = ` (${match[1]})`;
-                                        }
-                                    }
-                                }
-
-                                const feedback = document.createElement('div');
-                                feedback.className = 'invalid-feedback d-block';
-                                feedback.style.display = 'block !important';
-                                feedback.textContent = error.errors[field][0] + languageName;
-                                input.parentNode.appendChild(feedback);
-                            }
-                        });
-                    }
-
                     // Show error message with all validation errors
                     const alert = document.createElement('div');
                     alert.className = 'alert alert-danger alert-dismissible fade show d-block';
@@ -1164,21 +1107,6 @@
                         </div>
                     `;
 
-                    // Add all validation errors as a list
-                    if (error.errors && Object.keys(error.errors).length > 0) {
-                        errorHtml += '<ul class="mb-0 mt-2">';
-                        Object.keys(error.errors).forEach(field => {
-                            const fieldErrors = error.errors[field];
-                            if (Array.isArray(fieldErrors)) {
-                                fieldErrors.forEach(msg => {
-                                    errorHtml += `<li>${msg}</li>`;
-                                });
-                            } else {
-                                errorHtml += `<li>${fieldErrors}</li>`;
-                            }
-                        });
-                        errorHtml += '</ul>';
-                    }
 
                     errorHtml += '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
                     alert.innerHTML = errorHtml;

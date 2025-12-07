@@ -198,4 +198,5 @@ return [
     'note' => 'ملاحظة',
     'trashed' => 'محذوف',
     'restore' => 'استعادة',
+    'no_data_available' => 'لا توجد بيانات متاحة',
 ];

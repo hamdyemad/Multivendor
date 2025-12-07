@@ -196,4 +196,5 @@ return [
     'note' => 'Note',
     'trashed' => 'Trashed',
     'restore' => 'Restore',
+    'no_data_available' => 'No Data Available',
 ];

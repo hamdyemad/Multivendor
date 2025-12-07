@@ -54,6 +54,7 @@ return [
     'occasion_created' => 'تم إنشاء المناسبة بنجاح',
     'occasion_updated' => 'تم تحديث المناسبة بنجاح',
     'occasion_deleted' => 'تم حذف المناسبة بنجاح',
+    'products_added' => 'منتجات مضافة',
     'error_creating_occasion' => 'خطأ في إنشاء المناسبة',
     'error_updating_occasion' => 'خطأ في تحديث المناسبة',
     'error_deleting_occasion' => 'خطأ في حذف المناسبة',

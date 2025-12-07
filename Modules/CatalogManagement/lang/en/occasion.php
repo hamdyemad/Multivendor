@@ -54,6 +54,7 @@ return [
     'occasion_created' => 'Occasion created successfully',
     'occasion_updated' => 'Occasion updated successfully',
     'occasion_deleted' => 'Occasion deleted successfully',
+    'products_added' => 'products added',
     'error_creating_occasion' => 'Error creating occasion',
     'error_updating_occasion' => 'Error updating occasion',
     'error_deleting_occasion' => 'Error deleting occasion',

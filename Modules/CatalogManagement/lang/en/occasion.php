@@ -99,4 +99,15 @@ return [
 
     // Additional translations for form
     'must_be_greater_than_zero' => 'must be greater than 0',
+
+    // Form labels
+    'enter_occasion_name' => 'Enter occasion name',
+    'enter_occasion_title' => 'Enter occasion title',
+    'enter_occasion_sub_title' => 'Enter occasion sub title',
+    'recommended_size' => 'Recommended size: 1538×402px',
+    'select_vendor' => 'Select Vendor',
+    'type_to_search_products' => 'Type to search products...',
+    'enter_seo_title' => 'Enter SEO title',
+    'enter_seo_description' => 'Enter SEO description',
+    'type_keyword_press_enter' => 'Type a keyword and press Enter...',
 ];

@@ -84,6 +84,7 @@ class ProductRepository implements ProductInterface
 
             // Create product
             $product = Product::create([
+                'slug' => \Str::uuid(),
                 'is_active' => $data['is_active'] ?? true,
                 'configuration_type' => $data['configuration_type'],
                 'vendor_id' => $vendorId,
@@ -106,6 +107,9 @@ class ProductRepository implements ProductInterface
                     'status' => in_array($currentUser->user_type_id, UserType::vendorIds()) ? 'pending' : 'approved',
                 ]
             );
+
+            // Ensure product relationship is loaded
+            $vendorProduct->setRelation('product', $product);
 
             // Store translations
             $this->storeTranslations($product, $data);
@@ -158,6 +162,9 @@ class ProductRepository implements ProductInterface
                     'status' => in_array($currentUser->user_type_id, UserType::vendorIds()) ? 'pending' : 'approved',
                 ]
             );
+
+            // Ensure product relationship is loaded
+            $vendorProduct->setRelation('product', $product);
 
             // Update vendor product fields (for both new and existing records)
             $vendorProduct->update([

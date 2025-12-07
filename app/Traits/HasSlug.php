@@ -58,10 +58,10 @@ trait HasSlug
         if ($this->{$this->slugColumn()}) {
             return;
         }
-        
+
         // Generate slug
         $this->generateAndSetSlug();
-        
+
         // Save slug without triggering events
         $this->saveQuietly();
     }
@@ -75,10 +75,10 @@ trait HasSlug
     {
         $sourceField = $this->slugSource();
         $currentSlug = $this->{$this->slugColumn()};
-        
+
         // Get what the slug should be
         $shouldBeSlug = $this->generateSlugValue();
-        
+
         // Update slug only if it changed
         if ($currentSlug !== $shouldBeSlug) {
             $this->{$this->slugColumn()} = $shouldBeSlug;
@@ -118,25 +118,25 @@ trait HasSlug
     protected function getSourceValueForSlug(): ?string
     {
         $sourceField = $this->slugSource();
-        
+
         // Check if model uses Translation trait
         if ($this->usesTranslationTrait()) {
             // Ensure translations are loaded
             if (!$this->relationLoaded('translations')) {
                 $this->load('translations');
             }
-            
+
             // Try to get translated value for current locale
             if (method_exists($this, 'getTranslation')) {
                 $locale = app()->getLocale() ?? 'en';
                 $translatedValue = $this->getTranslation($sourceField, $locale);
-                
+
                 if ($translatedValue) {
                     return $translatedValue;
                 }
             }
         }
-        
+
         // Fallback to direct field value
         return $this->getAttribute($sourceField);
     }
@@ -171,12 +171,17 @@ trait HasSlug
         $originalSlug = $slug;
         $slugColumn = $this->slugColumn();
 
-        // Build base query
-        $query = static::where($slugColumn, $slug);
+        // Build base query - bypass global scopes to check all records
+        $query = static::withoutGlobalScopes()->where($slugColumn, $slug);
 
         // Handle SoftDeletes if used
         if (in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this), true)) {
             $query->withTrashed();
+        }
+
+        // If model has country_id, scope to current country
+        if ($this->hasAttribute('country_id') && $this->country_id) {
+            $query->where('country_id', $this->country_id);
         }
 
         // Exclude current model if updating
@@ -189,10 +194,14 @@ trait HasSlug
             $slug = $originalSlug . '-' . Str::random(4);
             $slug = Str::slug($slug, '-');
 
-            $query = static::where($slugColumn, $slug);
+            $query = static::withoutGlobalScopes()->where($slugColumn, $slug);
 
             if (in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this), true)) {
                 $query->withTrashed();
+            }
+
+            if ($this->hasAttribute('country_id') && $this->country_id) {
+                $query->where('country_id', $this->country_id);
             }
 
             if ($this->exists) {

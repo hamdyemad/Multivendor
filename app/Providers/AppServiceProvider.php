@@ -97,13 +97,6 @@ class AppServiceProvider extends ServiceProvider
                 return;
             }
 
-            // Use cache to avoid scanning on every request
-            $cacheKey = 'module_models_observers_registered';
-
-            if (Cache::has($cacheKey)) {
-                return;
-            }
-
             foreach (File::directories($modulesPath) as $module) {
                 $moduleName = basename($module);
                 $modelsPath = $module . '/app/Models';
@@ -118,9 +111,6 @@ class AppServiceProvider extends ServiceProvider
                     }
                 }
             }
-
-            // Mark as registered in cache (expires in 24 hours)
-            Cache::put($cacheKey, true, 86400);
         } catch (\Exception $e) {
             Log::warning('Error registering Module model observers: ' . $e->getMessage());
         }

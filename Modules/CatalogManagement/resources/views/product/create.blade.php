@@ -1187,8 +1187,12 @@
             url: `${config.apiBaseUrl}/departments`,
             type: 'GET',
             dataType: 'json',
+            headers: {
+                'lang' : "{{ app()->getLocale() }}"
+            },
             data: {
                 vendor_id: vendorId,
+                country_id: $("meta[name='current_country_id']").attr("content"),
                 select2: true,
                 params: true
             },
@@ -1252,8 +1256,12 @@
             url: `${config.apiBaseUrl}/categories`,
             type: 'GET',
             dataType: 'json',
+            headers: {
+                'lang' : "{{ app()->getLocale() }}"
+            },
             data: {
                 department_id: departmentId,
+                country_id: $("meta[name='current_country_id']").attr("content"),
                 select2: true,
                 params: true
             },
@@ -1315,8 +1323,12 @@
             url: `${config.apiBaseUrl}/subcategories`,
             type: 'GET',
             dataType: 'json',
+            headers: {
+                'lang' : "{{ app()->getLocale() }}"
+            },
             data: {
                 category_id: categoryId,
+                country_id: $("meta[name='current_country_id']").attr("content"),
                 select2: true,
                 params: true
             },
@@ -1522,6 +1534,9 @@
             url: '/api/area/regions',
             type: 'GET',
             dataType: 'json',
+            headers: {
+                'lang' : "{{ app()->getLocale() }}"
+            },
             data: requestData,
             success: function(response) {
                 console.log(response)
@@ -1598,6 +1613,9 @@
         $.ajax({
             url: '{{ route("admin.api.variant-keys") }}',
             type: 'GET',
+            headers: {
+                'lang' : "{{ app()->getLocale() }}"
+            },
             dataType: 'json',
             success: function(response) {
                 variantKeysData = response.data || response;
@@ -1657,6 +1675,9 @@
             url: '{{ route("admin.api.variants-by-key") }}',
             type: 'GET',
             dataType: 'json',
+            headers: {
+                'lang' : "{{ app()->getLocale() }}"
+            },
             data: {
                 key_id: keyId,
             },
@@ -1726,6 +1747,9 @@
             url: '{{ route("admin.api.variants-by-key") }}',
             type: 'GET',
             dataType: 'json',
+            headers: {
+                'lang' : "{{ app()->getLocale() }}"
+            },
             data: {
                 key_id: keyId,
                 parent_id: parentId

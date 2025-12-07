@@ -6,12 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\AreaSettings\app\Models\Region;
-use App\Models\Traits\CountryCheckIdTrait;
 
 
 class VendorProductVariantStock extends Model
 {
-    use HasFactory, SoftDeletes, CountryCheckIdTrait;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'vendor_product_variant_stocks';
     protected $fillable = [

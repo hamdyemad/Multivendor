@@ -88,8 +88,6 @@ class Region extends BaseModel
     public function scopeFilter(Builder $query, array $filters)
     {
         // Call parent filter scope from HasFilterScopes trait
-        parent::scopeFilter($query, $filters);
-
         // Filter by city
         if (!empty($filters['city_id'])) {
             $query->where('city_id', $filters['city_id']);

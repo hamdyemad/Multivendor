@@ -19,8 +19,21 @@ class CountryObserver
     ];
 
 
+    public function creating(Model $model): void
+    {
+        Log::info('CountryObserver: creating event for ' . get_class($model));
+        $this->storeCountryId($model);
+    }
+
+    public function updating(Model $model): void
+    {
+        Log::info('CountryObserver: updating event for ' . get_class($model));
+        $this->storeCountryId($model);
+    }
+
     public function saving(Model $model): void
     {
+        Log::info('CountryObserver: saving event for ' . get_class($model));
         $this->storeCountryId($model);
     }
 
@@ -41,6 +54,7 @@ class CountryObserver
 
         // Skip if country_id is already set
         if ($model->country_id !== null) {
+            Log::info('CountryObserver: country_id already set for ' . get_class($model));
             return;
         }
 
@@ -49,6 +63,7 @@ class CountryObserver
 
             // Try to get country from session first
             $countryCode = session('country_code');
+            Log::info('CountryObserver: Processing ' . get_class($model) . ' with country_code: ' . ($countryCode ?? 'null'));
 
             if ($countryCode) {
                 $country = Country::where('code', strtoupper($countryCode))->first();
@@ -67,9 +82,12 @@ class CountryObserver
             // Set country_id if found
             if ($country) {
                 $model->country_id = $country->id;
+                Log::info('CountryObserver: Set country_id=' . $country->id . ' for ' . get_class($model));
+            } else {
+                Log::warning('CountryObserver: No country found for ' . get_class($model));
             }
         } catch (\Exception $e) {
-            // Log::warning("Could not store country_id: " . $e->getMessage());
+            Log::warning("CountryObserver: Could not store country_id: " . $e->getMessage());
         }
     }
 

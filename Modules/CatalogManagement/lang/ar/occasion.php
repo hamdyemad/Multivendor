@@ -99,4 +99,15 @@ return [
 
     // Additional translations for form
     'must_be_greater_than_zero' => 'يجب أن يكون أكبر من 0',
+
+    // Form labels
+    'enter_occasion_name' => 'أدخل اسم المناسبة',
+    'enter_occasion_title' => 'أدخل عنوان المناسبة',
+    'enter_occasion_sub_title' => 'أدخل العنوان الفرعي للمناسبة',
+    'recommended_size' => 'الحجم الموصى به: 1538×402px',
+    'select_vendor' => 'اختر التاجر',
+    'type_to_search_products' => 'اكتب للبحث عن المنتجات...',
+    'enter_seo_title' => 'أدخل عنوان SEO',
+    'enter_seo_description' => 'أدخل وصف SEO',
+    'type_keyword_press_enter' => 'اكتب كلمة مفتاحية واضغط انتر',
 ];

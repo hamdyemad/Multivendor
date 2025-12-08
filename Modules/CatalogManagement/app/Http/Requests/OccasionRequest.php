@@ -47,6 +47,9 @@ class OccasionRequest extends FormRequest
             'translations.*.name' => 'required|string|max:255',
             'translations.*.title' => 'nullable|string|max:255',
             'translations.*.sub_title' => 'nullable|string|max:255',
+            'translations.*.seo_title' => 'nullable|string|max:255',
+            'translations.*.seo_description' => 'nullable|string|max:500',
+            'translations.*.seo_keywords' => 'nullable|string|max:500',
         ];
     }
 

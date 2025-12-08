@@ -122,10 +122,14 @@ class BundleCategoryRepository implements BundleCategoryRepositoryInterface
 
                         if($field == 'name' && $language->code == 'en') {
                             // Generate slug from English name
-                            if(BundleCategory::where('slug', Str::slug($fields[$field]))->where('id', '!=', $bundleCategory->id)->exists()) {
-                                $model = BundleCategory::where('slug', Str::slug($fields[$field]))->where('id', '!=', $bundleCategory->id)->first();
+                            $model = BundleCategory::where('slug', Str::slug($fields[$field]))
+                            ->where('id', '!=', $bundleCategory->id)
+                            ->withoutCountryFilter()
+                            ->first();
+                            if($model) {
+                                $newSlug = $model->slug . '-' . rand(1, 1000);
                                 $bundleCategory->update([
-                                    'slug' => $model->slug . '-' . rand(1, 1000)
+                                    'slug' => $newSlug
                                 ]);
                             } else {
                                 $bundleCategory->update([

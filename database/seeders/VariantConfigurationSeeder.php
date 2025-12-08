@@ -154,67 +154,42 @@ class VariantConfigurationSeeder extends Seeder
         $valuesCreated = 0;
 
         foreach ($this->variantKeysData as $keyNameEn => $keyData) {
-            // Check if key already exists for this country
-            $existingKey = VariantConfigurationKey::where('country_id', $countryId)
-                ->whereHas('translations', function($q) use ($keyNameEn) {
-                    $q->where('lang_key', 'name')->where('lang_value', $keyNameEn);
-                })->first();
+            // Create the variant key
+            $variantKey = VariantConfigurationKey::create([
+                'parent_key_id' => null,
+                'country_id' => $countryId,
+            ]);
 
-            if (!$existingKey) {
-                // Create the variant key
-                $variantKey = VariantConfigurationKey::create([
-                    'parent_key_id' => null,
-                    'country_id' => $countryId,
+            foreach ($languages as $langCode => $language) {
+                $variantKey->translations()->create([
+                    'lang_id' => $language->id,
+                    'lang_key' => 'name',
+                    'lang_value' => $langCode === 'en' ? $keyNameEn : $keyData['ar'],
                 ]);
-
-                foreach ($languages as $langCode => $language) {
-                    $variantKey->translations()->create([
-                        'lang_id' => $language->id,
-                        'lang_key' => 'name',
-                        'lang_value' => $langCode === 'en' ? $keyNameEn : $keyData['ar'],
-                    ]);
-                }
-
-                echo "  ✓ Created key: {$keyNameEn} (ID: {$variantKey->id})\n";
-                $keysCreated++;
-            } else {
-                $variantKey = $existingKey;
-                echo "  ⏭️ Key exists: {$keyNameEn} (ID: {$variantKey->id})\n";
             }
+
+            echo "  ✓ Created key: {$keyNameEn} (ID: {$variantKey->id})\n";
+            $keysCreated++;
 
             // Create values for this key
             echo "    Creating values for key ID: {$variantKey->id}\n";
             foreach ($keyData['values'] as $valueData) {
-                // Check if value already exists for this key
-                $existingValue = VariantsConfiguration::where('key_id', $variantKey->id)
-                    ->whereHas('translations', function($q) use ($valueData) {
-                        $q->where('lang_key', 'name')->where('lang_value', $valueData['en']);
-                    })->first();
+                $config = VariantsConfiguration::create([
+                    'key_id' => $variantKey->id,
+                    'country_id' => $countryId,
+                    'parent_id' => null,
+                ]);
 
-                if (!$existingValue) {
-                    try {
-                        $config = VariantsConfiguration::create([
-                            'key_id' => $variantKey->id,
-                            'country_id' => $countryId,
-                            'parent_id' => null,
-                        ]);
-
-                        foreach ($languages as $langCode => $language) {
-                            $config->translations()->create([
-                                'lang_id' => $language->id,
-                                'lang_key' => 'name',
-                                'lang_value' => $langCode === 'en' ? $valueData['en'] : $valueData['ar'],
-                            ]);
-                        }
-
-                        echo "    ✓ Created value: {$valueData['en']} (ID: {$config->id}, Key ID: {$config->key_id})\n";
-                        $valuesCreated++;
-                    } catch (\Exception $e) {
-                        echo "    ❌ Error creating value {$valueData['en']}: {$e->getMessage()}\n";
-                    }
-                } else {
-                    echo "    ⏭️ Value exists: {$valueData['en']} (ID: {$existingValue->id})\n";
+                foreach ($languages as $langCode => $language) {
+                    $config->translations()->create([
+                        'lang_id' => $language->id,
+                        'lang_key' => 'name',
+                        'lang_value' => $langCode === 'en' ? $valueData['en'] : $valueData['ar'],
+                    ]);
                 }
+
+                echo "    ✓ Created value: {$valueData['en']} (ID: {$config->id}, Key ID: {$config->key_id})\n";
+                $valuesCreated++;
             }
         }
 

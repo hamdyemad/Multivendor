@@ -22,6 +22,9 @@ return [
     'activation' => 'Activation',
     'no_image' => 'No image uploaded',
 
+    // Sections
+    'basic_information' => 'Basic Information',
+
     // SEO Fields
     'seo_information' => 'SEO Information',
     'seo_title' => 'SEO Title',

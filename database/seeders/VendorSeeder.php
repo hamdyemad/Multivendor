@@ -46,7 +46,6 @@ class VendorSeeder extends Seeder
     public function run(): void
     {
 
-        User::where('email', '!=', 'super_admin@gmail.com')->forceDelete();
         echo "\n🏪 Starting Vendor Seeder...\n";
 
         // Get languages
@@ -93,15 +92,11 @@ class VendorSeeder extends Seeder
     {
         // Check if vendor exists by slug
         $baseSlug = Str::slug($vendorData['en']);
-        if (Vendor::where('slug', $baseSlug)->exists()) {
-            echo "  ⚠️  Vendor already exists: {$vendorData['en']}\n";
-            return;
-        }
 
-        // Generate unique slug
+        // Generate unique slug (globally unique across all countries)
         $slug = $baseSlug;
         $counter = 1;
-        while (Vendor::where('slug', $slug)->exists()) {
+        while (Vendor::where('slug', $slug)->withoutCountryFilter()->exists()) {
             $slug = $baseSlug . '-' . $counter;
             $counter++;
         }

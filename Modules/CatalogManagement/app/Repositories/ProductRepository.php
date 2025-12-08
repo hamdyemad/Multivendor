@@ -249,10 +249,13 @@ class ProductRepository implements ProductInterface
 
                         if($field == 'title' && $language->code == 'en') {
                             // $originalSlug = $slug;
-                            if(Product::where('slug', Str::slug($fields[$field]))->exists()) {
-                                $model = Product::where('slug', Str::slug($fields[$field]))->first();
+                            $model = Product::where('slug', Str::slug($fields[$field]))
+                            ->withoutCountryFilter()
+                            ->first();
+                            if($model) {
+                                $newSlug = $model->slug . '-' . rand(1, 1000);
                                 $product->update([
-                                    'slug' => $model->slug . '-' . rand(1, 999999999)
+                                    'slug' => $newSlug
                                 ]);
                             } else {
                                 $product->update([

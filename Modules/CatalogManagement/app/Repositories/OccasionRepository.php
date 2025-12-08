@@ -148,9 +148,6 @@ class OccasionRepository implements OccasionRepositoryInterface
      */
     protected function storeTranslations(Occasion $occasion, array $data): void
     {
-        // Force delete existing translations (including soft deleted ones)
-        $occasion->translations()->forceDelete();
-
         if (!isset($data['translations']) || !is_array($data['translations'])) {
             return;
         }
@@ -163,10 +160,14 @@ class OccasionRepository implements OccasionRepositoryInterface
 
             if (!empty($translationData['name'])) {
                 // Generate slug from name
-                if(Occasion::where('slug', Str::slug($translationData['name']))->where('id', '!=', $occasion->id)->exists()) {
-                    $model = Occasion::where('slug', Str::slug($translationData['name']))->where('id', '!=', $occasion->id)->first();
+                $model = Occasion::where('slug', Str::slug($translationData['name']))
+                ->withoutCountryFilter()
+                ->where('id', '!=', $occasion->id)->first();
+
+                if($model) {
+                    $newSlug = $model->slug . '-' . rand(1, 1000);
                     $occasion->update([
-                        'slug' => $model->slug . '-' . uniqid()
+                        'slug' => $newSlug
                     ]);
                 } else {
                     $occasion->update([
@@ -183,11 +184,16 @@ class OccasionRepository implements OccasionRepositoryInterface
                         $value = $translationData[$field];
                         // Only store if value is not null and not just whitespace
                         if ($value !== null && trim((string)$value) !== '') {
-                            $occasion->translations()->create([
-                                'lang_id' => $language->id,
-                                'lang_key' => $field,
-                                'lang_value' => $value,
-                            ]);
+                            // Use updateOrCreate to preserve translations from other languages
+                            $occasion->translations()->updateOrCreate(
+                                [
+                                    'lang_id' => $language->id,
+                                    'lang_key' => $field,
+                                ],
+                                [
+                                    'lang_value' => $value,
+                                ]
+                            );
                         }
                     }
                 }

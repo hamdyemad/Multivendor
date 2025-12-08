@@ -19,6 +19,7 @@ trait CountryCheckIdTrait
             if ($countryId !== null) {
                 $builder->where('country_id', $countryId);
             }
+
         });
     }
 

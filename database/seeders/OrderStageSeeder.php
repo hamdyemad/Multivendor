@@ -14,7 +14,6 @@ class OrderStageSeeder extends Seeder
      */
     public function run(): void
     {
-        OrderStage::latest()->forceDelete();
         // Get English and Arabic languages
         $languages = Language::whereIn('code', ['en', 'ar'])->get()->keyBy('code');
 
@@ -90,18 +89,22 @@ class OrderStageSeeder extends Seeder
         ];
 
         foreach ($stages as $stageData) {
-            // Check if stage already exists
-            $existingStage = OrderStage::where('slug', $stageData['slug'])->first();
 
-            if ($existingStage) {
-                $this->command->info("Stage '{$stageData['slug']}' already exists. Skipping...");
-                continue;
-            }
+                $slug = Str::slug($stageData['names']['en']);
+                $counter = 1;
+                $originalSlug = $slug;
+
+                // Keep incrementing counter until we find a unique slug
+                while (OrderStage::where('slug', $slug)
+                    ->withoutCountryFilter()->exists()) {
+                    $slug = $originalSlug . '-' . $counter;
+                    $counter++;
+                }
 
             try {
                 // Create the order stage
                 $orderStage = OrderStage::create([
-                    'slug' => $stageData['slug'],
+                    'slug' => $slug,
                     'color' => $stageData['color'],
                     'active' => true,
                     'is_system' => true, // Mark as system stage (cannot be deleted)

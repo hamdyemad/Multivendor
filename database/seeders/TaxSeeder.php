@@ -66,7 +66,8 @@ class TaxSeeder extends Seeder
             $originalSlug = $slug;
 
             // Keep incrementing counter until we find a unique slug
-            while (Tax::where('slug', $slug)->exists()) {
+            while (Tax::where('slug', $slug)
+                ->withoutCountryFilter()->exists()) {
                 $slug = $originalSlug . '-' . $counter;
                 $counter++;
             }

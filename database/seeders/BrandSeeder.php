@@ -96,16 +96,12 @@ class BrandSeeder extends Seeder
         // Generate base slug
         $baseSlug = Str::slug($brandData['en']);
 
-        // Check if brand with this slug already exists
-        if (Brand::where('slug', $baseSlug)->exists()) {
-            echo "  ⏭️ Skipped brand: {$brandData['en']} (already exists)\n";
-            return;
-        }
 
         // Generate unique slug globally (in case of race conditions)
         $slug = $baseSlug;
         $counter = 1;
-        while (Brand::where('slug', $slug)->exists()) {
+        while (Brand::where('slug', $slug)
+            ->withoutCountryFilter()->exists()) {
             $slug = $baseSlug . '-' . $counter;
             $counter++;
         }

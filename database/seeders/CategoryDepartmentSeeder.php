@@ -205,12 +205,6 @@ class CategoryDepartmentSeeder extends Seeder
         // Create Categories and SubCategories
         $this->createCategoriesAndSubCategories($languages, $countryId);
 
-        // Create Brands
-        $this->createBrands($languages, $countryId);
-
-        // Create Regions if not exist
-        $this->createRegions($languages);
-
         echo "\n✅ Category & Department Seeder completed!\n";
     }
 
@@ -222,54 +216,67 @@ class CategoryDepartmentSeeder extends Seeder
         echo "\n📁 Creating Activities and Departments...\n";
 
         foreach ($this->activitiesData as $activityNameEn => $activityData) {
-            // Check if activity exists
-            $activity = Activity::whereHas('translations', function($q) use ($activityNameEn) {
-                $q->where('lang_key', 'name')->where('lang_value', $activityNameEn);
-            })->first();
+            // Generate base slug
+            $slug = Str::slug($activityNameEn);
+            $counter = 1;
+            $originalSlug = $slug;
 
-            if (!$activity) {
-                $activity = Activity::create([
-                    'slug' => Str::slug($activityNameEn),
-                    'active' => true,
-                    'country_id' => $countryId,
-                    'commission' => 15,
-                ]);
-
-                foreach ($languages as $langCode => $language) {
-                    $activity->translations()->create([
-                        'lang_id' => $language->id,
-                        'lang_key' => 'name',
-                        'lang_value' => $langCode === 'en' ? $activityNameEn : $activityData['ar'],
-                    ]);
-                }
-                echo "  ✓ Created activity: {$activityNameEn}\n";
+            // Keep incrementing counter until we find a unique slug
+            while (Activity::where('slug', $slug)
+                ->withoutCountryFilter()->exists()) {
+                $slug = $originalSlug . '-' . $counter;
+                $counter++;
             }
+
+
+            $activity = Activity::create([
+                'slug' => $slug,
+                'active' => true,
+                'country_id' => $countryId,
+                'commission' => 15,
+            ]);
+
+            foreach ($languages as $langCode => $language) {
+                $activity->translations()->create([
+                    'lang_id' => $language->id,
+                    'lang_key' => 'name',
+                    'lang_value' => $langCode === 'en' ? $activityNameEn : $activityData['ar'],
+                ]);
+            }
+            echo "  ✓ Created activity: {$activityNameEn}\n";
 
             // Create departments for this activity
             foreach ($activityData['departments'] as $deptData) {
-                $department = Department::whereHas('translations', function($q) use ($deptData) {
-                    $q->where('lang_key', 'name')->where('lang_value', $deptData['en']);
-                })->first();
+                // Generate base slug
+                $slug = Str::slug($deptData['en']);
+                $counter = 1;
+                $originalSlug = $slug;
 
-                if (!$department) {
-                    $department = Department::create([
-                        'slug' => Str::slug($deptData['en']),
-                        'active' => true,
-                        'country_id' => $countryId,
-                    ]);
-
-                    foreach ($languages as $langCode => $language) {
-                        $department->translations()->create([
-                            'lang_id' => $language->id,
-                            'lang_key' => 'name',
-                            'lang_value' => $langCode === 'en' ? $deptData['en'] : $deptData['ar'],
-                        ]);
-                    }
-
-                    // Link department to activity
-                    $department->activities()->attach($activity->id);
-                    echo "    ✓ Created department: {$deptData['en']}\n";
+                // Keep incrementing counter until we find a unique slug
+                while (Department::where('slug', $slug)
+                    ->withoutCountryFilter()->exists()) {
+                    $slug = $originalSlug . '-' . $counter;
+                    $counter++;
                 }
+
+
+                $department = Department::create([
+                    'slug' => $slug,
+                    'active' => true,
+                    'country_id' => $countryId,
+                ]);
+
+                foreach ($languages as $langCode => $language) {
+                    $department->translations()->create([
+                        'lang_id' => $language->id,
+                        'lang_key' => 'name',
+                        'lang_value' => $langCode === 'en' ? $deptData['en'] : $deptData['ar'],
+                    ]);
+                }
+
+                // Link department to activity
+                $department->activities()->attach($activity->id);
+                echo "    ✓ Created department: {$deptData['en']}\n";
             }
         }
     }
@@ -294,168 +301,69 @@ class CategoryDepartmentSeeder extends Seeder
             }
 
             foreach ($categories as $catData) {
-                // Check if category exists
-                $category = Category::whereHas('translations', function($q) use ($catData) {
-                    $q->where('lang_key', 'name')->where('lang_value', $catData['en']);
-                })->first();
-
-                if (!$category) {
-                    $category = Category::create([
-                        'slug' => Str::slug($catData['en']),
-                        'department_id' => $department->id,
-                        'active' => true,
-                        'country_id' => $countryId,
-                    ]);
-
-                    foreach ($languages as $langCode => $language) {
-                        $category->translations()->create([
-                            'lang_id' => $language->id,
-                            'lang_key' => 'name',
-                            'lang_value' => $langCode === 'en' ? $catData['en'] : $catData['ar'],
-                        ]);
-                    }
-                    echo "  ✓ Created category: {$catData['en']}\n";
-                }
-
-                // Create subcategories
-                if (isset($catData['subs'])) {
-                    foreach ($catData['subs'] as $subData) {
-                        $subCategory = SubCategory::whereHas('translations', function($q) use ($subData) {
-                            $q->where('lang_key', 'name')->where('lang_value', $subData['en']);
-                        })->first();
-
-                        if (!$subCategory) {
-                            $subCategory = SubCategory::create([
-                                'slug' => Str::slug($subData['en']),
-                                'category_id' => $category->id,
-                                'active' => true,
-                                'country_id' => $countryId,
-                            ]);
-
-                            foreach ($languages as $langCode => $language) {
-                                $subCategory->translations()->create([
-                                    'lang_id' => $language->id,
-                                    'lang_key' => 'name',
-                                    'lang_value' => $langCode === 'en' ? $subData['en'] : $subData['ar'],
-                                ]);
-                            }
-                            echo "    ✓ Created subcategory: {$subData['en']}\n";
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Create Brands
-     */
-    private function createBrands($languages, $countryId = null)
-    {
-        echo "\n🏷️ Creating Brands...\n";
-
-        try {
-            foreach ($this->brandsData as $brandData) {
-                $slug = Str::slug($brandData['en']);
-
-                // Check if brand exists globally (slug is unique across all countries)
-                $brand = Brand::where('slug', $slug)->first();
-
-                if ($brand) {
-                    echo "  ⏭️ Skipped brand: {$brandData['en']} (already exists)\n";
-                    continue;
-                }
-
-                // Generate unique slug if needed
+                // Generate base slug
+                $slug = Str::slug($catData['en']);
                 $counter = 1;
                 $originalSlug = $slug;
-                while (Brand::where('slug', $slug)->exists()) {
+
+                // Keep incrementing counter until we find a unique slug
+                while (Category::where('slug', $slug)
+                    ->withoutCountryFilter()->exists()) {
                     $slug = $originalSlug . '-' . $counter;
                     $counter++;
                 }
 
-                try {
-                    $brand = Brand::create([
-                        'slug' => $slug,
-                        'active' => true,
-                        'country_id' => $countryId,
-                    ]);
 
-                    foreach ($languages as $langCode => $language) {
-                        $brand->translations()->create([
-                            'lang_id' => $language->id,
-                            'lang_key' => 'name',
-                            'lang_value' => $langCode === 'en' ? $brandData['en'] : $brandData['ar'],
+                $category = Category::create([
+                    'slug' => $slug,
+                    'department_id' => $department->id,
+                    'active' => true,
+                    'country_id' => $countryId,
+                ]);
+
+                foreach ($languages as $langCode => $language) {
+                    $category->translations()->create([
+                        'lang_id' => $language->id,
+                        'lang_key' => 'name',
+                        'lang_value' => $langCode === 'en' ? $catData['en'] : $catData['ar'],
+                    ]);
+                }
+                echo "  ✓ Created category: {$catData['en']}\n";
+                // Create subcategories
+                if (isset($catData['subs'])) {
+                    foreach ($catData['subs'] as $subData) {
+                        // Generate base slug
+                        $slug = Str::slug($subData['en']);
+                        $counter = 1;
+                        $originalSlug = $slug;
+
+                        // Keep incrementing counter until we find a unique slug
+                        while (SubCategory::where('slug', $slug)
+                            ->withoutCountryFilter()->exists()) {
+                            $slug = $originalSlug . '-' . $counter;
+                            $counter++;
+                        }
+
+
+                        $subCategory = SubCategory::create([
+                            'slug' => $slug,
+                            'category_id' => $category->id,
+                            'active' => true,
+                            'country_id' => $countryId,
                         ]);
+
+                        foreach ($languages as $langCode => $language) {
+                            $subCategory->translations()->create([
+                                'lang_id' => $language->id,
+                                'lang_key' => 'name',
+                                'lang_value' => $langCode === 'en' ? $subData['en'] : $subData['ar'],
+                            ]);
+                        }
+                        echo "    ✓ Created subcategory: {$subData['en']}\n";
                     }
-                    echo "  ✓ Created brand: {$brandData['en']}\n";
-                } catch (\Exception $e) {
-                    echo "  ⏭️ Skipped brand: {$brandData['en']} (error: {$e->getMessage()})\n";
                 }
             }
-        } catch (\Exception $e) {
-            echo "  ❌ Error in brand creation: {$e->getMessage()}\n";
         }
     }
 
-    /**
-     * Create Regions if not exist
-     */
-    private function createRegions($languages)
-    {
-        echo "\n🌍 Checking Regions...\n";
-
-        $regionCount = Region::count();
-        if ($regionCount > 0) {
-            echo "  ✓ Found {$regionCount} existing regions\n";
-            return;
-        }
-
-        // Create default regions for each country
-        $countries = Country::all();
-
-        $defaultRegions = [
-            ['en' => 'Central Region', 'ar' => 'المنطقة الوسطى'],
-            ['en' => 'Eastern Region', 'ar' => 'المنطقة الشرقية'],
-            ['en' => 'Western Region', 'ar' => 'المنطقة الغربية'],
-            ['en' => 'Northern Region', 'ar' => 'المنطقة الشمالية'],
-            ['en' => 'Southern Region', 'ar' => 'المنطقة الجنوبية'],
-        ];
-
-        foreach ($countries as $country) {
-            // Get or create a default city
-            $city = $country->cities()->first();
-
-            if (!$city) {
-                $city = City::create([
-                    'country_id' => $country->id,
-                    'active' => true,
-                ]);
-
-                foreach ($languages as $langCode => $language) {
-                    $city->translations()->create([
-                        'lang_id' => $language->id,
-                        'lang_key' => 'name',
-                        'lang_value' => $langCode === 'en' ? 'Main City' : 'المدينة الرئيسية',
-                    ]);
-                }
-            }
-
-            foreach ($defaultRegions as $regionData) {
-                $region = Region::create([
-                    'city_id' => $city->id,
-                    'active' => true,
-                ]);
-
-                foreach ($languages as $langCode => $language) {
-                    $region->translations()->create([
-                        'lang_id' => $language->id,
-                        'lang_key' => 'name',
-                        'lang_value' => $langCode === 'en' ? $regionData['en'] : $regionData['ar'],
-                    ]);
-                }
-                echo "  ✓ Created region: {$regionData['en']} for {$country->code}\n";
-            }
-        }
-    }
 }

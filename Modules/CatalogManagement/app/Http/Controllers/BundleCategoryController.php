@@ -10,6 +10,8 @@ use Modules\CatalogManagement\app\Services\BundleCategoryService;
 use Modules\CatalogManagement\app\Interfaces\BundleCategoryRepositoryInterface;
 use Modules\CatalogManagement\app\Http\Requests\BundleCategoryRequest;
 use App\Services\LanguageService;
+use Modules\AreaSettings\app\Models\Country;
+use Modules\CatalogManagement\app\Models\BundleCategory;
 
 class BundleCategoryController extends Controller
 {
@@ -203,7 +205,7 @@ class BundleCategoryController extends Controller
     /**
      * Toggle bundle category status
      */
-    public function toggleStatus(Request $request, $id)
+    public function toggleStatus(Request $request, $lang, $countryCode, $id)
     {
         try {
             $validator = Validator::make($request->all(), [

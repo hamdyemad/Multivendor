@@ -6,7 +6,8 @@ use App\Models\BaseModel;
 use App\Models\Traits\HumanDates;
 use App\Traits\HasSlug;
 use App\Traits\Translation;
-
+use App\Models\Traits\CountryCheckIdTrait;
+use App\Models\Traits\AutoStoreCountryId;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,7 +15,7 @@ use Modules\AreaSettings\app\Models\Country;
 
 class OrderStage extends BaseModel
 {
-    use HasFactory, SoftDeletes, Translation, HumanDates, HasSlug;
+    use HasFactory, SoftDeletes, Translation, HumanDates, HasSlug, AutoStoreCountryId,CountryCheckIdTrait;
 
     protected $guarded = [];
 

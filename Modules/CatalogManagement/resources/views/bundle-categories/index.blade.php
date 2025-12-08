@@ -246,15 +246,17 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
+                            let viewUrl = "{{ route('admin.bundle-categories.show', ':id') }}".replace(':id', row.id),
+                                editUrl = "{{ route('admin.bundle-categories.edit', ':id') }}".replace(':id', row.id);
                             return `
                                 <div class="orderDatatable_actions d-inline-flex gap-1">
-                                    <a href="{{ url('admin/bundle-categories') }}/${row.id}"
+                                    <a href="${viewUrl}"
                                     class="view btn btn-primary table_action_father"
                                     title="{{ trans('catalogmanagement::bundle_category.view_bundle_category') }}">
                                         <i class="uil uil-eye table_action_icon"></i>
                                     </a>
 
-                                    <a href="{{ url('admin/bundle-categories') }}/${row.id}/edit"
+                                    <a href="${editUrl}"
                                     class="edit btn btn-warning table_action_father"
                                     title="{{ trans('catalogmanagement::bundle_category.edit_bundle_category') }}">
                                         <i class="uil uil-edit table_action_icon"></i>
@@ -349,8 +351,9 @@
                     });
                 }
 
+                let route = "{{ route('admin.bundle-categories.toggle-status', ':id') }}".replace(':id', id)
                 $.ajax({
-                    url: '{{ url("admin/bundle-categories") }}/' + id + '/toggle-status',
+                    url: route,
                     type: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',

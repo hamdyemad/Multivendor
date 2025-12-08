@@ -1,13 +1,3 @@
-@php
-    try {
-        $user_type = auth()->user()->user_type?->name ?? 'Unknown';
-        $vendor = auth()->user()->vendor ?? null;
-    } catch (\Exception $e) {
-        $user_type = 'Unknown';
-        $vendor = null;
-    }
-@endphp
-
 @extends('layout.app')
 
 @section('title')

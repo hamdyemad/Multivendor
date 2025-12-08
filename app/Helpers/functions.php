@@ -1017,3 +1017,23 @@ function current_country()
         return null; // Fallback in case of error
     }
 }
+
+function isAdmin() {
+    $user = auth()->user();
+    $user_type_id = $user->user_type_id ?? null;
+    if (in_array($user_type_id, \App\Models\UserType::adminIds())) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function isVendor() {
+    $user = auth()->user();
+    $user_type_id = $user->user_type_id ?? null;
+    if (in_array($user_type_id, \App\Models\UserType::vendorIds())) {
+        return true;
+    } else {
+        return false;
+    }
+}

@@ -50,20 +50,17 @@ class OccasionController extends Controller
                 'end_date' => $request->get('end_date'),
             ];
 
-            // Get occasions query with filters
-            $query = $this->occasionService->getOccasionsQuery($filters);
+            // Get occasions query with filters (use 0 for no pagination in DataTables)
+            $occasions = $this->occasionService->getAllOccasions($filters, 0);
 
-            return DataTables::of($query)
+            return DataTables::of($occasions)
                 ->addColumn('occasion_information', function ($occasion) {
                     // Get EN and AR names
                     $nameEn = $occasion->getTranslation('name', 'en') ?? '-';
                     $nameAr = $occasion->getTranslation('name', 'ar') ?? '-';
 
                     // Get vendor name
-                    $vendorName = $occasion->vendor ? $occasion->vendor->getTranslation('name', app()->getLocale()) ??
-                                  $occasion->vendor->getTranslation('name', 'en') ??
-                                  $occasion->vendor->getTranslation('name', 'ar') ??
-                                  $occasion->vendor->name ?? '-' : '-';
+                    $vendorName = $occasion->vendor->name;
 
                     // Get image
                     $imageAttachment = $occasion->attachments()->where('type', 'image')->first();
@@ -77,10 +74,10 @@ class OccasionController extends Controller
                     ];
                 })
                 ->addColumn('start_date', function ($occasion) {
-                    return $occasion->start_date ? $occasion->start_date : '-';
+                    return $occasion->start_date ? $occasion->start_date->format('Y-m-d') : '-';
                 })
                 ->addColumn('end_date', function ($occasion) {
-                    return $occasion->end_date ? $occasion->end_date : '-';
+                    return $occasion->end_date ? $occasion->end_date->format('Y-m-d') : '-';
                 })
                 ->addColumn('is_active', function ($occasion) {
                     return $occasion->is_active;
@@ -181,7 +178,6 @@ class OccasionController extends Controller
         $occasion = $this->occasionService->getOccasionById($id);
         $languages = $this->languageService->getAll();
         $vendors = \Modules\Vendor\app\Models\Vendor::all();
-
         $data = [
             'title' => trans('catalogmanagement::occasion.edit_occasion'),
             'occasion' => $occasion,
@@ -345,7 +341,7 @@ class OccasionController extends Controller
     /**
      * Remove a product from occasion
      */
-    public function destroyProduct($lang, $countryCode,Request $request, $occasion, $product)
+    public function destroyProduct(Request $request, $lang, $countryCode, $occasion, $product)
     {
         try {
             // Find and delete the occasion product
@@ -407,6 +403,44 @@ class OccasionController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => trans('common.error_updating_order') ?? 'Error updating order',
+            ], 500);
+        }
+    }
+
+    /**
+     * Update special price for occasion product
+     */
+    public function updateSpecialPrice(Request $request, $lang, $countryCode, $occasion, $product)
+    {
+        try {
+            // Validate input
+            $validated = $request->validate([
+                'special_price' => 'nullable|numeric|min:0',
+            ]);
+
+            // Find and update the occasion product
+            $occasionProduct = \Modules\CatalogManagement\app\Models\OccasionProduct::where('occasion_id', $occasion)
+                ->where('id', $product)
+                ->firstOrFail();
+
+            $occasionProduct->update([
+                'special_price' => $validated['special_price'] ?? null,
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => trans('catalogmanagement::occasion.special_price') . ' ' . trans('common.updated'),
+                'data' => $occasionProduct,
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => trans('catalogmanagement::occasion.error_deleting_product'),
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => trans('common.error') . ': ' . $e->getMessage(),
             ], 500);
         }
     }

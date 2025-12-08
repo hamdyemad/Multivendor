@@ -252,9 +252,7 @@
                                     <img src="${data.image}" alt="Occasion Image" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                 </div>`;
                             } else {
-                                html += `<div style="flex-shrink: 0; width: 60px; height: 60px; background: #f0f0f0; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="uil uil-image-slash" style="font-size: 24px; color: #ccc;"></i>
-                                </div>`;
+                                html += `<img src="{{ asset('assets/img/default.png') }}" alt="Occasion Image" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">`;
                             }
 
                             // Names and Vendor

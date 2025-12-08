@@ -50,7 +50,10 @@ class Occasion extends BaseModel
      */
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query
+        ->where('start_date', '>=', now())
+        ->whereColumn('end_date', '<=', 'start_date')
+        ->where('is_active', true);
     }
 
     /**

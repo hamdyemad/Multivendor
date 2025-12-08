@@ -14,10 +14,14 @@ class OccasionRepository implements OccasionRepositoryInterface
     /**
      * Get all occasions with optional filters
      */
-    public function getOccasionsQuery(array $filters = [], $orderBy = null, $orderDirection = 'desc')
+
+
+    public function getAllOccasions(array $filters = [], $perPage = 10)
     {
-        $query = Occasion::with(['translations', 'vendor'])->filter($filters);
-        return $query;
+        $query = Occasion::with(['translations', 'vendor', 'occasionProducts'])
+            ->filter($filters);
+
+        return ($perPage == 0) ? $query->get() : $query->paginate($perPage);
     }
 
     /**
@@ -28,9 +32,11 @@ class OccasionRepository implements OccasionRepositoryInterface
         return Occasion::with([
             'translations',
             'vendor',
-            'occasionProducts.vendorProductVariant.vendorProduct.product.mainImage',
-            'occasionProducts.vendorProductVariant.vendorProduct.product.translations'
-        ])->findOrFail($id);
+            'occasionProducts'
+        ])
+        ->where('id', $id)
+        ->orWhere('slug', $id)
+        ->first();
     }
 
     /**

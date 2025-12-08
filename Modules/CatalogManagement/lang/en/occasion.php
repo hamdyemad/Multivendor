@@ -53,6 +53,8 @@ return [
     'selected_products' => 'Selected Products',
     'products_selected' => 'products selected',
     'custom_price' => 'Custom Price',
+    'existing_products' => 'Existing Products',
+    'existing_products_info' => 'These are the products currently associated with this occasion. You can manage them from the occasion details page.',
 
     // SEO Fields
     'seo_information' => 'SEO Information',

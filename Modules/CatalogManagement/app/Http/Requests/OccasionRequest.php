@@ -26,15 +26,19 @@ class OccasionRequest extends FormRequest
         // Image is required only when creating, nullable when updating
         $imageRule = $isUpdate ? 'nullable' : 'required';
 
+        // For updates, variants are optional if occasion already has products
+        // For creates, variants are required
+        $variantsRule = $isUpdate ? 'nullable|array' : 'required|array';
+
         return [
             // Basic fields
             'vendor_id' => 'required|exists:vendors,id',
             'is_active' => 'boolean',
-            // 'image' => $imageRule . '|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'image' => $imageRule . '|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
 
-            'variants' => 'required|array',
+            'variants' => $variantsRule,
             'variants.*.vendor_product_variant_id' => 'required|exists:vendor_product_variants,id',
             'variants.*.special_price' => 'nullable|numeric',
 

@@ -207,4 +207,8 @@ return [
     'order_updated_successfully' => 'تم تحديث الترتيب بنجاح',
     'error_updating_order' => 'خطأ في تحديث الترتيب',
     'no_positions_provided' => 'لم يتم توفير أي مواضع',
+    'add' => 'إضافة',
+    'added' => 'تمت الإضافة',
+    'before_discount' => 'قبل الخصم',
+    'updated' => 'تم التحديث',
 ];

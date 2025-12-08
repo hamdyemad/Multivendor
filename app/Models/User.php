@@ -107,21 +107,7 @@ class User extends Authenticatable
 
     public function getVendorAttribute()
     {
-        // Check if relationships are already loaded to prevent lazy loading
-        // if ($this->relationLoaded('vendorByUser')) {
-        //     $vendor = $this->getRelationValue('vendorByUser');
-        //     if ($vendor) {
-        //         return $vendor;
-        //     }
-        // }
-
-        // if ($this->relationLoaded('vendorById')) {
-        //     return $this->getRelationValue('vendorById');
-        // }
-
-        // If neither relationship is loaded, return null to prevent lazy loading
-        // This prevents N+1 queries and infinite loops
-        return null;
+        return $this->vendorByUser ?? $this->vendorById;
     }
 
 

@@ -17,10 +17,11 @@ class OccasionService
     /**
      * Get occasions query with filters
      */
-    public function getOccasionsQuery(array $filters = [])
+    public function getAllOccasions(array $filters = [], $perPage)
     {
-        return $this->occasionRepository->getOccasionsQuery($filters);
+        return $this->occasionRepository->getAllOccasions($filters, $perPage);
     }
+
 
     /**
      * Get occasion by ID

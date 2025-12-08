@@ -358,7 +358,36 @@
                             {{-- Occasion Sub Title Fields --}}
                             <x-multilingual-input name="sub_title" :label="trans('catalogmanagement::occasion.sub_title')" :labelAr="'العنوان الفرعى'" :placeholder="trans('catalogmanagement::occasion.enter_occasion_sub_title')"
                                 :placeholderAr="'العنوان الفرعى'" :languages="$languages" :model="$occasion ?? null" />
+                            {{-- Date Fields --}}
+                            <div class="row">
+                                <div class="col-md-6 mb-25">
+                                    <div class="form-group">
+                                        <label for="start_date" class="il-gray fs-14 fw-500 mb-10">
+                                            {{ trans('catalogmanagement::occasion.start_date') }}
+                                        </label>
+                                        <input type="date" class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                            id="start_date" name="start_date"
+                                            value="{{ old('start_date', isset($occasion) ? $occasion->start_date?->format('Y-m-d') : '') }}">
+                                        @error('start_date')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
 
+                                <div class="col-md-6 mb-25">
+                                    <div class="form-group">
+                                        <label for="end_date" class="il-gray fs-14 fw-500 mb-10">
+                                            {{ trans('catalogmanagement::occasion.end_date') }}
+                                        </label>
+                                        <input type="date" class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                            id="end_date" name="end_date"
+                                            value="{{ old('end_date', isset($occasion) ? $occasion->end_date?->format('Y-m-d') : '') }}">
+                                        @error('end_date')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
                             <div class="row">
                                 {{-- Occasion Image --}}
                                 <div class="col-md-6 mb-25">
@@ -393,63 +422,45 @@
                                     </div>
                                 </div>
                             </div>
-                            {{-- Date Fields --}}
-                            <div class="row">
-                                <div class="col-md-6 mb-25">
-                                    <div class="form-group">
-                                        <label for="start_date" class="il-gray fs-14 fw-500 mb-10">
-                                            {{ trans('catalogmanagement::occasion.start_date') }}
-                                        </label>
-                                        <input type="date" class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                            id="start_date" name="start_date"
-                                            value="{{ old('start_date', isset($occasion) ? $occasion->start_date?->format('Y-m-d') : '') }}">
-                                        @error('start_date')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6 mb-25">
-                                    <div class="form-group">
-                                        <label for="end_date" class="il-gray fs-14 fw-500 mb-10">
-                                            {{ trans('catalogmanagement::occasion.end_date') }}
-                                        </label>
-                                        <input type="date" class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                            id="end_date" name="end_date"
-                                            value="{{ old('end_date', isset($occasion) ? $occasion->end_date?->format('Y-m-d') : '') }}">
-                                        @error('end_date')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
                             {{-- Vendor Selection --}}
-                            <div class="row">
-                                <div class="col-md-12 mb-25">
-                                    <div class="form-group">
-                                        <label for="vendor_id" class="il-gray fs-14 fw-500 mb-10">
-                                            {{ trans('catalogmanagement::occasion.vendor') }} <span
-                                                class="text-danger">*</span>
-                                        </label>
-                                        <select name="vendor_id" id="vendor_id" class="form-control select2">
-                                            <option value="">{{ trans('catalogmanagement::occasion.select_vendor') }}
-                                            </option>
-                                            @foreach ($vendors as $vendor)
-                                                <option value="{{ $vendor->id }}"
-                                                    {{ old('vendor_id', $occasion->vendor_id ?? '') == $vendor->id ? 'selected' : '' }}>
-                                                    {{ $vendor->name }}
+                            @if(isAdmin())
+                                <div class="row">
+                                    <div class="col-md-12 mb-25">
+                                        <div class="form-group">
+                                            <label for="vendor_id" class="il-gray fs-14 fw-500 mb-10">
+                                                {{ trans('catalogmanagement::occasion.vendor') }} <span
+                                                    class="text-danger">*</span>
+                                            </label>
+                                            <select name="vendor_id" id="vendor_id" class="form-control select2">
+                                                <option value="">{{ trans('catalogmanagement::occasion.select_vendor') }}
                                                 </option>
-                                            @endforeach
-                                        </select>
-                                        @error('vendor_id')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                                        @enderror
+                                                @foreach ($vendors as $vendor)
+                                                    <option value="{{ $vendor->id }}"
+                                                        {{ old('vendor_id', $occasion->vendor_id ?? '') == $vendor->id ? 'selected' : '' }}>
+                                                        {{ $vendor->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            @error('vendor_id')
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            @else
+                                {{-- Hidden vendor input for vendor users --}}
+                                @php
+                                    $userVendorId = auth()->user()->vendor_id ?? (auth()->user()->vendor ? auth()->user()->vendor->id : null);
+                                @endphp
+                                <input type="hidden" name="vendor_id" id="vendor_id" value="{{ $userVendorId }}">
+                            @endif
 
                             {{-- Product Variants Section --}}
-                            <div class="row" id="variantsSection" style="display: none;">
+                            <div class="row" id="variantsSection"
+                            @if(isAdmin())
+                                style="display: none;"
+                            @endif
+                            >
                                 <div class="col-12">
                                     <h6 class="mb-20 fw-500">{{ trans('catalogmanagement::occasion.product_variants') }}
                                     </h6>
@@ -477,10 +488,11 @@
                                     </div>
                                 </div>
 
+
                                 {{-- Selected Products Container --}}
                                 <div class="col-12 mb-25">
                                     <h6 class="mb-3 fw-500">{{ trans('catalogmanagement::occasion.selected_products') }}</h6>
-                                    <div id="selected-products" class="row" style="min-height: 100px; border: 1px solid #e9ecef; border-radius: 0.375rem; padding: 15px;">
+                                    <div id="selected-products" class="row" style="min-height: 100px;">
                                         <div class="col-12 text-center text-muted py-3">
                                             <p>{{ trans('catalogmanagement::occasion.no_products_selected') }}</p>
                                         </div>
@@ -509,6 +521,12 @@
                                         </div>
                                     </div>
                                 @endif
+
+                                @if(isset($occasion) && $occasion->occasionProducts->count() > 0)
+                                    {{-- Existing Products Table (for edit mode) --}}
+                                    @include('catalogmanagement::occasions.occasion-products-table', ['occasion' => $occasion, 'showDragHandle' => true, 'showActions' => true])
+                                @endif
+
                             </div>
 
                             {{-- SEO Information Section --}}
@@ -563,47 +581,56 @@
             const currentUserType = {{ auth()->user()->user_type_id ?? 'null' }};
             const vendorUserTypes = [3, 4]; // VENDOR_TYPE = 3, VENDOR_USER_TYPE = 4
             const isVendorUser = vendorUserTypes.includes(currentUserType);
-            const userVendorId = {{ auth()->user()->vendor_id ?? 'null' }};
 
-            // Initialize Select2 for vendor dropdown
-            $('#vendor_id').select2({
-                theme: 'bootstrap-5',
-                placeholder: '{{ trans('common.select') }}',
-                allowClear: true,
-                width: '100%'
-            });
-
-            // If vendor user, hide vendor select and auto-select their vendor
-            if (isVendorUser && userVendorId) {
-                $('#vendor_id').closest('.form-group').hide();
-                $('#vendor_id').val(userVendorId).trigger('change');
-                $('#variantsSection').slideDown();
+            // Get vendor ID from hidden input (for vendor users) or will be selected (for admin users)
+            let userVendorId = null;
+            if (isVendorUser) {
+                userVendorId = $('#vendor_id').val();
+                console.log('Vendor user detected. Vendor ID:', userVendorId);
             }
 
-            // Show/hide variants section based on vendor selection
-            $('#vendor_id').on('change', function() {
-                const vendorId = $(this).val();
-                if (vendorId) {
-                    $('#variantsSection').slideDown();
-                    // Clear search and products grid when vendor changes
-                    $('#product_search').val('');
-                    $('#products-grid').html(`
-                        <div class="col-12 text-center text-muted py-5">
-                            <i class="uil uil-search fs-1 mb-2"></i>
-                            <p>{{ trans('catalogmanagement::occasion.search_products_help') }}</p>
-                        </div>
-                    `);
-                } else {
-                    $('#variantsSection').slideUp();
-                    $('#product_search').val('');
-                    $('#products-grid').html(`
-                        <div class="col-12 text-center text-muted py-5">
-                            <i class="uil uil-search fs-1 mb-2"></i>
-                            <p>{{ trans('catalogmanagement::occasion.search_products_help') }}</p>
-                        </div>
-                    `);
-                }
-            });
+            // Initialize Select2 for vendor dropdown (only if not vendor user)
+            if (!isVendorUser) {
+                $('#vendor_id').select2({
+                    theme: 'bootstrap-5',
+                    placeholder: '{{ trans('common.select') }}',
+                    allowClear: true,
+                    width: '100%'
+                });
+            }
+
+            // If vendor user, show variants section immediately with their vendor ID
+            if (isVendorUser && userVendorId) {
+                $('#variantsSection').show();
+                console.log('Vendor user - variants section shown');
+            }
+
+            // Show/hide variants section based on vendor selection (only for admin users)
+            if (!isVendorUser) {
+                $('#vendor_id').on('change', function() {
+                    const vendorId = $(this).val();
+                    if (vendorId) {
+                        $('#variantsSection').slideDown();
+                        // Clear search and products grid when vendor changes
+                        $('#product_search').val('');
+                        $('#products-grid').html(`
+                            <div class="col-12 text-center text-muted py-5">
+                                <i class="uil uil-search fs-1 mb-2"></i>
+                                <p>{{ trans('catalogmanagement::occasion.search_products_help') }}</p>
+                            </div>
+                        `);
+                    } else {
+                        $('#variantsSection').slideUp();
+                        $('#product_search').val('');
+                        $('#products-grid').html(`
+                            <div class="col-12 text-center text-muted py-5">
+                                <i class="uil uil-search fs-1 mb-2"></i>
+                                <p>{{ trans('catalogmanagement::occasion.search_products_help') }}</p>
+                            </div>
+                        `);
+                    }
+                });
+            }
 
             // Global variables for product selection
             let selectedProducts = [];
@@ -613,7 +640,17 @@
             // Search products function
             function searchProducts(searchTerm = '', page = 1) {
                 const vendorId = $('#vendor_id').val();
-                if (!vendorId) {
+                console.log('Vendor ID:', vendorId);
+
+                // For admin users, vendor_id is required
+                if (!isVendorUser && !vendorId) {
+                    alert('{{ trans('catalogmanagement::occasion.select_vendor') }}');
+                    return;
+                }
+
+                // For vendor users, use their vendor_id
+                if (isVendorUser && !vendorId) {
+                    console.error('Vendor user but no vendor_id found');
                     alert('{{ trans('catalogmanagement::occasion.select_vendor') }}');
                     return;
                 }
@@ -678,14 +715,14 @@
                                                             </div>
                                                         </div>
                                                         <div class="d-flex flex-column gap-1 mb-2">
-                                                            <small class="text-muted"><strong>SKU:</strong> ${variantSku}</small>
-                                                            <small class="text-muted"><strong>Stock:</strong> ${stock}</small>
-                                                            <small class="text-muted"><strong>Price:</strong> ${price} {{ currency() }}</small>
-                                                            ${priceBeforeDiscount ? `<small class="text-muted"><strong>Before Discount:</strong> ${priceBeforeDiscount} {{ currency() }}</small>` : ''}
+                                                            <small class="text-muted"><strong>{{ trans('catalogmanagement::occasion.sku') }}:</strong> ${variantSku}</small>
+                                                            <small class="text-muted"><strong>{{ trans('common.stock') }}:</strong> ${stock}</small>
+                                                            <small class="text-muted"><strong>{{ trans('catalogmanagement::occasion.original_price') }}:</strong> ${price} {{ currency() }}</small>
+                                                            ${priceBeforeDiscount ? `<small class="text-muted"><strong>{{ trans('common.before_discount') }}:</strong> ${priceBeforeDiscount} {{ currency() }}</small>` : ''}
                                                         </div>
                                                         <button type="button" class="btn btn-sm ${isSelected ? 'btn-success' : 'btn-primary'} w-100 add-product-btn"
                                                                 data-product-id="${variantId}" ${isSelected ? 'disabled' : ''}>
-                                                            <i class="uil ${isSelected ? 'uil-check' : 'uil-plus'} me-1"></i>${isSelected ? 'Added' : 'Add'}
+                                                            <i class="uil ${isSelected ? 'uil-check' : 'uil-plus'} me-1"></i>${isSelected ? '{{ trans('common.added') }}' : '{{ trans('common.add') }}'}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -710,7 +747,7 @@
                         $('#products-grid').html(`
                             <div class="col-12 text-center text-danger py-5">
                                 <i class="uil uil-exclamation-triangle fs-1 mb-2"></i>
-                                <p>Error loading products</p>
+                                <p>{{ trans('catalogmanagement::occasion.error_loading_data') }}</p>
                             </div>
                         `);
                     }
@@ -762,17 +799,23 @@
                                                 </div>
                                             </div>
                                             <div class="d-flex flex-column gap-1 mb-2">
-                                                <small class="text-muted"><strong>SKU:</strong> ${variant.sku}</small>
-                                                <small class="text-muted"><strong>Stock:</strong> ${variant.stock}</small>
-                                                <small class="text-muted"><strong>Price:</strong> ${variant.price} {{ currency() }}</small>
-                                                ${variant.priceBeforeDiscount ? `<small class="text-muted"><strong>Before Discount:</strong> ${variant.priceBeforeDiscount} {{ currency() }}</small>` : ''}
+                                                <small class="text-muted"><strong>{{ trans('catalogmanagement::occasion.sku') }}:</strong> ${variant.sku}</small>
+                                                <small class="text-muted"><strong>{{ trans('common.stock') }}:</strong> ${variant.stock}</small>
+                                                <small class="text-muted"><strong>{{ trans('catalogmanagement::occasion.original_price') }}:</strong> ${variant.price} {{ currency() }}</small>
+                                                ${variant.priceBeforeDiscount ? `<small class="text-muted"><strong>{{ trans('common.before_discount') }}:</strong> ${variant.priceBeforeDiscount} {{ currency() }}</small>` : ''}
+                                            </div>
+                                            <div class="mb-2">
+                                                <label class="form-label fs-13 fw-500">{{ trans('catalogmanagement::occasion.special_price') }}</label>
+                                                <input type="number" step="0.01" min="0" class="form-control form-control-sm special-price-input"
+                                                       placeholder="{{ trans('catalogmanagement::occasion.special_price') }}" data-product-id="${variantId}"
+                                                       value="${variant.specialPrice || ''}">
                                             </div>
                                             <button type="button" class="btn btn-sm btn-danger w-100 remove-selected-btn"
                                                     data-product-id="${variantId}">
-                                                <i class="uil uil-trash-alt me-1"></i>Remove
+                                                <i class="uil uil-trash-alt me-1"></i>{{ trans('common.remove') }}
                                             </button>
                                             <input type="hidden" name="variants[${index}][vendor_product_variant_id]" value="${variantId}">
-                                            <input type="hidden" name="variants[${index}][special_price]" value="">
+                                            <input type="hidden" name="variants[${index}][special_price]" class="special-price-hidden-${variantId}" value="">
                                         </div>
                                     </div>
                                 </div>
@@ -810,6 +853,22 @@
 
                 updateSelectedProductsDisplay();
                 console.log('Updated selected products:', selectedProducts);
+            });
+
+            // Handle special price input change
+            $(document).on('change keyup', '.special-price-input', function() {
+                const productId = parseInt($(this).data('product-id'));
+                const specialPrice = $(this).val();
+
+                // Update the hidden input
+                $(`.special-price-hidden-${productId}`).val(specialPrice);
+
+                // Update the stored product details
+                if (selectedProductsDetails[productId]) {
+                    selectedProductsDetails[productId].specialPrice = specialPrice;
+                }
+
+                console.log('Updated special price for product', productId, ':', specialPrice);
             });
 
 
@@ -869,15 +928,25 @@
                                     price: item.variant.real_price || '0.00',
                                     priceBeforeDiscount: item.variant.fake_price || null,
                                     image: item.product.image ||
-                                        '{{ asset('images/placeholder.png') }}',
+                                        '{{ asset('assets/img/default.png') }}',
                                     specialPrice: item
                                         .special_price // Store the saved special price
                                 };
                             }
                         });
 
-                        // Update the alert to show existing variants
-                        updateSelectedProductsAlert();
+                        // Update the display with existing variants
+                        updateSelectedProductsDisplay();
+
+                        // Set the special price values for existing products
+                        existingVariants.forEach(function(item) {
+                            const variantId = item.variant.id;
+                            const specialPrice = item.special_price;
+                            if (specialPrice) {
+                                $(`.special-price-input[data-product-id="${variantId}"]`).val(specialPrice);
+                                $(`.special-price-hidden-${variantId}`).val(specialPrice);
+                            }
+                        });
                     });
                 @endif
 
@@ -931,7 +1000,7 @@
                             }
 
                             // Always show detailed error list
-                            let errorHtml = "<div class='alert alert-danger alert-dismissible fade show' role='alert'>";
+                            let errorHtml = "<div class='alert alert-danger alert-dismissible fade show d-block' role='alert'>";
                             errorHtml += "<strong><i class='uil uil-exclamation-triangle me-2'></i>Validation Errors:</strong>";
                             errorHtml += "<ul class='mb-0 mt-2'>";
 

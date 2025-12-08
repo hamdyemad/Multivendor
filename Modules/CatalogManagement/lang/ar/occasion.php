@@ -53,6 +53,8 @@ return [
     'selected_products' => 'المنتجات المختارة',
     'products_selected' => 'منتج مختار',
     'custom_price' => 'سعر مخصص',
+    'existing_products' => 'المنتجات الموجودة',
+    'existing_products_info' => 'هذه هي المنتجات المرتبطة حالياً بهذه المناسبة. يمكنك إدارتها من صفحة تفاصيل المناسبة.',
 
     // SEO Fields
     'seo_information' => 'معلومات SEO',

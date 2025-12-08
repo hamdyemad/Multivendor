@@ -41,6 +41,7 @@ Route::get('occasions/datatable', 'OccasionController@datatable')->name('occasio
 Route::post('occasions/{id}/toggle-status', 'OccasionController@toggleStatus')->name('occasions.toggle-status');
 Route::delete('occasions/{occasion}/products/{product}', 'OccasionController@destroyProduct')->name('occasions.products.destroy');
 Route::post('occasions/{occasion}/update-positions', 'OccasionController@updatePositions')->name('occasions.update-positions');
+Route::post('occasions/{occasion}/products/{product}/update-special-price', 'OccasionController@updateSpecialPrice')->name('occasions.products.update-special-price');
 Route::resource('occasions', 'OccasionController');
 
 

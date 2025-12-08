@@ -7,7 +7,7 @@ interface OccasionRepositoryInterface
     /**
      * Get all occasions with optional filters
      */
-    public function getOccasionsQuery(array $filters = [], $orderBy = null, $orderDirection = 'desc');
+    public function getAllOccasions(array $filters = [], $perPage);
 
     /**
      * Get occasion by ID

@@ -202,4 +202,8 @@ return [
     'order_updated_successfully' => 'Order updated successfully',
     'error_updating_order' => 'Error updating order',
     'no_positions_provided' => 'No positions provided',
+    'add' => 'Add',
+    'added' => 'Added',
+    'before_discount' => 'Before Discount',
+    'updated' => 'Updated',
 ];

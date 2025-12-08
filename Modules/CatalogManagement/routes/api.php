@@ -5,6 +5,7 @@ use Modules\CatalogManagement\app\Http\Controllers\Api\BrandApiController;
 use Modules\CatalogManagement\app\Http\Controllers\VariantsConfigurationController;
 use Modules\CatalogManagement\app\Http\Controllers\Api\ProductApiController;
 use Modules\CatalogManagement\app\Http\Controllers\Api\ReviewApiController;
+use Modules\CatalogManagement\app\Http\Controllers\Api\OccasionApiController;
 
 // Variant Configuration API Routes (for product form)
 Route::prefix('variant-configurations')->group(function () {
@@ -37,4 +38,10 @@ Route::get('{reviewableType}/{reviewableId}/reviews', [ReviewApiController::clas
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/{reviewableType}/{reviewableId}/reviews', [ReviewApiController::class, 'store']);
     Route::get('/reviews/my-reviews', [ReviewApiController::class, 'getCustomerReviews']);
+});
+
+// Occasions API Routes (public and authenticated)
+Route::prefix('occasions')->group(function () {
+    Route::get('/', [OccasionApiController::class, 'index']);
+    Route::get('/{id}', [OccasionApiController::class, 'show']);
 });

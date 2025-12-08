@@ -1,3 +1,14 @@
+@php
+    try {
+        $user = auth()->user();
+        $user_type = auth()->user()->user_type?->name ?? 'Unknown';
+        $user_type_id = $user->user_type_id ?? null;
+        $vendor = auth()->user()->vendor ?? null;
+    } catch (\Exception $e) {
+        $user_type = 'Unknown';
+        $vendor = null;
+    }
+@endphp
 @include('partials._header')
 
 <link rel="stylesheet" href="{{ asset('assets/css/my_custom_style.css') }}">

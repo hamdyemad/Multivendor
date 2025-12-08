@@ -1,8 +1,4 @@
 @php
-    $user = auth()->user();
-    $user_type_id = $user->user_type_id ?? null;
-    $user_type = $user->user_type?->name ?? 'Unknown';
-    $vendor = $user->vendor ?? null;
     $currentLocale = LaravelLocalization::getCurrentLocale();
     try {
         $currentRoute = Request::route() ? Request::route()->getName() : null;
@@ -387,21 +383,24 @@
         @endif
 
         {{-- Occasions Menu --}}
-        @if(in_array($user_type_id, \App\Models\UserType::adminIds()))
-            <li class="{{ isMenuActive(['admin.occasions.index', 'admin.occasions.create', 'admin.occasions.show', 'admin.occasions.edit'], $currentRoute) ? 'active' : '' }}">
-                <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.occasions.index', 'admin.occasions.create', 'admin.occasions.show', 'admin.occasions.edit'], $currentRoute) ? 'active' : '' }}"
-                    href="{{ route('admin.occasions.index') }}">
-                    <span class="d-flex align-items-center">
-                        <span class="nav-icon uil uil-calendar-alt"></span>
-                        <span class="menu-text">{{ trans('menu.occasions') }}</span>
-                    </span>
-                    <span class="badge badge-round badge-success ms-1">
-                        {{ \Modules\CatalogManagement\app\Models\Occasion::count() }}
-                    </span>
-                </a>
-            </li>
-        @endif
-
+        <li class="{{ isMenuActive(['admin.occasions.index', 'admin.occasions.create', 'admin.occasions.show', 'admin.occasions.edit'], $currentRoute) ? 'active' : '' }}">
+            <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.occasions.index', 'admin.occasions.create', 'admin.occasions.show', 'admin.occasions.edit'], $currentRoute) ? 'active' : '' }}"
+                href="{{ route('admin.occasions.index') }}">
+                <span class="d-flex align-items-center">
+                    <span class="nav-icon uil uil-calendar-alt"></span>
+                    <span class="menu-text">{{ trans('menu.occasions') }}</span>
+                </span>
+                <span class="badge badge-round badge-success ms-1">
+                    @php
+                        $occasions_count = \Modules\CatalogManagement\app\Models\Occasion::count();
+                        if(in_array($user_type_id, \App\Models\UserType::vendorIds())) {
+                            $occasions_count = \Modules\CatalogManagement\app\Models\Occasion::where('vendor_id', $vendor->id)->count();
+                        }
+                    @endphp
+                    {{ $occasions_count }}
+                </span>
+            </a>
+        </li>
         @can('reviews.view')
             <li class="has-child">
                 <a href="#" class="">

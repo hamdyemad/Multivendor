@@ -1,14 +1,12 @@
 <?php
 
 namespace Modules\CatalogManagement\app\Models;
-use App\Models\Traits\CountryCheckIdTrait;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class OccasionProduct extends Model
 {
-    use HasFactory, CountryCheckIdTrait;
+    use HasFactory;
 
     protected $table = 'occasion_products';
     protected $guarded = [];

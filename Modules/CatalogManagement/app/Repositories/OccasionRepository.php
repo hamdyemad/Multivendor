@@ -174,16 +174,21 @@ class OccasionRepository implements OccasionRepositoryInterface
                     ]);
                 }
 
-                // Store translation fields
+                // Store translation fields - including empty values
                 $translationFields = ['name', 'title', 'sub_title', 'seo_title', 'seo_description', 'seo_keywords'];
 
                 foreach ($translationFields as $field) {
-                    if (isset($translationData[$field]) && !empty($translationData[$field])) {
-                        $occasion->translations()->create([
-                            'lang_id' => $language->id,
-                            'lang_key' => $field,
-                            'lang_value' => $translationData[$field],
-                        ]);
+                    // Store the field if it exists in the data (even if empty)
+                    if (isset($translationData[$field])) {
+                        $value = $translationData[$field];
+                        // Only store if value is not null and not just whitespace
+                        if ($value !== null && trim((string)$value) !== '') {
+                            $occasion->translations()->create([
+                                'lang_id' => $language->id,
+                                'lang_key' => $field,
+                                'lang_value' => $value,
+                            ]);
+                        }
                     }
                 }
             }

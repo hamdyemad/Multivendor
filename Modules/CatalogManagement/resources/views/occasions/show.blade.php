@@ -415,15 +415,33 @@
                                                     @foreach ($languages as $lang)
                                                         @php
                                                             $translation = $occasion->getTranslation('seo_keywords', $lang->code);
+                                                            $keywords = [];
+                                                            if ($translation) {
+                                                                // Try to decode as JSON first (if stored as JSON array)
+                                                                $decoded = json_decode($translation, true);
+                                                                if (is_array($decoded)) {
+                                                                    $keywords = $decoded;
+                                                                } else {
+                                                                    // Otherwise split by comma
+                                                                    $keywords = array_map('trim', explode(',', $translation));
+                                                                    $keywords = array_filter($keywords); // Remove empty values
+                                                                }
+                                                            }
                                                         @endphp
                                                         <div class="col-md-6 mb-3">
                                                             <div style="padding: 12px; background: #f8f9fa; border-radius: 6px; @if ($lang->code == 'ar') border-right: 3px solid #5f63f2; @else border-left: 3px solid #5f63f2; @endif">
                                                                 <small class="text-muted d-block mb-2" style="@if ($lang->code == 'ar') direction: rtl; text-align: right; @endif">
-                                                                    <span class="badge @if ($lang->code == 'en') bg-primary @else bg-success @endif text-white px-2 py-1 round-pill fw-bold" style="font-size: 10px;">{{ strtoupper($lang->code) }}</span>
+                                                                    <span class="badge badge-lg badge-round @if ($lang->code == 'en') bg-primary @else bg-success @endif text-white px-2 py-1 round-pill fw-bold" style="font-size: 10px;">{{ strtoupper($lang->code) }}</span>
                                                                 </small>
-                                                                <div class="fs-15 color-dark mb-0 fw-500" style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
-                                                                    @if($translation)
-                                                                        {{ $translation }}
+                                                                <div class="fs-15 color-dark mb-0" style="@if ($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
+                                                                    @if(count($keywords) > 0)
+                                                                        <div class="d-flex flex-wrap gap-2">
+                                                                            @foreach($keywords as $keyword)
+                                                                                <span class="badge badge-lg badge-round bg-info text-white" style="font-size: 12px; padding: 6px 10px;">
+                                                                                    {{ trim($keyword) }}
+                                                                                </span>
+                                                                            @endforeach
+                                                                        </div>
                                                                     @else
                                                                         <span class="text-muted">—</span>
                                                                     @endif

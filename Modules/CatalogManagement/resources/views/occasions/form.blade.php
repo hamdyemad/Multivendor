@@ -960,6 +960,17 @@
                     spinner.removeClass("d-none");
                     submitBtn.prop("disabled", true);
 
+                    // Sync CKEditor data before form submission
+                    if (typeof CKEDITOR !== 'undefined') {
+                        for (const instanceName in CKEDITOR.instances) {
+                            const instance = CKEDITOR.instances[instanceName];
+                            const textarea = document.getElementById(instanceName);
+                            if (textarea) {
+                                textarea.value = instance.getData();
+                            }
+                        }
+                    }
+
                     // Use FormData to include file uploads
                     const formData = new FormData(form);
 

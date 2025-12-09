@@ -32,6 +32,11 @@ class BundleCategory extends BaseModel
         return $this->getTranslation('title', app()->getLocale());
     }
 
+    public function getNameAttribute()
+    {
+        return $this->getTranslation('name', app()->getLocale());
+    }
+
     /**
      * Get bundle category image
      */

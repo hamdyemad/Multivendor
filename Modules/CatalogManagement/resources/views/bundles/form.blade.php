@@ -350,7 +350,7 @@
 
                         // Access clean data from BundleResource
                         const vpv = bundleProduct.vendor_product_variant;
-
+                        console.log(vpv)
                         let productName = vpv.product?.name || '-';
                         let variantName = vpv.variant_configuration?.name || '-';
                         let sku = vpv.sku || '-';
@@ -665,6 +665,13 @@
                 const spinner = submitBtn.find('.spinner-border');
                 spinner.removeClass('d-none');
                 submitBtn.prop('disabled', true);
+
+                // Sync CKEditor data to textareas before form submission
+                if (typeof CKEDITOR !== 'undefined') {
+                    for (let instance in CKEDITOR.instances) {
+                        CKEDITOR.instances[instance].updateElement();
+                    }
+                }
 
                 const formData = new FormData(form[0]);
 

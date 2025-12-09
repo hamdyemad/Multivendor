@@ -25,7 +25,7 @@ class BundleCategoryRepository implements BundleCategoryRepositoryInterface
     {
         $query = BundleCategory::with(['translations'])
         ->filter($filters);
-        ($per_page == 0) ? $query->get() : $query->paginate($per_page);
+        return ($per_page == 0) ? $query->get() : $query->paginate($per_page);
     }
 
 
@@ -34,7 +34,9 @@ class BundleCategoryRepository implements BundleCategoryRepositoryInterface
      */
     public function getBundleCategoryById($id)
     {
-        return BundleCategory::with(['translations', 'attachments'])->findOrFail($id);
+        return BundleCategory::with(['translations', 'attachments'])
+        ->where('slug', $id)
+        ->orWhere('id', $id)->first();
     }
 
     /**
@@ -51,17 +53,14 @@ class BundleCategoryRepository implements BundleCategoryRepositoryInterface
                     'active' => $data['active'] ?? 1,
                 ]);
 
-                Log::info('Bundle category created', ['id' => $bundleCategory->id]);
 
                 // Store translations (this will update the slug based on English name)
                 $this->storeTranslations($bundleCategory, $data);
 
-                Log::info('Translations stored for bundle category', ['id' => $bundleCategory->id]);
 
                 // Handle image upload
                 $this->handleImage($bundleCategory, $data);
 
-                Log::info('Image handled for bundle category', ['id' => $bundleCategory->id]);
 
                 return $bundleCategory;
             });

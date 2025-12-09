@@ -54,14 +54,9 @@
                                             @endphp
                                             <div class="text-muted small mt-1" style="padding-left: 10px; border-left: 2px solid #5f63f2;">
                                                 @foreach($path as $item)
-                                                    @if($loop->first && $item->key)
-                                                        <strong>{{ $item->key->name }}</strong>
-                                                    @else
-                                                        <span>{{ $item->name }}</span>
-                                                    @endif
-                                                    @if(!$loop->last)
-                                                        <span> → </span>
-                                                    @endif
+                                                    <strong>{{ $item->key->name }}</strong>
+                                                    ->
+                                                    <strong>{{ $item->name }}</strong>
                                                 @endforeach
                                             </div>
                                         @endif

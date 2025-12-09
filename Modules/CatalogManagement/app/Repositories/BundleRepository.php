@@ -206,14 +206,13 @@ class BundleRepository implements BundleRepositoryInterface
      */
     protected function handleMainImage(Bundle $bundle, array $data, bool $isUpdate = false): void
     {
-        \Log::error('aaaaaaaaaaaa', $data);
 
         if (isset($data['image'])) {
             // Delete old main image if updating
             if ($isUpdate) {
                 if ($bundle->main_image) {
                     Storage::disk('public')->delete($bundle->main_image->path);
-                    $bundle->attachments()->delete();
+                    $bundle->attachments()->forceDelete();
                 }
             }
 

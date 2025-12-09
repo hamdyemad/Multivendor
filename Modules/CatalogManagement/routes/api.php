@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\CatalogManagement\app\Http\Controllers\Api\BrandApiController;
+use Modules\CatalogManagement\app\Http\Controllers\Api\BundleCategoryApiController;
+use Modules\CatalogManagement\app\Http\Controllers\Api\BundlesApiController;
 use Modules\CatalogManagement\app\Http\Controllers\VariantsConfigurationController;
 use Modules\CatalogManagement\app\Http\Controllers\Api\ProductApiController;
 use Modules\CatalogManagement\app\Http\Controllers\Api\ReviewApiController;
@@ -46,3 +48,16 @@ Route::prefix('occasions')->group(function () {
     Route::get('/', [OccasionApiController::class, 'index']);
     Route::get('/{id}', [OccasionApiController::class, 'show']);
 });
+
+// Bundle Categories API Routes (public and authenticated)
+Route::prefix('bundle-categories')->group(function () {
+    Route::get('/', [BundleCategoryApiController::class, 'index']);
+    Route::get('/{id}', [BundleCategoryApiController::class, 'show']);
+});
+
+// Bundles API Routes (public and authenticated)
+Route::prefix('bundles')->group(function () {
+    Route::get('/', [BundlesApiController::class, 'index']);
+    Route::get('/{id}', [BundlesApiController::class, 'show']);
+});
+

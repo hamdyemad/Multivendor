@@ -1,0 +1,43 @@
+<?php
+
+namespace Modules\CatalogManagement\app\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Traits\Res;
+use Illuminate\Http\Request;
+use Modules\CatalogManagement\app\Http\Resources\Api\BundleResource;
+use Modules\CatalogManagement\app\Services\BundleService;
+
+class BundlesApiController extends Controller
+{
+    use Res;
+
+    public function __construct(protected BundleService $bundleService)
+    {
+    }
+
+    /**
+     * Get all active bundles
+     * GET /api/bundles
+     */
+    public function index(Request $request)
+    {
+        $per_page = $request->get('per_page');
+
+        $bundles = $this->bundleService->getAllBundles($request->all(), $per_page);
+        return $this->sendRes(config('responses.success')[app()->getLocale()], true, BundleResource::collection($bundles));
+    }
+
+    /**
+     * Get single occasion by ID
+     * GET /api/bundles/{id}
+     */
+    public function show(Request $request, $id)
+    {
+        $bundle = $this->bundleService->getBundleById($id);
+        return $this->sendRes(config('responses.success')[app()->getLocale()], true, new BundleResource($bundle));
+
+    }
+
+
+}

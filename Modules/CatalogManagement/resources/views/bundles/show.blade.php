@@ -296,7 +296,7 @@
                                     </div>
                                     <div class="card-body text-center">
                                         @php
-                                            $imageAttachment = $bundle->attachments()->where('type', 'image')->first();
+                                            $imageAttachment = $bundle->main_image;
                                         @endphp
                                         @if($imageAttachment)
                                             <img src="{{ asset('storage/' . $imageAttachment->path) }}" alt="Bundle Image" class="img-fluid round" style="max-width: 100%; max-height: 300px; object-fit: cover;">

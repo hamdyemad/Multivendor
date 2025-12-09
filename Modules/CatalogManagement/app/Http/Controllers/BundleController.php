@@ -123,7 +123,6 @@ class BundleController extends Controller
     public function edit($lang, $countryCode, $id)
     {
         $bundle = $this->bundleService->getBundleById($id);
-        return $bundle;
         $languages = $this->languageService->getAll();
         $vendors = $this->vendorService->getAllVendors();
         $categories = $this->bundleCategoryService->getActiveBundleCategories();

@@ -74,6 +74,11 @@ class Bundle extends Model
         return 'bundle';
     }
 
+    public function getDescriptionAttribute()
+    {
+        return $this->getTranslation('description');
+    }
+
     /**
      * Scope for active bundles
      */

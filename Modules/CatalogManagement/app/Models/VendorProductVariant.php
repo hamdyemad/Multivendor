@@ -152,24 +152,26 @@ class VendorProductVariant extends Model
             return 0;
         }
 
-        $cartItem = Cart::where('customer_id', Auth::id())
-            ->where('vendor_product_id', $this->vendorProduct->id)
-            ->where('vendor_product_variant_id', $this->id)
-            ->where('type', 'product')
-            ->first();
+        // $cartItem = Cart::where('customer_id', Auth::id())
+        //     ->where('vendor_product_id', $this->vendorProduct->id)
+        //     ->where('vendor_product_variant_id', $this->id)
+        //     ->where('type', 'product')
+        //     ->first();
 
-        return $cartItem ? $cartItem->quantity : 0;
+        // return $cartItem ? $cartItem->quantity : 0;
+        return 0;
     }
 
     public function getCartIdAttribute()
     {
-        return Auth::check()
-            ? Cart::where('customer_id', Auth::id())
-                ->where('vendor_product_id', $this->vendorProduct->id)
-                ->where('vendor_product_variant_id', $this->id)
-                ->where('type', 'product')
-                ->first()->id
-                : null;
+        return null;
+        // return Auth::check()
+        //     ? Cart::where('customer_id', Auth::id())
+        //         ->where('vendor_product_id', $this->vendorProduct->id)
+        //         ->where('vendor_product_variant_id', $this->id)
+        //         ->where('type', 'product')
+        //         ->first()->id
+        //         : null;
     }
 
     public function getCountDeliveredProductAttribute()

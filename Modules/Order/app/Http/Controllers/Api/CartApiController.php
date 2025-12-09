@@ -56,7 +56,7 @@ class CartApiController extends Controller
         $this->cartService->addToCart($customer->id, $validated);
 
         return $this->sendRes(
-            config('responses.success')[app()->getLocale()],
+            config('responses.item_added')[app()->getLocale()],
             true,
             [],
             [],

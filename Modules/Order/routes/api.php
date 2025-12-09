@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Order\app\Http\Controllers\Api\WishlistApiController;
 use Modules\Order\app\Http\Controllers\Api\CartApiController;
+use Modules\Order\app\Http\Controllers\Api\OrderApiController;
 use Modules\Order\app\Http\Controllers\Api\OrderStageApiController;
 
 // Public API routes (no authentication required)
@@ -37,4 +38,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('/remove/{id}', [CartApiController::class, 'remove']);
         Route::post('/clear', [CartApiController::class, 'clear']);
     });
+
+    // Order API routes
+    Route::prefix('orders')->group(function () {
+        Route::post('/checkout', [OrderApiController::class, 'checkout'])->name('checkout');
+        Route::get('/', [OrderApiController::class, 'myOrders'])->name('my-orders');
+        Route::get('/{orderId}', [OrderApiController::class, 'show'])->name('show');
+        Route::post('/{orderId}/cancel', [OrderApiController::class, 'cancel'])->name('cancel');
+        Route::post('/{orderId}/return', [OrderApiController::class, 'return'])->name('return');
+    });
 });
+Route::post('/promocode/check', [OrderApiController::class, 'checkPromoCode'])->name('check-promo-code');

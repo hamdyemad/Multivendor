@@ -295,4 +295,27 @@ return [
     'customer_phone' => 'هاتف العميل',
     'customer_address' => 'عنوان العميل',
     'items_count' => 'عدد العناصر',
+
+    // API Messages
+    'cart_is_empty' => 'سلتك فارغة. يرجى إضافة عناصر قبل الدفع',
+    'order_created_successfully' => 'تم إنشاء الطلب بنجاح',
+    'error_creating_order' => 'خطأ في إنشاء الطلب',
+    'orders_retrieved_successfully' => 'تم استرجاع الطلبات بنجاح',
+    'error_retrieving_orders' => 'خطأ في استرجاع الطلبات',
+    'order_retrieved_successfully' => 'تم استرجاع الطلب بنجاح',
+    'error_retrieving_order' => 'خطأ في استرجاع الطلب',
+    'order_cancelled_successfully' => 'تم إلغاء الطلب بنجاح',
+    'error_cancelling_order' => 'خطأ في إلغاء الطلب',
+    'cannot_cancel_order' => 'لا يمكن إلغاء طلب ليس في مرحلة الانتظار',
+    'cancelled_stage_not_found' => 'لم يتم العثور على مرحلة الإلغاء',
+    'order_returned_successfully' => 'تم إرجاع الطلب بنجاح',
+    'error_returning_order' => 'خطأ في إرجاع الطلب',
+    'cannot_return_order' => 'لا يمكن إرجاع طلب لم يتم تسليمه',
+    'returned_stage_not_found' => 'لم يتم العثور على مرحلة الإرجاع',
+    'promo_code_not_found' => 'لم يتم العثور على رمز الترويج',
+    'error_validating_promo_code' => 'خطأ في التحقق من رمز الترويج',
+    'promo_code_valid' => 'رمز الترويج صحيح',
+    'promo_code_already_used' => 'لقد استخدمت بالفعل رمز الترويج هذا',
+    'promo_code_limit_reached' => 'وصل رمز الترويج هذا إلى حد الاستخدام الأقصى',
+    'cannot_change_stage' => 'لا يمكن تغيير مرحلة الطلب'
 ];

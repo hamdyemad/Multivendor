@@ -7,7 +7,7 @@ interface PromocodeRepositoryInterface
     /**
      * Get all promocodes with filters and pagination
      */
-    public function getAllPromocodes(array $filters = [], int $perPage);
+    public function getAllPromocodes(int $perPage, array $filters = []);
 
     /**
      * Get promocodes query for DataTables

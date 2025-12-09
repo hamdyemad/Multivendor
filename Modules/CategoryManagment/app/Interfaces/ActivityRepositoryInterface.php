@@ -7,7 +7,7 @@ interface ActivityRepositoryInterface
     /**
      * Get all activities with filters and pagination
      */
-    public function getAllActivities(array $filters = [], int $perPage);
+    public function getAllActivities(int $perPage, array $filters = []);
 
     /**
      * Get activities query for DataTables

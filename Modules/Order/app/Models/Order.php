@@ -41,6 +41,7 @@ class Order extends BaseModel
         'customer_promo_code_title',
         'customer_promo_code_value',
         'customer_promo_code_type',
+        'customer_promo_code_amount',
         'shipping',
         'total_tax',
         'total_product_price',
@@ -67,6 +68,7 @@ class Order extends BaseModel
         'total_discounts' => 'decimal:2',
         'refunded_amount' => 'decimal:2',
         'customer_promo_code_value' => 'decimal:2',
+        'customer_promo_code_amount' => 'decimal:2',
     ];
 
     public static function boot()

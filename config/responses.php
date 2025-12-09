@@ -471,4 +471,24 @@ return [
         "en" => "Order stage not found",
         "ar" => "مرحلة الطلب غير موجودة",
     ],
+    'orders_retrieved_successfully' => [
+        "en" => "Orders Retrieved Successfully",
+        "ar" => "تم استرجاع أورداراتك بنجاح"
+    ],
+    "order_retrieved_successfully" => [
+        "en"=> "Order Retrieved Successfully",
+        "ar" => "تم استرجاع الطلب بنجاح"
+    ],
+    "order_cancelled_successfully" => [
+        "en"=> "Order Cancelled Successfully",
+        "ar" => "تم الغاء الطلب بنجاح"
+    ],
+    "order_returned_successfully" => [
+        "en"=> "Order Returned Successfully",
+        "ar" => "تمت عملية الارجاع بنجاح"
+    ],
+    "item_added" => [
+        "en" => "Item added successfully in cart",
+        "ar" => "تم إضافة المنتج بنجاح في السلة"
+    ]
 ];

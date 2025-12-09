@@ -26,7 +26,7 @@ class CartResource extends JsonResource
             'limitation' => $limit[0],
             'min' => $limit[1],
             'price' => $this->vendorProductVariant->price ?? 0,
-            'taxes' => TaxResource::make($this->vendorProduct->taxes),
+            'taxes' => TaxResource::make($this->vendorProduct->tax),
         ];
     }
 

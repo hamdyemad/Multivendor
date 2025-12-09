@@ -17,10 +17,10 @@ class ActivityService
     /**
      * Get all activities with filters and pagination
      */
-    public function getAllActivities(array $filters = [], int $perPage)
+    public function getAllActivities(int $perPage, array $filters = [])
     {
         try {
-            return $this->activityRepository->getAllActivities($filters, $perPage);
+            return $this->activityRepository->getAllActivities($perPage, $filters);
         } catch (\Exception $e) {
             Log::error('Error fetching activities: ' . $e->getMessage());
             throw $e;

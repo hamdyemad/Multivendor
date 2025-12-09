@@ -25,14 +25,15 @@ class CreateOrder
         $customer = $context['customer'];
 
         // Prepare order data
+        $promoCode = $context['promo_code'] ?? null;
         $orderData = [
             'customer_id' => $customer['id'],
             'customer_name' => $customer['name'],
             'customer_email' => $customer['email'],
             'customer_phone' => $customer['phone'],
             'customer_address' => $customer['address'],
-            'order_from' => $context['order_from'] ?? 'web',
-            'payment_type' => $data['payment_type'] ?? 'cash_on_delivery',
+            'order_from' => $this->orderFrom($data['order_from'] ?? 'web'),
+            'payment_type' => $this->paymentType($data['payment_type'] ?? 'cash_on_delivery'),
             'shipping' => $context['shipping'],
             'total_tax' => $context['total_tax'],
             'total_fees' => $context['total_fees'],
@@ -44,6 +45,10 @@ class CreateOrder
             'country_id' => $customer['country_id'],
             'city_id' => $customer['city_id'],
             'region_id' => $customer['region_id'],
+            'customer_promo_code_title' => $promoCode?->code,
+            'customer_promo_code_value' => $promoCode?->discount_value,
+            'customer_promo_code_type' => $promoCode?->discount_type,
+            'customer_promo_code_amount' => $context['promo_code_discount']
         ];
 
         // Store order using repository
@@ -55,5 +60,30 @@ class CreateOrder
             'data' => $data,
             'context' => $context,
         ]);
+    }
+
+
+    private function paymentType($type)
+    {
+        return match ($type) {
+            'cash_on_delivery' => 'cash_on_delivery',
+            'online' => 'online',
+            
+            default => 'cash_on_delivery',
+        };
+    }
+
+    private function orderFrom($type)
+    {
+        return match ($type) {
+            'WEB' => 'web',
+            'web' => 'web',
+            'ANDROID' => 'android',
+            'android' => 'android',
+            'IOS' => 'ios',
+            'ios' => 'ios',
+            
+            default => 'web',
+        };
     }
 }

@@ -32,9 +32,9 @@ class CustomerService
     /**
      * Get customer by ID
      */
-    public function findById(array $filters = [], $id)
+    public function findById($id, array $filters = [])
     {
-        return $this->customerRepository->findById($filters, $id);
+        return $this->customerRepository->findById($id, $filters);
     }
 
     /**

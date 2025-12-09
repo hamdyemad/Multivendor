@@ -7,7 +7,7 @@ interface BrandRepositoryInterface
     /**
      * Get all brands with filters and pagination
      */
-    public function getAllBrands(array $filters = [], int $perPage);
+    public function getAllBrands(int $perPage, array $filters = []);
 
     /**
      * Get brands query for DataTables

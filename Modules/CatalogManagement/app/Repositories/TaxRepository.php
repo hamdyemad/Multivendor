@@ -13,7 +13,7 @@ class TaxRepository implements TaxRepositoryInterface
     /**
      * Get all taxes with filters and pagination
      */
-    public function getAllTaxes(array $filters = [], int $perPage = 15)
+    public function getAllTaxes(int $perPage = 15, array $filters = [])
     {
         $query = Tax::with('translations');
 
@@ -162,10 +162,10 @@ class TaxRepository implements TaxRepositoryInterface
                     }
                 }
             }
-            
+
             $tax->refresh();
             $tax->load('translations');
-            
+
             return $tax;
         });
     }
@@ -199,10 +199,10 @@ class TaxRepository implements TaxRepositoryInterface
                     }
                 }
             }
-            
+
             $tax->refresh();
             $tax->load('translations');
-            
+
             return $tax;
         });
     }

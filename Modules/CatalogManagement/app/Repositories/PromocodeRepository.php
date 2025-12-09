@@ -7,7 +7,7 @@ use Modules\CatalogManagement\app\Models\Promocode;
 
 class PromocodeRepository implements PromocodeRepositoryInterface
 {
-    public function getAllPromocodes(array $filters = [], int $perPage = 15)
+    public function getAllPromocodes(int $perPage = 15, array $filters = [])
     {
         $query = $this->getPromocodesQuery($filters);
         return ($perPage) ? $query->paginate($perPage) : $query->get();

@@ -11,6 +11,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 use App\Traits\Res;
 use App\Exceptions\InvalidPasswordException;
+use App\Exceptions\OrderException;
 use Illuminate\Support\Facades\DB;
 
 class Handler extends ExceptionHandler
@@ -93,6 +94,7 @@ class Handler extends ExceptionHandler
         return match (true) {
             $e instanceof QueryException => $this->handleDatabaseException($e),
             $e instanceof InvalidPasswordException => $this->sendRes($e->getMessage(), false, [], [], 422),
+            $e instanceof OrderException => $this->handleOrderException($e),
             $e instanceof HttpException => $this->handleHttpException($e),
             $e instanceof \Symfony\Component\Mime\Exception\LogicException,
             $e instanceof \Symfony\Component\Mailer\Exception\TransportException => $this->handleMailException(),
@@ -138,6 +140,14 @@ class Handler extends ExceptionHandler
     {
         $message = config('responses.email_send_failed')[app()->getLocale()] ?? 'Could not send email. Please try again later.';
         return $this->sendRes($message, false, [], [], 500);
+    }
+
+    /**
+     * Handle order exceptions
+     */
+    private function handleOrderException(OrderException $e)
+    {
+        return $this->sendRes($e->getMessage(), false, [], [], 422);
     }
 
     /**

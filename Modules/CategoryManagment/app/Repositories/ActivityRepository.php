@@ -11,7 +11,7 @@ class ActivityRepository implements ActivityRepositoryInterface
     /**
      * Get all activities with filters and pagination
      */
-    public function getAllActivities(array $filters = [], int $perPage = 15)
+    public function getAllActivities(int $perPage = 15, array $filters = [])
     {
         $query = Activity::with('translations')->filter($filters);        // Order by latest
         $query->orderBy('created_at', 'desc');

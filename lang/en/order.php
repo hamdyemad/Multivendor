@@ -296,4 +296,26 @@ return [
     'customer_address' => 'Customer Address',
     'items_count' => 'Items Count',
 
+    // API Messages
+    'cart_is_empty' => 'Your cart is empty. Please add items before checkout',
+    'order_created_successfully' => 'Order created successfully',
+    'error_creating_order' => 'Error creating order',
+    'orders_retrieved_successfully' => 'Orders retrieved successfully',
+    'error_retrieving_orders' => 'Error retrieving orders',
+    'order_retrieved_successfully' => 'Order retrieved successfully',
+    'error_retrieving_order' => 'Error retrieving order',
+    'order_cancelled_successfully' => 'Order cancelled successfully',
+    'error_cancelling_order' => 'Error cancelling order',
+    'cannot_cancel_order' => 'Cannot cancel order that is not in pending stage',
+    'cancelled_stage_not_found' => 'Cancelled stage not found',
+    'order_returned_successfully' => 'Order returned successfully',
+    'error_returning_order' => 'Error returning order',
+    'cannot_return_order' => 'Cannot return order that is not delivered',
+    'returned_stage_not_found' => 'Returned stage not found',
+    'promo_code_not_found' => 'Promo code not found',
+    'error_validating_promo_code' => 'Error validating promo code',
+    'promo_code_valid' => 'Promo code is valid',
+    'promo_code_already_used' => 'You have already used this promo code',
+    'promo_code_limit_reached' => 'This promo code has reached its usage limit',
+    'cannot_change_stage' => "Cannot change order stage"
 ];

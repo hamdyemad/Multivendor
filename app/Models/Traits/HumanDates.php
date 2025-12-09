@@ -39,4 +39,20 @@ trait HumanDates
         ->locale(app()->getLocale())
         ->translatedFormat('d M, Y, h:i A');
     }
+
+    public function getValidUntilApiAttribute()
+    {
+        return Carbon::parse($this->attributes['valid_until'])
+                ->timezone(config('app.timezone'))
+                ->locale(app()->getLocale())
+                ->translatedFormat('d M, Y, h:i A');
+    }
+
+    public function getValidFromApiAttribute()
+    {
+        return Carbon::parse($this->attributes['valid_from'])
+                ->timezone(config('app.timezone'))
+                ->locale(app()->getLocale())
+                ->translatedFormat('d M, Y, h:i A');
+    }
 }

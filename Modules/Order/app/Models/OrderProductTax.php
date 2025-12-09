@@ -17,6 +17,7 @@ class OrderProductTax extends Model
         'order_product_id',
         'tax_id',
         'percentage',
+        'amount',
     ];
 
     protected $casts = [

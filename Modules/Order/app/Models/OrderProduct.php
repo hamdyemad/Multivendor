@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Modules\Order\database\factories\OrderProductFactory;
 use Modules\CatalogManagement\app\Models\VendorProduct;
 use Modules\CatalogManagement\app\Models\VendorProductVariant;
@@ -63,11 +64,11 @@ class OrderProduct extends Model
     }
 
     /**
-     * Get the order product taxes.
+     * Get the order product tax.
      */
-    public function taxes(): HasMany
+    public function taxes(): HasOne
     {
-        return $this->hasMany(OrderProductTax::class);
+        return $this->hasOne(OrderProductTax::class);
     }
 
     /**

@@ -192,6 +192,16 @@ return [
     'occasion_id_not_exist' => 'معرف المناسبة غير موجود',
     'cart_type_invalid' => 'يجب أن يكون نوع السلة أحد الخيارات التالية: product, bundle, occasion',
 
+    // Checkout validation messages
+    'user_address_id_required' => 'عنوان المستخدم مطلوب',
+    'user_address_id_integer' => 'يجب أن يكون عنوان المستخدم رقماً',
+    'user_address_id_exists' => 'عنوان المستخدم المحدد غير موجود',
+    'promo_code_id_string' => 'يجب أن يكون رمز الترويج نصاً',
+    'order_from_in' => 'يجب أن يكون الطلب من أحد الخيارات التالية: WEB, ANDROID, IOS',
+    'payment_type_in' => 'يجب أن تكون طريقة الدفع أحد الخيارات التالية: cash_on_delivery, online, aman',
+    'use_point_required' => 'حقل استخدام النقاط مطلوب',
+    'use_point_boolean' => 'يجب أن تكون قيمة استخدام النقاط صحيحة أو خاطئة',
+
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Attributes

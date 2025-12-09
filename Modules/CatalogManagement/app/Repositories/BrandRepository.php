@@ -14,7 +14,7 @@ class BrandRepository implements BrandRepositoryInterface
     /**
      * Get all brands with filters and pagination
      */
-    public function getAllBrands(array $filters = [], int $perPage = 15)
+    public function getAllBrands(int $perPage = 15, array $filters = [])
     {
         $query = Brand::with('translations', 'logo', 'cover');
 
@@ -155,7 +155,7 @@ class BrandRepository implements BrandRepositoryInterface
             // Handle Logo
             if(isset($data['logo']) && $data['logo']) {
                 $path = $data['logo']->store("brands/$brand->id", 'public');
-                
+
                 $attachment = $brand->attachments()->create([
                     'path' => $path,
                     'type' => 'logo',
@@ -190,10 +190,10 @@ class BrandRepository implements BrandRepositoryInterface
                     }
                 }
             }
-            
+
             $brand->refresh();
             $brand->load('translations', 'logo', 'cover');
-            
+
             return $brand;
         });
     }
@@ -251,7 +251,7 @@ class BrandRepository implements BrandRepositoryInterface
                     Storage::disk('public')->delete($oldLogo->path);
                     $oldLogo->delete();
                 }
-                
+
                 // Store new logo
                 $path = $data['logo']->store("brands/$brand->id", 'public');
                 $brand->attachments()->create([
@@ -268,7 +268,7 @@ class BrandRepository implements BrandRepositoryInterface
                     Storage::disk('public')->delete($oldCover->path);
                     $oldCover->delete();
                 }
-                
+
                 // Store new cover
                 $path = $data['cover']->store("brands/$brand->id", 'public');
                 $brand->attachments()->create([
@@ -276,10 +276,10 @@ class BrandRepository implements BrandRepositoryInterface
                     'type' => 'cover',
                 ]);
             }
-            
+
             $brand->refresh();
             $brand->load('translations', 'logo', 'cover');
-            
+
             return $brand;
         });
     }

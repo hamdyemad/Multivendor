@@ -190,6 +190,16 @@ return [
     'featured_invalid' => 'featured must be a boolean',
     'cart_type_invalid' => 'cart type must be one of: product, bundle, occasion',
 
+    // Checkout validation messages
+    'user_address_id_required' => 'user address is required',
+    'user_address_id_integer' => 'user address must be an integer',
+    'user_address_id_exists' => 'selected user address does not exist',
+    'promo_code_id_string' => 'promo code must be a string',
+    'order_from_in' => 'order from must be one of: WEB, ANDROID, IOS',
+    'payment_type_in' => 'payment type must be one of: cash_on_delivery, online, aman',
+    'use_point_required' => 'use point field is required',
+    'use_point_boolean' => 'use point must be true or false',
+
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Attributes

@@ -21,8 +21,8 @@ class RegionApiService
         return $this->RegionRepository->getAllRegions($filters);
     }
 
-    public function getRegionsByCity(array $filters = [], $id)
+    public function getRegionsByCity($id, array $filters = [])
     {
-        return $this->RegionRepository->getRegionsByCity($filters, $id);
+        return $this->RegionRepository->getRegionsByCity($id, $filters);
     }
 }

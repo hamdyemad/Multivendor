@@ -17,10 +17,10 @@ class TaxService
     /**
      * Get all taxes with filters and pagination
      */
-    public function getAllTaxes(array $filters = [], int $perPage)
+    public function getAllTaxes(int $perPage, array $filters = [])
     {
         try {
-            return $this->taxRepository->getAllTaxes($filters, $perPage);
+            return $this->taxRepository->getAllTaxes($perPage, $filters);
         } catch (\Exception $e) {
             Log::error('Error fetching taxes: ' . $e->getMessage());
             throw $e;
@@ -64,13 +64,13 @@ class TaxService
                 'search' => $search,
                 'active' => 1
             ];
-            
+
             // Get query from repository
             $query = $this->taxRepository->getAllTaxesQuery($filters);
-            
+
             // Count total for pagination
             $total = $query->count();
-            
+
             // Get paginated taxes
             $taxes = $query->skip(($page - 1) * $perPage)
                 ->take($perPage)

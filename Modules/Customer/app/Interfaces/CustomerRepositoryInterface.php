@@ -10,7 +10,7 @@ interface CustomerRepositoryInterface
 {
     public function getAllCustomers(array $filters = []);
 
-    public function findById(array $filters = [], $id);
+    public function findById($id, array $filters = []);
     public function getCustomersQuery(array $filters = []);
 
     public function getCustomerById(int $id): ?Customer;

@@ -18,6 +18,9 @@ use Modules\Order\app\Interfaces\OrderRepositoryInterface;
 use Modules\Order\app\Repositories\OrderRepository;
 use Modules\Order\app\Interfaces\OrderFulfillmentRepositoryInterface;
 use Modules\Order\app\Repositories\OrderFulfillmentRepository;
+use Modules\Order\app\Interfaces\Api\OrderApiRepositoryInterface;
+use Modules\Order\app\Repositories\Api\OrderApiRepository;
+use Modules\Order\app\Services\Api\OrderApiService;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -84,6 +87,15 @@ class OrderServiceProvider extends ServiceProvider
             OrderFulfillmentRepositoryInterface::class,
             OrderFulfillmentRepository::class
         );
+
+        // Register order API repository bindings
+        $this->app->bind(
+            OrderApiRepositoryInterface::class,
+            OrderApiRepository::class
+        );
+
+        // Register order API service
+        $this->app->singleton(OrderApiService::class);
 
         // Register wishlist query action
         $this->app->singleton(WishlistQueryAction::class);

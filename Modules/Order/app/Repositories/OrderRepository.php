@@ -126,6 +126,7 @@ class OrderRepository implements OrderRepositoryInterface
                 $orderProductTax = $orderProduct->taxes()->create([
                     'tax_id' => $product['tax_id'],
                     'percentage' => $product['tax_rate'] ?? 0,
+                    'amount' => $product["tax_amount"] ?? 0,
                 ]);
 
                 // Save tax translations (EN and AR)

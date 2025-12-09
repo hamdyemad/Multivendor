@@ -7,7 +7,7 @@ interface TaxRepositoryInterface
     /**
      * Get all taxes with filters and pagination
      */
-    public function getAllTaxes(array $filters = [], int $perPage);
+    public function getAllTaxes(int $perPage, array $filters = []);
 
     /**
      * Get taxes query for DataTables

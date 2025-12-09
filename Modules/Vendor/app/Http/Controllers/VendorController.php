@@ -56,7 +56,6 @@ class VendorController extends Controller {
         ];
 
         $response = $this->vendorAction->getDataTable($data);
-        return $response;
         return response()->json([
             'data' => $response['data'],
             'recordsTotal' => $response['totalRecords'],
@@ -74,8 +73,7 @@ class VendorController extends Controller {
     public function create($lang, $countryCode) {
         // Get all countries and activities for select dropdowns
         $countriesData = $this->countryService->getAllCountries([], 1000);
-        $activitiesData = $this->activityService->getAllActivities([], 1000);
-
+        $activitiesData = $this->activityService->getAllActivities(0, []);
         // Extract items from paginated results
         $countries = CountryResource::collection($countriesData)->resolve();
         // Pass activities as collection for form (need getTranslation method)

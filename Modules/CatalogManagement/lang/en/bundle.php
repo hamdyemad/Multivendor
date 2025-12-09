@@ -44,6 +44,7 @@ return [
     'select_category' => 'Select Category',
     'recommended_size' => 'Recommended Size: 320x320px',
     'error_changing_status' => 'Error changing bundle status',
+    'status_changed_successfully' => 'Bundle status changed successfully',
     'search_products' => 'Search Products',
     'type_to_search_products' => 'Type to search products...',
     'search_products_help' => 'Search for products to add to the bundle',

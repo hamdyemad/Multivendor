@@ -12,10 +12,12 @@ use App\Models\Traits\AutoStoreCountryId;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+
 use Modules\AreaSettings\app\Models\Country;
 use Modules\Vendor\app\Models\Vendor;
 
-class Bundle extends BaseModel
+class Bundle extends Model
 {
     use HasFactory, SoftDeletes, Translation, HumanDates, HasSlug, AutoStoreCountryId, CountryCheckIdTrait;
 
@@ -34,6 +36,12 @@ class Bundle extends BaseModel
     }
 
 
+
+
+    public function main_image()
+    {
+        return $this->morphOne(Attachment::class, 'attachable')->where('type', 'main_image');
+    }
 
     /**
      * Relationships
@@ -81,10 +89,12 @@ class Bundle extends BaseModel
     {
         // Apply filters
         if (!empty($filters['search'])) {
-            $query->whereHas('translations', function ($q) use ($filters) {
+            $query
+            ->whereHas('translations', function ($q) use ($filters) {
                 $q->where('lang_value', 'like', '%' . $filters['search'] . '%')
                   ->where('lang_key', 'name');
-            });
+            })
+            ->orWhere('sku', 'like' ,"%" . $filters['search'] . "%");
         }
 
         if (isset($filters['active']) && $filters['active'] !== '') {
@@ -99,12 +109,12 @@ class Bundle extends BaseModel
             $query->where('bundle_category_id', $filters['category_id']);
         }
 
-        if (!empty($filters['created_date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['created_date_from']);
+        if (!empty($filters['created_from'])) {
+            $query->whereDate('created_at', '>=', $filters['created_from']);
         }
 
-        if (!empty($filters['created_date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['created_date_to']);
+        if (!empty($filters['created_until'])) {
+            $query->whereDate('created_at', '<=', $filters['created_until']);
         }
 
         return $query;

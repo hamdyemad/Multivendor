@@ -19,7 +19,7 @@ class CartRepository implements CartRepositoryInterface
     public function getCustomerCart(array $data, $customerId)
     {
         $query = $this->query->handle($customerId, $data);
-        $result = $this->paginated->handle($query, $data['paginated'] ?? false, $data['per_page'] ?? 15);
+        $result = $this->paginated->handle($query, $data['per_page'] ?? 15, $data['paginated'] ?? false);
         return $result;
     }
 
@@ -134,7 +134,7 @@ class CartRepository implements CartRepositoryInterface
                 $price = $cart->vendorProductVariant->price ?? 0;
                 return (float) $price * $cart->quantity;
             }
-        } 
+        }
         // elseif ($cart->type === 'bundle' && $cart->bundle) {
         //     // Get bundle product price
         //     // This assumes BundleProduct model exists

@@ -28,7 +28,7 @@ class ProductApiRepository implements ProductApiRepositoryInterface
         $filters = $dto->toArray();
         $query = $this->query->handle($filters);
         $query->with('highestDiscountVariant');
-        $result = $this->paginated->handle($query, $dto->paginated, $dto->per_page);
+        $result = $this->paginated->handle($query, $dto->per_page, $dto->paginated);
         return $result;
     }
 
@@ -250,7 +250,7 @@ class ProductApiRepository implements ProductApiRepositoryInterface
             'tax'
         ]);
 
-        $result = $this->paginated->handle($query, $filters['paginated'] ?? false, $filters['per_page'] ?? 15);
+        $result = $this->paginated->handle($query, $filters['per_page'] ?? 15, $filters['paginated'] ?? false);
 
         return $result;
     }

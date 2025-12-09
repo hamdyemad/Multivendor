@@ -40,7 +40,7 @@ class CustomerAddressRepository implements CustomerAddressRepositoryInterface
         $query = $customer->addresses()->filter($dto->toArray());
 
         // Handle pagination
-        $result = $this->paginated->handle($query, $dto->paginated, $dto->per_page);
+        $result = $this->paginated->handle($query, $dto->per_page, $dto->paginated);
         return $result;
     }
 

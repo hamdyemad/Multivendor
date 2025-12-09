@@ -42,7 +42,7 @@
                                 <div class="row g-3 align-items-end">
 
                                     {{-- Search --}}
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="search" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-search me-1"></i> {{ __('common.search') }}
@@ -55,8 +55,27 @@
                                         </div>
                                     </div>
 
+                                    {{-- Vendor Filter --}}
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="vendor_filter" class="il-gray fs-14 fw-500 mb-10">
+                                                <i class="uil uil-store me-1"></i>
+                                                {{ trans('catalogmanagement::bundle.vendor') }}
+                                            </label>
+                                            <select
+                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select select2"
+                                                id="vendor_filter"
+                                                style="width: 100%;">
+                                                <option value="">{{ __('common.all') }}</option>
+                                                @foreach ($vendors as $vendor)
+                                                    <option value="{{ $vendor['id'] }}">{{ $vendor['name'] }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
                                     {{-- Status --}}
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="active" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-check-circle me-1"></i>
@@ -169,12 +188,16 @@
 
 @push('scripts')
     <script>
+
+
         $(document).ready(function() {
             let per_page = 10;
-
             // Populate filters from URL parameters on page load
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('search')) $('#search').val(urlParams.get('search'));
+            if (urlParams.has('vendor_id')) {
+                $('#vendor_filter').val(urlParams.get('vendor_id')).trigger('change.select2');
+            }
             if (urlParams.has('active')) $('#active').val(urlParams.get('active'));
             if (urlParams.has('created_from')) $('#created_from_filter').val(urlParams.get('created_from'));
             if (urlParams.has('created_until')) $('#created_until_filter').val(urlParams.get('created_until'));
@@ -190,6 +213,7 @@
                         d.per_page = d.length;
                         d.page = (d.start / d.length) + 1;
                         d.search = $('#search').val();
+                        d.vendor_id = $('#vendor_filter').val();
                         d.active = $('#active').val();
                         d.created_from = $('#created_from_filter').val();
                         d.created_until = $('#created_until_filter').val();
@@ -365,6 +389,7 @@
             // Reset filters
             $('#resetFilters').on('click', function() {
                 $('#search').val('');
+                $('#vendor_filter').val('').trigger('change');
                 $('#active').val('');
                 $('#created_from_filter').val('');
                 $('#created_until_filter').val('');
@@ -384,6 +409,7 @@
                 const params = new URLSearchParams();
 
                 if ($('#search').val()) params.set('search', $('#search').val());
+                if ($('#vendor_filter').val()) params.set('vendor_id', $('#vendor_filter').val());
                 if ($('#active').val()) params.set('active', $('#active').val());
                 if ($('#created_from_filter').val()) params.set('created_from', $('#created_from_filter').val());
                 if ($('#created_until_filter').val()) params.set('created_until', $('#created_until_filter').val());
@@ -405,6 +431,12 @@
                     table.ajax.reload();
                     updateUrlParams();
                 }, 500);
+            });
+
+            // Vendor filter - Select2 change
+            $('#vendor_filter').on('change.select2', function() {
+                table.ajax.reload();
+                updateUrlParams();
             });
 
             // Select filters - live search on change

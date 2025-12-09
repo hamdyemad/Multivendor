@@ -668,12 +668,18 @@
 
                 const formData = new FormData(form[0]);
 
+                // Ensure image is included if it exists
+                const imageInput = form.find('input[name="image"]')[0];
+                if (imageInput && imageInput.files.length > 0) {
+                    formData.set('image', imageInput.files[0]);
+                }
+
                 // Add selected products to form data
                 selectedProducts.forEach(function(variantId, index) {
                     const product = selectedProductsDetails[variantId];
                     formData.append(`bundle_products[${index}][vendor_product_variant_id]`, variantId);
                     formData.append(`bundle_products[${index}][price]`, product.price);
-                    formData.append(`bundle_products[${index}][limitation_quantity]`, product.limit_quantity || '');
+                    formData.append(`bundle_products[${index}][limitation_quantity]`, product.limit_quantity || 1);
                     formData.append(`bundle_products[${index}][min_quantity]`, product.min_quantity);
                 });
 

@@ -27,7 +27,14 @@ class BundleController extends Controller
      */
     public function index($lang, $countryCode)
     {
-        return view('catalogmanagement::bundles.index');
+        $vendors = $this->vendorService->getAllVendors([], 0);
+        $vendors = $vendors->map(function($vendor) {
+            return [
+                'id' => $vendor->id,
+                'name' => $vendor->name,
+            ];
+        });
+        return view('catalogmanagement::bundles.index', compact('vendors'));
     }
 
     /**
@@ -36,10 +43,30 @@ class BundleController extends Controller
     public function datatable($lang, $countryCode)
     {
         $filters = request()->all();
-        $bundles = $this->bundleService->getAllBundles($filters);
+        $perPage = $filters['per_page'] ?? 15;
+        $bundles = $this->bundleService->getAllBundles($filters, $perPage);
+
+        // Format bundles data for DataTable
+        $data = $bundles->map(function($bundle) {
+            return [
+                'id' => $bundle->id,
+                'bundle_information' => [
+                    'image' => $bundle->main_image ? asset('storage/' . $bundle->main_image->path) : '',
+                    'name_en' => $bundle->getTranslation('name', 'en') ?? '-',
+                    'name_ar' => $bundle->getTranslation('name', 'ar') ?? '-',
+                ],
+                'sku' => $bundle->sku ?? '-',
+                'vendor' => $bundle->vendor->name,
+                'is_active' => $bundle->is_active,
+                'created_at' => $bundle->created_at
+            ];
+        });
 
         return response()->json([
-            'data' => $bundles,
+            'draw' => $filters['draw'] ?? 0,
+            'recordsTotal' => $bundles->total() ?? 0,
+            'recordsFiltered' => $bundles->total() ?? 0,
+            'data' => $data,
         ]);
     }
 
@@ -96,12 +123,11 @@ class BundleController extends Controller
     public function edit($lang, $countryCode, $id)
     {
         $bundle = $this->bundleService->getBundleById($id);
+        return $bundle;
         $languages = $this->languageService->getAll();
         $vendors = $this->vendorService->getAllVendors();
         $categories = $this->bundleCategoryService->getActiveBundleCategories();
-        // return $bundle;
         $bundleResource = (new BundleResource($bundle))->resolve();
-        return $bundleResource;
         return view('catalogmanagement::bundles.form', compact('bundle', 'bundleResource', 'languages', 'vendors', 'categories'));
 
     }
@@ -118,7 +144,7 @@ class BundleController extends Controller
 
             return response()->json([
                 'message' => 'Bundle updated successfully',
-                'redirect' => route('bundles.show', ['lang' => $lang, 'countryCode' => $countryCode, 'id' => $bundle->id]),
+                'redirect' => route('admin.bundles.show', $bundle->id),
             ]);
         } catch (\Exception $e) {
             \Log::error('Bundle update error: ' . $e->getMessage());
@@ -158,12 +184,14 @@ class BundleController extends Controller
             $bundle = $this->bundleService->toggleActive($bundle);
 
             return response()->json([
-                'message' => 'Bundle status updated successfully',
+                'status' => true,
+                'message' => trans('catalogmanagement::bundle.status_changed_successfully'),
                 'is_active' => $bundle->is_active,
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Error updating bundle status: ' . $e->getMessage(),
+                'status' => false,
+                'message' => trans('catalogmanagement::bundle.error_changing_status'),
             ], 422);
         }
     }

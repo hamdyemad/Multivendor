@@ -18,7 +18,7 @@ class SubCategoryApiRepository implements SubCategoryApiRepositoryInterface
     {
         $filters = $dto->toArray();
         $query = $this->query->handle($filters);
-        $result = $this->paginated->handle($query, $dto->paginated, $dto->per_page);
+        $result = $this->paginated->handle($query, $dto->per_page, $dto->paginated);
         return $result;
     }
 

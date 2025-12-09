@@ -26,7 +26,7 @@ class OrderApiRepository implements OrderApiRepositoryInterface
     {
         $query = $this->query->handle($filters);
 
-        return $this->paginated->handle($query, $filters["paginated"] ?? null, $filters["per_page"] ?? null);
+        return $this->paginated->handle($query, $filters["per_page"] ?? null, $filters["paginated"] ?? null);
     }
 
     /**

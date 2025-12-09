@@ -20,7 +20,7 @@ class WishlistRepository implements WishlistRepositoryInterface
     public function getCustomerWishlist(array $data, $customerId)
     {
         $query = $this->query->handle($customerId);
-        $result = $this->paginated->handle($query, $data['paginated'], $data['per_page']);
+        $result = $this->paginated->handle($query, $data['per_page'], $data['paginated']);
         return $result;
     }
 

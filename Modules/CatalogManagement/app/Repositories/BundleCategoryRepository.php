@@ -16,7 +16,7 @@ class BundleCategoryRepository implements BundleCategoryRepositoryInterface
      */
     public function getBundleCategoriesQuery(array $filters = [], $orderBy = null, $orderDirection = 'desc')
     {
-        $query = BundleCategory::with(['translations'])->filter($filters);
+        $query = BundleCategory::with(['translations'])->filter($filters)->latest();
         return $query;
     }
 

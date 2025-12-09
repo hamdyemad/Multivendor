@@ -44,6 +44,7 @@ return [
     'select_category' => 'اختر الفئة',
     'recommended_size' => 'الحجم الموصى به: 320x320px',
     'error_changing_status' => 'خطأ في تغيير حالة الحزمة',
+    'status_changed_successfully' => 'تم تغيير حالة الحزمة بنجاح',
     'search_products' => 'البحث عن المنتجات',
     'type_to_search_products' => 'اكتب للبحث عن المنتجات...',
     'search_products_help' => 'ابحث عن المنتجات لإضافتها إلى الحزمة',

@@ -22,7 +22,7 @@ class BundleRequest extends FormRequest
         return [
             'vendor_id' => 'required|exists:vendors,id',
             'bundle_category_id' => 'required|exists:bundle_categories,id',
-            'sku' => 'required|string|unique:bundles,sku' . ($this->bundle ? ',' . $this->bundle->id : ''),
+            'sku' => 'required|string|unique:bundles,sku,' . $this->route('bundle'),
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active' => 'nullable|boolean',
             'translations' => 'required|array',
@@ -37,7 +37,7 @@ class BundleRequest extends FormRequest
             'bundle_products' => 'required|array|min:1',
             'bundle_products.*.vendor_product_variant_id' => 'required|exists:vendor_product_variants,id',
             'bundle_products.*.price' => 'required|numeric|min:0',
-            'bundle_products.*.limitation_quantity' => 'nullable|numeric|min:1',
+            'bundle_products.*.limitation_quantity' => 'required|numeric|min:1',
             'bundle_products.*.min_quantity' => 'required|numeric|min:1',
         ];
     }
@@ -73,16 +73,5 @@ class BundleRequest extends FormRequest
             'bundle_products.*.min_quantity.numeric' => trans('catalogmanagement::bundle.min_quantity_numeric'),
             'bundle_products.*.min_quantity.min' => trans('catalogmanagement::bundle.min_quantity_min'),
         ];
-    }
-
-    /**
-     * Prepare the data for validation.
-     */
-    protected function prepareForValidation(): void
-    {
-        // Add country_id from session
-        $this->merge([
-            'country_id' => session('country_id'),
-        ]);
     }
 }

@@ -47,7 +47,6 @@ class ProductBankController extends Controller
         if ($request->ajax()) {
             return $this->datatable($request);
         }
-
         return view('catalogmanagement::product-bank.index', compact('languages'));
     }
 
@@ -212,7 +211,7 @@ class ProductBankController extends Controller
     /**
      * Show bank product details
      */
-    public function show($id)
+    public function show($lang, $countryCode, $id)
     {
         $product = Product::with([
             'brand', 'department', 'category', 'subCategory', 'vendor', 'createdByUser',
@@ -226,7 +225,7 @@ class ProductBankController extends Controller
     /**
      * Show edit form for bank product
      */
-    public function edit($id)
+    public function edit($lang, $countryCode, $id)
     {
         $product = Product::with(['variants', 'attachments'])->findOrFail($id);
 
@@ -251,7 +250,7 @@ class ProductBankController extends Controller
     /**
      * Update bank product
      */
-    public function update(Request $request, $id)
+    public function update(Request $request ,$lang, $countryCode, $id)
     {
         try {
             DB::beginTransaction();
@@ -326,7 +325,7 @@ class ProductBankController extends Controller
     /**
      * Delete bank product
      */
-    public function destroy($id)
+    public function destroy($lang, $countryCode, $id)
     {
         try {
             $product = Product::findOrFail($id);
@@ -388,7 +387,7 @@ class ProductBankController extends Controller
     /**
      * Approve bank product
      */
-    public function approve($id)
+    public function approve($lang, $countryCode, $id)
     {
         try {
             $product = Product::findOrFail($id);
@@ -411,7 +410,7 @@ class ProductBankController extends Controller
     /**
      * Reject bank product
      */
-    public function reject(Request $request, $id)
+    public function reject(Request $request, $lang, $countryCode, $id)
     {
         try {
             $request->validate([

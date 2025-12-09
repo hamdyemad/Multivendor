@@ -224,6 +224,38 @@
         transform: scale(1);
     }
 
+    /* Scrollable regions container */
+    #regions-scroll-container {
+        max-height: 600px;
+        overflow-y: auto;
+        padding: 15px;
+        border: 1px solid #e5e5e5;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+
+    #regions-scroll-container::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    #regions-scroll-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    #regions-scroll-container::-webkit-scrollbar-thumb {
+        background: #5f63f2;
+        border-radius: 10px;
+    }
+
+    #regions-scroll-container::-webkit-scrollbar-thumb:hover {
+        background: #4a4dd8;
+    }
+
+    #regions-container {
+        margin: 0;
+    }
+
     /* Responsive adjustments */
     @media (max-width: 768px) {
         .region-box-inner {
@@ -237,6 +269,10 @@
         .region-name {
             font-size: 13px;
         }
+
+        #regions-scroll-container {
+            max-height: 400px;
+        }
     }
 </style>
 @endpush
@@ -246,6 +282,13 @@
 // Global variables
 let selectedVendorId = {{ $selectedVendorId ?? 'null' }};
 const isAdmin = {{ $isAdmin ? 'true' : 'false' }};
+
+// Pagination variables
+let currentPage = 1;
+let totalPages = 1;
+let isLoadingMore = false;
+let allSelectedRegions = [];
+let totalRegionsCount = 0;
 
 $('#vendor_select').select2({
     theme: 'bootstrap-5',
@@ -260,6 +303,9 @@ if (isAdmin) {
         const vendorId = $(this).val();
         if (vendorId) {
             selectedVendorId = vendorId;
+            currentPage = 1;
+            totalPages = 1;
+            isLoadingMore = false;
             loadVendorRegions(vendorId);
         } else {
             selectedVendorId = null;
@@ -275,76 +321,133 @@ if (isAdmin) {
     }
 }
 
-// Function to load vendor regions via AJAX
+// Function to load vendor regions via AJAX with pagination
 function loadVendorRegions(vendorId) {
-    console.log('Loading regions for vendor:', vendorId);
+    console.log('Loading regions for vendor:', vendorId, 'Page:', currentPage);
 
-    // Show loading state
-    const $regionsContainer = $('#regions-container');
-    const $regionsCard = $('.regions-card-body');
-
-    $regionsCard.html(`
-        <div class="text-center py-5">
-            <div class="spinner-border text-primary mb-3" role="status">
-                <span class="visually-hidden">Loading...</span>
+    // Show loading state only on first page
+    if (currentPage === 1) {
+        const $regionsCard = $('.regions-card-body');
+        $regionsCard.html(`
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="text-muted">{{ trans('common.loading') }}...</p>
             </div>
-            <p class="text-muted">{{ trans('common.loading') }}...</p>
-        </div>
-    `);
+        `);
+    }
 
-    // Load regions via /api/area/regions endpoint
+    // Load regions via /api/area/regions endpoint with pagination
     $.ajax({
         url: '/api/area/regions',
         type: 'GET',
         dataType: 'json',
         data: {
             vendor_id: vendorId,
-            per_page: 1000,  // Get all regions
+            country_id: $("meta[name='current_country_id']").attr('content'),
+            per_page: 12,
+            page: currentPage,
+            paginated: 'ok',
             active: 1
         },
         success: function(response) {
-            console.log('Regions API response:', response);
+            console.log('=== REGIONS API RESPONSE ===');
+            console.log('Full response:', response);
+            console.log('Response keys:', Object.keys(response));
 
-            // Parse regions from API response
+            // Parse regions from API response - handle multiple formats
             let regions = [];
             if (response.data && Array.isArray(response.data)) {
                 regions = response.data;
+                console.log('Using response.data format');
             } else if (Array.isArray(response)) {
                 regions = response;
+                console.log('Using array format');
             }
 
-            console.log('Parsed regions:', regions);
-            console.log('Regions count:', regions.length);
+            console.log('Parsed regions count:', regions.length);
+            console.log('First region:', regions[0]);
+
+            // Get pagination info - try multiple field names
+            let newTotalPages = 1;
+            let newTotalCount = regions.length;
+
+            // Try different pagination field names
+            if (response.pagination && response.pagination.last_page) {
+                newTotalPages = response.pagination.last_page;
+                newTotalCount = response.pagination.total;
+                console.log('Found pagination object - last_page:', newTotalPages, 'total:', newTotalCount);
+            } else if (response.last_page) {
+                newTotalPages = response.last_page;
+                console.log('Found last_page:', newTotalPages);
+            } else if (response.meta && response.meta.last_page) {
+                newTotalPages = response.meta.last_page;
+                console.log('Found meta.last_page:', newTotalPages);
+            }
+
+            if (!newTotalCount || newTotalCount === regions.length) {
+                if (response.total) {
+                    newTotalCount = response.total;
+                    console.log('Found total:', newTotalCount);
+                } else if (response.meta && response.meta.total) {
+                    newTotalCount = response.meta.total;
+                    console.log('Found meta.total:', newTotalCount);
+                }
+            }
+
+            totalPages = newTotalPages;
+            totalRegionsCount = newTotalCount;
+
+            console.log('✅ Pagination info - Total pages:', totalPages, 'Total count:', totalRegionsCount, 'Current page:', currentPage, 'Has more pages:', currentPage < totalPages);
 
             if (regions.length > 0) {
-                // Update header count
-                $('.regions-count-badge').text(regions.length);
+                // Update header count with total
+                $('.regions-count-badge').text(totalRegionsCount);
 
                 // Now get selected regions for this vendor
-                loadSelectedRegions(vendorId, regions);
-            } else {
+                loadSelectedRegions(vendorId, regions, currentPage === 1);
+            } else if (currentPage === 1) {
                 console.warn('No regions found for this vendor');
                 showNoRegionsMessage();
             }
+
+            // Hide loading indicator
+            $('#loading-more').hide();
+            isLoadingMore = false;
         },
         error: function(xhr, status, error) {
             console.error('Error loading regions:', error);
             console.error('XHR:', xhr);
             console.error('Response Text:', xhr.responseText);
-            $regionsCard.html(`
-                <div class="alert alert-danger">
-                    <i class="uil uil-exclamation-triangle me-2"></i>
-                    {{ trans('catalogmanagement::product.error_loading_regions') }}: ${error}
-                    <br><small>${xhr.responseText}</small>
-                </div>
-            `);
+
+            if (currentPage === 1) {
+                const $regionsCard = $('.regions-card-body');
+                $regionsCard.html(`
+                    <div class="alert alert-danger">
+                        <i class="uil uil-exclamation-triangle me-2"></i>
+                        {{ trans('catalogmanagement::product.error_loading_regions') }}: ${error}
+                        <br><small>${xhr.responseText}</small>
+                    </div>
+                `);
+            }
+
+            // Hide loading indicator
+            $('#loading-more').hide();
+            isLoadingMore = false;
         }
     });
 }
 
 // Function to load selected regions for vendor
-function loadSelectedRegions(vendorId, regions) {
-    console.log('Loading selected regions for vendor:', vendorId);
+function loadSelectedRegions(vendorId, regions, isFirstPage) {
+    console.log('Loading selected regions for vendor:', vendorId, 'First page:', isFirstPage);
+
+    // Only load selected regions on first page
+    if (!isFirstPage) {
+        displayRegions(regions, isFirstPage);
+        return;
+    }
 
     // Load selected regions via AJAX from stock-setup controller
     $.ajax({
@@ -360,74 +463,93 @@ function loadSelectedRegions(vendorId, regions) {
 
             if (!response.success) {
                 console.error('API returned success=false');
-                displayRegions(regions, []);
+                allSelectedRegions = [];
+                displayRegions(regions, isFirstPage);
                 return;
             }
 
-            const selectedRegionIds = response.selectedRegions || [];
-            console.log('Selected region IDs:', selectedRegionIds);
+            allSelectedRegions = response.selectedRegions || [];
+            console.log('Selected region IDs:', allSelectedRegions);
 
             // Mark regions as selected based on IDs
             regions.forEach(function(region) {
-                region.selected_for_vendor = selectedRegionIds.includes(region.id);
+                region.selected_for_vendor = allSelectedRegions.includes(region.id);
             });
 
             console.log('Regions with selection flags:', regions);
 
             // Display all regions with selection flags
-            displayRegions(regions);
+            displayRegions(regions, isFirstPage);
         },
         error: function(xhr, status, error) {
             console.error('Error loading selected regions:', error);
             console.warn('Displaying regions without selection data');
 
+            allSelectedRegions = [];
             // Display regions without selection (all unselected)
-            displayRegions(regions);
+            displayRegions(regions, isFirstPage);
         }
     });
 }
 
 // Function to display regions
-function displayRegions(regions) {
-    console.log('displayRegions called with:', regions);
+function displayRegions(regions, isFirstPage) {
+    console.log('displayRegions called with:', regions, 'First page:', isFirstPage);
     const $regionsCard = $('.regions-card-body');
 
     console.log('$regionsCard element found:', $regionsCard.length);
-    console.log('$regionsCard element:', $regionsCard);
 
     if (!regions || regions.length === 0) {
-        console.warn('No regions to display');
-        showNoRegionsMessage();
+        if (isFirstPage) {
+            console.warn('No regions to display');
+            showNoRegionsMessage();
+        }
         return;
     }
 
-    // Add search/filter box
-    let html = `
-        <div class="mb-4">
-            <div class="row">
-                <div class="col-md-6 col-lg-4">
-                    <div class="input-group">
-                        <span class="input-group-text bg-white">
-                            <i class="uil uil-search"></i>
-                        </span>
-                        <input type="text"
-                               id="region-search"
-                               class="form-control"
-                               placeholder="{{ trans('catalogmanagement::product.search_regions') }}"
-                               autocomplete="off">
-                        <button class="btn btn-outline-secondary" type="button" id="clear-search">
-                            <i class="uil uil-times m-0"></i>
-                        </button>
+    // Create structure on first page
+    if (isFirstPage) {
+        let html = `
+            <div class="mb-4">
+                <div class="row">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white">
+                                <i class="uil uil-search"></i>
+                            </span>
+                            <input type="text"
+                                   id="region-search"
+                                   class="form-control"
+                                   placeholder="{{ trans('catalogmanagement::product.search_regions') }}"
+                                   autocomplete="off">
+                            <button class="btn btn-outline-secondary" type="button" id="clear-search">
+                                <i class="uil uil-times m-0"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted mt-1 d-block">
+                            <span id="filtered-count">${totalRegionsCount}</span> {{ trans('catalogmanagement::product.of') }} ${totalRegionsCount} {{ trans('catalogmanagement::product.regions') }}
+                        </small>
                     </div>
-                    <small class="text-muted mt-1 d-block">
-                        <span id="filtered-count">${regions.length}</span> {{ trans('catalogmanagement::product.of') }} ${regions.length} {{ trans('catalogmanagement::product.regions') }}
-                    </small>
                 </div>
             </div>
-        </div>
-    `;
+        `;
 
-    html += '<div class="row g-3" id="regions-container">';
+        html += '<div id="regions-scroll-container"><div class="row g-3" id="regions-container"></div><div id="loading-more" class="text-center py-4" style="display: none;"><div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div></div>';
+        html += `
+            <div class="text-center mt-4 pt-4 border-top">
+                <button type="button" id="save-regions" class="btn btn-primary btn-lg px-5">
+                    <i class="uil uil-save me-2"></i>
+                    {{ trans('common.save') ?? 'Save' }}
+                </button>
+            </div>
+        `;
+
+        $regionsCard.html(html);
+        setupRegionSearch();
+    }
+
+    // Add regions to container
+    const $container = $('#regions-container');
 
     regions.forEach(function(region) {
         console.log('Processing region:', region);
@@ -449,7 +571,7 @@ function displayRegions(regions) {
             locationInfo = `<small class="text-muted d-block mt-1">${region.country_name}</small>`;
         }
 
-        html += `
+        const regionHtml = `
             <div class="col-md-4 col-lg-3 region-item">
                 <div class="region-box ${isSelected ? 'active' : ''}" data-region-id="${region.id}">
                     <div class="region-box-inner">
@@ -467,28 +589,75 @@ function displayRegions(regions) {
                 </div>
             </div>
         `;
+
+        $container.append(regionHtml);
     });
 
-    html += '</div>';
-    html += `
-        <div class="text-center mt-4 pt-4 border-top">
-            <button type="button" id="save-regions" class="btn btn-primary btn-lg px-5">
-                <i class="uil uil-save me-2"></i>
-                {{ trans('common.save') ?? 'Save' }}
-            </button>
-        </div>
-    `;
-
-    console.log('HTML to insert:', html.substring(0, 200) + '...');
-    console.log('Updating $regionsCard with HTML...');
-
-    $regionsCard.html(html);
-
-    // Add search functionality
-    setupRegionSearch();
-
-    console.log('HTML updated. $regionsCard children count:', $regionsCard.children().length);
     console.log('Regions displayed:', regions.length);
+
+    // Setup infinite scroll on first page
+    if (isFirstPage) {
+        // Small delay to ensure DOM is ready
+        setTimeout(function() {
+            setupInfiniteScroll();
+        }, 100);
+    } else {
+        // Re-attach scroll listener for subsequent pages
+        setTimeout(function() {
+            attachScrollListener();
+        }, 100);
+    }
+}
+
+// Function to attach scroll listener
+function attachScrollListener() {
+    const $scrollContainer = $('#regions-scroll-container');
+
+    if ($scrollContainer.length === 0) {
+        console.warn('Scroll container not found');
+        return;
+    }
+
+    console.log('Attaching scroll listener to container');
+
+    $scrollContainer.on('scroll.regions', function() {
+        const $container = $(this);
+        const scrollTop = $container.scrollTop();
+        const scrollHeight = $container[0].scrollHeight;
+        const containerHeight = $container.height();
+
+        // Calculate how close to bottom we are
+        const distanceFromBottom = scrollHeight - (scrollTop + containerHeight);
+
+        // Only log every 10 scroll events to avoid spam
+        if (scrollTop % 50 === 0) {
+            console.log('Scroll event - ScrollTop:', scrollTop, 'ScrollHeight:', scrollHeight, 'ContainerHeight:', containerHeight, 'Distance from bottom:', distanceFromBottom, 'isLoadingMore:', isLoadingMore, 'currentPage:', currentPage, 'totalPages:', totalPages);
+        }
+
+        // Load more when user scrolls to within 100px of bottom
+        if (distanceFromBottom < 100 && !isLoadingMore && currentPage < totalPages) {
+            console.log('✅ TRIGGER: Loading more regions... Current page:', currentPage, 'Total pages:', totalPages);
+            isLoadingMore = true;
+
+            // Show loading indicator
+            $('#loading-more').show();
+
+            // Load next page
+            currentPage++;
+            loadVendorRegions(selectedVendorId);
+        }
+    });
+}
+
+// Function to setup infinite scroll
+function setupInfiniteScroll() {
+    console.log('Setting up infinite scroll...');
+
+    // Remove previous scroll handler
+    $('#regions-scroll-container').off('scroll.regions');
+
+    // Attach the scroll listener
+    attachScrollListener();
 }
 
 // Function to setup region search functionality

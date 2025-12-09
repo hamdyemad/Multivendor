@@ -3,14 +3,13 @@
 namespace Modules\CatalogManagement\app\Models;
 
 use App\Traits\Translation;
-use App\Models\Traits\CountryCheckIdTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductVariant extends Model
 {
-    use HasFactory, SoftDeletes, Translation, CountryCheckIdTrait;
+    use HasFactory, SoftDeletes, Translation;
 
     protected $table = 'product_variants';
     protected $guarded = [];

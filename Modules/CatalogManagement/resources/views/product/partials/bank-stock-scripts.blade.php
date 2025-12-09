@@ -1507,7 +1507,9 @@
                 url: config.routes.regionsApi,
                 type: 'GET',
                 data: {
-                    vendor_id: selectedVendorId
+                    vendor_id: selectedVendorId,
+                    country_id: $("meta[name='current_country_id']").attr('content'),
+                    vendor_selected_regions: true,
                 },
                 success: function(response) {
                     const regions = response.data || response.regions || response;

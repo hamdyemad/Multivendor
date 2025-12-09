@@ -504,7 +504,7 @@ class ProductController extends Controller
     {
         try {
             // Get the bank product directly from Product model (not VendorProduct)
-            $product = Product::with(['brand', 'category', 'subCategory', 'department', 'createdByUser', 'mainImage', 'additionalImages', 'variants.variantConfiguration.key', 'variants.variantConfiguration.parent_data'])
+            $product = Product::with(['brand', 'variants', 'category', 'subCategory', 'department', 'createdByUser', 'mainImage', 'additionalImages', 'variants.variantConfiguration.key', 'variants.variantConfiguration.parent_data'])
                 ->where('type', Product::TYPE_BANK)
                 ->findOrFail($id);
             // Check vendor access for vendor users

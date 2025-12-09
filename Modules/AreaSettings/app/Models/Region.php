@@ -75,8 +75,10 @@ class Region extends BaseModel
     public function scopeByVendor(Builder $query, $vendorIdentifier)
     {
         return $query->whereHas('city.country.vendors', function($q) use ($vendorIdentifier) {
-            $q->where('vendors.id', $vendorIdentifier)
-                ->orWhere('vendors.slug', $vendorIdentifier);
+            $q
+            ->where('vendors.id', $vendorIdentifier)
+                ->orWhere('vendors.slug', $vendorIdentifier)
+                ;
         });
 
     }
@@ -95,7 +97,9 @@ class Region extends BaseModel
 
         // Filter by vendor (through city.country.vendors)
         if (!empty($filters['vendor_id'])) {
-            $query->byVendor($filters['vendor_id']);
+           $query->whereHas('city.country.vendors', function($q) use ($filters) {
+                $q->where('id', $filters['vendor_id']);
+            });
             // Filter by vendor selected regions (through vendor_regions table)
             if (!empty($filters['vendor_selected_regions'])) {
                 $vendorId = $filters['vendor_id'];

@@ -231,10 +231,10 @@
 
             <!-- Call to Action -->
             <div class="cta-buttons">
-                <a href="{{ route('login') }}" class="btn btn-primary">
+                <a href="https://frontmultivendor.bnaia.com/" class="btn btn-primary">
                     {{ __('Log In to Your Account') }}
                 </a>
-                <a href="/" class="btn btn-secondary">
+                <a href="https://frontmultivendor.bnaia.com/" class="btn btn-secondary">
                     {{ __('Continue Browsing') }}
                 </a>
             </div>

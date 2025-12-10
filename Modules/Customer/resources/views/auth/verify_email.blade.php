@@ -223,7 +223,7 @@
                 </div>
 
                 @if ($token)
-                    <form action="{{ route('admin.verify-email.store') }}" method="POST" id="verifyForm">
+                    <form action="{{ route('verify-email.store') }}" method="POST" id="verifyForm">
                         @csrf
                         <input type="hidden" name="token" value="{{ $token }}">
 

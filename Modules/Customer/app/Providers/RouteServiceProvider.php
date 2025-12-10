@@ -27,6 +27,7 @@ class RouteServiceProvider extends ServiceProvider
     {
         $this->mapApiRoutes();
         $this->mapWebRoutes();
+        $this->mapAdminRoutes();
     }
 
     /**
@@ -36,6 +37,13 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapWebRoutes(): void
     {
+        Route::middleware(['web'])
+            ->group(module_path($this->name, '/routes/web.php'));
+    }
+
+
+    protected function mapAdminRoutes(): void
+    {
         Route::middleware(['web', 'auth', 'setLanguageCountry',
             'setAdminRouteDefaults',
             'localizationRedirect',
@@ -43,8 +51,9 @@ class RouteServiceProvider extends ServiceProvider
             ->prefix('{lang}/{countryCode}/admin')
             ->where(['lang' => '[a-z]{2}', 'countryCode' => '[a-z]{2}'])
             ->as('admin.')
-            ->group(module_path($this->name, '/routes/web.php'));
+            ->group(module_path($this->name, '/routes/admin.php'));
     }
+
 
     /**
      * Define the "api" routes for the application.

@@ -698,7 +698,7 @@
 
 
         @if (in_array($user_type_id, \App\Models\UserType::adminIds()))
-            {{-- @can('points.index')
+            @can('points.index')
                 <li class="menu-title mt-30">
                     <span>{{ trans('menu.sections.points system') }}</span>
                 </li>
@@ -723,7 +723,7 @@
                         </li>
                     </ul>
                 </li>
-            @endcan --}}
+            @endcan
 
 
             @can('advertisements.index')

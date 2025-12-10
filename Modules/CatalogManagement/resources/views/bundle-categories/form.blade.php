@@ -133,7 +133,7 @@
                                    class="btn btn-light btn-default btn-squared fw-400 text-capitalize">
                                     <i class="uil uil-angle-left"></i> {{ trans('catalogmanagement::bundle_category.cancel') }}
                                 </a>
-                                <button type="submit" id="submitBtn"
+                                <button id="submitBtn"
                                         class="btn btn-primary btn-default btn-squared text-capitalize"
                                         style="display: inline-flex; align-items: center; justify-content: center;">
                                     <i class="uil uil-check"></i>

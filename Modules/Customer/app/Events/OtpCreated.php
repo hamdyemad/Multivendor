@@ -11,7 +11,7 @@ class OtpCreated
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public function __construct(
-        public ?object $custoemr,
+        public ?object $customer,
         public string $otp,
         public string $type,
         public ?int $expiresInMinutes = 10,

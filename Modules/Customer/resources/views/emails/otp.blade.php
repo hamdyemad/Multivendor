@@ -105,7 +105,7 @@
 
                 @if($verificationToken)
                     <div class="button-container">
-                        <a href="{{ route('verify-email', $verificationToken) }}" class="verify-button">
+                        <a href="{{ url('/verify-email/' . $verificationToken) }}" class="verify-button">
                             {{ trans('customer.otp_email.verify_account_button') }}
                         </a>
                     </div>

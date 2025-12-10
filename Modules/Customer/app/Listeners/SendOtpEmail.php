@@ -14,7 +14,7 @@ class SendOtpEmail
 {
     public function handle(OtpCreated $event): void
     {
-        $customer = $event->custoemr;
+        $customer = $event->customer;
         app(CustomerAuthService::class)->saveOtp(
             email: $customer->email,
             otp: $event->otp,

@@ -82,7 +82,7 @@ class CustomerController extends Controller
 
     public function show($lang, $countryCode, $id)
     {
-        $customer = $this->customerService->findById([], $id);
+        $customer = $this->customerService->findById($id, []);
 
         if (!$customer) {
             abort(404);
@@ -93,7 +93,7 @@ class CustomerController extends Controller
 
     public function edit($lang, $countryCode, $id)
     {
-        $customer = $this->customerService->findById([],$id);
+        $customer = $this->customerService->findById($id, []);
 
         if (!$customer) {
             abort(404);
@@ -104,7 +104,7 @@ class CustomerController extends Controller
 
     public function update($lang, $countryCode, CustomerRequest $request, $id)
     {
-        $customer = $this->customerService->findById([], $id);
+        $customer = $this->customerService->findById($id, []);
 
         if (!$customer) {
             abort(404);
@@ -144,7 +144,7 @@ class CustomerController extends Controller
     public function changeStatus($lang, $countryCode, Request $request, $id)
     {
         try {
-            $customer = $this->customerService->findById([], $id);
+            $customer = $this->customerService->findById($id, []);
 
             if (!$customer) {
                 return response()->json([
@@ -176,7 +176,7 @@ class CustomerController extends Controller
     public function changeVerification($lang, $countryCode, Request $request, $id)
     {
         try {
-            $customer = $this->customerService->findById([], $id);
+            $customer = $this->customerService->findById($id, []);
 
             if (!$customer) {
                 return response()->json([

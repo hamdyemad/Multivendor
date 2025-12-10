@@ -20,11 +20,11 @@ class Customer extends Authenticatable
     /**
      * Boot the model.
      */
-    // protected static function boot()
-    // {
-    //     parent::boot();
-    //     static::observe(CustomerObserver::class);
-    // }
+    protected static function boot()
+    {
+        parent::boot();
+        static::observe(CustomerObserver::class);
+    }
 
     protected $guarded = [];
 

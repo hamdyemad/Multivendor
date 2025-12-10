@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Modules\Customer\app\Services\CustomerService;
 use Modules\Customer\app\Interfaces\CustomerRepositoryInterface;
 use Modules\Customer\app\Http\Requests\Dashboard\CustomerRequest;
+use Modules\SystemSetting\app\Models\PointsSetting;
+use Modules\SystemSetting\app\Models\UserPoints;
 
 class CustomerController extends Controller
 {
@@ -84,7 +86,6 @@ class CustomerController extends Controller
     public function show($lang, $countryCode, $id)
     {
         $customer = $this->customerService->findById($id, []);
-
         if (!$customer) {
             abort(404);
         }

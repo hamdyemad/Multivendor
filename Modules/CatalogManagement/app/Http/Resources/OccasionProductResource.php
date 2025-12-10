@@ -24,6 +24,7 @@ class OccasionProductResource extends JsonResource
             // Vendor Product Variant Information
             'vendor_product_variant' => [
                 'id' => $this->vendorProductVariant?->id,
+                'slug' => $this->vendorProductVariant?->vendorProduct->product->slug,
                 'sku' => $this->vendorProductVariant?->sku,
                 'price' => $this->vendorProductVariant?->price,
                 'variant_name' => $this->vendorProductVariant?->variantConfiguration?->name ?? 'Default',

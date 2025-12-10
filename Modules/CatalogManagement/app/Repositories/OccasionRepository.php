@@ -18,7 +18,7 @@ class OccasionRepository implements OccasionRepositoryInterface
 
     public function getAllOccasions(array $filters = [], $perPage = 10)
     {
-        $query = Occasion::with(['translations', 'vendor', 'occasionProducts'])
+        $query = Occasion::with(['translations', 'vendor', 'occasionProducts.vendorProductVariant.vendorProduct.product'])
             ->filter($filters);
 
         return ($perPage == 0) ? $query->get() : $query->paginate($perPage);

@@ -396,9 +396,9 @@
                         subtext: '{{ __('common.please_wait') }}...'
                     });
                 }
-
+                let url = "{{ route('admin.promocodes.change-status', ':id') }}".replace(':id', id)
                 $.ajax({
-                    url: '{{ url("admin/promocodes") }}/' + id + '/change-status',
+                    url: url,
                     type: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',

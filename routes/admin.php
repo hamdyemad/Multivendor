@@ -89,11 +89,11 @@ Route::get('seeder', function () {
             //     'name' => 'Vendor Seeder',
             //     'description' => 'Creates vendors with country_id and translations',
             // ],
-            // [
-            //     'class' => OrderStageSeeder::class,
-            //     'name' => 'Order Stage Seeder',
-            //     'description' => 'Creates order stages',
-            // ],
+            [
+                'class' => OrderStageSeeder::class,
+                'name' => 'Order Stage Seeder',
+                'description' => 'Creates order stages',
+            ],
             // [
             //     'class' => AutoProductSeeder::class,
             //     'name' => 'Auto Product Seeder',

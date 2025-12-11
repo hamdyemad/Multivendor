@@ -284,13 +284,13 @@
                                             </div>
                                             <div class="col-md-4">
                                                 {{-- Total Sent Money --}}
-                                                <div class="d-flex align-items-center justify-content-between p-15 rounded mb-15 transaction-card" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.95); box-shadow: 0 4px 15px rgba(245, 87, 108, 0.15), inset 0 0 20px rgba(255, 255, 255, 0.4);">
+                                                <div class="d-flex align-items-center justify-content-between p-15 rounded mb-15 transaction-card" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.95); box-shadow: 0 4px 15px rgba(40, 199, 111, 0.15), inset 0 0 20px rgba(255, 255, 255, 0.4);">
                                                     <div>
-                                                        <p class="mb-0 fs-13 fw-bold" style="color: #f5576c;">{{ trans('vendor::vendor.total_sent_money') }}</p>
+                                                        <p class="mb-0 fs-13 fw-bold" style="color: #28c76f;">{{ trans('vendor::vendor.total_sent_money') }}</p>
                                                         <p class="mb-0 fs-20 fw-bold mt-5" style="color: #272b41;">{{ number_format($vendor->total_sent, 2) }} {{ currency() }}</p>
                                                     </div>
-                                                    <div class="p-12 rounded-circle d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(240, 147, 251, 0.15) 0%, rgba(245, 87, 108, 0.1) 100%); width: 45px; height: 45px; border: 1px solid rgba(245, 87, 108, 0.2);">
-                                                        <i class="uil uil-arrow-up-right fs-20" style="color: #f5576c;"></i>
+                                                    <div class="p-12 rounded-circle d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(40, 199, 111, 0.15) 0%, rgba(40, 199, 111, 0.1) 100%); width: 45px; height: 45px; border: 1px solid rgba(40, 199, 111, 0.2);">
+                                                        <i class="uil uil-arrow-up-right fs-20" style="color: #28c76f;"></i>
                                                     </div>
                                                 </div>
                                             </div>
@@ -318,60 +318,10 @@
                                     <div class="card-body">
                                         <div class="row">
                                             {{-- Vendor Name --}}
-                                            <div class="col-md-12">
-                                                <div class="view-item box-items-translations">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('vendor::vendor.name') }}</label>
-                                                    <div class="row">
-                                                        @foreach($languages as $lang)
-                                                            @php
-                                                                $translation = $vendor->getTranslation('name', $lang->code);
-                                                            @endphp
-                                                            <div class="col-md-6 mb-3">
-                                                                <div style="padding: 12px; background: #f8f9fa; border-radius: 6px; @if ($lang->code == 'ar') border-right: 3px solid #5f63f2; @else border-left: 3px solid #5f63f2; @endif">
-                                                                    <small class="text-muted d-block mb-2" style="@if($lang->code == 'ar') direction: rtl; text-align: right; @endif">
-                                                                        <span class="badge @if ($lang->code == 'en') bg-primary @else bg-success @endif text-white px-2 py-1 round-pill fw-bold" style="font-size: 10px;">{{ strtoupper($lang->code) }}</span>
-                                                                    </small>
-                                                                    <div class="fs-15 color-dark mb-0 fw-500" style="@if($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
-                                                                        @if($translation)
-                                                                            {{ $translation }}
-                                                                        @else
-                                                                            <span class="text-muted">—</span>
-                                                                        @endif
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <x-translation-display :label="trans('vendor::vendor.name')" :model="$vendor" fieldName="name" :languages="$languages" />
 
                                             {{-- Vendor Description --}}
-                                            <div class="col-md-12">
-                                                <div class="view-item box-items-translations">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('vendor::vendor.description') }}</label>
-                                                    <div class="row">
-                                                        @foreach($languages as $lang)
-                                                            @php
-                                                                $translation = $vendor->getTranslation('description', $lang->code);
-                                                            @endphp
-                                                            <div class="col-md-6 mb-3">
-                                                                <div style="padding: 12px; background: #f8f9fa; border-radius: 6px; @if ($lang->code == 'ar') border-right: 3px solid #5f63f2; @else border-left: 3px solid #5f63f2; @endif">
-                                                                    <small class="text-muted d-block mb-2" style="@if($lang->code == 'ar') direction: rtl; text-align: right; @endif">
-                                                                        <span class="badge @if ($lang->code == 'en') bg-primary @else bg-success @endif text-white px-2 py-1 round-pill fw-bold" style="font-size: 10px;">{{ strtoupper($lang->code) }}</span>
-                                                                    </small>
-                                                                    <div class="fs-15 color-dark mb-0 fw-500" style="@if($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
-                                                                        @if($translation)
-                                                                            {{ $translation }}
-                                                                        @else
-                                                                            <span class="text-muted">—</span>
-                                                                        @endif
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <x-translation-display :label="trans('vendor::vendor.description')" :model="$vendor" fieldName="description" :languages="$languages" />
                                             {{-- Country --}}
                                             <div class="col-md-6">
                                                 <div class="view-item">
@@ -495,106 +445,13 @@
                                     <div class="card-body">
                                         <div class="row">
                                             {{-- SEO Titles --}}
-                                            <div class="col-md-12">
-                                                <div class="view-item box-items-translations">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('vendor::vendor.meta_title') }}</label>
-                                                    <div class="row">
-                                                        @foreach($languages as $lang)
-                                                            @php
-                                                                $translation = $vendor->getTranslation('meta_title', $lang->code);
-                                                            @endphp
-                                                            <div class="col-md-6 mb-3">
-                                                                <div style="padding: 12px; background: #f8f9fa; border-radius: 6px; @if ($lang->code == 'ar') border-right: 3px solid #5f63f2; @else border-left: 3px solid #5f63f2; @endif">
-                                                                    <small class="text-muted d-block mb-2" style="@if($lang->code == 'ar') direction: rtl; text-align: right; @endif">
-                                                                        <span class="badge @if ($lang->code == 'en') bg-primary @else bg-success @endif text-white px-2 py-1 round-pill fw-bold" style="font-size: 10px;">{{ strtoupper($lang->code) }}</span>
-                                                                    </small>
-                                                                    <div class="fs-15 color-dark mb-0 fw-500" style="@if($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
-                                                                        @if($translation)
-                                                                            {{ $translation }}
-                                                                        @else
-                                                                            <span class="text-muted">—</span>
-                                                                        @endif
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <x-translation-display :label="trans('vendor::vendor.meta_title')" :model="$vendor" fieldName="meta_title" :languages="$languages" />
 
                                             {{-- SEO Descriptions --}}
-                                            <div class="col-md-12">
-                                                <div class="view-item box-items-translations">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('vendor::vendor.meta_description') }}</label>
-                                                    <div class="row">
-                                                        @foreach($languages as $lang)
-                                                            @php
-                                                                $translation = $vendor->getTranslation('meta_description', $lang->code);
-                                                            @endphp
-                                                            <div class="col-md-6 mb-3">
-                                                                <div style="padding: 12px; background: #f8f9fa; border-radius: 6px; @if ($lang->code == 'ar') border-right: 3px solid #5f63f2; @else border-left: 3px solid #5f63f2; @endif">
-                                                                    <small class="text-muted d-block mb-2" style="@if($lang->code == 'ar') direction: rtl; text-align: right; @endif">
-                                                                        <span class="badge @if ($lang->code == 'en') bg-primary @else bg-success @endif text-white px-2 py-1 round-pill fw-bold" style="font-size: 10px;">{{ strtoupper($lang->code) }}</span>
-                                                                    </small>
-                                                                    <div class="fs-15 color-dark mb-0 fw-500" style="@if($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
-                                                                        @if($translation)
-                                                                            {{ $translation }}
-                                                                        @else
-                                                                            <span class="text-muted">—</span>
-                                                                        @endif
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <x-translation-display :label="trans('vendor::vendor.meta_description')" :model="$vendor" fieldName="meta_description" :languages="$languages" />
 
                                             {{-- SEO Keywords --}}
-                                            <div class="col-md-12">
-                                                <div class="view-item box-items-translations">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('vendor::vendor.meta_keywords') }}</label>
-                                                    <div class="row">
-                                                        @foreach($languages as $lang)
-                                                            @php
-                                                                $translation = $vendor->getTranslation('meta_keywords', $lang->code);
-                                                                $keywords = [];
-                                                                if ($translation) {
-                                                                    // Try to decode as JSON first (if stored as JSON array)
-                                                                    $decoded = json_decode($translation, true);
-                                                                    if (is_array($decoded)) {
-                                                                        $keywords = $decoded;
-                                                                    } else {
-                                                                        // Otherwise split by comma
-                                                                        $keywords = array_map('trim', explode(',', $translation));
-                                                                        $keywords = array_filter($keywords); // Remove empty values
-                                                                    }
-                                                                }
-                                                            @endphp
-                                                            <div class="col-md-6 mb-3">
-                                                                <div style="padding: 12px; background: #f8f9fa; border-radius: 6px; @if ($lang->code == 'ar') border-right: 3px solid #5f63f2; @else border-left: 3px solid #5f63f2; @endif">
-                                                                    <small class="text-muted d-block mb-2" style="@if($lang->code == 'ar') direction: rtl; text-align: right; @endif">
-                                                                        <span class="badge @if ($lang->code == 'en') bg-primary @else bg-success @endif text-white px-2 py-1 round-pill fw-bold" style="font-size: 10px;">{{ strtoupper($lang->code) }}</span>
-                                                                    </small>
-                                                                    <div class="fs-15 color-dark mb-0" style="@if($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
-                                                                        @if(count($keywords) > 0)
-                                                                            <div class="d-flex flex-wrap gap-2">
-                                                                                @foreach($keywords as $keyword)
-                                                                                    <span class="badge badge-lg badge-round bg-info text-white" style="font-size: 12px; padding: 6px 10px; @if($lang->code == 'ar') font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
-                                                                                        {{ trim($keyword) }}
-                                                                                    </span>
-                                                                                @endforeach
-                                                                            </div>
-                                                                        @else
-                                                                            <span class="text-muted">—</span>
-                                                                        @endif
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <x-translation-display :label="trans('vendor::vendor.meta_keywords')" :model="$vendor" fieldName="meta_keywords" :languages="$languages" type="keywords" />
                                         </div>
                                     </div>
                                 </div>

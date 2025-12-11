@@ -110,13 +110,13 @@
                                             <div class="col-md-6">
                                                 <div class="view-item">
                                                     <label class="il-gray fs-14 fw-500 mb-10">{{ __('common.created_at') }}</label>
-                                                    <p class="fs-15 color-dark">{{ $subregion->created_at->format('d M, Y h:i A') }}</p>
+                                                    <p class="fs-15 color-dark">{{ $subregion->created_at }}</p>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="view-item">
                                                     <label class="il-gray fs-14 fw-500 mb-10">{{ trans('common.updated_at') }}</label>
-                                                    <p class="fs-15 color-dark">{{ $subregion->updated_at->format('d M, Y h:i A') }}</p>
+                                                    <p class="fs-15 color-dark">{{ $subregion->updated_at }}</p>
                                                 </div>
                                             </div>
                                         </div>

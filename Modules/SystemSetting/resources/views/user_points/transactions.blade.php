@@ -192,14 +192,14 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="user-info-item">
-                                <span class="user-info-label">{{ trans('customer::customer.customer_name') }}:</span>
-                                <span class="user-info-value" id="customerName">{{ $customer->full_name }}</span>
+                                <span class="user-info-label fw-bold">{{ trans('customer::customer.customer_name') }}:</span>
+                                <span class="user-info-value fw-bold" id="customerName">{{ $customer->full_name }}</span>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="user-info-item">
-                                <span class="user-info-label">{{ trans('customer::customer.email') }}:</span>
-                                <span class="user-info-value" id="customerEmail">{{ $customer->email }}</span>
+                                <span class="user-info-label fw-bold">{{ trans('customer::customer.email') }}:</span>
+                                <span class="user-info-value fw-bold" id="customerEmail">{{ $customer->email }}</span>
                             </div>
                         </div>
                     </div>
@@ -291,7 +291,7 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="createdFrom" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-calendar-alt me-1"></i> {{ __('common.from') }}
+                                                <i class="uil uil-calendar-alt me-1"></i> {{ __('common.date_from') }}
                                             </label>
                                             <input type="date"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
@@ -304,7 +304,7 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="createdTo" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-calendar-alt me-1"></i> {{ __('common.to') }}
+                                                <i class="uil uil-calendar-alt me-1"></i> {{ __('common.date_to') }}
                                             </label>
                                             <input type="date"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"

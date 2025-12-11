@@ -112,4 +112,8 @@ class AuthController extends Controller {
         }
     }
 
+    public function previewFunc($path) {
+        return preview($path);
+    }
+
 }

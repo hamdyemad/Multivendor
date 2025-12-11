@@ -211,7 +211,7 @@ return [
 
     // Money Transactions
     'money_transactions' => 'Money Transactions',
-    'total_vendors_balance' => 'Total Vendors Balance',
+    'total_vendors_balance' => 'Vendor Balance',
     'total_sent_money' => 'Total Sent Money',
     'total_remaining' => 'Total Remaining',
 
@@ -251,7 +251,7 @@ return [
     'vendor_not_found' => 'Vendor not found',
     'status_changed_successfully' => 'Vendor status changed successfully',
     'error_changing_status' => 'Error changing vendor status',
-    'total_vendors_balance' => 'Total Vendors Balance',
+    'total_vendors_balance' => 'Vendor Balance',
     'total_sent_money' => 'Total Sent Money',
     'total_remaining' => 'Total Remaining',
 ];

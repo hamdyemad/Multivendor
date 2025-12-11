@@ -14,6 +14,8 @@ class DashboardController extends Controller
         return view('pages.dashboard.dashboard', $data);
     }
 
+
+
     // Automatically get all models inside app/Models
 
 

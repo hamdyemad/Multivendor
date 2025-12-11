@@ -929,6 +929,22 @@ function roles_reset()
     }
 }
 
+function preview($path)
+{
+    $fullPath = public_path('storage/' . $path);
+
+    if (!file_exists($fullPath)) {
+        abort(404);
+    }
+
+    $mime = mime_content_type($fullPath);
+
+    // Inline display (no download)
+    return response()->file($fullPath, [
+        'Content-Type' => $mime,
+        'Content-Disposition' => 'inline; filename="' . basename($fullPath) . '"'
+    ]);
+}
 
 function truncateString($string, $length = 15, $append = '...')
 {

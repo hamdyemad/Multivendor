@@ -29,6 +29,13 @@ Route::get('/landing', function() {
     return view('landing');
 })->name('landing');
 
+
+
+Route::get('/preview/{path}', [AuthController::class, 'previewFunc'])
+    ->where('path', '.*')
+    ->name('preview.file');
+
+
 Route::group(['prefix' => '/', 'middleware' => 'guest'], function() {
     Route::get('/',[AuthController::class,'login'])->name('login');
     Route::post('/',[AuthController::class,'authenticate'])->name('authenticate');

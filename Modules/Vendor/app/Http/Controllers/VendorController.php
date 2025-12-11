@@ -40,7 +40,7 @@ class VendorController extends Controller {
         return view('vendor::vendors.index', $data);
     }
 
-    public function datatable(Request $request)
+    public function datatable(Request $request, $lang, $countryCode)
     {
         $data = [
             'page' => $request->get('page', 1),

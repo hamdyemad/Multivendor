@@ -101,6 +101,20 @@ return [
     'price_required' => 'Price is required',
     'variants_required' => 'At least one variant is required',
     'variants_min' => 'At least one variant must be provided',
+    'price_numeric' => 'Price must be a number',
+    'price_min' => 'Price must be at least 0',
+    'variant_price_required' => 'Variant price is required',
+    'quantity_integer' => 'Quantity must be an integer',
+    'quantity_min' => 'Quantity must be at least 0',
+    'max_per_order_required' => 'Max per order is required and must be at least 1',
+    'tax_selection_required' => 'Tax selection is required',
+    'max_per_order_min' => 'Max per order must be at least 1',
+    'select_product_first' => 'Please select a product first',
+    'price_greater_than_zero' => 'Price must be greater than 0',
+    'quantity_min_zero' => 'Quantity is required and must be 0 or greater',
+    'at_least_one_valid_stock' => 'At least one valid stock entry with region and quantity is required',
+    'at_least_one_stock' => 'At least one stock entry is required',
+    'please_fix_errors' => 'Please fix the following errors:',
     'title_required_for_language' => 'Title is required for :language',
 
     // Product Bank
@@ -371,7 +385,7 @@ return [
     'please_select_products_first' => 'Please select products first',
     'please_select_vendor_first' => 'Please select vendor first',
     'search_to_find_products' => 'Search to find products',
-    'enter_product_name_to_search' => 'Enter product name to search for available products',
+    'enter_product_name_to_search' => 'Enter product name to search...',
     'no_products_found_for_search' => 'No products found for your search',
     'search_products' => 'Search products...',
     'searching_products' => 'Searching products',
@@ -399,6 +413,8 @@ return [
     'product_selected' => 'Product Selected',
     'manage_variants_stock' => 'Manage Variants Stock',
     'product_variants_stock' => 'Product Variants Stock',
+    'error_loading_products' => 'Error loading products',
+    'error_loading_variants' => 'Error loading variants',
 
     // Stock Setup Translations
     'stock_setup' => 'Stock Setup',

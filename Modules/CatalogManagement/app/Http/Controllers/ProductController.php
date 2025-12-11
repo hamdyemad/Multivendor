@@ -212,7 +212,7 @@ class ProductController extends Controller
     {
         $product = $this->productService->getProductById($id);
         if(in_array(auth()->user()->user_type_id, UserType::vendorIds())) {
-            $vendor = auth()->user()->vendor;   
+            $vendor = auth()->user()->vendor;
             if($product->vendor_id != $vendor->id) {
                 return abort(401);
             }

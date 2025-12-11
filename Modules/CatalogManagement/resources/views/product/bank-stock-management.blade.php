@@ -289,12 +289,12 @@
                         <div class="selection-step" id="step-vendor">
                             <div class="d-flex align-items-center mb-3">
                                 <span class="step-number">1</span>
-                                <h5 class="mb-0">{{ __('catalogmanagement::product.select_vendor') }}</h5>
+                                <h5 class="mb-0">{{ trans('catalogmanagement::product.select_vendor') }}</h5>
                             </div>
                             <div class="row">
                                 <div class="col-md-12">
                                     <select id="vendor_select" class="form-control select2" style="width: 100%;">
-                                        <option value="">{{ __('catalogmanagement::product.select_vendor') }}</option>
+                                        <option value="">{{ trans('catalogmanagement::product.select_vendor') }}</option>
                                         @foreach($vendors as $vendor)
                                             <option value="{{ $vendor['id'] }}">{{ $vendor['name'] }}</option>
                                         @endforeach
@@ -304,7 +304,7 @@
                             <div id="vendor-info" class="mt-3" style="display: none;">
                                 <div class="alert alert-info">
                                     <i class="uil uil-info-circle me-2"></i>
-                                    <span id="vendor-name" class="me-1"></span> {{ __('catalogmanagement::product.vendor_selected') }}
+                                    <span id="vendor-name" class="me-1"></span> {{ trans('catalogmanagement::product.vendor_selected') }}
                                 </div>
                             </div>
                         </div>
@@ -314,13 +314,13 @@
                     <div class="selection-step" id="step-products" @if(!$isVendorUser) style="opacity: 0.5; pointer-events: none;" @endif>
                         <div class="d-flex align-items-center mb-3">
                             <span class="step-number">{{ $isVendorUser ? '1' : '2' }}</span>
-                            <h5 class="mb-0">{{ __('catalogmanagement::product.select_product') }}</h5>
+                            <h5 class="mb-0">{{ trans('catalogmanagement::product.select_product') }}</h5>
                         </div>
                         <div class="row">
                             <div class="col-md-12">
                                 <div id="products-container" style="display: none;">
                                     <div class="mb-3">
-                                        <input type="text" id="product-search" class="form-control ih-medium ip-gray radius-xs b-light px-15" placeholder="{{ __('catalogmanagement::product.search_products') }}">
+                                        <input type="text" id="product-search" class="form-control ih-medium ip-gray radius-xs b-light px-15" placeholder="{{ trans('catalogmanagement::product.search_products') }}">
 
                                         <!-- Search Loading Indicator -->
                                         <div id="products-loading" style="display: none;">
@@ -328,7 +328,7 @@
                                                 <div class="spinner-border spinner-border-sm text-primary" role="status">
                                                     <span class="visually-hidden">{{ __('common.loading') }}...</span>
                                                 </div>
-                                                <p class="mt-2 mb-0 text-muted small">{{ __('catalogmanagement::product.searching_products') }}...</p>
+                                                <p class="mt-2 mb-0 text-muted small">{{ trans('catalogmanagement::product.searching_products') }}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -337,7 +337,7 @@
                                     </div>
                                     <div id="no-products" class="alert alert-warning" style="display: none;">
                                         <i class="uil uil-exclamation-triangle me-2"></i>
-                                        {{ __('catalogmanagement::product.no_available_products') }}
+                                        {{ trans('catalogmanagement::product.no_available_products') }}
                                     </div>
                                 </div>
                             </div>
@@ -345,7 +345,7 @@
                         <div id="selected-product-summary" class="mt-3" style="display: none;">
                             <div class="alert alert-success">
                                 <i class="uil uil-check-circle me-2"></i>
-                                <span id="selected-product-name" class="me-1"></span> {{ __('catalogmanagement::product.product_selected') }}
+                                <span id="selected-product-name" class="me-1"></span> {{ trans('catalogmanagement::product.product_selected') }}
                             </div>
                         </div>
                     </div>
@@ -354,7 +354,7 @@
                     <div class="selection-step" id="step-variant-stock-management" style="display: none;">
                         <div class="d-flex align-items-center mb-3">
                             <span class="step-number">{{ $isVendorUser ? '2' : '3' }}</span>
-                            <h5 class="mb-0">{{ __('catalogmanagement::product.manage_variants_stock') }}</h5>
+                            <h5 class="mb-0">{{ trans('catalogmanagement::product.manage_variants_stock') }}</h5>
                         </div>
                         <div class="row">
                             <div class="col-md-12">
@@ -387,7 +387,7 @@
                                                 <div class="col-md-6 mb-3">
                                                     <div class="form-group">
                                                         <label for="max_per_order" class="form-label fw-bold">{{ __('catalogmanagement::product.max_per_order') }} <span class="text-danger">*</span></label>
-                                                        <input type="number" name="max_per_order" id="max_per_order" class="form-control ih-medium ip-gray radius-xs b-light px-15" min="1" placeholder="{{ __('catalogmanagement::product.enter_max_per_order') ?? 'Enter max per order' }}" required>
+                                                        <input type="number" name="max_per_order" id="max_per_order" class="form-control ih-medium ip-gray radius-xs b-light px-15" min="1" required>
                                                         <div class="error-message text-danger" id="error-max_per_order" style="display: none;"></div>
                                                     </div>
                                                 </div>
@@ -414,13 +414,13 @@
                                                 <div class="spinner-border text-primary" role="status">
                                                     <span class="visually-hidden">{{ __('common.loading') }}...</span>
                                                 </div>
-                                                <p class="mt-2 mb-0 text-muted">{{ __('catalogmanagement::product.loading_variants') }}...</p>
+                                                <p class="mt-2 mb-0 text-muted">{{ trans('catalogmanagement::product.loading_variants') }}</p>
                                             </div>
 
                                             <!-- No variants state -->
                                             <div id="no-variants-state" class="text-center py-4" style="display: none;">
                                                 <i class="uil uil-layer-group text-muted" style="font-size: 48px;"></i>
-                                                <p class="text-muted mb-0">{{ __('catalogmanagement::product.no_variants_found') }}</p>
+                                                <p class="text-muted mb-0">{{ trans('catalogmanagement::product.no_variants_found') }}</p>
                                             </div>
 
                                             <!-- Variants Container -->

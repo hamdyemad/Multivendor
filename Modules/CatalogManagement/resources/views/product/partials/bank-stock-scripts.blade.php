@@ -35,7 +35,8 @@
         select_product: '{{ __("catalogmanagement::product.select_product") }}',
         product_selected: '{{ __("catalogmanagement::product.product_selected") }}',
         manage_variants_stock: '{{ __("catalogmanagement::product.manage_variants_stock") }}',
-        product_variants_stock: '{{ __("catalogmanagement::product.product_variants_stock") }}'
+        product_variants_stock: '{{ __("catalogmanagement::product.product_variants_stock") }}',
+        max_per_order_required: '{{ __("catalogmanagement::product.max_per_order_required") }}',
     };
 
     const isVendorUser = {{ $isVendorUser ? 'true' : 'false' }};
@@ -184,13 +185,13 @@
         console.log('🔗 Search URL:', config.routes.getBankProducts);
 
         if (!searchTerm || searchTerm.length < 2) {
-            $('#products-list').html('<div class="col-12 text-center py-4"><p class="text-muted">Enter product name to search...</p></div>');
+            $('#products-list').html('<div class="col-12 text-center py-4"><p class="text-muted">{{ trans('catalogmanagement::product.enter_product_name_to_search') }}</p></div>');
             return;
         }
 
         if (!selectedVendorId) {
             console.error('❌ No vendor selected');
-            $('#products-list').html('<div class="col-12 text-center py-4"><p class="text-danger">Please select a vendor first</p></div>');
+            $('#products-list').html(`<div class="col-12 text-center py-4"><p class="text-danger">{{ trans('catalogmanagement::product.please_select_vendor_first') }}</p></div>`);
             return;
         }
 
@@ -244,7 +245,7 @@
                 console.error('❌ Search error:', xhr, status, error);
                 console.error('Response text:', xhr.responseText);
                 $('#products-loading').hide();
-                $('#products-list').html('<div class="col-12 text-center py-4"><p class="text-danger">Error loading products: ' + error + '</p></div>').show();
+                $('#products-list').html(`<div class="col-12 text-center py-4"><p class="text-danger">{{ trans('catalogmanagement::product.error_loading_products') }}: ${error}</p></div>`).show();
             }
         });
     }
@@ -433,7 +434,7 @@
             },
             error: function() {
                 $('#variants-loading').hide();
-                $('#variants-container').html('<div class="alert alert-danger">Error loading variants</div>');
+                $('#variants-container').html(`<div class="alert alert-danger">{{ trans('catalogmanagement::product.error_loading_variants') }}</div>`);
             }
         });
     }
@@ -1040,9 +1041,9 @@
         // Validate global vendor product fields
         const taxId = $('#tax_id').val();
         if (!taxId || taxId === '') {
-            errors.push('Tax selection is required');
+            errors.push('{{ trans("catalogmanagement::product.tax_selection_required") }}');
             $('#tax_id').addClass('is-invalid');
-            $('#error-tax_id').text('Tax is required').show();
+            $('#error-tax_id').text('{{ trans("catalogmanagement::product.tax_required") }}').show();
             isValid = false;
         } else {
             $('#tax_id').removeClass('is-invalid');
@@ -1051,9 +1052,9 @@
 
         const maxPerOrder = $('#max_per_order').val();
         if (!maxPerOrder || parseInt(maxPerOrder) < 1) {
-            errors.push('Max per order must be at least 1');
+            errors.push('{{ trans("catalogmanagement::product.max_per_order_min") }}');
             $('#max_per_order').addClass('is-invalid');
-            $('#error-max_per_order').text('Max per order is required and must be at least 1').show();
+            $('#error-max_per_order').text('{{ trans("catalogmanagement::product.max_per_order_required") }}').show();
             isValid = false;
         } else {
             $('#max_per_order').removeClass('is-invalid');
@@ -1071,7 +1072,7 @@
 
         // Check if there are any products selected
         if (!selectedProduct) {
-            errors.push('Please select a product first');
+            errors.push('{{ trans("catalogmanagement::product.select_product_first") }}');
             isValid = false;
             console.log('❌ No product selected');
         } else {
@@ -1087,7 +1088,7 @@
             const $skuInput = $variant.find('input[name*="[sku]"]');
             const sku = $skuInput.val();
             if (!sku || sku.trim() === '') {
-                errors.push(`${variantName}: SKU is required`);
+                errors.push(`${variantName}: {{ trans("catalogmanagement::product.sku_required") }}`);
                 $skuInput.addClass('is-invalid');
                 // Find or create error message element
                 let $errorElement = $skuInput.next('.error-message');
@@ -1095,7 +1096,7 @@
                     $errorElement = $('<div class="error-message text-danger" style="font-size: 0.875rem; margin-top: 0.25rem;"></div>');
                     $skuInput.after($errorElement);
                 }
-                $errorElement.text('SKU is required').show();
+                $errorElement.text('{{ trans("catalogmanagement::product.sku_required") }}').show();
                 isValid = false;
             } else {
                 $skuInput.removeClass('is-invalid');
@@ -1106,7 +1107,7 @@
             const $priceInput = $variant.find('input[name*="[price]"]');
             const price = $priceInput.val();
             if (!price || parseFloat(price) <= 0) {
-                errors.push(`${variantName}: Price must be greater than 0`);
+                errors.push(`${variantName}: {{ trans("catalogmanagement::product.price_greater_than_zero") }}`);
                 $priceInput.addClass('is-invalid');
                 // Find or create error message element
                 let $errorElement = $priceInput.next('.error-message');
@@ -1114,7 +1115,7 @@
                     $errorElement = $('<div class="error-message text-danger" style="font-size: 0.875rem; margin-top: 0.25rem;"></div>');
                     $priceInput.after($errorElement);
                 }
-                $errorElement.text('Price must be greater than 0').show();
+                $errorElement.text('{{ trans("catalogmanagement::product.price_greater_than_zero") }}').show();
                 isValid = false;
             } else {
                 $priceInput.removeClass('is-invalid');
@@ -1136,7 +1137,7 @@
                 // Validate region selection
                 if (!region || region === '') {
                     $regionSelect.addClass('is-invalid');
-                    stockErrors.push('Region is required');
+                    stockErrors.push('{{ trans("catalogmanagement::product.region_required") }}');
                 } else {
                     $regionSelect.removeClass('is-invalid');
                 }
@@ -1150,8 +1151,8 @@
                         $errorElement = $('<div class="error-message text-danger" style="font-size: 0.875rem; margin-top: 0.25rem;"></div>');
                         $quantityInput.after($errorElement);
                     }
-                    $errorElement.text('Quantity is required and must be 0 or greater').show();
-                    stockErrors.push('Quantity is required');
+                    $errorElement.text('{{ trans("catalogmanagement::product.quantity_min_zero") }}').show();
+                    stockErrors.push('{{ trans("catalogmanagement::product.quantity_required") }}');
                 } else {
                     $quantityInput.removeClass('is-invalid');
                     $quantityInput.next('.error-message').hide();
@@ -1162,10 +1163,10 @@
             });
 
             if (!hasValidStock && stockRows.length > 0) {
-                errors.push(`${variantName}: At least one valid stock entry with region and quantity is required`);
+                errors.push(`${variantName}: {{ trans("catalogmanagement::product.at_least_one_valid_stock") }}`);
                 isValid = false;
             } else if (stockRows.length === 0) {
-                errors.push(`${variantName}: At least one stock entry is required`);
+                errors.push(`${variantName}: {{ trans("catalogmanagement::product.at_least_one_stock") }}`);
                 isValid = false;
             }
         });
@@ -1180,7 +1181,7 @@
         // Show validation errors
         if (!isValid) {
             const errorMessage = errors.join('<br>');
-            showBootstrapAlert('danger', `Please fix the following errors:<br>${errorMessage}`);
+            showBootstrapAlert('danger', `{{ trans("catalogmanagement::product.please_fix_errors") }}<br>${errorMessage}`);
             console.error('❌ Validation failed:', errors);
         } else {
             console.log('✅ All required fields validated successfully');
@@ -1910,14 +1911,14 @@
 
                     <div class="discount-fields" id="discount_fields_${index}" style="display: none;">
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <div class="form-group mb-3">
                                     <label>${translations.price_before_discount}</label>
                                     <input type="number" name="price_before_discount" class="form-control ih-medium ip-gray radius-xs b-light px-15" step="0.01" min="0" placeholder="0.00">
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <div class="form-group mb-3">
                                     <label>${translations.discount_end_date}</label>
                                     <input type="date" name="offer_end_date" class="form-control ih-medium ip-gray radius-xs b-light px-15">
@@ -2084,12 +2085,12 @@
                 <!-- Discount Fields -->
                 <div class="discount-fields" id="variant_discount_fields_${productIndex}_${variantIndex}" style="display: none;">
                     <div class="row mb-3">
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <label class="form-label">{{ __('catalogmanagement::product.price_before_discount') }}</label>
                             <input type="number" name="products[${productIndex}][variants][${variantIndex}][price_before_discount]"
                                    class="form-control ih-medium ip-gray radius-xs b-light px-15" step="0.01" min="0" placeholder="0.00">
                         </div>
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <label class="form-label">{{ __('catalogmanagement::product.discount_end_date') }}</label>
                             <input type="date" name="products[${productIndex}][variants][${variantIndex}][discount_end_date]"
                                    class="form-control ih-medium ip-gray radius-xs b-light px-15">
@@ -2226,7 +2227,7 @@
         if (!maxPerOrder || maxPerOrder < 1) {
             vendorForm.find('#max_per_order').addClass('is-invalid');
             vendorForm.find('#max_per_order').next('.invalid-feedback').text('{{ __("catalogmanagement::product.max_per_order_required") }}');
-            errors.push('{{ __("catalogmanagement::product.max_per_order_required") }}');
+            errors.push(translations.max_per_order_required);
             isValid = false;
         }
 

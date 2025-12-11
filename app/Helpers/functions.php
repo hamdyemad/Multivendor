@@ -946,11 +946,18 @@ function preview($path)
     ]);
 }
 
-function truncateString($string, $length = 15, $append = '...')
-{
-    if (strlen($string) > $length) {
-        return substr($string, 0, $length) . $append;
+function truncateString($string, $length = 15, $append = '...') {
+    if (!isset($string) || $string === '') {
+        return "";
     }
+
+    // Ensure UTF-8
+    $string = mb_convert_encoding($string, 'UTF-8', 'UTF-8');
+
+    if (mb_strlen($string, 'UTF-8') > $length) {
+        return mb_substr($string, 0, $length, 'UTF-8') . $append;
+    }
+
     return $string;
 }
 

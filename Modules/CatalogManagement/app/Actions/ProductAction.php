@@ -37,7 +37,6 @@ class ProductAction {
             $start = isset($data['start']) && $data['start'] >= 0 ? (int)$data['start'] : 0;
             // Calculate page number from start offset
             $page = $perPage > 0 ? floor($start / $perPage) + 1 : 1;
-
             // Get filter parameters
             $filters = [
                 'search' => $data['search'] ?? '',
@@ -62,7 +61,6 @@ class ProductAction {
             if ($currentUser && in_array($userType, UserType::vendorIds())) {
                 $vendorId = $currentUser->vendor->id ?? null;
             }
-
             $query = VendorProduct::with([
                 'product.brand',
                 'product.category',
@@ -150,7 +148,6 @@ class ProductAction {
             }
 
             $filteredRecords = $query->count();
-
             // Apply pagination
             $products = $query->latest()->paginate($perPage, ['*'], 'page', $page);
             // Get languages
@@ -162,64 +159,63 @@ class ProductAction {
             foreach ($products as $item) {
                 // $item is VendorProduct, so we need to access the product relationship
                 $product = $item->product;
+                if($product) {
+                    // Get product names in EN and AR
+                    $nameEn = $product->getTranslation('title', 'en') ?? '-';
+                    $nameAr = $product->getTranslation('title', 'ar') ?? '-';
 
-                // Get product names in EN and AR
-                $nameEn = $product->getTranslation('title', 'en') ?? '-';
-                $nameAr = $product->getTranslation('title', 'ar') ?? '-';
-
-                $rowData = [
-                    'id' => $product->id,
-                    'vendor_product_id' => $item->id,
-                    'index' => $index++,
-                    'product_information' => [
-                        'name_en' => truncateString($nameEn),
-                        'name_ar' => truncateString($nameAr),
-                    ],
-                    'translations' => [],
-                    'brand' => $product->brand ? [
-                        'id' => $product->brand->id,
-                        'name' => truncateString($product->brand->name),
-                    ] : null,
-                    'category' => $product->category ? [
-                        'id' => $product->category->id,
-                        'name' => truncateString($product->category->name),
-                    ] : null,
-                    // For bank products, use Product.is_active; for regular products, use VendorProduct.is_active
-                    'active' => $item->is_active,
-                    'status' => $item->status,
-                    'product_type' => $product->type,
-                    'configuration_type' => $product->configuration_type,
-                    'created_at' => $item->created_at,
-                ];
-
-                // Add vendor information for admin users
-                if ($currentUser && $userType && in_array($userType, UserType::adminIds())) {
-                    if ($item->vendor) {
-                        $vendorName = truncateString($item->vendor->name);
-
-                        $rowData['vendor'] = [
-                            'id' => $item->vendor->id,
-                            'name' => $vendorName
-                        ];
-                    } else {
-                        $rowData['vendor'] = null;
-                    }
-                }
-
-                // Add translations for each language (keeping for backward compatibility)
-                foreach ($languages as $language) {
-                    $translation = $product->translations->where('lang_id', $language->id)
-                        ->where('lang_key', 'title')
-                        ->first();
-                    $rowData['translations'][$language->code] = [
-                        'name' => $translation ? $translation->lang_value : '-',
-                        'rtl' => $language->rtl
+                    $rowData = [
+                        'id' => $product->id ?? '',
+                        'vendor_product_id' => $item->id,
+                        'index' => $index++,
+                        'product_information' => [
+                            'name_en' => truncateString($nameEn),
+                            'name_ar' => truncateString($nameAr),
+                        ],
+                        'translations' => [],
+                        'brand' => $product->brand ? [
+                            'id' => $product->brand->id,
+                            'name' => truncateString($product->brand->name),
+                        ] : null,
+                        'category' => $product->category ? [
+                            'id' => $product->category->id,
+                            'name' => truncateString($product->category->name),
+                        ] : null,
+                        // For bank products, use Product.is_active; for regular products, use VendorProduct.is_active
+                        'active' => $item->is_active,
+                        'status' => $item->status,
+                        'product_type' => $product->type,
+                        'configuration_type' => $product->configuration_type,
+                        'created_at' => $item->created_at,
                     ];
+
+                    // Add vendor information for admin users
+                    if ($currentUser && $userType && in_array($userType, UserType::adminIds())) {
+                        if ($item->vendor) {
+                            $vendorName = truncateString($item->vendor->name);
+
+                            $rowData['vendor'] = [
+                                'id' => $item->vendor->id,
+                                'name' => $vendorName
+                            ];
+                        } else {
+                            $rowData['vendor'] = null;
+                        }
+                    }
+
+                    // Add translations for each language (keeping for backward compatibility)
+                    foreach ($languages as $language) {
+                        $translation = $product->translations->where('lang_id', $language->id)
+                            ->where('lang_key', 'title')
+                            ->first();
+                        $rowData['translations'][$language->code] = [
+                            'name' => $translation ? $translation->lang_value : '-',
+                            'rtl' => $language->rtl
+                        ];
+                    }
+                    $data[] = $rowData;
                 }
-
-                $data[] = $rowData;
             }
-
             return [
                 'data' => $data,
                 'totalRecords' => $totalRecords,

@@ -201,7 +201,7 @@
 
         <!-- Main Content -->
         <div class="content">
-            <h2>{{ __('Welcome to') }} {{ Bnaia }}</h2>
+            <h2>{{ __('Welcome to') }} Bnaia</h2>
             <p>
                 {{ __('Thank you for joining our community. Your email has been successfully verified!') }}
             </p>
@@ -242,7 +242,7 @@
 
         <!-- Footer -->
         <footer>
-            <p>&copy; {{ date('Y') }} {{ Bnaia }}. {{ __('All rights reserved.') }}</p>
+            <p>&copy; {{ date('Y') }} Bnaia. {{ __('All rights reserved.') }}</p>
         </footer>
     </div>
 </body>

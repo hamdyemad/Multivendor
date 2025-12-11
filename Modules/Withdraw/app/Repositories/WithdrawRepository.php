@@ -30,7 +30,6 @@ class WithdrawRepository implements WithdrawRepositoryInterface
     {
         // Get the vendor to access the user_id
         $vendor = Vendor::find($vendor_id);
-
         if (!$vendor || !$vendor->user_id) {
             return [
                 "orders_price" => "0.000",

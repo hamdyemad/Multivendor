@@ -129,7 +129,7 @@ class PromocodeController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show($lang, $countryCode,$id)
     {
         $promocode = $this->promocodeService->getPromocodeById($id);
         $data = [

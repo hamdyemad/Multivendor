@@ -288,15 +288,17 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
+                            let viewUrl = "{{ route('admin.promocodes.show', ':id') }}".replace(':id', row.id)
+                            let editUrl = "{{ route('admin.promocodes.edit', ':id') }}".replace(':id', row.id)
                             return `
                                 <div class="orderDatatable_actions d-inline-flex gap-1">
-                                    <a href="{{ url('admin/promocodes') }}/${row.id}"
+                                    <a href="${viewUrl}"
                                     class="view btn btn-primary table_action_father"
                                     title="{{ __('catalogmanagement::promocodes.view_promocode') }}">
                                         <i class="uil uil-eye table_action_icon"></i>
                                     </a>
 
-                                    <a href="{{ url('admin/promocodes') }}/${row.id}/edit"
+                                    <a href="${editUrl}"
                                     class="edit btn btn-warning table_action_father"
                                     title="{{ __('catalogmanagement::promocodes.edit_promocode') }}">
                                         <i class="uil uil-edit table_action_icon"></i>

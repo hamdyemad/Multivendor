@@ -35,7 +35,7 @@
                                 @foreach($languages as $language)
                                     <div class="col-md-6">
                                         <div class="form-group mb-25">
-                                            <label for="translations_{{ $language->id }}_name" class="form-label w-100 @if($language->rtl) text-end @else text-start @endif">
+                                            <label for="translations_{{ $language->id }}_name" class="form-label w-100 text-start">
                                                 @if($language->code == 'en')
                                                 {{ __('areasettings::city.name') }} ({{ $language->name }})
                                                 @elseif($language->code == 'ar')

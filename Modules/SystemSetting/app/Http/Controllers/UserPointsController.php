@@ -216,7 +216,7 @@ class UserPointsController extends Controller
 
             // Get customer and their points
             $customer = \Modules\Customer\app\Models\Customer::findOrFail($userId);
-            $userPoint = UserPoints::where('user_id', $userId)->firstOrFail();
+            $userPoint = UserPoints::firstOrCreate(['user_id' => $userId]);
 
             // Calculate new totals
             $points = $validated['points'];

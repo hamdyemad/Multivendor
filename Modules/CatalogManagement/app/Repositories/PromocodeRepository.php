@@ -46,7 +46,7 @@ class PromocodeRepository implements PromocodeRepositoryInterface
         return $query;
     }
 
-    public function getPromocodeById(int $id)
+    public function getPromocodeById($id)
     {
         return Promocode::findOrFail($id);
     }

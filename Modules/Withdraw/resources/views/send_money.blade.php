@@ -70,7 +70,7 @@
                                                                 class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
-                                                                            id="total_orders">0.00</span> {{ __('withdraw::withdraw.currency') }}</h1>
+                                                                            id="total_orders">0.00</span> {{ currency() }}</h1>
                                                                     <p style="font-size:11px">{{ __('withdraw::withdraw.total_vendor_transactions') }}</p>
                                                                 </div>
                                                                 <div class="ap-po-details__icon-area">
@@ -90,11 +90,8 @@
                                                                 class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
-                                                                            id="bnaia_balance">0.00</span> {{ __('withdraw::withdraw.currency') }}</h1>
-                                                                    <p style="font-size:11px">{{ __('withdraw::withdraw.bnaia_commission_from_transactions') }} <span
-                                                                            class="badge text-bg-secondary"
-                                                                            style="background-color: #0056b7; border-radius: 5px"
-                                                                            id="vendor_commission_percentage">(0%)</span>
+                                                                            id="bnaia_balance">0.00</span> {{ currency() }}</h1>
+                                                                    <p style="font-size:11px">{{ __('withdraw::withdraw.bnaia_commission_from_transactions') }}
                                                                     </p>
                                                                 </div>
                                                                 {{-- <div class="ap-po-details__icon-area">
@@ -115,7 +112,7 @@
                                                                 class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
-                                                                            id="vendor_balance_money">0.00</span> {{ __('withdraw::withdraw.currency') }}</h1>
+                                                                            id="vendor_balance_money">0.00</span> {{ currency() }}</h1>
                                                                     <p style="font-size:11px">{{ __('withdraw::withdraw.total_vendor_credit') }}</p>
                                                                 </div>
                                                                 <div class="ap-po-details__icon-area">
@@ -149,7 +146,7 @@
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
                                                                             id="vendor_balance_after_sent_money">0.00</span>
-                                                                        {{ __('withdraw::withdraw.currency') }}</h1>
+                                                                        {{ currency() }}</h1>
                                                                     <p>{{ __('withdraw::withdraw.total_balance_needed') }}</p>
                                                                 </div>
                                                                 <div class="ap-po-details__icon-area">
@@ -169,7 +166,7 @@
                                                                 class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
-                                                                            id="total_sent_money">0.00</span> {{ __('withdraw::withdraw.currency') }}</h1>
+                                                                            id="total_sent_money">0.00</span> {{ currency() }}</h1>
                                                                     <p>{{ __('withdraw::withdraw.total_sent_money') }}</p>
                                                                 </div>
                                                                 <div class="ap-po-details__icon-area">
@@ -190,7 +187,7 @@
                                                                 class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
-                                                                            id="remaining_after_sent_money">0.00</span> {{ __('withdraw::withdraw.currency') }}
+                                                                            id="remaining_after_sent_money">0.00</span> {{ currency() }}
                                                                     </h1>
                                                                     <p>{{ __('withdraw::withdraw.total_remaining') }}</p>
                                                                 </div>
@@ -216,13 +213,13 @@
                                                 class="badge text-bg-secondary"
                                                 style="background-color: #0056b7; border-radius: 5px"><span
                                                     id="amount_max_which_will_be_sent">0.00</span> <span
-                                                    style="margin: 0px 4px">{{ __('withdraw::withdraw.currency') }}</span></span>
+                                                    style="margin: 0px 4px">{{ currency() }}</span></span>
 
                                             <span class="badge text-bg-secondary"
                                                 style="background-color: #fa0000; border-radius: 5px"> <span
                                                     style="margin: 0px 3px">{{ __('withdraw::withdraw.waiting_approve') }} :</span> <span
                                                     id="waiting_approve_requests">0.000</span>
-                                                <span style="margin: 0px 4px">{{ __('withdraw::withdraw.currency') }}</span></span>
+                                                <span style="margin: 0px 4px">{{ currency() }}</span></span>
                                         </label>
                                         <input required type="text" class="form-control"
                                             placeholder="{{ __('withdraw::withdraw.example_amount') }}" name="sent_amount" id="sent_amount"

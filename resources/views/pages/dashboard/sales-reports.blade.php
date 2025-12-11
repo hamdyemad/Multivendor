@@ -21,13 +21,13 @@
             <div class="label-detailed">
                 <div class="label-detailed__single"><span
                         class="label-detailed__type label-detailed__type--primary">{{ trans('dashboard.orders') }}</span>
-                    <strong class="label-detailed__total">8,550 EGP</strong> <span
+                    <strong class="label-detailed__total">8,550 {{ currency() }}</strong> <span
                         class="label-detailed__status color-success"><img class="svg"
                             src="img/svg/arrow-success-up.svg" alt=""><strong>25%</strong></span>
                 </div>
                 <div class="label-detailed__single"><span
                         class="label-detailed__type label-detailed__type--info">{{ trans('dashboard.sales') }}</span>
-                    <strong class="label-detailed__total">5,550 EGP</strong> <span
+                    <strong class="label-detailed__total">5,550 {{ currency() }}</strong> <span
                         class="label-detailed__status color-danger"><img class="svg"
                             src="img/svg/arrow-danger-down.svg" alt="">
                         <strong>15%</strong></span>

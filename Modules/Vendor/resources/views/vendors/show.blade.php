@@ -84,7 +84,7 @@
                                                 <div class="d-flex align-items-center justify-content-between p-15 rounded mb-15" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
                                                     <div>
                                                         <p class="mb-0 fs-13 fw-bold" style="color: rgba(255,255,255,0.9);">{{ trans('vendor::vendor.total_vendors_balance') }}</p>
-                                                        <p class="mb-0 fs-20 fw-bold mt-5" style="color: white;">{{ number_format($vendor->total_balance ?? 0, 2) }} {{ trans('common.egp') }}</p>
+                                                        <p class="mb-0 fs-20 fw-bold mt-5" style="color: white;">{{ number_format($vendor->total_balance, 2) }} {{ currency() }}</p>
                                                     </div>
                                                     <div class="p-12 rounded-circle d-flex align-items-center justify-content-center" style="background-color: rgba(255,255,255,0.2); width: 45px; height: 45px;">
                                                         <i class="uil uil-wallet fs-20" style="color: white;"></i>
@@ -96,7 +96,7 @@
                                                 <div class="d-flex align-items-center justify-content-between p-15 rounded mb-15" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);">
                                                     <div>
                                                         <p class="mb-0 fs-13 fw-bold" style="color: rgba(255,255,255,0.9);">{{ trans('vendor::vendor.total_sent_money') }}</p>
-                                                        <p class="mb-0 fs-20 fw-bold mt-5" style="color: white;">{{ number_format($vendor->total_sent_money ?? 0, 2) }} {{ trans('common.egp') }}</p>
+                                                        <p class="mb-0 fs-20 fw-bold mt-5" style="color: white;">{{ number_format($vendor->total_sent, 2) }} {{ currency() }}</p>
                                                     </div>
                                                     <div class="p-12 rounded-circle d-flex align-items-center justify-content-center" style="background-color: rgba(255,255,255,0.2); width: 45px; height: 45px;">
                                                         <i class="uil uil-arrow-up-right fs-20" style="color: white;"></i>
@@ -108,7 +108,7 @@
                                                 <div class="d-flex align-items-center justify-content-between p-15 rounded mb-15" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);">
                                                     <div>
                                                         <p class="mb-0 fs-13 fw-bold" style="color: rgba(255,255,255,0.9);">{{ trans('vendor::vendor.total_remaining') }}</p>
-                                                        <p class="mb-0 fs-20 fw-bold mt-5" style="color: white;">{{ number_format($vendor->total_remaining ?? 0, 2) }} {{ trans('common.egp') }}</p>
+                                                        <p class="mb-0 fs-20 fw-bold mt-5" style="color: white;">{{ number_format($vendor->total_remaining, 2) }} {{ currency() }}</p>
                                                     </div>
                                                     <div class="p-12 rounded-circle d-flex align-items-center justify-content-center" style="background-color: rgba(255,255,255,0.2); width: 45px; height: 45px;">
                                                         <i class="uil uil-calculator-alt fs-20" style="color: white;"></i>

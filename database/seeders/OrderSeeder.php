@@ -54,7 +54,7 @@ class OrderSeeder extends Seeder
 
         // Create 200 orders for every customer
         foreach ($customers as $customer) {
-            for ($i = 1; $i <= 200; $i++) {
+            for ($i = 1; $i <= 10; $i++) {
                 try {
                     $stage = $stages->random();
                     // Use customer's country

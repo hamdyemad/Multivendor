@@ -196,6 +196,13 @@ class Vendor extends BaseModel
         ->sum(DB::raw('price * quantity'));
     }
 
+    public function getBnaiaCommissionAttribute()
+    {
+        return OrderProduct::where('vendor_id', $this->id)
+            ->selectRaw('SUM(price * quantity * (commission / 100)) as total')
+            ->value('total');
+    }
+
     /**
      * Get total sent for this vendor
      */

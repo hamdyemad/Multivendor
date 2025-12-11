@@ -21,7 +21,7 @@
                             <span>by John Smith</span>
                         </p>
                         <p>
-                            <span class="time-posted">299.00 EGP</span>
+                            <span class="time-posted">299.00 {{ currency() }}</span>
                         </p>
                     </div>
                 </li>
@@ -35,7 +35,7 @@
                             <span>by Sarah Johnson</span>
                         </p>
                         <p>
-                            <span class="time-posted">179.98 EGP</span>
+                            <span class="time-posted">179.98 {{ currency() }}</span>
                         </p>
                     </div>
                 </li>
@@ -49,7 +49,7 @@
                             <span>by Michael Brown</span>
                         </p>
                         <p>
-                            <span class="time-posted">136.50 EGP</span>
+                            <span class="time-posted">136.50 {{ currency() }}</span>
                         </p>
                     </div>
                 </li>
@@ -63,7 +63,7 @@
                             <span>by Emily Davis</span>
                         </p>
                         <p>
-                            <span class="time-posted">79.96 EGP</span>
+                            <span class="time-posted">79.96 {{ currency() }}</span>
                         </p>
                     </div>
                 </li>
@@ -77,7 +77,7 @@
                             <span>by David Wilson</span>
                         </p>
                         <p>
-                            <span class="time-posted">259.98 EGP</span>
+                            <span class="time-posted">259.98 {{ currency() }}</span>
                         </p>
                     </div>
                 </li>

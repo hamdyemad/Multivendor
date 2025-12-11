@@ -1,5 +1,5 @@
 @extends('layout.app')
-@section('title', 'Send Money Reques')
+@section('title', trans('withdraw::withdraw.send_money_request'))
 @section('content')
     <div class="container-fluid">
         <div class="row">
@@ -10,8 +10,8 @@
                         'url' => route('admin.dashboard'),
                         'icon' => 'uil uil-estate',
                     ],
-                    ['title' => 'Send Money Reques', 'url' => route('admin.sendMoneyRequest')],
-                    ['title' => 'Send Money Reques'],
+                    ['title' => trans('withdraw::withdraw.send_money_request'), 'url' => route('admin.sendMoneyRequest')],
+                    ['title' => trans('withdraw::withdraw.send_money_request')],
                 ]" />
             </div>
         </div>
@@ -21,7 +21,7 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white border-bottom py-20">
                         <h5 class="mb-0 fw-500">
-                            Send Money
+                            {{ trans('withdraw::withdraw.send_money') }}
                         </h5>
                     </div>
                     <div class="card-body">
@@ -41,7 +41,7 @@
                                     <div class="col-12">
                                         <div class="card">
                                             <div class="card-body fw-bold" style="background-color: #0056b7; color: #fff">
-                                                Vendor General Orders data
+                                                {{ trans('withdraw::withdraw.vendor_general_orders_data') }}
                                             </div>
                                         </div>
                                         <div class="col-12" style="background-color: rgb(201, 201, 201); padding: 10px">
@@ -55,8 +55,8 @@
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
                                                                             id="total_orders">{{ $general_info['orders_price'] }}</span>
-                                                                        {{ __('common.egp') }}</h1>
-                                                                    <p>Total {{ $vendor_name }}'s Transactions</p>
+                                                                        {{ currency() }}</h1>
+                                                                    <p>{{ trans('withdraw::withdraw.total_transactions', ['vendor' => $vendor_name]) }}</p>
                                                                 </div>
                                                                 <div class="ap-po-details__icon-area">
                                                                     <div class="svg-icon order-bg-opacity-info color-info">
@@ -76,11 +76,8 @@
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
                                                                             id="bnaia_balance">{{ $general_info['bnaia_balance'] }}</span>
-                                                                        {{ __('common.egp') }}</h1>
-                                                                    <p style="font-size: 11px !important;">Bnaia Commission from Transactions <span
-                                                                            class="badge text-bg-secondary"
-                                                                            style="background-color: #0056b7; border-radius: 5px"
-                                                                            id="vendor_commission_percentage">({{ $general_info['vendor_commission'] }}%)</span>
+                                                                        {{ currency() }}</h1>
+                                                                    <p style="font-size: 11px !important;">{{ trans('withdraw::withdraw.bnaia_commission_from_transactions') }}
                                                                     </p>
                                                                 </div>
                                                                 {{-- <div class="ap-po-details__icon-area">
@@ -102,8 +99,8 @@
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
                                                                             id="vendor_balance_money">{{ $general_info['total_vendor_balance'] }}</span>
-                                                                        {{ __('common.egp') }}</h1>
-                                                                    <p>Total {{ $vendor_name }}'s Credit</p>
+                                                                        {{ currency() }}</h1>
+                                                                    <p>{{ trans('withdraw::withdraw.total_credit', ['vendor' => $vendor_name]) }}</p>
                                                                 </div>
                                                                 <div class="ap-po-details__icon-area">
                                                                     <div
@@ -136,8 +133,8 @@
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
                                                                             id="vendor_balance_after_sent_money">{{ $general_info['total_vendor_balance'] }}</span>
-                                                                        {{ __('common.egp') }}</h1>
-                                                                    <p>Total Balance Needed</p>
+                                                                        {{ currency() }}</h1>
+                                                                    <p>{{ trans('withdraw::withdraw.total_balance_needed') }}</p>
                                                                 </div>
                                                                 <div class="ap-po-details__icon-area">
                                                                     <div class="svg-icon order-bg-opacity-info color-info">
@@ -157,8 +154,8 @@
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
                                                                             id="total_sent_money">{{ $general_info['total_sent_money'] }}</span>
-                                                                        {{ __('common.egp') }}</h1>
-                                                                    <p>Total Recieved Money</p>
+                                                                        {{ currency() }}</h1>
+                                                                    <p>{{ trans('withdraw::withdraw.total_received_money') }}</p>
                                                                 </div>
                                                                 <div class="ap-po-details__icon-area">
                                                                     <div
@@ -179,9 +176,9 @@
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
                                                                             id="remaining_after_sent_money">{{ $general_info['remaining'] }}</span>
-                                                                        {{ __('common.egp') }}
+                                                                        {{ currency() }}
                                                                     </h1>
-                                                                    <p>Total Remaining</p>
+                                                                    <p>{{ trans('withdraw::withdraw.total_remaining') }}</p>
                                                                 </div>
                                                                 <div class="ap-po-details__icon-area">
                                                                     <div
@@ -201,19 +198,19 @@
                                 <div class="col-md-12 mb-10">
                                     <div class="form-group">
                                         <label class="mb-3">
-                                            Enter Amount <span class="text-danger">*</span> <span
+                                            {{ trans('withdraw::withdraw.enter_amount') }} <span class="text-danger">*</span> <span
                                                 class="badge text-bg-secondary"
                                                 style="background-color: #0056b7; border-radius: 5px"><span
                                                     id="amount_max_which_will_be_sent">{{ $general_info['remaining'] }}</span>
-                                                <span style="margin: 0px 4px">{{ __('common.egp') }}</span></span>
+                                                <span style="margin: 0px 4px">{{ currency() }}</span></span>
 
                                             <span class="badge text-bg-secondary"
                                                 style="background-color: #fa0000; border-radius: 5px"> <span
-                                                    style="margin: 0px 3px">Waiting approve :</span> <span
+                                                    style="margin: 0px 3px">{{ trans('withdraw::withdraw.waiting_approve') }}:</span> <span
                                                     id="amount_max_which_will_be_sent">{{ $general_info['waiting_approve_requests'] }}</span>
-                                                <span style="margin: 0px 4px">{{ __('common.egp') }}</span></span>
+                                                <span style="margin: 0px 4px">{{ currency() }}</span></span>
                                         </label>
-                                        <input type="text" class="form-control" placeholder="Example: 4,000.50"
+                                        <input type="text" class="form-control" placeholder="{{ trans('withdraw::withdraw.amount_placeholder') }}"
                                             name="sent_amount" id="sent_amount" value="{{ old('sent_amount') }}">
                                     </div>
                                 </div>
@@ -222,13 +219,13 @@
                             <div class="d-flex justify-content-end gap-15 mt-30">
                                 <a href="{{ route('admin.category-management.categories.index') }}"
                                     class="btn btn-light btn-default btn-squared fw-400 text-capitalize">
-                                    <i class="uil uil-angle-left"></i> Cancel
+                                    <i class="uil uil-angle-left"></i> {{ __('common.cancel') }}
                                 </a>
                                 <button type="submit" id="submitBtn"
                                     class="btn btn-primary btn-default btn-squared text-capitalize"
                                     style="display: inline-flex; align-items: center; justify-content: center;">
                                     <i class="uil uil-check"></i>
-                                    <span>Send money request</span>
+                                    <span>{{ trans('withdraw::withdraw.send_money_request') }}</span>
                                     <span class="spinner-border spinner-border-sm d-none" role="status"
                                         aria-hidden="true"></span>
                                 </button>
@@ -247,19 +244,19 @@
             <div class="modal-content border-0 shadow">
                 <div class="modal-header text-white" style="background-color: #0056b7; color: #fff">
                     <h5 class="modal-title d-flex align-items-center" id="confirmSubmitLabel" style="color: #fff">
-                        <i class="bi bi-exclamation-circle-fill me-2"></i> Confirm Submission
+                        <i class="bi bi-exclamation-circle-fill me-2"></i> {{ trans('withdraw::withdraw.confirm_submission') }}
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center">
-                    <p class="mb-0" style="font-size: 16px;">Are you sure you want to <strong>send this money</strong>?
+                    <p class="mb-0" style="font-size: 16px;">{{ trans('withdraw::withdraw.confirm_send_money') }}
                     </p>
                 </div>
                 <div class="modal-footer justify-content-center">
-                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">{{ __('common.cancel') }}</button>
                     <button type="button" id="confirmSubmitBtn" class="btn btn-primary px-4">
-                        <i class="bi bi-check-circle me-1"></i> Yes, Send
+                        <i class="bi bi-check-circle me-1"></i> {{ trans('withdraw::withdraw.yes_send') }}
                     </button>
                 </div>
             </div>
@@ -277,7 +274,7 @@
                 let val = parseFloat(this.value.replace(/,/g, ''));
 
                 if (!isNaN(val) && val > maxVal) {
-                    alert('Amount exceeds the maximum allowed (' + maxVal + ')');
+                    alert('{{ trans("withdraw::withdraw.amount_exceeds_maximum") }}' + ' (' + maxVal + ')');
                     this.value = maxVal.toLocaleString(); // optional formatting
                 }
             });
@@ -390,7 +387,7 @@
 
                 if (enteredAmount > maxAmount) {
                     e.preventDefault(); // منع الفورم من الsubmit
-                    alert("The amount cannot exceed the maximum: " + maxAmount.toLocaleString());
+                    alert("{{ trans('withdraw::withdraw.amount_cannot_exceed_maximum') }}: " + maxAmount.toLocaleString());
                     return false;
                 }
             });

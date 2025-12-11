@@ -146,6 +146,28 @@
                                         @enderror
                                     </div>
                                 </div>
+                                                                {{-- Activation Switcher --}}
+                                <div class="col-md-6 mb-25">
+                                    <div class="form-group">
+                                        <label class="il-gray fs-14 fw-500 mb-10 d-block">
+                                            {{ trans('categorymanagment::department.activation') }}
+                                        </label>
+                                        <div class="dm-switch-wrap d-flex align-items-center">
+                                            <div class="form-check form-switch form-switch-primary form-switch-md">
+                                                <input type="hidden" name="active" value="0">
+                                                <input type="checkbox"
+                                                       class="form-check-input"
+                                                       id="active"
+                                                       name="active"
+                                                       value="1"
+                                                       {{ old('active', $department->active ?? 1) == 1 ? 'checked' : '' }}>
+                                            </div>
+                                        </div>
+                                        @error('active')
+                                            <div class="text-danger fs-12 mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
 
                                 {{-- Department Image --}}
                                 <div class="col-md-6 mb-25">
@@ -171,28 +193,7 @@
                                         aspectRatio="square"
                                     />
                                 </div>
-                                {{-- Activation Switcher --}}
-                                <div class="col-md-6 mb-25">
-                                    <div class="form-group">
-                                        <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                                            {{ trans('categorymanagment::department.activation') }}
-                                        </label>
-                                        <div class="dm-switch-wrap d-flex align-items-center">
-                                            <div class="form-check form-switch form-switch-primary form-switch-md">
-                                                <input type="hidden" name="active" value="0">
-                                                <input type="checkbox"
-                                                       class="form-check-input"
-                                                       id="active"
-                                                       name="active"
-                                                       value="1"
-                                                       {{ old('active', $department->active ?? 1) == 1 ? 'checked' : '' }}>
-                                            </div>
-                                        </div>
-                                        @error('active')
-                                            <div class="text-danger fs-12 mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
+
 
                             </div>
 

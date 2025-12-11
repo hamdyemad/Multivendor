@@ -21,7 +21,7 @@ class WithdrawController extends Controller
 
     public function sendMoney()
     {
-        if (auth()->user()->user_type->name == "vendor") {
+        if (isVendor()) {
             abort(404);
         }
 
@@ -32,7 +32,7 @@ class WithdrawController extends Controller
 
     public function allTransactionsDatabase(Request $request)
     {
-        if (auth()->user()->user_type->name == "vendor") {
+        if (isVendor()) {
             abort(404);
         }
 
@@ -144,7 +144,7 @@ class WithdrawController extends Controller
 
     public function allTransactions()
     {
-        if (auth()->user()->user_type->name == "vendor") {
+        if (isVendor()) {
             abort(404);
         }
 
@@ -183,7 +183,7 @@ class WithdrawController extends Controller
 
     public function allVendorsTransactionsDatatable(Request $request)
     {
-        if (auth()->user()->user_type->name == "vendor") {
+        if (isVendor()) {
             abort(404);
         }
 
@@ -263,7 +263,7 @@ class WithdrawController extends Controller
 
     public function allVendorsTransactions()
     {
-        if (auth()->user()->user_type->name == "vendor") {
+        if (isVendor()) {
             abort(404);
         }
 
@@ -282,14 +282,14 @@ class WithdrawController extends Controller
         return view('withdraw::all_vendors_transactions', compact('languages', 'vendors'));
     }
 
-    public function getVendorBalance($lang, $countryCode, $vendor_id)
+    public function getVendorBalance($vendor_id)
     {
-        return $vendors = $this->withdrawService->getVendorBalance($vendor_id);
+        return response()->json($this->withdrawService->getVendorBalance($vendor_id));
     }
 
     public function sendMoneyToVendorAction(Request $request)
     {
-        if (auth()->user()->user_type->name == "vendor") {
+        if (isVendor()) {
             abort(404);
         }
 
@@ -341,7 +341,7 @@ class WithdrawController extends Controller
     public function sendMoneyRequest()
     {
         // Only vendor users can access this page
-        if (!in_array(auth()->user()->user_type_id, UserType::vendorIds())) {
+        if (isAdmin()) {
             abort(404);
         }
 
@@ -357,7 +357,7 @@ class WithdrawController extends Controller
         }
 
         $languages = $this->languageService->getAll();
-        $general_info = $this->getVendorBalance($vendor->id);
+        $general_info = $this->withdrawService->getVendorBalance($vendor->id);
         $vendor_name = $vendor->name ?? 'Vendor';
 
         $final_remaining = floatval(str_replace(',', '', $general_info['remaining'])) - floatval(str_replace(',', '', $general_info['waiting_approve_requests']));
@@ -367,8 +367,7 @@ class WithdrawController extends Controller
 
     public function sendMoneyRequestAction(Request $request)
     {
-        // Only vendor users can access this action
-        if (!in_array(auth()->user()->user_type_id, UserType::vendorIds())) {
+        if (!isVendor()) {
             abort(404);
         }
 
@@ -539,17 +538,19 @@ class WithdrawController extends Controller
         return view('withdraw::all_transactions_requests', compact('languages', 'status', 'vendor', 'vendors'));
     }
 
-    public function changeTransactionRequestsStatus(Request $request)
+    public function changeTransactionRequestsStatus(Request $request, $lang, $countryCode)
     {
         // get request
-        $data = $request->all();
-        $withdraw = Withdraw::find($request["request_id"]);
-
-        if ($data["status"] == "accepted") {
+        $requestData = $request->all();
+        $data = [
+            'status' => $requestData['status']
+        ];
+        $withdraw = Withdraw::find($requestData["request_id"]);
+        if ($requestData["status"] == "accepted") {
             $data["sender_id"] = auth()->user()->id;
 
             $withdraw->update($data);
-        } elseif ($data["status"] == "rejected") {
+        } elseif ($requestData["status"] == "rejected") {
             $withdraw->update($data);
         }
 

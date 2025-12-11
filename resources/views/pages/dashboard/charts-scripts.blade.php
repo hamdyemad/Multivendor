@@ -411,7 +411,7 @@
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return context.dataset.label + ': ' + context.parsed.y.toLocaleString() + ' EGP';
+                                    return context.dataset.label + ': ' + context.parsed.y.toLocaleString() + '';
                                 }
                             }
                         }
@@ -424,7 +424,7 @@
                             beginAtZero: true,
                             ticks: {
                                 callback: function(value) {
-                                    return (value / 1000) + 'k EGP';
+                                    return (value / 1000) + '';
                                 }
                             }
                         }
@@ -474,7 +474,7 @@
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return context.dataset.label + ': ' + context.parsed.y.toLocaleString() + ' EGP';
+                                    return context.dataset.label + ': ' + context.parsed.y.toLocaleString() + '';
                                 }
                             }
                         }
@@ -487,7 +487,7 @@
                             beginAtZero: true,
                             ticks: {
                                 callback: function(value) {
-                                    return (value / 1000) + 'k EGP';
+                                    return (value / 1000) + '';
                                 }
                             }
                         }

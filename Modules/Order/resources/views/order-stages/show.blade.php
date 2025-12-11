@@ -107,31 +107,7 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
-                                            {{-- Order Stage Names --}}
-                                            <div class="col-md-12">
-                                                <div class="view-item box-items-translations">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('order::order_stage.name') }}</label>
-                                                    <div class="row">
-                                                        @foreach($languages as $lang)
-                                                            @php
-                                                                $translation = $orderStage->getTranslation('name', $lang->code);
-                                                            @endphp
-                                                            <div class="col-md-6 mb-3">
-                                                                <small class="text-muted d-block"
-                                                                    style="@if($lang->code == 'ar') direction: rtl; text-align: right; @endif">{{ $lang->code }}:</small>
-                                                                <div class="fs-15 color-dark mb-0"
-                                                                    style="@if($lang->code == 'ar') direction: rtl; text-align: right; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; @endif">
-                                                                    @if($translation)
-                                                                        {{ $translation }}
-                                                                    @else
-                                                                        --
-                                                                    @endif
-                                                                </div>
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <x-translation-display :label="trans('order::order_stage.name')" :model="$orderStage" fieldName="name" :languages="$languages" />
 
                                             {{-- Status --}}
                                             <div class="col-md-6">

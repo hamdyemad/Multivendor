@@ -936,51 +936,6 @@
                 </ul>
             </li>
 
-            @canany(['settings.terms.view', 'settings.privacy.view', 'settings.about.view', 'settings.contact.view',
-                'settings.messages.view'])
-                <li class="has-child">
-                    <a href="#" class="">
-                        <span class="nav-icon uil uil-setting"></span>
-                        <span class="menu-text">{{ trans('menu.system settings.title') }}</span>
-                        <span class="toggle-icon"></span>
-                    </a>
-                    <ul class="px-0">
-                        @can('settings.terms.view')
-                            <li><a href="{{ route('admin.dashboard') }}"><span
-                                        class="nav-icon uil uil-file-contract-dollar"></span>
-                                    {{ trans('menu.system settings.terms and conditions') }}</a></li>
-                        @endcan
-
-                        @can('settings.privacy.view')
-                            <li><a href="{{ route('admin.dashboard') }}"><span class="nav-icon uil uil-shield-check"></span>
-                                    {{ trans('menu.system settings.privacy policy') }}</a></li>
-                        @endcan
-
-                        @can('settings.about.view')
-                            <li><a href="{{ route('admin.dashboard') }}"><span class="nav-icon uil uil-info-circle"></span>
-                                    {{ trans('menu.system settings.about us') }}</a></li>
-                        @endcan
-
-                        @can('settings.contact.view')
-                            <li><a href="{{ route('admin.dashboard') }}"><span class="nav-icon uil uil-phone"></span>
-                                    {{ trans('menu.system settings.contact us') }}</a></li>
-                        @endcan
-
-                        @can('settings.messages.view')
-                            <li>
-                                <a class="d-flex align-items-center justify-content-between fw-bold"
-                                    href="{{ route('admin.dashboard') }}">
-                                    <span class="d-flex align-items-center">
-                                        <span class="nav-icon uil uil-envelope"></span>
-                                        <span>{{ trans('menu.system settings.messages') }}</span>
-                                    </span>
-                                    <span class="badge badge-round badge-primary ms-1">25</span>
-                                </a>
-                            </li>
-                        @endcan
-                    </ul>
-                </li>
-            @endcanany
 
 
             @canany(['area.country.index', 'area.city.index', 'area.region.index', 'area.subregion.index'])

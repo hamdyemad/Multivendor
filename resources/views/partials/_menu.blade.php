@@ -860,7 +860,7 @@
             <li class="has-child {{ isParentMenuOpen(['admin.system-settings.features.index', 'admin.system-settings.footer-content.index', 'admin.system-settings.faqs.index', 'admin.system-settings.sliders.index', 'admin.system-settings.site-information.index'], ['*/system-settings/features*', '*/system-settings/footer-content*', '*/system-settings/faqs*', '*/system-settings/sliders*', '*/system-settings/site-information*']) ? 'open' : '' }}">
                 <a href="#" class="{{ isParentMenuOpen(['admin.system-settings.features.index', 'admin.system-settings.footer-content.index', 'admin.system-settings.faqs.index', 'admin.system-settings.sliders.index', 'admin.system-settings.site-information.index'], ['*/system-settings/features*', '*/system-settings/footer-content*', '*/system-settings/faqs*', '*/system-settings/sliders*', '*/system-settings/site-information*']) ? 'active' : '' }}">
                     <span class="nav-icon uil uil-browser"></span>
-                    <span class="menu-text">{{ trans('menu.frontend settings.title') }}</span>
+                    <span class="menu-text fw-bold">{{ trans('menu.frontend settings.title') }}</span>
                     <span class="toggle-icon"></span>
                 </a>
                 <ul class="px-0">
@@ -868,28 +868,28 @@
                         <a href="{{ route('admin.system-settings.features.index') }}"
                             class="{{ isMenuActive('admin.system-settings.features.index', $currentRoute) ? 'active' : '' }}">
                             <span class="nav-icon uil uil-star"></span>
-                            <span>{{ trans('menu.frontend settings.our features') }}</span>
+                            <span class=" fw-bold">{{ trans('menu.frontend settings.our features') }}</span>
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('admin.system-settings.footer-content.index') }}"
                             class="{{ isMenuActive('admin.system-settings.footer-content.index', $currentRoute) ? 'active' : '' }}">
                             <span class="nav-icon uil uil-align-center-alt"></span>
-                            <span>{{ trans('menu.frontend settings.footer content') }}</span>
+                            <span class=" fw-bold">{{ trans('menu.frontend settings.footer content') }}</span>
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('admin.system-settings.faqs.index') }}"
                             class="{{ isMenuActive(['admin.system-settings.faqs.index', 'admin.system-settings.faqs.create', 'admin.system-settings.faqs.edit', 'admin.system-settings.faqs.show'], $currentRoute) ? 'active' : '' }}">
                             <span class="nav-icon uil uil-question-circle"></span>
-                            <span>{{ trans('menu.frontend settings.faq management') }}</span>
+                            <span class=" fw-bold">{{ trans('menu.frontend settings.faq management') }}</span>
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('admin.system-settings.sliders.index') }}"
                             class="{{ isMenuActive(['admin.system-settings.sliders.index', 'admin.system-settings.sliders.create', 'admin.system-settings.sliders.edit', 'admin.system-settings.sliders.show'], $currentRoute) ? 'active' : '' }}">
                             <span class="nav-icon uil uil-image-v"></span>
-                            <span>{{ trans('menu.frontend settings.sliders') }}</span>
+                            <span class=" fw-bold">{{ trans('menu.frontend settings.sliders') }}</span>
                         </a>
                     </li>
 

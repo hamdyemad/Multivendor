@@ -146,12 +146,11 @@
                             <thead>
                                 <tr class="userDatatable-header">
                                     <th><span class="userDatatable-title">#</span></th>
-                                    <th><span class="userDatatable-title">Company Information</span></th>
-                                    <th><span class="userDatatable-title">Contact</span></th>
-                                    <th><span class="userDatatable-title">Activities</span></th>
-                                    <th><span class="userDatatable-title">Status</span></th>
-                                    <th><span class="userDatatable-title">Rejection Reason</span></th>
-                                    <th><span class="userDatatable-title">Date</span></th>
+                                    <th><span class="userDatatable-title">{{ trans('vendor::vendor.company_information') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ trans('vendor::vendor.activities') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ trans('common.status') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ trans('vendor::vendor.rejection_reason') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ trans('common.date') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('common.actions') }}</span></th>
                                 </tr>
                             </thead>
@@ -170,33 +169,113 @@
             <div class="modal-content">
                 <form id="confirmActionForm" method="POST">
                     @csrf
-                    <div class="modal-header bg-opacity-10 border-bottom">
+                    <div class="modal-header bg-danger bg-opacity-10 border-bottom">
                         <h5 class="modal-title" id="confirmActionLabel">
-                            <i class="uil uil-exclamation-triangle text-danger me-2"></i>Reject Vendor Request
+                            <i class="uil uil-exclamation-triangle text-danger me-2"></i>{{ trans('vendor::vendor.reject_vendor_request') }}
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <p id="confirmMessage" class="text-muted mb-3">Are you sure you want to reject this vendor request? Please provide a reason.</p>
+                        <p id="confirmMessage" class="text-muted mb-3">{{ trans('vendor::vendor.confirm_reject_message') }}</p>
                         <div id="rejectReasonDiv">
                             <label for="rejectReason" class="form-label fw-600 mb-2">
-                                <i class="uil uil-message-circle me-1"></i>Rejection Reason <span class="text-danger">*</span>
+                                <i class="uil uil-message-circle me-1"></i>{{ trans('vendor::vendor.rejection_reason') }} <span class="text-danger">*</span>
                             </label>
                             <textarea class="form-control nockeditor" id="rejectReason" name="reason"
-                                placeholder="Please explain why you are rejecting this vendor request..."
+                                placeholder="{{ trans('vendor::vendor.rejection_reason_placeholder') }}"
                                 rows="4" required></textarea>
-                            <small class="text-muted d-block mt-2">This reason will be visible to the vendor.</small>
+                            <small class="text-muted d-block mt-2">{{ trans('vendor::vendor.rejection_reason_visible') }}</small>
                         </div>
                     </div>
                     <div class="modal-footer border-top">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="uil uil-times me-1"></i>Cancel
+                            <i class="uil uil-times me-1"></i>{{ trans('common.cancel') }}
                         </button>
                         <button type="submit" class="btn btn-danger" id="confirmActionBtn">
-                            <i class="uil uil-trash-alt me-1"></i>Reject Request
+                            <i class="uil uil-trash-alt me-1"></i>{{ trans('vendor::vendor.reject_request') }}
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- View Vendor Request Details Modal --}}
+    <div class="modal fade" id="viewRequestModal" tabindex="-1" aria-labelledby="viewRequestLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-opacity-10 border-bottom">
+                    <h5 class="modal-title" id="viewRequestLabel">
+                        <i class="uil uil-info-circle text-primary me-2"></i>{{ trans('vendor::vendor.vendor_request_details') }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        {{-- Company Information --}}
+                        <div class="col-md-6 mb-3">
+                            <div class="view-item">
+                                <label class="il-gray fs-14 fw-500 mb-10">{{ trans('common.company_name') }}</label>
+                                <p class="fs-15 color-dark" id="modalCompanyName">-</p>
+                            </div>
+                        </div>
+
+                        {{-- Email --}}
+                        <div class="col-md-6 mb-3">
+                            <div class="view-item">
+                                <label class="il-gray fs-14 fw-500 mb-10">{{ trans('common.email') }}</label>
+                                <p class="fs-15 color-dark" id="modalEmail">-</p>
+                            </div>
+                        </div>
+
+                        {{-- Phone (under Email) --}}
+                        <div class="col-md-6 mb-3">
+                            <div class="view-item">
+                                <label class="il-gray fs-14 fw-500 mb-10">{{ trans('common.phone') }}</label>
+                                <p class="fs-15 color-dark" id="modalPhone">-</p>
+                            </div>
+                        </div>
+
+                        {{-- Status --}}
+                        <div class="col-md-6 mb-3">
+                            <div class="view-item">
+                                <label class="il-gray fs-14 fw-500 mb-10">{{ trans('common.status') }}</label>
+                                <p class="fs-15" id="modalStatus">-</p>
+                            </div>
+                        </div>
+
+                        {{-- Activities --}}
+                        <div class="col-md-12 mb-3">
+                            <div class="view-item">
+                                <label class="il-gray fs-14 fw-500 mb-10">{{ trans('vendor::vendor.activities') }}</label>
+                                <div id="modalActivities">
+                                    <span class="text-muted">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Rejection Reason (if rejected) --}}
+                        <div class="col-md-12 mb-3" id="rejectionReasonDiv" style="display: none;">
+                            <div class="view-item">
+                                <label class="il-gray fs-14 fw-500 mb-10">{{ trans('vendor::vendor.rejection_reason') }}</label>
+                                <p class="fs-15 color-dark" id="modalRejectionReason">-</p>
+                            </div>
+                        </div>
+
+                        {{-- Created At --}}
+                        <div class="col-md-6 mb-3">
+                            <div class="view-item">
+                                <label class="il-gray fs-14 fw-500 mb-10">{{ trans('common.created_at') }}</label>
+                                <p class="fs-15 color-dark" id="modalCreatedAt">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="uil uil-times me-1"></i>{{ trans('common.close') }}
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -330,21 +409,12 @@
                                                 ${$('<div>').text(row.company_name).html()}
                                             </div>
                                             <small class="text-muted">${$('<div>').text(row.email).html()}</small>
+                                            <small class="text-muted d-block">${row.phone}</small>
                                         </div>
                                     </div>
                             `;
                             html += `</div></div>`;
                             return html;
-                        }
-                    },
-
-                    // Contact column
-                    {
-                        data: 'phone',
-                        name: 'phone',
-                        orderable: false,
-                        render: function(data) {
-                            return '<div class="userDatatable-content"><span>' + data + '</span></div>';
                         }
                     },
 
@@ -409,7 +479,26 @@
                         render: function(data, type, row) {
                             let actions = `<div class="orderDatatable_actions d-inline-flex gap-1 text-center justify-content-center">`;
 
-                            // Pending: Show Create Vendor, Approve and Reject buttons
+                            // View button (always show)
+                            actions += `
+                            <a href="javascript:void(0);"
+                            class="view btn btn-info table_action_father view-request-btn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#viewRequestModal"
+                            data-request-id="${row.id}"
+                            data-company-name="${row.company_name}"
+                            data-email="${row.email}"
+                            data-phone="${row.phone}"
+                            data-status="${row.status}"
+                            data-created-at="${row.created_at}"
+                            data-activities='${JSON.stringify(row.activities || [])}'
+                            data-rejection-reason="${row.rejection_reason || ''}"
+                            title="View Details">
+                                <i class="uil uil-eye table_action_icon"></i>
+                            </a>
+                            `;
+
+                            // Pending: Show Create Vendor and Reject buttons
                             if (row.status === 'pending') {
                                 // Build query params for vendor creation
                                 const activityIds = row.activities ? row.activities.map(a => a.id).join(',') : '';
@@ -539,6 +628,68 @@
                 // Update URL and reload table
                 updateUrlWithFilters();
                 table.ajax.reload();
+            });
+
+            // Handle view request button click
+            $(document).on('click', '.view-request-btn', function(e) {
+                e.preventDefault();
+
+                // Get data from button attributes
+                const companyName = $(this).data('company-name');
+                const email = $(this).data('email');
+                const phone = $(this).data('phone');
+                const status = $(this).data('status');
+                const createdAt = $(this).data('created-at');
+                const rejectionReason = $(this).data('rejection-reason');
+                const activitiesJson = $(this).attr('data-activities');
+
+                // Parse activities
+                let activities = [];
+                try {
+                    activities = JSON.parse(activitiesJson) || [];
+                } catch (e) {
+                    activities = [];
+                }
+
+                // Populate modal fields
+                $('#modalCompanyName').text(companyName || '-');
+                $('#modalEmail').text(email || '-');
+                $('#modalPhone').text(phone || '-');
+                $('#modalCreatedAt').text(createdAt || '-');
+
+                // Set status badge
+                let statusBadge = '-';
+                let statusText = '-';
+                if (status === 'pending') {
+                    statusText = '{{ trans('common.pending') }}';
+                    statusBadge = '<span class="badge badge-warning badge-round badge-lg">' + statusText + '</span>';
+                } else if (status === 'approved') {
+                    statusText = '{{ trans('common.approved') }}';
+                    statusBadge = '<span class="badge badge-success badge-round badge-lg">' + statusText + '</span>';
+                } else if (status === 'rejected') {
+                    statusText = '{{ trans('common.rejected') }}';
+                    statusBadge = '<span class="badge badge-danger badge-round badge-lg">' + statusText + '</span>';
+                }
+                $('#modalStatus').html(statusBadge);
+
+                // Set activities
+                if (activities.length > 0) {
+                    let activitiesHtml = '';
+                    activities.forEach(function(activity) {
+                        activitiesHtml += '<span class="badge badge-info badge-round badge-lg me-2 mb-2">' + (activity.name || activity) + '</span>';
+                    });
+                    $('#modalActivities').html(activitiesHtml);
+                } else {
+                    $('#modalActivities').html('<span class="text-muted">-</span>');
+                }
+
+                // Show rejection reason only if status is rejected
+                if (status === 'rejected' && rejectionReason) {
+                    $('#rejectionReasonDiv').show();
+                    $('#modalRejectionReason').text(rejectionReason);
+                } else {
+                    $('#rejectionReasonDiv').hide();
+                }
             });
 
             // Handle reject button click

@@ -18,6 +18,10 @@
             'new' => 'new',
             'accepted' => 'accepted',
             'rejected' => 'rejected',
+            'pending' => 'Pending Vendor Requests',
+            'wants_to_become' => 'wants to become a vendor',
+            'no_pending' => 'No pending vendor requests',
+            'see_all' => 'See All Requests',
         ],
 
         'layouts' => [

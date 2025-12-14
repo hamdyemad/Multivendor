@@ -238,6 +238,7 @@ return [
     'reject_error' => 'خطأ في رفض طلب المورد',
     'archive_error' => 'خطأ في أرشفة طلب المورد',
     'activity' => 'النشاط',
+    'activities' => 'الأنشطة',
     'search_by_email_or_company' => 'البحث بالبريد الإلكتروني أو اسم الشركة',
     'vendor_not_found' => 'المورد غير موجود',
     'status_changed_successfully' => 'تم تغيير حالة المورد بنجاح',
@@ -245,4 +246,15 @@ return [
     'total_vendors_balance' => 'رصيد المورد',
     'total_sent_money' => 'إجمالي الأموال المرسلة',
     'total_remaining' => 'إجمالي المتبقي',
+
+    // Vendor Requests Table & Modal
+    'company_information' => 'معلومات الشركة',
+    'contact' => 'جهات الاتصال',
+    'rejection_reason' => 'سبب الرفض',
+    'reject_vendor_request' => 'رفض طلب المورد',
+    'confirm_reject_message' => 'هل أنت متأكد من رغبتك في رفض طلب المورد هذا؟ يرجى تقديم السبب.',
+    'rejection_reason_placeholder' => 'يرجى شرح سبب رفضك لطلب المورد هذا...',
+    'rejection_reason_visible' => 'سيكون هذا السبب مرئياً للمورد.',
+    'reject_request' => 'رفض الطلب',
+    'vendor_request_details' => 'تفاصيل طلب المورد',
 ];

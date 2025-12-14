@@ -1,3 +1,11 @@
+@php
+    $pendingRequests = \Modules\Vendor\app\Models\VendorRequest::where('status', 'pending')
+        ->latest()
+        ->take(5)
+        ->get();
+    $pendingCount = \Modules\Vendor\app\Models\VendorRequest::where('status', 'pending')->count();
+@endphp
+
 <li class="nav-notification">
     <div class="dropdown-custom" style="position: relative;">
         <a href="javascript:;" class="nav-item-toggle icon-active">
@@ -7,55 +15,37 @@
                 <line x1="20" y1="8" x2="20" y2="14"></line>
                 <line x1="23" y1="11" x2="17" y2="11"></line>
             </svg>
-            <span class="nav-item__badge" style="position: absolute; top: -8px; background-color: #01b8ff; color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; line-height: 1; z-index: 10;">6</span>
+            @if($pendingCount > 0)
+                <span class="nav-item__badge" style="position: absolute; top: -8px; background-color: #01b8ff; color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; line-height: 1; z-index: 10;">{{ $pendingCount }}</span>
+            @endif
         </a>
         <div class="dropdown-wrapper">
-            <h2 class="dropdown-wrapper__title">Become a Vendor Requests <span class="badge-circle badge-info ms-1">6</span></h2>
+            <h2 class="dropdown-wrapper__title">{{ trans('menu.become a vendor requests.pending') }} <span class="badge-circle badge-info ms-1">{{ $pendingCount }}</span></h2>
             <ul>
-                <li class="nav-notification__single d-flex flex-wrap">
-                    <div class="nav-notification__type nav-notification__type--info">
-                        <i class="uil uil-user"></i>
-                    </div>
-                    <div class="nav-notification__details">
-                        <p>
-                            <a href="" class="subject stretched-link text-truncate" style="max-width: 180px;">Ahmed Mohamed</a>
-                            <span>wants to become a vendor</span>
-                        </p>
-                        <p>
-                            <span class="time-posted">2 hours ago</span>
-                        </p>
-                    </div>
-                </li>
-                <li class="nav-notification__single d-flex flex-wrap">
-                    <div class="nav-notification__type nav-notification__type--info">
-                        <i class="uil uil-user"></i>
-                    </div>
-                    <div class="nav-notification__details">
-                        <p>
-                            <a href="" class="subject stretched-link text-truncate" style="max-width: 180px;">Sara Ibrahim</a>
-                            <span>wants to become a vendor</span>
-                        </p>
-                        <p>
-                            <span class="time-posted">5 hours ago</span>
-                        </p>
-                    </div>
-                </li>
-                <li class="nav-notification__single d-flex flex-wrap">
-                    <div class="nav-notification__type nav-notification__type--info">
-                        <i class="uil uil-user"></i>
-                    </div>
-                    <div class="nav-notification__details">
-                        <p>
-                            <a href="" class="subject stretched-link text-truncate" style="max-width: 180px;">Khaled Hassan</a>
-                            <span>wants to become a vendor</span>
-                        </p>
-                        <p>
-                            <span class="time-posted">1 day ago</span>
-                        </p>
-                    </div>
-                </li>
+                @forelse($pendingRequests as $request)
+                    <li class="nav-notification__single d-flex flex-wrap">
+                        <div class="nav-notification__type nav-notification__type--info">
+                            <i class="uil uil-user"></i>
+                        </div>
+                        <div class="nav-notification__details">
+                            <p>
+                                <a href="{{ route('admin.vendor-requests.index') }}" class="subject stretched-link text-truncate" style="max-width: 180px;">{{ $request->company_name }}</a>
+                                <span>{{ trans('menu.become a vendor requests.wants_to_become') }}</span>
+                            </p>
+                            <p>
+                                <span class="time-posted">{{ $request->created_at }}</span>
+                            </p>
+                        </div>
+                    </li>
+                @empty
+                    <li class="nav-notification__single d-flex flex-wrap">
+                        <div class="nav-notification__details">
+                            <p class="text-muted">{{ trans('menu.become a vendor requests.no_pending') }}</p>
+                        </div>
+                    </li>
+                @endforelse
             </ul>
-            <a href="" class="dropdown-wrapper__more">See All Requests</a>
+            <a href="{{ route('admin.vendor-requests.index') }}" class="dropdown-wrapper__more">{{ trans('menu.become a vendor requests.see_all') }}</a>
         </div>
     </div>
 </li>

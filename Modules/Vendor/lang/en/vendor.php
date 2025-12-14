@@ -248,6 +248,7 @@ return [
     'reject_error' => 'Error rejecting vendor request',
     'archive_error' => 'Error archiving vendor request',
     'activity' => 'Activity',
+    'activities' => 'Activities',
     'search_by_email_or_company' => 'Search by email or company name',
     'vendor_not_found' => 'Vendor not found',
     'status_changed_successfully' => 'Vendor status changed successfully',
@@ -255,4 +256,15 @@ return [
     'total_vendors_balance' => 'Vendor Balance',
     'total_sent_money' => 'Total Sent Money',
     'total_remaining' => 'Total Remaining',
+
+    // Vendor Requests Table & Modal
+    'company_information' => 'Company Information',
+    'contact' => 'Contact',
+    'rejection_reason' => 'Rejection Reason',
+    'reject_vendor_request' => 'Reject Vendor Request',
+    'confirm_reject_message' => 'Are you sure you want to reject this vendor request? Please provide a reason.',
+    'rejection_reason_placeholder' => 'Please explain why you are rejecting this vendor request...',
+    'rejection_reason_visible' => 'This reason will be visible to the vendor.',
+    'reject_request' => 'Reject Request',
+    'vendor_request_details' => 'Vendor Request Details',
 ];

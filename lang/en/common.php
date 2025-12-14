@@ -209,4 +209,8 @@ return [
     'added' => 'Added',
     'before_discount' => 'Before Discount',
     'updated' => 'Updated',
+    'company_name' => 'Company Name',
+    'email' => 'Email',
+    'phone' => 'Phone',
+    'date' => 'Date',
 ];

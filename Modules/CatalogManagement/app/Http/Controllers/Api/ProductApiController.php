@@ -18,6 +18,7 @@ use Modules\CatalogManagement\app\Http\Resources\Api\BundleCategoryResource;
 use Modules\CatalogManagement\app\Http\Resources\Api\SimpleProductResource;
 use Modules\CatalogManagement\app\Http\Resources\Api\VariantConfigurationKeyResource;
 use Modules\CatalogManagement\app\Http\Resources\Api\BundleResource;
+use Modules\CatalogManagement\app\Http\Resources\Api\ProductBySlugResource;
 use Modules\CatalogManagement\app\Services\Api\BrandApiService;
 use Modules\CatalogManagement\app\Services\Api\BundleApiService;
 use Modules\CatalogManagement\app\Services\Api\BundleCategoryApiService;
@@ -111,6 +112,32 @@ class ProductApiController extends Controller
             config('responses.success')[app()->getLocale()],
             true,
             new VendorProductResource($product),
+            [],
+            200
+        );
+    }
+
+    /**
+     * Get product by slug with all vendors, prices, and stock
+     * GET /api/products/product-by-slug/{slug}
+     */
+    public function getProductBySlug(string $slug)
+    {
+        $data = $this->productService->getProductBySlug($slug);
+        if (!$data) {
+            return $this->sendRes(
+                config('responses.product_not_found')[app()->getLocale()],
+                false,
+                [],
+                [],
+                404
+            );
+        }
+
+        return $this->sendRes(
+            config('responses.success')[app()->getLocale()],
+            true,
+            new ProductBySlugResource($data),
             [],
             200
         );
@@ -312,12 +339,11 @@ class ProductApiController extends Controller
     public function filters(Request $request)
     {
         $filterData = $this->productService->getFilters($request->all());
-
         return $this->sendRes(
             config('responses.success')[app()->getLocale()],
             true,
             [
-                'category_info' => empty($filterData['category_info']) ? [] : GeneralResoruce::make($filterData['category_info'])->resolve(),
+                // 'category_info' => (isset($filterData['category_info'])) ? GeneralResoruce::collection($filterData['category_info'])->resolve() : [],
                 'categories' => GeneralResoruce::collection($filterData['categories'])->resolve(),
                 'brands' => GeneralResoruce::collection($filterData['brands'])->resolve(),
                 'tags' => $filterData['tags'],

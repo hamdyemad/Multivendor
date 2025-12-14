@@ -30,6 +30,7 @@ Route::prefix('products')->middleware(['auth.optional:sanctum', 'throttle:produc
     Route::get('/{departmentId}/department', [ProductApiController::class, 'getByDepartment']);
     Route::get('/top', [ProductApiController::class, 'top']);
     Route::get('specific-product/{id}/{vendorId}', [ProductApiController::class, 'show']);
+    Route::get('product-by-slug/{slug}', [ProductApiController::class, 'getProductBySlug']);
     Route::get('/hot-deals', [ProductApiController::class, 'hotDeals']);
     Route::get('/filters', [ProductApiController::class, 'filters']);
     Route::get('/filters-by-type', [ProductApiController::class, 'filterByType']);

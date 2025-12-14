@@ -63,8 +63,12 @@ class ProductApiService
      */
     public function getFilters(array $filters)
     {
-        $brandDto = new BrandFilterDTO(department_id: $filters['department_id'] ?? null, category_id: $filters['category_id'] ?? null, sub_category_id: $filters['sub_category_id'] ?? null);
-
+        $brandDto = new BrandFilterDTO(
+            brand_id: $filters['brand_id'] ?? null,
+            department_id: $filters['department_id'] ?? null,
+            category_id: $filters['main_category_id'] ?? null,
+            sub_category_id: $filters['sub_category_id'] ?? null
+        );
         return [
             'category_info' => $this->CategoryService->getCategoriesByIds($filters),
             'categories' => $this->CategoryService->getCategoriesByFilters($filters),
@@ -108,5 +112,13 @@ class ProductApiService
     public function getVariantsWithProduct(array $filters)
     {
         return $this->repository->getVariantsWithProduct($filters);
+    }
+
+    /**
+     * Get product by slug with all vendors, prices, and stock
+     */
+    public function getProductBySlug(string $slug)
+    {
+        return $this->repository->getProductBySlug($slug);
     }
 }

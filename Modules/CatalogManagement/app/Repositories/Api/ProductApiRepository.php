@@ -255,4 +255,34 @@ class ProductApiRepository implements ProductApiRepositoryInterface
         return $result;
     }
 
+    /**
+     * Get product by slug with all vendors, prices, and stock
+     */
+    public function getProductBySlug(string $slug)
+    {
+        $product = Product::where('slug', $slug)
+            ->with(['translations', 'brand', 'category', 'subCategory'])
+            ->first();
+
+        if (!$product) {
+            return null;
+        }
+
+        // Get all vendors selling this product with their variants and stock
+        $vendorProducts = $product->vendorProducts()
+            ->where('is_active', true)
+            ->with([
+                'vendor',
+                'variants' => function($query) {
+                    $query->with(['stocks.region']);
+                }
+            ])
+            ->get();
+
+        return [
+            'product' => $product,
+            'vendorProducts' => $vendorProducts
+        ];
+    }
+
 }

@@ -55,8 +55,7 @@ class CategoryApiService
 
         // If brand_id only, return all departments that have products from this brand
         if (!empty($filters['brand_id'])) {
-            $dto = new DepartmentFilterDTO(brand_id: $filters['brand_id']);
-            return $this->DepartmentRepository->getDepartmentsByBrand($dto);
+            return $this->DepartmentRepository->getDepartmentsByBrand($filters['brand_id']);
         }
 
         // Return all active departments
@@ -84,9 +83,7 @@ class CategoryApiService
 
         // If brand_id only, return all departments that have products from this brand
         if (!empty($filters['brand_id'])) {
-            // $dto = new DepartmentFilterDTO(brand_id: $filters['brand_id']);
-            // return $this->DepartmentRepository->getDepartmentsByBrand($dto);
-            return [];
+            return $this->DepartmentRepository->getDepartmentsByBrand($filters['brand_id']);
         }
 
         return [];

@@ -29,7 +29,9 @@ class SubCategoryApiRepository implements SubCategoryApiRepositoryInterface
     public function find(CategoryFilterDTO $dto, $id)
     {
         $filters = $dto->toArray();
-        return $this->query->handle($filters)->with('category')->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id))->firstOrFail();
+        return $this->query->handle($filters)->with('category')
+        ->where(fn($q) => $q->where('id', $id)
+        ->orWhere('slug', $id))->firstOrFail();
     }
 
     /**

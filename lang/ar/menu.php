@@ -228,5 +228,8 @@
             'site information' => 'معلومات الموقع',
             'contact us' => 'اتصل بنا',
             'return policy' => 'سياسة الإرجاع',
+            'service terms' => 'شروط الخدمة',
+            'privacy policy' => 'سياسة الخصوصية',
+            'terms conditions' => 'الشروط والأحكام',
         ],
     ];

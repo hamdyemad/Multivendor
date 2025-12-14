@@ -4,13 +4,13 @@ namespace Modules\SystemSetting\app\Repositories;
 
 use App\Models\Language;
 use Illuminate\Support\Facades\DB;
-use Modules\SystemSetting\app\Models\ReturnPolicy;
+use Modules\SystemSetting\app\Models\PrivacyPolicy;
 
-class ReturnPolicyRepository
+class PrivacyPolicyRepository
 {
     public function getOrCreate()
     {
-        return ReturnPolicy::first() ?? ReturnPolicy::create([]);
+        return PrivacyPolicy::first() ?? PrivacyPolicy::create([]);
     }
 
     public function update($data)
@@ -39,7 +39,7 @@ class ReturnPolicyRepository
         });
     }
 
-    public function getReturnPolicy()
+    public function getPrivacyPolicy()
     {
         return $this->getOrCreate();
     }

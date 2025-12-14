@@ -4,19 +4,20 @@ namespace Modules\SystemSetting\app\Repositories;
 
 use App\Models\Language;
 use Illuminate\Support\Facades\DB;
-use Modules\SystemSetting\app\Models\ReturnPolicy;
+use Modules\SystemSetting\app\Models\ServiceTerms;
 
-class ReturnPolicyRepository
+class ServiceTermsRepository
 {
     public function getOrCreate()
     {
-        return ReturnPolicy::first() ?? ReturnPolicy::create([]);
+        return ServiceTerms::first() ?? ServiceTerms::create([]);
     }
 
     public function update($data)
     {
         return DB::transaction(function () use ($data) {
-            $policy = $this->getOrCreate();
+            $terms = $this->getOrCreate();
+            \Log::info($data);
             // Handle multilingual description from x-multilingual-input component
             if (isset($data['description']) && is_array($data['description'])) {
                 $languages = Language::all()->keyBy('id');
@@ -24,22 +25,21 @@ class ReturnPolicyRepository
                 foreach ($data['description'] as $languageId => $translations) {
                     if (is_array($translations) && isset($languages[$languageId])) {
                         $languageCode = $languages[$languageId]->code;
-                        // The component sends data as description[languageId][fieldName]
-                        // where fieldName is 'description' in this case
                         $descriptionValue = $translations['description'] ?? '';
-                        // Always set the translation, even if empty (to clear previous values)
-                        $policy->setTranslation('description', $languageCode, (string)$descriptionValue);
+                        // Only save if value is not empty
+                        if (!empty(trim($descriptionValue))) {
+                            $terms->setTranslation('description', $languageCode, (string)$descriptionValue);
+                        }
                     }
                 }
-                // Refresh the policy to get the updated translations
-                $policy->refresh();
+                $terms->refresh();
             }
 
-            return $policy;
+            return $terms;
         });
     }
 
-    public function getReturnPolicy()
+    public function getServiceTerms()
     {
         return $this->getOrCreate();
     }

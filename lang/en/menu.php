@@ -236,5 +236,8 @@
             'site information' => 'Site Information',
             'contact us' => 'Contact Us',
             'return policy' => 'Return Policy',
+            'service terms' => 'Service Terms',
+            'privacy policy' => 'Privacy & Policy',
+            'terms conditions' => 'Terms & Conditions',
         ],
     ];

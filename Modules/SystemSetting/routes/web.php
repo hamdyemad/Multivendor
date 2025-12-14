@@ -13,6 +13,9 @@ use Modules\SystemSetting\app\Http\Controllers\FaqController;
 use Modules\SystemSetting\app\Http\Controllers\SliderController;
 use Modules\SystemSetting\app\Http\Controllers\SiteInformationController;
 use Modules\SystemSetting\app\Http\Controllers\ReturnPolicyController;
+use Modules\SystemSetting\app\Http\Controllers\ServiceTermsController;
+use Modules\SystemSetting\app\Http\Controllers\PrivacyPolicyController;
+use Modules\SystemSetting\app\Http\Controllers\TermsConditionsController;
 
 Route::group(['prefix' => 'system-settings', 'as' => 'system-settings.'], function() {
     // Currencies
@@ -46,6 +49,18 @@ Route::group(['prefix' => 'system-settings', 'as' => 'system-settings.'], functi
     // Return Policy (Frontend Settings)
     Route::get('return-policy', [ReturnPolicyController::class, 'index'])->name('return-policy.index');
     Route::put('return-policy', [ReturnPolicyController::class, 'update'])->name('return-policy.update');
+
+    // Service Terms (Frontend Settings)
+    Route::get('service-terms', [ServiceTermsController::class, 'index'])->name('service-terms.index');
+    Route::put('service-terms', [ServiceTermsController::class, 'update'])->name('service-terms.update');
+
+    // Privacy Policy (Frontend Settings)
+    Route::get('privacy-policy', [PrivacyPolicyController::class, 'index'])->name('privacy-policy.index');
+    Route::put('privacy-policy', [PrivacyPolicyController::class, 'update'])->name('privacy-policy.update');
+
+    // Terms & Conditions (Frontend Settings)
+    Route::get('terms-conditions', [TermsConditionsController::class, 'index'])->name('terms-conditions.index');
+    Route::put('terms-conditions', [TermsConditionsController::class, 'update'])->name('terms-conditions.update');
 
     // Activity Logs
     Route::get('activity-logs/datatable', [ActivityLogController::class, 'datatable'])->name('activity-logs.datatable');

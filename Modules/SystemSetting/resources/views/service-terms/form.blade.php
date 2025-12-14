@@ -1,6 +1,6 @@
 @extends('layout.app')
 
-@section('title', __('systemsetting::return-policy.return_policy'))
+@section('title', __('systemsetting::service-terms.service_terms'))
 
 @section('content')
 <div class="container-fluid mb-3">
@@ -8,7 +8,7 @@
         <div class="col-lg-12">
             <x-breadcrumb :items="[
                 ['title' => trans('dashboard.title'), 'url' => route('admin.dashboard'), 'icon' => 'uil uil-estate'],
-                ['title' => __('systemsetting::return-policy.return_policy')]
+                ['title' => __('systemsetting::service-terms.service_terms')]
             ]" />
         </div>
     </div>
@@ -17,7 +17,7 @@
         <div class="col-lg-12">
             <div class="card card-default card-md mb-4">
                 <div class="card-header">
-                    <h6>{{ __('systemsetting::return-policy.return_policy') }}</h6>
+                    <h6>{{ __('systemsetting::service-terms.service_terms') }}</h6>
                 </div>
                 <div class="card-body">
                     <div id="alertContainer"></div>
@@ -33,7 +33,7 @@
                         </div>
                     @endif
 
-                    <form id="returnPolicyForm" method="POST" action="{{ route('admin.system-settings.return-policy.update') }}" enctype="multipart/form-data">
+                    <form id="serviceTermsForm" method="POST" action="{{ route('admin.system-settings.service-terms.update') }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
@@ -41,7 +41,7 @@
                         <div class="card card-holder mb-4">
                             <div class="card-header">
                                 <h3 class="fw-bold m-0">
-                                    <i class="uil uil-file-text me-1"></i>{{ __('systemsetting::return-policy.description') }}
+                                    <i class="uil uil-file-text me-1"></i>{{ __('systemsetting::service-terms.description') }}
                                 </h3>
                             </div>
                             <div class="card-body">
@@ -53,12 +53,12 @@
                                             oldPrefix="description"
                                             label="Description"
                                             :labelAr="'الوصف'"
-                                            :placeholder="__('systemsetting::return-policy.description_placeholder')"
-                                            :placeholderAr="__('systemsetting::return-policy.description_placeholder')"
+                                            :placeholder="__('systemsetting::service-terms.description_placeholder')"
+                                            :placeholderAr="__('systemsetting::service-terms.description_placeholder')"
                                             type="textarea"
-                                            rows="6"
+                                            rows="10"
                                             :languages="$languages"
-                                            :model="$returnPolicy ?? null"
+                                            :model="$serviceTerms ?? null"
                                         />
                                     </div>
                                 </div>
@@ -67,11 +67,11 @@
 
                         {{-- Form Actions --}}
                         <div class="button-group d-flex pt-25 justify-content-end">
-                            <a href="{{ route('admin.system-settings.return-policy.index') }}" class="btn btn-light btn-default btn-squared fw-400 text-capitalize me-2">
-                                {{ __('systemsetting::return-policy.cancel') }}
+                            <a href="{{ route('admin.system-settings.service-terms.index') }}" class="btn btn-light btn-default btn-squared fw-400 text-capitalize me-2">
+                                {{ __('systemsetting::service-terms.cancel') }}
                             </a>
                             <button type="submit" class="btn btn-primary btn-default btn-squared text-capitalize">
-                                {{ __('systemsetting::return-policy.save') }}
+                                {{ __('systemsetting::service-terms.save') }}
                             </button>
                         </div>
                     </form>
@@ -89,14 +89,13 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
-    const returnPolicyForm = document.getElementById('returnPolicyForm');
+    const serviceTermsForm = document.getElementById('serviceTermsForm');
 
-    if (returnPolicyForm) {
-        returnPolicyForm.addEventListener('submit', function(e) {
+    if (serviceTermsForm) {
+        serviceTermsForm.addEventListener('submit', function(e) {
             e.preventDefault();
 
             const submitBtn = this.querySelector('button[type="submit"]');
-            const formData = new FormData(this);
             const formAction = this.action;
 
             submitBtn.disabled = true;
@@ -122,6 +121,8 @@ $(document).ready(function() {
                 }
             }
 
+            // Create FormData AFTER syncing CKEditor
+            const formData = new FormData(this);
 
             // Submit the form
             submitFormData();
@@ -138,20 +139,51 @@ $(document).ready(function() {
                         'Accept': 'application/json'
                     }
                 })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    if (window.LoadingOverlay) {
-                        window.LoadingOverlay.showSuccess(
-                            data.message || '{{ __("systemsetting::return-policy.updated_successfully") }}',
-                            'Redirecting...'
-                        );
-                    }
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (window.LoadingOverlay) {
+                            window.LoadingOverlay.showSuccess(
+                                data.message || '{{ __("systemsetting::service-terms.updated_successfully") }}',
+                                'Redirecting...'
+                            );
+                        }
 
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
-                } else {
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        if (window.LoadingOverlay) {
+                            window.LoadingOverlay.hide();
+                        }
+
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnHtml;
+
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error(data.message || 'An error occurred');
+                        } else {
+                            alert(data.message || 'An error occurred');
+                        }
+
+                        if (data.errors) {
+                            Object.keys(data.errors).forEach(key => {
+                                let input = document.querySelector(`[name="${key}"]`);
+
+                                if (input) {
+                                    input.classList.add('is-invalid');
+                                    const errorDiv = document.createElement('div');
+                                    errorDiv.className = 'invalid-feedback';
+                                    errorDiv.textContent = data.errors[key][0];
+                                    input.parentNode.appendChild(errorDiv);
+                                }
+                            });
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+
                     if (window.LoadingOverlay) {
                         window.LoadingOverlay.hide();
                     }
@@ -160,42 +192,12 @@ $(document).ready(function() {
                     submitBtn.innerHTML = originalBtnHtml;
 
                     if (typeof toastr !== 'undefined') {
-                        toastr.error(data.message || 'An error occurred');
+                        toastr.error('An error occurred');
                     } else {
-                        alert(data.message || 'An error occurred');
+                        alert('An error occurred');
                     }
-
-                    if (data.errors) {
-                        Object.keys(data.errors).forEach(key => {
-                            let input = document.querySelector(`[name="${key}"]`);
-
-                            if (input) {
-                                input.classList.add('is-invalid');
-                                const errorDiv = document.createElement('div');
-                                errorDiv.className = 'invalid-feedback';
-                                errorDiv.textContent = data.errors[key][0];
-                                input.parentNode.appendChild(errorDiv);
-                            }
-                        });
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-
-                if (window.LoadingOverlay) {
-                    window.LoadingOverlay.hide();
-                }
-
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnHtml;
-
-                if (typeof toastr !== 'undefined') {
-                    toastr.error('An error occurred');
-                } else {
-                    alert('An error occurred');
-                }
-            });
+                });
+            }
         });
 
         document.querySelectorAll('input, select, textarea').forEach(input => {

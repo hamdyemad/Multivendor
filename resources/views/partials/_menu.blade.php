@@ -899,15 +899,31 @@
                     <li>
                         <a href="{{ route('admin.system-settings.site-information.index') }}"
                             class="{{ isMenuActive('admin.system-settings.site-information.index', $currentRoute) ? 'active' : '' }}">
-                            <span class="nav-icon uil uil-phone"></span>
                             <span class="fw-bold">{{ trans('menu.frontend settings.contact us') }}</span>
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('admin.system-settings.return-policy.index') }}"
                             class="{{ isMenuActive('admin.system-settings.return-policy.index', $currentRoute) ? 'active' : '' }}">
-                            <span class="nav-icon uil uil-file-contract"></span>
                             <span class="fw-bold">{{ trans('menu.frontend settings.return policy') }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.system-settings.service-terms.index') }}"
+                            class="{{ isMenuActive('admin.system-settings.service-terms.index', $currentRoute) ? 'active' : '' }}">
+                            <span class="fw-bold">{{ trans('menu.frontend settings.service terms') }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.system-settings.privacy-policy.index') }}"
+                            class="{{ isMenuActive('admin.system-settings.privacy-policy.index', $currentRoute) ? 'active' : '' }}">
+                            <span class="fw-bold">{{ trans('menu.frontend settings.privacy policy') }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.system-settings.terms-conditions.index') }}"
+                            class="{{ isMenuActive('admin.system-settings.terms-conditions.index', $currentRoute) ? 'active' : '' }}">
+                            <span class="fw-bold">{{ trans('menu.frontend settings.terms conditions') }}</span>
                         </a>
                     </li>
                 </ul>

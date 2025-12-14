@@ -1,6 +1,6 @@
 @extends('layout.app')
 
-@section('title', __('systemsetting::return-policy.return_policy'))
+@section('title', __('systemsetting::privacy-policy.privacy_policy'))
 
 @section('content')
 <div class="container-fluid mb-3">
@@ -8,7 +8,7 @@
         <div class="col-lg-12">
             <x-breadcrumb :items="[
                 ['title' => trans('dashboard.title'), 'url' => route('admin.dashboard'), 'icon' => 'uil uil-estate'],
-                ['title' => __('systemsetting::return-policy.return_policy')]
+                ['title' => __('systemsetting::privacy-policy.privacy_policy')]
             ]" />
         </div>
     </div>
@@ -17,7 +17,7 @@
         <div class="col-lg-12">
             <div class="card card-default card-md mb-4">
                 <div class="card-header">
-                    <h6>{{ __('systemsetting::return-policy.return_policy') }}</h6>
+                    <h6>{{ __('systemsetting::privacy-policy.privacy_policy') }}</h6>
                 </div>
                 <div class="card-body">
                     <div id="alertContainer"></div>
@@ -33,7 +33,7 @@
                         </div>
                     @endif
 
-                    <form id="returnPolicyForm" method="POST" action="{{ route('admin.system-settings.return-policy.update') }}" enctype="multipart/form-data">
+                    <form id="privacyPolicyForm" method="POST" action="{{ route('admin.system-settings.privacy-policy.update') }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
@@ -41,7 +41,7 @@
                         <div class="card card-holder mb-4">
                             <div class="card-header">
                                 <h3 class="fw-bold m-0">
-                                    <i class="uil uil-file-text me-1"></i>{{ __('systemsetting::return-policy.description') }}
+                                    <i class="uil uil-file-text me-1"></i>{{ __('systemsetting::privacy-policy.description') }}
                                 </h3>
                             </div>
                             <div class="card-body">
@@ -53,12 +53,12 @@
                                             oldPrefix="description"
                                             label="Description"
                                             :labelAr="'الوصف'"
-                                            :placeholder="__('systemsetting::return-policy.description_placeholder')"
-                                            :placeholderAr="__('systemsetting::return-policy.description_placeholder')"
+                                            :placeholder="__('systemsetting::privacy-policy.description_placeholder')"
+                                            :placeholderAr="__('systemsetting::privacy-policy.description_placeholder')"
                                             type="textarea"
                                             rows="6"
                                             :languages="$languages"
-                                            :model="$returnPolicy ?? null"
+                                            :model="$privacyPolicy ?? null"
                                         />
                                     </div>
                                 </div>
@@ -67,11 +67,11 @@
 
                         {{-- Form Actions --}}
                         <div class="button-group d-flex pt-25 justify-content-end">
-                            <a href="{{ route('admin.system-settings.return-policy.index') }}" class="btn btn-light btn-default btn-squared fw-400 text-capitalize me-2">
-                                {{ __('systemsetting::return-policy.cancel') }}
+                            <a href="{{ route('admin.system-settings.privacy-policy.index') }}" class="btn btn-light btn-default btn-squared fw-400 text-capitalize me-2">
+                                {{ __('systemsetting::privacy-policy.cancel') }}
                             </a>
                             <button type="submit" class="btn btn-primary btn-default btn-squared text-capitalize">
-                                {{ __('systemsetting::return-policy.save') }}
+                                {{ __('systemsetting::privacy-policy.save') }}
                             </button>
                         </div>
                     </form>
@@ -89,14 +89,13 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
-    const returnPolicyForm = document.getElementById('returnPolicyForm');
+    const privacyPolicyForm = document.getElementById('privacyPolicyForm');
 
-    if (returnPolicyForm) {
-        returnPolicyForm.addEventListener('submit', function(e) {
+    if (privacyPolicyForm) {
+        privacyPolicyForm.addEventListener('submit', function(e) {
             e.preventDefault();
 
             const submitBtn = this.querySelector('button[type="submit"]');
-            const formData = new FormData(this);
             const formAction = this.action;
 
             submitBtn.disabled = true;
@@ -122,6 +121,8 @@ $(document).ready(function() {
                 }
             }
 
+            // Create FormData AFTER syncing CKEditor
+            const formData = new FormData(this);
 
             // Submit the form
             submitFormData();
@@ -143,7 +144,7 @@ $(document).ready(function() {
                 if (data.success) {
                     if (window.LoadingOverlay) {
                         window.LoadingOverlay.showSuccess(
-                            data.message || '{{ __("systemsetting::return-policy.updated_successfully") }}',
+                            data.message || '{{ __("systemsetting::privacy-policy.updated_successfully") }}',
                             'Redirecting...'
                         );
                     }

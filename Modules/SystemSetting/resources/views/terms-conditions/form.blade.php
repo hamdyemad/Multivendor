@@ -1,6 +1,6 @@
 @extends('layout.app')
 
-@section('title', __('systemsetting::return-policy.return_policy'))
+@section('title', __('systemsetting::terms-conditions.terms_conditions'))
 
 @section('content')
 <div class="container-fluid mb-3">
@@ -8,7 +8,7 @@
         <div class="col-lg-12">
             <x-breadcrumb :items="[
                 ['title' => trans('dashboard.title'), 'url' => route('admin.dashboard'), 'icon' => 'uil uil-estate'],
-                ['title' => __('systemsetting::return-policy.return_policy')]
+                ['title' => __('systemsetting::terms-conditions.terms_conditions')]
             ]" />
         </div>
     </div>
@@ -17,7 +17,7 @@
         <div class="col-lg-12">
             <div class="card card-default card-md mb-4">
                 <div class="card-header">
-                    <h6>{{ __('systemsetting::return-policy.return_policy') }}</h6>
+                    <h6>{{ __('systemsetting::terms-conditions.terms_conditions') }}</h6>
                 </div>
                 <div class="card-body">
                     <div id="alertContainer"></div>
@@ -33,15 +33,42 @@
                         </div>
                     @endif
 
-                    <form id="returnPolicyForm" method="POST" action="{{ route('admin.system-settings.return-policy.update') }}" enctype="multipart/form-data">
+                    <form id="termsConditionsForm" method="POST" action="{{ route('admin.system-settings.terms-conditions.update') }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
+
+                        {{-- Title Section --}}
+                        <div class="card card-holder mb-4">
+                            <div class="card-header">
+                                <h3 class="fw-bold m-0">
+                                    <i class="uil uil-heading me-1"></i>{{ __('systemsetting::terms-conditions.title') }}
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    {{-- Title Multilingual --}}
+                                    <div class="col-md-12">
+                                        <x-multilingual-input
+                                            name="title"
+                                            oldPrefix="title"
+                                            label="Title"
+                                            :labelAr="'العنوان'"
+                                            :placeholder="__('systemsetting::terms-conditions.title_placeholder')"
+                                            :placeholderAr="__('systemsetting::terms-conditions.title_placeholder')"
+                                            type="text"
+                                            :languages="$languages"
+                                            :model="$termsConditions ?? null"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         {{-- Description Section --}}
                         <div class="card card-holder mb-4">
                             <div class="card-header">
                                 <h3 class="fw-bold m-0">
-                                    <i class="uil uil-file-text me-1"></i>{{ __('systemsetting::return-policy.description') }}
+                                    <i class="uil uil-file-text me-1"></i>{{ __('systemsetting::terms-conditions.description') }}
                                 </h3>
                             </div>
                             <div class="card-body">
@@ -53,12 +80,12 @@
                                             oldPrefix="description"
                                             label="Description"
                                             :labelAr="'الوصف'"
-                                            :placeholder="__('systemsetting::return-policy.description_placeholder')"
-                                            :placeholderAr="__('systemsetting::return-policy.description_placeholder')"
+                                            :placeholder="__('systemsetting::terms-conditions.description_placeholder')"
+                                            :placeholderAr="__('systemsetting::terms-conditions.description_placeholder')"
                                             type="textarea"
                                             rows="6"
                                             :languages="$languages"
-                                            :model="$returnPolicy ?? null"
+                                            :model="$termsConditions ?? null"
                                         />
                                     </div>
                                 </div>
@@ -67,11 +94,11 @@
 
                         {{-- Form Actions --}}
                         <div class="button-group d-flex pt-25 justify-content-end">
-                            <a href="{{ route('admin.system-settings.return-policy.index') }}" class="btn btn-light btn-default btn-squared fw-400 text-capitalize me-2">
-                                {{ __('systemsetting::return-policy.cancel') }}
+                            <a href="{{ route('admin.system-settings.terms-conditions.index') }}" class="btn btn-light btn-default btn-squared fw-400 text-capitalize me-2">
+                                {{ __('systemsetting::terms-conditions.cancel') }}
                             </a>
                             <button type="submit" class="btn btn-primary btn-default btn-squared text-capitalize">
-                                {{ __('systemsetting::return-policy.save') }}
+                                {{ __('systemsetting::terms-conditions.save') }}
                             </button>
                         </div>
                     </form>
@@ -89,14 +116,13 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
-    const returnPolicyForm = document.getElementById('returnPolicyForm');
+    const termsConditionsForm = document.getElementById('termsConditionsForm');
 
-    if (returnPolicyForm) {
-        returnPolicyForm.addEventListener('submit', function(e) {
+    if (termsConditionsForm) {
+        termsConditionsForm.addEventListener('submit', function(e) {
             e.preventDefault();
 
             const submitBtn = this.querySelector('button[type="submit"]');
-            const formData = new FormData(this);
             const formAction = this.action;
 
             submitBtn.disabled = true;
@@ -122,6 +148,8 @@ $(document).ready(function() {
                 }
             }
 
+            // Create FormData AFTER syncing CKEditor
+            const formData = new FormData(this);
 
             // Submit the form
             submitFormData();
@@ -143,7 +171,7 @@ $(document).ready(function() {
                 if (data.success) {
                     if (window.LoadingOverlay) {
                         window.LoadingOverlay.showSuccess(
-                            data.message || '{{ __("systemsetting::return-policy.updated_successfully") }}',
+                            data.message || '{{ __("systemsetting::terms-conditions.updated_successfully") }}',
                             'Redirecting...'
                         );
                     }

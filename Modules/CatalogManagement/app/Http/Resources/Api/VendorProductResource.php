@@ -32,7 +32,6 @@ class VendorProductResource extends JsonResource
             'slug' => $this->product->slug,
             'points' => $this->points ?? 0,
             'sku' => $this->sku,
-            'star' => $this->average_rating ?? 0,
             'reviews_count' => $this->reviews_count ?? 0,
             'review_avg_star' => $avgStar ?? 0,
             'limitation' => $this->max_per_order,

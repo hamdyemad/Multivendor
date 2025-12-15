@@ -232,6 +232,21 @@
                     { data: 'actions', name: 'actions', orderable: false, searchable: false }
                 ],
                 order: [[5, 'desc']],
+                language: {
+                    lengthMenu: "{{ __('common.show') }} _MENU_",
+                    info: "{{ __('common.showing') }} _START_ {{ __('common.to') }} _END_ {{ __('common.of') }} _TOTAL_ {{ __('common.entries') }}",
+                    infoEmpty: "{{ __('common.showing') }} 0 {{ __('common.to') }} 0 {{ __('common.of') }} 0 {{ __('common.entries') }}",
+                    infoFiltered: "({{ __('common.filtered_from') }} _MAX_ {{ __('common.total_entries') }})",
+                    loadingRecords: "{{ __('common.loading') }}",
+                    processing: "{{ __('common.processing') }}",
+                    emptyTable: "{{ __('common.no_data_available') }}",
+                    paginate: {
+                        first: "{{ __('common.first') }}",
+                        last: "{{ __('common.last') }}",
+                        next: "{{ __('common.next') }}",
+                        previous: "{{ __('common.previous') }}"
+                    }
+                },
                 dom: 'lrtip',
                 lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
                 pageLength: 10

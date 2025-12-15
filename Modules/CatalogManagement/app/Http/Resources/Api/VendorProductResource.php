@@ -34,7 +34,7 @@ class VendorProductResource extends JsonResource
             'sku' => $this->sku,
             'star' => $this->average_rating ?? 0,
             'reviews_count' => $this->reviews_count ?? 0,
-            'avg_review_start' => $avgStar ?? 0,
+            'review_avg_star' => $avgStar ?? 0,
             'limitation' => $this->max_per_order,
             'status' => $this->is_featured ? __('catalogmanagement::product.featured') : __('catalogmanagement::product.active'),
             'image' => formatImage($this->product->mainImage),

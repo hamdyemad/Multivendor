@@ -22,6 +22,7 @@ class SiteInformationResource extends JsonResource
         $service_terms = ServiceTerms::first();
         $privacy_and_policy = PrivacyPolicy::first();
         $terms_and_conditions = TermsConditions::first();
+
         return [
             'id' => $this->id,
             'address' => $this->address,
@@ -33,12 +34,12 @@ class SiteInformationResource extends JsonResource
             'phone_2' => $this->phone_2,
             'email' => $this->email,
             'google_maps_url' => $this->google_maps_url,
-            'return_policy' => $return_policy->description ?? '',
-            'service_terms' => $service_terms->description ?? '',
-            'privacy_and_policy' => $privacy_and_policy->description ?? '',
+            'return_policy' => $return_policy?->description ?? '',
+            'service_terms' => $service_terms?->description ?? '',
+            'privacy_and_policy' => $privacy_and_policy?->description ?? '',
             'terms_and_conditions' => [
-                'title' => $terms_and_conditions->title ?? '',
-                'description' => $terms_and_conditions->description ?? '',
+                'title' => $terms_and_conditions?->title ?? '',
+                'description' => $terms_and_conditions?->description ?? '',
             ],
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

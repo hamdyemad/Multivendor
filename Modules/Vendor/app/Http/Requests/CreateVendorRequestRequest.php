@@ -25,8 +25,8 @@ class CreateVendorRequestRequest extends FormRequest
             'email' => 'required|email|unique:vendor_requests,email',
             'phone' => 'required|string|min:10|max:20',
             'company_name' => 'required|string|min:3|max:255',
-            'activities' => 'required|array|min:1',
-            'activities.*' => 'integer|exists:activities,id',
+            'manager_name' => 'required|string|min:3|max:255',
+            'company_logo' => 'required|image',
         ];
     }
 }

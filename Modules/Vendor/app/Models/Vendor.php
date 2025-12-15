@@ -63,6 +63,7 @@ class Vendor extends BaseModel
         return $this->belongsTo(Activity::class);
     }
 
+
     /**
      * Get the vendor's activities (many-to-many)
      */

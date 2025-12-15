@@ -52,6 +52,7 @@ class VendorApiController extends Controller
         }
 
         $vendor = $this->VendorService->find($dto, $id);
+
         return $this->sendRes(config('responses.success')[app()->getLocale()], true, VendorApiResource::make($vendor));
     }
 

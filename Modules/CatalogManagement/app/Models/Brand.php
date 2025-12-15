@@ -12,6 +12,7 @@ use App\Models\Traits\CountryCheckIdTrait;
 use App\Traits\Translation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Vendor\app\Models\Vendor;
 
 class Brand extends BaseModel
 {
@@ -105,6 +106,16 @@ class Brand extends BaseModel
                 ->orWhere('slug', $filters['brand_id']);
             });
         }
+
+        if (isset($filters['vendor_id'])) {
+            $vendor = Vendor::where('slug', $filters['vendor_id'])->orWhere('id', $filters['vendor_id'])->first();
+            $query->whereHas('products', function ($query) use($vendor) {
+                $query->whereHas('vendorProducts', function ($query) use($vendor) {
+                    $query->where('vendor_id', $vendor->id);
+                });
+            });
+        }
+
 
         return $query;
     }

@@ -125,12 +125,6 @@
                                             <i class="uil uil-redo me-1"></i>
                                             {{ __('withdraw::withdraw.reset_filters') }}
                                         </button>
-                                        <button type="button" id="exportExcel"
-                                            class="btn btn-primary btn-default btn-squared"
-                                            title="{{ __('common.excel') }}">
-                                            <i class="uil uil-file-download-alt me-1"></i>
-                                            {{ __('withdraw::withdraw.export_excel') }}
-                                        </button>
                                     </div>
 
                                 </div>

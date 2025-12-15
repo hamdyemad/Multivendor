@@ -741,34 +741,6 @@
 
 
         @if (isAdmin())
-            @can('points.index')
-                <li class="menu-title mt-30">
-                    <span>{{ trans('menu.sections.points system') }}</span>
-                </li>
-                <li class="has-child">
-                    <a href="#" class="">
-                        <span class="nav-icon uil uil-coins"></span>
-                        <span class="menu-text">{{ trans('menu.point managment.title') }}</span>
-                        <span class="toggle-icon"></span>
-                    </a>
-                    <ul class="px-0">
-                        <li>
-                            <a class="d-flex align-items-center justify-content-between fw-bold"
-                                href="{{ route('admin.points-settings.index') }}">
-                                {{ trans('menu.point managment.title') }}
-                            </a>
-                        </li>
-                        <li>
-                            <a class="d-flex align-items-center justify-content-between fw-bold"
-                                href="{{ route('admin.points-settings.user-points.index') }}">
-                                {{ trans('menu.point managment.users points') }}
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-            @endcan
-
-
             @canany(['notifications.send', 'notifications.view'])
                 <li class="has-child">
                     <a href="#" class="">
@@ -846,15 +818,15 @@
 
 
             @can('advertisements.index')
-                <li class="has-child">
-                    <a href="#" class="">
+                <li class="has-child {{ isParentMenuOpen(['admin.system-settings.ads.index'], ['*/system-settings/ads*']) ? 'open' : '' }}">
+                    <a href="#" class="{{ isParentMenuOpen(['admin.system-settings.ads.index'], ['*/system-settings/ads*']) ? 'active' : '' }}">
                         <span class="nav-icon uil uil-trophy"></span>
                         <span class="menu-text">{{ trans('menu.advertisements.title') }}</span>
                         <span class="toggle-icon"></span>
                     </a>
                     <ul class="px-0">
                         <li>
-                            <a class="d-flex align-items-center justify-content-between fw-bold"
+                            <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.system-settings.ads.index', $currentRoute) ? 'active' : '' }}"
                                 href="{{ route('admin.system-settings.ads.index') }}">
                                 {{ trans('menu.advertisements.title') }}
                                 <span class="badge badge-round badge-primary  ms-1">

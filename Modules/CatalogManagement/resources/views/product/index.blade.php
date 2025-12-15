@@ -261,12 +261,6 @@
                                             <i class="uil uil-redo me-1"></i>
                                             {{ __('common.reset_filters') }}
                                         </button>
-                                        <button type="button" id="exportExcel"
-                                            class="btn btn-primary btn-default btn-squared"
-                                            title="{{ __('common.excel') }}">
-                                            <i class="uil uil-file-download-alt me-1"></i>
-                                            {{ __('common.export_excel') }}
-                                        </button>
                                     </div>
                                 </div>
                             </div>

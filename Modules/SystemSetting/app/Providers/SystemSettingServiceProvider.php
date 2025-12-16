@@ -71,6 +71,17 @@ class SystemSettingServiceProvider extends ServiceProvider
             \Modules\SystemSetting\app\Repositories\AdRepository::class
         );
 
+        // Blog Repository Bindings
+        $this->app->bind(
+            \Modules\SystemSetting\app\Interfaces\BlogCategoryRepositoryInterface::class,
+            \Modules\SystemSetting\app\Repositories\BlogCategoryRepository::class
+        );
+
+        $this->app->bind(
+            \Modules\SystemSetting\app\Interfaces\BlogRepositoryInterface::class,
+            \Modules\SystemSetting\app\Repositories\BlogRepository::class
+        );
+
         // Bind Services
         $this->app->bind(
             \Modules\SystemSetting\app\Services\CurrencyService::class
@@ -96,10 +107,29 @@ class SystemSettingServiceProvider extends ServiceProvider
             \Modules\SystemSetting\app\Services\AdService::class
         );
 
-        // Apis
         $this->app->bind(
             \Modules\SystemSetting\app\Interfaces\Api\AdApiRepositoryInterface::class,
             \Modules\SystemSetting\app\Repositories\Api\AdApiRepository::class
+        );
+
+        // Blog Api Repository Bindings
+        $this->app->bind(
+            \Modules\SystemSetting\app\Interfaces\Api\BlogCategoryApiRepositoryInterface::class,
+            \Modules\SystemSetting\app\Repositories\Api\BlogCategoryApiRepository::class
+        );
+
+        $this->app->bind(
+            \Modules\SystemSetting\app\Interfaces\Api\BlogApiRepositoryInterface::class,
+            \Modules\SystemSetting\app\Repositories\Api\BlogApiRepository::class
+        );
+
+        // Blog Api Services
+        $this->app->bind(
+            \Modules\SystemSetting\app\Services\Api\BlogCategoryApiService::class
+        );
+
+        $this->app->bind(
+            \Modules\SystemSetting\app\Services\Api\BlogApiService::class
         );
     }
 

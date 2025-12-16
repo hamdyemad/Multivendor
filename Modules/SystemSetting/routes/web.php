@@ -16,6 +16,8 @@ use Modules\SystemSetting\app\Http\Controllers\ReturnPolicyController;
 use Modules\SystemSetting\app\Http\Controllers\ServiceTermsController;
 use Modules\SystemSetting\app\Http\Controllers\PrivacyPolicyController;
 use Modules\SystemSetting\app\Http\Controllers\TermsConditionsController;
+use Modules\SystemSetting\app\Http\Controllers\BlogCategoryController;
+use Modules\SystemSetting\app\Http\Controllers\BlogController;
 
 Route::group(['prefix' => 'system-settings', 'as' => 'system-settings.'], function() {
     // Currencies
@@ -41,6 +43,16 @@ Route::group(['prefix' => 'system-settings', 'as' => 'system-settings.'], functi
     // Sliders (Frontend Settings)
     Route::get('sliders/datatable', [SliderController::class, 'datatable'])->name('sliders.datatable');
     Route::resource('sliders', SliderController::class);
+
+    // Blog Categories (Frontend Settings)
+    Route::get('blog-categories/datatable', [BlogCategoryController::class, 'datatable'])->name('blog-categories.datatable');
+    Route::post('blog-categories/{id}/toggle-status', [BlogCategoryController::class, 'toggleStatus'])->name('blog-categories.toggle-status');
+    Route::resource('blog-categories', BlogCategoryController::class);
+
+    // Blogs (Frontend Settings)
+    Route::get('blogs/datatable', [BlogController::class, 'datatable'])->name('blogs.datatable');
+    Route::post('blogs/{id}/toggle-status', [BlogController::class, 'toggleStatus'])->name('blogs.toggle-status');
+    Route::resource('blogs', BlogController::class);
 
     // Site Information (Frontend Settings)
     Route::get('site-information', [SiteInformationController::class, 'index'])->name('site-information.index');

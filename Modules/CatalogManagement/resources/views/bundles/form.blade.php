@@ -121,7 +121,7 @@
                         @endif
 
                         <form id="bundleForm"
-                            action="{{ isset($bundle) ? route('admin.bundles.update', $bundle['id']) : route('admin.bundles.store') }}"
+                            action="{{ isset($bundle) ? route('admin.bundles.update', $bundle->id) : route('admin.bundles.store') }}"
                             method="POST" enctype="multipart/form-data">
                             @csrf
                             @if (isset($bundle))
@@ -161,7 +161,7 @@
                                             <option value="">{{ trans('catalogmanagement::bundle.select_category') }}</option>
                                             @foreach ($categories as $category)
                                                 <option value="{{ $category->id }}"
-                                                    {{ old('bundle_category_id', $bundle['bundle_category_id'] ?? '') == $category->id ? 'selected' : '' }}>
+                                                    {{ old('bundle_category_id', $bundle->bundle_category_id ?? '') == $category->id ? 'selected' : '' }}>
                                                     {{ $category->getTranslation('name', 'en') }}
                                                 </option>
                                             @endforeach

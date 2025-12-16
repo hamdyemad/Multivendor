@@ -772,16 +772,44 @@
                 <li class="menu-title mt-30">
                     <span>{{ trans('menu.sections.content and engagement') }}</span>
                 </li>
-                <li class="has-child">
-                    <a href="#" class="">
+                <li class="has-child {{ isParentMenuOpen(['admin.system-settings.blog-categories.index', 'admin.system-settings.blogs.index'], ['admin/system-settings/blog-categories*', 'admin/system-settings/blogs*']) ? 'open' : '' }}">
+                    <a href="#" class="{{ isParentMenuOpen(['admin.system-settings.blog-categories.index', 'admin.system-settings.blogs.index'], ['admin/system-settings/blog-categories*', 'admin/system-settings/blogs*']) ? 'active' : '' }}">
                         <span class="nav-icon uil uil-edit-alt"></span>
                         <span class="menu-text">{{ trans('menu.blog managment.title') }}</span>
                         <span class="toggle-icon"></span>
                     </a>
                     <ul class="px-0">
-                        <li><a href="{{ route('admin.dashboard') }}">{{ trans('menu.blog managment.categories') }}</a>
+                        <li>
+                            <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.system-settings.blog-categories.index', $currentRoute) ? 'active' : '' }}"
+                               href="{{ route('admin.system-settings.blog-categories.index') }}">
+                                {{ trans('menu.blog managment.categories') }}
+                                <span class="badge badge-round badge-info ms-1">
+                                    @php
+                                        try {
+                                            $blog_categories_count = \Modules\SystemSetting\app\Models\BlogCategory::count();
+                                        } catch (\Exception $e) {
+                                            $blog_categories_count = 0;
+                                        }
+                                    @endphp
+                                    {{ $blog_categories_count }}
+                                </span>
+                            </a>
                         </li>
-                        <li><a href="{{ route('admin.dashboard') }}">{{ trans('menu.blog managment.blogs') }}</a>
+                        <li>
+                            <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.system-settings.blogs.index', $currentRoute) ? 'active' : '' }}"
+                               href="{{ route('admin.system-settings.blogs.index') }}">
+                                {{ trans('menu.blog managment.blogs') }}
+                                <span class="badge badge-round badge-primary ms-1">
+                                    @php
+                                        try {
+                                            $blogs_count = \Modules\SystemSetting\app\Models\Blog::count();
+                                        } catch (\Exception $e) {
+                                            $blogs_count = 0;
+                                        }
+                                    @endphp
+                                    {{ $blogs_count }}
+                                </span>
+                            </a>
                         </li>
                     </ul>
                 </li>

@@ -118,7 +118,7 @@ return [
     'recommended_cover_size' => 'Recommended: 1200x400px',
     'please_fix_errors' => 'Please fix the validation errors',
     'error_occurred' => 'An error occurred',
-    'validation_error' => 'Validation Error',
+    'validation_errors' => 'Validation Errors',
     'basic_info' => 'Basic Information',
     'id' => 'ID',
     'language' => 'Language',

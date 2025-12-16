@@ -5,8 +5,9 @@ namespace Modules\Order\app\Http\Resources\Api;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Modules\CatalogManagement\app\Http\Resources\Api\TaxResource;
-use Modules\CatalogManagement\app\Http\Resources\Api\BundleResource;
 use Modules\CatalogManagement\app\Http\Resources\Api\OccasionResource;
+use Modules\CatalogManagement\app\Http\Resources\Api\SimpleBundleResource;
+use Modules\CatalogManagement\app\Models\BundleProduct;
 
 class CartResource extends JsonResource
 {
@@ -23,7 +24,7 @@ class CartResource extends JsonResource
             'quantity' => $this->quantity,
             'product' => CartProductResource::make($this->vendorProductVariant),
             'type' => $this->type,
-            'bundle' => ($this->bundle && $this->type === "bundle") ? new BundleResource($this->bundle) : null,
+            'bundle' => ($this->bundle && $this->type === "bundle") ? new SimpleBundleResource($this->bundle) : null,
             'occasion' => ($this->occasion && $this->type === "occasion") ? new OccasionResource($this->occasion) : null,
             'limitation' => $limit[0],
             'min' => $limit[1],
@@ -38,7 +39,10 @@ class CartResource extends JsonResource
     private function limitation()
     {
         if ($this->type === 'bundle') {
-            $bundleProduct = $this->bundle->bundleProducts->where('vendor_product_variant_id', $this->vendor_product_variant_id)->first();
+            $bundleProduct = BundleProduct::where(function ($query) {
+                $query->where('bundle_id', $this->bundle_id)
+                    ->where('vendor_product_variant_id', $this->vendor_product_variant_id);
+            })->first();
             return [
                 $bundleProduct?->limitation_quantity,
                 $bundleProduct?->min_quantity

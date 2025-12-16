@@ -54,6 +54,28 @@ class CartRepository implements CartRepositoryInterface
     }
 
     /**
+     * Add bundle with multiple items to cart
+     */
+    public function addBulkToCart($customerId, array $items)
+    {
+        return DB::transaction(function () use ($customerId, $items) {
+            $cartItems = [];
+            foreach ($items as $item) {
+                $cartItem = $this->addToCart($customerId, [
+                    'vendor_product_id' => $item['vendor_product_id'],
+                    'vendor_product_variant_id' => $item['vendor_product_variant_id'],
+                    'quantity' => $item['quantity'],
+                    'type' => $item["type"],
+                    'bundle_id' => $item['bundle_id'] ?? null,
+                    'occasion_id' => $item['occasion_id'] ?? null,
+                ]);
+                $cartItems[] = $cartItem;
+            }
+            return $cartItems;
+        });
+    }
+
+    /**
      * Remove a product from cart
      */
     public function removeFromCart($customerId, $cartItemId)

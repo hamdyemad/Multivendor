@@ -183,13 +183,18 @@ return [
     'vendor_product_id_not_exist' => 'معرف المنتج غير موجود',
     'vendor_product_id_required' => 'معرف المنتج مطلوب',
     'vendor_product_variant_id_not_exist' => 'معرف متغير المنتج غير موجود',
+    'vendor_product_variant_id_required' => 'معرف متغير المنتج مطلوب',
     'quantity_required' => 'الكمية مطلوبة',
     'quantity_min' => 'يجب أن تكون الكمية على الأقل 1',
     'quantity_exceeds_max_per_order' => 'لا يمكن أن تتجاوز الكمية :max لكل طلب',
+    'quantity_exceeds_bundle_max_per_order' => 'الكمية يجب أن تكون بين :min و :max',
     'type_required' => 'النوع مطلوب',
     'type_invalid' => 'يجب أن يكون النوع أحد الخيارات التالية: product, bundle, occasion',
+    'bundle_id_required' => 'معرف الحزمة مطلوب',
     'bundle_id_not_exist' => 'معرف الحزمة غير موجود',
     'occasion_id_not_exist' => 'معرف المناسبة غير موجود',
+    'items_required' => 'العناصر مطلوبة',
+    'items_min' => 'يجب أن يكون هناك عنصر واحد على الأقل',
     'cart_type_invalid' => 'يجب أن يكون نوع السلة أحد الخيارات التالية: product, bundle, occasion',
 
     // Checkout validation messages
@@ -203,6 +208,8 @@ return [
     'use_point_boolean' => 'يجب أن تكون قيمة استخدام النقاط صحيحة أو خاطئة',
     'customer_address_id_not_exist' => 'عنوان العميل غير موجود',
     'customer_id_not_exist' => 'العميل غير موجود                    ',
+    "bundle_not_active" => 'الباقة غير مفعلة',
+    'occasion_not_active' => 'المناسبة غير مفعلة',
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Attributes

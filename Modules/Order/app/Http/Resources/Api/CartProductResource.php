@@ -15,27 +15,34 @@ class CartProductResource extends JsonResource
     public function toArray(Request $request): array
     {
         $locale = app()->getLocale();
+        
+        // Add null safety checks
+        if (!$this->vendorProduct || !$this->vendorProduct->product) {
+            return [];
+        }
+
+        $product = $this->vendorProduct->product;
 
         return [
-            'id' => $this->vendorProduct->product->id,
-            'image' => formatImage($this->vendorProduct->product->mainImage),
-            'name' => $this->vendorProduct->product->title,
-            'slug' => $this->vendorProduct->product->slug,
+            'id' => $product->id,
+            'image' => formatImage($product->mainImage),
+            'name' => $product->title,
+            'slug' => $product->slug,
             'points' => $this->vendorProduct->points ?? 0,
             'status' => $this->vendorProduct->is_featured ? __('catalogmanagement::product.featured') : __('catalogmanagement::product.active'),
             'is_fav' => false,
             'star' => $this->vendorProduct->average_rating ?? 0,
             'num_of_user_review' => $this->vendorProduct->reviews_count ?? 0,
             'number_of_sale' => $this->vendorProduct->sales ?? 0,
-            'stock' => $this->total_stock,
+            'stock' => $this->total_stock ?? 0,
             'sku' => $this->sku ?? null,
             'variant_id' => $this->id,
             'variant_name' => $this->{"variant_path_{$locale}"} ?? '',
-            'real_price' => number_format((float) $this->price, 2),
+            'real_price' => number_format((float) ($this->price ?? 0), 2),
             'fake_price' => $this->price_before_discount ? number_format((float) $this->price_before_discount, 2) : null,
-            'discount' => $this->discount,
-            'countDeliveredProduct' => $this->countDeliveredProduct,
-            'countOfAvailable' => $this->countOfAvailable,
+            'discount' => $this->discount ?? 0,
+            'countDeliveredProduct' => $this->countDeliveredProduct ?? 0,
+            'countOfAvailable' => $this->countOfAvailable ?? 0,
         ];
     }
 }

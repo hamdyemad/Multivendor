@@ -10,6 +10,7 @@ use Modules\Order\app\Http\Requests\Api\AddToCartRequest;
 use Modules\Order\app\Http\Requests\Api\CheckCartRequest;
 use Modules\Order\app\Services\Api\CartService;
 use Modules\Order\app\Http\Resources\Api\CartResource;
+use Modules\Order\app\Http\Requests\Api\AddBulkToCartRequest; 
 
 class CartApiController extends Controller
 {
@@ -54,6 +55,25 @@ class CartApiController extends Controller
         $validated = $request->validated();
 
         $this->cartService->addToCart($customer->id, $validated);
+
+        return $this->sendRes(
+            config('responses.item_added')[app()->getLocale()],
+            true,
+            [],
+            [],
+            201
+        );
+    }
+
+    /**
+     * Add bundle to cart with multiple items
+     */
+    public function addBulk(AddBulkToCartRequest $request)
+    {
+        $customer = $request->user();
+        $validated = $request->validated();
+
+        $this->cartService->addBulkToCart($customer->id, $validated['items']);
 
         return $this->sendRes(
             config('responses.item_added')[app()->getLocale()],

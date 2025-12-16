@@ -36,6 +36,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/count', [CartApiController::class, 'count']);
         Route::get('/summary', [CartApiController::class, 'summary']);
         Route::post('/add-or-update', [CartApiController::class, 'addOrUpdate']);
+        Route::post('/add-bulk', [CartApiController::class, 'addBulk']);
         Route::delete('/remove/{id}', [CartApiController::class, 'remove']);
         Route::post('/clear', [CartApiController::class, 'clear']);
     });

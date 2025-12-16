@@ -178,13 +178,19 @@ return [
     'vendor_product_id_not_exist' => 'vendor_product_id does not exist',
     'vendor_product_id_required' => 'vendor_product_id is required',
     'vendor_product_variant_id_not_exist' => 'vendor_product_variant_id does not exist',
+    'vendor_product_variant_id_required' => 'vendor_product_variant_id is required',
     'quantity_required' => 'quantity is required',
     'quantity_min' => 'quantity must be at least 1',
     'quantity_exceeds_max_per_order' => 'quantity cannot exceed :max per order',
+    'quantity_exceeds_bundle_max_per_order' => 'quantity must be between :min and :max',
     'type_required' => 'type is required',
     'type_invalid' => 'type must be one of: product, bundle, occasion',
+    'bundle_id_required' => 'bundle_id is required',
     'bundle_id_not_exist' => 'bundle_id does not exist',
     'occasion_id_not_exist' => 'occasion_id does not exist',
+    'items_required' => 'items are required',
+    'items_min' => 'at least one item is required',
+    'vendor_product_id_required' => 'vendor_product_id is required',
     'rate_invalid' => 'rate must be between 1 and 5',
     'has_discount_invalid' => 'has_discount must be a boolean',
     'featured_invalid' => 'featured must be a boolean',
@@ -201,6 +207,8 @@ return [
     'use_point_boolean' => 'use point must be true or false',
     'customer_address_id_not_exist' => 'customer address does not exist',
     'customer_id_not_exist' => 'Customer not defined',
+    'bundle_not_active' => "bundle is not active",
+    'occasion_not_active' => "occasion is not active",
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Attributes

@@ -24,6 +24,11 @@ class CartService
         return $this->cartRepository->addToCart($customerId, $itemData);
     }
 
+    public function addBulkToCart($customerId, array $items)
+    {
+        return $this->cartRepository->addBulkToCart($customerId, $items);
+    }
+
     public function removeFromCart($customerId, $cartItemId)
     {
         return $this->cartRepository->removeFromCart($customerId, $cartItemId);

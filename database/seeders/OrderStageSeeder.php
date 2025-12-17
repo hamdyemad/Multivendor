@@ -102,8 +102,7 @@ class OrderStageSeeder extends Seeder
                 $originalSlug = $slug;
 
                 // Keep incrementing counter until we find a unique slug
-                while (OrderStage::where('slug', $slug)
-                    ->withoutCountryFilter()->exists()) {
+                while (OrderStage::where('slug', $slug)->exists()) {
                     $slug = $originalSlug . '-' . $counter;
                     $counter++;
                 }

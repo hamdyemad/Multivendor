@@ -398,7 +398,7 @@
                             if (data.length > displayLimit) {
                                 const remainingCount = data.length - displayLimit;
                                 visibleHtml += `<div id="hidden-${uniqueId}" style="display: none; margin-top: 5px;">${hiddenHtml}</div>`;
-                                visibleHtml += `<a href="javascript:void(0);" class="show-more-depts badge badge-round badge-lg badge-warning" data-target="#hidden-${uniqueId}">+${remainingCount} more</a>`;
+                                visibleHtml += `<a href="javascript:void(0);" class="show-more-depts badge badge-round badge-lg badge-success" data-target="#hidden-${uniqueId}">+${remainingCount} more</a>`;
                             }
 
                             return `<div class="department-list">${visibleHtml}</div>`;

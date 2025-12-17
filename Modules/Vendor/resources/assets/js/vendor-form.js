@@ -577,7 +577,7 @@ function showStep(step) {
                         select2Container.addClass('is-invalid border-danger');
                         select2Container.find('.select2-selection').addClass('is-invalid border-danger');
                     }
-                    
+
                     // Append to form-group to ensure visibility
                     fieldElement.closest('.form-group').append(errorMsg);
                 } else {
@@ -1078,7 +1078,7 @@ function displayStepErrors(errors, step) {
                 select2Container.addClass('is-invalid border-danger');
                 select2Container.find('.select2-selection').addClass('is-invalid border-danger');
             }
-            
+
             // Append to form-group to ensure visibility
             element.closest('.form-group').append(errorHtml);
         }

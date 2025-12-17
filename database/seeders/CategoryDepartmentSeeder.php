@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 use App\Models\Language;
-use Modules\CategoryManagment\app\Models\Activity;
+// Activity model removed
 use Modules\CategoryManagment\app\Models\Department;
 use Modules\CategoryManagment\app\Models\Category;
 use Modules\CategoryManagment\app\Models\SubCategory;
@@ -199,8 +199,8 @@ class CategoryDepartmentSeeder extends Seeder
 
         $countryId = $country ? $country->id : null;
 
-        // Create Activities and Departments
-        $this->createActivitiesAndDepartments($languages, $countryId);
+        // Create Departments
+        $this->createDepartments($languages, $countryId);
 
         // Create Categories and SubCategories
         $this->createCategoriesAndSubCategories($languages, $countryId);
@@ -209,43 +209,15 @@ class CategoryDepartmentSeeder extends Seeder
     }
 
     /**
-     * Create Activities and Departments
+     * Create Departments
      */
-    private function createActivitiesAndDepartments($languages, $countryId = null)
+    private function createDepartments($languages, $countryId = null)
     {
-        echo "\n📁 Creating Activities and Departments...\n";
+        echo "\n📁 Creating Departments...\n";
 
         foreach ($this->activitiesData as $activityNameEn => $activityData) {
-            // Generate base slug
-            $slug = Str::slug($activityNameEn);
-            $counter = 1;
-            $originalSlug = $slug;
-
-            // Keep incrementing counter until we find a unique slug
-            while (Activity::where('slug', $slug)
-                ->withoutCountryFilter()->exists()) {
-                $slug = $originalSlug . '-' . $counter;
-                $counter++;
-            }
-
-
-            $activity = Activity::create([
-                'slug' => $slug,
-                'active' => true,
-                'country_id' => $countryId,
-                'commission' => 15,
-            ]);
-
-            foreach ($languages as $langCode => $language) {
-                $activity->translations()->create([
-                    'lang_id' => $language->id,
-                    'lang_key' => 'name',
-                    'lang_value' => $langCode === 'en' ? $activityNameEn : $activityData['ar'],
-                ]);
-            }
-            echo "  ✓ Created activity: {$activityNameEn}\n";
-
-            // Create departments for this activity
+            
+            // Create departments for this activity group (treating them as just departments now)
             foreach ($activityData['departments'] as $deptData) {
                 // Generate base slug
                 $slug = Str::slug($deptData['en']);
@@ -264,6 +236,7 @@ class CategoryDepartmentSeeder extends Seeder
                     'slug' => $slug,
                     'active' => true,
                     'country_id' => $countryId,
+                    'commission' => 15, // Default commission similar to old key
                 ]);
 
                 foreach ($languages as $langCode => $language) {
@@ -274,8 +247,6 @@ class CategoryDepartmentSeeder extends Seeder
                     ]);
                 }
 
-                // Link department to activity
-                $department->activities()->attach($activity->id);
                 echo "    ✓ Created department: {$deptData['en']}\n";
             }
         }

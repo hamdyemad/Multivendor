@@ -9,7 +9,7 @@ use App\Models\User;
 use App\Models\UserType;
 use Modules\Vendor\app\Models\Vendor;
 use Modules\AreaSettings\app\Models\Country;
-use Modules\CategoryManagment\app\Models\Activity;
+use Modules\CategoryManagment\app\Models\Department;
 use Modules\CatalogManagement\app\Models\Brand;
 
 class VendorSeeder extends Seeder
@@ -70,16 +70,16 @@ class VendorSeeder extends Seeder
 
         $countryId = $country->id;
 
-        // Get activities for this country
-        $activities = Activity::where('country_id', $countryId)->get();
-        if ($activities->isEmpty()) {
-            echo "❌ No activities found for country {$country->code}. Please run ActivitySeeder first.\n";
+        // Get departments for this country
+        $departments = Department::where('country_id', $countryId)->get();
+        if ($departments->isEmpty()) {
+            echo "❌ No departments found for country {$country->code}. Please run CategoryDepartmentSeeder first.\n";
             return;
         }
 
         // Create vendors
         foreach ($this->vendorsData as $vendorData) {
-            $this->createVendor($vendorData, $languages, $countryId, $activities);
+            $this->createVendor($vendorData, $languages, $countryId, $departments);
         }
 
         echo "\n✅ Vendor Seeder completed!\n";
@@ -88,9 +88,9 @@ class VendorSeeder extends Seeder
     /**
      * Create a vendor with translations
      */
-    private function createVendor($vendorData, $languages, $countryId, $activities)
+    private function createVendor($vendorData, $languages, $countryId, $departments)
     {
-        // Check if vendor exists by slug
+        // ... (slug logic unchanged) ...
         $baseSlug = Str::slug($vendorData['en']);
 
         // Generate unique slug (globally unique across all countries)
@@ -122,8 +122,8 @@ class VendorSeeder extends Seeder
                 'active' => 1,
             ]);
 
-            // Get random activity from country
-            $activity = $activities->where('country_id', $countryId)->random();
+            // Get random department from country
+            $department = $departments->where('country_id', $countryId)->random();
 
             // Get random brand from country
             $brand = Brand::where('country_id', $countryId)->inRandomOrder()->first();
@@ -146,13 +146,13 @@ class VendorSeeder extends Seeder
                 ]);
             }
 
-            // Attach random activity
-            if ($activity) {
-                $vendor->activities()->attach($activity->id);
+            // Attach random department
+            if ($department) {
+                $vendor->departments()->attach($department->id);
             }
 
             $brandName = $brand ? $brand->getTranslation('name', 'en') : 'None';
-            echo "  ✓ Created vendor: {$vendorData['en']} (Activity: {$activity?->getTranslation('name', 'en')}, Brand: {$brandName}, Country ID: {$countryId})\n";
+            echo "  ✓ Created vendor: {$vendorData['en']} (Department: {$department?->name}, Brand: {$brandName}, Country ID: {$countryId})\n";
         } catch (\Exception $e) {
             echo "  ⏭️ Skipped vendor: {$vendorData['en']} (error: {$e->getMessage()})\n";
         }

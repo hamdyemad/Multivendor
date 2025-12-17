@@ -25,53 +25,72 @@ class MessageController
     /**
      * Get datatable data
      */
+    /**
+     * Get datatable data
+     */
     public function datatable(Request $request)
     {
-        try {
-            $filters = [
-                'search' => $request->get('search'),
-                'status' => $request->get('status'),
-                'sortColumn' => $request->get('sortColumn', 'created_at'),
-                'sortDirection' => $request->get('sortDirection', 'desc'),
-                'per_page' => $request->get('per_page', 10),
-                'page' => $request->get('page', 1),
-            ];
-
-            $result = $this->messageService->getDatatableData($filters);
-
-            // Format data for datatable
-            $data = $result['data']->map(function ($message, $index) use ($result) {
-                return [
-                    'row_number' => (($result['current_page'] - 1) * $result['per_page']) + $index + 1,
-                    'id' => $message->id,
-                    'title' => $message->title,
-                    'content' => $message->content,
-                    'name' => $message->name ?? 'N/A',
-                    'email' => $message->email ?? 'N/A',
-                    'status' => $message->status,
-                    'created_at' => $message->created_at,
-                ];
-            });
-
-            return response()->json([
-                'success' => true,
-                'data' => $data,
-                'total' => $result['total'],
-                'recordsFiltered' => $result['total'],
-                'current_page' => $result['current_page'],
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ], 500);
+        $query = \Modules\SystemSetting\app\Models\Message::query();
+        
+        // Search filter
+        if ($request->filled('search')) {
+             $search = $request->get('search');
+             $query->where(function($q) use ($search) {
+                 $q->where('name', 'like', "%{$search}%")
+                   ->orWhere('email', 'like', "%{$search}%")
+                   ->orWhere('title', 'like', "%{$search}%");
+             });
         }
+
+        // Status filter
+        if ($request->filled('status')) {
+            $query->where('status', $request->get('status'));
+        }
+
+        // Created date from filter
+        if ($request->filled('created_date_from')) {
+            $query->whereDate('created_at', '>=', $request->get('created_date_from'));
+        }
+
+        // Created date to filter
+        if ($request->filled('created_date_to')) {
+            $query->whereDate('created_at', '<=', $request->get('created_date_to'));
+        }
+
+        return \Yajra\DataTables\Facades\DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('created_at', function ($message) {
+                return $message->created_at;
+            })
+            ->addColumn('action', function ($message) {
+                $actions = '<div class="orderDatatable_actions d-inline-flex gap-1 justify-content-center">';
+                
+                $actions .= '<a href="' . route('admin.messages.show', $message->id) . '" 
+                    class="btn btn-primary table_action_father" 
+                    title="' . __('systemsetting::messages.view') . '">';
+                $actions .= '<i class="uil uil-eye table_action_icon"></i>';
+                $actions .= '</a>';
+
+                if ($message->status === 'pending') {
+                    $actions .= '<a href="javascript:void(0);" 
+                        data-url="' . route('admin.messages.mark-read', $message->id) . '" 
+                        class="mark-read-message btn btn-success table_action_father" 
+                        title="' . __('systemsetting::messages.mark_as_read') . '">';
+                    $actions .= '<i class="uil uil-check table_action_icon"></i>';
+                    $actions .= '</a>';
+                }
+
+                $actions .= '</div>';
+                return $actions;
+            })
+            ->rawColumns(['action'])
+            ->make(true);
     }
 
     /**
      * Show message details
      */
-    public function show($id)
+    public function show($lang, $countryCode, $id)
     {
         try {
             $message = $this->messageService->getMessageById($id);
@@ -90,13 +109,27 @@ class MessageController
     /**
      * Mark message as read
      */
-    public function markAsRead($id)
+    public function markAsRead($lang, $countryCode, $id)
     {
         try {
             $this->messageService->markAsRead($id);
-            return redirect()->route('admin.messages.index')
+            
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => true, 
+                    'message' => __('systemsetting::messages.mark_read_success')
+                ]);
+            }
+
+            return redirect()->route('messages.index')
                 ->with('success', __('systemsetting::messages.mark_read_success'));
         } catch (\Exception $e) {
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => __('systemsetting::messages.mark_read_error')
+                ], 422);
+            }
             return redirect()->back()
                 ->with('error', __('systemsetting::messages.mark_read_error'));
         }

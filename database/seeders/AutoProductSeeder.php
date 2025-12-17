@@ -117,13 +117,10 @@ class AutoProductSeeder extends Seeder
             echo "📦 Creating products for vendor: {$vendor->getTranslation('name', 'en')}\n";
 
             // Get departments, categories, and sub-categories related to this vendor's activities
-            $vendorDepartments = Department::where('active', 1)
+            // Get departments related to this vendor directly
+            $vendorDepartments = $vendor->departments()
+                ->where('active', 1)
                 ->where('country_id', $countryId)
-                ->whereHas('activities', function($q) use ($vendor) {
-                    $q->whereHas('vendors', function($vq) use ($vendor) {
-                        $vq->where('vendor_id', $vendor->id);
-                    });
-                })
                 ->get();
 
             if ($vendorDepartments->isEmpty()) {

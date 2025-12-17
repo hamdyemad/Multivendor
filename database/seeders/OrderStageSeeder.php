@@ -25,6 +25,7 @@ class OrderStageSeeder extends Seeder
         $stages = [
             [
                 'slug' => 'new',
+                'type' => 'new',
                 'color' => '#3498db',
                 'sort_order' => 1,
                 'names' => [
@@ -34,6 +35,7 @@ class OrderStageSeeder extends Seeder
             ],
             [
                 'slug' => 'in-progress',
+                'type' => 'in_progress',
                 'color' => '#f1c40f',
                 'sort_order' => 2,
                 'names' => [
@@ -43,6 +45,7 @@ class OrderStageSeeder extends Seeder
             ],
             [
                 'slug' => 'deliver',
+                'type' => 'deliver',
                 'color' => '#2ecc71',
                 'sort_order' => 3,
                 'names' => [
@@ -52,6 +55,7 @@ class OrderStageSeeder extends Seeder
             ],
             [
                 'slug' => 'cancel',
+                'type' => 'cancel',
                 'color' => '#e74c3c',
                 'sort_order' => 4,
                 'names' => [
@@ -61,6 +65,7 @@ class OrderStageSeeder extends Seeder
             ],
             [
                 'slug' => 'want-to-return',
+                'type' => 'want_to_return',
                 'color' => '#e67e22',
                 'sort_order' => 5,
                 'names' => [
@@ -70,6 +75,7 @@ class OrderStageSeeder extends Seeder
             ],
             [
                 'slug' => 'in-progress-return',
+                'type' => 'in_progress_return',
                 'color' => '#9b59b6',
                 'sort_order' => 6,
                 'names' => [
@@ -79,6 +85,7 @@ class OrderStageSeeder extends Seeder
             ],
             [
                 'slug' => 'refund',
+                'type' => 'refund',
                 'color' => '#1abc9c',
                 'sort_order' => 7,
                 'names' => [
@@ -105,10 +112,12 @@ class OrderStageSeeder extends Seeder
                 // Create the order stage
                 $orderStage = OrderStage::create([
                     'slug' => $slug,
+                    'type' => $stageData['type'],
                     'color' => $stageData['color'],
                     'active' => true,
                     'is_system' => true, // Mark as system stage (cannot be deleted)
                     'sort_order' => $stageData['sort_order'],
+                    'country_id' => null,
                 ]);
 
                 $this->command->info("Created order stage: {$stageData['names']['en']} (ID: {$orderStage->id})");

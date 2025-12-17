@@ -97,6 +97,7 @@ return [
     'status' => 'الحالة',
     'created_at' => 'تاريخ الإنشاء',
     'actions' => 'الإجراءات',
+    'departments' => 'الأقسام',
 
     // Status
     'active' => 'نشط',

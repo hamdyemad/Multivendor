@@ -43,7 +43,8 @@
                                             </label>
                                             <input type="text"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                id="search" placeholder="{{ __('vendor::vendor.search_by_email_or_company') }}"
+                                                id="search"
+                                                placeholder="{{ __('vendor::vendor.search_by_email_or_company') }}"
                                                 autocomplete="off">
                                         </div>
                                     </div>
@@ -125,15 +126,20 @@
 
                     {{-- DataTable --}}
                     <div class="table-responsive">
-                        <table id="vendorRequestsDataTable" class="table mb-0 table-bordered table-hover" style="width:100%">
+                        <table id="vendorRequestsDataTable" class="table mb-0 table-bordered table-hover"
+                            style="width:100%">
                             <thead>
                                 <tr class="userDatatable-header">
                                     <th><span class="userDatatable-title">#</span></th>
-                                    <th><span class="userDatatable-title">{{ trans('vendor::vendor.company_information') }}</span></th>
+                                    <th><span
+                                            class="userDatatable-title">{{ trans('vendor::vendor.company_information') }}</span>
+                                    </th>
                                     <th><span class="userDatatable-title">{{ trans('common.email') }}</span></th>
                                     <th><span class="userDatatable-title">{{ trans('common.phone') }}</span></th>
                                     <th><span class="userDatatable-title">{{ trans('common.status') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ trans('vendor::vendor.rejection_reason') }}</span></th>
+                                    <th><span
+                                            class="userDatatable-title">{{ trans('vendor::vendor.rejection_reason') }}</span>
+                                    </th>
                                     <th><span class="userDatatable-title">{{ trans('common.date') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('common.actions') }}</span></th>
                                 </tr>
@@ -155,20 +161,23 @@
                     @csrf
                     <div class="modal-header bg-danger bg-opacity-10 border-bottom">
                         <h5 class="modal-title" id="confirmActionLabel">
-                            <i class="uil uil-exclamation-triangle text-danger me-2"></i>{{ trans('vendor::vendor.reject_vendor_request') }}
+                            <i
+                                class="uil uil-exclamation-triangle text-danger me-2"></i>{{ trans('vendor::vendor.reject_vendor_request') }}
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <p id="confirmMessage" class="text-muted mb-3">{{ trans('vendor::vendor.confirm_reject_message') }}</p>
+                        <p id="confirmMessage" class="text-muted mb-3">
+                            {{ trans('vendor::vendor.confirm_reject_message') }}</p>
                         <div id="rejectReasonDiv">
                             <label for="rejectReason" class="form-label fw-600 mb-2">
-                                <i class="uil uil-message-circle me-1"></i>{{ trans('vendor::vendor.rejection_reason') }} <span class="text-danger">*</span>
+                                <i class="uil uil-message-circle me-1"></i>{{ trans('vendor::vendor.rejection_reason') }}
+                                <span class="text-danger">*</span>
                             </label>
                             <textarea class="form-control nockeditor" id="rejectReason" name="reason"
-                                placeholder="{{ trans('vendor::vendor.rejection_reason_placeholder') }}"
-                                rows="4" required></textarea>
-                            <small class="text-muted d-block mt-2">{{ trans('vendor::vendor.rejection_reason_visible') }}</small>
+                                placeholder="{{ trans('vendor::vendor.rejection_reason_placeholder') }}" rows="4" required></textarea>
+                            <small
+                                class="text-muted d-block mt-2">{{ trans('vendor::vendor.rejection_reason_visible') }}</small>
                         </div>
                     </div>
                     <div class="modal-footer border-top">
@@ -190,7 +199,8 @@
             <div class="modal-content">
                 <div class="modal-header bg-opacity-10 border-bottom">
                     <h5 class="modal-title" id="viewRequestLabel">
-                        <i class="uil uil-info-circle text-primary me-2"></i>{{ trans('vendor::vendor.vendor_request_details') }}
+                        <i
+                            class="uil uil-info-circle text-primary me-2"></i>{{ trans('vendor::vendor.vendor_request_details') }}
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -199,9 +209,12 @@
                         {{-- Company Logo --}}
                         <div class="col-md-12 mb-3 text-center">
                             <div class="view-item">
-                                <label class="il-gray fs-14 fw-500 mb-10 d-block">{{ trans('common.company_logo') ?? 'Company Logo' }}</label>
-                                <img id="modalCompanyLogo" src="" alt="Company Logo" style="max-width: 200px; max-height: 200px; object-fit: cover; border-radius: 8px; display: none;">
-                                <div id="modalCompanyLogoPlaceholder" style="width: 200px; height: 200px; background-color: #e9ecef; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                                <label
+                                    class="il-gray fs-14 fw-500 mb-10 d-block">{{ trans('common.company_logo') ?? 'Company Logo' }}</label>
+                                <img id="modalCompanyLogo" src="" alt="Company Logo"
+                                    style="max-width: 200px; max-height: 200px; object-fit: cover; border-radius: 8px; display: none;">
+                                <div id="modalCompanyLogoPlaceholder"
+                                    style="width: 200px; height: 200px; background-color: #e9ecef; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
                                     <i class="uil uil-image" style="font-size: 48px; color: #999;"></i>
                                 </div>
                             </div>
@@ -250,7 +263,8 @@
                         {{-- Rejection Reason (if rejected) --}}
                         <div class="col-md-12 mb-3" id="rejectionReasonDiv" style="display: none;">
                             <div class="view-item">
-                                <label class="il-gray fs-14 fw-500 mb-10">{{ trans('vendor::vendor.rejection_reason') }}</label>
+                                <label
+                                    class="il-gray fs-14 fw-500 mb-10">{{ trans('vendor::vendor.rejection_reason') }}</label>
                                 <p class="fs-15 color-dark" id="modalRejectionReason">-</p>
                             </div>
                         </div>
@@ -393,9 +407,11 @@
                         render: function(data, type, row) {
                             let logoHtml = '';
                             if (row.company_logo) {
-                                logoHtml = `<img src="${row.company_logo}" alt="Company Logo" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-right: 12px;">`;
+                                logoHtml =
+                                    `<img src="${row.company_logo}" alt="Company Logo" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-right: 12px;">`;
                             } else {
-                                logoHtml = `<div style="width: 60px; height: 60px; background-color: #e9ecef; border-radius: 8px; margin-right: 12px; display: flex; align-items: center; justify-content: center;"><i class="uil uil-image" style="font-size: 24px; color: #999;"></i></div>`;
+                                logoHtml =
+                                    `<div style="width: 60px; height: 60px; background-color: #e9ecef; border-radius: 8px; margin-right: 12px; display: flex; align-items: center; justify-content: center;"><i class="uil uil-image" style="font-size: 24px; color: #999;"></i></div>`;
                             }
 
                             let html = `
@@ -484,7 +500,8 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            let actions = `<div class="orderDatatable_actions d-inline-flex gap-1 text-center justify-content-center">`;
+                            let actions =
+                                `<div class="orderDatatable_actions d-inline-flex gap-1 text-center justify-content-center">`;
 
                             // View button (always show)
                             actions += `
@@ -509,7 +526,6 @@
                             // Pending: Show Create Vendor and Reject buttons
                             if (row.status === 'pending') {
                                 // Build query params for vendor creation
-                                const activityIds = row.activities ? row.activities.map(a => a.id).join(',') : '';
                                 const params = new URLSearchParams({
                                     vendor_request_id: row.id
                                 });
@@ -668,13 +684,16 @@
                 let statusText = '-';
                 if (status === 'pending') {
                     statusText = '{{ trans('common.pending') }}';
-                    statusBadge = '<span class="badge badge-warning badge-round badge-lg">' + statusText + '</span>';
+                    statusBadge = '<span class="badge badge-warning badge-round badge-lg">' + statusText +
+                        '</span>';
                 } else if (status === 'approved') {
                     statusText = '{{ trans('common.approved') }}';
-                    statusBadge = '<span class="badge badge-success badge-round badge-lg">' + statusText + '</span>';
+                    statusBadge = '<span class="badge badge-success badge-round badge-lg">' + statusText +
+                        '</span>';
                 } else if (status === 'rejected') {
                     statusText = '{{ trans('common.rejected') }}';
-                    statusBadge = '<span class="badge badge-danger badge-round badge-lg">' + statusText + '</span>';
+                    statusBadge = '<span class="badge badge-danger badge-round badge-lg">' + statusText +
+                        '</span>';
                 }
                 $('#modalStatus').html(statusBadge);
 
@@ -698,7 +717,8 @@
 
                 // Set form action - construct URL dynamically
                 const baseUrl = '{{ route('admin.vendor-requests.index') }}';
-                const actionUrl = baseUrl.replace('vendor-requests', 'vendor-requests/' + vendorRequestId + '/reject');
+                const actionUrl = baseUrl.replace('vendor-requests', 'vendor-requests/' + vendorRequestId +
+                    '/reject');
                 $('#confirmActionForm').attr('action', actionUrl);
 
                 // Show modal
@@ -722,7 +742,8 @@
                 // Disable submit button during request
                 const submitBtn = $('#confirmActionBtn');
                 const originalText = submitBtn.html();
-                submitBtn.prop('disabled', true).html('<i class="uil uil-spinner-alt me-1"></i>Processing...');
+                submitBtn.prop('disabled', true).html(
+                    '<i class="uil uil-spinner-alt me-1"></i>Processing...');
 
                 // Submit form via AJAX
                 $.ajax({
@@ -749,7 +770,8 @@
                         }
 
                         // Show success message
-                        toastr.success(response.message || 'Vendor request rejected successfully', 'Success');
+                        toastr.success(response.message ||
+                            'Vendor request rejected successfully', 'Success');
 
                         // Reload table
                         setTimeout(function() {
@@ -769,7 +791,8 @@
                             if (xhr.responseJSON && xhr.responseJSON.message) {
                                 errorMsg = xhr.responseJSON.message;
                             } else if (xhr.responseJSON && xhr.responseJSON.errors) {
-                                errorMsg = Object.values(xhr.responseJSON.errors).flat().join(', ');
+                                errorMsg = Object.values(xhr.responseJSON.errors).flat().join(
+                                    ', ');
                             }
                         } catch (e) {
                             if (xhr.status === 404) {

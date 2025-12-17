@@ -55,19 +55,6 @@ trait HasFilterScopes
     }
 
     /**
-     * Scope: Filter by activity IDs or slugs
-     */
-    public function scopeByActivityIds(Builder $query, array $activityIdentifiers)
-    {
-        return $query->whereHas('activities', function($q) use ($activityIdentifiers) {
-            $q->where(function($subQ) use ($activityIdentifiers) {
-                $subQ->whereIn('id', $activityIdentifiers)
-                    ->orWhereIn('slug', $activityIdentifiers);
-            });
-        });
-    }
-
-    /**
      * Scope: Filter by vendor ID or slug
      */
     public function scopeByVendor(Builder $query, $vendorIdentifier)
@@ -215,10 +202,6 @@ trait HasFilterScopes
             );
         }
 
-        // Activity IDs filter
-        if (!empty($filters['activity_ids'])) {
-            $query->byActivityIds($filters['activity_ids']);
-        }
 
         // Vendor filter
         if (!empty($filters['vendor_id'])) {

@@ -17,7 +17,6 @@ use Modules\AreaSettings\app\Models\Country;
 use app\Models\Language;
 use Illuminate\Support\Facades\DB;
 use Modules\CatalogManagement\app\Models\Review;
-use Modules\CategoryManagment\app\Models\Activity;
 use Modules\Order\app\Models\OrderProduct;
 use Modules\Withdraw\app\Models\Withdraw;
 
@@ -55,31 +54,6 @@ class Vendor extends BaseModel
         return $this->belongsTo(Country::class);
     }
 
-    /**
-     * Get the activity (single - for backward compatibility)
-     */
-    public function activity()
-    {
-        return $this->belongsTo(Activity::class);
-    }
-
-
-    /**
-     * Get the vendor's activities (many-to-many)
-     */
-    public function activities()
-    {
-        return $this->belongsToMany(Activity::class, 'vendors_activities', 'vendor_id', 'activity_id');
-    }
-
-    public function activeActivities()
-    {
-        return $this->activities()->active();
-    }
-
-    /**
-     * Alias for attachments relationship
-     */
     public function attachments()
     {
         return $this->morphMany(Attachment::class, 'attachable');
@@ -142,6 +116,8 @@ class Vendor extends BaseModel
         return $this->belongsToMany(\Modules\AreaSettings\app\Models\Region::class, 'vendor_regions')
                     ->withTimestamps();
     }
+
+
 
     /**
      * Get meta keywords as array for specific language
@@ -283,15 +259,24 @@ class Vendor extends BaseModel
         });
     }
 
+    /**
+     * Get the vendor's departments
+     */
+    public function departments()
+    {
+        return $this->belongsToMany(\Modules\CategoryManagment\app\Models\Department::class, 'department_vendor')
+                    ->withTimestamps();
+    }
+
     public function scopeByDepartment(Builder $query, $departmentIdentifier)
     {
-        return $query->whereHas('activeActivities', function ($q) use ($departmentIdentifier) {
-            $q->whereHas('departments', function ($q) use ($departmentIdentifier) {
-                $q->where('departments.id', $departmentIdentifier)
-                ->orWhere('departments.slug', $departmentIdentifier);
-            });
+        return $query->whereHas('departments', function ($q) use ($departmentIdentifier) {
+            $q->where('departments.id', $departmentIdentifier)
+              ->orWhere('departments.slug', $departmentIdentifier);
         });
     }
+
+
 
     /**
      * Override filter scope to add vendor-specific filters

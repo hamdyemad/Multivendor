@@ -184,31 +184,20 @@
                 </li>
             </ul>
         </li>
-        @if(in_array($user_type_id, \App\Models\UserType::adminIds()))
-            @canany(['activities.index', 'departments.index', 'categories.index', 'sub_categories.index'])
+        @if (in_array($user_type_id, \App\Models\UserType::adminIds()))
+            @canany(['departments.index', 'categories.index', 'sub_categories.index'])
                 <li class="menu-title mt-30">
                     <span>{{ trans('menu.sections.catalog management') }}</span>
                 </li>
                 <li
-                    class="has-child {{ isParentMenuOpen(['admin.category-management.activities.index', 'admin.category-management.departments.index', 'admin.category-management.categories.index', 'admin.category-management.subcategories.index'], ['admin/category-management*']) ? 'open' : '' }}">
+                    class="has-child {{ isParentMenuOpen(['admin.category-management.departments.index', 'admin.category-management.categories.index', 'admin.category-management.subcategories.index'], ['admin/category-management*']) ? 'open' : '' }}">
                     <a href="#"
-                        class="{{ isParentMenuOpen(['admin.category-management.activities.index', 'admin.category-management.departments.index', 'admin.category-management.categories.index', 'admin.category-management.subcategories.index'], ['admin/category-management*']) ? 'active' : '' }}">
+                        class="{{ isParentMenuOpen(['admin.category-management.departments.index', 'admin.category-management.categories.index', 'admin.category-management.subcategories.index'], ['admin/category-management*']) ? 'active' : '' }}">
                         <span class="nav-icon uil uil-sitemap"></span>
                         <span class="menu-text">{{ trans('menu.category managment.title') }}</span>
                         <span class="toggle-icon"></span>
                     </a>
                     <ul class="px-0">
-                        @can('activities.index')
-                            <li>
-                                <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.category-management.activities.index', $currentRoute) ? 'active' : '' }}"
-                                    href="{{ route('admin.category-management.activities.index') }}">
-                                    {{ trans('menu.activities.title') }}
-                                    <span class="badge badge-round badge-primary ms-1">
-                                        {{ \Modules\CategoryManagment\app\Models\Activity::count() }}
-                                    </span>
-                                </a>
-                            </li>
-                        @endcan
 
                         @can('departments.index')
                             <li>
@@ -280,7 +269,7 @@
                         href="{{ route('admin.products.index') }}">
                         {{ trans('menu.products.all_products') }}
                         <span class="badge badge-round badge-primary ms-1">
-                            @if(in_array($user_type_id, \App\Models\UserType::adminIds()))
+                            @if (in_array($user_type_id, \App\Models\UserType::adminIds()))
                                 {{ \Modules\CatalogManagement\app\Models\Product::count() }}
                             @else
                                 {{ \Modules\CatalogManagement\app\Models\VendorProduct::where('vendor_id', auth()->user()->vendor->id ?? 0)->count() }}
@@ -293,7 +282,7 @@
                         href="{{ route('admin.products.pending') }}">
                         {{ trans('menu.products.pending_products') }}
                         <span class="badge badge-round badge-warning ms-1">
-                            @if(in_array($user_type_id, \App\Models\UserType::adminIds()))
+                            @if (in_array($user_type_id, \App\Models\UserType::adminIds()))
                                 {{ \Modules\CatalogManagement\app\Models\VendorProduct::where('status', 'pending')->count() }}
                             @else
                                 {{ \Modules\CatalogManagement\app\Models\VendorProduct::where('status', 'pending')->where('vendor_id', auth()->user()->vendor->id ?? 0)->count() }}
@@ -306,7 +295,7 @@
                         href="{{ route('admin.products.rejected') }}">
                         {{ trans('menu.products.rejected_products') }}
                         <span class="badge badge-round badge-danger ms-1">
-                            @if(in_array($user_type_id, \App\Models\UserType::adminIds()))
+                            @if (in_array($user_type_id, \App\Models\UserType::adminIds()))
                                 {{ \Modules\CatalogManagement\app\Models\VendorProduct::where('status', 'rejected')->count() }}
                             @else
                                 {{ \Modules\CatalogManagement\app\Models\VendorProduct::where('status', 'rejected')->where('vendor_id', auth()->user()->vendor->id ?? 0)->count() }}
@@ -319,7 +308,7 @@
                         href="{{ route('admin.products.accepted') }}">
                         {{ trans('menu.products.accepted_products') }}
                         <span class="badge badge-round badge-success ms-1">
-                            @if(in_array($user_type_id, \App\Models\UserType::adminIds()))
+                            @if (in_array($user_type_id, \App\Models\UserType::adminIds()))
                                 {{ \Modules\CatalogManagement\app\Models\VendorProduct::where('status', 'approved')->count() }}
                             @else
                                 {{ \Modules\CatalogManagement\app\Models\VendorProduct::where('status', 'approved')->where('vendor_id', auth()->user()->vendor->id ?? 0)->count() }}
@@ -328,20 +317,22 @@
                     </a>
                 </li>
 
-                @if(in_array($user_type_id, \App\Models\UserType::adminIds()))
+                @if (in_array($user_type_id, \App\Models\UserType::adminIds()))
                     @canany(['variant-keys.view', 'variant-keys.create'])
                         <li>
                             <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.variant-keys.index', $currentRoute) ? 'active' : '' }}"
                                 href="{{ route('admin.variant-keys.index') }}">
                                 {{ trans('menu.variant configurations.variant config keys') }}
-                                <span class="badge badge-round badge-primary ms-1">{{ \Modules\CatalogManagement\app\Models\VariantConfigurationKey::count() }}</span>
+                                <span
+                                    class="badge badge-round badge-primary ms-1">{{ \Modules\CatalogManagement\app\Models\VariantConfigurationKey::count() }}</span>
                             </a>
                         </li>
                         <li>
                             <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.variants-configurations.index', $currentRoute) ? 'active' : '' }}"
                                 href="{{ route('admin.variants-configurations.index') }}">
                                 {{ trans('menu.variant configurations.variant config') }}
-                                <span class="badge badge-round badge-primary ms-1">{{ \Modules\CatalogManagement\app\Models\VariantsConfiguration::count() }}</span>
+                                <span
+                                    class="badge badge-round badge-primary ms-1">{{ \Modules\CatalogManagement\app\Models\VariantsConfiguration::count() }}</span>
                             </a>
                         </li>
                     @endcanany
@@ -359,23 +350,23 @@
                 <span class="toggle-icon"></span>
             </a>
             <ul class="px-0">
-                @if(in_array($user_type_id, \App\Models\UserType::adminIds()))
-                <li>
-                    <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.bundle-categories.index', 'admin.bundle-categories.create', 'admin.bundle-categories.show', 'admin.bundle-categories.edit'], $currentRoute) ? 'active' : '' }}"
-                        href="{{ route('admin.bundle-categories.index') }}">
-                        {{ trans('menu.bundles.bundle_categories') }}
-                        <span class="badge badge-round badge-info ms-1">
-                            {{ \Modules\CatalogManagement\app\Models\BundleCategory::count() }}
-                        </span>
-                    </a>
-                </li>
+                @if (in_array($user_type_id, \App\Models\UserType::adminIds()))
+                    <li>
+                        <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.bundle-categories.index', 'admin.bundle-categories.create', 'admin.bundle-categories.show', 'admin.bundle-categories.edit'], $currentRoute) ? 'active' : '' }}"
+                            href="{{ route('admin.bundle-categories.index') }}">
+                            {{ trans('menu.bundles.bundle_categories') }}
+                            <span class="badge badge-round badge-info ms-1">
+                                {{ \Modules\CatalogManagement\app\Models\BundleCategory::count() }}
+                            </span>
+                        </a>
+                    </li>
                 @endif
                 <li>
                     <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.bundles.index', 'admin.bundles.create', 'admin.bundles.show', 'admin.bundles.edit'], $currentRoute) ? 'active' : '' }}"
                         href="{{ route('admin.bundles.index') }}">
                         {{ trans('menu.bundles.all_bundles') }}
                         <span class="badge badge-round badge-primary ms-1">
-                            @if(in_array($user_type_id, \App\Models\UserType::adminIds()))
+                            @if (in_array($user_type_id, \App\Models\UserType::adminIds()))
                                 {{ \Modules\CatalogManagement\app\Models\Bundle::count() }}
                             @else
                                 {{ \Modules\CatalogManagement\app\Models\Bundle::where('vendor_id', auth()->user()->vendor->id ?? 0)->count() }}
@@ -387,7 +378,8 @@
         </li>
 
         {{-- Occasions Menu --}}
-        <li class="{{ isMenuActive(['admin.occasions.index', 'admin.occasions.create', 'admin.occasions.show', 'admin.occasions.edit'], $currentRoute) ? 'active' : '' }}">
+        <li
+            class="{{ isMenuActive(['admin.occasions.index', 'admin.occasions.create', 'admin.occasions.show', 'admin.occasions.edit'], $currentRoute) ? 'active' : '' }}">
             <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.occasions.index', 'admin.occasions.create', 'admin.occasions.show', 'admin.occasions.edit'], $currentRoute) ? 'active' : '' }}"
                 href="{{ route('admin.occasions.index') }}">
                 <span class="d-flex align-items-center">
@@ -397,8 +389,11 @@
                 <span class="badge badge-round badge-success ms-1">
                     @php
                         $occasions_count = \Modules\CatalogManagement\app\Models\Occasion::count();
-                        if(in_array($user_type_id, \App\Models\UserType::vendorIds())) {
-                            $occasions_count = \Modules\CatalogManagement\app\Models\Occasion::where('vendor_id', $vendor->id)->count();
+                        if (in_array($user_type_id, \App\Models\UserType::vendorIds())) {
+                            $occasions_count = \Modules\CatalogManagement\app\Models\Occasion::where(
+                                'vendor_id',
+                                $vendor->id,
+                            )->count();
                         }
                     @endphp
                     {{ $occasions_count }}
@@ -409,14 +404,21 @@
             @php
                 try {
                     $reviews_all = Modules\CatalogManagement\app\Models\Review::count();
-                    $reviews_accepted = Modules\CatalogManagement\app\Models\Review::where('status', 'approved')->count();
-                    $reviews_rejected = Modules\CatalogManagement\app\Models\Review::where('status', 'rejected')->count();
+                    $reviews_accepted = Modules\CatalogManagement\app\Models\Review::where(
+                        'status',
+                        'approved',
+                    )->count();
+                    $reviews_rejected = Modules\CatalogManagement\app\Models\Review::where(
+                        'status',
+                        'rejected',
+                    )->count();
                 } catch (\Exception $e) {
                     $reviews_all = $reviews_accepted = $reviews_rejected = 0;
                 }
             @endphp
             <li class="has-child {{ isParentMenuOpen(['admin.reviews.index'], ['admin/reviews*']) ? 'open' : '' }}">
-                <a href="#" class="{{ isParentMenuOpen(['admin.reviews.index'], ['admin/reviews*']) ? 'active' : '' }}">
+                <a href="#"
+                    class="{{ isParentMenuOpen(['admin.reviews.index'], ['admin/reviews*']) ? 'active' : '' }}">
                     <span class="nav-icon uil uil-star"></span>
                     <span class="menu-text">{{ trans('menu.product_reviews.title') }}</span>
                     <span class="toggle-icon"></span>
@@ -463,7 +465,8 @@
                                 <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.taxes.index', 'admin.taxes.show', 'admin.taxes.edit'], $currentRoute) ? 'active' : '' }}"
                                     href="{{ route('admin.taxes.index') }}">
                                     {{ trans('menu.taxes.all') }}
-                                    <span class="badge badge-round badge-primary ms-1">{{ \Modules\CatalogManagement\app\Models\Tax::count() }}</span>
+                                    <span
+                                        class="badge badge-round badge-primary ms-1">{{ \Modules\CatalogManagement\app\Models\Tax::count() }}</span>
                                 </a>
                             </li>
                         @endcan
@@ -487,7 +490,8 @@
                             <span class="nav-icon uil uil-ticket"></span>
                             <span class="menu-text fw-bold">{{ trans('menu.brands.title') }}</span>
                         </span>
-                        <span class="badge badge-round badge-success  ms-1">{{ \Modules\CatalogManagement\app\Models\Brand::count() }}</span>
+                        <span
+                            class="badge badge-round badge-success  ms-1">{{ \Modules\CatalogManagement\app\Models\Brand::count() }}</span>
                     </span>
                 </a>
             </li>
@@ -496,13 +500,15 @@
         @if (in_array($user_type_id, \App\Models\UserType::adminIds()))
             @can('promocodes.view')
                 <li>
-                    <a href="{{ route('admin.promocodes.index') }}" class="{{ isMenuActive(['admin.promocodes.index', 'admin.promocodes.create', 'admin.promocodes.edit', 'admin.promocodes.show'], $currentRoute) ? 'active' : '' }}">
+                    <a href="{{ route('admin.promocodes.index') }}"
+                        class="{{ isMenuActive(['admin.promocodes.index', 'admin.promocodes.create', 'admin.promocodes.edit', 'admin.promocodes.show'], $currentRoute) ? 'active' : '' }}">
                         <span class="d-flex align-items-center justify-content-between fw-bold w-100">
                             <span class="d-flex align-items-center">
                                 <span class="nav-icon uil uil-ticket"></span>
                                 <span class="menu-text">{{ trans('menu.promocodes.title') }}</span>
                             </span>
-                            <span class="badge badge-round badge-success  ms-1">{{ \Modules\CatalogManagement\app\Models\Promocode::count() }}</span>
+                            <span
+                                class="badge badge-round badge-success  ms-1">{{ \Modules\CatalogManagement\app\Models\Promocode::count() }}</span>
                         </span>
                     </a>
                 </li>
@@ -513,8 +519,10 @@
             <li class="menu-title mt-30">
                 <span>{{ trans('menu.sections.points system') }}</span>
             </li>
-            <li class="has-child {{ isParentMenuOpen(['admin.points-settings.index', 'admin.points-settings.user-points.index', 'admin.points-settings.user-points.transactions'], ['admin/points-settings*']) ? 'open' : '' }}">
-                <a href="#" class="{{ isParentMenuOpen(['admin.points-settings.index', 'admin.points-settings.user-points.index', 'admin.points-settings.user-points.transactions'], ['admin/points-settings*']) ? 'active' : '' }}">
+            <li
+                class="has-child {{ isParentMenuOpen(['admin.points-settings.index', 'admin.points-settings.user-points.index', 'admin.points-settings.user-points.transactions'], ['admin/points-settings*']) ? 'open' : '' }}">
+                <a href="#"
+                    class="{{ isParentMenuOpen(['admin.points-settings.index', 'admin.points-settings.user-points.index', 'admin.points-settings.user-points.transactions'], ['admin/points-settings*']) ? 'active' : '' }}">
                     <span class="nav-icon uil uil-coins"></span>
                     <span class="menu-text">{{ trans('menu.point managment.title') }}</span>
                     <span class="toggle-icon"></span>
@@ -606,8 +614,10 @@
 
 
             @can('vendor_requests.new')
-                <li class="has-child {{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/vendor-requests*') ? 'open' : '' }}">
-                    <a href="#" class="{{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/vendor-requests*') ? 'active' : '' }}">
+                <li
+                    class="has-child {{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/vendor-requests*') ? 'open' : '' }}">
+                    <a href="#"
+                        class="{{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/vendor-requests*') ? 'active' : '' }}">
                         <span class="nav-icon uil uil-clipboard-notes"></span>
                         <span class="menu-text">{{ trans('menu.become a vendor requests.title') }}</span>
                         <span class="toggle-icon"></span>
@@ -617,28 +627,32 @@
                             <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.vendor-requests.index', $currentRoute) && !request()->has('status') ? 'active' : '' }}"
                                 href="{{ route('admin.vendor-requests.index') }}">
                                 {{ trans('common.all') }}
-                                <span class="badge badge-round badge-info ms-1">{{ \Modules\Vendor\app\Models\VendorRequest::count() }}</span>
+                                <span
+                                    class="badge badge-round badge-info ms-1">{{ \Modules\Vendor\app\Models\VendorRequest::count() }}</span>
                             </a>
                         </li>
                         <li>
                             <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.vendor-requests.index', $currentRoute) && !request()->has('status') ? 'active' : '' }}"
                                 href="{{ route('admin.vendor-requests.index') }}">
                                 {{ trans('menu.become a vendor requests.new') }}
-                                <span class="badge badge-round badge-primary ms-1">{{ \Modules\Vendor\app\Models\VendorRequest::pending()->count() }}</span>
+                                <span
+                                    class="badge badge-round badge-primary ms-1">{{ \Modules\Vendor\app\Models\VendorRequest::pending()->count() }}</span>
                             </a>
                         </li>
                         <li>
                             <a class="d-flex align-items-center justify-content-between fw-bold {{ request()->get('status') === 'approved' ? 'active' : '' }}"
                                 href="{{ route('admin.vendor-requests.index') }}?status=approved">
                                 {{ trans('menu.become a vendor requests.accepted') }}
-                                <span class="badge badge-round badge-primary ms-1">{{ \Modules\Vendor\app\Models\VendorRequest::approved()->count() }}</span>
+                                <span
+                                    class="badge badge-round badge-primary ms-1">{{ \Modules\Vendor\app\Models\VendorRequest::approved()->count() }}</span>
                             </a>
                         </li>
                         <li>
                             <a class="d-flex align-items-center justify-content-between fw-bold {{ request()->get('status') === 'rejected' ? 'active' : '' }}"
                                 href="{{ route('admin.vendor-requests.index') }}?status=rejected">
                                 {{ trans('menu.become a vendor requests.rejected') }}
-                                <span class="badge badge-round badge-primary ms-1">{{ \Modules\Vendor\app\Models\VendorRequest::rejected()->count() }}</span>
+                                <span
+                                    class="badge badge-round badge-primary ms-1">{{ \Modules\Vendor\app\Models\VendorRequest::rejected()->count() }}</span>
                             </a>
                         </li>
                     </ul>
@@ -646,7 +660,8 @@
             @endcan
 
             @can('customers.index')
-                <li class="has-child {{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/customers*') ? 'open' : '' }}">
+                <li
+                    class="has-child {{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/customers*') ? 'open' : '' }}">
                     <a href="#"
                         class="{{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/customers*') ? 'active' : '' }}">
                         <span class="nav-icon uil uil-user-circle"></span>
@@ -658,7 +673,8 @@
                             <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.customers.index', $currentRoute) ? 'active' : '' }}"
                                 href="{{ route('admin.customers.index') }}">
                                 {{ trans('menu.customers.all') }}
-                                <span class="badge badge-round badge-primary ms-1">{{ \Modules\Customer\app\Models\Customer::count() }}</span>
+                                <span
+                                    class="badge badge-round badge-primary ms-1">{{ \Modules\Customer\app\Models\Customer::count() }}</span>
                             </a>
                         </li>
                     </ul>
@@ -682,7 +698,8 @@
                     <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.orders.index', $currentRoute) && !request()->has('stage') ? 'active' : '' }}"
                         href="{{ route('admin.orders.index') }}">
                         {{ trans('menu.orders.all') }}
-                        <span class="badge badge-round badge-primary ms-1">{{ \Modules\Order\app\Models\Order::count() }}</span>
+                        <span
+                            class="badge badge-round badge-primary ms-1">{{ \Modules\Order\app\Models\Order::count() }}</span>
                     </a>
                 </li>
                 <li class="l_sidebar">
@@ -694,14 +711,30 @@
 
                 {{-- Order Stages --}}
                 @php
-                    $orderStages = \Modules\Order\app\Models\OrderStage::all();
+                    $countryCode = session('country_code');
+                    $countryId = $countryCode
+                        ? \Modules\AreaSettings\app\Models\Country::where('code', $countryCode)->value('id')
+                        : null;
+
+                    $orderStages = \Modules\Order\app\Models\OrderStage::where(function ($q) use ($countryId) {
+                            $q->where(function ($sub) {
+                                $sub->whereNull('country_id')->where('is_system', 1);
+                            });
+
+                            if ($countryId) {
+                                $q->orWhere('country_id', $countryId);
+                            }
+                        })
+                        ->orderBy('sort_order')
+                        ->get();
                 @endphp
-                @foreach($orderStages as $stage)
+                @foreach ($orderStages as $stage)
                     <li class="l_sidebar">
                         <a class="d-flex align-items-center justify-content-between fw-bold {{ request()->get('stage') == $stage->id ? 'active' : '' }}"
                             href="{{ route('admin.orders.index', ['stage' => $stage->id]) }}">
                             {{ $stage->translations->where('lang_key', 'name')->first()?->lang_value ?? $stage->slug }}
-                            <span class="badge badge-round badge-info ms-1">{{ \Modules\Order\app\Models\Order::where('stage_id', $stage->id)->count() }}</span>
+                            <span
+                                class="badge badge-round badge-info ms-1">{{ \Modules\Order\app\Models\Order::where('stage_id', $stage->id)->count() }}</span>
                         </a>
                     </li>
                 @endforeach
@@ -709,18 +742,18 @@
         </li>
 
         @can('order-stages.index')
-        <li>
-            <a href="{{ route('admin.order-stages.index') }}"
-                class="{{ isMenuActive('admin.order-stages.index', $currentRoute) ? 'active' : '' }}">
-                <span class="d-flex align-items-center justify-content-between fw-bold w-100">
-                    <span class="d-flex align-items-center">
-                        <span class="nav-icon uil uil-process"></span>
-                        <span class="menu-text">{{ trans('menu.orders.order stages') }}</span>
+            <li>
+                <a href="{{ route('admin.order-stages.index') }}"
+                    class="{{ isMenuActive('admin.order-stages.index', $currentRoute) ? 'active' : '' }}">
+                    <span class="d-flex align-items-center justify-content-between fw-bold w-100">
+                        <span class="d-flex align-items-center">
+                            <span class="nav-icon uil uil-process"></span>
+                            <span class="menu-text">{{ trans('menu.orders.order stages') }}</span>
+                        </span>
                     </span>
-                </span>
-                <span class="badge badge-success  badge-round ms-1">{{ \Modules\Order\app\Models\OrderStage::count() }}</span>
-            </a>
-        </li>
+                    <span class="badge badge-success  badge-round ms-1">{{ $orderStages->count() }}</span>
+                </a>
+            </li>
         @endcan
 
         @if (in_array($user_type_id, \App\Models\UserType::adminIds()))
@@ -764,16 +797,14 @@
                 </li>
             @endcanany
 
-
-
-
-
             @can('blog.view')
                 <li class="menu-title mt-30">
                     <span>{{ trans('menu.sections.content and engagement') }}</span>
                 </li>
-                <li class="has-child {{ isParentMenuOpen(['admin.system-settings.blog-categories.index', 'admin.system-settings.blogs.index'], ['admin/system-settings/blog-categories*', 'admin/system-settings/blogs*']) ? 'open' : '' }}">
-                    <a href="#" class="{{ isParentMenuOpen(['admin.system-settings.blog-categories.index', 'admin.system-settings.blogs.index'], ['admin/system-settings/blog-categories*', 'admin/system-settings/blogs*']) ? 'active' : '' }}">
+                <li
+                    class="has-child {{ isParentMenuOpen(['admin.system-settings.blog-categories.index', 'admin.system-settings.blogs.index'], ['admin/system-settings/blog-categories*', 'admin/system-settings/blogs*']) ? 'open' : '' }}">
+                    <a href="#"
+                        class="{{ isParentMenuOpen(['admin.system-settings.blog-categories.index', 'admin.system-settings.blogs.index'], ['admin/system-settings/blog-categories*', 'admin/system-settings/blogs*']) ? 'active' : '' }}">
                         <span class="nav-icon uil uil-edit-alt"></span>
                         <span class="menu-text">{{ trans('menu.blog managment.title') }}</span>
                         <span class="toggle-icon"></span>
@@ -781,7 +812,7 @@
                     <ul class="px-0">
                         <li>
                             <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.system-settings.blog-categories.index', $currentRoute) ? 'active' : '' }}"
-                               href="{{ route('admin.system-settings.blog-categories.index') }}">
+                                href="{{ route('admin.system-settings.blog-categories.index') }}">
                                 {{ trans('menu.blog managment.categories') }}
                                 <span class="badge badge-round badge-info ms-1">
                                     @php
@@ -797,7 +828,7 @@
                         </li>
                         <li>
                             <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.system-settings.blogs.index', $currentRoute) ? 'active' : '' }}"
-                               href="{{ route('admin.system-settings.blogs.index') }}">
+                                href="{{ route('admin.system-settings.blogs.index') }}">
                                 {{ trans('menu.blog managment.blogs') }}
                                 <span class="badge badge-round badge-primary ms-1">
                                     @php
@@ -814,7 +845,18 @@
                     </ul>
                 </li>
             @endcan
-
+            <li class="{{ isMenuActive('admin.messages.index', $currentRoute) ? 'active' : '' }}">
+                <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.messages.index', $currentRoute) ? 'active' : '' }}"
+                    href="{{ route('admin.messages.index') }}">
+                    <span class="d-flex align-items-center">
+                        <span class="nav-icon uil uil-envelope"></span>
+                        <span class="menu-text">{{ __('systemsetting::messages.messages') }}</span>
+                    </span>
+                    <span class="badge badge-round badge-primary ms-1">
+                        {{ \Modules\SystemSetting\app\Models\Message::count() }}
+                    </span>
+                </a>
+            </li>
 
             @can('reports.view')
                 <li class="menu-title mt-30">
@@ -846,8 +888,10 @@
 
 
             @can('advertisements.index')
-                <li class="has-child {{ isParentMenuOpen(['admin.system-settings.ads.index'], ['*/system-settings/ads*']) ? 'open' : '' }}">
-                    <a href="#" class="{{ isParentMenuOpen(['admin.system-settings.ads.index'], ['*/system-settings/ads*']) ? 'active' : '' }}">
+                <li
+                    class="has-child {{ isParentMenuOpen(['admin.system-settings.ads.index'], ['*/system-settings/ads*']) ? 'open' : '' }}">
+                    <a href="#"
+                        class="{{ isParentMenuOpen(['admin.system-settings.ads.index'], ['*/system-settings/ads*']) ? 'active' : '' }}">
                         <span class="nav-icon uil uil-trophy"></span>
                         <span class="menu-text">{{ trans('menu.advertisements.title') }}</span>
                         <span class="toggle-icon"></span>
@@ -866,8 +910,10 @@
                 </li>
             @endcan
             {{-- Frontend Settings --}}
-            <li class="has-child {{ isParentMenuOpen(['admin.system-settings.features.index', 'admin.system-settings.footer-content.index', 'admin.system-settings.faqs.index', 'admin.system-settings.sliders.index', 'admin.system-settings.site-information.index'], ['*/system-settings/features*', '*/system-settings/footer-content*', '*/system-settings/faqs*', '*/system-settings/sliders*', '*/system-settings/site-information*']) ? 'open' : '' }}">
-                <a href="#" class="{{ isParentMenuOpen(['admin.system-settings.features.index', 'admin.system-settings.footer-content.index', 'admin.system-settings.faqs.index', 'admin.system-settings.sliders.index', 'admin.system-settings.site-information.index'], ['*/system-settings/features*', '*/system-settings/footer-content*', '*/system-settings/faqs*', '*/system-settings/sliders*', '*/system-settings/site-information*']) ? 'active' : '' }}">
+            <li
+                class="has-child {{ isParentMenuOpen(['admin.system-settings.features.index', 'admin.system-settings.footer-content.index', 'admin.system-settings.faqs.index', 'admin.system-settings.sliders.index', 'admin.system-settings.site-information.index'], ['*/system-settings/features*', '*/system-settings/footer-content*', '*/system-settings/faqs*', '*/system-settings/sliders*', '*/system-settings/site-information*']) ? 'open' : '' }}">
+                <a href="#"
+                    class="{{ isParentMenuOpen(['admin.system-settings.features.index', 'admin.system-settings.footer-content.index', 'admin.system-settings.faqs.index', 'admin.system-settings.sliders.index', 'admin.system-settings.site-information.index'], ['*/system-settings/features*', '*/system-settings/footer-content*', '*/system-settings/faqs*', '*/system-settings/sliders*', '*/system-settings/site-information*']) ? 'active' : '' }}">
                     <span class="nav-icon uil uil-browser"></span>
                     <span class="menu-text fw-bold">{{ trans('menu.frontend settings.title') }}</span>
                     <span class="toggle-icon"></span>
@@ -906,7 +952,8 @@
             </li>
             {{-- Site Information --}}
             <li class="has-child">
-                <a href="#" class="{{ isMenuActive(['admin.system-settings.site-information.index'], $currentRoute) ? 'active' : '' }}">
+                <a href="#"
+                    class="{{ isMenuActive(['admin.system-settings.site-information.index'], $currentRoute) ? 'active' : '' }}">
                     <span class="nav-icon uil uil-info-circle"></span>
                     <span class="fw-bold">{{ trans('menu.frontend settings.site information') }}</span>
                     <span class="toggle-icon"></span>
@@ -962,7 +1009,8 @@
                                 <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.area-settings.countries.index', 'admin.area-settings.countries.create', 'admin.area-settings.countries.show', 'admin.area-settings.countries.edit'], $currentRoute) ? 'active' : '' }}"
                                     href="{{ route('admin.area-settings.countries.index') }}">
                                     {{ trans('menu.area settings.country') }}
-                                    <span class="badge badge-round badge-primary  ms-1">{{ \Modules\AreaSettings\app\Models\Country::count() }}</span>
+                                    <span
+                                        class="badge badge-round badge-primary  ms-1">{{ \Modules\AreaSettings\app\Models\Country::count() }}</span>
                                 </a>
                             </li>
                         @endcan
@@ -972,7 +1020,8 @@
                                 <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.area-settings.cities.index', 'admin.area-settings.cities.create', 'admin.area-settings.cities.show', 'admin.area-settings.cities.edit'], $currentRoute) ? 'active' : '' }}"
                                     href="{{ route('admin.area-settings.cities.index') }}">
                                     {{ trans('menu.area settings.city') }}
-                                    <span class="badge badge-round badge-info ms-1">{{ \Modules\AreaSettings\app\Models\City::count() }}</span>
+                                    <span
+                                        class="badge badge-round badge-info ms-1">{{ \Modules\AreaSettings\app\Models\City::count() }}</span>
                                 </a>
                             </li>
                         @endcan
@@ -982,7 +1031,8 @@
                                 <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.area-settings.regions.index', 'admin.area-settings.regions.create', 'admin.area-settings.regions.show', 'admin.area-settings.regions.edit'], $currentRoute) ? 'active' : '' }}"
                                     href="{{ route('admin.area-settings.regions.index') }}">
                                     {{ trans('menu.area settings.region') }}
-                                    <span class="badge badge-round badge-warning ms-1">{{ \Modules\AreaSettings\app\Models\Region::count() }}</span>
+                                    <span
+                                        class="badge badge-round badge-warning ms-1">{{ \Modules\AreaSettings\app\Models\Region::count() }}</span>
                                 </a>
                             </li>
                         @endcan
@@ -992,7 +1042,8 @@
                                 <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.area-settings.subregions.index', 'admin.area-settings.subregions.create', 'admin.area-settings.subregions.show', 'admin.area-settings.subregions.edit'], $currentRoute) ? 'active' : '' }}"
                                     href="{{ route('admin.area-settings.subregions.index') }}">
                                     {{ trans('menu.area settings.subregion') }}
-                                    <span class="badge badge-round badge-secondary ms-1">{{ \Modules\AreaSettings\app\Models\SubRegion::count() }}</span>
+                                    <span
+                                        class="badge badge-round badge-secondary ms-1">{{ \Modules\AreaSettings\app\Models\SubRegion::count() }}</span>
                                 </a>
                             </li>
                         @endcan

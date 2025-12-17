@@ -89,12 +89,5 @@ class Category extends BaseModel
         return $this->getTranslation('description', app()->getLocale()) ?? '-';
     }
 
-    /**
-     * Activities relationship
-     */
-    public function activities()
-    {
-        return $this->belongsToMany(Activity::class, 'activities_categories', 'category_id', 'activity_id');
-    }
 
 }

@@ -134,7 +134,7 @@ class GlobalModelObserver
         $modelName = class_basename($model);
         $identifier = $model->id;
 
-        \Log::info("fired");
+
         // Map actions to translation keys
         $descriptionKeys = [
             'created' => 'activity_log.created_model',

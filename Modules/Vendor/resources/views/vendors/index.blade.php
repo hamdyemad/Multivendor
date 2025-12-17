@@ -30,10 +30,12 @@
                         <div class="ap-po-details-content h-100">
                             <div class="ap-po-details__titlebar">
                                 <h1 class="ap-po-details__title">{{ $statistics['total_balance'] }} {{ currency() }}</h1>
-                                <p class="ap-po-details__text text-nowrap">{{ __('vendor::vendor.total_vendors_balance') }}</p>
+                                <p class="ap-po-details__text text-nowrap">{{ __('vendor::vendor.total_vendors_balance') }}
+                                </p>
                             </div>
                             <div class="ap-po-details__icon-area">
-                                <div class="ap-po-details__icon ap-po-details__icon--balance d-flex align-items-center justify-content-center rounded-circle" style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                                <div class="ap-po-details__icon ap-po-details__icon--balance d-flex align-items-center justify-content-center rounded-circle"
+                                    style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                                     <i class="uil uil-wallet" style="font-size: 24px;"></i>
                                 </div>
                             </div>
@@ -50,7 +52,8 @@
                                 <p class="ap-po-details__text text-nowrap">{{ __('vendor::vendor.total_sent_money') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
-                                <div class="ap-po-details__icon ap-po-details__icon--sent d-flex align-items-center justify-content-center rounded-circle" style="width: 60px; height: 60px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                                <div class="ap-po-details__icon ap-po-details__icon--sent d-flex align-items-center justify-content-center rounded-circle"
+                                    style="width: 60px; height: 60px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
                                     <i class="uil uil-money-withdrawal" style="font-size: 24px;"></i>
                                 </div>
                             </div>
@@ -63,11 +66,13 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content h-100">
                             <div class="ap-po-details__titlebar">
-                                <h1 class="ap-po-details__title">{{ $statistics['total_remaining'] }} {{ currency() }}</h1>
+                                <h1 class="ap-po-details__title">{{ $statistics['total_remaining'] }} {{ currency() }}
+                                </h1>
                                 <p class="ap-po-details__text text-nowrap">{{ __('vendor::vendor.total_remaining') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
-                                <div class="ap-po-details__icon ap-po-details__icon--remaining d-flex align-items-center justify-content-center rounded-circle" style="width: 60px; height: 60px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+                                <div class="ap-po-details__icon ap-po-details__icon--remaining d-flex align-items-center justify-content-center rounded-circle"
+                                    style="width: 60px; height: 60px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
                                     <i class="uil uil-coins" style="font-size: 24px;"></i>
                                 </div>
                             </div>
@@ -196,7 +201,11 @@
                                     <th><span
                                             class="userDatatable-title">{{ __('vendor::vendor.vendor_information') }}</span>
                                     </th>
-                                    <th><span class="userDatatable-title">{{ __('vendor::vendor.active_status') }}</span></th>
+                                    <th><span
+                                            class="userDatatable-title">{{ __('vendor::vendor.departments') ?? 'Departments' }}</span>
+                                    </th>
+                                    <th><span class="userDatatable-title">{{ __('vendor::vendor.active_status') }}</span>
+                                    </th>
                                     <th><span class="userDatatable-title">{{ __('common.actions') }}</span></th>
                                 </tr>
                             </thead>
@@ -361,6 +370,23 @@
                         }
                     },
 
+                    // Departments column
+                    {
+                        data: 'departments',
+                        name: 'departments',
+                        orderable: false,
+                        searchable: false,
+                        render: function(data, type, row) {
+                            if (!data || !Array.isArray(data) || data.length === 0) {
+                                return '<span class="text-muted">-</span>';
+                            }
+                            return data.map(function(d) {
+                                return '<span class="badge badge-round badge-lg badge-primary mb-1 me-1">' +
+                                    (d.name || '-') + '</span>';
+                            }).join(' ');
+                        }
+                    },
+
                     // Active Status column
                     {
                         data: 'active',
@@ -383,8 +409,10 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            let viewUrl = "{{ route('admin.vendors.show', ':id') }}".replace(':id', row.id);
-                            let editUrl = "{{ route('admin.vendors.edit', ':id') }}".replace(':id', row.id);
+                            let viewUrl = "{{ route('admin.vendors.show', ':id') }}".replace(':id',
+                                row.id);
+                            let editUrl = "{{ route('admin.vendors.edit', ':id') }}".replace(':id',
+                                row.id);
                             return `
                             <div class="orderDatatable_actions d-inline-flex gap-1">
                                 @can('vendors.show')
@@ -556,7 +584,8 @@
                 const originalState = !$switch.is(':checked');
 
                 $.ajax({
-                    url: '{{ route("admin.vendors.change-status", "__id__") }}'.replace('__id__', vendorId),
+                    url: '{{ route('admin.vendors.change-status', '__id__') }}'.replace('__id__',
+                        vendorId),
                     type: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}'
@@ -576,7 +605,7 @@
                     error: function(xhr) {
                         $switch.prop('checked', originalState);
                         if (typeof toastr !== 'undefined') {
-                            toastr.error('{{ __("vendor::vendor.error_changing_status") }}');
+                            toastr.error('{{ __('vendor::vendor.error_changing_status') }}');
                         }
                     }
                 });

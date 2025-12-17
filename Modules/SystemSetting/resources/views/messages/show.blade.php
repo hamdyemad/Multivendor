@@ -7,9 +7,13 @@
         <div class="row">
             <div class="col-lg-12">
                 <x-breadcrumb :items="[
-                    ['title' => trans('dashboard.title'), 'url' => route('admin.dashboard'), 'icon' => 'uil uil-estate'],
+                    [
+                        'title' => trans('dashboard.title'),
+                        'url' => route('admin.dashboard'),
+                        'icon' => 'uil uil-estate',
+                    ],
                     ['title' => __('systemsetting::messages.messages'), 'url' => route('admin.messages.index')],
-                    ['title' => __('systemsetting::messages.view_message')]
+                    ['title' => __('systemsetting::messages.view_message')],
                 ]" />
             </div>
         </div>
@@ -39,7 +43,8 @@
                                             {{-- Message Title --}}
                                             <div class="col-md-6">
                                                 <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('systemsetting::messages.title') }}</label>
+                                                    <label
+                                                        class="il-gray fs-14 fw-500 mb-10">{{ __('systemsetting::messages.title') }}</label>
                                                     <p class="fs-15 color-dark fw-500">
                                                         {{ $message->title }}
                                                     </p>
@@ -49,17 +54,19 @@
                                             {{-- Message Status --}}
                                             <div class="col-md-6">
                                                 <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('systemsetting::messages.status') }}</label>
+                                                    <label
+                                                        class="il-gray fs-14 fw-500 mb-10">{{ __('systemsetting::messages.status') }}</label>
                                                     <p class="fs-15">
                                                         @php
                                                             $statusColors = [
                                                                 'pending' => 'warning',
                                                                 'read' => 'success',
-                                                                'archived' => 'secondary'
+                                                                'archived' => 'secondary',
                                                             ];
                                                             $color = $statusColors[$message->status] ?? 'secondary';
                                                         @endphp
-                                                        <span class="badge badge-{{ $color }} badge-round badge-lg text-capitalize">{{ $message->status }}</span>
+                                                        <span
+                                                            class="badge badge-{{ $color }} badge-round badge-lg text-capitalize">{{ $message->status }}</span>
                                                     </p>
                                                 </div>
                                             </div>
@@ -67,7 +74,8 @@
                                             {{-- Sender Name --}}
                                             <div class="col-md-6">
                                                 <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('systemsetting::messages.sender_name') }}</label>
+                                                    <label
+                                                        class="il-gray fs-14 fw-500 mb-10">{{ __('systemsetting::messages.sender_name') }}</label>
                                                     <p class="fs-15 color-dark">
                                                         {{ $message->name }}
                                                     </p>
@@ -77,7 +85,8 @@
                                             {{-- Sender Email --}}
                                             <div class="col-md-6">
                                                 <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('systemsetting::messages.sender_email') }}</label>
+                                                    <label
+                                                        class="il-gray fs-14 fw-500 mb-10">{{ __('systemsetting::messages.sender_email') }}</label>
                                                     <p class="fs-15 color-dark">
                                                         <a href="mailto:{{ $message->email }}">{{ $message->email }}</a>
                                                     </p>
@@ -90,14 +99,16 @@
                                 <div class="card card-holder mt-3">
                                     <div class="card-header">
                                         <h3>
-                                            <i class="uil uil-message me-1"></i>{{ __('systemsetting::messages.message_content') }}
+                                            <i
+                                                class="uil uil-message me-1"></i>{{ __('systemsetting::messages.message_content') }}
                                         </h3>
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="view-item">
-                                                    <div class="message-content p-4 bg-light rounded" style="min-height: 200px; line-height: 1.8; border-left: 4px solid #0056B7;">
+                                                    <div class="message-content p-4 rounded"
+                                                        style="min-height: 200px; line-height: 1.8; border-left: 4px solid #0056B7;">
                                                         {!! nl2br(e($message->content)) !!}
                                                     </div>
                                                 </div>
@@ -116,35 +127,18 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('common.created_at') }}</label>
+                                                    <label
+                                                        class="il-gray fs-14 fw-500 mb-10">{{ __('common.created_at') }}</label>
                                                     <p class="fs-15 color-dark">{{ $message->created_at }}</p>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('common.updated_at') }}</label>
+                                                    <label
+                                                        class="il-gray fs-14 fw-500 mb-10">{{ __('common.updated_at') }}</label>
                                                     <p class="fs-15 color-dark">{{ $message->updated_at }}</p>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="card card-holder mt-3">
-                                    <div class="card-header">
-                                        <h3>
-                                            <i class="uil uil-cog me-1"></i>{{ __('common.actions') }}
-                                        </h3>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="d-flex gap-2">
-                                            <form action="{{ route('admin.messages.destroy', $message->id) }}" method="POST" style="display: inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('{{ __('systemsetting::messages.confirm_delete_message') }}')">
-                                                    <i class="uil uil-trash-alt me-2"></i>{{ __('common.delete') }}
-                                                </button>
-                                            </form>
                                         </div>
                                     </div>
                                 </div>

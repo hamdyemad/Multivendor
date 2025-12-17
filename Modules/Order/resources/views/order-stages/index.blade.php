@@ -49,8 +49,7 @@
                                             </label>
                                             <input type="text"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                id="search"
-                                                placeholder="{{ __('common.search') }}..."
+                                                id="search" placeholder="{{ __('common.search') }}..."
                                                 autocomplete="off">
                                         </div>
                                     </div>
@@ -138,13 +137,20 @@
                             <thead>
                                 <tr class="userDatatable-header">
                                     <th class="text-center"><span class="userDatatable-title">#</span></th>
-                                    @foreach($languages as $language)
-                                        <th><span class="userDatatable-title">{{ trans('order::order_stage.name') }} ({{ $language->name }})</span></th>
+                                    @foreach ($languages as $language)
+                                        <th><span class="userDatatable-title">{{ trans('order::order_stage.name') }}
+                                                ({{ $language->name }})</span></th>
                                     @endforeach
-                                    <th><span class="userDatatable-title">{{ trans('order::order_stage.color') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ trans('order::order_stage.sort_order') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ trans('order::order_stage.status') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ trans('order::order_stage.created_at') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ trans('order::order_stage.color') }}</span>
+                                    </th>
+                                    <th><span
+                                            class="userDatatable-title">{{ trans('order::order_stage.sort_order') }}</span>
+                                    </th>
+                                    <th><span class="userDatatable-title">{{ trans('order::order_stage.status') }}</span>
+                                    </th>
+                                    <th><span
+                                            class="userDatatable-title">{{ trans('order::order_stage.created_at') }}</span>
+                                    </th>
                                     <th><span class="userDatatable-title">{{ __('common.actions') }}</span></th>
                                 </tr>
                             </thead>
@@ -158,11 +164,10 @@
     </div>
 
     {{-- Delete Modal --}}
-    <x-delete-with-loading modalId="modal-delete-order-stage" tableId="orderStagesDataTable" deleteButtonClass="delete-order-stage"
-        :title="trans('main.confirm delete')" :message="trans('main.are you sure you want to delete this')" itemNameId="delete-order-stage-name" confirmBtnId="confirmDeleteOrderStageBtn"
-        :cancelText="trans('main.cancel')" :deleteText="trans('main.delete')" :loadingDeleting="trans('main.deleting')" :loadingPleaseWait="trans('main.please wait')" :loadingDeletedSuccessfully="trans('main.deleted success')" :loadingRefreshing="trans('main.refreshing')"
-        :errorDeleting="trans('main.error on delete')" />
-
+    <x-delete-with-loading modalId="modal-delete-order-stage" tableId="orderStagesDataTable"
+        deleteButtonClass="delete-order-stage" :title="trans('main.confirm delete')" :message="trans('main.are you sure you want to delete this')" itemNameId="delete-order-stage-name"
+        confirmBtnId="confirmDeleteOrderStageBtn" :cancelText="trans('main.cancel')" :deleteText="trans('main.delete')" :loadingDeleting="trans('main.deleting')" :loadingPleaseWait="trans('main.please wait')"
+        :loadingDeletedSuccessfully="trans('main.deleted success')" :loadingRefreshing="trans('main.refreshing')" :errorDeleting="trans('main.error on delete')" />
 @endsection
 
 @push('after-body')
@@ -198,26 +203,24 @@
                         return d;
                     }
                 },
-                columns: [
-                    {
+                columns: [{
                         data: 'index',
                         name: 'index',
                         orderable: false,
                         searchable: false,
                         className: 'text-center fw-bold'
                     },
-                    @foreach($languages as $language)
-                    {
-                        data: 'translations.{{ $language->code }}.name',
-                        name: 'translations.{{ $language->code }}.name',
-                        orderable: false,
-                        searchable: false,
-                        render: function(data, type, row) {
-                            return data || '-';
-                        }
-                    },
-                    @endforeach
-                    {
+                    @foreach ($languages as $language)
+                        {
+                            data: 'translations.{{ $language->code }}.name',
+                            name: 'translations.{{ $language->code }}.name',
+                            orderable: false,
+                            searchable: false,
+                            render: function(data, type, row) {
+                                return data || '-';
+                            }
+                        },
+                    @endforeach {
                         data: 'color',
                         name: 'color',
                         orderable: false,
@@ -246,6 +249,7 @@
                         render: function(data, type, row) {
                             const isChecked = data ? 'checked' : '';
                             const switchId = 'status-switch-' + row.id;
+                            const isDisabled = row.is_system ? 'disabled' : '';
                             return `<div class="userDatatable-content">
                                 <div class="form-switch">
                                     <input class="form-check-input status-switcher"
@@ -253,7 +257,8 @@
                                            id="${switchId}"
                                            data-id="${row.id}"
                                            ${isChecked}
-                                           style="cursor: pointer;">
+                                           ${isDisabled}
+                                           style="cursor: ${row.is_system ? 'not-allowed' : 'pointer'};">
                                     <label class="form-check-label" for="${switchId}"></label>
                                 </div>
                             </div>`;
@@ -274,8 +279,10 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            let showUrl = "{{ route('admin.order-stages.show', ':id') }}".replace(':id', row.id);
-                            let editUrl = "{{ route('admin.order-stages.edit', ':id') }}".replace(':id', row.id);
+                            let showUrl = "{{ route('admin.order-stages.show', ':id') }}".replace(
+                                ':id', row.id);
+                            let editUrl = "{{ route('admin.order-stages.edit', ':id') }}".replace(
+                                ':id', row.id);
                             return `
                                 <div class="orderDatatable_actions d-inline-flex gap-1 justify-content-center">
                                     <a href="${showUrl}"
@@ -284,31 +291,36 @@
                                         <i class="uil uil-eye table_action_icon"></i>
                                     </a>
                                     ${!row.is_system ? `
-                                    <a href="${editUrl}"
-                                    class="edit btn btn-warning table_action_father"
-                                    title="{{ trans('order::order_stage.edit_order_stage') }}">
-                                        <i class="uil uil-edit table_action_icon"></i>
-                                    </a>
+                                        <a href="${editUrl}"
+                                        class="edit btn btn-warning table_action_father"
+                                        title="{{ trans('order::order_stage.edit_order_stage') }}">
+                                            <i class="uil uil-edit table_action_icon"></i>
+                                        </a>
 
-                                    <a href="javascript:void(0);"
-                                    class="remove delete-order-stage btn btn-danger table_action_father"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modal-delete-order-stage"
-                                    data-id="${row.id}"
-                                    data-name="${row.translations && row.translations.en ? row.translations.en.name : 'Order Stage'}"
-                                    data-url="{{ route('admin.order-stages.index') }}/${row.id}"
-                                    title="{{ __('order::order_stage.delete_order_stage') }}">
-                                        <i class="uil uil-trash-alt table_action_icon"></i>
-                                    </a>
-                                    ` : ''}
+                                        <a href="javascript:void(0);"
+                                        class="remove delete-order-stage btn btn-danger table_action_father"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modal-delete-order-stage"
+                                        data-id="${row.id}"
+                                        data-name="${row.translations && row.translations.en ? row.translations.en.name : 'Order Stage'}"
+                                        data-url="{{ route('admin.order-stages.index') }}/${row.id}"
+                                        title="{{ __('order::order_stage.delete_order_stage') }}">
+                                            <i class="uil uil-trash-alt table_action_icon"></i>
+                                        </a>
+                                        ` : ''}
                                 </div>
                             `;
                         }
                     }
                 ],
                 pageLength: per_page,
-                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
-                order: [[4, 'asc']], // Sort by sort_order
+                lengthMenu: [
+                    [10, 25, 50, 100],
+                    [10, 25, 50, 100]
+                ],
+                order: [
+                    [4, 'asc']
+                ], // Sort by sort_order
                 pagingType: 'full_numbers',
                 dom: '<"row"<"col-sm-12"tr>>' +
                     '<"row mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
@@ -362,7 +374,8 @@
                 if ($('#created_from_filter').val()) params.set('created_from', $('#created_from_filter').val());
                 if ($('#created_until_filter').val()) params.set('created_until', $('#created_until_filter').val());
 
-                const newUrl = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
+                const newUrl = params.toString() ? `${window.location.pathname}?${params.toString()}` : window
+                    .location.pathname;
                 window.history.replaceState({}, '', newUrl);
             }
 
@@ -382,33 +395,33 @@
                 }
 
                 $.ajax({
-                    url: '{{ url("admin/order-stages") }}/' + id + '/toggle-status',
+                    url: '{{ url('admin/order-stages') }}/' + id + '/toggle-status',
                     type: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',
                         status: newStatus
                     },
                     success: function(response) {
-                         if (typeof LoadingOverlay !== 'undefined') {
-                             LoadingOverlay.hide();
-                         }
-                         switcher.prop('disabled', false);
-                         // Optional: Toast
-                         if (typeof Swal !== 'undefined') {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: '{{ __('common.success') ?? 'Success' }}',
-                                    text: response.message,
-                                    timer: 2000,
-                                    showConfirmButton: false,
-                                    toast: true,
-                                    position: 'top-end'
-                                });
+                        if (typeof LoadingOverlay !== 'undefined') {
+                            LoadingOverlay.hide();
+                        }
+                        switcher.prop('disabled', false);
+                        // Optional: Toast
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '{{ __('common.success') ?? 'Success' }}',
+                                text: response.message,
+                                timer: 2000,
+                                showConfirmButton: false,
+                                toast: true,
+                                position: 'top-end'
+                            });
                         }
                     },
                     error: function(xhr) {
                         if (typeof LoadingOverlay !== 'undefined') {
-                             LoadingOverlay.hide();
+                            LoadingOverlay.hide();
                         }
                         switcher.prop('disabled', false);
                         switcher.prop('checked', !switcher.is(':checked'));
@@ -423,7 +436,7 @@
     <script>
         // Configure delete functionality
         window.deleteConfig = {
-            url: '{{ route("admin.order-stages.index") }}',
+            url: '{{ route('admin.order-stages.index') }}',
             token: '{{ csrf_token() }}'
         };
     </script>

@@ -26,8 +26,8 @@ class OrderSeeder extends Seeder
 
         // Get required data
         $customers = Customer::all();
-        $stages = OrderStage::all();
-        $vendorProducts = VendorProduct::with('product.department.activities', 'variants')->limit(50)->get();
+        $stages = OrderStage::withoutCountryFilter()->get();
+        $vendorProducts = VendorProduct::with('product.department', 'variants')->limit(50)->get();
         $countries = Country::where('active', true)->limit(5)->get();
 
         if ($customers->isEmpty()) {
@@ -103,12 +103,8 @@ class OrderSeeder extends Seeder
                     $selectedProducts = $vendorProducts->random(min($itemsCount, $vendorProducts->count()));
 
                     foreach ($selectedProducts as $vendorProduct) {
-                        // Calculate commission from activities
-                        $commission = 0;
-                        $activities = $vendorProduct->product->department->activities;
-                        foreach($activities as $activity) {
-                            $commission += $activity->commission;
-                        }
+                        // Calculate commission from department
+                        $commission = $vendorProduct->product->department->commission ?? 0;
 
                         $tax_rate = $vendorProduct->tax->tax_rate;
                         $quantity = rand(1, 3);

@@ -2,7 +2,7 @@
 @section('title', trans('catalogmanagement::product.stock_setup'))
 
 @section('content')
-    <div class="container-fluid">
+    <div class="container-fluid mb-3">
         <div class="row">
             <div class="col-lg-12">
                 <x-breadcrumb :items="[

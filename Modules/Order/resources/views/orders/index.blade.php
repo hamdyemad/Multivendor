@@ -3,7 +3,54 @@
     {{ trans('order::order.order_management') }} | Bnaia
 @endsection
 @push('styles')
-    <!-- Select2 CSS loaded via Vite -->
+    <style>
+        .vendor-logos {
+            display: flex;
+            align-items: center;
+        }
+        .vendor-logo-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-left: -10px; /* Overlap amount */
+        }
+        .vendor-logo-wrapper:first-child {
+            margin-left: 0;
+        }
+        .vendor-logo {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            object-fit: cover;
+            background-color: #f0f0f0;
+            transition: transform 0.2s ease-in-out;
+        }
+        .vendor-logo-wrapper:hover .vendor-logo {
+            transform: translateY(-5px);
+        }
+        .vendor-logo-wrapper .vendor-name-tooltip {
+            visibility: hidden;
+            width: max-content;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position the tooltip above the logo */
+            left: 50%;
+            margin-left: -50%; /* Center the tooltip */
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            transform: translateY(10px);
+        }
+        .vendor-logo-wrapper:hover .vendor-name-tooltip {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -23,7 +70,7 @@
 
         {{-- Statistics Cards --}}
         <div class="row mb-25">
-            <div class="col-lg-4 col-md-6 col-sm-6">
+            <div class="col-md-6 col-sm-6">
                 <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between h-100">
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content h-100">
@@ -40,7 +87,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6 col-sm-6">
+            <div class="col-md-6 col-sm-6">
                 <div class="ap-po-details ap-po-details--3 p-25 radius-xl d-flex justify-content-between h-100">
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content h-100">
@@ -51,23 +98,6 @@
                             <div class="ap-po-details__icon-area">
                                 <div class="ap-po-details__icon ap-po-details__icon--sent d-flex align-items-center justify-content-center rounded-circle" style="width: 60px; height: 60px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
                                     <i class="uil uil-receipt" style="font-size: 24px;"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 col-sm-6">
-                <div class="ap-po-details ap-po-details--4 p-25 radius-xl d-flex justify-content-between h-100">
-                    <div class="overview-content w-100">
-                        <div class="ap-po-details-content h-100">
-                            <div class="ap-po-details__titlebar">
-                                <h1 class="ap-po-details__title" id="totalIncome">0.00 {{ currency() }}</h1>
-                                <p class="ap-po-details__text text-nowrap">{{ trans('order::order.income') }}</p>
-                            </div>
-                            <div class="ap-po-details__icon-area">
-                                <div class="ap-po-details__icon ap-po-details__icon--remaining d-flex align-items-center justify-content-center rounded-circle" style="width: 60px; height: 60px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
-                                    <i class="uil uil-money-bill" style="font-size: 24px;"></i>
                                 </div>
                             </div>
                         </div>
@@ -121,6 +151,27 @@
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="stage">
                                                 <option value="">{{ trans('order::order.all_stages') }}</option>
+                                                @foreach($orderStages as $stage)
+                                                    <option value="{{ $stage['id'] }}">{{ $stage['name'] }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {{-- Vendor --}}
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label for="vendor" class="il-gray fs-14 fw-500 mb-10">
+                                                <i class="uil uil-store me-1"></i>
+                                                {{ trans('order::order.vendor') }}
+                                            </label>
+                                            <select
+                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                id="vendor">
+                                                <option value="">{{ trans('order::order.all_vendors') }}</option>
+                                                @foreach($vendors as $vendor)
+                                                    <option value="{{ $vendor->id }}">{{ $vendor->name }}</option>
+                                                @endforeach
                                             </select>
                                         </div>
                                     </div>
@@ -209,7 +260,7 @@
     </div>
 
     {{-- Include Change Stage Modal Component --}}
-    <x-order::change-stage-modal :order-id="null" />
+    <x-order::change-stage-modal :order-id="null" :order-stages="$orderStages" />
 
 @endsection
 
@@ -221,51 +272,16 @@
     <script>
         $(document).ready(function() {
             let per_page = 10;
-            let orderStages = [];
-
-            // Fetch order stages for filter dropdown
-            function loadOrderStages() {
-                $.ajax({
-                    url: '{{ route('admin.order-stages.index') }}',
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.data) {
-                            orderStages = response.data;
-                            populateStageFilters();
-                        }
-                    }
-                });
-            }
-
-            // Populate stage filter and modal select
-            function populateStageFilters() {
-                const stageSelect = $('#stage');
-                const newStageSelect = $('#newStage');
-
-                stageSelect.find('option:not(:first)').remove();
-                newStageSelect.find('option:not(:first)').remove();
-
-                orderStages.forEach(stage => {
-                    const stageName = stage.translations && stage.translations.en
-                        ? stage.translations.en.name
-                        : stage.slug;
-
-                    stageSelect.append(`<option value="${stage.id}">${stageName}</option>`);
-                    newStageSelect.append(`<option value="${stage.id}">${stageName}</option>`);
-                });
-            }
 
             // Populate filters from URL parameters on page load
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('search')) $('#search').val(urlParams.get('search'));
             if (urlParams.has('stage')) $('#stage').val(urlParams.get('stage'));
+            if (urlParams.has('vendor')) {
+                $('#vendor').val(urlParams.get('vendor')).trigger('change');
+            }
             if (urlParams.has('created_from')) $('#created_from_filter').val(urlParams.get('created_from'));
             if (urlParams.has('created_until')) $('#created_until_filter').val(urlParams.get('created_until'));
-
-            // Load stages first
-            loadOrderStages();
-
             // Server-side processing with pagination
             let table = $('#ordersDataTable').DataTable({
                 processing: true,
@@ -324,6 +340,30 @@
                         }
                     },
                     {
+                        data: 'vendor',
+                        name: 'vendor',
+                        orderable: false,
+                        searchable: false,
+                        render: function(data, type, row) {
+                            if (!data || data.length === 0) {
+                                return '-';
+                            }
+
+                            let logosHtml = '<div class="vendor-logos">';
+                            data.forEach(vendor => {
+                                logosHtml += `
+                                    <div class="vendor-logo-wrapper">
+                                        <img src="${vendor.logo_url}" alt="${vendor.name}" class="vendor-logo">
+                                        <span class="vendor-name-tooltip">${vendor.name}</span>
+                                    </div>
+                                `;
+                            });
+                            logosHtml += '</div>';
+
+                            return logosHtml;
+                        }
+                    },
+                    {
                         data: 'total_price',
                         name: 'total_price',
                         orderable: false,
@@ -338,12 +378,7 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            if (!data) return '-';
-                            const stageName = data.translations && data.translations.en
-                                ? data.translations.en.name
-                                : data.slug;
-                            const stageColor = data.color || '#6c757d';
-                            return `<span class="badge badge-round badge-lg" style="background-color: ${stageColor}; color: white;">${stageName}</span>`;
+                            return `<span class="badge badge-round badge-lg" style="background-color: ${data.color}; color: white;">${data.name}</span>`;
                         }
                     },
                     {
@@ -361,7 +396,7 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            let showUrl = "{{ route('admin.orders.show', ':id') }}".replace(':id', row.id);
+                            let showUrl = "{{ route('admin.orders.show', ['order' => ':id', 'lang' => app()->getLocale(), 'countryCode' => session('country_code')]) }}".replace(':id', row.id);
                             // Check if stage is delivered, cancelled, or refund
                             const finalStages = ['deliver', 'cancel', 'refund'];
                             const isFinalStage = row.stage && finalStages.includes(row.stage.slug);
@@ -449,6 +484,11 @@
                 const newUrl = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
                 window.history.replaceState({}, '', newUrl);
             }
+
+            $('#vendor').select2({
+                theme: 'bootstrap-5',
+                width: '100%'
+            });
 
             // Handle change stage modal - set order ID and stage ID from button data attributes
             $('#changeStageModal').on('show.bs.modal', function(e) {

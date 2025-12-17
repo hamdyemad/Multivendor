@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Modules\CategoryManagment\app\Http\Requests\CategoryRequest;
 use Modules\CategoryManagment\app\Services\CategoryService;
 use Modules\CategoryManagment\app\Services\DepartmentService;
-use Modules\CategoryManagment\app\Services\ActivityService;
 use Modules\CategoryManagment\app\Http\Resources\ActivityResource;
 use App\Services\LanguageService;
 use App\Traits\Res;
@@ -19,7 +18,6 @@ class CategoryController extends Controller
 {
     protected $categoryService;
     protected $departmentService;
-    protected $activityService;
     protected $languageService;
     use Res;
 

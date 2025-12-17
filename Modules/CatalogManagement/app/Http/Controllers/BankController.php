@@ -108,7 +108,6 @@ class BankController extends Controller
                         'search' => $search,
                         'exclude_vendor_id' => $vendorId,
                     ], $perPage);
-
                     return response()->json([
                         'success' => true,
                         'data' => [

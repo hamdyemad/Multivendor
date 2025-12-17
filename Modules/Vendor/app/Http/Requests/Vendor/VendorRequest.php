@@ -57,13 +57,13 @@ class VendorRequest extends FormRequest
             'translations.*.meta_description' => 'nullable|string|max:500',
             'translations.*.meta_keywords' => 'nullable|string|max:500',
 
+            // Departments
+            'departments' => 'required|array|min:1',
+            'departments.*' => 'exists:departments,id',
+
             // Files
             'logo' => $logoRule,
             'banner' => $bannerRule,
-
-            // Relations
-            'activity_ids' => 'required|array|min:1',
-            'activity_ids.*' => 'required|exists:activities,id',
 
             // Status
             'active' => 'nullable|boolean',
@@ -110,7 +110,6 @@ class VendorRequest extends FormRequest
             'translations.*.description' => __('vendor::vendor.description'),
             'logo' => __('vendor::vendor.logo'),
             'banner' => __('vendor::vendor.banner'),
-            'activity_id' => __('common.activity'),
             'meta_title' => __('vendor::vendor.meta_title'),
             'meta_description' => __('vendor::vendor.meta_description'),
             'meta_keywords' => __('vendor::vendor.meta_keywords'),
@@ -128,9 +127,6 @@ class VendorRequest extends FormRequest
     {
         $messages = [
             'translations.required' => __('vendor::vendor.at_least_one_translation_required'),
-            'activity_ids.required' => __('vendor::vendor.please_select_activity'),
-            'activity_ids.min' => __('vendor::vendor.please_select_at_least_one_activity'),
-            'activity_ids.*.exists' => __('vendor::vendor.selected_activity_invalid'),
             'email.required' => __('vendor::vendor.email_required'),
             'email.email' => __('vendor::vendor.email_valid'),
             'email.unique' => __('vendor::vendor.email_already_registered'),

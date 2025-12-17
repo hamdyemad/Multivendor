@@ -60,7 +60,7 @@ class OccasionController extends Controller
                     $nameAr = $occasion->getTranslation('name', 'ar') ?? '-';
 
                     // Get vendor name
-                    $vendorName = $occasion->vendor->name;
+                    $vendorName = $occasion->vendor->name ?? '-';
 
                     // Get image
                     $imageAttachment = $occasion->attachments()->where('type', 'image')->first();

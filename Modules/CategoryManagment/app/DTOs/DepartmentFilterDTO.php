@@ -13,7 +13,6 @@ class DepartmentFilterDTO extends FilterDTO
         public ?string $search = null,
         public ?string $created_date_from = null,
         public ?string $created_date_to = null,
-        public ?array $activity_ids = null,
         public ?string $vendor_id = null,
         public ?string $brand_id = null,
         public ?int $per_page = null,
@@ -29,7 +28,6 @@ class DepartmentFilterDTO extends FilterDTO
             search: $request->input('search'),
             created_date_from: $request->input('created_date_from'),
             created_date_to: $request->input('created_date_to'),
-            activity_ids: $request->input('activity_ids'),
             vendor_id: $request->input('vendor_id'),
             brand_id: $request->input('brand_id'),
             per_page: $request->integer('per_page', 15),
@@ -43,7 +41,6 @@ class DepartmentFilterDTO extends FilterDTO
             'search' => $this->search,
             'created_date_from' => $this->created_date_from,
             'created_date_to' => $this->created_date_to,
-            'activity_ids' => $this->activity_ids,
             'vendor_id' => $this->vendor_id,
             'brand_id' => $this->brand_id,
             'per_page' => $this->per_page,
@@ -63,9 +60,6 @@ class DepartmentFilterDTO extends FilterDTO
             $this->errors['created_date_to'][] = __('validation.created_date_to_invalid');
         }
 
-        if ($this->activity_ids && !is_array($this->activity_ids)) {
-            $this->errors['activity_ids'][] = __('validation.activity_ids_invalid');
-        }
 
         return count($this->errors) === 0;
     }

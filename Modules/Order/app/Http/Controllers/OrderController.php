@@ -14,13 +14,20 @@ use Modules\Order\app\Http\Requests\AddExtraFeeDiscountRequest;
 use Modules\Order\app\Http\Requests\CreateFulfillmentRequest;
 use Modules\Order\app\Models\Order;
 use App\Models\Language;
+use Modules\Order\app\Http\Resources\Api\OrderStageResource;
+use Modules\Order\app\Models\OrderProduct;
+use Modules\Order\app\Models\OrderStage;
+use Modules\Order\app\Services\OrderStageService;
 use Modules\Vendor\app\Services\VendorService;
 
 class OrderController extends Controller
 {
     protected $orderService;
 
-    public function __construct(OrderService $orderService, protected VendorService $vendorService
+    public function __construct(
+        OrderService $orderService,
+        protected VendorService $vendorService,
+        protected OrderStageService $orderStageService
     )
     {
         $this->orderService = $orderService;
@@ -31,13 +38,18 @@ class OrderController extends Controller
      */
     public function index()
     {
+        $orderStages = $this->orderStageService->getOrderStagesQuery()->get();
+        $orderStages = OrderStageResource::collection($orderStages)->resolve();
         $languages = Language::all();
-        $total_price = Order::latest()->sum('total_price');
+        $total_price =  number_format(OrderProduct::sum(\DB::raw('price * quantity')), 2);
         $orders_count = Order::latest()->count();
+        $vendors = $this->vendorService->getAllVendors([]);
         $data = [
             'languages' => $languages,
             'orders_count' => $orders_count,
             'total_price' => $total_price,
+            'vendors' => $vendors,
+            'orderStages' => $orderStages,
         ];
         return view('order::orders.index', $data);
     }
@@ -60,6 +72,7 @@ class OrderController extends Controller
                 'created_date_from' => $request->created_date_from ?? null,
                 'created_date_to' => $request->created_date_to ?? null,
                 'stage_id' => $request->stage ?? null,
+                'vendor_id' => $request->vendor ?? null,
             ];
 
             // Get total records count
@@ -81,6 +94,17 @@ class OrderController extends Controller
                 // Count items in this order
                 $itemsCount = $order->products ? $order->products->sum('quantity') : 0;
 
+                $vendors = $order->products->map(function ($orderProduct) {
+                    return $orderProduct->vendorProduct->vendor ?? null;
+                })->filter()->unique('id');
+
+                $vendorsData = $vendors->map(function ($vendor) {
+                    return [
+                        'name' => $vendor->name,
+                        'logo_url' => $vendor->logo ? asset('storage/' . $vendor->logo->path) : asset('assets/img/default.png')
+                    ];
+                })->values();
+
                 $rowData = [
                     'index' => $index++,
                     'id' => $order->id,
@@ -88,10 +112,14 @@ class OrderController extends Controller
                     'customer_name' => $order->customer_name,
                     'customer_email' => $order->customer_email,
                     'customer_phone' => $order->customer_phone ?? '-',
+                    'vendor' => $vendorsData,
                     'total_price' => $order->total_price . ' ' . currency(),
                     'total_product_price' => $order->total_product_price . ' ' . currency(),
                     'items_count' => $itemsCount,
-                    'stage' => $order->stage,
+                    'stage' => [
+                        'name' => $order->stage?->name ?? '-',
+                        'color' => $order->stage?->color ?? '-',
+                    ],
                     'created_at' => $order->created_at,
                 ];
 

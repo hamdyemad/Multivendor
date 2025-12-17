@@ -299,6 +299,10 @@
                         data: 'vendor',
                         name: 'vendor',
                         render: function(data, type, row) {
+                            if (typeof data !== 'object' || data === null) {
+                                return '-';
+                            }
+
                             const logo = data.logo ?
                                 `<img class='me-1' src="${data.logo}" alt="Vendor Logo" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">` :
                                 `<div class='me-1' style="width:40px; height:40px; border-radius:50%; background:#f0f0f0; display:flex; align-items:center; justify-content:center; font-size:12px; color:#666;">{{ __('withdraw::withdraw.no_logo') }}</div>`;

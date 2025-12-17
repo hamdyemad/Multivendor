@@ -168,12 +168,25 @@ class Order extends BaseModel
             unset($filters['search']);
         }
 
-        parent::scopeFilter($query, $filters);
-
         // Stage filter
         if (!empty($filters['stage_id'])) {
             $query->where('stage_id', $filters['stage_id']);
         }
+
+        if (!empty($filters['created_date_from'])) {
+            $query->whereDate('created_at', '>=', $filters['created_date_from']);
+        }
+
+        if (!empty($filters['created_date_to'])) {
+            $query->whereDate('created_at', '<=', $filters['created_date_to']);
+        }
+
+        if (!empty($filters['vendor_id'])) {
+            $query->whereHas('products', function ($q) use ($filters) {
+                $q->where('vendor_id', $filters['vendor_id']);
+            });
+        }
+
         return $query;
     }
 }

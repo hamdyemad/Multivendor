@@ -22,6 +22,15 @@ class Department extends BaseModel
 
     protected $guarded = [];
 
+    protected $fillable = [
+        'name',
+        'description',
+        'slug',
+        'active',
+        'commission',
+        'country_id'
+    ];
+
     // ============================================
     // RELATIONSHIPS
     // ============================================
@@ -35,12 +44,14 @@ class Department extends BaseModel
     }
 
     /**
-     * Activities relationship
+     * Vendors relationship
      */
-    public function activities()
+    public function vendors()
     {
-        return $this->belongsToMany(Activity::class, 'activities_departments', 'department_id', 'activity_id');
+        return $this->belongsToMany(\Modules\Vendor\app\Models\Vendor::class, 'department_vendor');
     }
+
+
 
     /**
      * Categories relationship
@@ -86,13 +97,7 @@ class Department extends BaseModel
         return 'department';
     }
 
-    /**
-     * Get active activities
-     */
-    public function activeActivities()
-    {
-        return $this->activities()->active();
-    }
+
 
     /**
      * Get active categories
@@ -102,15 +107,7 @@ class Department extends BaseModel
         return $this->categories()->active();
     }
 
-    public function scopeByVendor(Builder $query, $vendorIdentifier)
-    {
-        return $query->whereHas('activities', function($q) use ($vendorIdentifier) {
-            $q->whereHas('vendors', function($subQ) use ($vendorIdentifier) {
-                $subQ->where('vendors.id', $vendorIdentifier)
-                    ->orWhere('vendors.slug', $vendorIdentifier);
-            });
-        });
-    }
+
 
     public function products()
     {
@@ -139,16 +136,33 @@ class Department extends BaseModel
     }
 
 
+    /**
+     * Scope: Filter by vendor ID or slug
+     * Overrides HasFilterScopes because relationship name is 'vendors'
+     */
+    public function scopeByVendor(Builder $query, $vendorIdentifier)
+    {
+        return $query->whereHas('vendors', function ($subQ) use ($vendorIdentifier) {
+            $subQ->where('vendors.id', $vendorIdentifier) // Explicitly qualify id to avoid ambiguity if needed
+                ->orWhere('vendors.slug', $vendorIdentifier);
+        });
+    }
+
     public function scopeFilter(Builder $query, array $filters)
     {
         // Call parent filter scope from HasFilterScopes trait
-        parent::scopeFilter($query, $filters);
-
-
-        if (!empty($filters['vendor_id'])) {
-            $query->byVendor($filters['vendor_id']);
-        }
-
-        return $query;
+        // Note: HasFilterScopes::scopeFilter ALREADY calls byVendor if vendor_id is present.
+        // Since we overrode byVendor, the trait will use our implementation.
+        // We don't need to manually call it again, but if parent::scopeFilter is generic 
+        // and calls $this->byVendor(), it works. 
+        // However, looking at Department.php parent::scopeFilter, it might be calling the Trait logic directly.
+        // Traits methods are mixed in. "parent" usually refers to the extended Class (BaseModel).
+        
+        // If BaseModel uses HasFilterScopes, calling parent::scopeFilter invokes the Trait's logic mixed into BaseModel.
+        // That logic simply does $query->byVendor(...). 
+        // Since $query is an instance of Department query builder, it should find the scope locally defined?
+        // Actually, $query is a Builder instance, but the method call `byVendor` is a scope call.
+        
+        return parent::scopeFilter($query, $filters);
     }
 }

@@ -4,7 +4,6 @@ namespace Modules\Vendor\app\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Modules\CategoryManagment\app\Models\Activity;
 use Modules\Vendor\app\Http\Resources\Api\VendorRequestResource;
 use Modules\Vendor\app\Services\VendorRequestService;
 
@@ -19,14 +18,8 @@ class VendorRequestController extends Controller
      */
     public function index()
     {
-        $activities = Activity::all()->map(function ($activity) {
-            return [
-                'id' => $activity->id,
-                'name' => $activity->getTranslation('name', app()->getLocale()),
-            ];
-        });
 
-        return view('vendor::vendor-requests.index', compact('activities'));
+        return view('vendor::vendor-requests.index');
     }
 
     /**

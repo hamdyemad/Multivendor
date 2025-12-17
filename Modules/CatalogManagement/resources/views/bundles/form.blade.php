@@ -1,72 +1,73 @@
 @extends('layout.app')
-@section('title', isset($bundle) ? trans('catalogmanagement::bundle.edit_bundle') : trans('catalogmanagement::bundle.add_bundle'))
+@section('title', isset($bundle) ? trans('catalogmanagement::bundle.edit_bundle') :
+    trans('catalogmanagement::bundle.add_bundle'))
 
-@push('styles')
-    <style>
-        /* Alert styling */
-        .alert {
-            border: none;
-            border-radius: 8px;
-        }
+    @push('styles')
+        <style>
+            /* Alert styling */
+            .alert {
+                border: none;
+                border-radius: 8px;
+            }
 
-        .alert-danger {
-            background-color: rgba(220, 53, 69, 0.1);
-            color: #721c24;
-            border-left: 4px solid #dc3545;
-        }
+            .alert-danger {
+                background-color: rgba(220, 53, 69, 0.1);
+                color: #721c24;
+                border-left: 4px solid #dc3545;
+            }
 
-        /* Product Card Styling */
-        .product-card {
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: #ffffff;
-        }
+            /* Product Card Styling */
+            .product-card {
+                border: 2px solid #e0e0e0;
+                border-radius: 12px;
+                padding: 15px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                background: #ffffff;
+            }
 
-        .product-card:hover {
-            border-color: var(--color-primary);
-            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
-        }
+            .product-card:hover {
+                border-color: var(--color-primary);
+                box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+            }
 
-        .product-card.selected {
-            border-color: #28a745;
-            background-color: #f8fff8;
-        }
+            .product-card.selected {
+                border-color: #28a745;
+                background-color: #f8fff8;
+            }
 
-        .product-card .product-image {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
+            .product-card .product-image {
+                width: 60px;
+                height: 60px;
+                object-fit: cover;
+                border-radius: 8px;
+            }
 
-        /* Products Container */
-        #products-grid {
-            max-height: 500px;
-            overflow-y: auto;
-        }
+            /* Products Container */
+            #products-grid {
+                max-height: 500px;
+                overflow-y: auto;
+            }
 
-        #products-grid::-webkit-scrollbar {
-            width: 6px;
-        }
+            #products-grid::-webkit-scrollbar {
+                width: 6px;
+            }
 
-        #products-grid::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 3px;
-        }
+            #products-grid::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 3px;
+            }
 
-        #products-grid::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 3px;
-        }
+            #products-grid::-webkit-scrollbar-thumb {
+                background: #c1c1c1;
+                border-radius: 3px;
+            }
 
-        #products-grid::-webkit-scrollbar-thumb:hover {
-            background: #a1a1a1;
-        }
-    </style>
-@endpush
+            #products-grid::-webkit-scrollbar-thumb:hover {
+                background: #a1a1a1;
+            }
+        </style>
+    @endpush
 
 @section('content')
     <div class="container-fluid mb-4">
@@ -155,10 +156,13 @@
                                 <div class="col-md-6 mb-25">
                                     <div class="form-group">
                                         <label for="bundle_category_id" class="il-gray fs-14 fw-500 mb-10">
-                                            {{ trans('catalogmanagement::bundle.category') }} <span class="text-danger">*</span>
+                                            {{ trans('catalogmanagement::bundle.category') }} <span
+                                                class="text-danger">*</span>
                                         </label>
-                                        <select name="bundle_category_id" id="bundle_category_id" class="form-control select2" required>
-                                            <option value="">{{ trans('catalogmanagement::bundle.select_category') }}</option>
+                                        <select name="bundle_category_id" id="bundle_category_id"
+                                            class="form-control select2" required>
+                                            <option value="">{{ trans('catalogmanagement::bundle.select_category') }}
+                                            </option>
                                             @foreach ($categories as $category)
                                                 <option value="{{ $category->id }}"
                                                     {{ old('bundle_category_id', $bundle->bundle_category_id ?? '') == $category->id ? 'selected' : '' }}>
@@ -224,7 +228,8 @@
 
                                         {{-- SEO Keywords Fields --}}
                                         <x-multilingual-input name="seo_keywords" :label="trans('catalogmanagement::bundle.seo_keywords')" :labelAr="'كلمات مفتاحية SEO'"
-                                            :placeholder="trans('catalogmanagement::bundle.enter_seo_keywords')" :placeholderAr="'كلمات مفتاحية SEO'" :tags="true" :languages="$languages" :model="$bundle ?? null" />
+                                            :placeholder="trans('catalogmanagement::bundle.enter_seo_keywords')" :placeholderAr="'كلمات مفتاحية SEO'" :tags="true" :languages="$languages"
+                                            :model="$bundle ?? null" />
                                     </div>
                                 </div>
                             </div>
@@ -233,13 +238,15 @@
                             <div class="row">
                                 <div class="col-md-12 mb-25">
                                     <div class="form-group">
-                                        @if($isAdmin)
+                                        @if ($isAdmin)
                                             {{-- Admin: Show vendor dropdown --}}
                                             <label for="vendor_id" class="il-gray fs-14 fw-500 mb-10">
-                                                {{ trans('catalogmanagement::bundle.vendor') }} <span class="text-danger">*</span>
+                                                {{ trans('catalogmanagement::bundle.vendor') }} <span
+                                                    class="text-danger">*</span>
                                             </label>
                                             <select name="vendor_id" id="vendor_id" class="form-control select2" required>
-                                                <option value="">{{ trans('catalogmanagement::bundle.select_vendor') }}</option>
+                                                <option value="">
+                                                    {{ trans('catalogmanagement::bundle.select_vendor') }}</option>
                                                 @foreach ($vendors as $vendor)
                                                     <option value="{{ $vendor->id }}"
                                                         {{ old('vendor_id', $bundle->vendor_id ?? '') == $vendor->id ? 'selected' : '' }}>
@@ -252,7 +259,8 @@
                                             @enderror
                                         @else
                                             {{-- Vendor: Auto-set vendor ID and hide dropdown --}}
-                                            <input type="hidden" name="vendor_id" id="vendor_id" value="{{ $userVendorId }}">
+                                            <input type="hidden" name="vendor_id" id="vendor_id"
+                                                value="{{ $userVendorId }}">
                                         @endif
                                     </div>
                                 </div>
@@ -271,15 +279,17 @@
                                             {{ trans('catalogmanagement::bundle.search_products') }}
                                         </label>
                                         <input type="text" id="product_search" class="form-control"
-                                               placeholder="{{ trans('catalogmanagement::bundle.type_to_search_products') }}"
-                                               style="width: 100%;">
-                                        <small class="text-muted">{{ trans('catalogmanagement::bundle.search_products_help') }}</small>
+                                            placeholder="{{ trans('catalogmanagement::bundle.type_to_search_products') }}"
+                                            style="width: 100%;">
+                                        <small
+                                            class="text-muted">{{ trans('catalogmanagement::bundle.search_products_help') }}</small>
                                     </div>
                                 </div>
 
                                 {{-- Products Grid Container --}}
                                 <div class="col-12 mb-25">
-                                    <div id="products-grid" class="row" style="max-height: 500px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 0.375rem; padding: 15px;">
+                                    <div id="products-grid" class="row"
+                                        style="max-height: 500px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 0.375rem; padding: 15px;">
                                         <div class="col-12 text-center text-muted py-5">
                                             <i class="uil uil-search fs-1 mb-2"></i>
                                             <p>{{ trans('catalogmanagement::bundle.search_products_help') }}</p>
@@ -291,13 +301,15 @@
                                         <div class="spinner-border text-primary" role="status">
                                             <span class="visually-hidden">{{ __('common.loading') }}</span>
                                         </div>
-                                        <p class="text-muted mt-2">{{ trans('catalogmanagement::bundle.loading_products') }}</p>
+                                        <p class="text-muted mt-2">
+                                            {{ trans('catalogmanagement::bundle.loading_products') }}</p>
                                     </div>
                                 </div>
 
                                 {{-- Selected Products Container --}}
                                 <div class="col-12 mb-25">
-                                    <h6 class="mb-3 fw-500">{{ trans('catalogmanagement::bundle.selected_products') }}</h6>
+                                    <h6 class="mb-3 fw-500">{{ trans('catalogmanagement::bundle.selected_products') }}
+                                    </h6>
                                     <div id="selected-products" class="row" style="min-height: 100px;">
                                         <div class="col-12 text-center text-muted py-3">
                                             <p>{{ trans('catalogmanagement::bundle.no_products_selected') }}</p>
@@ -314,7 +326,8 @@
                                 <div class="col-12">
                                     <div class="d-flex gap-2 justify-content-end">
                                         <button id="submitBtn" class="btn btn-primary btn-default btn-squared">
-                                            <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
+                                            <span class="spinner-border spinner-border-sm d-none me-2" role="status"
+                                                aria-hidden="true"></span>
                                             {{ isset($bundle) ? trans('catalogmanagement::bundle.update_bundle') : trans('catalogmanagement::bundle.create_bundle') }}
                                         </button>
                                     </div>
@@ -327,8 +340,8 @@
         </div>
     </div>
 
-@push('scripts')
-    <script>
+    @push('scripts')
+        <script>
             const form = $('#bundleForm');
             const submitBtn = $('#submitBtn');
             const alertContainer = $('#alertContainer');
@@ -355,7 +368,9 @@
                     $('#productsSection').show();
                 }
 
-                @if(isset($bundleResource) && isset($bundleResource['bundle_products']) && count($bundleResource['bundle_products']) > 0)
+                @if (isset($bundleResource) &&
+                        isset($bundleResource['bundle_products']) &&
+                        count($bundleResource['bundle_products']) > 0)
                     // Show products section
                     $('#productsSection').show();
 
@@ -467,14 +482,16 @@
                             let productsHtml = '';
 
                             response.data.forEach(function(vendorProduct) {
-                                const productImage = vendorProduct.image || '{{ asset('assets/img/logo.png') }}';
+                                const productImage = vendorProduct.image ||
+                                    '{{ asset('assets/img/logo.png') }}';
                                 const productName = vendorProduct.name || 'N/A';
                                 const variants = vendorProduct.variants || [];
 
                                 if (variants.length > 0) {
                                     variants.forEach(function(variant) {
                                         const variantId = variant.id;
-                                        const variantName = variant.variant_name || variant.name || '';
+                                        const variantName = variant.variant_name || variant.name ||
+                                            '';
                                         const variantSku = variant.sku || 'N/A';
                                         const stock = variant.stock || 0;
                                         const price = variant.real_price;
@@ -703,7 +720,8 @@
                     const product = selectedProductsDetails[variantId];
                     formData.append(`bundle_products[${index}][vendor_product_variant_id]`, variantId);
                     formData.append(`bundle_products[${index}][price]`, product.price);
-                    formData.append(`bundle_products[${index}][limitation_quantity]`, product.limit_quantity || 1);
+                    formData.append(`bundle_products[${index}][limitation_quantity]`, product.limit_quantity ||
+                        1);
                     formData.append(`bundle_products[${index}][min_quantity]`, product.min_quantity);
                 });
 
@@ -738,7 +756,8 @@
                             toastr.error(response.message || 'An error occurred', 'Error');
                         }
 
-                        let errorHtml = "<div class='alert alert-danger alert-dismissible fade show d-block' role='alert'>";
+                        let errorHtml =
+                            "<div class='alert alert-danger alert-dismissible fade show d-block' role='alert'>";
                         errorHtml += "<div class='d-flex align-items-center'>";
                         errorHtml += "<i class='uil uil-exclamation-triangle me-2'></i>";
                         errorHtml += "<strong>Validation Errors</strong>";
@@ -757,7 +776,8 @@
                         }
 
                         errorHtml += "</ul>";
-                        errorHtml += "<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>";
+                        errorHtml +=
+                            "<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>";
                         errorHtml += "</div>";
 
                         alertContainer.html(errorHtml);
@@ -765,7 +785,6 @@
                     }
                 });
             });
-
-    </script>
-@endpush
+        </script>
+    @endpush
 @endsection

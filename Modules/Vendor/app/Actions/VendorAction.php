@@ -87,7 +87,7 @@ class VendorAction {
         // Apply pagination
         $perPage = $data['length'];
         $page = $data['page'];
-        $vendors = $query->with(['translations', 'user', 'country', 'logo'])->paginate($perPage, ['*'], 'page', $page);
+        $vendors = $query->with(['translations', 'user', 'country', 'logo', 'departments'])->paginate($perPage, ['*'], 'page', $page);
 
         // Return raw data - rendering will be handled by DataTables in the view
         $tableData = [];
@@ -99,6 +99,9 @@ class VendorAction {
                 'logo' => $vendor->logo ? asset('storage/' . $vendor->logo->path) : null,
                 'email' => $vendor->user->email ?? '-',
                 'country_name' => $vendor->country ? $vendor->country->getTranslation('name', app()->getLocale()) : '-',
+                'departments' => $vendor->departments->map(function($d) {
+                    return ['name' => $d->name];
+                }),
                 'active' => $vendor->active,
                 'created_at' => $vendor->created_at,
             ];

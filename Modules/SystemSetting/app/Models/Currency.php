@@ -51,7 +51,7 @@ class Currency extends Model
 
     public function getNameAttribute()
     {
-        return $this->getTranslation('name', app()->getLocale());
+        return $this->getTranslation('name', app()->getLocale()) ?? '-';
     }
 
     public function getImageAttribute()

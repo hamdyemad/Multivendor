@@ -25,7 +25,7 @@ class DepartmentRequest extends FormRequest
             'translations' => 'required|array',
             'translations.*.name' => 'required|string|max:255',
             'translations.*.description' => 'nullable|string',
-            'activity_id' => ['required', 'exists:activities,id'],
+            'commission' => 'required|numeric|min:0|max:100',
             'active' => 'nullable|boolean',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
@@ -33,32 +33,4 @@ class DepartmentRequest extends FormRequest
 
         return $rules;
     }
-
-    // /**
-    //  * Get custom attributes for validator errors.
-    //  *
-    //  * @return array<string, string>
-    //  */
-    // public function attributes(): array
-    // {
-    //     return [
-    //         'translations.*.name' => __('categorymanagement::department.name'),
-    //         'translations.*.description' => __('categorymanagement::department.description'),
-    //         'active' => __('common.status'),
-    //     ];
-    // }
-
-    // /**
-    //  * Get custom messages for validator errors.
-    //  *
-    //  * @return array<string, string>
-    //  */
-    // public function messages(): array
-    // {
-    //     return [
-    //         'translations.required' => __('categorymanagement::department.at_least_one_translation_required'),
-    //         'translations.*.name.required' => __('categorymanagement::department.name_required'),
-    //         'translations.*.name.max' => __('categorymanagement::department.name_max_255'),
-    //     ];
-    // }
 }

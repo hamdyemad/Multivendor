@@ -474,4 +474,13 @@ return [
     'configuration' => 'Configuration',
     'simple_product' => 'Simple Product',
     'variant_product' => 'Variant Product',
+    'contact_support_vendor_regions' => 'Please contact support for setup the vendor regions',
+
+    // Select2 Messages
+    'no_results_found' => 'No results found',
+
+    // Validation Error Messages
+    'please_fix_validation_errors' => 'Fields with errors are highlighted in red with specific error messages below each field. Please fix the following validation errors:',
+    'bank_product' => 'Bank Product',
+    'regular_product' => 'Regular Product',
 ];

@@ -2,21 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Services\DashboardService;
 
 class DashboardController extends Controller
 {
-    public function index()
+    protected $dashboardService;
+
+    public function __construct(DashboardService $dashboardService)
     {
-        $data = [
-            'title' => __('menu.dashboard.title'),
-        ];
-        return view('pages.dashboard.dashboard', $data);
+        $this->dashboardService = $dashboardService;
     }
 
+    public function index()
+    {
+        $countryCode = session('country_code', 'eg');
+        $data = $this->dashboardService->getDashboardData($countryCode);
+        $data['title'] = __('menu.dashboard.title');
 
-
-    // Automatically get all models inside app/Models
-
-
+        return view('pages.dashboard.dashboard', $data);
+    }
 }

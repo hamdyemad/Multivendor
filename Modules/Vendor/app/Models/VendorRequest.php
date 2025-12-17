@@ -38,14 +38,6 @@ class VendorRequest extends Model
         return $this->hasOne(Vendor::class, 'vendor_request_id');
     }
 
-    /**
-     * Get the activities for this vendor request
-     */
-    public function activities()
-    {
-        return $this->belongsToMany(Activity::class, 'vendor_requests_activities', 'vendor_request_id', 'activity_id')
-                    ->withTimestamps();
-    }
 
     /**
      * Scope to filter pending requests

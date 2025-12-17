@@ -66,11 +66,11 @@
                                             <select
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="status">
-                                                <option value="">{{ __('systemsetting::messages.all_status') ?? 'All Status' }}
+                                                <option value="">
+                                                    {{ __('systemsetting::messages.all_status') ?? 'All Status' }}
                                                 </option>
                                                 <option value="pending">{{ __('systemsetting::messages.pending') }}</option>
                                                 <option value="read">{{ __('systemsetting::messages.read') }}</option>
-                                                <option value="archived">{{ __('systemsetting::messages.archived') }}</option>
                                             </select>
                                         </div>
                                     </div>
@@ -102,11 +102,6 @@
                                     </div>
 
                                     <div class="col-md-12 d-flex">
-                                        <button type="button" id="exportExcel"
-                                            class="btn btn-primary btn-default btn-squared me-1"
-                                            title="{{ __('common.excel') }}">
-                                            <i class="uil uil-file-download-alt me-1"></i> {{ __('common.export_excel') }}
-                                        </button>
                                         <button type="button" id="resetFilters"
                                             class="btn btn-warning btn-default btn-squared"
                                             title="{{ __('common.reset') }}">
@@ -138,10 +133,18 @@
                             <thead>
                                 <tr class="userDatatable-header">
                                     <th><span class="userDatatable-title">#</span></th>
-                                    <th><span class="userDatatable-title">{{ __('systemsetting::messages.title') ?? 'Title' }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('systemsetting::messages.sender') ?? 'Sender' }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('systemsetting::messages.status') ?? 'Status' }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('systemsetting::messages.created_at') ?? 'Date' }}</span></th>
+                                    <th><span
+                                            class="userDatatable-title">{{ __('systemsetting::messages.title') ?? 'Title' }}</span>
+                                    </th>
+                                    <th><span
+                                            class="userDatatable-title">{{ __('systemsetting::messages.sender') ?? 'Sender' }}</span>
+                                    </th>
+                                    <th><span
+                                            class="userDatatable-title">{{ __('systemsetting::messages.status') ?? 'Status' }}</span>
+                                    </th>
+                                    <th><span
+                                            class="userDatatable-title">{{ __('systemsetting::messages.created_at') ?? 'Date' }}</span>
+                                    </th>
                                     <th><span class="userDatatable-title">{{ __('common.actions') }}</span></th>
                                 </tr>
                             </thead>
@@ -153,10 +156,6 @@
             </div>
         </div>
     </div>
-
-    {{-- Delete Confirmation Modal Component --}}
-    <x-delete-modal modalId="modal-delete-message" :title="__('systemsetting::messages.confirm_delete')" :message="__('systemsetting::messages.delete_confirmation')" itemNameId="delete-message-name"
-        confirmBtnId="confirmDeleteMessageBtn" :deleteRoute="route('admin.messages.index')" :cancelText="__('systemsetting::messages.cancel')" :deleteText="__('systemsetting::messages.delete_message')" />
 @endsection
 
 @push('after-body')
@@ -210,10 +209,9 @@
                         alert('Error loading data. Status: ' + xhr.status);
                     }
                 },
-                columns: [
-                    {
-                        data: 'index',
-                        name: 'index',
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
@@ -233,7 +231,8 @@
                         name: 'name',
                         orderable: true,
                         render: function(data, type, row) {
-                            return '<div class="userDatatable-content"><span>' + data + '</span><br><small>' + row.email + '</small></div>';
+                            return '<div class="userDatatable-content"><span>' + data +
+                                '</span><br><small>' + (row.email || '') + '</small></div>';
                         }
                     },
                     {
@@ -246,8 +245,11 @@
                                 'read': 'success',
                                 'archived': 'secondary'
                             };
+                            // If status is NOT one of the keys (e.g. if controller returned generic string), handle it.
                             const color = statusColors[data] || 'secondary';
-                            return '<div class="userDatatable-content"><span class="badge badge-' + color + ' badge-lg badge-round text-capitalize">' + data + '</span></div>';
+                            return '<div class="userDatatable-content"><span class="badge badge-' +
+                                color + ' badge-lg badge-round text-capitalize">' + data +
+                                '</span></div>';
                         }
                     },
                     {
@@ -259,31 +261,11 @@
                         }
                     },
                     {
-                        data: null,
-                        name: 'actions',
+                        data: 'action',
+                        name: 'action',
                         orderable: false,
-                        searchable: false,
-                        render: function(data, type, row) {
-                            return `
-                                <div class="orderDatatable_actions d-inline-flex gap-1">
-                                    <a href="{{ url('admin/messages') }}/${row.id}"
-                                    class="view btn btn-primary table_action_father"
-                                    title="{{ trans('common.view') }}">
-                                        <i class="uil uil-eye table_action_icon"></i>
-                                    </a>
-
-                                    <a href="javascript:void(0);"
-                                    class="remove delete-message btn btn-danger table_action_father"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modal-delete-message"
-                                    data-item-id="${row.id}"
-                                    data-item-name="${row.title}"
-                                    title="{{ trans('common.delete') }}">
-                                        <i class="uil uil-trash-alt table_action_icon"></i>
-                                    </a>
-                                </div>
-                            `;
-                        }
+                        searchable: false
+                        // Render function removed; relying on HTML from Controller
                     }
                 ],
                 pageLength: per_page,
@@ -366,6 +348,31 @@
                 table.search('').ajax.reload();
             });
 
+            // Mark as Read Logic
+            $(document).on('click', '.mark-read-message', function(e) {
+                e.preventDefault();
+                const url = $(this).data('url');
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        toastr.success(response.message ||
+                            '{{ __('systemsetting::messages.mark_read_success') }}'
+                        );
+                        table.ajax.reload(null, false);
+                    },
+                    error: function(xhr) {
+                        const msg = xhr.responseJSON ? xhr.responseJSON.message :
+                            '{{ __('systemsetting::messages.mark_read_error') }}';
+                        toastr.error(msg);
+                    }
+                });
+            });
+
             // Handle delete modal
             $(document).on('click', '.delete-message', function() {
                 const messageId = $(this).data('item-id');
@@ -379,30 +386,30 @@
                 const messageId = $(this).data('item-id');
 
                 // Make DELETE request using fetch
-                fetch(`{{ url('admin/messages') }}/${messageId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Show success message and reload
-                        toastr.success(data.message, 'Success');
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1000);
-                    } else {
-                        toastr.error(data.message, 'Error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    toastr.error('{{ __('systemsetting::messages.delete_error') }}', 'Error');
-                });
+                fetch(`{{ url('messages') }}/${messageId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Show success message and reload
+                            toastr.success(data.message, 'Success');
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1000);
+                        } else {
+                            toastr.error(data.message, 'Error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        toastr.error('{{ __('systemsetting::messages.delete_error') }}', 'Error');
+                    });
             });
         });
     </script>

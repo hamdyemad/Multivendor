@@ -21,12 +21,8 @@ class VendorRequestRepository implements VendorRequestRepositoryInterface
                 'status' => 'pending',
             ]);
 
-            // Attach activities to vendor request
-            if (!empty($data['activities'])) {
-                $vendorRequest->activities()->attach($data['activities']);
-            }
 
-            return $vendorRequest->load('activities');
+            return $vendorRequest;
         });
     }
 
@@ -35,7 +31,7 @@ class VendorRequestRepository implements VendorRequestRepositoryInterface
      */
     public function getAllVendorRequests(array $filters = [], int $perPage = 10)
     {
-        $query = VendorRequest::with('activities');
+        $query = VendorRequest::query();
 
         // Search by email or company name
         if (!empty($filters['search'])) {
@@ -52,12 +48,6 @@ class VendorRequestRepository implements VendorRequestRepositoryInterface
             $query->byEmail($filters['email']);
         }
 
-        // Filter by activity
-        if (!empty($filters['activity_id'])) {
-            $query->whereHas('activities', function ($q) use ($filters) {
-                $q->where('activities.id', $filters['activity_id']);
-            });
-        }
 
         // Filter by created date from
         if (!empty($filters['created_date_from'])) {
@@ -80,7 +70,7 @@ class VendorRequestRepository implements VendorRequestRepositoryInterface
      */
     public function getVendorRequestById(int $id)
     {
-        return VendorRequest::with('activities')->findOrFail($id);
+        return VendorRequest::findOrFail($id);
     }
 
     /**
@@ -97,12 +87,8 @@ class VendorRequestRepository implements VendorRequestRepositoryInterface
                 'company_name' => $data['company_name'] ?? $vendorRequest->company_name,
             ]);
 
-            // Update activities if provided
-            if (!empty($data['activities'])) {
-                $vendorRequest->activities()->sync($data['activities']);
-            }
 
-            return $vendorRequest->load('activities');
+            return $vendorRequest;
         });
     }
 

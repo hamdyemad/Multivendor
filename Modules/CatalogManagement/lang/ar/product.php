@@ -481,4 +481,13 @@ return [
     'product_variants_stock' => 'مخزون متغيرات المنتج',
     'error_loading_products' => 'خطأ في تحميل المنتجات',
     'error_loading_variants' => 'خطأ في تحميل المتغيرات',
+    'contact_support_vendor_regions' => 'يرجى التواصل مع الدعم الفني لإعداد مناطق البائع',
+
+    // Select2 Messages
+    'no_results_found' => 'لم يتم العثور على نتائج',
+
+    // Validation Error Messages
+    'please_fix_validation_errors' => 'الحقول التي تحتوي على أخطاء مظللة باللون الأحمر مع رسائل خطأ محددة أسفل كل حقل. يرجى إصلاح أخطاء التحقق من الصحة التالية:',
+    'bank_product' => 'منتج بنكي',
+    'regular_product' => 'منتج عادي',
 ];

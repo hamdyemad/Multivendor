@@ -73,25 +73,19 @@ class DepartmentAction {
                 // Sorting by translated name column (after ID column)
                 $languageIndex = $orderColumnIndex - 1;
                 $selectedLanguage = $languages->values()->get($languageIndex);
-                Log::info('Department Action - Translation Sort Attempt', [
-                    'languageIndex' => $languageIndex,
-                    'selectedLanguage' => $selectedLanguage ? $selectedLanguage->toArray() : null
-                ]);
                 if ($selectedLanguage) {
                     $orderBy = [
                         'lang_id' => $selectedLanguage->id,
                         'key' => 'name'
                     ];
-                    Log::info('Department Action - Translation Sort Applied', [
-                        'lang_id' => $selectedLanguage->id,
-                        'language_name' => $selectedLanguage->name,
-                        'language_code' => $selectedLanguage->code
-                    ]);
                 }
             } elseif ($orderColumnIndex == count($languages) + 1) {
+                $orderBy = 'commission';
+                Log::info('Department Action - Sorting by Commission');
+            } elseif ($orderColumnIndex == count($languages) + 2) {
                 $orderBy = 'active';
                 Log::info('Department Action - Sorting by Active');
-            } elseif ($orderColumnIndex == count($languages) + 2) {
+            } elseif ($orderColumnIndex == count($languages) + 3) {
                 $orderBy = 'created_at';
                 Log::info('Department Action - Sorting by Created At');
             }

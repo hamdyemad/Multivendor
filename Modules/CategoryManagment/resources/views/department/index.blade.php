@@ -48,9 +48,7 @@
                                                 class="il-gray fs-14 fw-500 mb-10">{{ trans('common.search') }}</label>
                                             <input type="text"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                id="search"
-                                                placeholder="{{ trans('categorymanagment::department.search_by_name_or_code') }}"
-                                                autocomplete="off">
+                                                id="search" placeholder="{{ __('common.search') }}" autocomplete="off">
                                         </div>
                                     </div>
                                     <div class="col-md-2">
@@ -64,7 +62,8 @@
                                                 </option>
                                                 <option value="1">{{ trans('categorymanagment::department.active') }}
                                                 </option>
-                                                <option value="0">{{ trans('categorymanagment::department.inactive') }}
+                                                <option value="0">
+                                                    {{ trans('categorymanagment::department.inactive') }}
                                                 </option>
                                             </select>
                                         </div>
@@ -128,6 +127,10 @@
                                             </span>
                                         </th>
                                     @endforeach
+                                    <th>
+                                        <span
+                                            class="userDatatable-title">{{ trans('categorymanagment::department.commission') }}</span>
+                                    </th>
                                     <th>
                                         <span
                                             class="userDatatable-title">{{ trans('categorymanagment::department.activation') }}</span>
@@ -255,6 +258,14 @@
                             }
                         },
                     @endforeach
+                    // Commission column
+                    {
+                        data: 'commission',
+                        name: 'commission',
+                        render: function(data) {
+                            return data ? data + '%' : '0%';
+                        }
+                    },
                     // Active Status column
                     {
                         data: 'active',
@@ -267,11 +278,14 @@
 
                             // For display, return formatted HTML with switcher (for users with edit permission)
                             @can('departments.edit')
-                            const isChecked = data ? 'checked' : '';
-                            const switchId = 'status-switch-' + row.department_id;
-                            const departmentName = row.translations && row.translations['en'] ? row.translations['en'].name : (row.translations && row.translations['ar'] ? row.translations['ar'].name : 'Department #' + row.department_id);
+                                const isChecked = data ? 'checked' : '';
+                                const switchId = 'status-switch-' + row.department_id;
+                                const departmentName = row.translations && row.translations['en'] ?
+                                    row.translations['en'].name : (row.translations && row
+                                        .translations['ar'] ? row.translations['ar'].name :
+                                        'Department #' + row.department_id);
 
-                            return `<div class="userDatatable-content">
+                                return `<div class="userDatatable-content">
                                 <div class="form-switch">
                                     <input class="form-check-input status-switcher"
                                            type="checkbox"
@@ -284,11 +298,11 @@
                                 </div>
                             </div>`;
                             @else
-                            if (data == 1) {
-                                return '<span class="badge badge-success badge-round badge-lg">{{ trans('categorymanagment::department.active') }}</span>';
-                            } else {
-                                return '<span class="badge badge-danger badge-round badge-lg">{{ trans('categorymanagment::department.inactive') }}</span>';
-                            }
+                                if (data == 1) {
+                                    return '<span class="badge badge-success badge-round badge-lg">{{ trans('categorymanagment::department.active') }}</span>';
+                                } else {
+                                    return '<span class="badge badge-danger badge-round badge-lg">{{ trans('categorymanagment::department.inactive') }}</span>';
+                                }
                             @endcan
                         }
                     },
@@ -307,8 +321,12 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            let viewUrl = "{{ route('admin.category-management.departments.show', ':id') }}".replace(':id', row.department_id);
-                            let editUrl = "{{ route('admin.category-management.departments.edit', ':id') }}".replace(':id', row.department_id);
+                            let viewUrl =
+                                "{{ route('admin.category-management.departments.show', ':id') }}"
+                                .replace(':id', row.department_id);
+                            let editUrl =
+                                "{{ route('admin.category-management.departments.edit', ':id') }}"
+                                .replace(':id', row.department_id);
                             return `
                             <ul class="mb-0 d-flex flex-wrap justify-content-start">
                                 @can('departments.view')
@@ -377,7 +395,7 @@
                     processing: "{{ __('common.processing') ?? 'Processing' }}...",
                     search: "{{ __('common.search') ?? 'Search' }}:",
                     paginate: {
-                        @if(app()->getLocale() == 'en')
+                        @if (app()->getLocale() == 'en')
                             first: '<i class="uil uil-angle-double-left"></i>',
                             last: '<i class="uil uil-angle-double-right"></i>',
                             next: '<i class="uil uil-angle-right"></i>',
@@ -443,9 +461,9 @@
                     var dateFrom = $('#created_date_from').val();
                     var dateTo = $('#created_date_to').val();
 
-                    // Active filter (column {{ count($languages) + 1 }})
+                    // Active filter (column {{ count($languages) + 2 }})
                     if (activeFilter && activeFilter !== '') {
-                        var colIndex = {{ count($languages) + 1 }};
+                        var colIndex = {{ count($languages) + 2 }};
 
                         // Get the actual rendered cell content (with HTML)
                         var rowNode = table.row(dataIndex).node();
@@ -479,9 +497,9 @@
                         }
                     }
 
-                    // Date filters (column {{ count($languages) + 2 }})
+                    // Date filters (column {{ count($languages) + 3 }})
                     if (dateFrom || dateTo) {
-                        var dateColumn = data[{{ count($languages) + 2 }}];
+                        var dateColumn = data[{{ count($languages) + 3 }}];
                         if (dateColumn) {
                             var rowDate = dateColumn.replace(/<[^>]*>/g, '').trim().split(' ')[
                                 0]; // Extract YYYY-MM-DD
@@ -495,10 +513,11 @@
             );
 
             // Server-side filter event listeners - reload data when filters change
-            $('#active, #commission_from, #commission_to, #created_date_from, #created_date_to').on('change', function() {
-                console.log('Filter changed:', $(this).attr('id'), '=', $(this).val());
-                table.ajax.reload();
-            });
+            $('#active, #commission_from, #commission_to, #created_date_from, #created_date_to').on('change',
+                function() {
+                    console.log('Filter changed:', $(this).attr('id'), '=', $(this).val());
+                    table.ajax.reload();
+                });
 
             // Reset filters button
             $('#resetFilters').on('click', function() {
@@ -534,7 +553,8 @@
 
                 // Make AJAX request
                 $.ajax({
-                    url: '{{ route('admin.category-management.departments.change-status', ':id') }}'.replace(':id', departmentId),
+                    url: '{{ route('admin.category-management.departments.change-status', ':id') }}'
+                        .replace(':id', departmentId),
                     type: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',
@@ -592,7 +612,8 @@
                         // Revert switcher state
                         switcher.prop('checked', !switcher.is(':checked'));
 
-                        let errorMessage = '{{ __('categorymanagment::department.error_changing_status') }}';
+                        let errorMessage =
+                            '{{ __('categorymanagment::department.error_changing_status') }}';
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             errorMessage = xhr.responseJSON.message;
                         }

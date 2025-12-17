@@ -9,7 +9,7 @@
     $totalSentMoney = 0;
     $totalRemaining = 0;
 
-    if (in_array($user_type_id, \App\Models\UserType::adminIds())) {
+    if (isAdmin()) {
         // For admin: calculate totals for all vendors
         $totalNeeded = \Modules\Vendor\app\Models\Vendor::all()->sum('total_balance');
         $totalSentMoney = \Modules\Withdraw\app\Models\Withdraw::where('status', 'accepted')->sum('sent_amount');

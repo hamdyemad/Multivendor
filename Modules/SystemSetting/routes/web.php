@@ -100,10 +100,6 @@ Route::group(['prefix' => 'points-settings', 'as' => 'points-settings.'], functi
 
 
 // Messages
-Route::group(['prefix' => 'admin', 'as' => 'admin.'], function() {
-    Route::get('messages/datatable', [MessageController::class, 'datatable'])->name('messages.datatable');
-    Route::delete('messages/{id}', [MessageController::class, 'destroy'])->name('messages.destroy');
-    Route::post('messages/{id}/archive', [MessageController::class, 'archive'])->name('messages.archive');
-    Route::get('messages/{id}', [MessageController::class, 'show'])->name('messages.show');
-    Route::get('messages', [MessageController::class, 'index'])->name('messages.index');
-});
+Route::get('messages/datatable', [MessageController::class, 'datatable'])->name('messages.datatable');
+Route::post('messages/{id}/mark-read', [MessageController::class, 'markAsRead'])->name('messages.mark-read');
+Route::resource('messages', MessageController::class);

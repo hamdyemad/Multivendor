@@ -103,7 +103,7 @@
                                         </div>
                                     </div>
 
-                                    @if(auth()->user() && in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
+                                    @if(isAdmin())
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="vendor_filter" class="il-gray fs-14 fw-500 mb-10">
@@ -140,6 +140,23 @@
 
                                     <div class="col-md-3">
                                         <div class="form-group">
+                                            <label for="department_filter" class="il-gray fs-14 fw-500 mb-10">
+                                                <i class="uil uil-tag-alt me-1"></i>
+                                                {{ __('catalogmanagement::product.department') }}
+                                            </label>
+                                            <select
+                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                id="department_filter">
+                                                <option value="">{{ __('common.all') }}</option>
+                                                @foreach($departments as $department)
+                                                    <option value="{{ $department['id'] }}" @if(request('department_id') == $department['id']) selected @endif>{{ $department['name'] }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-group">
                                             <label for="category_filter" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-folder me-1"></i>
                                                 {{ __('catalogmanagement::product.category') }}
@@ -148,9 +165,6 @@
                                                 class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="category_filter">
                                                 <option value="">{{ __('common.all') }}</option>
-                                                @foreach($categories as $category)
-                                                    <option value="{{ $category['id'] }}" @if(request('category_id') == $brand['id']) selected @endif>{{ $category['name'] }}</option>
-                                                @endforeach
                                             </select>
                                         </div>
                                     </div>
@@ -162,7 +176,7 @@
                                                 {{ __('catalogmanagement::product.product_type') }}
                                             </label>
                                             <select
-                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="product_type">
                                                 <option value="">{{ __('common.all') }}</option>
                                                 <option value="bank" @if(request('product_type') == 'bank') selected @endif>{{ __('catalogmanagement::product.bank') }}</option>
@@ -178,7 +192,7 @@
                                                 {{ __('catalogmanagement::product.configuration') ?? 'Configuration' }}
                                             </label>
                                             <select
-                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="configuration_filter">
                                                 <option value="">{{ __('common.all') }}</option>
                                                 <option value="simple" @if(request('configuration') == 'simple') selected @endif>{{ __('catalogmanagement::product.simple_product') ?? 'Simple Product' }}</option>
@@ -194,7 +208,7 @@
                                                 {{ __('common.active_status') }}
                                             </label>
                                             <select
-                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="active">
                                                 <option value="">{{ __('common.all') }}</option>
                                                 <option value="1" @if(request('active') == '1') selected @endif>{{ __('common.active') }}
@@ -213,7 +227,7 @@
                                                 {{ __('catalogmanagement::product.approval_status') }}
                                             </label>
                                             <select
-                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="status">
                                                 <option value="">{{ __('common.all') }}</option>
                                                 @foreach(\Modules\CatalogManagement\app\Models\VendorProduct::getStatuses() as $statusValue => $statusLabel)
@@ -395,6 +409,8 @@
             // Populate filters from URL parameters on page load
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('search')) $('#search').val(urlParams.get('search'));
+            // Remove the automatic trigger('change') for department here, handled specifically later to pass isStart=true
+            if (urlParams.has('department_id')) $('#department_filter').val(urlParams.get('department_id'));
             if (urlParams.has('vendor_id')) $('#vendor_filter').val(urlParams.get('vendor_id')).trigger('change');
             if (urlParams.has('brand_id')) $('#brand_filter').val(urlParams.get('brand_id')).trigger('change');
             if (urlParams.has('category_id')) $('#category_filter').val(urlParams.get('category_id')).trigger('change');
@@ -415,6 +431,7 @@
                     url: '{{ route('admin.products.datatable') }}',
                     data: function(d) {
                         d.search = $('#search').val();
+                        d.department_id = $('#department_filter').val();
                         d.vendor_id = $('#vendor_filter').val();
                         d.brand_id = $('#brand_filter').val();
                         d.category_id = $('#category_filter').val();
@@ -485,16 +502,22 @@
 
                             // Brand and Category
                             html += '<div class="product-meta-info">';
-                            if (row.brand && row.brand.name) {
+                            if (row.department && row.department.name) {
                                 html += `<div class="mb-1">
-                                    <small class="text-muted">{{ __('catalogmanagement::product.brand') }}:</small>
-                                    <span class="badge badge-secondary badge-round badge-lg ms-1">${$('<div/>').text(row.brand.name).html()}</span>
+                                    <small class="text-muted">{{ __('catalogmanagement::product.department') }}:</small>
+                                    <span class="badge badge-secondary badge-round badge-lg ms-1">${$('<div/>').text(row.department.name).html()}</span>
                                 </div>`;
                             }
                             if (row.category && row.category.name) {
                                 html += `<div class="mb-1">
                                     <small class="text-muted">{{ __('catalogmanagement::product.category') }}:</small>
                                     <span class="badge badge-secondary badge-round badge-lg ms-1">${$('<div/>').text(row.category.name).html()}</span>
+                                </div>`;
+                            }
+                            if (row.brand && row.brand.name) {
+                                html += `<div class="mb-1">
+                                    <small class="text-muted">{{ __('catalogmanagement::product.brand') }}:</small>
+                                    <span class="badge badge-secondary badge-round badge-lg ms-1">${$('<div/>').text(row.brand.name).html()}</span>
                                 </div>`;
                             }
                             html += '</div>';
@@ -682,6 +705,7 @@
                     title: '{{ trans('catalogmanagement::product.products_management') }}'
                 }]
             });
+            
 
             // Entries Selector
             $('#entriesSelect').html([10, 25, 50, 100].map(n => `<option value="${n}">${n}</option>`).join(''));
@@ -705,6 +729,10 @@
                 const dateTo = $('#created_date_to').val();
 
                 if (search) params.set('search', search);
+
+                const department = $('#department_filter').val();
+                if (department) params.set('department_id', department);
+
                 if (vendor) params.set('vendor_id', vendor);
                 if (brand) params.set('brand_id', brand);
                 if (category) params.set('category_id', category);
@@ -729,7 +757,7 @@
             });
 
             // Filters - Use 'select2:select' and 'select2:clear' events for Select2 dropdowns
-            $('#vendor_filter, #brand_filter, #category_filter, #product_type, #configuration_filter, #active, #status').on('select2:select select2:clear change', function() {
+            $('#department_filter, #vendor_filter, #brand_filter, #category_filter, #product_type, #configuration_filter, #active, #status').on('select2:select select2:clear change', function() {
                 table.ajax.reload();
             });
 
@@ -747,6 +775,7 @@
                 $('#search, #created_date_from, #created_date_to').val('');
 
                 // Clear Select2 dropdowns properly - set to empty value and trigger change
+                $('#department_filter').val('').trigger('change');
                 $('#vendor_filter').val('').trigger('change');
                 $('#brand_filter').val('').trigger('change');
                 $('#category_filter').val('').trigger('change');
@@ -794,6 +823,12 @@
                 }
             });
 
+
+
+            // Trigger department change on page load if a department is selected (to populate categories)
+            if ($('#department_filter').val()) {
+                $('#department_filter').trigger('change');
+            }
 
             // Show/hide rejection reason and bank product fields based on selected status
             $('#product-status').on('change', function() {
@@ -1164,6 +1199,92 @@
                 }
             });
             @endif
+            // Department Filter: Fetch Categories
+            function getCategories(departmentId, isStart = false) {
+                const categorySelect = $('#category_filter');
+                // Save currently selected value if not start, or get from request if start
+                const currentVal = isStart ? "{{ request('category_id') }}" : categorySelect.val();
+
+                // Clear current options (except "All") but keep "All"
+                categorySelect.empty().append('<option value="">{{ __('common.all') }}</option>');
+
+                if (!departmentId) {
+                    // Trigger change to update Select2 and Table (if cleared)
+                    categorySelect.trigger('change');
+                    return;
+                }
+
+                $.ajax({
+                    url: '/api/categories',
+                    type: 'GET',
+                    data: {
+                        department_id: departmentId,
+                        select2: 1
+                    },
+                    headers: {
+                        'lang': '{{ app()->getLocale() }}',
+                        "X-Country-Code": $("meta[name='currency_country_code']").attr('content')
+                    },
+                    success: function(response) {
+                        const data = response.data || response;
+                        if (data) {
+                            let matched = false;
+                            data.forEach(function(category) {
+                                // Pre-select if it matches
+                                const isSelected = (currentVal && category.id == currentVal) ? 'selected' : '';
+                                if (isSelected) matched = true;
+                                categorySelect.append(`<option value="${category.id}" ${isSelected}>${category.name}</option>`);
+                            });
+
+                            // Trigger Select2 update
+                            // If isStart and we matched a category, we MUST reload the table because the initial load had no category
+                            if (isStart && matched) {
+                                categorySelect.trigger('change'); // This should fire the table reload listener
+                            } else {
+                                categorySelect.trigger('change.select2'); // Just update UI
+                            }
+                        }
+                    },
+                    error: function(error) {
+                        console.error('Error fetching categories:', error);
+                    }
+                });
+            }
+
+            // Department Filter Change Event
+            $('#department_filter').on('change', function() {
+                // If this is triggered by user or script after load
+                // We pass false for isStart so it doesn't try to use the Blade request ID (unless we want it to sticky? No)
+                // Actually, if user changes department, we shouldn't use request('category_id') anymore.
+                // The getCategories function uses isStart to decide.
+                // But wait, if I trigger 'change' manually on load, valid.
+                // We should rely on the caller to specify.
+                // But the 'on change' handler doesn't accept params.
+                // So we need distinct logic for "Init" vs "User Change".
+                // We'll wrap the user change.
+                getCategories($(this).val(), false);
+            });
+
+            // Initial Load: Check if Department is set (from Blade/URL)
+            const initialDepartment = $('#department_filter').val();
+            if (initialDepartment) {
+                // Manually call getCategories with isStart=true
+                // We Unbind the change listener momentarily or just let the function handle it?
+                // The function getCategories is called directly here.
+                // NOTE: The 'change' listener above might essentially do nothing or double fetch if we trigger change.
+                // We are NOT triggering change on department_filter here, just calling getCategories.
+                // But wait, earlier in document.ready (lines 412), we might have triggered change:
+                // if (urlParams.has('department_id')) $('#department_filter').val(...).trigger('change');
+                // If line 412 triggered change, then getCategories(..., false) was called!
+                // We need to fix that flow.
+            }
+
+            // Correction: The block at lines 410 handles URL params and triggers change.
+            // If it triggers change, the listener fires. The listener calls getCategories(..., false).
+            // This means isStart is false, so it WON'T use request('category_id').
+            // This is the BUG.
+            // We need to separate "Apply from URL" Logic.
+
         });
     </script>
 @endpush

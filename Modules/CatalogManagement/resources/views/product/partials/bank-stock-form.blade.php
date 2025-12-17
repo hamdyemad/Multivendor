@@ -28,10 +28,6 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <label for="vendor_sku" class="form-label">{{ __('catalogmanagement::product.vendor_sku') }}</label>
-                    <input type="text" name="sku" id="vendor_sku" class="form-control ih-medium ip-gray radius-xs b-light px-15" placeholder="{{ __('catalogmanagement::product.enter_vendor_sku') }}">
-                </div>
             </div>
             <div class="row">
                 <div class="col-md-4 mb-3">
@@ -76,23 +72,21 @@
                 <h6 class="mb-0"><i class="uil uil-package me-2"></i>{{ __('catalogmanagement::product.simple_product_configuration') }}</h6>
             </div>
             <div class="card-body">
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">{{ __('catalogmanagement::product.sku') }} <span class="text-danger">*</span></label>
-                        <input type="text" name="sku" id="simple_sku" class="form-control ih-medium ip-gray radius-xs b-light px-15">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">{{ __('catalogmanagement::product.price') }} <span class="text-danger">*</span></label>
-                        <input type="number" name="price" id="simple_price" class="form-control ih-medium ip-gray radius-xs b-light px-15" step="0.01" min="0">
-                    </div>
-                </div>
-
                 <div class="mb-4">
-                    <label class="form-label fw-bold mb-2">{{ __('catalogmanagement::product.enable_discount_offer') }}</label>
-                    <div class="form-check form-switch form-switch-lg">
-                        <input type="hidden" name="has_discount" value="0">
-                        <input type="checkbox" name="has_discount" class="form-check-input" id="simple_discount" value="1">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">{{ __('catalogmanagement::product.price') }} <span class="text-danger">*</span></label>
+                            <input type="number" name="price" id="simple_price" class="form-control ih-medium ip-gray radius-xs b-light px-15" step="0.01" min="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">{{ __('catalogmanagement::product.enable_discount_offer') }}</label>
+                            <div class="form-check form-switch form-switch-lg">
+                                <input type="hidden" name="has_discount" value="0">
+                                <input type="checkbox" name="has_discount" class="form-check-input" id="simple_discount" value="1">
+                            </div>
+                        </div>
                     </div>
+
                     <div id="simple_discount_fields" class="mt-3" style="display: none;">
                         <div class="row">
                             <div class="col-md-12">

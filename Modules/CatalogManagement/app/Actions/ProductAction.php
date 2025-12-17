@@ -42,6 +42,7 @@ class ProductAction {
                 'search' => $data['search'] ?? '',
                 'vendor_id' => $data['vendor_id'] ?? null,
                 'brand_id' => $data['brand_id'] ?? null,
+                'department_id' => $data['department_id'] ?? null,
                 'category_id' => $data['category_id'] ?? null,
                 'product_type' => $data['product_type'] ?? null,
                 'configuration' => $data['configuration'] ?? null,
@@ -76,23 +77,26 @@ class ProductAction {
             // Apply other filters
             if (!empty($filters['search'])) {
                 $search = $filters['search'];
-                $query->whereHas('product', function($q) use ($search) {
-                    $q->whereHas('translations', function($query) use ($search) {
-                        $query->where('lang_value', 'like', "%{$search}%");
-                    })
-                    ->orWhere('sku', 'like', "%{$search}%")
-                    ->orWhereHas('brand', function($query) use ($search) {
-                        $query->whereHas('translations', function($subQuery) use ($search) {
-                            $subQuery->where('lang_value', 'like', "%{$search}%");
+                $query->where(function($q) use ($search) {
+                    $q->whereHas('product', function($q) use ($search) {
+                        $q->whereHas('translations', function($query) use ($search) {
+                            $query->where('lang_value', 'like', "%{$search}%");
+                        })
+                        ->orWhere('sku', 'like', "%{$search}%")
+                        ->orWhere('slug', 'like', "%{$search}%")
+                        ->orWhereHas('brand', function($query) use ($search) {
+                            $query->whereHas('translations', function($subQuery) use ($search) {
+                                $subQuery->where('lang_value', 'like', "%{$search}%");
+                            });
+                        })
+                        ->orWhereHas('category', function($query) use ($search) {
+                            $query->whereHas('translations', function($subQuery) use ($search) {
+                                $subQuery->where('lang_value', 'like', "%{$search}%");
+                            });
                         });
-                    })
-                    ->orWhereHas('category', function($query) use ($search) {
-                        $query->whereHas('translations', function($subQuery) use ($search) {
-                            $subQuery->where('lang_value', 'like', "%{$search}%");
-                        });
+                    })->orWhereHas('variants', function ($q) use ($search) {
+                        $q->where('sku', 'like', "%{$search}%");
                     });
-                })->orWhereHas('variants', function ($q) use ($search) {
-                    $q->where('sku', 'like', "%{$search}%");
                 });
             }
 
@@ -105,6 +109,12 @@ class ProductAction {
             if (!empty($filters['category_id'])) {
                 $query->whereHas('product', function($q) use ($filters) {
                     $q->where('category_id', $filters['category_id']);
+                });
+            }
+
+            if (!empty($filters['department_id'])) {
+                $query->whereHas('product', function($q) use ($filters) {
+                    $q->where('department_id', $filters['department_id']);
                 });
             }
 
@@ -173,6 +183,10 @@ class ProductAction {
                             'name_ar' => truncateString($nameAr),
                         ],
                         'translations' => [],
+                        'department' => $product->department ? [
+                            'id' => $product->department->id,
+                            'name' => truncateString($product->department->name),
+                        ] : null,
                         'brand' => $product->brand ? [
                             'id' => $product->brand->id,
                             'name' => truncateString($product->brand->name),

@@ -108,6 +108,7 @@ return [
     'status' => 'Status',
     'created_at' => 'Created At',
     'actions' => 'Actions',
+    'departments' => 'Departments',
 
     // Status
     'active' => 'Active',

@@ -9,8 +9,6 @@ use App\Services\LanguageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
-use Modules\CategoryManagment\app\Http\Resources\ActivityResource;
-use Modules\CategoryManagment\app\Services\ActivityService;
 use Modules\CategoryManagment\app\Actions\DepartmentAction;
 
 class DepartmentController extends Controller
@@ -19,7 +17,6 @@ class DepartmentController extends Controller
     public function __construct(
         protected DepartmentService $departmentService,
         protected LanguageService $languageService,
-        protected ActivityService $activityService,
         protected DepartmentAction $departmentAction
     )
     {
@@ -100,9 +97,7 @@ class DepartmentController extends Controller
     {
         try {
             $languages = $this->languageService->getAll();
-            $activities = $this->activityService->getAllActivities(0, []);
-            $activities = ActivityResource::collection($activities)->resolve();
-            return view('categorymanagment::department.form', compact('languages', 'activities'));
+            return view('categorymanagment::department.form', compact('languages'));
         } catch (\Exception $e) {
             return redirect()->route('admin.category-management.departments.index')
                 ->with('error', trans('categorymanagment::department.error_loading_form'));
@@ -168,10 +163,8 @@ class DepartmentController extends Controller
     {
         try {
             $languages = $this->languageService->getAll();
-            $activities = $this->activityService->getAllActivities(0, []);
-            $activities = ActivityResource::collection($activities)->resolve();
             $department = $this->departmentService->getDepartmentById($id);
-            return view('categorymanagment::department.form', compact('department', 'languages', 'activities'));
+            return view('categorymanagment::department.form', compact('department', 'languages'));
         } catch (\Exception $e) {
             return redirect()->route('admin.category-management.departments.index')
                 ->with('error', trans('categorymanagment::department.department_not_found'));
@@ -203,7 +196,8 @@ class DepartmentController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => trans('categorymanagment::department.error_updating_department')
+                    'message' => trans('categorymanagment::department.error_updating_department'),
+                    'error' => $e->getMessage()
                 ], 500);
             }
 

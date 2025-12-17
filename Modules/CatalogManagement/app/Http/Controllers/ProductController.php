@@ -682,6 +682,8 @@ class ProductController extends Controller
     private function getFilteredProducts(Request $request, ?string $statusFilter)
     {
         $languages = $this->languageService->getAll();
+        $departments = $this->departmentService->getAllDepartments([], 0);
+        $departments = DepartmentResource::collection($departments)->resolve();
         // Get filter data for admin users - same logic as index() method
         $vendors = [];
         $brands = [];
@@ -702,18 +704,11 @@ class ProductController extends Controller
                     'name' => $brand->name
                 ];
             });
-            $categories = $this->categoryService->getAllCategories([], 0);
-            $categories = CategoryResource::collection($categories)->map(function($category) {
-                return [
-                    'id' => $category->id,
-                    'name' => $category->name
-                ];
-            });
         }
 
         $bankProducts = $this->productBankService->getAllBankProducts();
         $bankProducts = BankProductResource::collection($bankProducts)->resolve();
-        return view('catalogmanagement::product.index', compact('languages', 'vendors', 'brands', 'categories', 'statusFilter', 'bankProducts'));
+        return view('catalogmanagement::product.index', compact('languages', 'departments', 'vendors', 'brands', 'categories', 'statusFilter', 'bankProducts'));
     }
 
     /**

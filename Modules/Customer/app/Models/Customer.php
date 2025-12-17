@@ -12,6 +12,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\HasApiTokens;
 use Modules\Customer\app\Observers\CustomerObserver;
+use Modules\Order\app\Models\Order;
 
 class Customer extends Authenticatable
 {
@@ -79,6 +80,11 @@ class Customer extends Authenticatable
     public function addresses()
     {
         return $this->hasMany(CustomerAddress::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
     }
 
     /**

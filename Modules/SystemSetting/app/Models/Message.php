@@ -2,13 +2,15 @@
 
 namespace Modules\SystemSetting\app\Models;
 
+use App\Models\Traits\AutoStoreCountryId;
+use App\Models\Traits\CountryCheckIdTrait;
 use App\Models\Traits\HumanDates;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Message extends Model
 {
-    use SoftDeletes, HumanDates;
+    use SoftDeletes, HumanDates, AutoStoreCountryId, CountryCheckIdTrait;
 
     protected $table = 'messages';
     protected $guarded = [];

@@ -25,8 +25,8 @@ return [
     'icon' => 'ايقونة القسم',
     'click_to_upload_image' => 'انقر لتحميل صورة القسم',
     'click_to_upload_icon' => 'انقر لتحميل أيقونة القسم',
-    'recommended_size' => 'الحجم الموصى به: 800×600 بكسل',
-    'recommended_size_for_icon' => 'الحجم الموصى به للايقونة: 50×50 بكسل',
+    'recommended_size' => 'الحجم الموصى به: 1538×402 بكسل',
+    'recommended_size_for_icon' => 'الحجم الموصى به للايقونة: 112×112 بكسل',
 
     // Placeholders
     'enter_department_name_english' => 'أدخل اسم القسم بالإنجليزية',

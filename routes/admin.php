@@ -13,9 +13,7 @@ use App\Http\Controllers\AreaSettings\CityController;
 use App\Http\Controllers\AreaSettings\RegionController;
 use App\Http\Controllers\AreaSettings\SubRegionController;
 use App\Http\Controllers\DepartmentController;
-use App\Http\Controllers\ActivityController;
 use App\Models\Translation;
-use Database\Seeders\ActivitySeeder;
 use Database\Seeders\AreaSettingsSeeder;
 use Database\Seeders\AutoProductSeeder;
 use Database\Seeders\BrandSeeder;
@@ -59,56 +57,56 @@ Route::get('seeder', function () {
         try {
         // Seeders in order of dependency
         $seeders = [
-            // [
-            //     'class' => AreaSettingsSeeder::class,
-            //     'name' => 'Area Settings Seeder',
-            //     'description' => 'Creates cities, regions, and subregions for Egypt and Saudi Arabia',
-            // ],
-            // [
-            //     'class' => TaxSeeder::class,
-            //     'name' => 'Tax Seeder',
-            //     'description' => 'Creates tax rates (VAT 15%, 10%, 5%, etc.)',
-            // ],
-            // [
-            //     'class' => VariantConfigurationSeeder::class,
-            //     'name' => 'Variant Configuration Seeder',
-            //     'description' => 'Creates variant keys (Color, Size, Material) and their values',
-            // ],
-            // [
-            //     'class' => CategoryDepartmentSeeder::class,
-            //     'name' => 'Category & Department Seeder',
-            //     'description' => 'Creates activities, departments, categories, subcategories, brands, and regions',
-            // ],
-            // [
-            //     'class' => BrandSeeder::class,
-            //     'name' => 'Brand Seeder',
-            //     'description' => 'Creates brands with country_id and translations',
-            // ],
-            // [
-            //     'class' => VendorSeeder::class,
-            //     'name' => 'Vendor Seeder',
-            //     'description' => 'Creates vendors with country_id and translations',
-            // ],
+            [
+                'class' => AreaSettingsSeeder::class,
+                'name' => 'Area Settings Seeder',
+                'description' => 'Creates cities, regions, and subregions for Egypt and Saudi Arabia',
+            ],
+            [
+                'class' => TaxSeeder::class,
+                'name' => 'Tax Seeder',
+                'description' => 'Creates tax rates (VAT 15%, 10%, 5%, etc.)',
+            ],
+            [
+                'class' => VariantConfigurationSeeder::class,
+                'name' => 'Variant Configuration Seeder',
+                'description' => 'Creates variant keys (Color, Size, Material) and their values',
+            ],
+            [
+                'class' => CategoryDepartmentSeeder::class,
+                'name' => 'Category & Department Seeder',
+                'description' => 'Creates departments, categories, subcategories, brands, and regions',
+            ],
+            [
+                'class' => BrandSeeder::class,
+                'name' => 'Brand Seeder',
+                'description' => 'Creates brands with country_id and translations',
+            ],
+            [
+                'class' => VendorSeeder::class,
+                'name' => 'Vendor Seeder',
+                'description' => 'Creates vendors with country_id and translations',
+            ],
             [
                 'class' => OrderStageSeeder::class,
                 'name' => 'Order Stage Seeder',
                 'description' => 'Creates order stages',
             ],
-            // [
-            //     'class' => AutoProductSeeder::class,
-            //     'name' => 'Auto Product Seeder',
-            //     'description' => 'Creates products with variants for each vendor',
-            // ],
-            // [
-            //     'class' => ReviewSeeder::class,
-            //     'name' => 'Review Seeder',
-            //     'description' => 'Creates customer reviews for products and vendors',
-            // ],
-            // [
-            //     'class' => CustomerSeeder::class,
-            //     'name' => 'Customer Seeder',
-            //     'description' => 'Creates 10 sample customers with contact information',
-            // ],
+            [
+                'class' => AutoProductSeeder::class,
+                'name' => 'Auto Product Seeder',
+                'description' => 'Creates products with variants for each vendor',
+            ],
+            [
+                'class' => ReviewSeeder::class,
+                'name' => 'Review Seeder',
+                'description' => 'Creates customer reviews for products and vendors',
+            ],
+            [
+                'class' => CustomerSeeder::class,
+                'name' => 'Customer Seeder',
+                'description' => 'Creates 10 sample customers with contact information',
+            ],
             [
                 'class' => OrderSeeder::class,
                 'name' => 'Order Seeder',
@@ -177,22 +175,21 @@ Route::get('/truncate', function(Illuminate\Http\Request $request) {
         abort(403, 'Unauthorized');
     }
     DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-    // Translation::latest()->forceDelete();
+    Translation::latest()->forceDelete();
     $tables = [
-        // 'activities','activities_departments', 'activity_logs','cities', 'regions', 'subregions', 'vendor_regions',
-        // 'attachments', 'brands', 'bundle_categories', 'categories',
-        // 'departments',
-        // 'customers',
-        // 'customer_addresses', 'customer_fcm_tokens',
-        // 'customer_otps','customer_password_reset_tokens',
-        'orders', 'order_extra_fees_discounts',
+        'activity_logs','cities', 'regions', 'subregions', 'vendor_regions',
+        'attachments', 'brands', 'bundle_categories', 'categories',
+        'departments',
+        'customers',
+        'customer_addresses', 'customer_fcm_tokens',
+        'customer_otps','customer_password_reset_tokens',
+        'orders', 'order_extra_fees_discounts', 'order_stages',
         'order_fulfillments', 'order_products', 'order_product_taxes',
-
-        // 'products', 'product_variants', 'promocodes', 'reviews', 'sub_categories',
-        // 'taxes', 'translations', 'variants_configurations', 'variants_configurations_keys',
-        // 'vendors', 'vendors_activities', 'vendor_products', 'vendor_product_variants',
-        // 'vendor_product_variant_stocks', 'vendor_regions', 'vendor_requests', 'vendor_requests_activities',
-        // 'wishlists', 'withdraws'
+        'products', 'product_variants', 'promocodes', 'reviews', 'sub_categories',
+        'taxes', 'translations', 'variants_configurations', 'variants_configurations_keys',
+        'vendors', 'vendor_products', 'vendor_product_variants',
+        'vendor_product_variant_stocks', 'vendor_requests',
+        'wishlists', 'withdraws'
     ];
 
     foreach ($tables as $table) {

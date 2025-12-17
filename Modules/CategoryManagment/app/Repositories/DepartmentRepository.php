@@ -79,6 +79,7 @@ class DepartmentRepository implements DepartmentRepositoryInterface
     {
         $department = Department::create([
             'active' => $data['active'] ?? 1,
+            'commission' => $data['commission'] ?? 0,
         ]);
 
         // Store translations
@@ -86,9 +87,9 @@ class DepartmentRepository implements DepartmentRepositoryInterface
             foreach ($data['translations'] as $langId => $translation) {
                 if (!empty($translation['name'])) {
                     $department->translations()->create([
-                        'lang_id' => $langId,
-                        'lang_key' => 'name',
-                        'lang_value' => $translation['name'],
+                    'lang_id' => $langId,
+                    'lang_key' => 'name',
+                    'lang_value' => $translation['name'],
                     ]);
                 }
 
@@ -100,10 +101,6 @@ class DepartmentRepository implements DepartmentRepositoryInterface
                     ]);
                 }
             }
-        }
-
-        if(isset($data['activity_id'])) {
-            $department->activities()->sync($data['activity_id']);
         }
 
         // Handle image upload
@@ -136,6 +133,7 @@ class DepartmentRepository implements DepartmentRepositoryInterface
 
         $updateData = [
             'active' => $data['active'] ?? 1,
+            'commission' => $data['commission'] ?? 0,
         ];
 
         $department->update($updateData);
@@ -148,7 +146,7 @@ class DepartmentRepository implements DepartmentRepositoryInterface
                 if(Storage::disk('public')->exists($oldImage->path)) {
                     Storage::disk('public')->delete($oldImage->path);
                 }
-                $oldImage->delete();
+                $oldImage->forceDelete();
             }
             // Store new image
             $path = $data['image']->store("departments/{$department->id}", 'public');
@@ -166,7 +164,7 @@ class DepartmentRepository implements DepartmentRepositoryInterface
                 if(Storage::disk('public')->exists($oldIcon->path)) {
                     Storage::disk('public')->delete($oldIcon->path);
                 }
-                $oldIcon->delete();
+                $oldIcon->forceDelete();
             }
             // Store new icon
             $path = $data['icon']->store("departments/{$department->id}", 'public');
@@ -200,9 +198,6 @@ class DepartmentRepository implements DepartmentRepositoryInterface
                 }
             }
         }
-        if(isset($data['activity_id'])) {
-            $department->activities()->sync($data['activity_id']);
-        }
 
         return $department;
     }
@@ -216,13 +211,13 @@ class DepartmentRepository implements DepartmentRepositoryInterface
         $oldImage = $department->attachments()->where('type', 'image')->first();
         $oldIcon = $department->attachments()->where('type', 'icon')->first();
         if ($oldImage) {
-            $oldImage->delete();
+            $oldImage->forceDelete();
         }
         if ($oldIcon) {
-            $oldIcon->delete();
+            $oldIcon->forceDelete();
         }
-        $department->translations()->delete();
-        $department->delete();
+        $department->translations()->forceDelete();
+        $department->forceDelete();
         return true;
     }
 }

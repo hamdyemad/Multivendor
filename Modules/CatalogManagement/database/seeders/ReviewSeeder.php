@@ -79,7 +79,7 @@ class ReviewSeeder extends Seeder
                         'customer_id' => $order->customer_id,
                         'reviewable_type' => VendorProduct::class,
                         'reviewable_id' => $orderProduct->vendor_product_id,
-                        'created_at' => $order->created_at ? $order->created_at->addDays(rand(1, 14)) : now(),
+                        'created_at' => $order->created_at ? \Carbon\Carbon::parse($order->getRawOriginal('created_at'))->addDays(rand(1, 14)) : now(),
                     ]);
                     $createdReviews++;
                 } catch (\Exception $e) {

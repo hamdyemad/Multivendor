@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Modules\CategoryManagment\app\Http\Requests\CategoryRequest;
 use Modules\CategoryManagment\app\Services\CategoryService;
 use Modules\CategoryManagment\app\Services\DepartmentService;
-use Modules\CategoryManagment\app\Services\ActivityService;
 use Modules\CategoryManagment\app\Http\Resources\ActivityResource;
 use App\Services\LanguageService;
 use Illuminate\Http\Request;
@@ -18,7 +17,6 @@ class CategoryController extends Controller
     public function __construct(
         protected CategoryService $categoryService,
         protected DepartmentService $departmentService,
-        protected ActivityService $activityService,
         protected LanguageService $languageService,
         protected CategoryAction $categoryAction
     )
@@ -74,25 +72,6 @@ class CategoryController extends Controller
         }
     }
 
-    /**
-     * AJAX endpoint for searching activities (Select2)
-     */
-    public function searchActivities(Request $request)
-    {
-        try {
-            $data = $this->activityService->searchForSelect2(
-                $request->get('q', ''),
-                $request->get('page', 1)
-            );
-
-            return response()->json($data);
-        } catch (\Exception $e) {
-            return response()->json([
-                'results' => [],
-                'pagination' => ['more' => false]
-            ], 500);
-        }
-    }
 
     /**
      * Show the form for creating a new resource.

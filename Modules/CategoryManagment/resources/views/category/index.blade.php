@@ -212,10 +212,10 @@
                         className: 'text-center',
                         render: function(data, type, row) {
                             @can('categories.edit')
-                            const isChecked = data ? 'checked' : '';
-                            const switchId = 'status-switch-' + row.id;
+                                const isChecked = data ? 'checked' : '';
+                                const switchId = 'status-switch-' + row.id;
 
-                            return `<div class="form-switch">
+                                return `<div class="form-switch">
                                 <input class="form-check-input status-switcher"
                                        type="checkbox"
                                        id="${switchId}"
@@ -226,9 +226,9 @@
                                 <label class="form-check-label" for="${switchId}"></label>
                             </div>`;
                             @else
-                            return data ?
-                                `<span class="badge badge-success badge-round badge-lg"><i class="uil uil-check"></i> {{ trans('categorymanagment::category.active') }}</span>` :
-                                `<span class="badge badge-danger badge-round badge-lg"><i class="uil uil-times"></i> {{ trans('categorymanagment::category.inactive') }}</span>`;
+                                return data ?
+                                    `<span class="badge badge-success badge-round badge-lg"><i class="uil uil-check"></i> {{ trans('categorymanagment::category.active') }}</span>` :
+                                    `<span class="badge badge-danger badge-round badge-lg"><i class="uil uil-times"></i> {{ trans('categorymanagment::category.inactive') }}</span>`;
                             @endcan
                         }
                     },
@@ -236,7 +236,7 @@
                         data: 'created_at',
                         name: 'created_at',
                         render: function(data) {
-                            return data ? new Date(data).toLocaleDateString('en-EG') : '—';
+                            return data;
                         }
                     },
                     {
@@ -245,9 +245,15 @@
                         searchable: false,
                         className: 'text-center',
                         render: function(data) {
-                            let showUrl = "{{ route('admin.category-management.categories.show', ':id') }}".replace(':id', data.id),
-                                editUrl = "{{ route('admin.category-management.categories.edit', ':id') }}".replace(':id', data.id),
-                                deleteUrl = "{{ route('admin.category-management.categories.destroy', ':id') }}".replace(':id', data.id);
+                            let showUrl =
+                                "{{ route('admin.category-management.categories.show', ':id') }}"
+                                .replace(':id', data.id),
+                                editUrl =
+                                "{{ route('admin.category-management.categories.edit', ':id') }}"
+                                .replace(':id', data.id),
+                                deleteUrl =
+                                "{{ route('admin.category-management.categories.destroy', ':id') }}"
+                                .replace(':id', data.id);
 
                             return `
                             <div class="orderDatatable_actions d-inline-flex gap-1">
@@ -291,7 +297,7 @@
                     processing: "{{ __('common.processing') ?? 'Processing' }}...",
                     search: "{{ __('common.search') ?? 'Search' }}:",
                     paginate: {
-                        @if(app()->getLocale() == 'en')
+                        @if (app()->getLocale() == 'en')
                             first: '<i class="uil uil-angle-double-left"></i>',
                             last: '<i class="uil uil-angle-double-right"></i>',
                             next: '<i class="uil uil-angle-right"></i>',
@@ -366,7 +372,8 @@
 
                 // Make AJAX request
                 $.ajax({
-                    url: '{{ route('admin.category-management.categories.change-status', ':id') }}'.replace(':id', categoryId),
+                    url: '{{ route('admin.category-management.categories.change-status', ':id') }}'
+                        .replace(':id', categoryId),
                     type: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',
@@ -424,7 +431,8 @@
                         // Revert switcher state
                         switcher.prop('checked', !switcher.is(':checked'));
 
-                        let errorMessage = '{{ __('categorymanagment::category.error_changing_status') }}';
+                        let errorMessage =
+                            '{{ __('categorymanagment::category.error_changing_status') }}';
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             errorMessage = xhr.responseJSON.message;
                         }

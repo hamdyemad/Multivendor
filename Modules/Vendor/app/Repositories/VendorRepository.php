@@ -22,7 +22,7 @@ class VendorRepository implements VendorInterface
     }
     public function getAllVendors(array $filters = [], int $perPage = 10)
     {
-        $query = Vendor::with(['user', 'country', 'country.translations', 'activities', 'translations'])
+        $query = Vendor::with(['user', 'country', 'country.translations', 'translations'])
         ->filter($filters);
         return ($perPage == 0) ?  $query->get() : $query->latest()->paginate($perPage);
     }
@@ -39,15 +39,15 @@ class VendorRepository implements VendorInterface
             'user',
             'country',
             'country.translations',
-            'activities',
-            'activities.translations',
             'translations',
             'attachments',
             'attachments.translations',
             'logo',
             'banner',
             'documents',
-            'documents.translations'
+            'documents.translations',
+            'departments',
+            'departments.translations'
         ])->findOrFail($id);
     }
 
@@ -93,12 +93,13 @@ class VendorRepository implements VendorInterface
             }
 
 
-            // Sync activities (many-to-many relationship)
-            if (!empty($data['activity_ids'])) {
-                $vendor->activities()->sync($data['activity_ids']);
-            }
             // Store translations
             $this->storeTranslations($vendor, $data);
+
+            // Sync departments
+            if (isset($data['departments'])) {
+                $vendor->departments()->sync($data['departments']);
+            }
 
             // Handle documents
             if (!empty($data['documents'])) {
@@ -187,12 +188,14 @@ class VendorRepository implements VendorInterface
                 'phone' => $data['phone'] ?? null,
             ]);
 
-            // Sync activities (many-to-many relationship)
-            if (!empty($data['activity_ids'])) {
-                $vendor->activities()->sync($data['activity_ids']);
-            }
+
             // Update translations
             $this->storeTranslations($vendor, $data);
+
+            // Sync departments
+            if (isset($data['departments'])) {
+                $vendor->departments()->sync($data['departments']);
+            }
 
             // Handle documents
             if (!empty($data['documents'])) {
@@ -248,10 +251,6 @@ class VendorRepository implements VendorInterface
 
             // Delete vendor translations (hard delete - translations don't use soft delete)
             $vendor->translations()->delete();
-
-            // Detach activities (many-to-many) - must be done before vendor deletion
-            $vendor->activities()->detach();
-
 
             // Force delete vendor (bypass soft delete) to avoid foreign key constraint issues
             $vendor->forceDelete();

@@ -352,11 +352,15 @@ class Product extends BaseModel
         // Exclude products already in a specific vendor's catalog
         if (!empty($filters['exclude_vendor_id'])) {
             $vendorId = $filters['exclude_vendor_id'];
-            $query->whereNotExists(function ($subQuery) use ($vendorId) {
+            $vendor = Vendor::find($vendorId);
+            $departmentIds = $vendor->departments()->pluck('departments.id')->toArray();
+            $query->whereIn('department_id', $departmentIds)
+            ->whereNotExists(function ($subQuery) use ($vendorId) {
                 $subQuery->select('id')
                     ->from('vendor_products')
                     ->whereColumn('vendor_products.product_id', 'products.id')
-                    ->where('vendor_products.vendor_id', $vendorId);
+                    ->where('vendor_products.vendor_id', $vendorId)
+                    ->whereNull('vendor_products.deleted_at');
             });
         }
 

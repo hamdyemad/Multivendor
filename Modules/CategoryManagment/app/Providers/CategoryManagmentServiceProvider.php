@@ -4,18 +4,14 @@ namespace Modules\CategoryManagment\app\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
-use Modules\CategoryManagment\app\Interfaces\ActivityRepositoryInterface;
-use Modules\CategoryManagment\app\Interfaces\Api\ActivityApiRepositoryInterface;
 use Modules\CategoryManagment\app\Interfaces\Api\CategoryApiRepositoryInterface;
 use Modules\CategoryManagment\app\Interfaces\Api\DepartmentApiRepositoryInterface;
 use Modules\CategoryManagment\app\Interfaces\Api\SubCategoryApiRepositoryInterface;
 use Modules\CategoryManagment\app\Interfaces\DepartmentRepositoryInterface;
 use Modules\CategoryManagment\app\Interfaces\CategoryRepositoryInterface;
 use Modules\CategoryManagment\app\Interfaces\SubCategoryRepositoryInterface;
-use Modules\CategoryManagment\app\Repositories\Api\ActivityApiRepository;
-use Modules\CategoryManagment\app\Repositories\ActivityRepository;
-use Modules\CategoryManagment\app\Repositories\Api\CategoryApiRepository;
 use Modules\CategoryManagment\app\Repositories\Api\DepartmentApiRepository;
+use Modules\CategoryManagment\app\Repositories\Api\CategoryApiRepository;
 use Modules\CategoryManagment\app\Repositories\Api\SubCategoryApiRepository;
 use Modules\CategoryManagment\app\Repositories\DepartmentRepository;
 use Modules\CategoryManagment\app\Repositories\CategoryRepository;
@@ -54,15 +50,6 @@ class CategoryManagmentServiceProvider extends ServiceProvider
         $this->app->register(RouteServiceProvider::class);
         
         // Register repository bindings
-        $this->app->bind(
-            ActivityRepositoryInterface::class,
-            ActivityRepository::class
-        );
-
-        $this->app->bind(
-            ActivityApiRepositoryInterface::class,
-            ActivityApiRepository::class
-        );
 
         $this->app->bind(
             DepartmentApiRepositoryInterface::class,

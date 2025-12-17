@@ -17,13 +17,26 @@ class OrderStageRepository implements OrderStageRepositoryInterface
     public function getOrderStagesQuery(array $filters = [], $orderBy = null, $orderDirection = 'desc')
     {
         $query = OrderStage::with(['translations', 'country'])
-        ->filter($filters)
-        ->where('is_system', 1)
-        ->orWhere(function ($q) {
-            $q->where('is_system', 0)
-              ->where('country_id', 1); // يرجع stages خاصة بالدولة فقط
-        })
-        ->orderBydesc('created_at');
+            ->where(function ($q) {
+                // Include stages with no country (System/Global)
+                $q->whereNull('country_id');
+
+                // Include stages for the current country
+                $countryCode = session('country_code');
+                if ($countryCode) {
+                    $q->orWhereHas('country', function ($sq) use ($countryCode) {
+                        $sq->where('code', $countryCode);
+                    });
+                }
+            })
+            ->filter($filters);
+
+        if ($orderBy) {
+            $query->orderBy($orderBy, $orderDirection);
+        } else {
+            $query->orderByDesc('created_at');
+        }
+
         return $query;
     }
 
@@ -32,7 +45,9 @@ class OrderStageRepository implements OrderStageRepositoryInterface
      */
     public function getOrderStageById($id)
     {
-        return OrderStage::with(['translations', 'country'])->findOrFail($id);
+        return OrderStage::with(['translations', 'country'])
+        ->withoutCountryFilter()
+        ->findOrFail($id);
     }
 
     /**

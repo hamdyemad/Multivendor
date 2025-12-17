@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 use Modules\AreaSettings\app\Resources\CountryResource;
 use Modules\AreaSettings\app\Services\CountryService;
 use Modules\CategoryManagment\app\Http\Resources\ActivityResource;
-use Modules\CategoryManagment\app\Services\ActivityService;
+use Modules\CategoryManagment\app\Services\DepartmentService;
 use Modules\Vendor\app\Actions\VendorAction;
 use Modules\Vendor\app\Http\Requests\Vendor\VendorRequest;
 use Modules\Vendor\app\Models\Vendor;
@@ -23,7 +23,7 @@ class VendorController extends Controller {
         protected VendorService $vendorService,
         protected VendorAction $vendorAction,
         protected CountryService $countryService,
-        protected ActivityService $activityService,
+        protected DepartmentService $departmentService,
         protected LanguageService $languageService,
     ) {}
 
@@ -71,13 +71,13 @@ class VendorController extends Controller {
 
 
     public function create(Request $request, $lang, $countryCode) {
-        // Get all countries and activities for select dropdowns
+        // Get all countries and departments for select dropdowns
         $countriesData = $this->countryService->getAllCountries([], 1000);
-        $activitiesData = $this->activityService->getAllActivities(0, []);
+        $departmentsData = $this->departmentService->getAllDepartments([], 0);
+        
         // Extract items from paginated results
         $countries = CountryResource::collection($countriesData)->resolve();
-        // Pass activities as collection for form (need getTranslation method)
-        $activities = $activitiesData;
+        $departments = $departmentsData;
 
         // Get languages for translations
         $languages = $this->languageService->getAll();
@@ -88,13 +88,12 @@ class VendorController extends Controller {
             'email' => $request->query('email'),
             'phone' => $request->query('phone'),
             'company_name' => $request->query('company_name'),
-            'activity_ids' => $request->query('activity_ids') ? explode(',', $request->query('activity_ids')) : []
         ];
 
         $data = [
             'title' => __('vendor::vendor.add_vendor'),
             'countries' => $countries,
-            'activities' => $activities,
+            'departments' => $departments,
             'languages' => $languages,
             'vendorRequestData' => $vendorRequestData
         ];
@@ -164,21 +163,21 @@ class VendorController extends Controller {
 
     public function edit($lang, $countryCode, $id) {
         $vendor = $this->vendorService->getVendorById($id);
-        // Get all countries and activities for select dropdowns
+        // Get all countries and departments for select dropdowns
         $countriesData = $this->countryService->getAllCountries([], 1000);
-        $activitiesData = $this->activityService->getAllActivities(0, []);
+        $departmentsData = $this->departmentService->getAllDepartments([], 0);
 
         // Extract items from paginated results
         $countries = CountryResource::collection($countriesData)->resolve();
-        // Pass activities as collection for form (need getTranslation method)
-        $activities = $activitiesData;
+        $departments = $departmentsData;
+        
         // Get languages for translations
         $languages = $this->languageService->getAll();
         $data = [
             'title' => __('vendor::vendor.edit_vendor'),
             'vendor' => $vendor,
             'countries' => $countries,
-            'activities' => $activities,
+            'departments' => $departments,
             'languages' => $languages
         ];
         return view('vendor::vendors.form', $data);

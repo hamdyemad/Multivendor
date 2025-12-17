@@ -241,6 +241,14 @@ class OrderStageController extends Controller
             }
 
             $orderStage = $this->orderStageService->getOrderStageById($id);
+            
+            if ($orderStage->is_system) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('order::order_stage.cannot_change_status_system_stage')
+                ], 422);
+            }
+
             $newStatus = $request->input('status');
 
             // Check if status is actually changing

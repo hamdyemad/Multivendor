@@ -57,7 +57,7 @@ class BundleController extends Controller
                     'name_ar' => $bundle->getTranslation('name', 'ar') ?? '-',
                 ],
                 'sku' => $bundle->sku ?? '-',
-                'vendor' => $bundle->vendor->name,
+                'vendor' => $bundle->vendor?->name,
                 'is_active' => $bundle->is_active,
                 'admin_approval' => $bundle->admin_approval,
                 'approval_reason' => $bundle->approval_reason,

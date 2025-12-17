@@ -127,17 +127,8 @@ class ProductBankController extends Controller
         $regions = $this->regionService->getAllRegions([], 0);
         $departments = $this->departmentService->getAllDepartments([], 0);
 
-        // Get vendor activities for filtering
-        $vendorActivitiesMap = [];
-        if (Auth::user()->user_type_id === UserType::VENDOR_TYPE) {
-            $vendor = Auth::user()->vendor;
-            if ($vendor) {
-                $vendorActivitiesMap[$vendor->id] = $vendor->activities()->pluck('activity_id')->toArray();
-            }
-        }
-
         return view('catalogmanagement::product-bank.form', compact(
-            'languages', 'brands', 'taxes', 'regions', 'departments', 'vendorActivitiesMap'
+            'languages', 'brands', 'taxes', 'regions', 'departments'
         ));
     }
 

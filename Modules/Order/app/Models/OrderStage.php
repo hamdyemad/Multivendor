@@ -15,7 +15,7 @@ use Modules\AreaSettings\app\Models\Country;
 
 class OrderStage extends BaseModel
 {
-    use HasFactory, SoftDeletes, Translation, HumanDates, HasSlug, AutoStoreCountryId,CountryCheckIdTrait;
+    use HasFactory, SoftDeletes, Translation, HumanDates, HasSlug, AutoStoreCountryId;
 
     protected $guarded = [];
 
@@ -29,13 +29,7 @@ class OrderStage extends BaseModel
         return $this->belongsTo(Country::class);
     }
 
-    /**
-     * Get type attribute
-     */
-    public function getTypeAttribute()
-    {
-        return 'order_stage';
-    }
+
 
     /**
      * Scope for active order stages

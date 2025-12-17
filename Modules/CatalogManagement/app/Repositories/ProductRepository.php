@@ -42,6 +42,7 @@ class ProductRepository implements ProductInterface
             'variants.variantConfiguration.translations'
         ];
 
+        \Log::info('bankFilters', $filters);
         // Add bank-specific filters
         $bankFilters = array_merge($filters, [
             'type' => Product::TYPE_BANK,
@@ -332,6 +333,8 @@ class ProductRepository implements ProductInterface
      */
     protected function handleProductVariants(VendorProduct $vendorProduct, array $data): void
     {
+        \Log::info('vendorProduct', ['vendorProduct' => $vendorProduct]);
+        \Log::info('vendorProduct data', $data);
         $configurationType = $data['configuration_type'] ?? 'simple';
 
         if ($configurationType === 'simple') {
@@ -351,14 +354,39 @@ class ProductRepository implements ProductInterface
 
             // Prepare variant data with discount logic
             $hasDiscount = filter_var($data['has_discount'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+            // Get SKU from vendor product variant ID if provided (for bank imports)
+            $sku = $data['sku'] ?? rand(1000, 9999);
+            if (isset($data['vendor_product_variant_id']) && !empty($data['vendor_product_variant_id'])) {
+                $variantToGetSku = $vendorProduct->variants()
+                    ->find($data['vendor_product_variant_id']);
+                if ($variantToGetSku) {
+                    $baseSku = $variantToGetSku->sku;
+                    // Append vendor slug to SKU
+                    $vendor = $vendorProduct->vendor;
+                    $vendorSlug = $vendor ? $vendor->slug : 'vendor';
+                    $sku = $baseSku . '-' . $vendorSlug;
+                    Log::info('Generated SKU with vendor slug', [
+                        'vendor_product_variant_id' => $data['vendor_product_variant_id'],
+                        'base_sku' => $baseSku,
+                        'vendor_slug' => $vendorSlug,
+                        'final_sku' => $sku
+                    ]);
+                }
+            }
+
             $variantData = [
-                'sku' => $vendorProduct->sku,
                 'price' => ($data['price'] ?? 0),
                 'has_discount' => $hasDiscount,
                 'price_before_discount' => $hasDiscount ? ($data['price_before_discount'] ?? 0) : 0,
                 'discount_end_date' => $hasDiscount ? ($data['discount_end_date'] ?? null) : null,
                 'variant_configuration_id' => null, // Simple products don't have variant configuration
             ];
+
+            // Add SKU if retrieved
+            if ($sku) {
+                $variantData['sku'] = $sku;
+            }
 
             if ($existingVariant) {
                 // Update existing variant
@@ -435,8 +463,29 @@ class ProductRepository implements ProductInterface
                     if ($existingProductVariant) {
                         // Prepare variant data with discount logic
                         $hasVariantDiscount = filter_var($variantData['has_discount'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+                        // Get SKU from vendor product variant ID if provided (for bank imports)
+                        $variantSku = null;
+                        if (isset($variantData['vendor_product_variant_id']) && !empty($variantData['vendor_product_variant_id'])) {
+                            $variantToGetSku = $vendorProduct->variants()
+                                ->find($variantData['vendor_product_variant_id']);
+                            if ($variantToGetSku) {
+                                $baseSku = $variantToGetSku->sku;
+                                // Append vendor slug to SKU
+                                $vendor = $vendorProduct->vendor;
+                                $vendorSlug = $vendor ? $vendor->slug : 'vendor';
+                                $variantSku = $baseSku . '-' . $vendorSlug;
+                                Log::info('Generated SKU with vendor slug for existing variant', [
+                                    'vendor_product_variant_id' => $variantData['vendor_product_variant_id'],
+                                    'base_sku' => $baseSku,
+                                    'vendor_slug' => $vendorSlug,
+                                    'final_sku' => $variantSku
+                                ]);
+                            }
+                        }
+
                         $updateData = [
-                            'sku' => $variantData['sku'] ?? null,
+                            'sku' => $variantSku ?? ($variantData['sku'] ?? null),
                             'price' => $variantData['price'] ?? 0,
                             'has_discount' => $hasVariantDiscount,
                             'price_before_discount' => $hasVariantDiscount ? ($variantData['price_before_discount'] ?? 0) : 0,
@@ -472,12 +521,31 @@ class ProductRepository implements ProductInterface
                         // Generate SKU if not provided (required field)
                         $sku = $variantData['sku'] ?? null;
                         if (empty($sku)) {
-                            // Generate SKU: PRODUCT_ID-VARIANT_CONFIG_ID-TIMESTAMP
-                            $sku = $vendorProduct->product_id . '-V' . $variantConfigId . '-' . time();
-                            Log::info('Generated SKU for variant', [
-                                'generated_sku' => $sku,
-                                'variant_config_id' => $variantConfigId
-                            ]);
+                            // Check if vendor_product_variant_id is provided (for bank imports)
+                            if (isset($variantData['vendor_product_variant_id']) && !empty($variantData['vendor_product_variant_id'])) {
+                                $variantToGetSku = $vendorProduct->variants()
+                                    ->find($variantData['vendor_product_variant_id']);
+                                if ($variantToGetSku) {
+                                    $baseSku = $variantToGetSku->sku;
+                                    // Append vendor slug to SKU
+                                    $vendor = $vendorProduct->vendor;
+                                    $vendorSlug = $vendor ? $vendor->slug : 'vendor';
+                                    $sku = $baseSku . '-' . $vendorSlug;
+                                    Log::info('Generated SKU with vendor slug for new variant', [
+                                        'vendor_product_variant_id' => $variantData['vendor_product_variant_id'],
+                                        'base_sku' => $baseSku,
+                                        'vendor_slug' => $vendorSlug,
+                                        'final_sku' => $sku
+                                    ]);
+                                }
+                            } else {
+                                // Generate SKU: PRODUCT_ID-VARIANT_CONFIG_ID-TIMESTAMP
+                                $sku = $vendorProduct->product_id . '-V' . $variantConfigId . '-' . time();
+                                Log::info('Generated SKU for variant', [
+                                    'generated_sku' => $sku,
+                                    'variant_config_id' => $variantConfigId
+                                ]);
+                            }
                         }
 
                         $createData = [
@@ -550,12 +618,6 @@ class ProductRepository implements ProductInterface
             $vendorId = $data['vendor_id'];
             $taxId = $data['tax_id'] ?? null;
 
-            // If no SKU provided, generate one since it's required in database
-            $sku = $data['sku'] ?? null;
-            if (empty($sku)) {
-                $sku = 'VP-' . $productId . '-' . $vendorId . '-' . time();
-            }
-
             // If no tax_id provided, get the first available tax as default
             if (!$taxId) {
                 $defaultTax = Tax::first();
@@ -571,7 +633,7 @@ class ProductRepository implements ProductInterface
                 'product_id' => $productId,
                 'vendor_id' => $vendorId,
                 'tax_id' => $taxId,
-                'sku' => $sku,
+                'sku' => Str::random(4),
                 'max_per_order' => $data['max_per_order'] ?? 10,
                 'video_link' => $data['video_link'] ?? null,
                 'is_active' => isset($data['is_active']) ? (bool) $data['is_active'] : true,
@@ -584,10 +646,42 @@ class ProductRepository implements ProductInterface
                 $vendorProductData['status'] = VendorProduct::STATUS_PENDING;
             }
 
-            $vendorProduct = VendorProduct::create($vendorProductData);
+            // Check if vendor product already exists (including soft deleted)
+            $vendorProduct = VendorProduct::where('product_id', $productId)
+                ->where('vendor_id', $vendorId)
+                ->withTrashed()
+                ->first();
+
+            $sku = null;
+
+            if ($vendorProduct) {
+                // Restore if it was deleted
+                if ($vendorProduct->trashed()) {
+                    $vendorProduct->restore();
+                }
+                
+                // Update existing record
+                $vendorProduct->update($vendorProductData);
+                $sku = $vendorProduct->sku;
+            } else {
+                // Generate SKU for new vendor product
+                $product = Product::find($productId);
+                $sku = $product ? $product->slug : 'VP-' . $productId;
+                // Add vendor ID and random string to ensure uniqueness
+                $sku = $sku . '-' . $vendorId . '-' . Str::random(4);
+                
+                $vendorProductData['sku'] = $sku;
+                
+                // Create new record
+                $vendorProduct = VendorProduct::create($vendorProductData);
+            }
 
             $data['configuration_type'] = $vendorProduct->product->configuration_type;
             $data['is_bank_import'] = true; // Flag to indicate this is a bank import operation
+            // Use the vendor product SKU for the variant if not provided
+            if (!isset($data['sku'])) {
+                $data['sku'] = $sku;
+            }
             // Handle variants or simple product
             $this->handleProductVariants($vendorProduct, $data);
 

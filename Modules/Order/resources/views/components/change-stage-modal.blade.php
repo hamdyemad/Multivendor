@@ -1,4 +1,4 @@
-@props(['orderId' => null, 'currentStageId' => null])
+@props(['orderId' => null, 'currentStageId' => null, 'orderStages' => []])
 
 <div class="modal fade" id="changeStageModal" tabindex="-1" aria-labelledby="changeStageModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -31,31 +31,7 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        let orderStages = [];
-
-        // Fetch order stages for dropdown
-        function loadOrderStages() {
-            const orderId = $('#orderId').val();
-
-            // Use order-specific endpoint if order ID is available
-            const url = orderId ? "{{ route('api.orders.allowed-stages', '__id__') }}".replace('__id__', orderId) : "{{ route('api.order-stages.index') }}";
-
-            $.ajax({
-                url: url,
-                type: 'GET',
-                dataType: 'json',
-                success: function(response) {
-                    if (response.data) {
-                        orderStages = response.data;
-                        populateStageSelect();
-                    }
-                },
-                error: function(xhr) {
-                    console.error('Error loading order stages:', xhr);
-                    toastr.error('{{ trans('common.error') }}');
-                }
-            });
-        }
+        let orderStages = @json($orderStages);
 
         // Populate stage select dropdown
         function populateStageSelect() {
@@ -156,9 +132,7 @@
 
         // Load stages when modal is shown
         $('#changeStageModal').on('shown.bs.modal', function() {
-            if (orderStages.length === 0) {
-                loadOrderStages();
-            }
+            populateStageSelect();
         });
     });
 </script>

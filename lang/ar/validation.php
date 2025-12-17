@@ -175,7 +175,6 @@ return [
     'featured_invalid' => 'featured يجب أن يكون boolean',
     'created_date_from_invalid' => 'يجب أن يكون created_date_from تاريخاً صحيحاً (YYYY-MM-DD)',
     'created_date_to_invalid' => 'يجب أن يكون created_date_to تاريخاً صحيحاً (YYYY-MM-DD)',
-    'activity_ids_invalid' => 'يجب أن يكون activity_ids مصفوفة',
     'min_star_range' => 'يجب أن يكون الحد الأدنى للنجوم بين 1 و 5',
     'max_star_range' => 'يجب أن يكون الحد الأقصى للنجوم بين 1 و 5',
     'min_star_max_star' => 'لا يمكن أن يكون الحد الأدنى للنجوم أكبر من الحد الأقصى',
@@ -216,7 +215,6 @@ return [
 
     'attributes' => [
         'country_id' => 'الدولة',
-        'activity_id' => 'النشاط',
         'email' => 'البريد الإلكتروني',
         'password' => 'كلمة المرور',
         'logo' => 'الشعار',

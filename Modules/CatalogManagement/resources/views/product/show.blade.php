@@ -3,112 +3,112 @@
 @section('title', __('catalogmanagement::product.view_product'))
 
 @push('styles')
-<style>
-/* Product View HTML Content Styling */
-.fs-15.color-dark {
-    line-height: 1.6;
-}
+    <style>
+        /* Product View HTML Content Styling */
+        .fs-15.color-dark {
+            line-height: 1.6;
+        }
 
-.fs-15.color-dark table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 10px 0;
-    background: #fff;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
+        .fs-15.color-dark table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
 
-.fs-15.color-dark table th,
-.fs-15.color-dark table td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #e3e6f0;
-}
+        .fs-15.color-dark table th,
+        .fs-15.color-dark table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e3e6f0;
+        }
 
-.fs-15.color-dark table th {
-    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
-    color: white;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-size: 12px;
-}
+        .fs-15.color-dark table th {
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 12px;
+        }
 
-.fs-15.color-dark table tr:hover {
-    background-color: #f8f9fa;
-}
+        .fs-15.color-dark table tr:hover {
+            background-color: #f8f9fa;
+        }
 
-.fs-15.color-dark table tr:last-child td {
-    border-bottom: none;
-}
+        .fs-15.color-dark table tr:last-child td {
+            border-bottom: none;
+        }
 
-.fs-15.color-dark strong {
-    color: #2c3e50;
-    font-weight: 600;
-}
+        .fs-15.color-dark strong {
+            color: #2c3e50;
+            font-weight: 600;
+        }
 
-.fs-15.color-dark em {
-    color: #7f8c8d;
-    font-style: italic;
-}
+        .fs-15.color-dark em {
+            color: #7f8c8d;
+            font-style: italic;
+        }
 
-.fs-15.color-dark ul,
-.fs-15.color-dark ol {
-    margin: 10px 0;
-    padding-left: 20px;
-}
+        .fs-15.color-dark ul,
+        .fs-15.color-dark ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
 
-.fs-15.color-dark li {
-    margin-bottom: 5px;
-    line-height: 1.5;
-}
+        .fs-15.color-dark li {
+            margin-bottom: 5px;
+            line-height: 1.5;
+        }
 
-.fs-15.color-dark p {
-    margin-bottom: 10px;
-    line-height: 1.6;
-}
+        .fs-15.color-dark p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
 
-.fs-15.color-dark h1,
-.fs-15.color-dark h2,
-.fs-15.color-dark h3,
-.fs-15.color-dark h4,
-.fs-15.color-dark h5,
-.fs-15.color-dark h6 {
-    margin: 15px 0 10px 0;
-    color: #2c3e50;
-    font-weight: 600;
-}
+        .fs-15.color-dark h1,
+        .fs-15.color-dark h2,
+        .fs-15.color-dark h3,
+        .fs-15.color-dark h4,
+        .fs-15.color-dark h5,
+        .fs-15.color-dark h6 {
+            margin: 15px 0 10px 0;
+            color: #2c3e50;
+            font-weight: 600;
+        }
 
-.fs-15.color-dark blockquote {
-    border-left: 4px solid #4e73df;
-    padding-left: 15px;
-    margin: 15px 0;
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 4px;
-}
+        .fs-15.color-dark blockquote {
+            border-left: 4px solid #4e73df;
+            padding-left: 15px;
+            margin: 15px 0;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+        }
 
-.fs-15.color-dark a {
-    color: #4e73df;
-    text-decoration: none;
-}
+        .fs-15.color-dark a {
+            color: #4e73df;
+            text-decoration: none;
+        }
 
-.fs-15.color-dark a:hover {
-    color: #224abe;
-    text-decoration: underline;
-}
+        .fs-15.color-dark a:hover {
+            color: #224abe;
+            text-decoration: underline;
+        }
 
-/* Arabic content styling */
-.fs-15.color-dark[style*="direction: rtl"] {
-    font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+        /* Arabic content styling */
+        .fs-15.color-dark[style*="direction: rtl"] {
+            font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-.fs-15.color-dark[style*="direction: rtl"] table th,
-.fs-15.color-dark[style*="direction: rtl"] table td {
-    text-align: right;
-}
-</style>
+        .fs-15.color-dark[style*="direction: rtl"] table th,
+        .fs-15.color-dark[style*="direction: rtl"] table td {
+            text-align: right;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -151,21 +151,28 @@
                                 <div class="card card-holder">
                                     <div class="card-header">
                                         <h3>
-                                            <i class="uil uil-info-circle me-1"></i>{{ __('catalogmanagement::product.basic_information') ?? 'Basic Information' }}
+                                            <i
+                                                class="uil uil-info-circle me-1"></i>{{ __('catalogmanagement::product.basic_information') ?? 'Basic Information' }}
                                         </h3>
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
-                                            <x-translation-display :label="__('catalogmanagement::product.title')" :model="$product->product" fieldName="title" :languages="$languages" />
+                                            <x-translation-display :label="__('catalogmanagement::product.title')" :model="$product->product" fieldName="title"
+                                                :languages="$languages" />
 
-                                            <x-translation-display :label="__('catalogmanagement::product.details')" :model="$product->product" fieldName="details" :languages="$languages" type="html" />
+                                            <x-translation-display :label="__('catalogmanagement::product.details')" :model="$product->product" fieldName="details"
+                                                :languages="$languages" type="html" />
 
-                                            <x-translation-display :label="__('catalogmanagement::product.summary')" :model="$product->product" fieldName="summary" :languages="$languages" type="html" />
+                                            <x-translation-display :label="__('catalogmanagement::product.summary')" :model="$product->product" fieldName="summary"
+                                                :languages="$languages" type="html" />
 
-                                            <x-translation-display :label="__('catalogmanagement::product.features')" :model="$product->product" fieldName="features" :languages="$languages" type="html" />
+                                            <x-translation-display :label="__('catalogmanagement::product.features')" :model="$product->product"
+                                                fieldName="features" :languages="$languages" type="html" />
 
-                                            <x-translation-display :label="__('catalogmanagement::product.instructions')" :model="$product->product" fieldName="instructions" :languages="$languages" type="html" />
-                                            <x-translation-display :label="__('catalogmanagement::product.tags')" :model="$product->product" fieldName="tags" :languages="$languages" type="keywords" />
+                                            <x-translation-display :label="__('catalogmanagement::product.instructions')" :model="$product->product"
+                                                fieldName="instructions" :languages="$languages" type="html" />
+                                            <x-translation-display :label="__('catalogmanagement::product.tags')" :model="$product->product" fieldName="tags"
+                                                :languages="$languages" type="keywords" />
 
                                             {{-- Brand --}}
                                             <div class="col-md-6">
@@ -273,6 +280,22 @@
                                                     </p>
                                                 </div>
                                             </div>
+                                            {{-- Product Type (Bank/Regular) --}}
+                                            <div class="col-md-6">
+                                                <div class="view-item">
+                                                    <label
+                                                        class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.product_type') ?? 'Product Type' }}</label>
+                                                    <p class="fs-15 color-dark fw-500">
+                                                        @if ($product->product->type === 'bank')
+                                                            <span
+                                                                class="badge badge-round badge-primary badge-lg">{{ __('catalogmanagement::product.bank_product') ?? 'Bank Product' }}</span>
+                                                        @else
+                                                            <span
+                                                                class="badge badge-round badge-secondary badge-lg">{{ __('catalogmanagement::product.regular_product') ?? 'Regular Product' }}</span>
+                                                        @endif
+                                                    </p>
+                                                </div>
+                                            </div>
                                             {{-- Product SKU --}}
                                             <div class="col-md-6">
                                                 <div class="view-item">
@@ -303,7 +326,8 @@
                                 <div class="card card-holder mt-3">
                                     <div class="card-header">
                                         <h3>
-                                            <i class="uil uil-info-circle me-1"></i>{{ __('catalogmanagement::product.additional_information') }}
+                                            <i
+                                                class="uil uil-info-circle me-1"></i>{{ __('catalogmanagement::product.additional_information') }}
                                         </h3>
                                     </div>
                                     <div class="card-body">
@@ -311,9 +335,11 @@
                                             {{-- Max Per Order --}}
                                             <div class="col-md-4 mb-3">
                                                 <div class="p-3 border rounded" style="background: #e7f3ff;">
-                                                    <small class="text-muted d-block mb-1">{{ __('catalogmanagement::product.max_per_order') }}</small>
+                                                    <small
+                                                        class="text-muted d-block mb-1">{{ __('catalogmanagement::product.max_per_order') }}</small>
                                                     <div class="fw-bold text-info" style="font-size: 18px;">
-                                                        <i class="uil uil-shopping-cart me-1"></i>{{ $product->max_per_order ?? '-' }}
+                                                        <i
+                                                            class="uil uil-shopping-cart me-1"></i>{{ $product->max_per_order ?? '-' }}
                                                     </div>
                                                 </div>
                                             </div>
@@ -321,11 +347,12 @@
                                             {{-- Tax --}}
                                             <div class="col-md-4 mb-3">
                                                 <div class="p-3 border rounded" style="background: #f8f9fa;">
-                                                    <small class="text-muted d-block mb-1">{{ __('catalogmanagement::product.tax') }}</small>
+                                                    <small
+                                                        class="text-muted d-block mb-1">{{ __('catalogmanagement::product.tax') }}</small>
                                                     <div class="fw-bold text-dark" style="font-size: 16px;">
                                                         <i class="uil uil-percentage me-1"></i>
-                                                        @if($product->tax)
-                                                            {{ $product->tax->getTranslation('name', app()->getLocale()) ?? $product->tax->getTranslation('name', 'en') ?? $product->tax->name ?? '-' }}
+                                                        @if ($product->tax)
+                                                            {{ $product->tax->getTranslation('name', app()->getLocale()) ?? ($product->tax->getTranslation('name', 'en') ?? ($product->tax->name ?? '-')) }}
                                                         @else
                                                             -
                                                         @endif
@@ -335,10 +362,14 @@
 
                                             {{-- Featured --}}
                                             <div class="col-md-4 mb-3">
-                                                <div class="p-3 border rounded" style="background: {{ $product->is_featured ? '#d4edda' : '#f8d7da' }};">
-                                                    <small class="text-muted d-block mb-1">{{ __('catalogmanagement::product.featured') }}</small>
-                                                    <div class="fw-bold {{ $product->is_featured ? 'text-success' : 'text-danger' }}" style="font-size: 16px;">
-                                                        <i class="uil {{ $product->is_featured ? 'uil-star' : 'uil-times' }} me-1"></i>
+                                                <div class="p-3 border rounded"
+                                                    style="background: {{ $product->is_featured ? '#d4edda' : '#f8d7da' }};">
+                                                    <small
+                                                        class="text-muted d-block mb-1">{{ __('catalogmanagement::product.featured') }}</small>
+                                                    <div class="fw-bold {{ $product->is_featured ? 'text-success' : 'text-danger' }}"
+                                                        style="font-size: 16px;">
+                                                        <i
+                                                            class="uil {{ $product->is_featured ? 'uil-star' : 'uil-times' }} me-1"></i>
                                                         {{ $product->is_featured ? __('common.yes') : __('common.no') }}
                                                     </div>
                                                 </div>
@@ -346,10 +377,14 @@
 
                                             {{-- Status --}}
                                             <div class="col-md-4 mb-3">
-                                                <div class="p-3 border rounded" style="background: {{ $product->is_active ? '#d4edda' : '#f8d7da' }};">
-                                                    <small class="text-muted d-block mb-1">{{ __('common.status') }}</small>
-                                                    <div class="fw-bold {{ $product->is_active ? 'text-success' : 'text-danger' }}" style="font-size: 16px;">
-                                                        <i class="uil {{ $product->is_active ? 'uil-check-circle' : 'uil-times-circle' }} me-1"></i>
+                                                <div class="p-3 border rounded"
+                                                    style="background: {{ $product->is_active ? '#d4edda' : '#f8d7da' }};">
+                                                    <small
+                                                        class="text-muted d-block mb-1">{{ __('common.status') }}</small>
+                                                    <div class="fw-bold {{ $product->is_active ? 'text-success' : 'text-danger' }}"
+                                                        style="font-size: 16px;">
+                                                        <i
+                                                            class="uil {{ $product->is_active ? 'uil-check-circle' : 'uil-times-circle' }} me-1"></i>
                                                         {{ $product->is_active ? __('common.active') : __('common.inactive') }}
                                                     </div>
                                                 </div>
@@ -357,23 +392,24 @@
 
                                             {{-- Approval Status --}}
                                             <div class="col-md-4 mb-3">
-                                                <div class="p-3 border rounded" style="background:
-                                                    @if($product->status === 'approved') #d4edda
+                                                <div class="p-3 border rounded"
+                                                    style="background:
+                                                    @if ($product->status === 'approved') #d4edda
                                                     @elseif($product->status === 'rejected') #f8d7da
-                                                    @else #fff3cd
-                                                    @endif;">
-                                                    <small class="text-muted d-block mb-1">{{ __('catalogmanagement::product.approval_status') }}</small>
+                                                    @else #fff3cd @endif;">
+                                                    <small
+                                                        class="text-muted d-block mb-1">{{ __('catalogmanagement::product.approval_status') }}</small>
                                                     <div class="fw-bold
-                                                        @if($product->status === 'approved') text-success
+                                                        @if ($product->status === 'approved') text-success
                                                         @elseif($product->status === 'rejected') text-danger
-                                                        @else text-warning
-                                                        @endif" style="font-size: 16px;">
-                                                        <i class="uil
-                                                            @if($product->status === 'approved') uil-check-circle
+                                                        @else text-warning @endif"
+                                                        style="font-size: 16px;">
+                                                        <i
+                                                            class="uil
+                                                            @if ($product->status === 'approved') uil-check-circle
                                                             @elseif($product->status === 'rejected') uil-times-circle
-                                                            @else uil-clock
-                                                            @endif me-1"></i>
-                                                        @if($product->status === 'approved')
+                                                            @else uil-clock @endif me-1"></i>
+                                                        @if ($product->status === 'approved')
                                                             {{ __('common.approved') }}
                                                         @elseif($product->status === 'rejected')
                                                             {{ __('common.rejected') }}
@@ -385,18 +421,21 @@
                                             </div>
 
                                             {{-- Rejection Reason (Only show if rejected) --}}
-                                            @if($product->status === 'rejected' && $product->rejection_reason)
-                                            <div class="col-md-12 mb-3">
-                                                <div class="alert alert-danger d-flex align-items-start" role="alert">
-                                                    <i class="uil uil-exclamation-triangle me-2" style="font-size: 24px;"></i>
-                                                    <div>
-                                                        <h6 class="alert-heading mb-2">
-                                                            <i class="uil uil-info-circle me-1"></i>{{ __('catalogmanagement::product.rejection_reason') }}
-                                                        </h6>
-                                                        <p class="mb-0">{{ $product->rejection_reason }}</p>
+                                            @if ($product->status === 'rejected' && $product->rejection_reason)
+                                                <div class="col-md-12 mb-3">
+                                                    <div class="alert alert-danger d-flex align-items-start"
+                                                        role="alert">
+                                                        <i class="uil uil-exclamation-triangle me-2"
+                                                            style="font-size: 24px;"></i>
+                                                        <div>
+                                                            <h6 class="alert-heading mb-2">
+                                                                <i
+                                                                    class="uil uil-info-circle me-1"></i>{{ __('catalogmanagement::product.rejection_reason') }}
+                                                            </h6>
+                                                            <p class="mb-0">{{ $product->rejection_reason }}</p>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
                                             @endif
                                         </div>
                                     </div>
@@ -406,14 +445,18 @@
                                 <div class="card card-holder mt-3">
                                     <div class="card-header">
                                         <h3>
-                                            <i class="uil uil-search me-1"></i>{{ __('catalogmanagement::product.seo_information') ?? 'SEO Information' }}
+                                            <i
+                                                class="uil uil-search me-1"></i>{{ __('catalogmanagement::product.seo_information') ?? 'SEO Information' }}
                                         </h3>
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
-                                            <x-translation-display :label="__('catalogmanagement::product.meta_title')" :model="$product->product" fieldName="meta_title" :languages="$languages" />
-                                            <x-translation-display :label="__('catalogmanagement::product.meta_description')" :model="$product->product" fieldName="meta_description" :languages="$languages" />
-                                            <x-translation-display :label="__('catalogmanagement::product.meta_keywords')" :model="$product->product" fieldName="meta_keywords" :languages="$languages" type="keywords" />
+                                            <x-translation-display :label="__('catalogmanagement::product.meta_title')" :model="$product->product"
+                                                fieldName="meta_title" :languages="$languages" />
+                                            <x-translation-display :label="__('catalogmanagement::product.meta_description')" :model="$product->product"
+                                                fieldName="meta_description" :languages="$languages" />
+                                            <x-translation-display :label="__('catalogmanagement::product.meta_keywords')" :model="$product->product"
+                                                fieldName="meta_keywords" :languages="$languages" type="keywords" />
                                         </div>
                                     </div>
                                 </div>
@@ -424,7 +467,8 @@
                                 <div class="card card-holder mt-3">
                                     <div class="card-header">
                                         <h3>
-                                            <i class="uil uil-box me-1"></i>{{ __('catalogmanagement::product.variants_and_stock') ?? 'Variants & Stock' }}
+                                            <i
+                                                class="uil uil-box me-1"></i>{{ __('catalogmanagement::product.variants_and_stock') ?? 'Variants & Stock' }}
                                         </h3>
                                     </div>
                                     <div class="card-body">
@@ -437,12 +481,13 @@
                                                         {{-- SKU Badge --}}
                                                         <span class="badge badge-lg"
                                                             style="background-color: #17a2b8; color: white; padding: 8px 12px; border-radius: 20px;">
-                                                            <i class="uil uil-barcode me-1"></i>{{ __('catalogmanagement::product.sku') }}:
+                                                            <i
+                                                                class="uil uil-barcode me-1"></i>{{ __('catalogmanagement::product.sku') }}:
                                                             {{ $variant->sku ?? '-' }}
                                                         </span>
 
                                                         {{-- Hierarchical Variant Tree --}}
-                                                        @if($variant->variantConfiguration)
+                                                        @if ($variant->variantConfiguration)
                                                             <div class="variant-tree-display">
                                                                 @php
                                                                     // Build the variant hierarchy by traversing up the parent chain
@@ -452,57 +497,73 @@
                                                                     $visited = []; // Prevent infinite loops
 
                                                                     // Collect all values from leaf to root
-                                                                    while($current && !in_array($current->id, $visited)) {
+                                                                    while (
+                                                                        $current &&
+                                                                        !in_array($current->id, $visited)
+                                                                    ) {
                                                                         $visited[] = $current->id;
 
                                                                         // Get the value name (current node)
-                                                                        $valueName = $current->getTranslation('name', app()->getLocale()) ??
-                                                                                    $current->getTranslation('name', 'en') ??
-                                                                                    $current->name ?? 'Value';
+                                                                        $valueName =
+                                                                            $current->getTranslation(
+                                                                                'name',
+                                                                                app()->getLocale(),
+                                                                            ) ??
+                                                                            ($current->getTranslation('name', 'en') ??
+                                                                                ($current->name ?? 'Value'));
 
                                                                         // Add value to the beginning of array
                                                                         array_unshift($values, $valueName);
 
                                                                         // Move to parent
-                                                                        if($current->parent_data) {
+                                                                        if ($current->parent_data) {
                                                                             $current = $current->parent_data;
                                                                         } else {
                                                                             // Reached root, get the key name
-                                                                            $rootKeyName = $current->key ?
-                                                                                ($current->key->getTranslation('name', app()->getLocale()) ??
-                                                                                 $current->key->getTranslation('name', 'en') ??
-                                                                                 $current->key->name ?? 'Key') : 'Key';
+                                                                            $rootKeyName = $current->key
+                                                                                ? $current->key->getTranslation(
+                                                                                        'name',
+                                                                                        app()->getLocale(),
+                                                                                    ) ??
+                                                                                    ($current->key->getTranslation(
+                                                                                        'name',
+                                                                                        'en',
+                                                                                    ) ??
+                                                                                        ($current->key->name ?? 'Key'))
+                                                                                : 'Key';
                                                                             break;
                                                                         }
                                                                     }
                                                                 @endphp
 
-                                                                @if(count($values) > 0)
+                                                                @if (count($values) > 0)
                                                                     <div class="d-flex align-items-center flex-wrap gap-2">
                                                                         {{-- Display root key badge --}}
                                                                         <span class="badge badge-lg"
-                                                                              style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
+                                                                            style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
                                                                                      color: white; padding: 6px 10px; border-radius: 15px; font-size: 12px;
                                                                                      box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-weight: bold;">
-                                                                            <i class="uil uil-key-skeleton me-1"></i>{{ $rootKeyName }}
+                                                                            <i
+                                                                                class="uil uil-key-skeleton me-1"></i>{{ $rootKeyName }}
                                                                         </span>
 
                                                                         <span class="text-muted fw-bold">:</span>
 
                                                                         {{-- Display all values separated by colons --}}
-                                                                        @foreach($values as $valueIndex => $value)
-                                                                            @if($valueIndex > 0)
+                                                                        @foreach ($values as $valueIndex => $value)
+                                                                            @if ($valueIndex > 0)
                                                                                 <span class="text-muted fw-bold">:</span>
                                                                             @endif
 
                                                                             {{-- Value Badge --}}
                                                                             <span class="badge badge-lg"
-                                                                                  style="background: linear-gradient(135deg,
+                                                                                style="background: linear-gradient(135deg,
                                                                                          {{ $valueIndex % 3 === 0 ? '#17a2b8' : ($valueIndex % 3 === 1 ? '#28a745' : '#fd7e14') }} 0%,
                                                                                          {{ $valueIndex % 3 === 0 ? '#138496' : ($valueIndex % 3 === 1 ? '#218838' : '#e8590c') }} 100%);
                                                                                          color: white; padding: 6px 10px; border-radius: 15px; font-size: 12px;
                                                                                          box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                                                                                <i class="uil uil-tag me-1"></i>{{ $value }}
+                                                                                <i
+                                                                                    class="uil uil-tag me-1"></i>{{ $value }}
                                                                             </span>
                                                                         @endforeach
                                                                     </div>
@@ -515,21 +576,27 @@
                                                     <div class="mt-3">
                                                         <div class="row">
                                                             {{-- Price --}}
-                                                            @if($variant->price)
+                                                            @if ($variant->price)
                                                                 <div class="col-md-4 mb-2">
-                                                                    <div class="p-3 border rounded" style="background: #f8f9fa;">
-                                                                        <small class="text-muted d-block mb-1">{{ __('catalogmanagement::product.price') }}</small>
-                                                                        @if($variant->has_discount && $variant->price_before_discount)
-                                                                            <div class="fw-bold text-danger text-decoration-line-through mb-1">
-                                                                                <i class="uil uil-money-bill me-1"></i>{{ number_format($variant->price_before_discount, 2) }}
+                                                                    <div class="p-3 border rounded"
+                                                                        style="background: #f8f9fa;">
+                                                                        <small
+                                                                            class="text-muted d-block mb-1">{{ __('catalogmanagement::product.price') }}</small>
+                                                                        @if ($variant->has_discount && $variant->price_before_discount)
+                                                                            <div
+                                                                                class="fw-bold text-danger text-decoration-line-through mb-1">
+                                                                                <i
+                                                                                    class="uil uil-money-bill me-1"></i>{{ number_format($variant->price_before_discount, 2) }}
                                                                             </div>
                                                                         @endif
                                                                         <div class="fw-bold text-success">
-                                                                            <i class="uil uil-money-bill me-1"></i>{{ number_format($variant->price, 2) }}
+                                                                            <i
+                                                                                class="uil uil-money-bill me-1"></i>{{ number_format($variant->price, 2) }}
                                                                         </div>
-                                                                        @if($variant->has_discount && $variant->discount_end_date)
+                                                                        @if ($variant->has_discount && $variant->discount_end_date)
                                                                             <small class="text-muted d-block mt-2">
-                                                                                <i class="uil uil-calendar-alt me-1"></i>{{ __('catalogmanagement::product.discount_until') ?? 'Discount until' }}:
+                                                                                <i
+                                                                                    class="uil uil-calendar-alt me-1"></i>{{ __('catalogmanagement::product.discount_until') ?? 'Discount until' }}:
                                                                                 <strong>{{ $variant->discount_end_date->format('Y-m-d') }}</strong>
                                                                             </small>
                                                                         @endif
@@ -542,14 +609,19 @@
                                                 @if ($variant->stocks && $variant->stocks->count() > 0)
                                                     <div class="mt-3">
                                                         <div class="d-flex align-items-center gap-3 mb-3">
-                                                            <h6 class="fw-600 mb-0">{{ __('catalogmanagement::product.stock_summary') ?? 'Stock Summary' }}:</h6>
+                                                            <h6 class="fw-600 mb-0">
+                                                                {{ __('catalogmanagement::product.stock_summary') ?? 'Stock Summary' }}:
+                                                            </h6>
                                                             <span class="badge badge-round badge-lg badge-success">
-                                                                <i class="uil uil-package me-1"></i>{{ __('catalogmanagement::product.total') ?? 'Total' }}:
+                                                                <i
+                                                                    class="uil uil-package me-1"></i>{{ __('catalogmanagement::product.total') ?? 'Total' }}:
                                                                 {{ $variant->stocks->sum('quantity') }}
                                                                 {{ __('catalogmanagement::product.units') ?? 'Units' }}
                                                             </span>
                                                         </div>
-                                                        <h6 class="fw-600 mb-3">{{ __('catalogmanagement::product.stock_per_region') ?? 'Stock per Region' }}:</h6>
+                                                        <h6 class="fw-600 mb-3">
+                                                            {{ __('catalogmanagement::product.stock_per_region') ?? 'Stock per Region' }}:
+                                                        </h6>
                                                         <div class="row">
                                                             @forelse ($variant->stocks as $stock)
                                                                 <div class="col-md-4 mb-3">
@@ -558,7 +630,7 @@
                                                                         <div class="text-muted small mb-2">
                                                                             @if ($stock->region)
                                                                                 <i class="uil uil-location-point me-1"></i>
-                                                                                {{ $stock->region->getTranslation('name', app()->getLocale()) ?? ($stock->region->getTranslation('name', 'en') ?? ($stock->region->getTranslation('name', 'ar') ?? $stock->region->name ?? '-')) }}
+                                                                                {{ $stock->region->getTranslation('name', app()->getLocale()) ?? ($stock->region->getTranslation('name', 'en') ?? ($stock->region->getTranslation('name', 'ar') ?? ($stock->region->name ?? '-'))) }}
                                                                             @else
                                                                                 <i class="uil uil-location-point me-1"></i>
                                                                                 {{ __('catalogmanagement::product.default_region') ?? 'Default Region' }}
@@ -567,7 +639,8 @@
                                                                         <div class="fw-bold"
                                                                             style="color: #0066cc; font-size: 18px;">
                                                                             <i class="uil uil-package me-1"></i>
-                                                                            {{ $stock->quantity ?? 0 }} {{ __('catalogmanagement::product.units') ?? 'Units' }}
+                                                                            {{ $stock->quantity ?? 0 }}
+                                                                            {{ __('catalogmanagement::product.units') ?? 'Units' }}
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -582,7 +655,9 @@
                                                         </div>
                                                     </div>
                                                 @else
-                                                    <p class="text-muted fs-14 mt-3">{{ __('catalogmanagement::product.no_stock_data') ?? 'No stock data available.' }}</p>
+                                                    <p class="text-muted fs-14 mt-3">
+                                                        {{ __('catalogmanagement::product.no_stock_data') ?? 'No stock data available.' }}
+                                                    </p>
                                                 @endif
                                             </div>
                                         @endforeach

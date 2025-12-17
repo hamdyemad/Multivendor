@@ -280,8 +280,8 @@ function initializeErrorClearingHandlers() {
         protectRequiredAsterisks();
     });
 
-    // Handle specific vendor form dropdowns
-    $(document).on('change select2:select', '#country_id, #type, #activities', function() {
+    // Handle specific vendor form dropdowns - Aggressive clearing
+    $(document).on('change select2:select select2:open select2:opening focus click', '#country_id, #type, #departments', function() {
         const fieldId = $(this).attr('id');
         console.log('🔧 Clearing error for:', fieldId);
 
@@ -293,6 +293,20 @@ function initializeErrorClearingHandlers() {
 
         clearValidationAlert();
         protectRequiredAsterisks();
+    });
+
+    // GENERIC CLEAR: Click on any red select2 box clears it immediately
+    $(document).on('click', '.select2-selection', function() {
+        const selection = $(this);
+        const container = selection.closest('.select2-container');
+        const multipleContainer = $('.select2');
+        multipleContainer.removeClass('is-invalid border-danger');
+        if (selection.hasClass('is-invalid') || selection.hasClass('border-danger') || container.hasClass('is-invalid')) {
+             console.log('🧹 Generic click clear');
+             selection.removeClass('is-invalid border-danger');
+             container.removeClass('is-invalid border-danger');
+             container.closest('.form-group').find('.error-message').remove();
+        }
     });
 
     // Handle file inputs
@@ -434,8 +448,16 @@ function clearDropdownErrors(fieldId) {
     $(`#${fieldId}`).removeClass('is-invalid border-danger');
 
     // Clear Select2 containers
-    $(`.select2-container[data-select2-id="${fieldId}"]`).removeClass('is-invalid border-danger');
-    $(`.select2-container[data-select2-id="${fieldId}"] .select2-selection`).removeClass('is-invalid border-danger');
+    // Clear Select2 containers - Robust finding
+    const element = $(`#${fieldId}`);
+    let select2Container = element.next('.select2-container');
+    if (!select2Container.length) select2Container = element.siblings('.select2-container').first();
+    if (!select2Container.length) select2Container = element.closest('.form-group').find('.select2-container');
+
+    if (select2Container.length) {
+        select2Container.removeClass('is-invalid border-danger');
+        select2Container.find('.select2-selection').removeClass('is-invalid border-danger');
+    }
 
     // Clear error messages by various selectors
     $(`.error-message:contains("${fieldId}")`).remove();
@@ -530,7 +552,6 @@ function showStep(step) {
     } else {
         console.error('❌ Could not find step', step);
     }
-
     // Reapply validation errors if they exist for this step
     if (Object.keys(validationErrors).length > 0) {
         for (let field in validationErrors) {
@@ -543,13 +564,22 @@ function showStep(step) {
 
                 const errorMsg = `<div class="error-message text-danger small mt-1"><i class="uil uil-exclamation-triangle"></i> ${validationErrors[field][0]}</div>`;
 
-                if (fieldElement.hasClass('select2') || fieldElement.data('select2')) {
-                    const select2Container = fieldElement.next('.select2-container');
-                    if (select2Container.length) {
-                        select2Container.after(errorMsg);
-                    } else {
-                        fieldElement.after(errorMsg);
+                if (fieldElement.hasClass('select2') || fieldElement.data('select2') || fieldElement.attr('id') === 'departments') {
+                    let select2Container = fieldElement.next('.select2-container');
+                    if (!select2Container.length) {
+                        select2Container = fieldElement.siblings('.select2-container').first();
                     }
+                    if (!select2Container.length) {
+                        select2Container = fieldElement.closest('.form-group').find('.select2-container');
+                    }
+
+                    if (select2Container.length) {
+                        select2Container.addClass('is-invalid border-danger');
+                        select2Container.find('.select2-selection').addClass('is-invalid border-danger');
+                    }
+                    
+                    // Append to form-group to ensure visibility
+                    fieldElement.closest('.form-group').append(errorMsg);
                 } else {
                     fieldElement.after(errorMsg);
                 }
@@ -853,14 +883,14 @@ function validateCurrentStep(step) {
             }
         });
 
-        // Validate activities
-        const activities = stepElement.find('#activities').val();
-        if (!activities || activities.length === 0) {
+        // Validate departments
+        const departments = $('#departments').val();
+        if (!departments || departments.length === 0) {
             const config = window.vendorFormConfig;
             errors.push({
-                field: 'activity_ids',
-                message: config?.errorMessages?.activitiesRequired || 'Please select at least one activity',
-                element: stepElement.find('#activities')
+                field: 'departments',
+                message: config?.errorMessages?.departmentsRequired || 'Please select at least one department',
+                element: $('#departments')
             });
         }
 
@@ -1035,13 +1065,22 @@ function displayStepErrors(errors, step) {
         </div>`;
 
         // Handle Select2 elements
-        if (element.hasClass('select2') || element.data('select2')) {
-            const select2Container = element.next('.select2-container');
-            if (select2Container.length) {
-                select2Container.after(errorHtml);
-            } else {
-                element.after(errorHtml);
+        if (element.hasClass('select2') || element.data('select2') || element.attr('id') === 'departments') {
+            let select2Container = element.next('.select2-container');
+            if (!select2Container.length) {
+                select2Container = element.siblings('.select2-container').first();
             }
+            if (!select2Container.length) {
+                select2Container = element.closest('.form-group').find('.select2-container');
+            }
+
+            if (select2Container.length) {
+                select2Container.addClass('is-invalid border-danger');
+                select2Container.find('.select2-selection').addClass('is-invalid border-danger');
+            }
+            
+            // Append to form-group to ensure visibility
+            element.closest('.form-group').append(errorHtml);
         }
         // Handle preview containers directly (when element IS the preview container)
         else if (element.hasClass('image-preview-container') || (element.attr('id') && element.attr('id').includes('preview-container'))) {

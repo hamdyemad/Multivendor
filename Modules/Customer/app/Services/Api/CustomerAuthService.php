@@ -250,6 +250,7 @@ class CustomerAuthService
 
     public function login(array $data)
     {
+
         $customer = $this->customerRepository->getByEmail($data['email']);
         if (!$customer || !$customer->status || !Hash::check($data['password'], $customer->password)) {
             return [

@@ -243,7 +243,6 @@ class CustomerAuthController extends Controller
     public function resetPassword(ResetPasswordRequest $request)
     {
         $validated = $request->validated();
-
         // Verify reset token is valid
         $result = $this->authService->resetPassword($validated);
 

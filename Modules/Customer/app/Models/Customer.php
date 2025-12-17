@@ -16,7 +16,7 @@ use Modules\Order\app\Models\Order;
 
 class Customer extends Authenticatable
 {
-    use HasFactory, SoftDeletes, Notifiable, HasApiTokens, HumanDates, AutoStoreCountryId, CountryCheckIdTrait;
+    use HasFactory, SoftDeletes, Notifiable, HasApiTokens, HumanDates, AutoStoreCountryId;
 
     /**
      * Boot the model.

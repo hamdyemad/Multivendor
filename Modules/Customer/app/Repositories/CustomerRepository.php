@@ -44,7 +44,7 @@ class CustomerRepository implements CustomerRepositoryInterface
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],
                 'email' => $data['email'],
-                'password' => Hash::make($data['password']),
+                'password' => $data['password'],
                 'phone' => $data['phone'] ?? null,
                 'image' => $data['image'] ?? null,
                 'status' => $data['status'] ?? true,
@@ -69,6 +69,7 @@ class CustomerRepository implements CustomerRepositoryInterface
     {
         return DB::transaction(function () use ($id, $data) {
             $customer = Customer::findOrFail($id);
+            \Log::info($data);
 
             $updateData = [
                 'first_name' => $data['first_name'] ?? $customer->first_name,
@@ -86,7 +87,7 @@ class CustomerRepository implements CustomerRepositoryInterface
 
             // Only update password if provided
             if (!empty($data['password'])) {
-                $updateData['password'] = Hash::make($data['password']);
+                $updateData['password'] = $data['password'];
             }
 
             $customer->update($updateData);

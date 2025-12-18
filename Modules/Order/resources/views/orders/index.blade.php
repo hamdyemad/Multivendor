@@ -7,27 +7,34 @@
         .vendor-logos {
             display: flex;
             align-items: center;
+            justify-content: center;
         }
+
         .vendor-logo-wrapper {
             position: relative;
             display: inline-block;
-            margin-left: -10px; /* Overlap amount */
+            margin-left: -10px;
+            /* Overlap amount */
         }
+
         .vendor-logo-wrapper:first-child {
             margin-left: 0;
         }
+
         .vendor-logo {
-            width: 30px;
-            height: 30px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             border: 2px solid #fff;
             object-fit: cover;
             background-color: #f0f0f0;
             transition: transform 0.2s ease-in-out;
         }
+
         .vendor-logo-wrapper:hover .vendor-logo {
             transform: translateY(-5px);
         }
+
         .vendor-logo-wrapper .vendor-name-tooltip {
             visibility: hidden;
             width: max-content;
@@ -38,13 +45,16 @@
             padding: 5px 10px;
             position: absolute;
             z-index: 1;
-            bottom: 125%; /* Position the tooltip above the logo */
+            bottom: 125%;
+            /* Position the tooltip above the logo */
             left: 50%;
-            margin-left: -50%; /* Center the tooltip */
+            margin-left: -50%;
+            /* Center the tooltip */
             opacity: 0;
             transition: opacity 0.3s, transform 0.3s;
             transform: translateY(10px);
         }
+
         .vendor-logo-wrapper:hover .vendor-name-tooltip {
             visibility: visible;
             opacity: 1;
@@ -79,7 +89,8 @@
                                 <p class="ap-po-details__text text-nowrap">{{ trans('order::order.total_orders') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
-                                <div class="ap-po-details__icon ap-po-details__icon--balance d-flex align-items-center justify-content-center rounded-circle" style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                                <div class="ap-po-details__icon ap-po-details__icon--balance d-flex align-items-center justify-content-center rounded-circle"
+                                    style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                                     <i class="uil uil-shopping-cart" style="font-size: 24px;"></i>
                                 </div>
                             </div>
@@ -92,11 +103,14 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content h-100">
                             <div class="ap-po-details__titlebar">
-                                <h1 class="ap-po-details__title" id="totalProductPrice">{{ $total_price }} {{ currency() }}</h1>
-                                <p class="ap-po-details__text text-nowrap">{{ trans('order::order.total_product_price') }}</p>
+                                <h1 class="ap-po-details__title" id="totalProductPrice">{{ $total_price }}
+                                    {{ currency() }}</h1>
+                                <p class="ap-po-details__text text-nowrap">{{ trans('order::order.total_product_price') }}
+                                </p>
                             </div>
                             <div class="ap-po-details__icon-area">
-                                <div class="ap-po-details__icon ap-po-details__icon--sent d-flex align-items-center justify-content-center rounded-circle" style="width: 60px; height: 60px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                                <div class="ap-po-details__icon ap-po-details__icon--sent d-flex align-items-center justify-content-center rounded-circle"
+                                    style="width: 60px; height: 60px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
                                     <i class="uil uil-receipt" style="font-size: 24px;"></i>
                                 </div>
                             </div>
@@ -134,8 +148,7 @@
                                             </label>
                                             <input type="text"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                id="search"
-                                                placeholder="{{ __('common.search') }}..."
+                                                id="search" placeholder="{{ __('common.search') }}..."
                                                 autocomplete="off">
                                         </div>
                                     </div>
@@ -151,7 +164,7 @@
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="stage">
                                                 <option value="">{{ trans('order::order.all_stages') }}</option>
-                                                @foreach($orderStages as $stage)
+                                                @foreach ($orderStages as $stage)
                                                     <option value="{{ $stage['id'] }}">{{ $stage['name'] }}</option>
                                                 @endforeach
                                             </select>
@@ -169,7 +182,7 @@
                                                 class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="vendor">
                                                 <option value="">{{ trans('order::order.all_vendors') }}</option>
-                                                @foreach($vendors as $vendor)
+                                                @foreach ($vendors as $vendor)
                                                     <option value="{{ $vendor->id }}">{{ $vendor->name }}</option>
                                                 @endforeach
                                             </select>
@@ -242,11 +255,15 @@
                             <thead>
                                 <tr class="userDatatable-header">
                                     <th class="text-center"><span class="userDatatable-title">#</span></th>
-                                    <th><span class="userDatatable-title">{{ trans('order::order.order_information') }}</span></th>
+                                    <th><span
+                                            class="userDatatable-title">{{ trans('order::order.order_information') }}</span>
+                                    </th>
                                     <th><span class="userDatatable-title">{{ trans('order::order.vendor') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ trans('order::order.total_price') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ trans('order::order.total_price') }}</span>
+                                    </th>
                                     <th><span class="userDatatable-title">{{ trans('order::order.stage') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ trans('order::order.created_at') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ trans('order::order.created_at') }}</span>
+                                    </th>
                                     <th><span class="userDatatable-title">{{ __('common.actions') }}</span></th>
                                 </tr>
                             </thead>
@@ -261,7 +278,6 @@
 
     {{-- Include Change Stage Modal Component --}}
     <x-order::change-stage-modal :order-id="null" :order-stages="$orderStages" />
-
 @endsection
 
 @push('after-body')
@@ -300,8 +316,7 @@
                         return d;
                     }
                 },
-                columns: [
-                    {
+                columns: [{
                         data: 'index',
                         name: 'index',
                         orderable: false,
@@ -396,7 +411,9 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            let showUrl = "{{ route('admin.orders.show', ['order' => ':id', 'lang' => app()->getLocale(), 'countryCode' => session('country_code')]) }}".replace(':id', row.id);
+                            let showUrl =
+                                "{{ route('admin.orders.show', ['order' => ':id', 'lang' => app()->getLocale(), 'countryCode' => session('country_code')]) }}"
+                                .replace(':id', row.id);
                             // Check if stage is delivered, cancelled, or refund
                             const finalStages = ['deliver', 'cancel', 'refund'];
                             const isFinalStage = row.stage && finalStages.includes(row.stage.slug);
@@ -409,23 +426,26 @@
                                         <i class="uil uil-eye table_action_icon"></i>
                                     </a>
                                     ${!isFinalStage ? `
-                                    <button type="button"
-                                    class="change-stage btn btn-info table_action_father"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#changeStageModal"
-                                    data-id="${row.id}"
-                                    data-stage-id="${row.stage?.id || ''}"
-                                    title="{{ trans('order::order.change_order_stage') }}">
-                                        <i class="uil uil-exchange-alt table_action_icon"></i>
-                                    </button>
-                                    ` : ''}
+                                                <button type="button"
+                                                class="change-stage btn btn-info table_action_father"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#changeStageModal"
+                                                data-id="${row.id}"
+                                                data-stage-id="${row.stage?.id || ''}"
+                                                title="{{ trans('order::order.change_order_stage') }}">
+                                                    <i class="uil uil-exchange-alt table_action_icon"></i>
+                                                </button>
+                                                ` : ''}
                                 </div>
                             `;
                         }
                     }
                 ],
                 pageLength: per_page,
-                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+                lengthMenu: [
+                    [10, 25, 50, 100],
+                    [10, 25, 50, 100]
+                ],
                 pagingType: 'full_numbers',
                 dom: '<"row"<"col-sm-12"tr>>' +
                     '<"row mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
@@ -481,7 +501,8 @@
                 if ($('#created_from_filter').val()) params.set('created_from', $('#created_from_filter').val());
                 if ($('#created_until_filter').val()) params.set('created_until', $('#created_until_filter').val());
 
-                const newUrl = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
+                const newUrl = params.toString() ? `${window.location.pathname}?${params.toString()}` : window
+                    .location.pathname;
                 window.history.replaceState({}, '', newUrl);
             }
 

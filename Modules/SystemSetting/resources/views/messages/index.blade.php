@@ -39,7 +39,7 @@
                                 <div class="row g-3 align-items-end">
 
                                     {{-- Search --}}
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="search" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-search me-1"></i>
@@ -57,7 +57,7 @@
                                     </div>
 
                                     {{-- Status --}}
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="status" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-check-circle me-1"></i>
@@ -76,7 +76,7 @@
                                     </div>
 
                                     {{-- Created Date From --}}
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="created_date_from" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-calendar-alt me-1"></i>
@@ -89,7 +89,7 @@
                                     </div>
 
                                     {{-- Created Date To --}}
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="created_date_to" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-calendar-alt me-1"></i>

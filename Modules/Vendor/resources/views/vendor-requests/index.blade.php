@@ -465,8 +465,14 @@
                                 'approved': 'success',
                                 'rejected': 'danger'
                             };
+                            const statusLabels = {
+                                'pending': '{{ trans('common.pending') }}',
+                                'approved': '{{ trans('common.approved') }}',
+                                'rejected': '{{ trans('common.rejected') }}'
+                            };
                             const color = statusColors[row.status] || 'secondary';
-                            return `<span class="badge bg-${color} badge-lg badge-round text-capitalize">${row.status}</span>`;
+                            const label = statusLabels[row.status] || row.status;
+                            return `<span class="badge bg-${color} badge-lg badge-round text-capitalize">${label}</span>`;
                         }
                     },
 
@@ -518,7 +524,7 @@
                             data-status="${row.status}"
                             data-created-at="${row.created_at}"
                             data-rejection-reason="${row.rejection_reason || ''}"
-                            title="View Details">
+                            title="{{ trans('common.view') }}">
                                 <i class="uil uil-eye table_action_icon"></i>
                             </a>
                             `;
@@ -533,13 +539,13 @@
                                 actions += `
                                 <a href="{{ route('admin.vendors.create') }}?${params.toString()}"
                                 class="create-vendor btn btn-primary table_action_father"
-                                title="Create Vendor from Request">
+                                title="{{ trans('vendor::vendor.create_vendor') }}">
                                     <i class="uil uil-plus table_action_icon"></i>
                                 </a>
                                 <a href="javascript:void(0);"
                                 class="reject btn btn-danger table_action_father reject-btn"
                                 data-id="${row.id}"
-                                title="Reject">
+                                title="{{ trans('common.reject') }}">
                                     <i class="uil uil-times table_action_icon"></i>
                                 </a>
                                 `;
@@ -575,8 +581,8 @@
                     info: "{{ __('common.showing') ?? 'Showing' }} _START_ {{ __('common.to') ?? 'to' }} _END_ {{ __('common.of') ?? 'of' }} _TOTAL_ {{ __('common.entries') ?? 'entries' }}",
                     infoEmpty: "{{ __('common.showing') ?? 'Showing' }} 0 {{ __('common.to') ?? 'to' }} 0 {{ __('common.of') ?? 'of' }} 0 {{ __('common.entries') ?? 'entries' }}",
                     infoFiltered: "({{ __('common.filtered_from') ?? 'filtered from' }} _MAX_ {{ __('common.total_entries') ?? 'total entries' }})",
-                    zeroRecords: "No vendor requests found",
-                    emptyTable: "No vendor requests found",
+                    zeroRecords: "{{ trans('vendor::vendor.no_vendors_found') }}",
+                    emptyTable: "{{ trans('vendor::vendor.no_vendors_found') }}",
                     loadingRecords: "{{ __('common.loading') ?? 'Loading' }}...",
                     processing: "{{ __('common.processing') ?? 'Processing' }}...",
                     search: "{{ __('common.search') ?? 'Search' }}:",
@@ -735,7 +741,8 @@
 
                 // Validate reason
                 if (!reason || reason.length === 0) {
-                    toastr.warning('Please provide a rejection reason', 'Validation Error');
+                    toastr.warning('{{ trans('vendor::vendor.rejection_reason_placeholder') }}',
+                        '{{ trans('common.validation_errors') }}');
                     return false;
                 }
 
@@ -743,7 +750,7 @@
                 const submitBtn = $('#confirmActionBtn');
                 const originalText = submitBtn.html();
                 submitBtn.prop('disabled', true).html(
-                    '<i class="uil uil-spinner-alt me-1"></i>Processing...');
+                    '<i class="uil uil-spinner-alt me-1"></i>{{ trans('common.processing') }}...');
 
                 // Submit form via AJAX
                 $.ajax({
@@ -771,7 +778,8 @@
 
                         // Show success message
                         toastr.success(response.message ||
-                            'Vendor request rejected successfully', 'Success');
+                            '{{ trans('vendor::vendor.reject_success') }}',
+                            '{{ trans('common.success') }}');
 
                         // Reload table
                         setTimeout(function() {
@@ -786,7 +794,7 @@
                             error: error
                         });
 
-                        let errorMsg = 'Error rejecting vendor request';
+                        let errorMsg = '{{ trans('vendor::vendor.reject_error') }}';
                         try {
                             if (xhr.responseJSON && xhr.responseJSON.message) {
                                 errorMsg = xhr.responseJSON.message;
@@ -796,14 +804,10 @@
                             }
                         } catch (e) {
                             if (xhr.status === 404) {
-                                errorMsg = 'Vendor request not found';
-                            } else if (xhr.status === 500) {
-                                errorMsg = 'Server error. Please try again later.';
-                            } else if (xhr.status === 422) {
-                                errorMsg = 'Validation error. Please provide a valid reason.';
+                                errorMsg = '{{ trans('common.error_occurred') }}';
                             }
                         }
-                        toastr.error(errorMsg, 'Error');
+                        toastr.error(errorMsg, '{{ trans('common.error') }}');
                     },
                     complete: function() {
                         // Re-enable submit button

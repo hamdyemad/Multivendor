@@ -244,4 +244,25 @@ class AdController extends Controller
             ], 500);
         }
     }
+    /**
+     * Toggle ad status
+     */
+    public function toggleStatus($lang, $code, $id, Request $request)
+    {
+        try {
+            $status = $request->input('status');
+            $this->adService->toggleStatus($id, $status);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('systemsetting::ads.status_updated_successfully'),
+                'status' => $status
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => __('systemsetting::ads.error_updating_status') . ': ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

@@ -64,7 +64,7 @@
                                                 class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="position">
                                                 <option value="">{{ __('systemsetting::ads.all_positions') }}</option>
-                                                @foreach($positions as $key => $value)
+                                                @foreach ($positions as $key => $value)
                                                     <option value="{{ $key }}">{{ $value }}</option>
                                                 @endforeach
                                             </select>
@@ -155,10 +155,13 @@
                                 <tr class="userDatatable-header">
                                     <th class="text-center"><span class="userDatatable-title">#</span></th>
                                     <th><span class="userDatatable-title">{{ __('systemsetting::ads.title') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('systemsetting::ads.position') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('systemsetting::ads.ad_image') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ __('systemsetting::ads.position') }}</span>
+                                    </th>
+                                    <th><span class="userDatatable-title">{{ __('systemsetting::ads.ad_image') }}</span>
+                                    </th>
                                     <th><span class="userDatatable-title">{{ __('systemsetting::ads.status') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('systemsetting::ads.created_at') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ __('systemsetting::ads.created_at') }}</span>
+                                    </th>
                                     <th><span class="userDatatable-title">{{ __('systemsetting::ads.action') }}</span></th>
                                 </tr>
                             </thead>
@@ -172,8 +175,7 @@
     </div>
 
     {{-- Delete Confirmation Modal --}}
-    <x-delete-modal modalId="modal-delete-ad" :title="__('systemsetting::ads.confirm_delete')"
-        :message="__('systemsetting::ads.delete_confirmation')" itemNameId="delete-ad-name"
+    <x-delete-modal modalId="modal-delete-ad" :title="__('systemsetting::ads.confirm_delete')" :message="__('systemsetting::ads.delete_confirmation')" itemNameId="delete-ad-name"
         confirmBtnId="confirmDeleteAdBtn" deleteRoute="{{ rtrim(route('admin.system-settings.ads.index'), '/') }}"
         :cancelText="__('systemsetting::ads.cancel')" :deleteText="__('systemsetting::ads.delete_ad')" />
 @endsection
@@ -183,143 +185,225 @@
 @endpush
 
 @push('scripts')
-<script>
-$(document).ready(function() {
-    // Get URL parameters and populate filters
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('search')) {
-        $('#search').val(urlParams.get('search'));
-    }
-    if (urlParams.has('position')) {
-        $('#position').val(urlParams.get('position'));
-    }
-    if (urlParams.has('active')) {
-        $('#active').val(urlParams.get('active'));
-    }
-    if (urlParams.has('created_date_from')) {
-        $('#created_date_from').val(urlParams.get('created_date_from'));
-    }
-    if (urlParams.has('created_date_to')) {
-        $('#created_date_to').val(urlParams.get('created_date_to'));
-    }
-
-    let table = $('#adsDataTable').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: '{{ route('admin.system-settings.ads.datatable') }}',
-            type: 'GET',
-            data: function(d) {
-                d.position = $('#position').val();
-                d.active = $('#active').val();
-                d.search = $('#search').val();
-                d.created_date_from = $('#created_date_from').val();
-                d.created_date_to = $('#created_date_to').val();
+    <script>
+        $(document).ready(function() {
+            // Get URL parameters and populate filters
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('search')) {
+                $('#search').val(urlParams.get('search'));
             }
-        },
-        columns: [
-            { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
-            { data: 'title_subtitle', name: 'title_subtitle', orderable: false },
-            { data: 'position_badge', name: 'position_badge', orderable: false },
-            { data: 'image_preview', name: 'image_preview', orderable: false, searchable: false },
-            { data: 'status_badge', name: 'status_badge', orderable: false },
-            { data: 'created_date', name: 'created_date', orderable: false },
-            { data: 'action', name: 'action', orderable: false, searchable: false }
-        ],
-        pageLength: 10,
-        lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
-        order: [[0, 'desc']],
-        pagingType: 'full_numbers',
-        dom: '<"row"<"col-sm-12"tr>>' + '<"row mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
-        searching: false,
-        language: {
-            lengthMenu: "{{ __('systemsetting::ads.show') }} _MENU_",
-            info: "{{ __('systemsetting::ads.showing_entries') }}",
-            infoEmpty: "{{ __('systemsetting::ads.showing_empty') }}",
-            emptyTable: "{{ __('systemsetting::ads.no_data_available') }}",
-            zeroRecords: "{{ __('systemsetting::ads.no_ads_found') }}",
-            loadingRecords: "{{ __('systemsetting::ads.loading') }}",
-            processing: "{{ __('systemsetting::ads.processing') }}",
-            search: "{{ __('systemsetting::ads.search') }}:",
-        }
-    });
+            if (urlParams.has('position')) {
+                $('#position').val(urlParams.get('position'));
+            }
+            if (urlParams.has('active')) {
+                $('#active').val(urlParams.get('active'));
+            }
+            if (urlParams.has('created_date_from')) {
+                $('#created_date_from').val(urlParams.get('created_date_from'));
+            }
+            if (urlParams.has('created_date_to')) {
+                $('#created_date_to').val(urlParams.get('created_date_to'));
+            }
 
-    // Initialize Select2
-    if ($.fn.select2) {
-        $('#entriesSelect, #position, #active').select2({
-            theme: 'bootstrap-5',
-            minimumResultsForSearch: Infinity,
-            width: '100%'
+            let table = $('#adsDataTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '{{ route('admin.system-settings.ads.datatable') }}',
+                    type: 'GET',
+                    data: function(d) {
+                        d.position = $('#position').val();
+                        d.active = $('#active').val();
+                        d.search = $('#search').val();
+                        d.created_date_from = $('#created_date_from').val();
+                        d.created_date_to = $('#created_date_to').val();
+                    }
+                },
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'title_subtitle',
+                        name: 'title_subtitle',
+                        orderable: false
+                    },
+                    {
+                        data: 'position_badge',
+                        name: 'position_badge',
+                        orderable: false
+                    },
+                    {
+                        data: 'image_preview',
+                        name: 'image_preview',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'active',
+                        name: 'active',
+                        orderable: false,
+                        render: function(data, type, row) {
+                            const isChecked = data === 1 || data === true ? 'checked' : '';
+                            const switchId = 'status-switch-' + row.id;
+                            return `
+                        <div class="form-check form-switch form-switch-primary form-switch-sm d-flex justify-content-center">
+                            <input type="checkbox" class="form-check-input status-switcher" 
+                                id="${switchId}" data-id="${row.id}" ${isChecked}>
+                            <label class="form-check-label" for="${switchId}"></label>
+                        </div>
+                    `;
+                        }
+                    },
+                    {
+                        data: 'created_date',
+                        name: 'created_date',
+                        orderable: false
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                pageLength: 10,
+                lengthMenu: [
+                    [10, 25, 50, 100],
+                    [10, 25, 50, 100]
+                ],
+                order: [
+                    [0, 'desc']
+                ],
+                pagingType: 'full_numbers',
+                dom: '<"row"<"col-sm-12"tr>>' +
+                    '<"row mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                searching: false,
+                language: {
+                    lengthMenu: "{{ __('systemsetting::ads.show') }} _MENU_",
+                    info: "{{ __('systemsetting::ads.showing_entries') }}",
+                    infoEmpty: "{{ __('systemsetting::ads.showing_empty') }}",
+                    emptyTable: "{{ __('systemsetting::ads.no_data_available') }}",
+                    zeroRecords: "{{ __('systemsetting::ads.no_ads_found') }}",
+                    loadingRecords: "{{ __('systemsetting::ads.loading') }}",
+                    processing: "{{ __('systemsetting::ads.processing') }}",
+                    search: "{{ __('systemsetting::ads.search') }}:",
+                }
+            });
+
+            // Initialize Select2
+            if ($.fn.select2) {
+                $('#entriesSelect, #position, #active').select2({
+                    theme: 'bootstrap-5',
+                    minimumResultsForSearch: Infinity,
+                    width: '100%'
+                });
+            }
+
+            $('#entriesSelect').on('change', function() {
+                table.page.len($(this).val()).draw();
+            });
+
+            // Function to update URL with filter parameters
+            function updateUrlWithFilters() {
+                const params = new URLSearchParams();
+                const search = $('#search').val();
+                const position = $('#position').val();
+                const active = $('#active').val();
+                const createdDateFrom = $('#created_date_from').val();
+                const createdDateTo = $('#created_date_to').val();
+
+                if (search) params.set('search', search);
+                if (position) params.set('position', position);
+                if (active) params.set('active', active);
+                if (createdDateFrom) params.set('created_date_from', createdDateFrom);
+                if (createdDateTo) params.set('created_date_to', createdDateTo);
+
+                const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+                window.history.pushState({}, '', newUrl);
+            }
+
+            // Search button functionality
+            $('#searchBtn').on('click', function() {
+                console.log('Search button clicked, updating URL and reloading table...');
+                updateUrlWithFilters();
+                table.draw();
+            });
+
+            // Search input with debounce
+            let searchTimer;
+            $('#search').on('keyup', function() {
+                clearTimeout(searchTimer);
+                const searchValue = $(this).val();
+                searchTimer = setTimeout(function() {
+                    updateUrlWithFilters();
+                    table.draw();
+                }, 500);
+            });
+
+            // Filter change handlers
+            $('#position, #active, #created_date_from, #created_date_to').on('change', function() {
+                updateUrlWithFilters();
+                table.draw();
+            });
+
+            // Reset filters button
+            $('#resetFilters').on('click', function() {
+                console.log('Resetting all filters...');
+                $('#search').val('');
+                $('#position').val('').trigger('change');
+                $('#active').val('').trigger('change');
+                $('#created_date_from').val('');
+                $('#created_date_to').val('');
+                updateUrlWithFilters();
+                table.draw();
+            });
+
+            // Toggle status
+            $(document).on('change', '.status-switcher', function() {
+                const switcher = $(this);
+                const id = switcher.data('id');
+                const newStatus = switcher.is(':checked') ? 1 : 0;
+
+                switcher.prop('disabled', true);
+
+                $.ajax({
+                    url: "{{ route('admin.system-settings.ads.toggle-status', ':id') }}".replace(
+                        ':id', id),
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        status: newStatus
+                    },
+                    success: function(response) {
+                        switcher.prop('disabled', false);
+                        if (response.success) {
+                            toastr.success(response.message);
+                        } else {
+                            toastr.error(response.message);
+                            switcher.prop('checked', !switcher.is(':checked'));
+                        }
+                    },
+                    error: function(xhr) {
+                        switcher.prop('disabled', false);
+                        switcher.prop('checked', !switcher.is(':checked'));
+                        const message = xhr.responseJSON ? xhr.responseJSON.message :
+                            'Error changing status';
+                        toastr.error(message);
+                    }
+                });
+            });
+
+            // Reload table after successful delete
+            $('#modal-delete-ad').on('hidden.bs.modal', function() {
+                // Check if delete was successful and reload table
+                if (window.deleteSuccess) {
+                    table.draw();
+                    window.deleteSuccess = false;
+                }
+            });
         });
-    }
-
-    $('#entriesSelect').on('change', function() {
-        table.page.len($(this).val()).draw();
-    });
-
-    // Function to update URL with filter parameters
-    function updateUrlWithFilters() {
-        const params = new URLSearchParams();
-        const search = $('#search').val();
-        const position = $('#position').val();
-        const active = $('#active').val();
-        const createdDateFrom = $('#created_date_from').val();
-        const createdDateTo = $('#created_date_to').val();
-
-        if (search) params.set('search', search);
-        if (position) params.set('position', position);
-        if (active) params.set('active', active);
-        if (createdDateFrom) params.set('created_date_from', createdDateFrom);
-        if (createdDateTo) params.set('created_date_to', createdDateTo);
-
-        const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
-        window.history.pushState({}, '', newUrl);
-    }
-
-    // Search button functionality
-    $('#searchBtn').on('click', function() {
-        console.log('Search button clicked, updating URL and reloading table...');
-        updateUrlWithFilters();
-        table.draw();
-    });
-
-    // Search input with debounce
-    let searchTimer;
-    $('#search').on('keyup', function() {
-        clearTimeout(searchTimer);
-        const searchValue = $(this).val();
-        searchTimer = setTimeout(function() {
-            updateUrlWithFilters();
-            table.draw();
-        }, 500);
-    });
-
-    // Filter change handlers
-    $('#position, #active, #created_date_from, #created_date_to').on('change', function() {
-        updateUrlWithFilters();
-        table.draw();
-    });
-
-    // Reset filters button
-    $('#resetFilters').on('click', function() {
-        console.log('Resetting all filters...');
-        $('#search').val('');
-        $('#position').val('').trigger('change');
-        $('#active').val('').trigger('change');
-        $('#created_date_from').val('');
-        $('#created_date_to').val('');
-        updateUrlWithFilters();
-        table.draw();
-    });
-
-    // Reload table after successful delete
-    $('#modal-delete-ad').on('hidden.bs.modal', function() {
-        // Check if delete was successful and reload table
-        if (window.deleteSuccess) {
-            table.draw();
-            window.deleteSuccess = false;
-        }
-    });
-});
-</script>
+    </script>
 @endpush

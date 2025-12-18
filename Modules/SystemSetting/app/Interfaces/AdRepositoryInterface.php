@@ -15,4 +15,6 @@ interface AdRepositoryInterface
     public function delete($id);
     
     public function filter(array $filters);
+    
+    public function toggleStatus($id, $status);
 }

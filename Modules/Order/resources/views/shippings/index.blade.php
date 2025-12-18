@@ -253,10 +253,16 @@
                         name: 'active',
                         orderable: false,
                         searchable: false,
-                        render: function(data) {
-                            const badgeClass = data === 1 || data === true ? 'badge-success' : 'badge-danger';
-                            const statusText = data === 1 || data === true ? '{{ trans('shipping.active') }}' : '{{ trans('shipping.inactive') }}';
-                            return `<span class="badge badge-round badge-lg" style="background-color: ${data === 1 || data === true ? '#28a745' : '#dc3545'}; color: white;">${statusText}</span>`;
+                        render: function(data, type, row) {
+                            const isChecked = data === 1 || data === true ? 'checked' : '';
+                            const switchId = 'status-switch-' + row.id;
+                            return `
+                                <div class="form-check form-switch  form-switch-primary form-switch-sm">
+                                    <input type="checkbox" class="form-check-input status-switcher" 
+                                        id="${switchId}" data-id="${row.id}" ${isChecked}>
+                                    <label class="form-check-label" for="${switchId}"></label>
+                                </div>
+                            `;
                         }
                     },
                     {
@@ -352,6 +358,38 @@
                 const newUrl = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
                 window.history.replaceState({}, '', newUrl);
             }
+
+            // Change shipping status
+            $(document).on('change', '.status-switcher', function() {
+                const switcher = $(this);
+                const id = switcher.data('id');
+                const newStatus = switcher.is(':checked') ? 1 : 0;
+
+                switcher.prop('disabled', true);
+
+                $.ajax({
+                    url: "{{ route('admin.shippings.change-status', ':id') }}".replace(':id', id),
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        status: newStatus
+                    },
+                    success: function(response) {
+                        switcher.prop('disabled', false);
+                        if (response.status) {
+                            toastr.success(response.message);
+                        } else {
+                            toastr.error(response.message);
+                            switcher.prop('checked', !switcher.is(':checked'));
+                        }
+                    },
+                    error: function() {
+                        switcher.prop('disabled', false);
+                        switcher.prop('checked', !switcher.is(':checked'));
+                        toastr.error('{{ trans('shipping.error_changing_status') }}');
+                    }
+                });
+            });
 
             // Delete shipping
             $(document).on('click', '.delete-btn', function() {

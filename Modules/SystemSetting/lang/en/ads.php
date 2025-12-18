@@ -87,6 +87,8 @@ return [
     'created_to' => 'Created To',
     'ad_created' => 'Ad created successfully',
     'ad_updated' => 'Ad updated successfully',
+    'status_updated_successfully' => 'Ad status updated successfully',
+    'error_updating_status' => 'Error updating ad status',
 
     // Validation Messages
     'validation' => [

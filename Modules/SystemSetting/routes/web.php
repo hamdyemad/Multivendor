@@ -26,6 +26,7 @@ Route::group(['prefix' => 'system-settings', 'as' => 'system-settings.'], functi
 
     // Ads
     Route::get('ads/datatable', [AdController::class, 'datatable'])->name('ads.datatable');
+    Route::post('ads/{id}/toggle-status', [AdController::class, 'toggleStatus'])->name('ads.toggle-status');
     Route::resource('ads', AdController::class);
 
     // Features (Frontend Settings)

@@ -87,6 +87,8 @@ return [
     'created_to' => 'تم الإنشاء إلى',
     'ad_created' => 'تم إنشاء الإعلان بنجاح',
     'ad_updated' => 'تم تحديث الإعلان بنجاح',
+    'status_updated_successfully' => 'تم تحديث حالة الإعلان بنجاح',
+    'error_updating_status' => 'خطأ في تحديث حالة الإعلان',
 
     // Validation Messages
     'validation' => [

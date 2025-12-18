@@ -42,4 +42,8 @@ class AdService
     {
         return $this->adRepository->filter($filters);
     }
+    public function toggleStatus($id, $status)
+    {
+        return $this->adRepository->toggleStatus($id, $status);
+    }
 }

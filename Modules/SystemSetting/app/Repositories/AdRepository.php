@@ -131,4 +131,9 @@ class AdRepository implements AdRepositoryInterface
             ->orderBy('created_at', 'desc')
             ->paginate($filters['per_page'] ?? 15);
     }
+    public function toggleStatus($id, $status)
+    {
+        $ad = Ad::findOrFail($id);
+        return $ad->update(['active' => $status]);
+    }
 }

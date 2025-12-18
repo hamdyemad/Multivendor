@@ -159,7 +159,7 @@
             <div class="modal-content">
                 <form id="confirmActionForm" method="POST">
                     @csrf
-                    <div class="modal-header bg-danger bg-opacity-10 border-bottom">
+                    <div class="modal-header bg-opacity-10 border-bottom">
                         <h5 class="modal-title" id="confirmActionLabel">
                             <i
                                 class="uil uil-exclamation-triangle text-danger me-2"></i>{{ trans('vendor::vendor.reject_vendor_request') }}

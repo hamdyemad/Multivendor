@@ -37,7 +37,9 @@ class CustomerAddressRepository implements CustomerAddressRepositoryInterface
     public function getAddresses(GetAddressesDTO $dto, Customer $customer)
     {
         // Get addresses with filters applied
-        $query = $customer->addresses()->filter($dto->toArray());
+        $query = $customer->addresses()
+        ->with('country', 'city', 'region', 'subregion')
+        ->filter($dto->toArray());
 
         // Handle pagination
         $result = $this->paginated->handle($query, $dto->per_page, $dto->paginated);

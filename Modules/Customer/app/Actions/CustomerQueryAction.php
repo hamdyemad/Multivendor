@@ -78,7 +78,9 @@ class CustomerQueryAction
         'addresses.city',
         'addresses.region',
         'addresses.subregion',
-        'fcmTokens', 'city', 'region']);
+        'fcmTokens',
+        'city',
+        'region']);
 
         // Order by latest first
         $query->latest();

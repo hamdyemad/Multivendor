@@ -11,7 +11,7 @@ class CustomerQueryAction
      */
     public function handle(array $filters = [])
     {
-        $query = Customer::query()->with('country', 'city', 'region', 'subregion');
+        $query = Customer::query()->with('country');
 
         // Search filter
         if (!empty($filters['search'])) {
@@ -73,7 +73,12 @@ class CustomerQueryAction
         }
 
         // Load relationships
-        $query->with(['addresses', 'fcmTokens', 'city', 'region']);
+        $query->with([
+        'addresses.country', 
+        'addresses.city',
+        'addresses.region',
+        'addresses.subregion',
+        'fcmTokens', 'city', 'region']);
 
         // Order by latest first
         $query->latest();

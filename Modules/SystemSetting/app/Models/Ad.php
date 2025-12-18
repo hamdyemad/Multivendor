@@ -83,6 +83,9 @@ class Ad extends Model
         if (isset($filters['position']) && !empty($filters['position'])) {
             $query->where('position', $filters['position']);
         }
+        if (isset($filters['type']) && !empty($filters['type'])) {
+            $query->whereJsonContains('type', $filters['type']);
+        }
 
         if (isset($filters['active']) && $filters['active'] !== '') {
             $query->where('active', $filters['active']);

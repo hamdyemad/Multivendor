@@ -7,9 +7,9 @@ use Modules\SystemSetting\app\Models\Ad;
 
 class AdApiRepository implements AdApiRepositoryInterface
 {
-    public function all()
+    public function all($data = [])
     {
-        return Ad::with('translations', 'attachments')->active()->get();
+        return Ad::with('translations', 'attachments')->active()->filter($data)->get();
     }
 
     public function find($id)

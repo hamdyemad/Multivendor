@@ -13,9 +13,9 @@ class AdApiService
         $this->adRepository = $adRepository;
     }
 
-    public function getAll()
+    public function getAll($data = [])
     {
-        return $this->adRepository->all();
+        return $this->adRepository->all($data);
     }
 
     public function find($id)

@@ -27,9 +27,9 @@ class AdApiController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $ads = $this->adService->getAll();
+        $ads = $this->adService->getAll($request->all());
         return $this->sendRes(__('main.success'), true, AdsResource::collection($ads));
     }
 

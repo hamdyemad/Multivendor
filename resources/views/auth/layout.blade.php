@@ -129,6 +129,54 @@
         @elseif (session('warning'))
             toastr.warning("{{ session('warning') }}", 'Warning');
         @endif
+
+        // Global Password Visibility Toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            initPasswordToggle();
+        });
+
+        function initPasswordToggle() {
+            const passwordInputs = document.querySelectorAll('input[type="password"]:not(.pw-toggle-init)');
+            passwordInputs.forEach(input => {
+                if (input.type === 'hidden') return;
+                input.classList.add('pw-toggle-init');
+
+                // Check if already has a toggle icon in its vicinity
+                const parent = input.parentElement;
+                if (parent.querySelector('.toggle-password') || parent.querySelector('.password-toggle-icon')) {
+                    return;
+                }
+
+                // Create a wrapper to ensure the icon is centered RELATIVE TO THE INPUT ONLY
+                const wrapper = document.createElement('div');
+                wrapper.className = 'password-toggle-container position-relative w-100';
+
+                // Transfer input's margin-bottom to wrapper to maintain layout spacing
+                const inputStyle = window.getComputedStyle(input);
+                if (inputStyle.marginBottom !== '0px') {
+                    wrapper.style.marginBottom = inputStyle.marginBottom;
+                    input.style.marginBottom = '0';
+                }
+
+                // Insert wrapper before input, then move input inside it
+                input.parentNode.insertBefore(wrapper, input);
+                wrapper.appendChild(input);
+
+                const icon = document.createElement('span');
+                icon.className = 'uil uil-eye-slash password-toggle-icon';
+                icon.style.cssText =
+                    'position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #aaa; font-size: 18px; z-index: 10;';
+
+                icon.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                    input.setAttribute('type', type);
+                    this.classList.toggle('uil-eye');
+                    this.classList.toggle('uil-eye-slash');
+                });
+                wrapper.appendChild(icon);
+            });
+        }
     </script>
 </body>
 

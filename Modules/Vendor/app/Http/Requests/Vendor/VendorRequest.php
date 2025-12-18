@@ -24,15 +24,15 @@ class VendorRequest extends FormRequest
         $vendor = $this->resolveVendor();
         $isUpdate = !is_null($vendor);
 
-        // Logo validation: required on create, optional on update if logo exists
+        // Logo validation: required on create, optional on update
         $logoRule = 'required|image|mimes:jpeg,png,jpg,gif|max:2048';
-        if ($isUpdate && $vendor->logo || $this->vendor_request_id) {
+        if ($isUpdate || $this->vendor_request_id) {
             $logoRule = 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048';
         }
 
-        // Banner validation: required on create, optional on update if banner exists
+        // Banner validation: required on create, optional on update
         $bannerRule = 'required|image|mimes:jpeg,png,jpg,gif|max:4096';
-        if ($isUpdate && $vendor->banner) {
+        if ($isUpdate) {
             $bannerRule = 'nullable|image|mimes:jpeg,png,jpg,gif|max:4096';
         }
 

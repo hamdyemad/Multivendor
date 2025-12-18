@@ -46,7 +46,7 @@
 
         <input type="text" class="tag-input flex-grow-1 border-0 outline-0 bg-transparent p-1"
             id="{{ $componentId }}-input" placeholder="{{ count($selectedIds) > 0 ? '' : $placeholder }}"
-            autocomplete="off" style="min-width: 100px; font-size: 14px;">
+            autocomplete="new-password" style="min-width: 100px; font-size: 14px;">
 
         <div class="dropdown-chevron ms-auto pe-2 text-muted cursor-pointer">
             <i class="uil uil-angle-down fs-18"></i>
@@ -68,6 +68,7 @@
     @error(str_replace('[]', '', $name))
         <div class="invalid-feedback d-block">{{ $message }}</div>
     @enderror
+    <div class="dynamic-error-container"></div>
 </div>
 
 @once
@@ -96,6 +97,10 @@
             .tag-option.selected {
                 color: #0056B7;
                 font-weight: 500;
+            }
+
+            .tag-input-container.is-invalid {
+                border-color: #dc3545 !important;
             }
 
             .tag-remove:hover {

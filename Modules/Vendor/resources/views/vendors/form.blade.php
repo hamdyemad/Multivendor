@@ -145,23 +145,18 @@
                                             <!-- Departments -->
                                             <div class="col-md-12 mb-3">
                                                 <div class="form-group">
-                                                    <label for="departments" class="form-label">
-                                                        {{ app()->getLocale() == 'ar' ? 'الأقسام' : 'Departments' }} <span
-                                                            class="text-danger">*</span>
-                                                    </label>
-                                                    <select name="departments[]" id="departments"
-                                                        class="form-control select2" multiple required>
-                                                        @foreach ($departments as $department)
-                                                            <option value="{{ $department->id }}"
-                                                                {{ collect(old('departments'))->contains($department->id) ? 'selected' : '' }}
-                                                                {{ isset($vendor) && $vendor->departments->contains($department->id) ? 'selected' : '' }}>
-                                                                {{ $department->name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                    @error('departments')
-                                                        <div class="text-danger mt-1">{{ $message }}</div>
-                                                    @enderror
+                                                    <x-searchable-tags name="departments[]" id="departments"
+                                                        label="{{ app()->getLocale() == 'ar' ? 'الأقسام' : 'Departments' }}"
+                                                        :options="$departments
+                                                            ->map(fn($d) => ['id' => $d->id, 'name' => $d->name])
+                                                            ->toArray()" :selected="isset($vendor)
+                                                            ? $vendor->departments
+                                                                ->pluck('id')
+                                                                ->map(fn($id) => (string) $id)
+                                                                ->toArray()
+                                                            : []"
+                                                        placeholder="{{ app()->getLocale() == 'ar' ? 'اختر الأقسام...' : 'Select departments...' }}"
+                                                        :required="true" />
                                                 </div>
                                             </div>
                                         </div>
@@ -221,8 +216,7 @@
                                                 @endphp
                                                 <x-image-upload id="logo" name="logo"
                                                     label="{{ trans('vendor::vendor.logo') }} ({{ trans('vendor::vendor.logo_recommended_size') }})"
-                                                    :required="!isset($vendor) &&
-                                                        (!$vendorRequest || !$vendorRequest->company_logo)" :existingImage="$existingLogo"
+                                                    :required="!isset($vendor)" :existingImage="$existingLogo"
                                                     placeholder="{{ trans('vendor::vendor.click_to_upload_logo') }}"
                                                     recommendedSize="{{ trans('vendor::vendor.logo_recommended_size') }}"
                                                     accept="image/jpeg,image/png,image/jpg,image/gif" aspectRatio="logo" />
@@ -548,6 +542,7 @@
                                                     <input type="password" name="password" id="password"
                                                         class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                         placeholder="{{ app()->getLocale() == 'ar' ? 'أدخل كلمة المرور' : 'Enter password' }}"
+                                                        autocomplete="new-password"
                                                         @if (app()->getLocale() == 'ar') dir="rtl" @else dir="ltr" @endif>
                                                     <small class="text-muted"
                                                         @if (app()->getLocale() == 'ar') dir="rtl" style="text-align: right;" @endif>
@@ -589,6 +584,7 @@
                                                         id="password_confirmation"
                                                         class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                         placeholder="{{ app()->getLocale() == 'ar' ? 'أعد إدخال كلمة المرور' : 'Confirm password' }}"
+                                                        autocomplete="new-password"
                                                         @if (app()->getLocale() == 'ar') dir="rtl" @else dir="ltr" @endif>
                                                     @error('password_confirmation')
                                                         <div class="text-danger mt-1">{{ $message }}</div>

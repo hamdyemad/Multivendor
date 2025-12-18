@@ -156,7 +156,7 @@ $(document).ready(function() {
     $('#prevBtn').on('click', function() {
         currentStep--;
         if (currentStep < 1) currentStep = 1;
-        showStep(currentStep);
+        showStep(currentStep, true);
     });
 
     // Click on wizard step navigation - Validate before moving forward
@@ -168,7 +168,7 @@ $(document).ready(function() {
         // Allow going backward without validation
         if (targetStep < currentStep) {
             currentStep = targetStep;
-            showStep(currentStep);
+            showStep(currentStep, true); // Don't scroll to top when moving backward
             return;
         }
 
@@ -191,7 +191,7 @@ $(document).ready(function() {
 
                 // Switch to the failed step
                 currentStep = step;
-                showStep(currentStep);
+                showStep(currentStep, true); // Don't scroll to top, we want to stay where the errors are
 
                 // Show validation errors on that step
                 displayStepErrors(validation.errors, step);
@@ -281,8 +281,12 @@ function initializeErrorClearingHandlers() {
     });
 
     // Handle specific vendor form dropdowns - Aggressive clearing
-    $(document).on('change select2:select select2:open select2:opening focus click', '#country_id, #type, #departments', function() {
-        const fieldId = $(this).attr('id');
+    $(document).on('change select2:select select2:open select2:opening focus click', '#country_id, #type, #departments, #departments-container, .tag-input-container', function() {
+        // Try to get ID from attribute or parent container
+        let fieldId = $(this).attr('id');
+        if (!fieldId && $(this).hasClass('tag-input-container')) {
+            fieldId = $(this).closest('.searchable-tags-wrapper').data('name')?.replace('[]', '');
+        }
         console.log('🔧 Clearing error for:', fieldId);
 
         // Clear field error
@@ -333,12 +337,22 @@ function initializeErrorClearingHandlers() {
     // Handle image preview container clicks (for image uploads)
     $(document).on('click', '.image-preview-container, .logo-preview-container', function() {
         const wrapper = $(this).closest('.image-upload-wrapper');
-        const fileInput = wrapper.find('input[type="file"]');
+        const fileInput = wrapper. find('input[type="file"]');
         if (fileInput.length) {
             clearFieldError(fileInput);
             clearValidationAlert();
             $(this).removeClass('is-invalid border-danger');
             wrapper.find('.error-message').remove();
+        }
+    });
+
+    // Handle Searchable Tags click to clear error
+    $(document).on('click', '.tag-input-container, .tag-option', function() {
+        const container = $(this).closest('.tag-input-container');
+        if (container.hasClass('is-invalid') || container.hasClass('border-danger')) {
+            container.removeClass('is-invalid border-danger');
+            container.closest('.searchable-tags-wrapper').find('.error-message, .dynamic-error-container .error-message').remove();
+            clearValidationAlert();
         }
     });
 
@@ -419,6 +433,11 @@ function clearFieldError($field) {
     $field.closest('.form-group').find('.error-message, .invalid-feedback').remove();
     $field.closest('.form-group').find('.text-danger:not(label .text-danger):not(.form-label .text-danger)').remove();
     $field.closest('.form-group').removeClass('has-error');
+
+    // Also clear searchable-tags container if it's the target or a parent
+    if ($field.hasClass('tag-input-container') || $field.closest('.tag-input-container').length) {
+        $field.closest('.tag-input-container').addBack('.tag-input-container').removeClass('is-invalid border-danger');
+    }
 
     // Clear from image upload wrapper (for image components)
     $field.closest('.image-upload-wrapper').find('.error-message, .invalid-feedback').remove();
@@ -533,8 +552,8 @@ function initializeDocumentUpload(previewId) {
 /**
  * Show/Hide wizard steps
  */
-function showStep(step) {
-    console.log('📍 showStep called with step:', step);
+function showStep(step, noScroll = false) {
+    console.log('📍 showStep called with step:', step, 'noScroll:', noScroll);
 
     // Hide all steps
     $('.wizard-step-content').each(function() {
@@ -625,10 +644,12 @@ function showStep(step) {
         $('#submitBtn').hide();
     }
 
-    // Scroll to top
-    $('html, body').animate({
-        scrollTop: $('.card-body').offset().top - 100
-    }, 300);
+    // Scroll to top (only if not showing error)
+    if (!noScroll) {
+        $('html, body').animate({
+            scrollTop: $('.card-body').offset().top - 100
+        }, 300);
+    }
 }
 
 /**
@@ -884,22 +905,31 @@ function validateCurrentStep(step) {
         });
 
         // Validate departments
-        const departments = $('#departments').val();
+        let departments = $('#departments').val();
+        let departmentsElement = $('#departments');
+
+        // Check for searchable-tags component specifically by container data-id or ID
+        const tagContainer = $('.tag-input-container[data-id="departments"]');
+        if (tagContainer.length) {
+            departments = tagContainer.find('input[type="hidden"]').map(function() { return $(this).val(); }).get();
+            departmentsElement = tagContainer;
+            console.log('🔍 Departments from searchable-tags found. Current values:', departments);
+        }
+
         if (!departments || departments.length === 0) {
             const config = window.vendorFormConfig;
             errors.push({
                 field: 'departments',
                 message: config?.errorMessages?.departmentsRequired || 'Please select at least one department',
-                element: $('#departments')
+                element: departmentsElement
             });
         }
 
         // Check if this is edit mode (has existing vendor data)
-        const isEditMode = $('input[name="_method"][value="PUT"]').length > 0 ||
-                          $('.image-preview-container img').length > 0 ||
+        const isEditMode = $('input[name="_method"][value="PUT"]').length > 0 || 
                           $('input[name="translations"]').filter(function() { return $(this).val() !== ''; }).length > 0;
 
-        // Validate Logo (required only for new vendor, not for edit)
+        // Validate Logo (only for new vendor)
         if (!isEditMode) {
             const logoInput = stepElement.find('input[name="logo"]');
             const logoPreviewContainer = stepElement.find('#logo-preview-container');
@@ -916,7 +946,7 @@ function validateCurrentStep(step) {
             }
         }
 
-        // Validate Banner (required only for new vendor, not for edit)
+        // Validate Banner (only for new vendor)
         if (!isEditMode) {
             const bannerInput = stepElement.find('input[name="banner"]');
             const bannerPreviewContainer = stepElement.find('#banner-preview-container');
@@ -1022,9 +1052,7 @@ function validateCurrentStep(step) {
         }
 
         // Validate password (only for new vendor)
-        const isEditMode = $('input[name="_method"][value="PUT"]').length > 0 ||
-                          $('.image-preview-container img').length > 0 ||
-                          $('input[name="translations"]').filter(function() { return $(this).val() !== ''; }).length > 0;
+        const isEditMode = $('input[name="_method"][value="PUT"]').length > 0;
         const password = stepElement.find('#password').val();
 
         if (!isEditMode && (!password || password.trim() === '')) {
@@ -1046,8 +1074,10 @@ function validateCurrentStep(step) {
  * Display validation errors for a specific step
  */
 function displayStepErrors(errors, step) {
+    console.log('📝 displayStepErrors called for step:', step, 'Errors:', errors.length);
     errors.forEach(error => {
         const element = error.element;
+        console.log('🏷️ Error field:', error.field, 'Element found:', element.length > 0);
 
         // Add is-invalid class
         element.addClass('is-invalid');
@@ -1064,24 +1094,41 @@ function displayStepErrors(errors, step) {
             <i class="uil uil-exclamation-triangle"></i> ${error.message}
         </div>`;
 
-        // Handle Select2 elements
-        if (element.hasClass('select2') || element.data('select2') || element.attr('id') === 'departments') {
-            let select2Container = element.next('.select2-container');
-            if (!select2Container.length) {
-                select2Container = element.siblings('.select2-container').first();
-            }
-            if (!select2Container.length) {
-                select2Container = element.closest('.form-group').find('.select2-container');
-            }
+            // Handle Select2 elements OR searchable-tags container
+            if (element.hasClass('select2') || element.data('select2') || element.attr('id') === 'departments' || element.hasClass('tag-input-container')) {
+                console.log('🎯 Targeting special element for error display:', element.attr('id') || element.attr('class'));
+                
+                let select2Container = element.next('.select2-container');
+                if (!select2Container.length) {
+                    select2Container = element.siblings('.select2-container').first();
+                }
+                if (!select2Container.length) {
+                    select2Container = element.closest('.form-group').find('.select2-container');
+                }
 
-            if (select2Container.length) {
-                select2Container.addClass('is-invalid border-danger');
-                select2Container.find('.select2-selection').addClass('is-invalid border-danger');
-            }
+                if (select2Container.length) {
+                    select2Container.addClass('is-invalid border-danger');
+                    select2Container.find('.select2-selection').addClass('is-invalid border-danger');
+                }
 
-            // Append to form-group to ensure visibility
-            element.closest('.form-group').append(errorHtml);
-        }
+                // If it's a searchable-tags container, add the error class directly
+                if (element.hasClass('tag-input-container')) {
+                    element.addClass('is-invalid border-danger');
+                    console.log('✅ Applied is-invalid to tag-input-container');
+                    
+                    // Specific placement for searchable-tags
+                    const wrapper = element.closest('.searchable-tags-wrapper');
+                    const errorContainer = wrapper.find('.dynamic-error-container');
+                    if (errorContainer.length) {
+                        errorContainer.html(errorHtml);
+                    } else {
+                        element.closest('.form-group').append(errorHtml);
+                    }
+                } else {
+                    // Append to form-group for Select2/Standard Select
+                    element.closest('.form-group').append(errorHtml);
+                }
+            }
         // Handle preview containers directly (when element IS the preview container)
         else if (element.hasClass('image-preview-container') || (element.attr('id') && element.attr('id').includes('preview-container'))) {
             // element.addClass('border-danger is-invalid');
@@ -1163,11 +1210,6 @@ function scrollToFirstError() {
         $('html, body').animate({
             scrollTop: firstError.offset().top - 150
         }, 300);
-
-        // Focus on the field
-        setTimeout(() => {
-            firstError.focus();
-        }, 350);
     }
 }
 

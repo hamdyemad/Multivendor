@@ -6,17 +6,19 @@
 
 /* Bootstrap-styled pagination - smaller and cleaner */
 
-.table > tbody > tr:nth-of-type(odd) {
-  --bs-table-accent-bg: var(--bs-table-striped-bg);
-  color: var(--bs-table-striped-color);
-  &:hover {
-    background-color: #e4e4e4;
-  }
+.table>tbody>tr:nth-of-type(odd) {
+    --bs-table-accent-bg: var(--bs-table-striped-bg);
+    color: var(--bs-table-striped-color);
+
+    &:hover {
+        background-color: #e4e4e4;
+    }
 }
-.table > tbody > tr {
-  &:hover {
-    background-color: #e4e4e4;
-  }
+
+.table>tbody>tr {
+    &:hover {
+        background-color: #e4e4e4;
+    }
 }
 
 /* Menu text styling - make all menu text bold */
@@ -28,7 +30,7 @@
 .menu-item,
 .sidebar-item,
 .nav-item .nav-link {
-  font-weight: bold !important;
+    font-weight: bold !important;
 }
 
 /* Form Error Alert Styling */
@@ -72,100 +74,100 @@
 
 /* Active Menu States */
 .sidebar_nav {
-  li {
-    &.has-child {
-      &.open > a {
-        background-color: var(--color-primary) !important;
-        color: white !important;
-        border-radius: 8px;
+    li {
+        &.has-child {
+            &.open>a {
+                background-color: var(--color-primary) !important;
+                color: white !important;
+                border-radius: 8px;
 
-        .nav-icon {
-          color: white !important;
-        }
+                .nav-icon {
+                    color: white !important;
+                }
 
-        .menu-text {
-          color: white !important;
-        }
+                .menu-text {
+                    color: white !important;
+                }
 
-        .toggle-icon {
-          color: white !important;
-        }
-      }
-
-      ul {
-        li {
-          a {
-            &.active {
-              background-color: rgba(var(--color-primary-rgb), 0.1) !important;
-              color: var(--color-primary) !important;
-              border-left: 3px solid var(--color-primary);
-              padding-left: 20px;
-              font-weight: 600 !important;
-
-              &:hover {
-                background-color: rgba(var(--color-primary-rgb), 0.2) !important;
-              }
+                .toggle-icon {
+                    color: white !important;
+                }
             }
-          }
+
+            ul {
+                li {
+                    a {
+                        &.active {
+                            background-color: rgba(var(--color-primary-rgb), 0.1) !important;
+                            color: var(--color-primary) !important;
+                            border-left: 3px solid var(--color-primary);
+                            padding-left: 20px;
+                            font-weight: 600 !important;
+
+                            &:hover {
+                                background-color: rgba(var(--color-primary-rgb), 0.2) !important;
+                            }
+                        }
+                    }
+                }
+            }
         }
-      }
+
+        >a {
+            &.active {
+                background-color: var(--color-primary) !important;
+                color: white !important;
+                border-radius: 8px;
+
+                .nav-icon {
+                    color: white !important;
+                }
+
+                .menu-text {
+                    color: white !important;
+                }
+            }
+
+            &:hover {
+                background-color: rgba(var(--color-primary-rgb), 0.1);
+                border-radius: 8px;
+                transition: all 0.3s ease;
+            }
+        }
     }
-
-    > a {
-      &.active {
-        background-color: var(--color-primary) !important;
-        color: white !important;
-        border-radius: 8px;
-
-        .nav-icon {
-          color: white !important;
-        }
-
-        .menu-text {
-          color: white !important;
-        }
-      }
-
-      &:hover {
-        background-color: rgba(var(--color-primary-rgb), 0.1);
-        border-radius: 8px;
-        transition: all 0.3s ease;
-      }
-    }
-  }
 }
 
 /* RTL Support for Active Menu States */
 html[dir="rtl"] {
-  .sidebar_nav {
-    li {
-      &.has-child {
-        ul {
-          li {
-            a {
-              &.active {
-                border-left: none;
-                border-right: 3px solid var(--color-primary);
-                padding-left: 15px;
-                padding-right: 20px;
-              }
+    .sidebar_nav {
+        li {
+            &.has-child {
+                ul {
+                    li {
+                        a {
+                            &.active {
+                                border-left: none;
+                                border-right: 3px solid var(--color-primary);
+                                padding-left: 15px;
+                                padding-right: 20px;
+                            }
+                        }
+                    }
+                }
             }
-          }
         }
-      }
     }
-  }
 }
 
 /* Ensure parent menus open when they have the 'open' class */
 .sidebar_nav {
-  li.has-child {
-    &.open {
-      > ul {
-        display: block !important;
-      }
+    li.has-child {
+        &.open {
+            >ul {
+                display: block !important;
+            }
+        }
     }
-  }
 }
 
 body,
@@ -183,11 +185,13 @@ h5,
 h6 {
     font-family: "Cairo", sans-serif !important;
 }
+
 @keyframes slideInRight {
     from {
         transform: translateX(100%);
         opacity: 0;
     }
+
     to {
         transform: translateX(0);
         opacity: 1;
@@ -203,6 +207,7 @@ h6 {
         transform: translateX(0);
         opacity: 1;
     }
+
     to {
         transform: translateX(100%);
         opacity: 0;
@@ -223,6 +228,7 @@ h6 {
         transform: translateX(-100%);
         opacity: 0;
     }
+
     to {
         transform: translateX(0);
         opacity: 1;
@@ -231,10 +237,12 @@ h6 {
 
 .pagination {
     justify-content: end;
+
     .page-item {
         .page-link {
             padding: 3px 10px;
         }
+
         &.active {
             .page-link {
                 background-color: $primary-color;
@@ -260,6 +268,7 @@ label {
 .btn-danger,
 .btn-danger:focus {
     background-color: var(--second-primary);
+
     &:hover {
         opacity: 0.6;
     }
@@ -281,6 +290,7 @@ table td {
     text-align: center;
     justify-content: center;
 }
+
 .dt-column-order {
     color: white !important;
 }
@@ -293,16 +303,17 @@ table tbody tr td:last-child.actions {
 .cke_notifications_area {
     display: none;
 }
+
 // Cards
 
 .card.card-holder {
     padding: 0;
+
     .card-header {
-        background: linear-gradient(
-            to right,
-            var(--color-primary),
-            var(--second-primary)
-        );
+        background: linear-gradient(to right,
+                var(--color-primary),
+                var(--second-primary));
+
         // color: white;
         h3 {
             color: white;
@@ -375,8 +386,8 @@ table tbody tr td:last-child.actions {
     opacity: 1 !important;
 }
 
-input[data-lang="ar"] + .invalid-feedback,
-textarea[data-lang="ar"] + .invalid-feedback {
+input[data-lang="ar"]+.invalid-feedback,
+textarea[data-lang="ar"]+.invalid-feedback {
     direction: rtl;
     text-align: right;
 }
@@ -404,11 +415,9 @@ textarea[data-lang="ar"] + .invalid-feedback {
 }
 
 .userDatatable-header {
-    background: linear-gradient(
-        to right,
-        var(--color-primary),
-        var(--second-primary)
-    ) !important;
+    background: linear-gradient(to right,
+            var(--color-primary),
+            var(--second-primary)) !important;
     color: #fff !important;
 }
 
@@ -419,6 +428,7 @@ textarea[data-lang="ar"] + .invalid-feedback {
 .userDatatable table tbody tr td {
     border-bottom: 1px solid #f1f2f6;
 }
+
 .userDatatable table tbody tr td:last-child ul {
     justify-content: center !important;
 }
@@ -427,13 +437,12 @@ textarea[data-lang="ar"] + .invalid-feedback {
 html[dir="rtl"] {
     .card.card-holder {
         .card-header {
-            background: linear-gradient(
-                to left,
-                var(--color-primary),
-                var(--second-primary)
-            );
+            background: linear-gradient(to left,
+                    var(--color-primary),
+                    var(--second-primary));
         }
     }
+
     .table.dataTable thead th,
     table.dataTable thead td,
     table.dataTable tfoot th,
@@ -442,11 +451,9 @@ html[dir="rtl"] {
     }
 
     .userDatatable-header {
-        background: linear-gradient(
-            to left,
-            var(--color-primary),
-            var(--second-primary)
-        ) !important;
+        background: linear-gradient(to left,
+                var(--color-primary),
+                var(--second-primary)) !important;
         color: #fff !important;
     }
 
@@ -472,6 +479,7 @@ html[dir="rtl"] {
     border: 2px dashed #9f9f9f;
     margin-bottom: 10px;
     transition: all 0.3s ease-in-out;
+
     &:hover {
         transform: scale(1.05);
     }
@@ -545,7 +553,7 @@ html[dir="rtl"] {
 }
 
 /* Specific fix for Activities dropdown in vendor form */
-#activities + .select2-container .select2-selection--multiple {
+#activities+.select2-container .select2-selection--multiple {
     min-height: 48px !important;
 
     .select2-selection__rendered {
@@ -577,4 +585,35 @@ html[dir="rtl"] {
 
 .ap-po-details-content h1 {
     font-size: 23px !important;
+}
+
+/* Global Password Toggle Style */
+.password-toggle-container {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+
+.password-toggle-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #aaa;
+    font-size: 18px;
+    z-index: 10;
+    transition: color 0.3s;
+    background: transparent;
+    border: none;
+    padding: 0;
+
+    &:hover {
+        color: var(--color-primary);
+    }
+}
+
+html[dir="rtl"] .password-toggle-icon {
+    right: auto !important;
+    left: 15px !important;
 }

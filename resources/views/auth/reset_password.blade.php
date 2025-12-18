@@ -190,8 +190,6 @@
                             <i class="uil uil-lock-alt input-icon"></i>
                             <input type="password" class="form-control" id="password" name="password"
                                 placeholder="New Password">
-                            <span toggle="#password" class="uil uil-eye-slash input-eye-icon toggle-password"
-                                style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer;"></span>
                         </div>
                         @error('password')
                             <p class="text-danger small mt-1">{{ $message }}</p>
@@ -203,8 +201,6 @@
                             <i class="uil uil-lock-alt input-icon"></i>
                             <input type="password" class="form-control" id="password_confirmation"
                                 name="password_confirmation" placeholder="Confirm Password">
-                            <span toggle="#password_confirmation" class="uil uil-eye-slash input-eye-icon toggle-password"
-                                style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer;"></span>
                         </div>
                         @error('password_confirmation')
                             <p class="text-danger small mt-1">{{ $message }}</p>
@@ -222,17 +218,4 @@
             </div>
         </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.toggle-password').forEach(function(icon) {
-                icon.addEventListener('click', function() {
-                    const input = document.querySelector(this.getAttribute('toggle'));
-                    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
-                    input.setAttribute('type', type);
-                    this.classList.toggle('uil-eye');
-                    this.classList.toggle('uil-eye-slash');
-                });
-            });
-        });
-    </script>
 @endsection

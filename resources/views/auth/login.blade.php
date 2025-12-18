@@ -225,8 +225,6 @@
                             <i class="uil uil-lock-alt input-icon"></i>
                             <input type="password" class="form-control" id="password-field" name="password"
                                 placeholder="Password">
-                            <span toggle="#password-field" class="uil uil-eye-slash input-eye-icon toggle-password"
-                                style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer;"></span>
                         </div>
                         @error('password')
                             <p class="text-danger small mt-1">{{ $message }}</p>
@@ -242,18 +240,4 @@
             </div>
         </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const togglePassword = document.querySelector('.toggle-password');
-            const passwordField = document.querySelector(togglePassword.getAttribute('toggle'));
-
-            togglePassword.addEventListener('click', function() {
-                const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-                passwordField.setAttribute('type', type);
-
-                this.classList.toggle('uil-eye');
-                this.classList.toggle('uil-eye-slash');
-            });
-        });
-    </script>
 @endsection

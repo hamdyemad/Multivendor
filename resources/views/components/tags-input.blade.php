@@ -30,13 +30,13 @@
     'disabled' => false,
     'class' => '',
     'id' => null,
-    'dir' => null
+    'dir' => null,
 ])
 
 @php
     $componentId = $id ?? 'tags-input-' . Str::random(8);
     // Use explicit dir prop if provided, otherwise fallback to language-based detection
-    $isRtl = $dir ? ($dir === 'rtl') : ($language === 'ar');
+    $isRtl = $dir ? $dir === 'rtl' : $language === 'ar';
     $containerClasses = [
         'tags-input-wrapper',
         $class,
@@ -44,27 +44,18 @@
         $size !== 'md' ? 'size-' . $size : '',
     ];
 @endphp
-<div class="{{ implode(' ', array_filter($containerClasses)) }}" id="{{ $componentId }}_wrapper" {{ $isRtl ? 'dir=rtl' : 'dir=ltr' }}>
+<div class="{{ implode(' ', array_filter($containerClasses)) }}" id="{{ $componentId }}_wrapper"
+    {{ $isRtl ? 'dir=rtl' : 'dir=ltr' }}>
     <div class="tags-input-container" data-language="{{ $language }}" {{ $isRtl ? 'dir=rtl' : 'dir=ltr' }}>
-        <input
-            type="text"
-            class="tags-input form-control"
-            placeholder="{{ $isRtl ? $rtlPlaceholder : $placeholder }}"
-            {{ $isRtl ? 'dir=rtl' : 'dir=ltr' }}
-            {{ $disabled ? 'disabled' : '' }}
-        >
-        <input
-            type="hidden"
-            name="{{ $name }}"
-            id="{{ $componentId }}"
-            value="{{ $value }}"
-            {{ $required ? 'required' : '' }}
-
-        >
+        <input type="text" class="tags-input form-control" placeholder="{{ $isRtl ? $rtlPlaceholder : $placeholder }}"
+            {{ $isRtl ? 'dir=rtl' : 'dir=ltr' }} {{ $disabled ? 'disabled' : '' }}>
+        <input type="hidden" name="{{ $name }}" id="{{ $componentId }}" value="{{ $value }}"
+            {{ $required ? 'required' : '' }}>
     </div>
 
-    @if($helpText)
-        <small class="text-muted w-100 d-block mt-1" {{ $isRtl ? 'dir=rtl style=text-align:right;' : '' }}>{{ $helpText }}</small>
+    @if ($helpText)
+        <small class="text-muted w-100 d-block mt-1"
+            {{ $isRtl ? 'dir=rtl style=text-align:right;' : '' }}>{{ $helpText }}</small>
     @endif
 
     <div class="tags-display d-none mt-2" {{ $isRtl ? 'dir=rtl' : 'dir=ltr' }}></div>
@@ -78,8 +69,8 @@
     @push('styles')
         <style>
             /**
-             * Tags Input Component Styles
-             */
+                                     * Tags Input Component Styles
+                                     */
 
             /* Tags Input Container */
             .tags-input-wrapper {
@@ -311,10 +302,11 @@
                 text-align: right;
             }
 
-            @if(app()->getLocale() == 'ar' && !$isRtl)
+            @if (app()->getLocale() == 'ar' && !$isRtl)
                 html[dir="rtl"] .tags-display {
                     direction: ltr;
                 }
+
                 .text-muted {
                     direction: ltr;
                 }
@@ -326,6 +318,7 @@
                     opacity: 0;
                     transform: scale(0.8);
                 }
+
                 to {
                     opacity: 1;
                     transform: scale(1);

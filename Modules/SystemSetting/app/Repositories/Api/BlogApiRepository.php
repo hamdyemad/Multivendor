@@ -9,7 +9,7 @@ class BlogApiRepository implements BlogApiRepositoryInterface
 {
     public function all($filters = [])
     {
-        $query = Blog::with(['blogCategory.translations', 'translations', 'attachments', 'comments'])
+        $query = Blog::with(['blogCategory.translations', 'translations', 'attachments'])
         ->withCount('comments')
         ->active()
         ->filter($filters)->latest();
@@ -22,7 +22,9 @@ class BlogApiRepository implements BlogApiRepositoryInterface
 
     public function find($id)
     {
-        $blog = Blog::with(['blogCategory.translations', 'translations', 'attachments'])->active()
+        $blog = Blog::with(['blogCategory.translations', 'translations', 'attachments', 'comments'])
+        ->withCount('comments')
+        ->active()
             ->where(function($q) use ($id) {
                 $q->where('slug', $id)->orWhere('id', $id);
             })

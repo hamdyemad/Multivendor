@@ -22,10 +22,10 @@ class AddressResource extends JsonResource
             "address" => $this->address,
             "postal_code" => $this->postal_code,
             "is_primary" => $this->is_primary,
-            "country" => CountryResource::make($this->country),
-            "city" => CityResource::make($this->city),
-            "region" => RegionResource::make($this->region),
-            "subregion" => SubregionResource::make($this->subregion),
+            "country" => CountryResource::make($this->whenLoaded('country')),
+            "city" => CityResource::make($this->whenLoaded('city')),
+            "region" => RegionResource::make($this->whenLoaded('region')),
+            "subregion" => SubregionResource::make($this->whenLoaded('subregion')),
         ];
     }
 }

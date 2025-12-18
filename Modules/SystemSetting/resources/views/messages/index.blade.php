@@ -245,10 +245,15 @@
                                 'read': 'success',
                                 'archived': 'secondary'
                             };
-                            // If status is NOT one of the keys (e.g. if controller returned generic string), handle it.
+                            const statusLabels = {
+                                'pending': '{{ __('systemsetting::messages.pending') }}',
+                                'read': '{{ __('systemsetting::messages.read') }}',
+                                'archived': '{{ __('systemsetting::messages.archived') }}'
+                            };
                             const color = statusColors[data] || 'secondary';
+                            const label = statusLabels[data] || data;
                             return '<div class="userDatatable-content"><span class="badge badge-' +
-                                color + ' badge-lg badge-round text-capitalize">' + data +
+                                color + ' badge-lg badge-round text-capitalize">' + label +
                                 '</span></div>';
                         }
                     },
@@ -398,17 +403,18 @@
                     .then(data => {
                         if (data.success) {
                             // Show success message and reload
-                            toastr.success(data.message, 'Success');
+                            toastr.success(data.message, '{{ __('common.success') }}');
                             setTimeout(() => {
                                 location.reload();
                             }, 1000);
                         } else {
-                            toastr.error(data.message, 'Error');
+                            toastr.error(data.message, '{{ __('common.error') }}');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        toastr.error('{{ __('systemsetting::messages.delete_error') }}', 'Error');
+                        toastr.error('{{ __('systemsetting::messages.delete_error') }}',
+                            '{{ __('common.error') }}');
                     });
             });
         });

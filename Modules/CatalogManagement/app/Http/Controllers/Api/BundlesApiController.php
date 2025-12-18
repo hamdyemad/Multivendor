@@ -7,13 +7,13 @@ use App\Traits\Res;
 use Illuminate\Http\Request;
 use Modules\CatalogManagement\app\Http\Resources\Api\BundleResource;
 use Modules\CatalogManagement\app\Repositories\Api\BundleApiRepository;
-use Modules\CatalogManagement\app\Services\Api\BundleService;
+use Modules\CatalogManagement\app\Services\Api\BundleApiService;
 
 class BundlesApiController extends Controller
 {
     use Res;
 
-    public function __construct(protected BundleApiRepository $bundleService)
+    public function __construct(protected BundleApiService $bundleService)
     {
     }
 
@@ -26,7 +26,6 @@ class BundlesApiController extends Controller
         $per_page = $request->get('per_page', 10);
 
         $bundles = $this->bundleService->getAllBundles($request->all(), $per_page);
-        // return $bundles;
         return $this->sendRes(config('responses.success')[app()->getLocale()], true, BundleResource::collection($bundles));
     }
 

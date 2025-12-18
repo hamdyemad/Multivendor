@@ -4,7 +4,7 @@ namespace Modules\Vendor\app\Http\Resources\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Modules\CategoryManagment\app\Http\Resources\Api\ActivityApiResource;
+use Modules\CategoryManagment\app\Http\Resources\Api\DepartmentApiResource;
 
 class VendorApiResource extends JsonResource
 {
@@ -25,7 +25,7 @@ class VendorApiResource extends JsonResource
             'country_id' => $this->country_id,
             'country_name' => $this->whenLoaded('country', $this->country?->name),
             'type' => $this->type,
-            'activities' => ActivityApiResource::collection($this->whenLoaded('activeActivities')),
+            'departments' => DepartmentApiResource::collection($this->whenLoaded('departments')),
             'logo' => formatImage($this->logo),
             'banner' => formatImage($this->banner),
             'active' => (bool) $this->active,

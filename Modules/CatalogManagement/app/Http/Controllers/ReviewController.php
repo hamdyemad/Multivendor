@@ -35,7 +35,7 @@ class ReviewController extends Controller
             ->where('reviewable_type', VendorProduct::class);
 
         // Filter by status
-        if ($status && $status !== '') {
+        if ($status && $status !== '' && $status !== 'all') {
             $query->where('status', $status);
         }
 
@@ -46,10 +46,12 @@ class ReviewController extends Controller
 
         // Search by product name or customer name
         if ($search && $search !== '') {
-            $query->whereHas('vendorProduct.product', function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%");
-            })->orWhereHas('customer', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('vendorProduct.product', function ($subQ) use ($search) {
+                    $subQ->where('title', 'like', "%{$search}%");
+                })->orWhereHas('customer', function ($subQ) use ($search) {
+                    $subQ->where('name', 'like', "%{$search}%");
+                });
             });
         }
 

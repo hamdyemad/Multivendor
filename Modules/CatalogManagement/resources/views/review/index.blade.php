@@ -133,9 +133,9 @@
                                                 {{ __('common.status') }}
                                             </label>
                                             <select
-                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="status_filter">
-                                                <option value="">{{ __('common.all') }}</option>
+                                                <option value="all">{{ __('common.all') }}</option>
                                                 <option value="pending">{{ __('common.pending') }}</option>
                                                 <option value="approved">{{ __('common.approved') }}</option>
                                                 <option value="rejected">{{ __('common.rejected') }}</option>
@@ -150,7 +150,7 @@
                                                 {{ __('catalogmanagement::review.rating') }}
                                             </label>
                                             <select
-                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="rating_filter">
                                                 <option value="">{{ __('common.all') }}</option>
                                                 <option value="5">5 ⭐</option>
@@ -303,7 +303,7 @@
             // Get URL parameters
             const urlParams = new URLSearchParams(window.location.search);
             const search = urlParams.get('search') || '';
-            const status = urlParams.get('status') || '';
+            const status = urlParams.get('status') || 'all';
             const star = urlParams.get('star') || '';
             const createdFrom = urlParams.get('created_date_from') || '';
             const createdTo = urlParams.get('created_date_to') || '';
@@ -426,7 +426,7 @@
             // Reset filters
             $('#resetFilters').on('click', function() {
                 $('#search').val('');
-                $('#status_filter').val('').trigger('change');
+                $('#status_filter').val('all').trigger('change');
                 $('#rating_filter').val('').trigger('change');
                 $('#created_date_from').val('');
                 $('#created_date_to').val('');

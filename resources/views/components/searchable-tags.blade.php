@@ -18,7 +18,7 @@
         ->toArray();
 @endphp
 
-<div class="searchable-tags-wrapper w-100" id="{{ $componentId }}-wrapper">
+<div class="searchable-tags-wrapper w-100" id="{{ $componentId }}-wrapper" data-name="{{ $name }}">
     @if ($label)
         <label class="il-gray fs-14 fw-500 mb-10 d-block">
             {{ $label }}

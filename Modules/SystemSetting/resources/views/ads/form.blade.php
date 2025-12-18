@@ -269,10 +269,15 @@
 
                         if (error.errors) {
                             Object.keys(error.errors).forEach(key => {
-                                // Try to find input by exact name match
+                                // 1. Try exact name match
                                 let input = document.querySelector(`[name="${key}"]`);
 
-                                // If not found, convert dot notation to bracket notation
+                                // 2. Try with brackets (array notation)
+                                if (!input) {
+                                    input = document.querySelector(`[name="${key}[]"]`);
+                                }
+
+                                // 3. Try converting dot notation to bracket notation
                                 // e.g., "translations.1.title" -> "translations[1][title]"
                                 if (!input) {
                                     const parts = key.split('.');
@@ -283,15 +288,40 @@
                                     input = document.querySelector(`[name="${bracketKey}"]`);
                                 }
 
+                                // 4. Searchable tags might have NO hidden inputs if empty
+                                // Look for the wrapper by data-name
+                                let wrapper = null;
                                 if (!input) {
+                                    wrapper = document.querySelector(
+                                            `.searchable-tags-wrapper[data-name="${key}"]`) ||
+                                        document.querySelector(
+                                            `.searchable-tags-wrapper[data-name="${key}[]"]`);
+                                }
+
+                                if (!input && !wrapper) {
                                     console.warn('Input not found for error key:', key);
                                     return;
                                 }
 
-                                input.classList.add('is-invalid');
+                                // Find the closest container to append the error
+                                let container = wrapper ||
+                                    input.closest('.searchable-tags-wrapper') ||
+                                    input.closest('.form-group') ||
+                                    input.parentNode;
+
+                                // For searchable-tags, we want to highlight the .tag-input-container
+                                let highlightElement = (wrapper || input.closest(
+                                        '.searchable-tags-wrapper')) ?
+                                    (wrapper || input.closest('.searchable-tags-wrapper'))
+                                    .querySelector('.tag-input-container') :
+                                    (input.closest('.image-preview-container') || input.closest(
+                                        '.banner-preview') || input);
+
+                                if (highlightElement) highlightElement.classList.add(
+                                    'is-invalid');
 
                                 // Remove existing feedback if any
-                                const existingFeedback = input.parentNode.querySelector(
+                                const existingFeedback = container.querySelector(
                                     '.invalid-feedback');
                                 if (existingFeedback) {
                                     existingFeedback.remove();
@@ -300,13 +330,14 @@
                                 const feedback = document.createElement('div');
                                 feedback.className = 'invalid-feedback d-block';
                                 feedback.textContent = error.errors[key][0];
-                                input.parentNode.appendChild(feedback);
+                                container.appendChild(feedback);
                             });
 
                             showAlert('danger', error.message ||
-                                '{{ __('Please check the form for errors') }}');
+                                '{{ __('systemsetting::ads.validation_errors') }}');
                         } else {
-                            showAlert('danger', error.message || '{{ __('An error occurred') }}');
+                            showAlert('danger', error.message ||
+                                '{{ __('common.error_occurred') ?? 'An error occurred' }}');
                         }
 
                         submitBtn.disabled = false;
@@ -333,9 +364,23 @@
             // Remove validation on input
             document.querySelectorAll('input, select, textarea').forEach(input => {
                 const clearError = () => {
+                    const container = input.closest('.searchable-tags-wrapper') ||
+                        input.closest('.form-group') ||
+                        input.parentNode;
+
+                    const highlightElement = input.closest('.searchable-tags-wrapper') ?
+                        input.closest('.searchable-tags-wrapper').querySelector(
+                        '.tag-input-container') :
+                        (input.closest('.image-preview-container') || input.closest(
+                            '.banner-preview') || input);
+
+                    if (highlightElement) highlightElement.classList.remove('is-invalid');
                     input.classList.remove('is-invalid');
-                    const feedback = input.parentNode.querySelector('.invalid-feedback');
-                    if (feedback) feedback.remove();
+
+                    if (container) {
+                        const feedback = container.querySelector('.invalid-feedback');
+                        if (feedback) feedback.remove();
+                    }
                 };
 
                 ['input', 'change', 'keyup', 'click'].forEach(evt =>

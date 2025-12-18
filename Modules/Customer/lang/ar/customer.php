@@ -31,6 +31,13 @@ return [
     'email_verified' => 'تم التحقق من البريد الإلكتروني',
     'email_verified_at' => 'تاريخ التحقق من البريد الإلكتروني',
     'created_at' => 'تاريخ الإنشاء',
+    'address_title' => 'عنوان العنوان',
+    'address' => 'العنوان',
+    'sub_region' => 'المنطقة الفرعية',
+    'is_primary' => 'أساسي؟',
+    'primary' => 'أساسي',
+    'non_primary' => 'غير أساسي',
+    'addresses' => 'العناوين',
     'action' => 'الإجراء',
 
     // Status values

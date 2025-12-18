@@ -31,6 +31,13 @@ return [
     'email_verified' => 'Email Verified',
     'email_verified_at' => 'Email Verified At',
     'created_at' => 'Created At',
+    'address_title' => 'Address Title',
+    'address' => 'Address',
+    'sub_region' => 'Sub Region',
+    'is_primary' => 'Is Primary',
+    'primary' => 'Primary',
+    'non_primary' => 'Non-Primary',
+    'addresses' => 'Addresses',
     'action' => 'Action',
 
     // Status values

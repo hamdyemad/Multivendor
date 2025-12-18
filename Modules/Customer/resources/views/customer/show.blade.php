@@ -7,9 +7,13 @@
         <div class="row">
             <div class="col-lg-12">
                 <x-breadcrumb :items="[
-                    ['title' => trans('dashboard.title'), 'url' => route('admin.dashboard'), 'icon' => 'uil uil-estate'],
+                    [
+                        'title' => trans('dashboard.title'),
+                        'url' => route('admin.dashboard'),
+                        'icon' => 'uil uil-estate',
+                    ],
                     ['title' => __('customer::customer.customers_management'), 'url' => route('admin.customers.index')],
-                    ['title' => __('customer::customer.view_customer')]
+                    ['title' => __('customer::customer.view_customer')],
                 ]" />
             </div>
         </div>
@@ -35,7 +39,8 @@
                                 <div class="card card-holder">
                                     <div class="card-header">
                                         <h3>
-                                            <i class="uil uil-info-circle me-1"></i>{{ __('customer::customer.basic_information') }}
+                                            <i
+                                                class="uil uil-info-circle me-1"></i>{{ __('customer::customer.basic_information') }}
                                         </h3>
                                     </div>
                                     <div class="card-body">
@@ -43,7 +48,8 @@
                                             {{-- Full Name --}}
                                             <div class="col-md-6">
                                                 <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('customer::customer.full_name') }}</label>
+                                                    <label
+                                                        class="il-gray fs-14 fw-500 mb-10">{{ __('customer::customer.full_name') }}</label>
                                                     <p class="fs-15 color-dark fw-500">
                                                         {{ $customer->full_name ?? '-' }}
                                                     </p>
@@ -53,7 +59,8 @@
                                             {{-- First Name --}}
                                             <div class="col-md-6">
                                                 <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('customer::customer.first_name') }}</label>
+                                                    <label
+                                                        class="il-gray fs-14 fw-500 mb-10">{{ __('customer::customer.first_name') }}</label>
                                                     <p class="fs-15 color-dark">
                                                         {{ $customer->first_name ?? '-' }}
                                                     </p>
@@ -63,7 +70,8 @@
                                             {{-- Last Name --}}
                                             <div class="col-md-6">
                                                 <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('customer::customer.last_name') }}</label>
+                                                    <label
+                                                        class="il-gray fs-14 fw-500 mb-10">{{ __('customer::customer.last_name') }}</label>
                                                     <p class="fs-15 color-dark">
                                                         {{ $customer->last_name ?? '-' }}
                                                     </p>
@@ -74,7 +82,8 @@
                                             {{-- Phone --}}
                                             <div class="col-md-6">
                                                 <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('customer::customer.phone') }}</label>
+                                                    <label
+                                                        class="il-gray fs-14 fw-500 mb-10">{{ __('customer::customer.phone') }}</label>
                                                     <p class="fs-15 color-dark">
                                                         {{ $customer->phone ?? '-' }}
                                                     </p>
@@ -90,7 +99,8 @@
                                 <div class="card card-holder">
                                     <div class="card-header">
                                         <h3>
-                                            <i class="uil uil-lock me-1"></i>{{ __('customer::customer.account_information') }}
+                                            <i
+                                                class="uil uil-lock me-1"></i>{{ __('customer::customer.account_information') }}
                                         </h3>
                                     </div>
                                     <div class="card-body">
@@ -98,7 +108,8 @@
                                             {{-- Email --}}
                                             <div class="col-md-6">
                                                 <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('customer::customer.email') }}</label>
+                                                    <label
+                                                        class="il-gray fs-14 fw-500 mb-10">{{ __('customer::customer.email') }}</label>
                                                     <p class="fs-15 color-dark">
                                                         {{ $customer->email ?? '-' }}
                                                     </p>
@@ -108,12 +119,15 @@
                                             {{-- Status --}}
                                             <div class="col-md-6">
                                                 <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('customer::customer.status') }}</label>
+                                                    <label
+                                                        class="il-gray fs-14 fw-500 mb-10">{{ __('customer::customer.status') }}</label>
                                                     <p class="fs-15">
-                                                        @if($customer->status)
-                                                            <span class="badge badge-success badge-round badge-lg">{{ __('customer::customer.active') }}</span>
+                                                        @if ($customer->status)
+                                                            <span
+                                                                class="badge badge-success badge-round badge-lg">{{ __('customer::customer.active') }}</span>
                                                         @else
-                                                            <span class="badge badge-danger badge-round badge-lg">{{ __('customer::customer.inactive') }}</span>
+                                                            <span
+                                                                class="badge badge-danger badge-round badge-lg">{{ __('customer::customer.inactive') }}</span>
                                                         @endif
                                                     </p>
                                                 </div>
@@ -122,27 +136,31 @@
                                             {{-- Email Verified --}}
                                             <div class="col-md-6">
                                                 <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('customer::customer.email_verified') }}</label>
+                                                    <label
+                                                        class="il-gray fs-14 fw-500 mb-10">{{ __('customer::customer.email_verified') }}</label>
                                                     <p class="fs-15">
-                                                        @if($customer->email_verified_at)
-                                                            <span class="badge badge-success badge-round badge-lg">{{ __('customer::customer.verified') }}</span>
+                                                        @if ($customer->email_verified_at)
+                                                            <span
+                                                                class="badge badge-success badge-round badge-lg">{{ __('customer::customer.verified') }}</span>
                                                         @else
-                                                            <span class="badge badge-warning badge-round badge-lg">{{ __('customer::customer.pending') }}</span>
+                                                            <span
+                                                                class="badge badge-warning badge-round badge-lg">{{ __('customer::customer.pending') }}</span>
                                                         @endif
                                                     </p>
                                                 </div>
                                             </div>
 
                                             {{-- Email Verified At --}}
-                                            @if($customer->email_verified_at)
-                                            <div class="col-md-12">
-                                                <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('customer::customer.email_verified_at') }}</label>
-                                                    <p class="fs-15 color-dark">
-                                                        {{ $customer->email_verified_at }}
-                                                    </p>
+                                            @if ($customer->email_verified_at)
+                                                <div class="col-md-12">
+                                                    <div class="view-item">
+                                                        <label
+                                                            class="il-gray fs-14 fw-500 mb-10">{{ __('customer::customer.email_verified_at') }}</label>
+                                                        <p class="fs-15 color-dark">
+                                                            {{ $customer->email_verified_at }}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                            </div>
                                             @endif
                                         </div>
                                     </div>
@@ -163,13 +181,15 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ __('common.created_at') }}</label>
+                                                    <label
+                                                        class="il-gray fs-14 fw-500 mb-10">{{ __('common.created_at') }}</label>
                                                     <p class="fs-15 color-dark">{{ $customer->created_at }}</p>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="view-item">
-                                                    <label class="il-gray fs-14 fw-500 mb-10">{{ trans('common.updated_at') }}</label>
+                                                    <label
+                                                        class="il-gray fs-14 fw-500 mb-10">{{ trans('common.updated_at') }}</label>
                                                     <p class="fs-15 color-dark">{{ $customer->updated_at }}</p>
                                                 </div>
                                             </div>
@@ -179,37 +199,94 @@
                             </div>
                         </div>
 
-                        {{-- Additional Information --}}
-                        @if($customer->addresses && $customer->addresses->count() > 0)
+                        {{-- Addresses Section --}}
+                        @if ($customer->addresses && $customer->addresses->count() > 0)
                             <div class="row mt-4">
                                 <div class="col-md-12">
                                     <div class="card card-holder">
                                         <div class="card-header">
                                             <h3>
-                                                <i class="uil uil-map-marker me-1"></i>{{ __('Addresses') }}
+                                                <i
+                                                    class="uil uil-map-marker me-1"></i>{{ __('customer::customer.addresses') }}
                                             </h3>
                                         </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                @foreach($customer->addresses as $address)
-                                                <div class="col-md-6 mb-3">
-                                                    <div class="border rounded p-3">
-                                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                                            <h6 class="mb-0">{{ $address->type ?? 'Address' }}</h6>
-                                                            @if($address->is_primary)
-                                                                <span class="badge badge-primary badge-sm">{{ __('Primary') }}</span>
-                                                            @endif
-                                                        </div>
-                                                        <p class="mb-1 text-muted">{{ $address->address_line_1 }}</p>
-                                                        @if($address->address_line_2)
-                                                            <p class="mb-1 text-muted">{{ $address->address_line_2 }}</p>
-                                                        @endif
-                                                        <p class="mb-0 text-muted">
-                                                            {{ $address->city }}, {{ $address->state }} {{ $address->postal_code }}
-                                                        </p>
-                                                    </div>
+                                        <div class="card-body p-0">
+                                            <div class="userDatatable global-shadow border-light-0 bg-white w-100">
+                                                <div class="table-responsive">
+                                                    <table class="table mb-0 table-bordered table-hover">
+                                                        <thead>
+                                                            <tr class="userDatatable-header">
+                                                                <th><span class="userDatatable-title">#</span></th>
+                                                                <th><span
+                                                                        class="userDatatable-title">{{ __('customer::customer.address_title') }}</span>
+                                                                </th>
+                                                                <th><span
+                                                                        class="userDatatable-title">{{ __('customer::customer.address') }}</span>
+                                                                </th>
+                                                                <th><span
+                                                                        class="userDatatable-title">{{ __('customer::customer.country') }}</span>
+                                                                </th>
+                                                                <th><span
+                                                                        class="userDatatable-title">{{ __('customer::customer.city') }}</span>
+                                                                </th>
+                                                                <th><span
+                                                                        class="userDatatable-title">{{ __('customer::customer.region') }}</span>
+                                                                </th>
+                                                                <th><span
+                                                                        class="userDatatable-title">{{ __('customer::customer.sub_region') }}</span>
+                                                                </th>
+                                                                <th><span
+                                                                        class="userDatatable-title">{{ __('customer::customer.is_primary') }}</span>
+                                                                </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach ($customer->addresses as $index => $address)
+                                                                <tr>
+                                                                    <td>
+                                                                        <div class="userDatatable-content">
+                                                                            {{ $index + 1 }}</div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="userDatatable-content">
+                                                                            {{ $address->title ?? '-' }}</div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="userDatatable-content">
+                                                                            {{ $address->address ?? '-' }}</div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="userDatatable-content">
+                                                                            {{ $address->country?->name ?? '-' }}</div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="userDatatable-content">
+                                                                            {{ $address->city?->name ?? '-' }}</div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="userDatatable-content">
+                                                                            {{ $address->region?->name ?? '-' }}</div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="userDatatable-content">
+                                                                            {{ $address->subregion?->name ?? '-' }}</div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="userDatatable-content">
+                                                                            @if ($address->is_primary)
+                                                                                <span
+                                                                                    class="badge badge-primary badge-round badge-sm">{{ __('customer::customer.primary') }}</span>
+                                                                            @else
+                                                                                <span
+                                                                                    class="badge badge-light badge-round badge-sm">{{ __('customer::customer.non_primary') }}</span>
+                                                                            @endif
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
                                                 </div>
-                                                @endforeach
                                             </div>
                                         </div>
                                     </div>

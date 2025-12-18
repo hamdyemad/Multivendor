@@ -79,7 +79,7 @@ class Customer extends Authenticatable
      */
     public function addresses()
     {
-        return $this->hasMany(CustomerAddress::class);
+        return $this->hasMany(CustomerAddress::class)->latest();
     }
 
     public function orders()

@@ -5,6 +5,9 @@ namespace Modules\Customer\app\Transformers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Modules\AreaSettings\app\Resources\CountryResource;
+use Modules\AreaSettings\app\Resources\CityResource;
+use Modules\AreaSettings\app\Resources\RegionResource;
+use Modules\AreaSettings\app\Resources\SubregionResource;
 
 class AddressResource extends JsonResource
 {
@@ -18,13 +21,11 @@ class AddressResource extends JsonResource
             "title" => $this->title,
             "address" => $this->address,
             "postal_code" => $this->postal_code,
-            // "latitude" => $this->latitude,
-            // "longitude" => $this->longitude,
             "is_primary" => $this->is_primary,
             "country" => CountryResource::make($this->country),
-            "city" => $this->city?->name,
-            "region" => $this->region?->name,
-            "subregion" => $this->subregion?->name,
+            "city" => CityResource::make($this->city),
+            "region" => RegionResource::make($this->region),
+            "subregion" => SubregionResource::make($this->subregion),
         ];
     }
 }

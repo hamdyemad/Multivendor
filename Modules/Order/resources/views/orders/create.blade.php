@@ -48,15 +48,13 @@
                                             <input type="radio" class="btn-check" name="customer_type"
                                                 id="existing_customer" value="existing" checked>
                                             <label class="btn btn-outline-primary" for="existing_customer">
-                                                <i
-                                                    class="uil uil-database me-1"></i>{{ trans('order.existing_customer') }}
+                                                <i class="uil uil-database me-1"></i>{{ trans('order.existing_customer') }}
                                             </label>
 
                                             <input type="radio" class="btn-check" name="customer_type"
                                                 id="external_customer" value="external">
                                             <label class="btn btn-outline-primary" for="external_customer">
-                                                <i
-                                                    class="uil uil-user-plus me-1"></i>{{ trans('order.external_customer') }}
+                                                <i class="uil uil-user-plus me-1"></i>{{ trans('order.external_customer') }}
                                             </label>
                                         </div>
                                     </div>
@@ -83,7 +81,8 @@
                                                     style="display: none; top: 100%; left: 0; z-index: 1000; max-height: 300px; overflow-y: auto;">
                                                 </div>
                                             </div>
-                                            <input type="hidden" id="selected_customer_id" name="selected_customer_id" value="">
+                                            <input type="hidden" id="selected_customer_id" name="selected_customer_id"
+                                                value="">
                                         </div>
                                     </div>
                                 </div>
@@ -120,8 +119,7 @@
                                             {{ trans('order.customer_has_no_address') }}
                                             <button type="button" class="btn btn-sm btn-primary ms-2"
                                                 id="createAddressBtn">
-                                                <i
-                                                    class="uil uil-plus me-1"></i>{{ trans('order.create_address') }}
+                                                <i class="uil uil-plus me-1"></i>{{ trans('order.create_address') }}
                                             </button>
                                         </div>
                                     </div>
@@ -281,10 +279,8 @@
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                 id="product_quantity" name="product_quantity" placeholder="1"
                                                 min="1" value="1">
-                                            <button type="button" class="btn btn-primary" id="addProductBtn"
-                                                disabled>
-                                                <i
-                                                    class="uil uil-plus me-1"></i>{{ trans('order.add_product') }}
+                                            <button type="button" class="btn btn-primary" id="addProductBtn" disabled>
+                                                <i class="uil uil-plus me-1"></i>{{ trans('order.add_product') }}
                                             </button>
                                         </div>
                                     </div>
@@ -409,12 +405,12 @@
 
                     {{-- Form Actions --}}
                     <div class="d-flex justify-content-end gap-2">
-                        <a href="{{ route('admin.orders.index') }}"
-                            class="btn btn-light btn-default btn-squared">
+                        <a href="{{ route('admin.orders.index') }}" class="btn btn-light btn-default btn-squared">
                             <i class="uil uil-arrow-left me-1"></i>
                             {{ trans('main.cancel') }}
                         </a>
-                        <button type="submit" form="createOrderForm" class="btn btn-primary btn-squared" id="submitBtn">
+                        <button type="submit" form="createOrderForm" class="btn btn-primary btn-squared"
+                            id="submitBtn">
                             <i class="uil uil-check me-1"></i>
                             {{ trans('order.create_order') }}
                         </button>
@@ -429,7 +425,7 @@
             aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
-                    <div class="modal-header bg-light">
+                    <div class="modal-header">
                         <h5 class="modal-title" id="addAddressModalLabel">
                             <i class="uil uil-map-pin me-2"></i>{{ trans('order.add_new_address') }}
                         </h5>
@@ -563,7 +559,7 @@
             <script>
                 $(document).ready(function() {
                     // Get country code from session
-                    const countryCode = '{{ strtoupper(session("country_code", "EG")) }}';
+                    const countryCode = '{{ strtoupper(session('country_code', 'EG')) }}';
 
                     let feeCounter = 0;
                     let discountCounter = 0;
@@ -590,7 +586,8 @@
                                     allProducts = response.data;
                                     console.log('Products loaded:', allProducts.length);
                                     console.log('Sample product:', allProducts[0]);
-                                    console.log('Sample product full structure:', JSON.stringify(allProducts[0], null, 2));
+                                    console.log('Sample product full structure:', JSON.stringify(allProducts[0],
+                                        null, 2));
                                 } else if (response && Array.isArray(response)) {
                                     allProducts = response;
                                     console.log('Products loaded:', allProducts.length);
@@ -660,6 +657,7 @@
                                     const limitation = product.limitation || 0;
                                     const taxRate = product.tax && product.tax.tax_rate ? product
                                         .tax.tax_rate : 0;
+                                    const productStock = product.stock || 0;
 
                                     // Extract category from product
                                     let categoryId = null;
@@ -681,10 +679,14 @@
                                         product.variants.forEach(variant => {
                                             const price = parseFloat(variant.real_price) ||
                                                 0;
-                                            const variantName = variant.variant_name ||
-                                                'Default';
+                                            const variantKey = variant.variant_key;
+                                            const variantValue = variant.variant_value;
+                                            const variantName = variantKey ?
+                                                `${variantKey}: ${variantValue}` : (variant
+                                                    .variant_name || 'Default');
                                             const variantSku = variant.sku || product.sku ||
                                                 'N/A';
+                                            const variantStock = variant.stock ?? 0;
 
                                             html += `
                                         <div class="p-2 border-bottom cursor-pointer product-suggestion"
@@ -701,7 +703,7 @@
                                                 <span class="fw-500">${productName}</span>
                                                 <span class="text-muted">${price.toFixed(2)} {{ currency() }}</span>
                                             </div>
-                                            <small class="text-muted">${variantName} (SKU: ${variantSku}) ${limitation > 0 ? `- Max: ${limitation}` : ''}</small>
+                                            <small class="text-muted">${variantName} (SKU: ${variantSku} | Stock: ${variantStock}) ${limitation > 0 ? `- Max: ${limitation}` : ''}</small>
                                         </div>
                                     `;
                                         });
@@ -723,7 +725,7 @@
                                             <span class="fw-500">${productName}</span>
                                             <span class="text-muted">No variants</span>
                                         </div>
-                                        <small class="text-muted">SKU: ${product.sku || 'N/A'} ${limitation > 0 ? `- Max: ${limitation}` : ''}</small>
+                                        <small class="text-muted">SKU: ${product.sku || 'N/A'} | Stock: ${productStock} ${limitation > 0 ? `- Max: ${limitation}` : ''}</small>
                                     </div>
                                 `;
                                     }
@@ -873,7 +875,12 @@
                         const email = $(this).data('email');
                         const phone = $(this).data('phone');
 
-                        console.log('Customer selected:', { id, name, email, phone });
+                        console.log('Customer selected:', {
+                            id,
+                            name,
+                            email,
+                            phone
+                        });
 
                         $('#customer_search').val(name);
                         $('#selected_customer_id').val(id);
@@ -1173,7 +1180,7 @@
                             },
                             error: function(xhr) {
                                 let errorMessage =
-                                '{{ trans('order.error_creating_address') }}';
+                                    '{{ trans('order.error_creating_address') }}';
 
                                 if (xhr.status === 422 && xhr.responseJSON?.errors) {
                                     const errors = xhr.responseJSON.errors;
@@ -1325,7 +1332,7 @@
                             if (limitation > 0 && newQuantity > limitation) {
                                 showAlert('warning',
                                     `Total quantity for this product cannot exceed ${limitation}. Current: ${existingProduct.quantity}, Adding: ${quantity}`
-                                    );
+                                );
                                 return;
                             }
 
@@ -1384,17 +1391,17 @@
 
                         products.forEach(product => {
                             const taxRate = product.taxRate || 0;
-                            const taxAmount = (product.total * taxRate) / 100;
+                            const priceExcl = product.price / (1 + taxRate / 100);
                             const row = `
                         <tr>
                             <td>${product.name}</td>
-                            <td class="text-center">${product.price.toFixed(2)} {{ currency() }}</td>
+                            <td class="text-center">${priceExcl.toFixed(2)} {{ currency() }}</td>
                             <td class="text-center">${product.quantity}</td>
                             <td class="text-center">${taxRate > 0 ? taxRate.toFixed(2) + '%' : '-'}</td>
                             <td class="text-center">${product.total.toFixed(2)} {{ currency() }}</td>
-                            <td class="text-center">
+                            <td class="text-center d-flex">
                                 <button type="button" class="btn btn-sm btn-danger remove-product" data-product-id="${product.id}">
-                                    <i class="uil uil-trash"></i>
+                                    <i class="uil uil-trash m-0"></i>
                                 </button>
                             </td>
                         </tr>
@@ -1415,13 +1422,13 @@
 
                         // Calculate subtotal and tax from products
                         products.forEach(product => {
-                            subtotal += product.total;
+                            const taxRate = product.taxRate || 0;
+                            const lineTotalIncl = product.total;
+                            const lineTotalExcl = lineTotalIncl / (1 + taxRate / 100);
+                            const lineTax = lineTotalIncl - lineTotalExcl;
 
-                            // Calculate tax for this product
-                            if (product.taxRate && product.taxRate > 0) {
-                                const productTax = (product.total * product.taxRate) / 100;
-                                totalTax += productTax;
-                            }
+                            subtotal += lineTotalExcl;
+                            totalTax += lineTax;
                         });
 
                         $('.fee-item').each(function() {
@@ -1497,8 +1504,8 @@
                         const customerId = $('#selected_customer_id').val();
                         const addressId = $('#customer_address_select').val();
 
-                        // Only calculate for existing customers with selected address
-                        if (customerType !== 'existing' || !customerId || !addressId) {
+                        // Only calculate for existing customers with selected address and at least one product
+                        if (customerType !== 'existing' || !customerId || !addressId || products.length === 0) {
                             $('#shipping').val(0);
                             updateSummary();
                             return;
@@ -1605,7 +1612,8 @@
                         // Validate form first
                         const validationErrors = validateForm();
                         if (validationErrors.length > 0) {
-                            let errorHtml = '<strong>{{ trans('order.validation_error') }}:</strong><ul class="mb-0 mt-2">';
+                            let errorHtml =
+                                '<strong>{{ trans('order.validation_error') }}:</strong><ul class="mb-0 mt-2">';
                             validationErrors.forEach(function(error) {
                                 errorHtml += '<li>' + error + '</li>';
                             });
@@ -1703,7 +1711,8 @@
                                 if (!xhr.responseJSON) {
                                     // Network error or server didn't respond
                                     if (xhr.status === 0) {
-                                        errorMessage = 'Network error. Please check your connection and try again.';
+                                        errorMessage =
+                                            'Network error. Please check your connection and try again.';
                                     } else if (xhr.status === 500) {
                                         errorMessage = 'Server error. Please try again later.';
                                     } else if (xhr.status === 403) {
@@ -1733,7 +1742,8 @@
                                     errorMessage = xhr.responseJSON.message;
                                 }
                                 // Handle errors array (from backend exceptions)
-                                else if (xhr.responseJSON?.errors && Array.isArray(xhr.responseJSON.errors)) {
+                                else if (xhr.responseJSON?.errors && Array.isArray(xhr.responseJSON
+                                        .errors)) {
                                     errorDetails = xhr.responseJSON.errors;
                                 }
 

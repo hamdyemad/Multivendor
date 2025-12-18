@@ -41,7 +41,7 @@
                                             <span class="detail-label">{{ trans('order::order.created_at') }}:</span>
                                             <span class="detail-value">{{ $order->created_at }}</span>
                                         </div>
-                                        <div class="detail-row mb-15 justify-content-start">
+                                        <div class="detail-row mb-15 justify-content-between">
                                             <span class="detail-label">{{ trans('order::order.stage') }}:</span>
                                             <span class="badge badge-lg badge-round"
                                                 style="background: {{ $order->stage?->color ?? '#6c757d' }}; color: white">{{ $order->stage?->name ?? 'N/A' }}</span>

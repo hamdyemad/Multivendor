@@ -117,6 +117,8 @@ class OrderController extends Controller
                     'total_product_price' => $order->total_product_price . ' ' . currency(),
                     'items_count' => $itemsCount,
                     'stage' => [
+                        'id' => $order->stage?->id,
+                        'slug' => $order->stage?->slug,
                         'name' => $order->stage?->name ?? '-',
                         'color' => $order->stage?->color ?? '-',
                     ],

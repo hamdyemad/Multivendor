@@ -48,7 +48,7 @@ class VendorProductVariant extends Model
 
     public function variantConfiguration()
     {
-        return $this->belongsTo(VariantsConfiguration::class, 'variants_configuration_id');
+        return $this->belongsTo(VariantsConfiguration::class, 'variant_configuration_id');
     }
 
     public function stocks()

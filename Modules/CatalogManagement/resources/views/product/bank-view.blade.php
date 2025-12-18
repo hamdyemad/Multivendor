@@ -307,13 +307,6 @@
                                                     {{-- Variant Header --}}
                                                     <div class="mb-3">
                                                         <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
-                                                            {{-- SKU Badge --}}
-                                                            <span class="badge badge-lg"
-                                                                style="background-color: #17a2b8; color: white; padding: 8px 12px; border-radius: 20px;">
-                                                                <i
-                                                                    class="uil uil-barcode me-1"></i>{{ __('catalogmanagement::product.sku') }}:
-                                                                {{ $variant->sku ?? '-' }}
-                                                            </span>
 
                                                             {{-- Variant Configuration --}}
                                                             @if ($variant->variantConfiguration)
@@ -335,7 +328,12 @@
                                                                                     'name',
                                                                                     app()->getLocale(),
                                                                                 ) ??
-                                                                                ($current->name ?? 'Value');
+                                                                                ($current->getTranslation(
+                                                                                    'name',
+                                                                                    'en',
+                                                                                ) ??
+                                                                                    ($current->name ??
+                                                                                        ($current->value ?? 'Value')));
                                                                             array_unshift($values, $valueName);
 
                                                                             if ($current->parent_data) {
@@ -346,7 +344,12 @@
                                                                                             'name',
                                                                                             app()->getLocale(),
                                                                                         ) ??
-                                                                                        ($current->key->name ?? 'Key')
+                                                                                        ($current->key->getTranslation(
+                                                                                            'name',
+                                                                                            'en',
+                                                                                        ) ??
+                                                                                            ($current->key->name ??
+                                                                                                'Key'))
                                                                                     : 'Key';
                                                                                 break;
                                                                             }

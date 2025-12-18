@@ -299,7 +299,7 @@
             if (urlParams.has('created_from')) $('#created_from_filter').val(urlParams.get('created_from'));
             if (urlParams.has('created_until')) $('#created_until_filter').val(urlParams.get('created_until'));
             // Server-side processing with pagination
-            let table = $('#ordersDataTable').DataTable({
+            table = $('#ordersDataTable').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -427,16 +427,16 @@
                                         <i class="uil uil-eye table_action_icon"></i>
                                     </a>
                                     ${!isFinalStage ? `
-                                                                <button type="button"
-                                                                class="change-stage btn btn-info table_action_father"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#changeStageModal"
-                                                                data-id="${row.id}"
-                                                                data-stage-id="${row.stage?.id || ''}"
-                                                                title="{{ trans('order::order.change_order_stage') }}">
-                                                                    <i class="uil uil-exchange-alt table_action_icon"></i>
-                                                                </button>
-                                                                ` : ''}
+                                                                        <button type="button"
+                                                                        class="change-stage btn btn-info table_action_father"
+                                                                        data-bs-toggle="modal"
+                                                                        data-bs-target="#changeStageModal"
+                                                                        data-id="${row.id}"
+                                                                        data-stage-id="${row.stage?.id || ''}"
+                                                                        title="{{ trans('order::order.change_order_stage') }}">
+                                                                            <i class="uil uil-exchange-alt table_action_icon"></i>
+                                                                        </button>
+                                                                        ` : ''}
                                 </div>
                             `;
                         }
@@ -512,15 +512,7 @@
                 width: '100%'
             });
 
-            // Handle change stage modal - set order ID and stage ID from button data attributes
-            $('#changeStageModal').on('show.bs.modal', function(e) {
-                const button = $(e.relatedTarget);
-                const orderId = button.data('id');
-                const stageId = button.data('stage-id');
 
-                $('#orderId').val(orderId);
-                $('#currentStageId').val(stageId);
-            });
         });
     </script>
 @endpush

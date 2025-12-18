@@ -486,6 +486,14 @@
                                                             {{ $variant->sku ?? '-' }}
                                                         </span>
 
+                                                        {{-- Stock Badge --}}
+                                                        <span class="badge badge-lg"
+                                                            style="background-color: #28a745; color: white; padding: 8px 12px; border-radius: 20px;">
+                                                            <i
+                                                                class="uil uil-box me-1"></i>{{ __('catalogmanagement::product.stock') }}:
+                                                            {{ $variant->total_stock ?? 0 }}
+                                                        </span>
+
                                                         {{-- Hierarchical Variant Tree --}}
                                                         @if ($variant->variantConfiguration)
                                                             <div class="variant-tree-display">
@@ -510,7 +518,8 @@
                                                                                 app()->getLocale(),
                                                                             ) ??
                                                                             ($current->getTranslation('name', 'en') ??
-                                                                                ($current->name ?? 'Value'));
+                                                                                ($current->name ??
+                                                                                    ($current->value ?? 'Value')));
 
                                                                         // Add value to the beginning of array
                                                                         array_unshift($values, $valueName);

@@ -24,7 +24,6 @@ class VendorProductVariantResource extends JsonResource
             'vendor_product' => $this->whenLoaded('vendorProduct', function() {
                 return new VendorProductResource($this->vendorProduct);
             }),
-            // 'configuration' => VariantConfigurationResource::make($this->whenLoaded('variantConfiguration')),
             'real_price' => $this->formatPrice((float) $this->price),
             'fake_price' => $this->price_before_discount ? $this->formatPrice((float) $this->price_before_discount) : null,
             'discount' => $this->discount,

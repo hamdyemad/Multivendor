@@ -19,7 +19,7 @@ class OrderRepository implements OrderRepositoryInterface
     {
         $query = Order::query();
 
-        $query->with(['stage', 'customer', 'products'])->filter($filters);
+        $query->with(['stage', 'customer', 'products'])->filter($filters)->latest();
         return $query;
     }
 

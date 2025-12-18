@@ -110,6 +110,7 @@
             transform: translateY(-50%);
             color: #aaa;
             font-size: 18px;
+            z-index: 20;
         }
 
         .position-relative {
@@ -224,7 +225,7 @@
                         <div class="position-relative">
                             <i class="uil uil-lock-alt input-icon"></i>
                             <input type="password" class="form-control" id="password-field" name="password"
-                                placeholder="Password">
+                                placeholder="Password" style="padding-left: 45px !important;">
                         </div>
                         @error('password')
                             <p class="text-danger small mt-1">{{ $message }}</p>

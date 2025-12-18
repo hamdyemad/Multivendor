@@ -116,7 +116,7 @@
                         <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.allTransactions', $currentRoute) ? 'active' : '' }}"
                             href="{{ route('admin.allTransactions') }}">
                             {{ trans('menu.withdraw module.all transactions') }}
-                            <span class="badge badge-round badge-primary ms-1">{{ $all_transactions }}</span>
+                            <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">{{ $all_transactions }}</span>
                         </a>
                     </li>
                 @endif
@@ -134,7 +134,7 @@
                     <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.transactionsRequests', $currentRoute) && request()->route('status') === 'new' ? 'active' : '' }}"
                         href="{{ route('admin.transactionsRequests', ['status' => 'new']) }}">
                         {{ trans('menu.withdraw module.new transaction requests') }}
-                        <span class="badge badge-round badge-primary ms-1">{{ $new_transactions }}</span>
+                        <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">{{ $new_transactions }}</span>
                     </a>
                 </li>
 
@@ -142,7 +142,7 @@
                     <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.transactionsRequests', $currentRoute) && request()->route('status') === 'accepted' ? 'active' : '' }}"
                         href="{{ route('admin.transactionsRequests', ['status' => 'accepted']) }}">
                         {{ trans('menu.withdraw module.accepted transaction requests') }}
-                        <span class="badge badge-round badge-primary ms-1">{{ $accepted_transactions }}</span>
+                        <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">{{ $accepted_transactions }}</span>
                     </a>
                 </li>
 
@@ -150,7 +150,7 @@
                     <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.transactionsRequests', $currentRoute) && request()->route('status') === 'rejected' ? 'active' : '' }}"
                         href="{{ route('admin.transactionsRequests', ['status' => 'rejected']) }}">
                         {{ trans('menu.withdraw module.rejected transaction requests') }}
-                        <span class="badge badge-round badge-primary ms-1">{{ $rejected_transactions }}</span>
+                        <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.secondary') }}; color: white;">{{ $rejected_transactions }}</span>
                     </a>
                 </li>
 
@@ -204,7 +204,7 @@
                                 <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.category-management.departments.index', $currentRoute) ? 'active' : '' }}"
                                     href="{{ route('admin.category-management.departments.index') }}">
                                     {{ trans('menu.category managment.department') }}
-                                    <span class="badge badge-round badge-primary ms-1">
+                                    <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">
                                         {{ \Modules\CategoryManagment\app\Models\Department::count() }}
                                     </span>
                                 </a>
@@ -216,7 +216,7 @@
                                 <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.category-management.categories.index', $currentRoute) ? 'active' : '' }}"
                                     href="{{ route('admin.category-management.categories.index') }}">
                                     {{ trans('menu.category managment.main category') }}
-                                    <span class="badge badge-round badge-primary ms-1">
+                                    <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">
                                         {{ \Modules\CategoryManagment\app\Models\Category::count() }}
                                     </span>
                                 </a>
@@ -228,7 +228,7 @@
                                 <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.category-management.subcategories.index', $currentRoute) ? 'active' : '' }}"
                                     href="{{ route('admin.category-management.subcategories.index') }}">
                                     {{ trans('menu.category managment.sub category') }}
-                                    <span class="badge badge-round badge-primary ms-1">
+                                    <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">
                                         {{ \Modules\CategoryManagment\app\Models\SubCategory::count() }}
                                     </span>
                                 </a>
@@ -258,7 +258,7 @@
                     <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.products.bank', $currentRoute) ? 'active' : '' }}"
                         href="{{ route('admin.products.bank') }}">
                         {{ trans('menu.products.bank_products') }}
-                        <span class="badge badge-round badge-info ms-1">
+                        <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">
                             {{ \Modules\CatalogManagement\app\Models\Product::where('type', 'bank')->count() }}
                         </span>
                     </a>
@@ -268,7 +268,7 @@
                     <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.products.index', 'admin.products.create', 'admin.products.show', 'admin.products.edit'], $currentRoute) ? 'active' : '' }}"
                         href="{{ route('admin.products.index') }}">
                         {{ trans('menu.products.all_products') }}
-                        <span class="badge badge-round badge-primary ms-1">
+                        <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">
                             @if (in_array($user_type_id, \App\Models\UserType::adminIds()))
                                 {{ \Modules\CatalogManagement\app\Models\Product::count() }}
                             @else
@@ -281,7 +281,7 @@
                     <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.products.pending', $currentRoute) ? 'active' : '' }}"
                         href="{{ route('admin.products.pending') }}">
                         {{ trans('menu.products.pending_products') }}
-                        <span class="badge badge-round badge-warning ms-1">
+                        <span class="badge badge-round ms-1" style="background-color: #ffc107; color: white;">
                             @if (in_array($user_type_id, \App\Models\UserType::adminIds()))
                                 {{ \Modules\CatalogManagement\app\Models\VendorProduct::where('status', 'pending')->count() }}
                             @else
@@ -294,7 +294,7 @@
                     <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.products.rejected', $currentRoute) ? 'active' : '' }}"
                         href="{{ route('admin.products.rejected') }}">
                         {{ trans('menu.products.rejected_products') }}
-                        <span class="badge badge-round badge-danger ms-1">
+                        <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.secondary') }}; color: white;">
                             @if (in_array($user_type_id, \App\Models\UserType::adminIds()))
                                 {{ \Modules\CatalogManagement\app\Models\VendorProduct::where('status', 'rejected')->count() }}
                             @else
@@ -307,7 +307,7 @@
                     <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.products.accepted', $currentRoute) ? 'active' : '' }}"
                         href="{{ route('admin.products.accepted') }}">
                         {{ trans('menu.products.accepted_products') }}
-                        <span class="badge badge-round badge-success ms-1">
+                        <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">
                             @if (in_array($user_type_id, \App\Models\UserType::adminIds()))
                                 {{ \Modules\CatalogManagement\app\Models\VendorProduct::where('status', 'approved')->count() }}
                             @else
@@ -323,16 +323,14 @@
                             <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.variant-keys.index', $currentRoute) ? 'active' : '' }}"
                                 href="{{ route('admin.variant-keys.index') }}">
                                 {{ trans('menu.variant configurations.variant config keys') }}
-                                <span
-                                    class="badge badge-round badge-primary ms-1">{{ \Modules\CatalogManagement\app\Models\VariantConfigurationKey::count() }}</span>
+                                <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">{{ \Modules\CatalogManagement\app\Models\VariantConfigurationKey::count() }}</span>
                             </a>
                         </li>
                         <li>
                             <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.variants-configurations.index', $currentRoute) ? 'active' : '' }}"
                                 href="{{ route('admin.variants-configurations.index') }}">
                                 {{ trans('menu.variant configurations.variant config') }}
-                                <span
-                                    class="badge badge-round badge-primary ms-1">{{ \Modules\CatalogManagement\app\Models\VariantsConfiguration::count() }}</span>
+                                <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">{{ \Modules\CatalogManagement\app\Models\VariantsConfiguration::count() }}</span>
                             </a>
                         </li>
                     @endcanany
@@ -355,7 +353,7 @@
                         <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.bundle-categories.index', 'admin.bundle-categories.create', 'admin.bundle-categories.show', 'admin.bundle-categories.edit'], $currentRoute) ? 'active' : '' }}"
                             href="{{ route('admin.bundle-categories.index') }}">
                             {{ trans('menu.bundles.bundle_categories') }}
-                            <span class="badge badge-round badge-info ms-1">
+                            <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">
                                 {{ \Modules\CatalogManagement\app\Models\BundleCategory::count() }}
                             </span>
                         </a>
@@ -365,7 +363,7 @@
                     <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.bundles.index', 'admin.bundles.create', 'admin.bundles.show', 'admin.bundles.edit'], $currentRoute) ? 'active' : '' }}"
                         href="{{ route('admin.bundles.index') }}">
                         {{ trans('menu.bundles.all_bundles') }}
-                        <span class="badge badge-round badge-primary ms-1">
+                        <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">
                             @if (in_array($user_type_id, \App\Models\UserType::adminIds()))
                                 {{ \Modules\CatalogManagement\app\Models\Bundle::count() }}
                             @else
@@ -386,7 +384,7 @@
                     <span class="nav-icon uil uil-calendar-alt"></span>
                     <span class="menu-text">{{ trans('menu.occasions') }}</span>
                 </span>
-                <span class="badge badge-round badge-success ms-1">
+                <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">
                     @php
                         $occasions_count = \Modules\CatalogManagement\app\Models\Occasion::count();
                         if (in_array($user_type_id, \App\Models\UserType::vendorIds())) {
@@ -428,21 +426,21 @@
                         <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.reviews.index', $currentRoute) && request()->query('status') === 'all' ? 'active' : '' }}"
                             href="{{ route('admin.reviews.index', ['status' => 'all']) }}">
                             {{ trans('menu.product_reviews.all') }}
-                            <span class="badge badge-round badge-primary ms-1">{{ $reviews_all }}</span>
+                            <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">{{ $reviews_all }}</span>
                         </a>
                     </li>
                     <li>
                         <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.reviews.index', $currentRoute) && request()->query('status') === 'approved' ? 'active' : '' }}"
                             href="{{ route('admin.reviews.index', ['status' => 'approved']) }}">
                             {{ trans('menu.product_reviews.accepted') }}
-                            <span class="badge badge-round badge-success ms-1">{{ $reviews_accepted }}</span>
+                            <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">{{ $reviews_accepted }}</span>
                         </a>
                     </li>
                     <li>
                         <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.reviews.index', $currentRoute) && request()->query('status') === 'rejected' ? 'active' : '' }}"
                             href="{{ route('admin.reviews.index', ['status' => 'rejected']) }}">
                             {{ trans('menu.product_reviews.rejected') }}
-                            <span class="badge badge-round badge-danger ms-1">{{ $reviews_rejected }}</span>
+                            <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.secondary') }}; color: white;">{{ $reviews_rejected }}</span>
                         </a>
                     </li>
                 </ul>
@@ -465,8 +463,7 @@
                                 <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.taxes.index', 'admin.taxes.show', 'admin.taxes.edit'], $currentRoute) ? 'active' : '' }}"
                                     href="{{ route('admin.taxes.index') }}">
                                     {{ trans('menu.taxes.all') }}
-                                    <span
-                                        class="badge badge-round badge-primary ms-1">{{ \Modules\CatalogManagement\app\Models\Tax::count() }}</span>
+                                    <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">{{ \Modules\CatalogManagement\app\Models\Tax::count() }}</span>
                                 </a>
                             </li>
                         @endcan
@@ -490,8 +487,7 @@
                             <span class="nav-icon uil uil-ticket"></span>
                             <span class="menu-text fw-bold">{{ trans('menu.brands.title') }}</span>
                         </span>
-                        <span
-                            class="badge badge-round badge-success  ms-1">{{ \Modules\CatalogManagement\app\Models\Brand::count() }}</span>
+                        <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">{{ \Modules\CatalogManagement\app\Models\Brand::count() }}</span>
                     </span>
                 </a>
             </li>
@@ -507,8 +503,7 @@
                                 <span class="nav-icon uil uil-ticket"></span>
                                 <span class="menu-text">{{ trans('menu.promocodes.title') }}</span>
                             </span>
-                            <span
-                                class="badge badge-round badge-success  ms-1">{{ \Modules\CatalogManagement\app\Models\Promocode::count() }}</span>
+                            <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">{{ \Modules\CatalogManagement\app\Models\Promocode::count() }}</span>
                         </span>
                     </a>
                 </li>
@@ -733,8 +728,7 @@
                         <a class="d-flex align-items-center justify-content-between fw-bold {{ request()->get('stage') == $stage->id ? 'active' : '' }}"
                             href="{{ route('admin.orders.index', ['stage' => $stage->id]) }}">
                             {{ $stage->translations->where('lang_key', 'name')->first()?->lang_value ?? $stage->slug }}
-                            <span
-                                class="badge badge-round badge-info ms-1">{{ \Modules\Order\app\Models\Order::where('stage_id', $stage->id)->count() }}</span>
+                            <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">{{ \Modules\Order\app\Models\Order::where('stage_id', $stage->id)->count() }}</span>
                         </a>
                     </li>
                 @endforeach
@@ -751,7 +745,7 @@
                             <span class="menu-text">{{ trans('menu.orders.order stages') }}</span>
                         </span>
                     </span>
-                    <span class="badge badge-success  badge-round ms-1">{{ $orderStages->count() }}</span>
+                    <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">{{ $orderStages->count() }}</span>
                 </a>
             </li>
         @endcan
@@ -1010,8 +1004,7 @@
                                 <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.area-settings.countries.index', 'admin.area-settings.countries.create', 'admin.area-settings.countries.show', 'admin.area-settings.countries.edit'], $currentRoute) ? 'active' : '' }}"
                                     href="{{ route('admin.area-settings.countries.index') }}">
                                     {{ trans('menu.area settings.country') }}
-                                    <span
-                                        class="badge badge-round badge-primary  ms-1">{{ \Modules\AreaSettings\app\Models\Country::count() }}</span>
+                                    <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">{{ \Modules\AreaSettings\app\Models\Country::count() }}</span>
                                 </a>
                             </li>
                         @endcan
@@ -1021,8 +1014,7 @@
                                 <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.area-settings.cities.index', 'admin.area-settings.cities.create', 'admin.area-settings.cities.show', 'admin.area-settings.cities.edit'], $currentRoute) ? 'active' : '' }}"
                                     href="{{ route('admin.area-settings.cities.index') }}">
                                     {{ trans('menu.area settings.city') }}
-                                    <span
-                                        class="badge badge-round badge-info ms-1">{{ \Modules\AreaSettings\app\Models\City::count() }}</span>
+                                    <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">{{ \Modules\AreaSettings\app\Models\City::count() }}</span>
                                 </a>
                             </li>
                         @endcan
@@ -1032,8 +1024,7 @@
                                 <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.area-settings.regions.index', 'admin.area-settings.regions.create', 'admin.area-settings.regions.show', 'admin.area-settings.regions.edit'], $currentRoute) ? 'active' : '' }}"
                                     href="{{ route('admin.area-settings.regions.index') }}">
                                     {{ trans('menu.area settings.region') }}
-                                    <span
-                                        class="badge badge-round badge-warning ms-1">{{ \Modules\AreaSettings\app\Models\Region::count() }}</span>
+                                    <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">{{ \Modules\AreaSettings\app\Models\Region::count() }}</span>
                                 </a>
                             </li>
                         @endcan
@@ -1043,8 +1034,7 @@
                                 <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.area-settings.subregions.index', 'admin.area-settings.subregions.create', 'admin.area-settings.subregions.show', 'admin.area-settings.subregions.edit'], $currentRoute) ? 'active' : '' }}"
                                     href="{{ route('admin.area-settings.subregions.index') }}">
                                     {{ trans('menu.area settings.subregion') }}
-                                    <span
-                                        class="badge badge-round badge-secondary ms-1">{{ \Modules\AreaSettings\app\Models\SubRegion::count() }}</span>
+                                    <span class="badge badge-round ms-1" style="background-color: {{ config('branding.colors.primary') }}; color: white;">{{ \Modules\AreaSettings\app\Models\SubRegion::count() }}</span>
                                 </a>
                             </li>
                         @endcan

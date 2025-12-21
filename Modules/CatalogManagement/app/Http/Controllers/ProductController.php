@@ -54,6 +54,19 @@ class ProductController extends Controller
         protected ProductAction $productAction,
         protected BankService $productBankService,
     ) {
+        $this->middleware('can:products.index')->only(['index', 'datatable', 'pending', 'rejected', 'accepted']);
+        $this->middleware('can:products.create')->only(['create', 'store']);
+        $this->middleware('can:products.edit')->only(['edit', 'update', 'stockManagement', 'updateStockPricing', 'moveToBank']);
+        $this->middleware('can:products.delete')->only(['destroy']);
+        $this->middleware('can:products.show')->only(['show']);
+        $this->middleware('can:products.change-status')->only(['changeStatus']);
+        $this->middleware('can:products.change-activation')->only(['changeActivation']);
+        
+        // Product Bank Permissions
+        $this->middleware('can:products.bank')->only(['bankProducts', 'bankDatatable', 'bankView']);
+        $this->middleware('can:products.bank.change-activation')->only(['changeBankActivation']);
+        $this->middleware('can:products.bank.vendor-product.trash')->only(['trashVendorProduct']);
+        $this->middleware('can:products.bank.vendor-product.restore')->only(['restoreVendorProduct']);
     }
     /**
      * Display a listing of the resource.

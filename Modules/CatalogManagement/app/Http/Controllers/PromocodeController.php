@@ -15,6 +15,12 @@ class PromocodeController extends Controller
         protected PromocodeService $promocodeService,
         protected PromocodeAction $promocodeAction
     ) {
+        $this->middleware('can:promocodes.index')->only(['index', 'datatable']);
+        $this->middleware('can:promocodes.create')->only(['create', 'store']);
+        $this->middleware('can:promocodes.edit')->only(['edit', 'update']);
+        $this->middleware('can:promocodes.delete')->only(['destroy']);
+        $this->middleware('can:promocodes.show')->only(['show']);
+        $this->middleware('can:promocodes.change-status')->only(['changeStatus']);
     }
 
     public function index()

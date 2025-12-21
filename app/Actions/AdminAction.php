@@ -171,10 +171,40 @@ class AdminAction
             // Email
             $row['email'] = $admin->email;
 
-            // Role
-            $row['role'] = $admin->roles->isNotEmpty()
-                ? $admin->roles->first()->getTranslation('name', app()->getLocale())
-                : '-';
+            // Role with type and permissions count
+            if ($admin->roles->isNotEmpty()) {
+                $role = $admin->roles->first();
+                $roleName = $role->getTranslation('name', app()->getLocale());
+                $roleType = $role->type ?? 'other';
+                $permissionsCount = $role->permessions->count();
+                
+                // Role type badge colors
+                $typeColors = [
+                    'super_admin' => 'danger',
+                    'admin' => 'primary',
+                    'vendor' => 'success',
+                    'vendor_user' => 'info',
+                    'other' => 'secondary'
+                ];
+                $badgeColor = $typeColors[$roleType] ?? 'secondary';
+                
+                // Format role type for display
+                $roleTypeDisplay = ucwords(str_replace('_', ' ', $roleType));
+                
+                $row['role'] = '<div class="d-flex flex-column gap-1">
+                    <div><strong>' . e($roleName) . '</strong></div>
+                    <div class="d-flex gap-1 flex-wrap">
+                        <span class="badge badge-' . $badgeColor . '" style="font-size: 11px;">
+                            <i class="uil uil-tag-alt"></i> ' . e($roleTypeDisplay) . '
+                        </span>
+                        <span class="badge badge-light text-dark" style="font-size: 11px;">
+                            <i class="uil uil-shield-check"></i> ' . $permissionsCount . ' ' . trans('roles.permissions') . '
+                        </span>
+                    </div>
+                </div>';
+            } else {
+                $row['role'] = '-';
+            }
 
             // Active Status
             $row['active'] = $admin->active ?? true;

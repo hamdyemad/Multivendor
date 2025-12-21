@@ -125,6 +125,8 @@
             'title' => 'admin management',
             'roles managment' => 'roles management',
             'admin managment' => 'admin management',
+            'vendor users management' => 'vendor users management',
+            'vendor users roles management' => 'vendor users roles management',
         ],
         'category managment' => [
             'title' => 'category management',

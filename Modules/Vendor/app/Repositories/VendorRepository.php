@@ -62,9 +62,12 @@ class VendorRepository implements VendorInterface
                 'active' => $data['active'] ?? false,
             ];
             $user = $this->userService->createVendorAccount($userData);
-            // if(isset($role)) {
-            //     $user->roles()->sync([$role]);
-            // }
+            
+            // Assign the system Vendor role to the user
+            $vendorRole = \App\Models\Role::where('type', \App\Models\Role::VENDOR_ROLE_TYPE)->first();
+            if ($vendorRole) {
+                $user->roles()->sync([$vendorRole->id]);
+            }
 
             // Create vendor with temporary slug
             $vendor = Vendor::create([

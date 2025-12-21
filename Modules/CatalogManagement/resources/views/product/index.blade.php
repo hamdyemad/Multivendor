@@ -36,7 +36,7 @@
         </div>
 
         {{-- Bank Products Card (Admin Only) --}}
-        @if(auth()->user() && in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
+        @can('products.bank')
         <div class="row mb-4">
             <div class="col-lg-12">
                 <a href="{{ route('admin.products.bank') }}" class="text-decoration-none">
@@ -61,7 +61,7 @@
                 </a>
             </div>
         </div>
-        @endif
+        @endcan
 
         <div class="row">
             <div class="col-lg-12">
@@ -79,10 +79,12 @@
                                 {{ trans('catalogmanagement::product.products_management') }}
                             @endif
                         </h4>
+                        @can('products.create')
                         <a href="{{ route('admin.products.create') }}"
                             class="btn btn-primary btn-squared shadow-sm px-4">
                             <i class="uil uil-plus"></i> {{ trans('catalogmanagement::product.add_product') }}
                         </a>
+                        @endcan
                     </div>
                     {{-- Search & Filters --}}
                     <div class="mb-25">
@@ -269,6 +271,14 @@
                                             <i class="uil uil-search me-1"></i>
                                             {{ __('common.search') }}
                                         </button>
+                                        @can('products.index')
+                                        <button type="button" id="exportExcel"
+                                            class="btn btn-primary btn-default btn-squared me-1"
+                                            title="{{ __('common.excel') }}">
+                                            <i class="uil uil-file-download-alt me-1"></i>
+                                            {{ __('common.excel') }}
+                                        </button>
+                                        @endcan
                                         <button type="button" id="resetFilters"
                                             class="btn btn-warning btn-default btn-squared me-1"
                                             title="{{ __('common.reset') }}">
@@ -577,6 +587,7 @@
                             const isChecked = data ? 'checked' : '';
                             const switchId = 'activation-switch-' + row.id;
                             const productName = row.product_information?.name_en || row.product_information?.name_ar || 'Product #' + row.id;
+                            const isDisabled = @can('products.change-activation') '' @else 'disabled' @endcan;
 
                             return `<div class="userDatatable-content">
                                 <div class="form-switch">
@@ -586,6 +597,7 @@
                                            data-product-id="${row.vendor_product_id}"
                                            data-product-name="${$('<div>').text(productName).html()}"
                                            ${isChecked}
+                                           ${isDisabled}
                                            style="cursor: pointer;">
                                     <label class="form-check-label" for="${switchId}"></label>
                                 </div>
@@ -614,10 +626,13 @@
 
                             let actions = `
                             <div class="orderDatatable_actions d-inline-flex gap-1">
+                                @can('products.show')
                                 <a href="${showUrl}" class="view btn btn-primary table_action_father" title="{{ trans('common.view') }}">
                                     <i class="uil uil-eye table_action_icon"></i>
-                                </a>`;
+                                </a>
+                                @endcan`;
 
+                            @can('products.edit')
                             actions += `
                                 <a href="${editUrl}" class="edit btn btn-warning table_action_father" title="{{ trans('common.edit') }}">
                                     <i class="uil uil-edit table_action_icon"></i>
@@ -625,9 +640,10 @@
                                 <a href="${stockPricingUrl}" class="stock-management btn btn-info table_action_father" title="{{ trans('catalogmanagement::product.stock_management') }}">
                                     <i class="uil uil-box table_action_icon"></i>
                                 </a>`;
+                            @endcan
 
                             // Add approve/reject button and move to bank for admin users only
-                            @if(auth()->user() && in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
+                            @can('products.change-status')
                                 if(data.product_type == 'product') {
                                     actions += `
                                         <a href="javascript:void(0);" class="change-status btn btn-success table_action_father"
@@ -640,8 +656,9 @@
                                             <i class="uil uil-check-circle table_action_icon"></i>
                                         </a>`;
                                 }
-                            @endif
+                            @endcan
 
+                            @can('products.delete')
                             actions += `
                                 <a href="javascript:void(0);" class="remove delete-product btn btn-danger table_action_father"
                                    data-bs-toggle="modal" data-bs-target="#modal-delete-product"
@@ -650,8 +667,10 @@
                                    data-url="${destroyUrl}"
                                    title="{{ trans('common.delete') }}">
                                     <i class="uil uil-trash-alt table_action_icon"></i>
-                                </a>
-                            </div>`;
+                                </a>`;
+                            @endcan
+                            
+                            actions += `</div>`;
 
                             return actions;
                         }

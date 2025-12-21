@@ -28,10 +28,18 @@
                     <div class="d-flex justify-content-between align-items-center mb-25">
                         <h4 class="mb-0 fw-500 fw-bold">{{ trans('catalogmanagement::occasion.occasions_management') }}</h4>
                         <div class="d-flex gap-2">
-                            <a href="{{ route('admin.occasions.create') }}"
-                                class="btn btn-primary btn-default btn-squared text-capitalize">
-                                <i class="uil uil-plus"></i> {{ trans('catalogmanagement::occasion.add_occasion') }}
-                            </a>
+                            @can('occasions.index')
+                                <button type="button" id="exportExcel"
+                                    class="btn btn-secondary btn-default btn-squared text-capitalize">
+                                    <i class="uil uil-file-download"></i> {{ trans('common.export_excel') }}
+                                </button>
+                            @endcan
+                            @can('occasions.create')
+                                <a href="{{ route('admin.occasions.create') }}"
+                                    class="btn btn-primary btn-default btn-squared text-capitalize">
+                                    <i class="uil uil-plus"></i> {{ trans('catalogmanagement::occasion.add_occasion') }}
+                                </a>
+                            @endcan
                         </div>
                     </div>
 
@@ -49,8 +57,7 @@
                                             </label>
                                             <input type="text"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                id="search"
-                                                placeholder="{{ __('common.search') }}..."
+                                                id="search" placeholder="{{ __('common.search') }}..."
                                                 autocomplete="off">
                                         </div>
                                     </div>
@@ -65,9 +72,12 @@
                                             <select
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="active">
-                                                <option value="">{{ trans('catalogmanagement::occasion.all_status') }}</option>
-                                                <option value="1">{{ trans('catalogmanagement::occasion.active') }}</option>
-                                                <option value="0">{{ trans('catalogmanagement::occasion.inactive') }}</option>
+                                                <option value="">{{ trans('catalogmanagement::occasion.all_status') }}
+                                                </option>
+                                                <option value="1">{{ trans('catalogmanagement::occasion.active') }}
+                                                </option>
+                                                <option value="0">{{ trans('catalogmanagement::occasion.inactive') }}
+                                                </option>
                                             </select>
                                         </div>
                                     </div>
@@ -164,11 +174,21 @@
                             <thead>
                                 <tr class="userDatatable-header">
                                     <th class="text-center"><span class="userDatatable-title">#</span></th>
-                                    <th><span class="userDatatable-title">{{ trans('catalogmanagement::occasion.occasion_information') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ trans('catalogmanagement::occasion.start_date') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ trans('catalogmanagement::occasion.end_date') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ trans('catalogmanagement::occasion.status') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ trans('catalogmanagement::occasion.created_at') }}</span></th>
+                                    <th><span
+                                            class="userDatatable-title">{{ trans('catalogmanagement::occasion.occasion_information') }}</span>
+                                    </th>
+                                    <th><span
+                                            class="userDatatable-title">{{ trans('catalogmanagement::occasion.start_date') }}</span>
+                                    </th>
+                                    <th><span
+                                            class="userDatatable-title">{{ trans('catalogmanagement::occasion.end_date') }}</span>
+                                    </th>
+                                    <th><span
+                                            class="userDatatable-title">{{ trans('catalogmanagement::occasion.status') }}</span>
+                                    </th>
+                                    <th><span
+                                            class="userDatatable-title">{{ trans('catalogmanagement::occasion.created_at') }}</span>
+                                    </th>
                                     <th><span class="userDatatable-title">{{ __('common.actions') }}</span></th>
                                 </tr>
                             </thead>
@@ -182,11 +202,10 @@
     </div>
 
     {{-- Delete Modal --}}
-    <x-delete-with-loading modalId="modal-delete-occasion" tableId="occasionsDataTable" deleteButtonClass="delete-occasion"
-        :title="trans('main.confirm delete')" :message="trans('main.are you sure you want to delete this')" itemNameId="delete-occasion-name" confirmBtnId="confirmDeleteOccasionBtn"
-        :cancelText="trans('main.cancel')" :deleteText="trans('main.delete')" :loadingDeleting="trans('main.deleting')" :loadingPleaseWait="trans('main.please wait')" :loadingDeletedSuccessfully="trans('main.deleted success')" :loadingRefreshing="trans('main.refreshing')"
-        :errorDeleting="trans('main.error on delete')" />
-
+    <x-delete-with-loading modalId="modal-delete-occasion" tableId="occasionsDataTable"
+        deleteButtonClass="delete-occasion" :title="trans('main.confirm delete')" :message="trans('main.are you sure you want to delete this')" itemNameId="delete-occasion-name"
+        confirmBtnId="confirmDeleteOccasionBtn" :cancelText="trans('main.cancel')" :deleteText="trans('main.delete')" :loadingDeleting="trans('main.deleting')" :loadingPleaseWait="trans('main.please wait')"
+        :loadingDeletedSuccessfully="trans('main.deleted success')" :loadingRefreshing="trans('main.refreshing')" :errorDeleting="trans('main.error on delete')" />
 @endsection
 
 @push('after-body')
@@ -226,8 +245,7 @@
                         return d;
                     }
                 },
-                columns: [
-                    {
+                columns: [{
                         data: 'id',
                         name: 'id',
                         orderable: false,
@@ -244,7 +262,8 @@
                         render: function(data, type, row) {
                             if (!data) return '<span class="text-muted">—</span>';
 
-                            let html = '<div class="occasion-info-container" style="display: flex; gap: 12px; align-items: flex-start;">';
+                            let html =
+                                '<div class="occasion-info-container" style="display: flex; gap: 12px; align-items: flex-start;">';
 
                             // Image
                             if (data.image) {
@@ -252,7 +271,8 @@
                                     <img src="${data.image}" alt="Occasion Image" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                 </div>`;
                             } else {
-                                html += `<img src="{{ asset('assets/img/default.png') }}" alt="Occasion Image" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">`;
+                                html +=
+                                    `<img src="{{ asset('assets/img/default.png') }}" alt="Occasion Image" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">`;
                             }
 
                             // Names and Vendor
@@ -311,6 +331,12 @@
                         render: function(data, type, row) {
                             const isChecked = data ? 'checked' : '';
                             const switchId = 'status-switch-' + row.id;
+                            const isDisabled =
+                                @can('occasions.toggle-status')
+                                    ''
+                                @else
+                                    'disabled'
+                                @endcan ;
                             return `<div class="userDatatable-content">
                                 <div class="form-switch">
                                     <input class="form-check-input status-switcher"
@@ -318,6 +344,7 @@
                                            id="${switchId}"
                                            data-id="${row.id}"
                                            ${isChecked}
+                                           ${isDisabled}
                                            style="cursor: pointer;">
                                     <label class="form-check-label" for="${switchId}"></label>
                                 </div>
@@ -338,20 +365,29 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            let showUrl = "{{ route('admin.occasions.show', ':id') }}".replace(':id', row.id);
-                            let editUrl = "{{ route('admin.occasions.edit', ':id') }}".replace(':id', row.id);
+                            let showUrl = "{{ route('admin.occasions.show', ':id') }}".replace(
+                                ':id', row.id);
+                            let editUrl = "{{ route('admin.occasions.edit', ':id') }}".replace(
+                                ':id', row.id);
                             return `
                                 <div class="orderDatatable_actions d-inline-flex gap-1 justify-content-center">
+                                    @can('occasions.show')
                                     <a href="${showUrl}"
                                     class="view btn btn-primary table_action_father"
                                     title="{{ trans('catalogmanagement::occasion.view_occasion') }}">
                                         <i class="uil uil-eye table_action_icon"></i>
                                     </a>
+                                    @endcan
+
+                                    @can('occasions.edit')
                                     <a href="${editUrl}"
                                     class="edit btn btn-warning table_action_father"
                                     title="{{ trans('catalogmanagement::occasion.edit_occasion') }}">
                                         <i class="uil uil-edit table_action_icon"></i>
                                     </a>
+                                    @endcan
+
+                                    @can('occasions.delete')
                                     <a href="javascript:void(0);"
                                     class="remove delete-occasion btn btn-danger table_action_father"
                                     data-bs-toggle="modal"
@@ -362,14 +398,20 @@
                                     title="{{ trans('catalogmanagement::occasion.delete_occasion') }}">
                                         <i class="uil uil-trash-alt table_action_icon"></i>
                                     </a>
+                                    @endcan
                                 </div>
                             `;
                         }
                     }
                 ],
                 pageLength: per_page,
-                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
-                order: [[0, 'desc']],
+                lengthMenu: [
+                    [10, 25, 50, 100],
+                    [10, 25, 50, 100]
+                ],
+                order: [
+                    [0, 'desc']
+                ],
                 pagingType: 'full_numbers',
                 language: {
                     search: '',
@@ -381,7 +423,7 @@
                     zeroRecords: "{{ __('common.no_matching_records_found') }}",
                     emptyTable: "{{ __('common.no_data_available') }}",
                     paginate: {
-                        @if(app()->getLocale() == 'en')
+                        @if (app()->getLocale() == 'en')
                             first: '<i class="uil uil-angle-double-left"></i>',
                             last: '<i class="uil uil-angle-double-right"></i>',
                             next: '<i class="uil uil-angle-right"></i>',
@@ -395,7 +437,7 @@
                     }
                 },
                 dom: '<"row"<"col-sm-12"tr>>' +
-                     '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                    '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
                 drawCallback: function() {
                     $('.dataTables_paginate > .pagination').addClass('pagination-bordered');
                 }
@@ -436,9 +478,9 @@
                 if ($('#start_date_filter').val()) params.set('start_date', $('#start_date_filter').val());
                 if ($('#end_date_filter').val()) params.set('end_date', $('#end_date_filter').val());
 
-                const newUrl = params.toString()
-                    ? `${window.location.pathname}?${params.toString()}`
-                    : window.location.pathname;
+                const newUrl = params.toString() ?
+                    `${window.location.pathname}?${params.toString()}` :
+                    window.location.pathname;
 
                 window.history.replaceState({}, '', newUrl);
             }
@@ -462,10 +504,11 @@
             });
 
             // Date filters - live search on change
-            $('#created_from_filter, #created_until_filter, #start_date_filter, #end_date_filter').on('change', function() {
-                table.ajax.reload();
-                updateUrlParams();
-            });
+            $('#created_from_filter, #created_until_filter, #start_date_filter, #end_date_filter').on('change',
+                function() {
+                    table.ajax.reload();
+                    updateUrlParams();
+                });
 
             // Enter key to search immediately
             $('#search').on('keypress', function(e) {
@@ -486,7 +529,8 @@
                 LoadingOverlay.show();
 
                 $.ajax({
-                    url: '{{ route("admin.occasions.toggle-status", ":id") }}'.replace(':id', occasionId),
+                    url: '{{ route('admin.occasions.toggle-status', ':id') }}'.replace(':id',
+                        occasionId),
                     type: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',
@@ -504,7 +548,9 @@
                     error: function(xhr) {
                         LoadingOverlay.hide();
                         switcher.prop('checked', !switcher.is(':checked'));
-                        toastr.error('{{ trans("catalogmanagement::occasion.error_changing_status") }}');
+                        toastr.error(
+                            '{{ trans('catalogmanagement::occasion.error_changing_status') }}'
+                            );
                     }
                 });
             });

@@ -28,10 +28,18 @@
                     <div class="d-flex justify-content-between align-items-center mb-25">
                         <h4 class="mb-0 fw-500 fw-bold">{{ trans('catalogmanagement::bundle.bundles_management') }}</h4>
                         <div class="d-flex gap-2">
-                            <a href="{{ route('admin.bundles.create') }}"
-                                class="btn btn-primary btn-default btn-squared text-capitalize">
-                                <i class="uil uil-plus"></i> {{ trans('catalogmanagement::bundle.add_bundle') }}
-                            </a>
+                            @can('bundles.index')
+                                <button type="button" id="exportExcel"
+                                    class="btn btn-secondary btn-default btn-squared text-capitalize">
+                                    <i class="uil uil-file-download"></i> {{ trans('common.export_excel') }}
+                                </button>
+                            @endcan
+                            @can('bundles.create')
+                                <a href="{{ route('admin.bundles.create') }}"
+                                    class="btn btn-primary btn-default btn-squared text-capitalize">
+                                    <i class="uil uil-plus"></i> {{ trans('catalogmanagement::bundle.add_bundle') }}
+                                </a>
+                            @endcan
                         </div>
                     </div>
 
@@ -49,8 +57,7 @@
                                             </label>
                                             <input type="text"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                id="search"
-                                                placeholder="{{ __('common.search') }}..."
+                                                id="search" placeholder="{{ __('common.search') }}..."
                                                 autocomplete="off">
                                         </div>
                                     </div>
@@ -64,8 +71,7 @@
                                             </label>
                                             <select
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select select2"
-                                                id="vendor_filter"
-                                                style="width: 100%;">
+                                                id="vendor_filter" style="width: 100%;">
                                                 <option value="">{{ __('common.all') }}</option>
                                                 @foreach ($vendors as $vendor)
                                                     <option value="{{ $vendor['id'] }}">{{ $vendor['name'] }}</option>
@@ -84,9 +90,12 @@
                                             <select
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="active">
-                                                <option value="">{{ trans('catalogmanagement::bundle.all_status') }}</option>
-                                                <option value="1">{{ trans('catalogmanagement::bundle.active') }}</option>
-                                                <option value="0">{{ trans('catalogmanagement::bundle.inactive') }}</option>
+                                                <option value="">{{ trans('catalogmanagement::bundle.all_status') }}
+                                                </option>
+                                                <option value="1">{{ trans('catalogmanagement::bundle.active') }}
+                                                </option>
+                                                <option value="0">{{ trans('catalogmanagement::bundle.inactive') }}
+                                                </option>
                                             </select>
                                         </div>
                                     </div>
@@ -101,9 +110,12 @@
                                             <select
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="approval_status">
-                                                <option value="">{{ trans('catalogmanagement::bundle.all_status') }}</option>
-                                                <option value="1">{{ trans('catalogmanagement::bundle.approved') }}</option>
-                                                <option value="0">{{ trans('catalogmanagement::bundle.pending_approval') }}</option>
+                                                <option value="">{{ trans('catalogmanagement::bundle.all_status') }}
+                                                </option>
+                                                <option value="1">{{ trans('catalogmanagement::bundle.approved') }}
+                                                </option>
+                                                <option value="0">
+                                                    {{ trans('catalogmanagement::bundle.pending_approval') }}</option>
                                             </select>
                                         </div>
                                     </div>
@@ -174,12 +186,24 @@
                             <thead>
                                 <tr class="userDatatable-header">
                                     <th class="text-center"><span class="userDatatable-title">#</span></th>
-                                    <th><span class="userDatatable-title">{{ trans('catalogmanagement::bundle.bundle_information') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ trans('catalogmanagement::bundle.sku') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ trans('catalogmanagement::bundle.vendor') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ trans('catalogmanagement::bundle.status') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ trans('catalogmanagement::bundle.approval_status') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ trans('catalogmanagement::bundle.created_at') }}</span></th>
+                                    <th><span
+                                            class="userDatatable-title">{{ trans('catalogmanagement::bundle.bundle_information') }}</span>
+                                    </th>
+                                    <th><span
+                                            class="userDatatable-title">{{ trans('catalogmanagement::bundle.sku') }}</span>
+                                    </th>
+                                    <th><span
+                                            class="userDatatable-title">{{ trans('catalogmanagement::bundle.vendor') }}</span>
+                                    </th>
+                                    <th><span
+                                            class="userDatatable-title">{{ trans('catalogmanagement::bundle.status') }}</span>
+                                    </th>
+                                    <th><span
+                                            class="userDatatable-title">{{ trans('catalogmanagement::bundle.approval_status') }}</span>
+                                    </th>
+                                    <th><span
+                                            class="userDatatable-title">{{ trans('catalogmanagement::bundle.created_at') }}</span>
+                                    </th>
                                     <th><span class="userDatatable-title">{{ __('common.actions') }}</span></th>
                                 </tr>
                             </thead>
@@ -192,9 +216,10 @@
         </div>
     </div>
 
-    @if(isAdmin())
+    @can('bundles.change-approval')
         {{-- Approval Modal --}}
-        <div class="modal fade" id="modal-approve-bundle" tabindex="-1" role="dialog" aria-labelledby="approveModalLabel" aria-hidden="true">
+        <div class="modal fade" id="modal-approve-bundle" tabindex="-1" role="dialog" aria-labelledby="approveModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header border-bottom">
@@ -210,7 +235,8 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label for="approval_action" class="form-label fw-500">{{ trans('catalogmanagement::bundle.action') }}</label>
+                            <label for="approval_action"
+                                class="form-label fw-500">{{ trans('catalogmanagement::bundle.action') }}</label>
                             <select id="approval_action" class="form-select">
                                 <option value="">{{ trans('catalogmanagement::bundle.select_action') }}</option>
                                 <option value="approve">{{ trans('catalogmanagement::bundle.approve') }}</option>
@@ -219,28 +245,32 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="approval_reason" class="form-label fw-500">{{ trans('catalogmanagement::bundle.reason') }} ({{ trans('catalogmanagement::bundle.optional') }})</label>
-                            <textarea id="approval_reason" class="form-control" rows="3" placeholder="{{ trans('catalogmanagement::bundle.enter_reason') }}"></textarea>
+                            <label for="approval_reason"
+                                class="form-label fw-500">{{ trans('catalogmanagement::bundle.reason') }}
+                                ({{ trans('catalogmanagement::bundle.optional') }})</label>
+                            <textarea id="approval_reason" class="form-control" rows="3"
+                                placeholder="{{ trans('catalogmanagement::bundle.enter_reason') }}"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer border-top">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ trans('main.cancel') }}</button>
+                        <button type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal">{{ trans('main.cancel') }}</button>
                         <button type="button" class="btn btn-primary" id="confirmApprovalBtn">
                             <span id="approvalBtnText">{{ trans('catalogmanagement::bundle.confirm') }}</span>
-                            <span id="approvalSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+                            <span id="approvalSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status"
+                                aria-hidden="true"></span>
                         </button>
                     </div>
                 </div>
             </div>
         </div>
-    @endif
+    @endcan
 
     {{-- Delete Modal --}}
     <x-delete-with-loading modalId="modal-delete-bundle" tableId="bundlesDataTable" deleteButtonClass="delete-bundle"
         :title="trans('main.confirm delete')" :message="trans('main.are you sure you want to delete this')" itemNameId="delete-bundle-name" confirmBtnId="confirmDeleteBundleBtn"
         :cancelText="trans('main.cancel')" :deleteText="trans('main.delete')" :loadingDeleting="trans('main.deleting')" :loadingPleaseWait="trans('main.please wait')" :loadingDeletedSuccessfully="trans('main.deleted success')" :loadingRefreshing="trans('main.refreshing')"
         :errorDeleting="trans('main.error on delete')" />
-
 @endsection
 
 @push('after-body')
@@ -249,8 +279,6 @@
 
 @push('scripts')
     <script>
-
-
         $(document).ready(function() {
             let per_page = 10;
             // Populate filters from URL parameters on page load
@@ -283,8 +311,7 @@
                         return d;
                     }
                 },
-                columns: [
-                    {
+                columns: [{
                         data: 'id',
                         name: 'id',
                         orderable: false,
@@ -301,7 +328,8 @@
                         render: function(data, type, row) {
                             if (!data) return '<span class="text-muted">—</span>';
 
-                            let html = '<div class="bundle-info-container" style="display: flex; gap: 12px; align-items: flex-start;">';
+                            let html =
+                                '<div class="bundle-info-container" style="display: flex; gap: 12px; align-items: flex-start;">';
 
                             // Image
                             if (data.image) {
@@ -309,7 +337,8 @@
                                     <img src="${data.image}" alt="Bundle Image" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                 </div>`;
                             } else {
-                                html += `<img src="{{ asset('assets/img/default.png') }}" alt="Bundle Image" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">`;
+                                html +=
+                                    `<img src="{{ asset('assets/img/default.png') }}" alt="Bundle Image" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">`;
                             }
 
                             // Names
@@ -361,6 +390,12 @@
                         render: function(data, type, row) {
                             const isChecked = data ? 'checked' : '';
                             const switchId = 'status-switch-' + row.id;
+                            const isDisabled =
+                                @can('bundles.toggle-status')
+                                    ''
+                                @else
+                                    'disabled'
+                                @endcan ;
                             return `<div class="userDatatable-content">
                                 <div class="form-switch">
                                     <input class="form-check-input status-switcher"
@@ -368,6 +403,7 @@
                                            id="${switchId}"
                                            data-id="${row.id}"
                                            ${isChecked}
+                                           ${isDisabled}
                                            style="cursor: pointer;">
                                     <label class="form-check-label" for="${switchId}"></label>
                                 </div>
@@ -382,13 +418,13 @@
                         render: function(data, type, row) {
                             // 0 = pending, 1 = approved, 2 = rejected
                             if (data === 1) {
-                                return '<span class="badge badge-round badge-lg bg-success"><i class="uil uil-check-circle me-1"></i>{{ trans("catalogmanagement::bundle.approved") }}</span>';
+                                return '<span class="badge badge-round badge-lg bg-success"><i class="uil uil-check-circle me-1"></i>{{ trans('catalogmanagement::bundle.approved') }}</span>';
                             } else if (data === 0) {
-                                return '<span class="badge badge-round badge-lg bg-warning"><i class="uil uil-clock me-1"></i>{{ trans("catalogmanagement::bundle.pending_approval") }}</span>';
+                                return '<span class="badge badge-round badge-lg bg-warning"><i class="uil uil-clock me-1"></i>{{ trans('catalogmanagement::bundle.pending_approval') }}</span>';
                             } else if (data === 2) {
-                                return '<span class="badge badge-round badge-lg bg-danger"><i class="uil uil-times-circle me-1"></i>{{ trans("catalogmanagement::bundle.rejected") }}</span>';
+                                return '<span class="badge badge-round badge-lg bg-danger"><i class="uil uil-times-circle me-1"></i>{{ trans('catalogmanagement::bundle.rejected') }}</span>';
                             } else {
-                                return '<span class="badge badge-round badge-lg bg-secondary">{{ trans("common.unknown") }}</span>';
+                                return '<span class="badge badge-round badge-lg bg-secondary">{{ trans('common.unknown') }}</span>';
                             }
                         }
                     },
@@ -406,12 +442,14 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            let showUrl = "{{ route('admin.bundles.show', ':id') }}".replace(':id', row.id);
-                            let editUrl = "{{ route('admin.bundles.edit', ':id') }}".replace(':id', row.id);
+                            let showUrl = "{{ route('admin.bundles.show', ':id') }}".replace(':id',
+                                row.id);
+                            let editUrl = "{{ route('admin.bundles.edit', ':id') }}".replace(':id',
+                                row.id);
                             let approvalBtn = '';
 
                             // Only show approval button if bundle is not approved
-                            @if(isAdmin())
+                            @can('bundles.change-approval')
                                 approvalBtn = `<a href="javascript:void(0);"
                                     class="approve-bundle btn btn-info table_action_father"
                                     data-bs-toggle="modal"
@@ -421,21 +459,29 @@
                                     title="{{ trans('catalogmanagement::bundle.approve_bundle') }}">
                                         <i class="uil uil-check-circle table_action_icon"></i>
                                     </a>`;
-                            @endif
+                            @endcan
 
                             return `
                                 <div class="orderDatatable_actions d-inline-flex gap-1 justify-content-center">
+                                    @can('bundles.show')
                                     <a href="${showUrl}"
                                     class="view btn btn-primary table_action_father"
                                     title="{{ trans('catalogmanagement::bundle.view_bundle') }}">
                                         <i class="uil uil-eye table_action_icon"></i>
                                     </a>
+                                    @endcan
+
+                                    @can('bundles.edit')
                                     <a href="${editUrl}"
                                     class="edit btn btn-warning table_action_father"
                                     title="{{ trans('catalogmanagement::bundle.edit_bundle') }}">
                                         <i class="uil uil-edit table_action_icon"></i>
                                     </a>
+                                    @endcan
+
                                     ${approvalBtn}
+
+                                    @can('bundles.delete')
                                     <a href="javascript:void(0);"
                                     class="remove delete-bundle btn btn-danger table_action_father"
                                     data-bs-toggle="modal"
@@ -446,14 +492,20 @@
                                     title="{{ trans('catalogmanagement::bundle.delete_bundle') }}">
                                         <i class="uil uil-trash-alt table_action_icon"></i>
                                     </a>
+                                    @endcan
                                 </div>
                             `;
                         }
                     }
                 ],
                 pageLength: per_page,
-                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
-                order: [[0, 'desc']],
+                lengthMenu: [
+                    [10, 25, 50, 100],
+                    [10, 25, 50, 100]
+                ],
+                order: [
+                    [0, 'desc']
+                ],
                 pagingType: 'full_numbers',
                 language: {
                     search: '',
@@ -465,7 +517,7 @@
                     zeroRecords: "{{ __('common.no_matching_records_found') }}",
                     emptyTable: "{{ __('common.no_data_available') }}",
                     paginate: {
-                        @if(app()->getLocale() == 'en')
+                        @if (app()->getLocale() == 'en')
                             first: '<i class="uil uil-angle-double-left"></i>',
                             last: '<i class="uil uil-angle-double-right"></i>',
                             next: '<i class="uil uil-angle-right"></i>',
@@ -479,7 +531,7 @@
                     }
                 },
                 dom: '<"row"<"col-sm-12"tr>>' +
-                     '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                    '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
                 drawCallback: function() {
                     $('.dataTables_paginate > .pagination').addClass('pagination-bordered');
                 }
@@ -520,9 +572,9 @@
                 if ($('#created_from_filter').val()) params.set('created_from', $('#created_from_filter').val());
                 if ($('#created_until_filter').val()) params.set('created_until', $('#created_until_filter').val());
 
-                const newUrl = params.toString()
-                    ? `${window.location.pathname}?${params.toString()}`
-                    : window.location.pathname;
+                const newUrl = params.toString() ?
+                    `${window.location.pathname}?${params.toString()}` :
+                    window.location.pathname;
 
                 window.history.replaceState({}, '', newUrl);
             }
@@ -582,7 +634,8 @@
                 LoadingOverlay.show();
 
                 $.ajax({
-                    url: '{{ route("admin.bundles.toggle-status", ":id") }}'.replace(':id', bundleId),
+                    url: '{{ route('admin.bundles.toggle-status', ':id') }}'.replace(':id',
+                        bundleId),
                     type: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',
@@ -600,7 +653,9 @@
                     error: function(xhr) {
                         LoadingOverlay.hide();
                         switcher.prop('checked', !switcher.is(':checked'));
-                        toastr.error('{{ trans("catalogmanagement::bundle.error_changing_status") }}');
+                        toastr.error(
+                            '{{ trans('catalogmanagement::bundle.error_changing_status') }}'
+                        );
                     }
                 });
             });
@@ -640,7 +695,8 @@
                 $(this).prop('disabled', true);
 
                 $.ajax({
-                    url: '{{ route("admin.bundles.change-approval", ":id") }}'.replace(':id', bundleId),
+                    url: '{{ route('admin.bundles.change-approval', ':id') }}'.replace(':id',
+                        bundleId),
                     type: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',
@@ -649,7 +705,8 @@
                     },
                     success: function(response) {
                         $('#approvalSpinner').addClass('d-none');
-                        $('#approvalBtnText').text('{{ trans("catalogmanagement::bundle.confirm") }}');
+                        $('#approvalBtnText').text(
+                            '{{ trans('catalogmanagement::bundle.confirm') }}');
                         $('#confirmApprovalBtn').prop('disabled', false);
 
                         if (response.status) {
@@ -662,7 +719,8 @@
                     },
                     error: function(xhr) {
                         $('#approvalSpinner').addClass('d-none');
-                        $('#approvalBtnText').text('{{ trans("catalogmanagement::bundle.confirm") }}');
+                        $('#approvalBtnText').text(
+                            '{{ trans('catalogmanagement::bundle.confirm') }}');
                         $('#confirmApprovalBtn').prop('disabled', false);
 
                         let errorMsg = 'Error processing approval';

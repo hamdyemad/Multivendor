@@ -54,6 +54,10 @@ class RoleAction {
         // Get total records before filtering
         $totalRecords = $this->roleRepositoryInterface->getRolesQuery()->count();
         $baseQuery = $this->roleRepositoryInterface->getRolesQuery($filters);
+        
+        if (isset($data['type'])) {
+            $baseQuery->where('type', $data['type']);
+        }
         // Get filtered count (clone query to avoid mutation)
         $filteredRecords = clone($baseQuery);
         $filteredRecords = $filteredRecords->count();
@@ -119,6 +123,8 @@ class RoleAction {
             $rowData = [
                 'row_number' => ($roles->currentPage() - 1) * $roles->perPage() + $index + 1,
                 'id' => $role->id,
+                'type' => $role->type,
+                'is_system_protected' => $role->is_system_protected,
                 'translations' => [],
                 'permissions_count' => $role->permessions->count(),
                 'created_at' => $role->created_at,

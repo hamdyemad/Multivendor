@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('vendor_products', function (Blueprint $table) {
-            $table->string('video_link')->nullable()->after('sku');
-        });
+        if (!Schema::hasColumn('vendor_products', 'video_link')) {
+            Schema::table('vendor_products', function (Blueprint $table) {
+                $table->string('video_link')->nullable()->after('sku');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('vendor_products', function (Blueprint $table) {
-            $table->dropColumn('video_link');
-        });
+        if (Schema::hasColumn('vendor_products', 'video_link')) {
+            Schema::table('vendor_products', function (Blueprint $table) {
+                $table->dropColumn('video_link');
+            });
+        }
     }
 };

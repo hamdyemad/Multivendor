@@ -18,6 +18,11 @@ class TaxController extends Controller
         protected LanguageService $languageService,
         protected TaxAction $taxAction
     ) {
+        $this->middleware('can:taxes.index')->only(['index', 'datatable', 'taxSearch']);
+        $this->middleware('can:taxes.create')->only(['create', 'store']);
+        $this->middleware('can:taxes.edit')->only(['edit', 'update']);
+        $this->middleware('can:taxes.delete')->only(['destroy']);
+        $this->middleware('can:taxes.show')->only(['show']);
     }
 
     /**

@@ -23,7 +23,7 @@ class UpdateRoleRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'permissions' => 'nullable|array',
+            'permissions' => 'required|array',
             'permissions.*' => 'exists:permessions,id',
             'translations' => 'required|array',
             'translations.*.name' => 'required|string|max:255'

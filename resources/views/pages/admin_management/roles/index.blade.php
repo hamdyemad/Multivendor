@@ -95,11 +95,6 @@
                                             title="{{ __('common.reset') }}">
                                             <i class="uil uil-redo me-1"></i> {{ __('common.reset_filters') }}
                                         </button>
-                                        <button type="button" id="exportExcel"
-                                            class="btn btn-primary btn-default btn-squared"
-                                            title="{{ __('common.excel') }}">
-                                            <i class="uil uil-file-download-alt me-1"></i> {{ __('common.export_excel') }}
-                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -135,6 +130,7 @@
                                         </th>
                                     @endforeach
                                     <th><span class="userDatatable-title">{{ trans('roles.permissions') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ trans('roles.type') }}</span></th>
                                     <th><span class="userDatatable-title">{{ trans('roles.created_at') }}</span></th>
                                     <th><span class="userDatatable-title">{{ trans('common.actions') }}</span></th>
                                 </tr>
@@ -288,6 +284,34 @@
                                 data + ' {{ trans('roles.permissions') }}</span></div>';
                         }
                     },
+                    // Type column
+                    {
+                        data: 'type',
+                        name: 'type',
+                        orderable: true,
+                        render: function(data) {
+                            const typeColors = {
+                                'super_admin': 'danger',
+                                'admin': 'primary',
+                                'vendor': 'success',
+                                'vendor_user': 'info',
+                                'other': 'secondary'
+                            };
+                            const typeLabels = {
+                                'super_admin': 'Super Admin',
+                                'admin': 'Admin',
+                                'vendor': 'Vendor',
+                                'vendor_user': 'Vendor User',
+                                'other': 'Other'
+                            };
+                            const badgeColor = typeColors[data] || 'secondary';
+                            const label = typeLabels[data] || data;
+                            return '<div class="userDatatable-content"><span class="badge badge-' +
+                                badgeColor +
+                                '" style="border-radius: 6px; padding: 6px 12px;"><i class="uil uil-tag-alt me-1"></i>' +
+                                label + '</span></div>';
+                        }
+                    },
                     // Created At column
                     {
                         data: 'created_at',
@@ -304,38 +328,36 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            return `
-                                <div class="orderDatatable_actions d-inline-flex gap-1">
-                                    @can('roles.show')
-                                    <a href="{{ url('admin/admin-management/roles') }}/${row.id}"
-                                    class="view btn btn-primary table_action_father"
-                                    title="{{ trans('common.view') }}">
-                                        <i class="uil uil-eye table_action_icon"></i>
-                                    </a>
-                                    @endcan
+                            let viewUrl = "{{ route('admin.admin-management.roles.show', ':id') }}"
+                                .replace(':id', row.id);
+                            let editUrl = "{{ route('admin.admin-management.roles.edit', ':id') }}"
+                                .replace(':id', row.id);
 
-                                    @can('roles.edit')
-                                    <a href="{{ url('admin/admin-management/roles') }}/${row.id}/edit"
-                                    class="edit btn btn-warning table_action_father"
-                                    title="{{ trans('common.edit') }}">
-                                        <i class="uil uil-edit table_action_icon"></i>
-                                    </a>
-                                    @endcan
+                            let actions =
+                                '<div class="orderDatatable_actions d-inline-flex gap-1 justify-content-center">';
 
-                                    @can('roles.delete')
-                                    <a href="javascript:void(0);"
-                                    class="remove delete-role btn btn-danger table_action_father"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modal-delete-role"
-                                    data-item-id="${row.id}"
-                                    data-item-name="${row.name}"
-                                    title="{{ trans('common.delete') }}">
-                                        <i class="uil uil-trash-alt table_action_icon"></i>
-                                    </a>
-                                    @endcan
-                                </div>
-                            `;
+                            // View
+                            @can('roles.show')
+                                actions +=
+                                    `<a href="${viewUrl}" class="view btn btn-primary table_action_father" title="{{ trans('common.view') }}"><i class="uil uil-eye table_action_icon"></i></a>`;
+                            @endcan
 
+
+                            // Delete - Only if NOT system protected
+                            if (!row.is_system_protected && row.is_system_protected != 1) {
+                                // Edit
+                                @can('roles.edit')
+                                    actions +=
+                                        `<a href="${editUrl}" class="edit btn btn-warning table_action_father" title="{{ __('common.edit') }}"><i class="uil uil-edit table_action_icon"></i></a>`;
+                                @endcan
+                                @can('roles.delete')
+                                    actions +=
+                                        `<a href="javascript:void(0);" class="remove delete-role btn btn-danger table_action_father" data-bs-toggle="modal" data-bs-target="#modal-delete-role" data-item-id="${row.id}" data-item-name="${row.name}" title="{{ __('common.delete') }}"><i class="uil uil-trash-alt table_action_icon"></i></a>`;
+                                @endcan
+                            }
+
+                            actions += '</div>';
+                            return actions;
                         }
                     }
                 ],
@@ -355,7 +377,7 @@
                     exportOptions: {
                         columns: ':not(:last-child)'
                     },
-                    title: '{{ trans('roles.roles_management') }}'
+                    title: '{{ __('roles.roles_management') }}'
                 }],
                 searching: false, // Disable built-in search (using custom)
                 language: {

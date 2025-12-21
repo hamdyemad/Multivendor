@@ -128,6 +128,7 @@ class RoleService
             $row[] = '<div class="userDatatable-content">' . e($role->created_at) . '</div>';
 
             // Actions
+            // Actions
             $actionsHtml = '<ul class="orderDatatable_actions mb-0 d-flex flex-wrap justify-content-start">
                                 <li>
                                     <a href="' . route('admin.admin-management.roles.show', $role->id) . '" class="view" title="' . e(trans('common.view')) . '">
@@ -138,8 +139,11 @@ class RoleService
                                     <a href="' . route('admin.admin-management.roles.edit', $role->id) . '" class="edit" title="' . e(trans('common.edit')) . '">
                                         <i class="uil uil-edit"></i>
                                     </a>
-                                </li>
-                                <li>
+                                </li>';
+            
+            // Only show delete if NOT system protected
+            if (!$role->is_system_protected && $role->is_system_protected != 1) {
+                $actionsHtml .= '<li>
                                     <a href="javascript:void(0);"
                                        class="remove"
                                        title="' . e(trans('common.delete')) . '"
@@ -149,8 +153,10 @@ class RoleService
                                        data-item-name="' . e($role->name) . '">
                                         <i class="uil uil-trash-alt"></i>
                                     </a>
-                                </li>
-                            </ul>';
+                                </li>';
+            }
+
+            $actionsHtml .= '</ul>';
             $row[] = $actionsHtml;
 
             $data[] = $row;
@@ -175,9 +181,9 @@ class RoleService
     /**
      * Get grouped permissions
      */
-    public function getGroupedPermissions(): Collection
+    public function getGroupedPermissions($type = null): array
     {
-        return $this->roleRepositoryInterface->getGroupedPermissions();
+        return $this->roleRepositoryInterface->getGroupedPermissions($type);
     }
 
     /**

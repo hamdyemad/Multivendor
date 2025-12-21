@@ -11,6 +11,12 @@ use Yajra\DataTables\Facades\DataTables;
 
 class ReviewController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:reviews.index')->only(['index', 'datatable']);
+        $this->middleware('can:reviews.approve')->only(['approve']);
+        $this->middleware('can:reviews.reject')->only(['reject']);
+    }
     /**
      * Display a listing of product reviews
      */

@@ -24,14 +24,18 @@
                         <h4 class="mb-0 fw-500">
                             {{ trans('catalogmanagement::variantkey.variant_configuration_keys_management') }}</h4>
                         <div class="d-flex gap-2">
-                            <a href="{{ route('admin.variant-keys.tree') }}"
-                                class="btn btn-light btn-default btn-squared text-capitalize">
-                                <i class="uil uil-sitemap"></i> {{ trans('catalogmanagement::variantkey.tree_view') }}
-                            </a>
-                            <a href="{{ route('admin.variant-keys.create') }}"
-                                class="btn btn-primary btn-default btn-squared text-capitalize">
-                                <i class="uil uil-plus"></i> {{ trans('catalogmanagement::variantkey.add_variant_key') }}
-                            </a>
+                            @can('variant-keys.index')
+                                <a href="{{ route('admin.variant-keys.tree') }}"
+                                    class="btn btn-light btn-default btn-squared text-capitalize">
+                                    <i class="uil uil-sitemap"></i> {{ trans('catalogmanagement::variantkey.tree_view') }}
+                                </a>
+                            @endcan
+                            @can('variant-keys.create')
+                                <a href="{{ route('admin.variant-keys.create') }}"
+                                    class="btn btn-primary btn-default btn-squared text-capitalize">
+                                    <i class="uil uil-plus"></i> {{ trans('catalogmanagement::variantkey.add_variant_key') }}
+                                </a>
+                            @endcan
                         </div>
                     </div>
 
@@ -87,12 +91,14 @@
                                     </div>
 
                                     <div class="col-md-12 d-flex align-items-center">
-                                        <button type="button" id="exportExcel"
-                                            class="btn btn-primary btn-default btn-squared me-1"
-                                            title="{{ __('common.excel') }}">
-                                            <i class="uil uil-file-download-alt me-1"></i>
-                                            {{ __('common.export_excel') }}
-                                        </button>
+                                        @can('variant-keys.index')
+                                            <button type="button" id="exportExcel"
+                                                class="btn btn-primary btn-default btn-squared me-1"
+                                                title="{{ __('common.excel') }}">
+                                                <i class="uil uil-file-download-alt me-1"></i>
+                                                {{ __('common.export_excel') }}
+                                            </button>
+                                        @endcan
                                         <button type="button" id="resetFilters"
                                             class="btn btn-warning btn-default btn-squared"
                                             title="{{ __('common.reset') }}">
@@ -254,7 +260,7 @@
                         render: function(data, type, row) {
                             return `
                             <div class="orderDatatable_actions d-inline-flex gap-1">
-                                @can('variant_keys.show')
+                                @can('variant-keys.show')
                                 <a href="${viewRoute.replace(':id', row.id)}"
                                 class="view btn btn-primary table_action_father"
                                 title="{{ trans('common.view') }}">
@@ -262,7 +268,7 @@
                                 </a>
                                 @endcan
 
-                                @can('variant_keys.edit')
+                                @can('variant-keys.edit')
                                 <a href="${editRoute.replace(':id', row.id)}"
                                 class="edit btn btn-warning table_action_father"
                                 title="{{ trans('common.edit') }}">
@@ -270,7 +276,7 @@
                                 </a>
                                 @endcan
 
-                                @can('variant_keys.delete')
+                                @can('variant-keys.delete')
                                 <a href="javascript:void(0);"
                                 class="remove delete-variant-key btn btn-danger table_action_father"
                                 data-bs-toggle="modal"

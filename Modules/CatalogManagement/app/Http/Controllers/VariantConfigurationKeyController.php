@@ -19,6 +19,11 @@ class VariantConfigurationKeyController extends Controller
         protected LanguageService $languageService,
         protected VariantConfigurationKeyAction $variantKeyAction
     ) {
+        $this->middleware('can:variant-keys.index')->only(['index', 'datatable', 'tree']);
+        $this->middleware('can:variant-keys.create')->only(['create', 'store']);
+        $this->middleware('can:variant-keys.edit')->only(['edit', 'update']);
+        $this->middleware('can:variant-keys.delete')->only(['destroy']);
+        $this->middleware('can:variant-keys.show')->only(['show']);
     }
 
     /**

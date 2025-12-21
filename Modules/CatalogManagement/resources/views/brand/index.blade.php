@@ -23,10 +23,18 @@
                     <div class="d-flex justify-content-between align-items-center mb-25">
                         <h4 class="mb-0 fw-500">{{ trans('catalogmanagement::brand.brands_management') }}</h4>
                         <div class="d-flex gap-2">
-                            <a href="{{ route('admin.brands.create') }}"
-                                class="btn btn-primary btn-default btn-squared text-capitalize">
-                                <i class="uil uil-plus"></i> {{ trans('catalogmanagement::brand.add_brand') }}
-                            </a>
+                            @can('brands.index')
+                                <button type="button" id="exportExcel"
+                                    class="btn btn-secondary btn-default btn-squared text-capitalize">
+                                    <i class="uil uil-file-download"></i> {{ trans('common.export_excel') }}
+                                </button>
+                            @endcan
+                            @can('brands.create')
+                                <a href="{{ route('admin.brands.create') }}"
+                                    class="btn btn-primary btn-default btn-squared text-capitalize">
+                                    <i class="uil uil-plus"></i> {{ trans('catalogmanagement::brand.add_brand') }}
+                                </a>
+                            @endcan
                         </div>
                     </div>
 
@@ -349,7 +357,7 @@
                     processing: "{{ trans('common.processing') }}...",
                     search: "{{ trans('common.search') }}:",
                     paginate: {
-                        @if(app()->getLocale() == 'en')
+                        @if (app()->getLocale() == 'en')
                             first: '<i class="uil uil-angle-double-left"></i>',
                             last: '<i class="uil uil-angle-double-right"></i>',
                             next: '<i class="uil uil-angle-right"></i>',

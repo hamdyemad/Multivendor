@@ -11,6 +11,10 @@ use Modules\AreaSettings\app\Models\Region;
 
 class StockSetupController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:products.stock-setup')->only(['index', 'save']);
+    }
     /**
      * Display stock setup page
      */

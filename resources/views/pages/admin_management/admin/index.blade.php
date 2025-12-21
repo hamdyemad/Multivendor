@@ -23,10 +23,12 @@
                     <div class="d-flex justify-content-between align-items-center mb-25">
                         <h4 class="mb-0 fw-500">{{ __('admin.admins_management') }}</h4>
                         <div class="d-flex gap-2">
-                            <a href="{{ route('admin.admin-management.admins.create') }}"
-                                class="btn btn-primary btn-default btn-squared text-capitalize">
-                                <i class="uil uil-plus"></i> {{ __('admin.add_admin') }}
-                            </a>
+                            @can('admins.create')
+                                <a href="{{ route('admin.admin-management.admins.create') }}"
+                                    class="btn btn-primary btn-default btn-squared text-capitalize">
+                                    <i class="uil uil-plus"></i> {{ __('admin.add_admin') }}
+                                </a>
+                            @endcan
                         </div>
                     </div>
 
@@ -98,11 +100,13 @@
                                     </div>
 
                                     <div class="col-md-12 d-flex">
-                                        <button type="button" id="exportExcel"
-                                            class="btn btn-primary btn-default btn-squared me-1"
-                                            title="{{ __('common.excel') }}">
-                                            <i class="uil uil-file-download-alt me-1"></i> {{ __('common.export_excel') }}
-                                        </button>
+                                        @can('admins.index')
+                                            <button type="button" id="exportExcel"
+                                                class="btn btn-primary btn-default btn-squared me-1"
+                                                title="{{ __('common.excel') }}">
+                                                <i class="uil uil-file-download-alt me-1"></i> {{ __('common.export_excel') }}
+                                            </button>
+                                        @endcan
                                         <button type="button" id="resetFilters"
                                             class="btn btn-warning btn-default btn-squared"
                                             title="{{ __('common.reset') }}">

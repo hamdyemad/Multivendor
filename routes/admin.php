@@ -8,6 +8,7 @@ use App\Http\Controllers\PaginationController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\AdminManagement\RoleController;
 use App\Http\Controllers\AdminManagement\AdminController;
+use App\Http\Controllers\AdminManagement\VendorUserController;
 use App\Http\Controllers\AreaSettings\CountryController;
 use App\Http\Controllers\AreaSettings\CityController;
 use App\Http\Controllers\AreaSettings\RegionController;
@@ -50,6 +51,22 @@ Route::prefix('admin-management')->name('admin-management.')->group(function() {
 
     Route::get('/admins/datatable', [AdminController::class, 'datatable'])->name('admins.datatable');
     Route::resource('admins', AdminController::class);
+});
+
+// Vendor Users Management
+Route::prefix('vendor-users-management')->name('vendor-users-management.')->group(function() {
+    Route::get('/roles/datatable', [RoleController::class, 'vendorUserRolesDatatable'])->name('roles.data');
+    Route::get('/roles', [RoleController::class, 'vendorUserRolesIndex'])->name('roles.index');
+    Route::get('/roles/create', [RoleController::class, 'vendorUserRolesCreate'])->name('roles.create');
+    Route::post('/roles', [RoleController::class, 'vendorUserRolesStore'])->name('roles.store');
+    Route::get('/roles/{role}', [RoleController::class, 'vendorUserRolesShow'])->name('roles.show');
+    Route::get('/roles/{role}/edit', [RoleController::class, 'vendorUserRolesEdit'])->name('roles.edit');
+    Route::put('/roles/{role}', [RoleController::class, 'vendorUserRolesUpdate'])->name('roles.update');
+    Route::delete('/roles/{role}', [RoleController::class, 'vendorUserRolesDestroy'])->name('roles.destroy');
+
+    Route::get('/vendor-users/datatable', [VendorUserController::class, 'datatable'])->name('vendor-users.datatable');
+    Route::post('/vendor-users/{vendor_user}/change-status', [VendorUserController::class, 'changeStatus'])->name('vendor-users.change-status');
+    Route::resource('vendor-users', VendorUserController::class);
 });
 
 

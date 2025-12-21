@@ -20,6 +20,11 @@ class BrandController extends Controller
         protected LanguageService $languageService,
         protected BrandAction $brandAction
     ) {
+        $this->middleware('can:brands.index')->only(['index', 'datatable', 'brandSearch']);
+        $this->middleware('can:brands.create')->only(['create', 'store']);
+        $this->middleware('can:brands.edit')->only(['edit', 'update']);
+        $this->middleware('can:brands.delete')->only(['destroy']);
+        $this->middleware('can:brands.show')->only(['show']);
     }
 
     /**

@@ -30,4 +30,13 @@ return [
     'cancel' => 'إلغاء',
     'update_role' => 'تحديث الدور',
     'back_to_list' => 'العودة إلى القائمة',
+    'select_permissions' => 'اختر الصلاحيات',
+    'select_all' => 'تحديد الكل',
+    'deselect_all' => 'إلغاء تحديد الكل',
+    'all' => 'الكل',
+    'create' => 'إنشاء',
+    'edit' => 'تعديل',
+    'read' => 'قراءة',
+    'delete' => 'حذف',
+    'type' => 'نوع الدور',
 ];

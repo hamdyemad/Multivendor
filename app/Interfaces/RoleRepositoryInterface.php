@@ -17,7 +17,7 @@ interface RoleRepositoryInterface
     /**
      * Get all Grouped Permessions
      */
-    public function getGroupedPermissions(): Collection;
+    public function getGroupedPermissions($type = null): array;
 
     /**
      * Find a role by ID

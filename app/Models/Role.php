@@ -12,6 +12,10 @@ class Role extends Model
     use Translation, SoftDeletes, HumanDates;
 
     protected $guarded = [];
+    
+    protected $casts = [
+        'is_system_protected' => 'boolean',
+    ];
 
 
     const SUPER_ADMIN_ROLE_TYPE = 'super_admin';
@@ -48,13 +52,13 @@ class Role extends Model
     }
 
     public function scopeSuperAdminShowRoles($query) {
-        return $query->whereIn('type', [Role::ADMIN_ROLE_TYPE, Role::VENDOR_ROLE_TYPE, Role::OTHER_ROLE_TYPE]);
+        return $query->whereIn('type', [Role::SUPER_ADMIN_ROLE_TYPE, Role::ADMIN_ROLE_TYPE, Role::VENDOR_ROLE_TYPE, Role::OTHER_ROLE_TYPE, 'vendor_user']);
     }
     public function scopeAdminShowRoles($query) {
-        return $query->whereIn('type', [Role::ADMIN_ROLE_TYPE,Role::VENDOR_ROLE_TYPE, Role::OTHER_ROLE_TYPE]);
+        return $query->whereIn('type', [Role::ADMIN_ROLE_TYPE,Role::VENDOR_ROLE_TYPE, Role::OTHER_ROLE_TYPE, 'vendor_user']);
     }
     public function scopeVendorShowRoles($query) {
-        return $query->whereIn('type', [Role::OTHER_ROLE_TYPE]);
+        return $query->whereIn('type', [Role::OTHER_ROLE_TYPE, 'vendor_user']);
     }
 
 
@@ -76,6 +80,15 @@ class Role extends Model
         if (isset($filter['created_date_to']) && !empty($filter['created_date_to'])) {
             $query->whereDate('created_at', '<=', $filter['created_date_to']);
         }
+
+        // Exclude system-protected roles
+        if (isset($filter['exclude_system']) && $filter['exclude_system'] === true) {
+            $query->where(function($q) {
+                $q->where('is_system_protected', '!=', 1)
+                  ->orWhereNull('is_system_protected');
+            });
+        }
+
         return $query;
     }
 }

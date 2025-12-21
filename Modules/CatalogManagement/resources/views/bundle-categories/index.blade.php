@@ -26,12 +26,22 @@
 
                 <div class="userDatatable global-shadow border-light-0 p-30 bg-white radius-xl w-100 mb-30">
                     <div class="d-flex justify-content-between align-items-center mb-25">
-                        <h4 class="mb-0 fw-500 fw-bold">{{ trans('catalogmanagement::bundle_category.bundle_categories_management') }}</h4>
+                        <h4 class="mb-0 fw-500 fw-bold">
+                            {{ trans('catalogmanagement::bundle_category.bundle_categories_management') }}</h4>
                         <div class="d-flex gap-2">
-                            <a href="{{ route('admin.bundle-categories.create') }}"
-                                class="btn btn-primary btn-default btn-squared text-capitalize">
-                                <i class="uil uil-plus"></i> {{ trans('catalogmanagement::bundle_category.add_bundle_category') }}
-                            </a>
+                            @can('bundle-categories.index')
+                                <button type="button" id="exportExcel"
+                                    class="btn btn-secondary btn-default btn-squared text-capitalize">
+                                    <i class="uil uil-file-download"></i> {{ trans('common.export_excel') }}
+                                </button>
+                            @endcan
+                            @can('bundle-categories.create')
+                                <a href="{{ route('admin.bundle-categories.create') }}"
+                                    class="btn btn-primary btn-default btn-squared text-capitalize">
+                                    <i class="uil uil-plus"></i>
+                                    {{ trans('catalogmanagement::bundle_category.add_bundle_category') }}
+                                </a>
+                            @endcan
                         </div>
                     </div>
 
@@ -49,8 +59,7 @@
                                             </label>
                                             <input type="text"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                id="search"
-                                                placeholder="{{ __('common.search') }}..."
+                                                id="search" placeholder="{{ __('common.search') }}..."
                                                 autocomplete="off">
                                         </div>
                                     </div>
@@ -65,9 +74,12 @@
                                             <select
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="active">
-                                                <option value="">{{ trans('catalogmanagement::bundle_category.all_status') }}</option>
-                                                <option value="1">{{ trans('catalogmanagement::bundle_category.active') }}</option>
-                                                <option value="0">{{ trans('catalogmanagement::bundle_category.inactive') }}</option>
+                                                <option value="">
+                                                    {{ trans('catalogmanagement::bundle_category.all_status') }}</option>
+                                                <option value="1">
+                                                    {{ trans('catalogmanagement::bundle_category.active') }}</option>
+                                                <option value="0">
+                                                    {{ trans('catalogmanagement::bundle_category.inactive') }}</option>
                                             </select>
                                         </div>
                                     </div>
@@ -134,15 +146,23 @@
 
                     {{-- DataTable --}}
                     <div class="table-responsive">
-                        <table id="bundleCategoriesDataTable" class="table mb-0 table-bordered table-hover" style="width:100%">
+                        <table id="bundleCategoriesDataTable" class="table mb-0 table-bordered table-hover"
+                            style="width:100%">
                             <thead>
                                 <tr class="userDatatable-header">
                                     <th class="text-center"><span class="userDatatable-title">#</span></th>
-                                    @foreach($languages as $language)
-                                        <th><span class="userDatatable-title">{{ trans('catalogmanagement::bundle_category.name') }} ({{ $language->name }})</span></th>
+                                    @foreach ($languages as $language)
+                                        <th><span
+                                                class="userDatatable-title">{{ trans('catalogmanagement::bundle_category.name') }}
+                                                ({{ $language->name }})
+                                            </span></th>
                                     @endforeach
-                                    <th><span class="userDatatable-title">{{ trans('catalogmanagement::bundle_category.status') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ trans('catalogmanagement::bundle_category.created_at') }}</span></th>
+                                    <th><span
+                                            class="userDatatable-title">{{ trans('catalogmanagement::bundle_category.status') }}</span>
+                                    </th>
+                                    <th><span
+                                            class="userDatatable-title">{{ trans('catalogmanagement::bundle_category.created_at') }}</span>
+                                    </th>
                                     <th><span class="userDatatable-title">{{ __('common.actions') }}</span></th>
                                 </tr>
                             </thead>
@@ -156,11 +176,10 @@
     </div>
 
     {{-- Delete Modal --}}
-    <x-delete-with-loading modalId="modal-delete-bundle-category" tableId="bundleCategoriesDataTable" deleteButtonClass="delete-bundle-category"
-        :title="trans('main.confirm delete')" :message="trans('main.are you sure you want to delete this')" itemNameId="delete-bundle-category-name" confirmBtnId="confirmDeleteBundleCategoryBtn"
-        :cancelText="trans('main.cancel')" :deleteText="trans('main.delete')" :loadingDeleting="trans('main.deleting')" :loadingPleaseWait="trans('main.please wait')" :loadingDeletedSuccessfully="trans('main.deleted success')" :loadingRefreshing="trans('main.refreshing')"
-        :errorDeleting="trans('main.error on delete')" />
-
+    <x-delete-with-loading modalId="modal-delete-bundle-category" tableId="bundleCategoriesDataTable"
+        deleteButtonClass="delete-bundle-category" :title="trans('main.confirm delete')" :message="trans('main.are you sure you want to delete this')"
+        itemNameId="delete-bundle-category-name" confirmBtnId="confirmDeleteBundleCategoryBtn" :cancelText="trans('main.cancel')"
+        :deleteText="trans('main.delete')" :loadingDeleting="trans('main.deleting')" :loadingPleaseWait="trans('main.please wait')" :loadingDeletedSuccessfully="trans('main.deleted success')" :loadingRefreshing="trans('main.refreshing')" :errorDeleting="trans('main.error on delete')" />
 @endsection
 
 @push('after-body')
@@ -196,30 +215,34 @@
                         return d;
                     }
                 },
-                columns: [
-                    {
+                columns: [{
                         data: 'index',
                         name: 'index',
                         orderable: false,
                         searchable: false,
                         className: 'text-center fw-bold'
                     },
-                    @foreach($languages as $language)
-                    {
-                        data: 'translations.{{ $language->code }}.name',
-                        name: 'translations.{{ $language->code }}.name',
-                        render: function(data, type, row) {
-                            return data || '-';
-                        }
-                    },
-                    @endforeach
-                    {
+                    @foreach ($languages as $language)
+                        {
+                            data: 'translations.{{ $language->code }}.name',
+                            name: 'translations.{{ $language->code }}.name',
+                            render: function(data, type, row) {
+                                return data || '-';
+                            }
+                        },
+                    @endforeach {
                         data: 'active',
                         name: 'active',
                         orderable: false,
                         render: function(data, type, row) {
                             const isChecked = data ? 'checked' : '';
                             const switchId = 'status-switch-' + row.id;
+                            const isDisabled =
+                                @can('bundle-categories.toggle-status')
+                                    ''
+                                @else
+                                    'disabled'
+                                @endcan ;
                             return `<div class="userDatatable-content">
                                 <div class="form-switch">
                                     <input class="form-check-input status-switcher"
@@ -227,6 +250,7 @@
                                            id="${switchId}"
                                            data-id="${row.id}"
                                            ${isChecked}
+                                           ${isDisabled}
                                            style="cursor: pointer;">
                                     <label class="form-check-label" for="${switchId}"></label>
                                 </div>
@@ -246,23 +270,31 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            let viewUrl = "{{ route('admin.bundle-categories.show', ':id') }}".replace(':id', row.id),
-                                editUrl = "{{ route('admin.bundle-categories.edit', ':id') }}".replace(':id', row.id),
-                                deleteUrl = "{{ route('admin.bundle-categories.destroy', ':id') }}".replace(':id', row.id)
+                            let viewUrl = "{{ route('admin.bundle-categories.show', ':id') }}"
+                                .replace(':id', row.id),
+                                editUrl = "{{ route('admin.bundle-categories.edit', ':id') }}"
+                                .replace(':id', row.id),
+                                deleteUrl = "{{ route('admin.bundle-categories.destroy', ':id') }}"
+                                .replace(':id', row.id)
                             return `
                                 <div class="orderDatatable_actions d-inline-flex gap-1">
+                                    @can('bundle-categories.show')
                                     <a href="${viewUrl}"
                                     class="view btn btn-primary table_action_father"
                                     title="{{ trans('catalogmanagement::bundle_category.view_bundle_category') }}">
                                         <i class="uil uil-eye table_action_icon"></i>
                                     </a>
+                                    @endcan
 
+                                    @can('bundle-categories.edit')
                                     <a href="${editUrl}"
                                     class="edit btn btn-warning table_action_father"
                                     title="{{ trans('catalogmanagement::bundle_category.edit_bundle_category') }}">
                                         <i class="uil uil-edit table_action_icon"></i>
                                     </a>
+                                    @endcan
 
+                                    @can('bundle-categories.delete')
                                     <a href="javascript:void(0);"
                                     class="remove delete-bundle-category btn btn-danger table_action_father"
                                     data-bs-toggle="modal"
@@ -273,14 +305,20 @@
                                     title="{{ trans('catalogmanagement::bundle_category.delete_bundle_category') }}">
                                         <i class="uil uil-trash-alt table_action_icon"></i>
                                     </a>
+                                    @endcan
                                 </div>
                             `;
                         }
                     }
                 ],
                 pageLength: per_page,
-                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
-                order: [[0, 'desc']],
+                lengthMenu: [
+                    [10, 25, 50, 100],
+                    [10, 25, 50, 100]
+                ],
+                order: [
+                    [0, 'desc']
+                ],
                 pagingType: 'full_numbers',
                 dom: '<"row"<"col-sm-12"tr>>' +
                     '<"row mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
@@ -334,7 +372,8 @@
                 if ($('#created_from_filter').val()) params.set('created_from', $('#created_from_filter').val());
                 if ($('#created_until_filter').val()) params.set('created_until', $('#created_until_filter').val());
 
-                const newUrl = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
+                const newUrl = params.toString() ? `${window.location.pathname}?${params.toString()}` : window
+                    .location.pathname;
                 window.history.replaceState({}, '', newUrl);
             }
 
@@ -353,7 +392,8 @@
                     });
                 }
 
-                let route = "{{ route('admin.bundle-categories.toggle-status', ':id') }}".replace(':id', id)
+                let route = "{{ route('admin.bundle-categories.toggle-status', ':id') }}".replace(':id',
+                    id)
                 $.ajax({
                     url: route,
                     type: 'POST',
@@ -362,26 +402,26 @@
                         status: newStatus
                     },
                     success: function(response) {
-                         if (typeof LoadingOverlay !== 'undefined') {
-                             LoadingOverlay.hide();
-                         }
-                         switcher.prop('disabled', false);
-                         // Optional: Toast
-                         if (typeof Swal !== 'undefined') {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: '{{ __('common.success') ?? 'Success' }}',
-                                    text: response.message,
-                                    timer: 2000,
-                                    showConfirmButton: false,
-                                    toast: true,
-                                    position: 'top-end'
-                                });
+                        if (typeof LoadingOverlay !== 'undefined') {
+                            LoadingOverlay.hide();
+                        }
+                        switcher.prop('disabled', false);
+                        // Optional: Toast
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '{{ __('common.success') ?? 'Success' }}',
+                                text: response.message,
+                                timer: 2000,
+                                showConfirmButton: false,
+                                toast: true,
+                                position: 'top-end'
+                            });
                         }
                     },
                     error: function(xhr) {
                         if (typeof LoadingOverlay !== 'undefined') {
-                             LoadingOverlay.hide();
+                            LoadingOverlay.hide();
                         }
                         switcher.prop('disabled', false);
                         switcher.prop('checked', !switcher.is(':checked'));

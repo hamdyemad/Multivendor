@@ -21,7 +21,12 @@ class BundleCategoryController extends Controller
         protected BundleCategoryRepositoryInterface $bundleCategoryRepository,
         protected LanguageService $languageService
     ) {
-
+        $this->middleware('can:bundle-categories.index')->only(['index', 'datatable']);
+        $this->middleware('can:bundle-categories.create')->only(['create', 'store']);
+        $this->middleware('can:bundle-categories.edit')->only(['edit', 'update']);
+        $this->middleware('can:bundle-categories.delete')->only(['destroy']);
+        $this->middleware('can:bundle-categories.show')->only(['show']);
+        $this->middleware('can:bundle-categories.toggle-status')->only(['toggleStatus']);
     }
 
     /**

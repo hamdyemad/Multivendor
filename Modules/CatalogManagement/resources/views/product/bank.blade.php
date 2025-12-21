@@ -27,7 +27,8 @@
                         <div class="d-flex gap-2">
                             <a href="{{ route('admin.products.bank.stock-management') }}"
                                 class="btn btn-success btn-squared shadow-sm px-4">
-                                <i class="uil uil-import"></i> {{ trans('catalogmanagement::product.import_product_from_bank') }}
+                                <i class="uil uil-import"></i>
+                                {{ trans('catalogmanagement::product.import_product_from_bank') }}
                             </a>
                             <a href="{{ route('admin.products.index') }}"
                                 class="btn btn-secondary btn-squared shadow-sm px-4">
@@ -48,9 +49,7 @@
                                             </label>
                                             <input type="text"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                id="search"
-                                                placeholder="{{ __('common.search') }}"
-                                                autocomplete="off">
+                                                id="search" placeholder="{{ __('common.search') }}" autocomplete="off">
                                         </div>
                                     </div>
 
@@ -64,7 +63,7 @@
                                                 class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="brand_filter">
                                                 <option value="">{{ __('common.all') }}</option>
-                                                @foreach($brands as $brand)
+                                                @foreach ($brands as $brand)
                                                     <option value="{{ $brand['id'] }}">{{ $brand['name'] }}</option>
                                                 @endforeach
                                             </select>
@@ -81,30 +80,30 @@
                                                 class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="category_filter">
                                                 <option value="">{{ __('common.all') }}</option>
-                                                @foreach($categories as $category)
+                                                @foreach ($categories as $category)
                                                     <option value="{{ $category['id'] }}">{{ $category['name'] }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
                                     </div>
 
-                                    @if(in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="active" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-check-circle me-1"></i>
-                                                {{ __('common.active_status') }}
-                                            </label>
-                                            <select
-                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="active">
-                                                <option value="">{{ __('common.all') }}</option>
-                                                <option value="1">{{ __('common.active') }}</option>
-                                                <option value="2">{{ __('common.inactive') }}</option>
-                                            </select>
+                                    @can('products.bank.change-activation')
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="active" class="il-gray fs-14 fw-500 mb-10">
+                                                    <i class="uil uil-check-circle me-1"></i>
+                                                    {{ __('common.active_status') }}
+                                                </label>
+                                                <select
+                                                    class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                    id="active">
+                                                    <option value="">{{ __('common.all') }}</option>
+                                                    <option value="1">{{ __('common.active') }}</option>
+                                                    <option value="2">{{ __('common.inactive') }}</option>
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
-                                    @endif
+                                    @endcan
 
                                     <div class="col-md-3">
                                         <div class="form-group">
@@ -155,16 +154,22 @@
                             <thead>
                                 <tr class="userDatatable-header">
                                     <th class="text-center"><span class="userDatatable-title">#</span></th>
-                                    <th><span class="userDatatable-title">{{ __('catalogmanagement::product.product_information') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('catalogmanagement::product.brand') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('catalogmanagement::product.category') }}</span></th>
-                                    @if(in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
-                                    <th><span class="userDatatable-title">{{ __('common.activation') }}</span></th>
-                                    @endif
+                                    <th><span
+                                            class="userDatatable-title">{{ __('catalogmanagement::product.product_information') }}</span>
+                                    </th>
+                                    <th><span
+                                            class="userDatatable-title">{{ __('catalogmanagement::product.brand') }}</span>
+                                    </th>
+                                    <th><span
+                                            class="userDatatable-title">{{ __('catalogmanagement::product.category') }}</span>
+                                    </th>
+                                    @can('products.bank.change-activation')
+                                        <th><span class="userDatatable-title">{{ __('common.activation') }}</span></th>
+                                    @endcan
                                     <th><span class="userDatatable-title">{{ __('common.created_at') }}</span></th>
-                                    @if(in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()) || in_array(auth()->user()->user_type_id, \App\Models\UserType::vendorIds()))
-                                    <th><span class="userDatatable-title">{{ __('common.actions') }}</span></th>
-                                    @endif
+                                    @can('products.bank')
+                                        <th><span class="userDatatable-title">{{ __('common.actions') }}</span></th>
+                                    @endcan
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -189,10 +194,12 @@
             };
 
             // Check if user is admin
-            const isAdmin = {{ in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()) ? 'true' : 'false' }};
+            const isAdmin =
+                {{ in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()) ? 'true' : 'false' }};
 
             // Check if user is vendor
-            const isVendor = {{ in_array(auth()->user()->user_type_id, \App\Models\UserType::vendorIds()) ? 'true' : 'false' }};
+            const isVendor =
+                {{ in_array(auth()->user()->user_type_id, \App\Models\UserType::vendorIds()) ? 'true' : 'false' }};
 
             let table = $('#bankProductsDataTable').DataTable({
                 processing: true,
@@ -204,17 +211,16 @@
                         d.search = $('#search').val();
                         d.brand_id = $('#brand_filter').val();
                         d.category_id = $('#category_filter').val();
-                        @if(in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
-                        d.active = $('#active').val();
-                        @endif
+                        @can('products.bank.change-activation')
+                            d.active = $('#active').val();
+                        @endcan
                         d.created_date_from = $('#created_date_from').val();
                         d.created_date_to = $('#created_date_to').val();
                         d.per_page = $('#entriesSelect').val() || 10;
                     }
                 },
                 columns: (() => {
-                    let columns = [
-                        {
+                    let columns = [{
                             data: 'index',
                             name: 'index',
                             orderable: false,
@@ -271,8 +277,8 @@
                         }
                     ];
 
-                    // Add activation column only for admin users
-                    if (isAdmin) {
+                    // Add activation column only for users with permission
+                    @can('products.bank.change-activation')
                         columns.push({
                             data: 'active',
                             name: 'active',
@@ -286,7 +292,9 @@
 
                                 const isChecked = data ? 'checked' : '';
                                 const switchId = 'activation-switch-' + row.id;
-                                const productName = row.product_information?.name_en || row.product_information?.name_ar || 'Product #' + row.id;
+                                const productName = row.product_information?.name_en ||
+                                    row.product_information?.name_ar || 'Product #' +
+                                    row.id;
 
                                 return `<div class="userDatatable-content">
                                     <div class="form-switch">
@@ -302,7 +310,7 @@
                                 </div>`;
                             }
                         });
-                    }
+                    @endcan
 
                     // Add created_at column
                     columns.push({
@@ -315,16 +323,20 @@
                         }
                     });
 
-                    // Add actions column for admin and vendor users
-                    if (isAdmin || isVendor) {
+                    // Add actions column for users with permission
+                    @can('products.bank')
                         columns.push({
                             data: null,
                             orderable: false,
                             searchable: false,
                             className: 'text-center',
                             render: function(data) {
-                                const bankViewUrl = "{{ route('admin.products.bank.view', ':id') }}".replace(':id', data.id);
-                                const editUrl = "{{ route('admin.products.edit', ':id') }}".replace(':id', data.id);
+                                const bankViewUrl =
+                                    "{{ route('admin.products.bank.view', ':id') }}"
+                                    .replace(':id', data.id);
+                                const editUrl =
+                                    "{{ route('admin.products.edit', ':id') }}"
+                                    .replace(':id', data.id);
 
                                 let actionsHtml = `<div class="orderDatatable_actions d-inline-flex gap-1 justify-content-center">
                                     <a href="${bankViewUrl}" class="view btn btn-info table_action_father" title="{{ trans('catalogmanagement::product.view_bank_product') }}">
@@ -335,13 +347,15 @@
                                 return actionsHtml;
                             }
                         });
-                    }
+                    @endcan
 
                     return columns;
                 })(),
                 pageLength: 10,
                 lengthMenu: [10, 25, 50, 100],
-                order: [[5, 'desc']],
+                order: [
+                    [5, 'desc']
+                ],
                 language: {
                     lengthMenu: "{{ __('common.show') ?? 'Show' }} _MENU_",
                     info: "{{ __('common.showing') ?? 'Showing' }} _START_ {{ __('common.to') ?? 'to' }} _END_ {{ __('common.of') ?? 'of' }} _TOTAL_ {{ __('common.entries') ?? 'entries' }}",
@@ -352,7 +366,7 @@
                     loadingRecords: "{{ __('common.loading') ?? 'Loading' }}...",
                     processing: "{{ __('common.processing') ?? 'Processing' }}...",
                     paginate: {
-                        @if(app()->getLocale() == 'en')
+                        @if (app()->getLocale() == 'en')
                             first: '<i class="uil uil-angle-double-left"></i>',
                             last: '<i class="uil uil-angle-double-right"></i>',
                             next: '<i class="uil uil-angle-right"></i>',
@@ -381,15 +395,15 @@
             });
 
             // Filters
-            @if(in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
-            $('#brand_filter, #category_filter, #active').on('select2:select select2:clear change', function() {
-                table.ajax.reload();
-            });
+            @can('products.bank.change-activation')
+                $('#brand_filter, #category_filter, #active').on('select2:select select2:clear change', function() {
+                    table.ajax.reload();
+                });
             @else
-            $('#brand_filter, #category_filter').on('select2:select select2:clear change', function() {
-                table.ajax.reload();
-            });
-            @endif
+                $('#brand_filter, #category_filter').on('select2:select select2:clear change', function() {
+                    table.ajax.reload();
+                });
+            @endcan
 
             // Date filters
             $('#created_date_from, #created_date_to').on('change', function() {
@@ -399,97 +413,99 @@
             // Reset
             $('#resetFilters').on('click', function() {
                 $('#search').val('');
-                @if(in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
-                $('#brand_filter, #category_filter, #active').val(null).trigger('change');
+                @can('products.bank.change-activation')
+                    $('#brand_filter, #category_filter, #active').val(null).trigger('change');
                 @else
-                $('#brand_filter, #category_filter').val(null).trigger('change');
-                @endif
+                    $('#brand_filter, #category_filter').val(null).trigger('change');
+                @endcan
                 $('#created_date_from, #created_date_to').val('');
                 table.ajax.reload();
             });
 
             // Activation switcher handler (admin only)
-            @if(in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
-            $(document).on('change', '.activation-switcher', function() {
-                const switcher = $(this);
-                const productId = switcher.data('product-id');
-                const productName = switcher.data('product-name');
-                const newStatus = switcher.is(':checked') ? 1 : 2;
+            @can('products.bank.change-activation')
+                $(document).on('change', '.activation-switcher', function() {
+                    const switcher = $(this);
+                    const productId = switcher.data('product-id');
+                    const productName = switcher.data('product-name');
+                    const newStatus = switcher.is(':checked') ? 1 : 2;
 
-                switcher.prop('disabled', true);
+                    switcher.prop('disabled', true);
 
-                if (typeof LoadingOverlay !== 'undefined') {
-                    LoadingOverlay.show({
-                        text: '{{ __('catalogmanagement::product.change_activation') }}',
-                        subtext: '{{ __('common.please_wait') ?? 'Please wait' }}...'
-                    });
-                }
+                    if (typeof LoadingOverlay !== 'undefined') {
+                        LoadingOverlay.show({
+                            text: '{{ __('catalogmanagement::product.change_activation') }}',
+                            subtext: '{{ __('common.please_wait') ?? 'Please wait' }}...'
+                        });
+                    }
 
-                $.ajax({
-                    url: '{{ route('admin.products.change-bank-activation', ':id') }}'.replace(':id', productId),
-                    type: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        status: newStatus
-                    },
-                    success: function(response) {
-                        if (typeof LoadingOverlay !== 'undefined') {
-                            LoadingOverlay.hide();
-                        }
-
-                        if (response.success) {
-                            if (typeof Swal !== 'undefined') {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: '{{ __('common.success') ?? 'Success' }}',
-                                    text: response.message,
-                                    timer: 2000,
-                                    showConfirmButton: false,
-                                    toast: true,
-                                    position: 'top-end'
-                                });
-                            } else if (typeof toastr !== 'undefined') {
-                                toastr.success(response.message);
+                    $.ajax({
+                        url: '{{ route('admin.products.change-bank-activation', ':id') }}'.replace(
+                            ':id', productId),
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            status: newStatus
+                        },
+                        success: function(response) {
+                            if (typeof LoadingOverlay !== 'undefined') {
+                                LoadingOverlay.hide();
                             }
-                            table.ajax.reload(null, false);
-                        } else {
+
+                            if (response.success) {
+                                if (typeof Swal !== 'undefined') {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: '{{ __('common.success') ?? 'Success' }}',
+                                        text: response.message,
+                                        timer: 2000,
+                                        showConfirmButton: false,
+                                        toast: true,
+                                        position: 'top-end'
+                                    });
+                                } else if (typeof toastr !== 'undefined') {
+                                    toastr.success(response.message);
+                                }
+                                table.ajax.reload(null, false);
+                            } else {
+                                switcher.prop('checked', !switcher.is(':checked'));
+                                if (typeof Swal !== 'undefined') {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: '{{ __('common.error') ?? 'Error' }}',
+                                        text: response.message
+                                    });
+                                } else if (typeof toastr !== 'undefined') {
+                                    toastr.error(response.message);
+                                }
+                            }
+                        },
+                        error: function(xhr) {
+                            if (typeof LoadingOverlay !== 'undefined') {
+                                LoadingOverlay.hide();
+                            }
                             switcher.prop('checked', !switcher.is(':checked'));
+                            let errorMessage =
+                                '{{ __('catalogmanagement::product.error_changing_activation') }}';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
                             if (typeof Swal !== 'undefined') {
                                 Swal.fire({
                                     icon: 'error',
                                     title: '{{ __('common.error') ?? 'Error' }}',
-                                    text: response.message
+                                    text: errorMessage
                                 });
                             } else if (typeof toastr !== 'undefined') {
-                                toastr.error(response.message);
+                                toastr.error(errorMessage);
                             }
+                        },
+                        complete: function() {
+                            switcher.prop('disabled', false);
                         }
-                    },
-                    error: function(xhr) {
-                        if (typeof LoadingOverlay !== 'undefined') {
-                            LoadingOverlay.hide();
-                        }
-                        switcher.prop('checked', !switcher.is(':checked'));
-                        let errorMessage = '{{ __('catalogmanagement::product.error_changing_activation') }}';
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
-                        }
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                icon: 'error',
-                                title: '{{ __('common.error') ?? 'Error' }}',
-                                text: errorMessage
-                            });
-                        } else if (typeof toastr !== 'undefined') {
-                            toastr.error(errorMessage);
-                        }
-                    },
-                    complete: function() {
-                        switcher.prop('disabled', false);
-                    }
+                    });
                 });
-            });
-            @endif
+            @endcan
         });
     </script>
 @endpush

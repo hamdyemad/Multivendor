@@ -23,10 +23,18 @@
                     <div class="d-flex justify-content-between align-items-center mb-25">
                         <h4 class="mb-0 fw-500">{{ trans('catalogmanagement::tax.taxes_management') }}</h4>
                         <div class="d-flex gap-2">
-                            <a href="{{ route('admin.taxes.create') }}"
-                                class="btn btn-primary btn-default btn-squared text-capitalize">
-                                <i class="uil uil-plus"></i> {{ trans('catalogmanagement::tax.add_tax') }}
-                            </a>
+                            @can('taxes.index')
+                                <button type="button" id="exportExcel"
+                                    class="btn btn-secondary btn-default btn-squared text-capitalize">
+                                    <i class="uil uil-file-download"></i> {{ trans('common.export_excel') }}
+                                </button>
+                            @endcan
+                            @can('taxes.create')
+                                <a href="{{ route('admin.taxes.create') }}"
+                                    class="btn btn-primary btn-default btn-squared text-capitalize">
+                                    <i class="uil uil-plus"></i> {{ trans('catalogmanagement::tax.add_tax') }}
+                                </a>
+                            @endcan
                         </div>
                     </div>
 
@@ -296,8 +304,10 @@
                         searchable: false,
                         render: function(data, type, row) {
                             let indexUrl = "{{ route('admin.taxes.index') }}";
-                            let viewUrl = "{{ route('admin.taxes.show', ':id') }}".replace(':id', row.id);
-                            let editUrl = "{{ route('admin.taxes.edit', ':id') }}".replace(':id', row.id);
+                            let viewUrl = "{{ route('admin.taxes.show', ':id') }}".replace(':id',
+                                row.id);
+                            let editUrl = "{{ route('admin.taxes.edit', ':id') }}".replace(':id',
+                                row.id);
                             return `
                             <div class="orderDatatable_actions d-inline-flex gap-1">
                                 @can('taxes.show')
@@ -363,7 +373,7 @@
                     processing: "{{ trans('common.processing') }}...",
                     search: "{{ trans('common.search') }}:",
                     paginate: {
-                        @if(app()->getLocale() == 'en')
+                        @if (app()->getLocale() == 'en')
                             first: '<i class="uil uil-angle-double-left"></i>',
                             last: '<i class="uil uil-angle-double-right"></i>',
                             next: '<i class="uil uil-angle-right"></i>',

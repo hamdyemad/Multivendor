@@ -23,6 +23,11 @@ class VariantsConfigurationController extends Controller
         protected VariantsConfigurationAction $variantsConfigAction,
         protected LanguageService $languageService
     ) {
+        $this->middleware('can:variants-configurations.index')->only(['index', 'datatable', 'tree', 'getKeyTree', 'getVariantKeys', 'getVariantsByKey', 'getParentsByKey']);
+        $this->middleware('can:variants-configurations.create')->only(['create', 'store']);
+        $this->middleware('can:variants-configurations.edit')->only(['edit', 'update']);
+        $this->middleware('can:variants-configurations.delete')->only(['destroy']);
+        $this->middleware('can:variants-configurations.show')->only(['show']);
     }
 
     /**

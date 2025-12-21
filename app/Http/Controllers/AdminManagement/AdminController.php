@@ -18,6 +18,11 @@ class AdminController extends Controller
         protected RoleService $roleService,
         protected AdminAction $adminAction
     ) {
+        $this->middleware('can:admins.index')->only(['index', 'datatable']);
+        $this->middleware('can:admins.create')->only(['create', 'store']);
+        $this->middleware('can:admins.edit')->only(['edit', 'update']);
+        $this->middleware('can:admins.delete')->only(['destroy']);
+        $this->middleware('can:admins.show')->only(['show']);
     }
 
     /**
@@ -43,7 +48,7 @@ class AdminController extends Controller
     public function create()
     {
         $languages = $this->languageService->getAll();
-        $roles = $this->roleService->getAllRoles();
+        $roles = $this->roleService->getAllRoles(['exclude_system' => true]);
         return view('pages.admin_management.admin.form', compact('languages', 'roles'));
     }
 
@@ -103,7 +108,7 @@ class AdminController extends Controller
     {
         try {
             $languages = $this->languageService->getAll();
-            $roles = $this->roleService->getAllRoles();
+            $roles = $this->roleService->getAllRoles(['exclude_system' => true]);
             $admin = $this->adminService->getAdminById($id);
             return view('pages.admin_management.admin.form', compact('admin', 'languages', 'roles'));
         } catch (\Exception $e) {

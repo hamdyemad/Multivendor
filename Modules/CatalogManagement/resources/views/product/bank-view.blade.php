@@ -540,7 +540,7 @@
         </div>
 
         {{-- Vendor Products Management --}}
-        @if (auth()->user() && in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
+        @canany(['products.bank.vendor-product.trash', 'products.bank.vendor-product.restore'])
             <div class="row mt-4">
                 <div class="col-lg-12">
                     <div class="card border-0 shadow-sm">
@@ -637,21 +637,25 @@
                                                 <td class="text-center">
                                                     <div class="d-flex gap-1 justify-content-center">
                                                         @if ($vendorProduct->trashed())
-                                                            <button type="button"
-                                                                class="btn btn-success btn-sm restore-vendor-product"
-                                                                data-vendor-product-id="{{ $vendorProduct->id }}"
-                                                                data-vendor-name="{{ $vendorProduct->vendor->name ?? 'Vendor' }}"
-                                                                title="{{ __('common.restore') }}">
-                                                                <i class="uil uil-redo m-0"></i>
-                                                            </button>
+                                                            @can('products.bank.vendor-product.restore')
+                                                                <button type="button"
+                                                                    class="btn btn-success btn-sm restore-vendor-product"
+                                                                    data-vendor-product-id="{{ $vendorProduct->id }}"
+                                                                    data-vendor-name="{{ $vendorProduct->vendor->name ?? 'Vendor' }}"
+                                                                    title="{{ __('common.restore') }}">
+                                                                    <i class="uil uil-redo m-0"></i>
+                                                                </button>
+                                                            @endcan
                                                         @else
-                                                            <button type="button"
-                                                                class="btn btn-danger btn-sm trash-vendor-product"
-                                                                data-vendor-product-id="{{ $vendorProduct->id }}"
-                                                                data-vendor-name="{{ $vendorProduct->vendor->name ?? 'Vendor' }}"
-                                                                title="{{ __('common.delete') }}">
-                                                                <i class="uil uil-trash-alt m-0"></i>
-                                                            </button>
+                                                            @can('products.bank.vendor-product.trash')
+                                                                <button type="button"
+                                                                    class="btn btn-danger btn-sm trash-vendor-product"
+                                                                    data-vendor-product-id="{{ $vendorProduct->id }}"
+                                                                    data-vendor-name="{{ $vendorProduct->vendor->name ?? 'Vendor' }}"
+                                                                    title="{{ __('common.delete') }}">
+                                                                    <i class="uil uil-trash-alt m-0"></i>
+                                                                </button>
+                                                            @endcan
                                                         @endif
                                                     </div>
                                                 </td>
@@ -670,7 +674,7 @@
                     </div>
                 </div>
             </div>
-        @endif
+        @endcanany
     </div>
 
 @endsection

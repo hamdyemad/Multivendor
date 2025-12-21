@@ -17,7 +17,14 @@ class OccasionController extends Controller
         protected OccasionService $occasionService,
         protected OccasionRepositoryInterface $occasionRepository,
         protected LanguageService $languageService
-    ) {}
+    ) {
+        $this->middleware('can:occasions.index')->only(['index', 'datatable']);
+        $this->middleware('can:occasions.create')->only(['create', 'store']);
+        $this->middleware('can:occasions.edit')->only(['edit', 'update', 'updatePositions', 'updateSpecialPrice']);
+        $this->middleware('can:occasions.delete')->only(['destroy', 'destroyProduct']);
+        $this->middleware('can:occasions.show')->only(['show']);
+        $this->middleware('can:occasions.toggle-status')->only(['toggleStatus']);
+    }
 
     /**
      * Display a listing of occasions

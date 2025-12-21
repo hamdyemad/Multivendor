@@ -117,6 +117,8 @@
             'title' => 'إدارة المسؤولين',
             'roles managment' => 'إدارة الأدوار',
             'admin managment' => 'إدارة المسؤولين',
+            'vendor users management' => 'إدارة مستخدمي الموردين',
+            'vendor users roles management' => 'إدارة أدوار مستخدمي الموردين',
         ],
         'category managment' => [
             'title' => 'إدارة الفئات',

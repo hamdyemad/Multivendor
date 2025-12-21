@@ -25,15 +25,19 @@
                         <h4 class="mb-0 fw-500">
                             {{ trans('catalogmanagement::variantsconfig.variants_configurations_management') }}</h4>
                         <div class="d-flex gap-2">
-                            <a href="{{ route('admin.variants-configurations.tree') }}"
-                                class="btn btn-light btn-default btn-squared text-capitalize">
-                                <i class="uil uil-sitemap"></i> {{ trans('catalogmanagement::variantsconfig.tree_view') }}
-                            </a>
-                            <a href="{{ route('admin.variants-configurations.create') }}"
-                                class="btn btn-primary btn-default btn-squared text-capitalize">
-                                <i class="uil uil-plus"></i>
-                                {{ trans('catalogmanagement::variantsconfig.add_variants_config') }}
-                            </a>
+                            @can('variants-configurations.index')
+                                <a href="{{ route('admin.variants-configurations.tree') }}"
+                                    class="btn btn-light btn-default btn-squared text-capitalize">
+                                    <i class="uil uil-sitemap"></i> {{ trans('catalogmanagement::variantsconfig.tree_view') }}
+                                </a>
+                            @endcan
+                            @can('variants-configurations.create')
+                                <a href="{{ route('admin.variants-configurations.create') }}"
+                                    class="btn btn-primary btn-default btn-squared text-capitalize">
+                                    <i class="uil uil-plus"></i>
+                                    {{ trans('catalogmanagement::variantsconfig.add_variants_config') }}
+                                </a>
+                            @endcan
                         </div>
                     </div>
 
@@ -89,12 +93,14 @@
                                     </div>
 
                                     <div class="col-md-12 d-flex align-items-center">
-                                        <button type="button" id="exportExcel"
-                                            class="btn btn-primary btn-default btn-squared me-1"
-                                            title="{{ __('common.excel') }}">
-                                            <i class="uil uil-file-download-alt me-1"></i>
-                                            {{ __('common.export_excel') }}
-                                        </button>
+                                        @can('variants-configurations.index')
+                                            <button type="button" id="exportExcel"
+                                                class="btn btn-primary btn-default btn-squared me-1"
+                                                title="{{ __('common.excel') }}">
+                                                <i class="uil uil-file-download-alt me-1"></i>
+                                                {{ __('common.export_excel') }}
+                                            </button>
+                                        @endcan
                                         <button type="button" id="resetFilters"
                                             class="btn btn-warning btn-default btn-squared"
                                             title="{{ __('common.reset') }}">
@@ -131,8 +137,7 @@
                                     <th><span
                                             class="userDatatable-title">{{ trans('catalogmanagement::variantsconfig.name') }}
                                             (EN)</span></th>
-                                    <th><span
-                                            class="userDatatable-title">الاسم باللغه العربيه</span></th>
+                                    <th><span class="userDatatable-title">الاسم باللغه العربيه</span></th>
                                     <th><span
                                             class="userDatatable-title">{{ trans('catalogmanagement::variantsconfig.key') }}</span>
                                     </th>
@@ -250,7 +255,7 @@
                         render: function(data, type, row) {
                             return `
                                 <div class="orderDatatable_actions d-inline-flex gap-1">
-                                    @can('variants_config.show')
+                                    @can('variants-configurations.show')
                                     <a href="${viewRoute.replace(':id', row.id)}"
                                     class="view btn btn-primary table_action_father"
                                     title="{{ trans('common.view') }}">
@@ -258,7 +263,7 @@
                                     </a>
                                     @endcan
 
-                                    @can('variants_config.edit')
+                                    @can('variants-configurations.edit')
                                     <a href="${editRoute.replace(':id', row.id)}"
                                     class="edit btn btn-warning table_action_father"
                                     title="{{ trans('common.edit') }}">
@@ -266,7 +271,7 @@
                                     </a>
                                     @endcan
 
-                                    @can('variants_config.delete')
+                                    @can('variants-configurations.delete')
                                     <a href="javascript:void(0);"
                                     class="remove delete-variants-config btn btn-danger table_action_father"
                                     data-bs-toggle="modal"

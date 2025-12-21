@@ -26,11 +26,11 @@ class CustomerPointsApiController extends Controller
             $userPoints = UserPoints::where('user_id', $user->id)->first();
 
             $data = [
-                'total_points' => $userPoints ? number_format($userPoints->total_points, 2) : '0.00',
-                'earned_points' => $userPoints ? number_format($userPoints->earned_points, 2) : '0.00',
-                'redeemed_points' => $userPoints ? number_format($userPoints->redeemed_points, 2) : '0.00',
-                'expired_points' => $userPoints ? number_format($userPoints->expired_points, 2) : '0.00',
-                'available_points' => $userPoints ? number_format($userPoints->available_points, 2) : '0.00',
+                'total_points' => $userPoints ? floatval(number_format($userPoints->total_points, 2)) : '0.00',
+                'earned_points' => $userPoints ? floatval(number_format($userPoints->earned_points, 2)) : '0.00',
+                'redeemed_points' => $userPoints ? floatval(number_format($userPoints->redeemed_points, 2)) : '0.00',
+                'expired_points' => $userPoints ? floatval(number_format($userPoints->expired_points, 2)) : '0.00',
+                'available_points' => $userPoints ? floatval(number_format($userPoints->available_points, 2)) : '0.00',
             ];
 
             return $this->sendRes(
@@ -125,10 +125,10 @@ class CustomerPointsApiController extends Controller
             // Get points settings
             $settings = [
                 'system_enabled' => PointsSystem::isEnabled(),
-                'points_per_currency' => PointsSetting::where('currency_id', $user->country->currency->id)->first()?->points_value ?? 1, // Points per currency unit
-                'welcome_points' => PointsSetting::where('currency_id', $user->country->currency->id)->first()?->welcome_points ?? 1, // Welcome points
+                'points_per_currency' => floatval(number_format(PointsSetting::where('currency_id', $user->country->currency->id)->first()?->points_value ?? 1, 2)), // Points per currency unit
+                'welcome_points' => floatval(number_format(PointsSetting::where('currency_id', $user->country->currency->id)->first()?->welcome_points ?? 1, 2)), // Welcome points
             ];
-
+            
             return $this->sendRes(
                 trans('systemsetting::points.settings_retrieved_successfully'),
                 true,

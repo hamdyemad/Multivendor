@@ -137,6 +137,22 @@ return [
         'ar' =>
         'تم تسجيل الخروج بنجاح'
     ],
+    "subscribed_successfully" => [
+        "en" => "Subscribed Successfully",
+        "ar" => "تم الاشتراك بنجاح"
+    ],
+    "unsubscribed_successfully" => [
+        "en" => "Unsubscribed Successfully",
+        "ar" => "تم الغاء الاشتراك بنجاح"
+    ],
+    "already_subscribed" => [
+        "en" => "Already Subscribed",
+        "ar" => "مشترك بالفعل"
+    ],
+    "not_subscribed" => [
+        "en" => "Not Subscribed",
+        "ar" => "غير مشترك"
+    ],
     'not register' => [
         'en' =>
         'Email address is not registered with us',
@@ -490,5 +506,9 @@ return [
     "item_added" => [
         "en" => "Item added successfully in cart",
         "ar" => "تم إضافة المنتج بنجاح في السلة"
+    ],
+    "subscribed_successfully" => [
+        "en" => "Subscribed successfully",
+        "ar" => "تم الاشتراك بنجاح"
     ]
 ];

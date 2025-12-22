@@ -62,8 +62,4 @@ Route::middleware(['auth:sanctum', 'check.customer.auth'])->prefix('points')->gr
     Route::get('settings', [CustomerPointsApiController::class, 'settings'])->name('settings');
 });
 
-Route::post('subscriptions', [SubscriptionController::class, 'store'])
-->middleware([
-    'auth:sanctum',
-    'check.customer.auth'
-]);
+Route::post('subscriptions', [SubscriptionController::class, 'store']);

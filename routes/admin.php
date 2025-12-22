@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\PaginationController;
 use App\Http\Controllers\VendorController;
@@ -44,12 +45,20 @@ use Modules\Order\database\seeders\OrderDatabaseSeeder;
 // Admin dashboard with country code
 Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+// Profile Management
+Route::prefix('profile')->name('profile.')->group(function() {
+    Route::get('/', [ProfileController::class, 'index'])->name('index');
+    Route::put('/', [ProfileController::class, 'update'])->name('update');
+    Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
+});
+
 // Admin Management
 Route::prefix('admin-management')->name('admin-management.')->group(function() {
     Route::get('/roles/datatable', [RoleController::class, 'datatable'])->name('roles.data');
     Route::resource('roles', RoleController::class);
 
     Route::get('/admins/datatable', [AdminController::class, 'datatable'])->name('admins.datatable');
+    Route::post('/admins/{admin}/change-status', [AdminController::class, 'changeStatus'])->name('admins.change-status');
     Route::resource('admins', AdminController::class);
 });
 

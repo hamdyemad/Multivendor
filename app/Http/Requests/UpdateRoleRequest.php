@@ -25,9 +25,11 @@ class UpdateRoleRequest extends FormRequest
         $rules = [
             'permissions' => 'required|array',
             'permissions.*' => 'exists:permessions,id',
-            'translations' => 'required|array',
-            'translations.*.name' => 'required|string|max:255'
         ];
+
+        foreach (Language::all() as $language) {
+            $rules['name_' . $language->code] = 'nullable|string|max:255';
+        }
 
         return $rules;
     }

@@ -108,10 +108,14 @@ class VendorUserAction
             // Vendor
             $row['vendor'] = $user->vendorById ? $user->vendorById->getTranslation('name', app()->getLocale()) : '-';
 
-            // Role
-            $row['role'] = $user->roles->isNotEmpty()
-                ? $user->roles->first()->getTranslation('name', app()->getLocale())
-                : '-';
+            // Role Name Only
+            if ($user->roles->isNotEmpty()) {
+                $role = $user->roles->first();
+                $roleName = $role->getTranslation('name', app()->getLocale());
+                $row['role'] = '<span class="fw-500 color-dark">' . e($roleName) . '</span>';
+            } else {
+                $row['role'] = '<span class="color-gray">-</span>';
+            }
 
             // Active Status
             $row['active'] = $user->active ?? true;

@@ -42,7 +42,7 @@
                             </div>
                         @endif
 
-                        <form id="adminForm" method="POST"
+                        <form id="adminForm" method="POST" enctype="multipart/form-data"
                             action="{{ isset($admin) ? route('admin.admin-management.admins.update', $admin->id) : route('admin.admin-management.admins.store') }}">
                             @csrf
                             @if (isset($admin))
@@ -82,6 +82,11 @@
                                 <x-multilingual-input name="name" :label="'Name'" :labelAr="'الأسم'" type="text"
                                     :placeholder="'Name'" :placeholderAr="'الأسم'" :required="true" :languages="$languages"
                                     :model="$adminModel" oldPrefix="translations" :cols="6" />
+
+                                <div class="col-md-12 mb-20">
+                                    <x-image-upload id="image" name="image" :label="__('admin.admin_image') ?? 'Admin Image'" :existingImage="isset($admin) ? $admin->image : null"
+                                        :placeholder="__('admin.click_to_upload_image') ?? 'Click to upload image'" aspectRatio="square" />
+                                </div>
 
                                 <!-- Email -->
                                 <div class="col-md-6">

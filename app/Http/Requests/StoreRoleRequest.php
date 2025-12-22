@@ -25,10 +25,12 @@ class StoreRoleRequest extends FormRequest
         $rules = [
             'permissions' => 'required|array',
             'permissions.*' => 'exists:permessions,id',
-            'translations' => 'required|array',
-            'translations.*.name' => 'required|string|max:255',
             'type' => 'nullable|string'
         ];
+
+        foreach (Language::all() as $language) {
+            $rules['name_' . $language->code] = 'required|string|max:255';
+        }
 
         return $rules;
     }

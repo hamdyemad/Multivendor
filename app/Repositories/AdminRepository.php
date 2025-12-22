@@ -65,6 +65,7 @@ class AdminRepository
                 'vendor_id' => $vendorId,
                 'active' => $data['active'] ?? true,
                 'block' => $data['block'] ?? false,
+                'image' => isset($data['image']) ? $data['image']->store('admins', 'public') : null,
             ]);
 
             // Assign roles to user
@@ -105,6 +106,15 @@ class AdminRepository
             // Update block status
             $updateData['block'] = $data['block'] ?? false;
             
+            // Update image
+            if (isset($data['image'])) {
+                // Delete old image if exists
+                if ($user->image) {
+                    \Storage::disk('public')->delete($user->image);
+                }
+                $updateData['image'] = $data['image']->store('admins', 'public');
+            }
+            
             // Update user
             $user->update($updateData);
 
@@ -139,6 +149,22 @@ class AdminRepository
             
             return true;
         });
+    }
+
+    /**
+     * Change status
+     */
+    public function changeStatus(int $id, $status, $type)
+    {
+        $user = User::findOrFail($id);
+        
+        if ($type == 'block') {
+            $user->update(['block' => $status]);
+        } else {
+            $user->update(['active' => $status]);
+        }
+        
+        return $user;
     }
 
     /**

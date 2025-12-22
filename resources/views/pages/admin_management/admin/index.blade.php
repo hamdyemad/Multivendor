@@ -44,7 +44,7 @@
                                 <div class="row g-3 align-items-end">
 
                                     {{-- Search --}}
-                                    <div class="col-md-3">
+                                    <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="search" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-search me-1"></i> {{ trans('common.search') }}
@@ -57,7 +57,7 @@
                                     </div>
 
                                     {{-- Status --}}
-                                    <div class="col-md-3">
+                                    <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="active" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-check-circle me-1"></i>
@@ -99,19 +99,18 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-12 d-flex">
-                                        @can('admins.index')
-                                            <button type="button" id="exportExcel"
-                                                class="btn btn-primary btn-default btn-squared me-1"
-                                                title="{{ __('common.excel') }}">
-                                                <i class="uil uil-file-download-alt me-1"></i> {{ __('common.export_excel') }}
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="created_date_to" class="il-gray fs-14 fw-500 mb-10">
+                                                <i class="uil uil-align-center-alt me-1"></i>
+                                                {{ trans('common.actions') }}
+                                            </label>
+                                            <button type="button" id="resetFilters"
+                                                class="btn btn-warning btn-default btn-squared"
+                                                title="{{ __('common.reset') }}">
+                                                <i class="uil uil-redo me-1"></i> {{ __('common.reset_filters') }}
                                             </button>
-                                        @endcan
-                                        <button type="button" id="resetFilters"
-                                            class="btn btn-warning btn-default btn-squared"
-                                            title="{{ __('common.reset') }}">
-                                            <i class="uil uil-redo me-1"></i> {{ __('common.reset_filters') }}
-                                        </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -138,19 +137,11 @@
                             <thead>
                                 <tr class="userDatatable-header">
                                     <th><span class="userDatatable-title">#</span></th>
-
-                                    @foreach ($languages as $language)
-                                        <th>
-                                            <span class="userDatatable-title"
-                                                @if ($language->rtl) dir="rtl" @endif>
-                                                {{ trans('admin.name') }} ({{ $language->name }})
-                                            </span>
-                                        </th>
-                                    @endforeach
-
+                                    <th><span class="userDatatable-title">{{ trans('admin.information') }}</span></th>
                                     <th><span class="userDatatable-title">{{ trans('admin.email') }}</span></th>
                                     <th><span class="userDatatable-title">{{ trans('admin.role') }}</span></th>
                                     <th><span class="userDatatable-title">{{ trans('admin.active') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ trans('admin.block') }}</span></th>
                                     <th><span class="userDatatable-title">{{ trans('admin.created_at') }}</span></th>
                                     <th><span class="userDatatable-title">{{ trans('common.actions') }}</span></th>
                                 </tr>
@@ -220,24 +211,44 @@
                 columns: [{
                         data: 'id',
                         name: 'id',
-                        orderable: true
+                        orderable: false,
                     },
-                    @foreach ($languages as $language)
-                        {
-                            data: 'names.{{ $language->id }}.value',
-                            name: 'name_{{ $language->code }}',
-                            orderable: true,
-                            render: function(data, type, row) {
-                                const nameData = row.names[{{ $language->id }}];
-                                const rtlAttr = nameData.rtl ? ' dir="rtl"' : '';
-                                return '<div class="userDatatable-content"' + rtlAttr + '>' + (
-                                    nameData.value || '-') + '</div>';
+                    {
+                        data: 'image',
+                        name: 'information',
+                        orderable: false,
+                        render: function(data, type, row) {
+                            let img;
+                            if (data) {
+                                img =
+                                    `<img src="{{ asset('storage') }}/${data}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">`;
+                            } else {
+                                img =
+                                    `<div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;"><i class="uil uil-user text-muted"></i></div>`;
                             }
-                        },
-                    @endforeach {
+
+                            let names = '';
+                            Object.values(row.names).forEach(name => {
+                                const badgeClass = name.code === 'ar' ? 'bg-info' :
+                                    'bg-primary';
+                                names += `
+                                    <div class="d-flex align-items-center mb-1">
+                                        <span class="badge ${badgeClass} text-white px-1 py-0 me-1" style="font-size: 10px; text-transform: uppercase;">${name.code}</span>
+                                        <div class="userDatatable-content" ${name.rtl ? 'dir="rtl"' : ''} style="font-size: 13px; line-height: 1.2;">${name.value || '-'}</div>
+                                    </div>`;
+                            });
+
+                            return `
+                                <div class="d-flex align-items-center gap-10">
+                                    ${img}
+                                    <div>${names}</div>
+                                </div>`;
+                        }
+                    },
+                    {
                         data: 'email',
                         name: 'email',
-                        orderable: true,
+                        orderable: false,
                         render: function(data, type, row) {
                             return '<div class="userDatatable-content text-lowercase">' + data +
                                 '</div>';
@@ -254,19 +265,37 @@
                     {
                         data: 'active',
                         name: 'active',
-                        orderable: true,
+                        orderable: false,
                         render: function(data, type, row) {
-                            if (data) {
-                                return '<div class="userDatatable-content"><span class="badge badge-success badge-lg badge-round">{{ __('admin.active') }}</span></div>';
-                            } else {
-                                return '<div class="userDatatable-content"><span class="badge badge-danger badge-lg badge-round">{{ __('admin.inactive') }}</span></div>';
-                            }
+                            const checked = data ? 'checked' : '';
+                            return `
+                                <div class="userDatatable-content">
+                                    <div class="form-check form-switch form-switch-primary">
+                                        <input class="form-check-input status-toggle" type="checkbox" 
+                                            data-id="${row.id}" data-type="active" ${checked}>
+                                    </div>
+                                </div>`;
+                        }
+                    },
+                    {
+                        data: 'block',
+                        name: 'block',
+                        orderable: false,
+                        render: function(data, type, row) {
+                            const checked = data ? 'checked' : '';
+                            return `
+                                <div class="userDatatable-content">
+                                    <div class="form-check form-switch form-switch-danger">
+                                        <input class="form-check-input status-toggle" type="checkbox" 
+                                            data-id="${row.id}" data-type="block" ${checked}>
+                                    </div>
+                                </div>`;
                         }
                     },
                     {
                         data: 'created_at',
                         name: 'created_at',
-                        orderable: true,
+                        orderable: false,
                         render: function(data, type, row) {
                             return '<div class="userDatatable-content">' + data + '</div>';
                         }
@@ -373,6 +402,43 @@
             // Server-side filter event listeners
             $('#active, #created_date_from, #created_date_to').on('change', function() {
                 table.ajax.reload();
+            });
+
+            // Handle Status Toggle
+            $(document).on('change', '.status-toggle', function() {
+                const id = $(this).data('id');
+                const type = $(this).data('type');
+                const status = $(this).prop('checked') ? 1 : 0;
+                const checkbox = $(this);
+
+                // Disable during request
+                checkbox.prop('disabled', true);
+
+                $.ajax({
+                    url: `{{ route('admin.admin-management.admins.index') }}/${id}/change-status`,
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        status: status,
+                        type: type
+                    },
+                    success: function(response) {
+                        checkbox.prop('disabled', false);
+                        if (response.success) {
+                            toastr.success(response.message);
+                        } else {
+                            toastr.error(response.message);
+                            checkbox.prop('checked', !status); // Revert
+                        }
+                    },
+                    error: function(xhr) {
+                        checkbox.prop('disabled', false);
+                        checkbox.prop('checked', !status); // Revert
+                        const message = xhr.responseJSON ? xhr.responseJSON.message :
+                            '{{ __('admin.error_occurred') }}';
+                        toastr.error(message);
+                    }
+                });
             });
 
             // Reset filters button

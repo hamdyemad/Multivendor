@@ -34,4 +34,9 @@ class AdminService
     {
         return $this->adminRepository->deleteAdmin($id);
     }
+
+    public function changeStatus(int $id, $status, $type)
+    {
+        return $this->adminRepository->changeStatus($id, $status, $type);
+    }
 }

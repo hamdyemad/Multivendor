@@ -43,6 +43,7 @@ class AdminRequest extends FormRequest
             
             // Status
             'active' => 'nullable|boolean',
+            'block' => 'nullable|boolean',
             
             // Roles
             'role_ids' => 'required|array|min:1',
@@ -51,6 +52,7 @@ class AdminRequest extends FormRequest
             // Account
             'email' => $emailRule,
             'password' => $passwordRule,
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }
 

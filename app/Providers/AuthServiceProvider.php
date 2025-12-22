@@ -5,6 +5,8 @@ namespace App\Providers;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
+use App\Models\UserType;
+
 class AuthServiceProvider extends ServiceProvider
 {
     /**
@@ -28,7 +30,7 @@ class AuthServiceProvider extends ServiceProvider
         // Define gates for all permissions dynamically
         Gate::before(function ($user, $ability) {
             // Super admin bypass (optional)
-            if ($user->user_type->name == 'super_admin') {
+            if ($user->user_type_id == UserType::SUPER_ADMIN_TYPE) {
                 return true;
             }
             // Check if user has a role with the permission

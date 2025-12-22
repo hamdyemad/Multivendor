@@ -4,8 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\Translation;
+
 class UserType extends Model
 {
+    use Translation;
     protected $table = 'users_types';
     protected $guarded = [];
     const SUPER_ADMIN_TYPE = 1;

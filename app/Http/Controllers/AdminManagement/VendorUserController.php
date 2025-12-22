@@ -93,11 +93,11 @@ class VendorUserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($lang, $countryCode, string $id)
     {
         try {
             $languages = $this->languageService->getAll();
-            $user = $this->vendorUserService->getVendorUserById($id);
+            $user = $this->vendorUserService->getVendorUserById((int) $id);
             return view('pages.admin_management.vendor_user.view', compact('user', 'languages'));
         } catch (\Exception $e) {
             return redirect()->route('admin.admin-management.vendor-users.index')
@@ -108,13 +108,13 @@ class VendorUserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($lang, $countryCode, string $id)
     {
         try {
             $languages = $this->languageService->getAll();
             $roles = $this->roleService->getAllRoles();
             $vendors = $this->vendorService->getAllVendors();
-            $user = $this->vendorUserService->getVendorUserById($id);
+            $user = $this->vendorUserService->getVendorUserById((int) $id);
             return view('pages.admin_management.vendor_user.form', compact('user', 'languages', 'roles', 'vendors'));
         } catch (\Exception $e) {
             return redirect()->route('admin.admin-management.vendor-users.index')
@@ -125,12 +125,12 @@ class VendorUserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(VendorUserRequest $request, string $id)
+    public function update(VendorUserRequest $request, $lang, $countryCode, string $id)
     {
         $validated = $request->validated();
 
         try {
-            $this->vendorUserService->updateVendorUser($id, $validated);
+            $this->vendorUserService->updateVendorUser((int) $id, $validated);
 
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -159,10 +159,10 @@ class VendorUserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, string $id)
+    public function destroy(Request $request, $lang, $countryCode, string $id)
     {
         try {
-            $this->vendorUserService->deleteVendorUser($id);
+            $this->vendorUserService->deleteVendorUser((int) $id);
 
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -190,10 +190,10 @@ class VendorUserController extends Controller
     /**
      * Change vendor user status.
      */
-    public function changeStatus(Request $request, string $id)
+    public function changeStatus(Request $request, $lang, $countryCode, string $id)
     {
         try {
-            $this->vendorUserService->changeStatus($id, $request->status, $request->type);
+            $this->vendorUserService->changeStatus((int) $id, $request->status, $request->type);
             return response()->json([
                 'success' => true,
                 'message' => __('admin.status_changed_successfully')

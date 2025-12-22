@@ -49,9 +49,8 @@ Route::group(['prefix' => '/', 'middleware' => 'guest'], function() {
 
 // Protected routes
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
-Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+// Protected routes
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Country switch route - updates URL with new country code
 Route::get('/switch-country/{countryCode}', function($countryCode) {

@@ -120,21 +120,25 @@ class AdminAction
                 $orderBy = $sortBy;
             }
         } else {
-            if ($orderColumnIndex >= 1 && $orderColumnIndex <= count($languages)) {
-                $languageIndex = $orderColumnIndex - 1;
-                $language = $languages[$languageIndex];
-                $orderBy = ['lang_id' => $language->id];
-            } else {
-                $orderColumns = [
-                    0 => 'id',
-                    (count($languages) + 1) => 'email',
-                    (count($languages) + 2) => 'active',
-                    (count($languages) + 3) => 'created_at',
-                ];
+            // Updated mapping logic:
+            // 0: ID
+            // 1: Information (Image + Names) (not sortable)
+            // 2: Email
+            // 3: Role (not sortable)
+            // 4: Active
+            // 5: Block
+            // 6: Created At
 
-                if (isset($orderColumns[$orderColumnIndex])) {
-                    $orderBy = $orderColumns[$orderColumnIndex];
-                }
+            $orderColumns = [
+                0 => 'id',
+                2 => 'email',
+                4 => 'active',
+                5 => 'block',
+                6 => 'created_at',
+            ];
+
+            if (isset($orderColumns[$orderColumnIndex])) {
+                $orderBy = $orderColumns[$orderColumnIndex];
             }
         }
 
@@ -164,50 +168,34 @@ class AdminAction
 
                 $row['names'][$language->id] = [
                     'value' => $translation ? $translation->lang_value : '-',
-                    'rtl' => $language->rtl
+                    'rtl' => $language->rtl,
+                    'code' => $language->code
                 ];
             }
 
             // Email
             $row['email'] = $admin->email;
 
-            // Role with type and permissions count
+            // Roles as Badges
             if ($admin->roles->isNotEmpty()) {
-                $role = $admin->roles->first();
-                $roleName = $role->getTranslation('name', app()->getLocale());
-                $roleType = $role->type ?? 'other';
-                $permissionsCount = $role->permessions->count();
-                
-                // Role type badge colors
-                $typeColors = [
-                    'super_admin' => 'danger',
-                    'admin' => 'primary',
-                    'vendor' => 'success',
-                    'vendor_user' => 'info',
-                    'other' => 'secondary'
-                ];
-                $badgeColor = $typeColors[$roleType] ?? 'secondary';
-                
-                // Format role type for display
-                $roleTypeDisplay = ucwords(str_replace('_', ' ', $roleType));
-                
-                $row['role'] = '<div class="d-flex flex-column gap-1">
-                    <div><strong>' . e($roleName) . '</strong></div>
-                    <div class="d-flex gap-1 flex-wrap">
-                        <span class="badge badge-' . $badgeColor . '" style="font-size: 11px;">
-                            <i class="uil uil-tag-alt"></i> ' . e($roleTypeDisplay) . '
-                        </span>
-                        <span class="badge badge-light text-dark" style="font-size: 11px;">
-                            <i class="uil uil-shield-check"></i> ' . $permissionsCount . ' ' . trans('roles.permissions') . '
-                        </span>
-                    </div>
-                </div>';
+                $rolesHtml = '';
+                foreach ($admin->roles as $role) {
+                    $roleName = $role->getTranslation('name', app()->getLocale());
+                    $rolesHtml .= '<span class="badge badge-info badge-round badge-sm me-1 mb-1">' . e($roleName) . '</span>';
+                }
+                $row['role'] = '<div class="userDatatable-content">' . $rolesHtml . '</div>';
             } else {
-                $row['role'] = '-';
+                $row['role'] = '<span class="color-gray">-</span>';
             }
 
             // Active Status
             $row['active'] = $admin->active ?? true;
+            
+            // Block Status
+            $row['block'] = $admin->block ?? false;
+
+            // Image
+            $row['image'] = $admin->image;
 
             // Created At
             $row['created_at'] = $admin->created_at ? $admin->created_at : '-';

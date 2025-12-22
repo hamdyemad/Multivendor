@@ -23,12 +23,13 @@ class AdminController extends Controller
         $this->middleware('can:admins.edit')->only(['edit', 'update']);
         $this->middleware('can:admins.delete')->only(['destroy']);
         $this->middleware('can:admins.show')->only(['show']);
+        $this->middleware('can:admins.change-status')->only(['changeStatus']);
     }
 
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request, $lang, $countryCode)
     {
         $languages = $this->languageService->getAll();
         return view('pages.admin_management.admin.index', compact('languages'));
@@ -37,7 +38,7 @@ class AdminController extends Controller
     /**
      * Get admins data for DataTables AJAX
      */
-    public function datatable(Request $request)
+    public function datatable(Request $request, $lang, $countryCode)
     {
         return $this->adminAction->datatable($request);
     }
@@ -45,17 +46,17 @@ class AdminController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create($lang, $countryCode)
     {
         $languages = $this->languageService->getAll();
-        $roles = $this->roleService->getAllRoles(['exclude_system' => true]);
+        $roles = $this->roleService->getAllRoles(['exclude_system' => true], 0);
         return view('pages.admin_management.admin.form', compact('languages', 'roles'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(AdminRequest $request)
+    public function store(AdminRequest $request, $lang, $countryCode)
     {
         $validated = $request->validated();
 
@@ -89,11 +90,11 @@ class AdminController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($lang, $countryCode, string $id)
     {
         try {
             $languages = $this->languageService->getAll();
-            $admin = $this->adminService->getAdminById($id);
+            $admin = $this->adminService->getAdminById((int) $id);
             return view('pages.admin_management.admin.view', compact('admin', 'languages'));
         } catch (\Exception $e) {
             return redirect()->route('admin.admin-management.admins.index')
@@ -104,28 +105,28 @@ class AdminController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($lang, $countryCode, string $id)
     {
         try {
             $languages = $this->languageService->getAll();
-            $roles = $this->roleService->getAllRoles(['exclude_system' => true]);
-            $admin = $this->adminService->getAdminById($id);
+            $admin = $this->adminService->getAdminById((int) $id);
+            $roles = $this->roleService->getAllRoles(['exclude_system' => true], 0);
             return view('pages.admin_management.admin.form', compact('admin', 'languages', 'roles'));
         } catch (\Exception $e) {
             return redirect()->route('admin.admin-management.admins.index')
                 ->with('error', __('admin.admin_not_found'));
         }
     }
-
+    
     /**
      * Update the specified resource in storage.
      */
-    public function update(AdminRequest $request, string $id)
+    public function update(AdminRequest $request, $lang, $countryCode, string $id)
     {
         $validated = $request->validated();
 
         try {
-            $this->adminService->updateAdmin($id, $validated);
+            $this->adminService->updateAdmin((int) $id, $validated);
 
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -154,10 +155,10 @@ class AdminController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, string $id)
+    public function destroy(Request $request, $lang, $countryCode, string $id)
     {
         try {
-            $this->adminService->deleteAdmin($id);
+            $this->adminService->deleteAdmin((int) $id);
 
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -179,6 +180,25 @@ class AdminController extends Controller
 
             return redirect()->route('admin.admin-management.admins.index')
                 ->with('error', __('admin.error_deleting_admin') . ': ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Change admin status.
+     */
+    public function changeStatus(Request $request, $lang, $countryCode, string $id)
+    {
+        try {
+            $this->adminService->changeStatus((int) $id, $request->status, $request->type);
+            return response()->json([
+                'success' => true,
+                'message' => __('admin.status_changed_successfully')
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 422);
         }
     }
 }

@@ -46,6 +46,10 @@ return [
     'unblocked' => 'Unblocked',
     'status' => 'Status',
     'all_status' => 'All Status',
+    'image' => 'Image',
+    'admin_image' => 'Admin Image',
+    'click_to_upload_image' => 'Click to upload image',
+    'information' => 'Information',
     
     // Table Headers
     'created_at' => 'Created At',
@@ -98,4 +102,14 @@ return [
     'roles_required' => 'At least one role is required',
     'roles_must_be_array' => 'Roles must be an array',
     'at_least_one_role_required' => 'At least one role must be selected',
+    'edit_profile' => 'Edit Profile',
+    'terms_and_conditions' => 'Terms and Conditions',
+    'sign_out' => 'Sign Out',
+    'profile_information' => 'Profile Information',
+    'change_password' => 'Change Password',
+    'profile_updated_successfully' => 'Profile updated successfully',
+    'password_updated_successfully' => 'Password updated successfully',
+    'my_profile' => 'My Profile',
+    'current_password' => 'Current Password',
+    'new_password' => 'New Password',
 ];

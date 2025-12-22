@@ -30,7 +30,7 @@ class RoleRepository implements RoleRepositoryInterface
         } else if(in_array(auth()->user()->user_type_id, [UserType::VENDOR_TYPE, UserType::VENDOR_USER_TYPE])) {
             $query->vendorShowRoles();
         }
-        return $per_page = 0 ? $query->get() : $query->paginate($per_page);
+        return $per_page == 0 ? $query->get() : $query->paginate($per_page);
     }
 
     public function getRolesQuery($filter = []) {
@@ -133,18 +133,11 @@ class RoleRepository implements RoleRepositoryInterface
         ]);
 
         // Add translations for all languages
-        if (isset($data['translations']) && is_array($data['translations'])) {
-            foreach ($data['translations'] as $languageId => $fields) {
-                // Get language
-                $language = $this->languageService->getById($languageId);
-                if (!$language) {
-                    continue;
-                }
-
-                // Store name translation
-                if (!empty($fields['name'])) {
-                    $role->setTranslation('name', $language->code, $fields['name']);
-                }
+        $languages = $this->languageService->getAll();
+        foreach ($languages as $language) {
+            $key = 'name_' . $language->code;
+            if (isset($data[$key]) && !empty($data[$key])) {
+                $role->setTranslation('name', $language->code, $data[$key]);
             }
         }
 
@@ -165,11 +158,12 @@ class RoleRepository implements RoleRepositoryInterface
         $languages = $this->languageService->getAll();
         // Update translations for all languages (no name column to update)
         foreach ($languages as $language) {
-            if (isset($data['name_' . $language->code]) && !empty($data['name_' . $language->code])) {
+            $key = 'name_' . $language->code;
+            if (isset($data[$key]) && !empty($data[$key])) {
                 $role->setTranslation(
                     'name',
                     $language->code,
-                    $data['name_' . $language->code]
+                    $data[$key]
                 );
             }
         }

@@ -173,9 +173,9 @@
                                                 @endif
                                             </label>
                                             <input type="text"
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('translations.' . $language->id . '.name') is-invalid @enderror"
-                                                id="name_{{ $language->id }}" name="translations[{{ $language->id }}][name]"
-                                                value="{{ isset($role) ? $role->getTranslation('name', $language->code) ?? '' : old('translations.' . $language->id . '.name') }}"
+                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('name_' . $language->code) is-invalid @enderror"
+                                                id="name_{{ $language->id }}" name="name_{{ $language->code }}"
+                                                value="{{ isset($role) ? $role->getTranslation('name', $language->code) ?? '' : old('name_' . $language->code) }}"
                                                 placeholder="@if ($language->code == 'ar') أدخل اسم الدور بالعربية@else{{ __('roles.enter_role_name_in') }} {{ $language->name }} @endif"
                                                 @if ($language->code == 'ar') dir="rtl" @endif>
                                             @error('translations.' . $language->id . '.name')

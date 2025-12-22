@@ -49,26 +49,8 @@
                                     <div class="card-body">
                                         <div class="row">
                                             {{-- Dynamic Language Translations for Role Name --}}
-                                            @foreach ($languages as $language)
-                                                <div class="col-md-6">
-                                                    <div class="view-item">
-                                                        <label class="il-gray fs-14 fw-500 mb-10"
-                                                            @if ($language->rtl) dir="rtl" style="text-align: right; display: block;" @endif>
-                                                            @if ($language->code == 'ar')
-                                                                الاسم بالعربية
-                                                            @elseif($language->code == 'en')
-                                                                {{ trans('roles.name') }}
-                                                            @else
-                                                                {{ trans('roles.name') }} ({{ $language->name }})
-                                                            @endif
-                                                        </label>
-                                                        <p class="fs-15 color-dark fw-500"
-                                                            @if ($language->rtl) dir="rtl" style="text-align: right;" @endif>
-                                                            {{ $role->getTranslation('name', $language->code) ?? '-' }}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            @endforeach
+                                            <x-translation-display :label="trans('roles.name')" :model="$role" fieldName="name"
+                                                :languages="$languages" />
 
                                             {{-- Permissions Count --}}
                                             <div class="col-md-6">

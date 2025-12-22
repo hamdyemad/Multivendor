@@ -46,6 +46,10 @@ return [
     'unblocked' => 'غير محظور',
     'status' => 'الحالة',
     'all_status' => 'كل الحالات',
+    'image' => 'الصورة',
+    'admin_image' => 'صورة المسؤول',
+    'click_to_upload_image' => 'انقر لتحميل الصورة',
+    'information' => 'المعلومات',
     
     // Table Headers
     'created_at' => 'تاريخ الإنشاء',
@@ -98,4 +102,14 @@ return [
     'roles_required' => 'مطلوب دور واحد على الأقل',
     'roles_must_be_array' => 'يجب أن تكون الأدوار مصفوفة',
     'at_least_one_role_required' => 'يجب اختيار دور واحد على الأقل',
+    'edit_profile' => 'تعديل الملف الشخصي',
+    'terms_and_conditions' => 'الشروط والأحكام',
+    'sign_out' => 'تسجيل الخروج',
+    'profile_information' => 'معلومات الملف الشخصي',
+    'change_password' => 'تغيير كلمة المرور',
+    'profile_updated_successfully' => 'تم تحديث الملف الشخصي بنجاح',
+    'password_updated_successfully' => 'تم تحديث كلمة المرور بنجاح',
+    'my_profile' => 'ملفي الشخصي',
+    'current_password' => 'كلمة المرور الحالية',
+    'new_password' => 'كلمة المرور الجديدة',
 ];

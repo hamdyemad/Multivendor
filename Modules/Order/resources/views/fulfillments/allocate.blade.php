@@ -35,19 +35,62 @@
                         @csrf
 
                         @foreach ($stockData as $orderProductId => $data)
+                            @php
+                                $orderProduct = $data['order_product'];
+                                $vendorProduct = $orderProduct->vendorProduct;
+                                $product = $vendorProduct?->product;
+                                $vendor = $vendorProduct?->vendor;
+                                $variant = $data['vendor_product_variant'];
+                                $productImage = $product?->image ?? null;
+                                $vendorName = $vendor?->getTranslation('name', app()->getLocale()) ?? 'N/A';
+                                $sku = $variant?->sku ?? $vendorProduct?->sku ?? 'N/A';
+                                
+                                // Build variant path: Key -> Value
+                                $variantConfig = $variant?->variantConfiguration;
+                                $variantKey = $variantConfig?->key?->getTranslation('name', app()->getLocale()) ?? null;
+                                $variantValue = $variantConfig?->getTranslation('name', app()->getLocale()) ?? null;
+                                $variantPath = null;
+                                if ($variantKey && $variantValue) {
+                                    $variantPath = $variantKey . ' → ' . $variantValue;
+                                } elseif ($variantValue) {
+                                    $variantPath = $variantValue;
+                                }
+                            @endphp
                             <div class="mb-30" data-ordered-qty="{{ $data['order_product']->quantity }}">
                                 <div class="p-20 mb-15" style="position: relative; z-index: 10;">
                                     <div class="row align-items-center">
                                         <div class="col-md-8">
-                                            <h5 class="text-primary fw-bold mb-10">
-                                                {{ $data['order_product']->name ?? 'Product' }}</h5>
-                                            <div class="d-flex gap-3">
-                                                @if ($data['vendor_product_variant']->variant_name)
-                                                    <span><strong>{{ trans('order.variant') }}:</strong>
-                                                        {{ $data['vendor_product_variant']->variant_name }}</span>
-                                                @endif
-                                                <span><strong>{{ trans('order.ordered_qty') }}:</strong> <span
-                                                        class="text-primary fw-bold">{{ $data['order_product']->quantity }}</span></span>
+                                            <div class="d-flex align-items-center gap-3">
+                                                {{-- Product Image --}}
+                                                <div class="flex-shrink-0">
+                                                    @if($productImage)
+                                                        <img src="{{ asset('storage/' . $productImage) }}" 
+                                                             alt="{{ $data['order_product']->name ?? 'Product' }}"
+                                                             class="rounded"
+                                                             style="width: 60px; height: 60px; object-fit: cover;">
+                                                    @else
+                                                        <div class="bg-light rounded d-flex align-items-center justify-content-center"
+                                                             style="width: 60px; height: 60px;">
+                                                            <i class="uil uil-image text-muted" style="font-size: 24px;"></i>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                                {{-- Product Details --}}
+                                                <div>
+                                                    <h5 class="text-primary fw-bold">
+                                                        {{ $data['order_product']->name ?? 'Product' }}
+                                                    </h5>
+                                                    <div class="d-flex flex-wrap gap-3 text-muted" style="font-size: 0.9em;">
+                                                        <span><strong>{{ trans('order::order.sku') }}:</strong> {{ $sku }}</span>
+                                                        @if ($variantPath)
+                                                            <span><strong>{{ trans('order::order.variant') }}:</strong>
+                                                                {{ $variantPath }}</span>
+                                                        @endif
+                                                        <span><strong>{{ trans('order::order.vendor') }}:</strong> {{ $vendorName }}</span>
+                                                        <span><strong>{{ trans('order::order.ordered_qty') }}:</strong> <span
+                                                                class="text-primary fw-bold">{{ $data['order_product']->quantity }}</span></span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="col-md-4 text-end">

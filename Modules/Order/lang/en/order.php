@@ -17,6 +17,8 @@ return [
     'customer_phone' => 'Customer Phone',
     'customer_address' => 'Customer Address',
     'vendor' => 'Vendor',
+    'sku' => 'SKU',
+    'ordered_qty' => 'Ordered Qty',
     'total_price' => 'Total Price',
     'items_count' => 'Items Count',
     'stage' => 'Stage',
@@ -55,6 +57,9 @@ return [
     'order_created' => 'Order created successfully',
     'order_updated' => 'Order updated successfully',
     'order_deleted' => 'Order deleted successfully',
+    'order_deleted_successfully' => 'Order deleted successfully',
+    'delete_order_confirm' => 'Are you sure you want to delete order',
+    'delete_order_error' => 'Error deleting order',
     'error_creating_order' => 'Error creating order',
     'error_updating_order' => 'Error updating order',
     'update_order' => 'Update Order',
@@ -62,6 +67,8 @@ return [
     'error_deleting_order' => 'Error deleting order',
     'order_not_found' => 'Order not found',
     'error_loading_order' => 'Error loading order',
+    'cannot_edit_order' => 'You cannot edit this order because it contains products from other vendors',
+    'cannot_delete_order' => 'You cannot delete this order because it contains products from other vendors',
 
     // Validation Messages
     'order_id_required' => 'Order ID is required',
@@ -172,4 +179,8 @@ return [
     'please_select_customer' => 'Please select a customer first',
     'field_required' => 'This field is required',
     'fill_required_fields' => 'Please fill in all required fields',
+
+    // Stock validation
+    'out_of_stock' => 'Out of Stock',
+    'product_out_of_stock_message' => 'This product is out of stock. Please restock it before adding to the order.',
 ];

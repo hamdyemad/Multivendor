@@ -35,6 +35,29 @@ class OrderController extends Controller
         $this->middleware('can:orders.create')->only(['create', 'store']);
         $this->middleware('can:orders.show')->only(['show']);
         $this->middleware('can:orders.edit')->only(['edit', 'update', 'changeStage']);
+        $this->middleware('can:orders.delete')->only(['destroy']);
+    }
+
+    /**
+     * Check if vendor can edit/delete the order
+     * Returns true if admin or if order belongs exclusively to the vendor
+     */
+    private function canVendorModifyOrder(Order $order): bool
+    {
+        // Admin can always modify
+        if (isAdmin()) {
+            return true;
+        }
+
+        $currentVendorId = auth()->user()->vendor?->id;
+        if (!$currentVendorId) {
+            return false;
+        }
+
+        // Check if all products in the order belong to the current vendor
+        $orderVendorIds = $order->products->pluck('vendor_id')->unique()->toArray();
+        
+        return count($orderVendorIds) === 1 && in_array($currentVendorId, $orderVendorIds);
     }
 
     /**
@@ -110,6 +133,8 @@ class OrderController extends Controller
             // Return raw data - rendering will be handled by DataTables in the view
             $data = [];
             $index = $start + 1; // Start index from the correct offset
+            $currentVendorId = !isAdmin() ? (auth()->user()->vendor?->id ?? null) : null;
+            
             foreach ($orders as $order) {
                 // Count items in this order
                 $itemsCount = $order->products ? $order->products->sum('quantity') : 0;
@@ -124,6 +149,13 @@ class OrderController extends Controller
                         'logo_url' => $vendor->logo ? asset('storage/' . $vendor->logo->path) : asset('assets/img/default.png')
                     ];
                 })->values();
+
+                // Check if order belongs exclusively to current vendor (for vendors only)
+                $isExclusiveToCurrentVendor = false;
+                if ($currentVendorId) {
+                    $orderVendorIds = $order->products->pluck('vendor_id')->unique()->toArray();
+                    $isExclusiveToCurrentVendor = count($orderVendorIds) === 1 && in_array($currentVendorId, $orderVendorIds);
+                }
 
                 $rowData = [
                     'index' => $index++,
@@ -143,6 +175,7 @@ class OrderController extends Controller
                         'color' => $order->stage?->color ?? '-',
                     ],
                     'created_at' => $order->created_at,
+                    'is_exclusive_to_vendor' => $isExclusiveToCurrentVendor,
                 ];
 
                 $data[] = $rowData;
@@ -189,9 +222,14 @@ class OrderController extends Controller
      */
     public function store($lang, $countryCode, StoreOrderRequest $request)
     {
-        \Log::info($request->validated());
         try {
-            $order = $this->orderService->createOrder($request->validated());
+            // Prepare data - decode JSON fields
+            $data = $request->validated();
+            $data['products'] = json_decode($data['products'], true) ?? [];
+            $data['feesData'] = json_decode($data['feesData'] ?? '[]', true) ?? [];
+            $data['discountsData'] = json_decode($data['discountsData'] ?? '[]', true) ?? [];
+
+            $order = $this->orderService->createOrder($data);
 
             return response()->json([
                 'status' => true,
@@ -233,15 +271,17 @@ class OrderController extends Controller
      */
     public function edit($lang, $countryCode, $id)
     {
-        try {
-            $order = $this->orderService->getOrderById($id);
-            if (!$order) {
-                return abort(404, trans('order::order.order_not_found'));
-            }
-            return view('order::orders.edit', compact('order'));
-        } catch (\Exception $e) {
-            return abort(500, trans('order::order.error_loading_order'));
+        $order = $this->orderService->getOrderById($id);
+        if (!$order) {
+            return abort(404, trans('order::order.order_not_found'));
         }
+
+        // Check if vendor can edit this order
+        if (!$this->canVendorModifyOrder($order)) {
+            return abort(403, trans('order::order.cannot_edit_order'));
+        }
+
+        return view('order::orders.edit', compact('order'));
     }
 
     /**
@@ -250,7 +290,29 @@ class OrderController extends Controller
     public function update($lang, $countryCode, $id, UpdateOrderRequest $request)
     {
         try {
-            $order = $this->orderService->updateOrder($id, $request->validated());
+            $order = $this->orderService->getOrderById($id);
+            if (!$order) {
+                return response()->json([
+                    'status' => false,
+                    'message' => trans('order::order.order_not_found'),
+                ], 404);
+            }
+
+            // Check if vendor can update this order
+            if (!$this->canVendorModifyOrder($order)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => trans('order::order.cannot_edit_order'),
+                ], 403);
+            }
+
+            // Prepare data - decode JSON fields
+            $data = $request->validated();
+            $data['products'] = json_decode($data['products'], true) ?? [];
+            $data['feesData'] = json_decode($data['feesData'] ?? '[]', true) ?? [];
+            $data['discountsData'] = json_decode($data['discountsData'] ?? '[]', true) ?? [];
+
+            $order = $this->orderService->updateOrder($id, $data);
 
             return response()->json([
                 'status' => true,
@@ -288,6 +350,43 @@ class OrderController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => trans('order::order.error_updating_stage'),
+                'errors' => [$e->getMessage()]
+            ], 422);
+        }
+    }
+
+    /**
+     * Delete the specified order
+     */
+    public function destroy($lang, $countryCode, $id)
+    {
+        try {
+            $order = $this->orderService->getOrderById($id);
+            if (!$order) {
+                return response()->json([
+                    'success' => false,
+                    'message' => trans('order::order.order_not_found'),
+                ], 404);
+            }
+
+            // Check if vendor can delete this order
+            if (!$this->canVendorModifyOrder($order)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => trans('order::order.cannot_delete_order'),
+                ], 403);
+            }
+
+            $this->orderService->deleteOrder($id);
+
+            return response()->json([
+                'success' => true,
+                'message' => trans('order::order.order_deleted_successfully'),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => trans('order::order.error_deleting_order'),
                 'errors' => [$e->getMessage()]
             ], 422);
         }

@@ -103,4 +103,12 @@ class OrderService
     {
         return $this->orderRepository->changeOrderStage($id, $stageId);
     }
+
+    /**
+     * Delete an order
+     */
+    public function deleteOrder($id)
+    {
+        return $this->orderRepository->deleteOrder($id);
+    }
 }

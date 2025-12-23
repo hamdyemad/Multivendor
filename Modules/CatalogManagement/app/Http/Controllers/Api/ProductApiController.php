@@ -494,10 +494,9 @@ class ProductApiController extends Controller
 
         $filters = $dto->toArray();
         
-        // Filter by vendor if user is not admin
-        if (!isAdmin()) {
-            $vendorId = auth()->user()->vendor_id ?? auth()->id();
-            $filters['vendor_id'] = $vendorId;
+        // Filter by vendor - use request param if provided
+        if ($request->filled('vendor_id')) {
+            $filters['vendor_id'] = $request->vendor_id;
         }
 
         $products = $this->productService->getVariantsWithProduct($filters);

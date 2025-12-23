@@ -17,6 +17,8 @@ return [
     'customer_phone' => 'هاتف العميل',
     'customer_address' => 'عنوان العميل',
     'vendor' => 'التاجر',
+    'sku' => 'رمز المنتج',
+    'ordered_qty' => 'الكمية المطلوبة',
     'total_price' => 'السعر الإجمالي',
     'items_count' => 'عدد العناصر',
     'stage' => 'المرحلة',
@@ -55,6 +57,9 @@ return [
     'order_created' => 'تم إنشاء الطلب بنجاح',
     'order_updated' => 'تم تحديث الطلب بنجاح',
     'order_deleted' => 'تم حذف الطلب بنجاح',
+    'order_deleted_successfully' => 'تم حذف الطلب بنجاح',
+    'delete_order_confirm' => 'هل أنت متأكد من حذف الطلب',
+    'delete_order_error' => 'خطأ في حذف الطلب',
     'error_creating_order' => 'خطأ في إنشاء الطلب',
     'error_updating_order' => 'خطأ في تحديث الطلب',
     'update_order' => 'تحديث الطلب',
@@ -62,6 +67,8 @@ return [
     'error_deleting_order' => 'خطأ في حذف الطلب',
     'order_not_found' => 'الطلب غير موجود',
     'error_loading_order' => 'خطأ في تحميل الطلب',
+    'cannot_edit_order' => 'لا يمكنك تعديل هذا الطلب لأنه يحتوي على منتجات من بائعين آخرين',
+    'cannot_delete_order' => 'لا يمكنك حذف هذا الطلب لأنه يحتوي على منتجات من بائعين آخرين',
 
     // Validation Messages
     'order_id_required' => 'رقم الطلب مطلوب',
@@ -172,4 +179,8 @@ return [
     'please_select_customer' => 'يرجى اختيار عميل أولاً',
     'field_required' => 'هذا الحقل مطلوب',
     'fill_required_fields' => 'يرجى ملء جميع الحقول المطلوبة',
+
+    // Stock validation
+    'out_of_stock' => 'نفذ من المخزون',
+    'product_out_of_stock_message' => 'هذا المنتج غير متوفر في المخزون. يرجى إعادة تخزينه قبل إضافته إلى الطلب.',
 ];

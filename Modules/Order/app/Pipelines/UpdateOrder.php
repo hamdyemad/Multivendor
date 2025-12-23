@@ -18,19 +18,25 @@ class UpdateOrder
     {
         $orderId = $payload['context']['order_id'];
         $order = Order::findOrFail($orderId);
+        $customer = $payload['context']['customer'];
 
         // Update order with new calculated values
         $order->update([
-            'customer_name' => $payload['context']['customer_name'],
-            'customer_email' => $payload['context']['customer_email'],
-            'customer_phone' => $payload['context']['customer_phone'],
-            'customer_address' => $payload['context']['customer_address'],
+            'customer_id' => $customer['id'],
+            'customer_name' => $customer['name'],
+            'customer_email' => $customer['email'],
+            'customer_phone' => $customer['phone'],
+            'customer_address' => $customer['address'],
+            'country_id' => $customer['country_id'],
+            'city_id' => $customer['city_id'],
+            'region_id' => $customer['region_id'],
             'total_product_price' => $payload['context']['total_product_price'],
             'total_tax' => $payload['context']['total_tax'],
             'total_fees' => $payload['context']['total_fees'],
             'total_discounts' => $payload['context']['total_discounts'],
-            'shipping_cost' => $payload['context']['shipping_cost'],
+            'shipping_cost' => $payload['context']['shipping_cost'] ?? $payload['context']['shipping'] ?? 0,
             'total_price' => $payload['context']['total_price'],
+            'items_count' => $payload['context']['items_count'] ?? count($payload['context']['products'] ?? []),
         ]);
 
         // Delete existing products and extras to re-sync them

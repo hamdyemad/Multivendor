@@ -20,19 +20,17 @@ class UpdateOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'customer_name' => 'sometimes|string|max:255',
-            'customer_email' => 'sometimes|email|max:255',
-            'customer_address' => 'sometimes|string',
-            'customer_phone' => 'sometimes|string|max:20',
-            'order_from' => 'sometimes|in:ios,android,web',
-            'payment_type' => 'sometimes|in:cash_on_delivery,online',
-            'customer_promo_code_title' => 'nullable|string|max:255',
-            'customer_promo_code_value' => 'nullable|numeric|min:0',
-            'customer_promo_code_type' => 'nullable|in:percentage,fixed',
-            'shipping' => 'sometimes|numeric|min:0',
-            'stage_id' => 'nullable|exists:order_stages,id',
-            'city_id' => 'nullable|exists:cities,id',
-            'region_id' => 'nullable|exists:regions,id',
+            'customer_type' => 'required|in:existing,external',
+            'selected_customer_id' => 'required_if:customer_type,existing|nullable|exists:customers,id',
+            'customer_address_id' => 'nullable|exists:customer_addresses,id',
+            'external_customer_name' => 'required_if:customer_type,external|nullable|string|max:255',
+            'external_customer_email' => 'required_if:customer_type,external|nullable|email|max:255',
+            'external_customer_phone' => 'required_if:customer_type,external|nullable|string|max:20',
+            'external_customer_address' => 'required_if:customer_type,external|nullable|string',
+            'products' => 'required|json',
+            'feesData' => 'nullable|json',
+            'discountsData' => 'nullable|json',
+            'shipping' => 'nullable|numeric|min:0',
         ];
     }
 }

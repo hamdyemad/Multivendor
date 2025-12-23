@@ -82,7 +82,18 @@ class Order extends BaseModel
 
     public static function generateOrderNumber()
     {
-        return 'ORD-' . str_pad(self::count() + 1, 6, '0', STR_PAD_LEFT);
+        // Get the last order number and increment it
+        $lastOrder = self::orderBy('id', 'desc')->first();
+        
+        if ($lastOrder && $lastOrder->order_number) {
+            // Extract the number from the last order number (e.g., "ORD-000103" -> 103)
+            $lastNumber = (int) str_replace('ORD-', '', $lastOrder->order_number);
+            $nextNumber = $lastNumber + 1;
+        } else {
+            $nextNumber = 1;
+        }
+        
+        return 'ORD-' . str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
     }
 
     /**

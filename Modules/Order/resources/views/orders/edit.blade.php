@@ -1,5 +1,5 @@
 @extends('layout.app')
-@section('title', trans('order.create_order'))
+@section('title', trans('order.edit_order'))
 @section('content')
     <div style="padding: 20px;">
         <div class="row">
@@ -11,7 +11,7 @@
                         'icon' => 'uil uil-estate',
                     ],
                     ['title' => trans('order.order_management'), 'url' => route('admin.orders.index')],
-                    ['title' => trans('order.create_order')],
+                    ['title' => trans('order.edit_order') . ' #' . $order->order_number],
                 ]" />
             </div>
         </div>
@@ -20,15 +20,16 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-bottom py-20">
                     <h5 class="mb-0 fw-500">
-                        {{ trans('order.create_order') }}
+                        {{ trans('order.edit_order') }} #{{ $order->order_number }}
                     </h5>
                 </div>
                 <div class="card-body">
                     <!-- Alert Container -->
                     <div id="alertContainer" class="mb-2"></div>
 
-                    <form id="createOrderForm" action="{{ route('admin.orders.store') }}" method="POST">
+                    <form id="editOrderForm" action="{{ route('admin.orders.update', $order->id) }}" method="POST">
                         @csrf
+                        @method('PUT')
 
                         {{-- Customer Selection Section --}}
                         <div class="mb-30">
@@ -46,13 +47,13 @@
                                         </label>
                                         <div class="btn-group w-100" role="group">
                                             <input type="radio" class="btn-check" name="customer_type"
-                                                id="existing_customer" value="existing" checked>
+                                                id="existing_customer" value="existing" {{ $order->customer_id ? 'checked' : '' }}>
                                             <label class="btn btn-outline-primary" for="existing_customer">
                                                 <i class="uil uil-database me-1"></i>{{ trans('order.existing_customer') }}
                                             </label>
 
                                             <input type="radio" class="btn-check" name="customer_type"
-                                                id="external_customer" value="external">
+                                                id="external_customer" value="external" {{ !$order->customer_id ? 'checked' : '' }}>
                                             <label class="btn btn-outline-primary" for="external_customer">
                                                 <i class="uil uil-user-plus me-1"></i>{{ trans('order.external_customer') }}
                                             </label>
@@ -62,7 +63,7 @@
                             </div>
 
                             {{-- Existing Customer Section --}}
-                            <div id="existing_customer_section">
+                            <div id="existing_customer_section" style="{{ !$order->customer_id ? 'display: none;' : '' }}">
                                 <div class="row">
                                     <div class="col-md-12 mb-25">
                                         <div class="form-group">
@@ -75,20 +76,21 @@
                                                     class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                     id="customer_search"
                                                     placeholder="{{ __('common.search') }} {{ trans('order.customer_name') }}..."
-                                                    autocomplete="off">
+                                                    autocomplete="off"
+                                                    value="{{ $order->customer?->full_name ?? '' }}">
                                                 <div class="position-absolute w-100 bg-white border rounded-bottom shadow-sm"
                                                     id="customer_suggestions"
                                                     style="display: none; top: 100%; left: 0; z-index: 1000; max-height: 300px; overflow-y: auto;">
                                                 </div>
                                             </div>
                                             <input type="hidden" id="selected_customer_id" name="selected_customer_id"
-                                                value="">
+                                                value="{{ $order->customer_id ?? '' }}">
                                         </div>
                                     </div>
                                 </div>
 
                                 {{-- Customer Address Selection --}}
-                                <div class="row" id="customer_address_section" style="display: none;">
+                                <div class="row" id="customer_address_section" style="{{ $order->customer_id ? '' : 'display: none;' }}">
                                     <div class="col-md-12 mb-25">
                                         <div class="form-group">
                                             <label class="il-gray fs-14 fw-500 mb-10 d-block">
@@ -135,7 +137,8 @@
                                             <input type="email"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                 id="customer_email" name="customer_email"
-                                                placeholder="{{ trans('order.customer_email') }}" readonly>
+                                                placeholder="{{ trans('order.customer_email') }}" readonly
+                                                value="{{ $order->customer?->email ?? '' }}">
                                         </div>
                                     </div>
 
@@ -147,7 +150,8 @@
                                             <input type="tel"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                 id="customer_phone" name="customer_phone"
-                                                placeholder="{{ trans('order.customer_phone') }}" readonly>
+                                                placeholder="{{ trans('order.customer_phone') }}" readonly
+                                                value="{{ $order->customer?->phone ?? $order->customer_phone ?? '' }}">
                                         </div>
                                     </div>
                                 </div>
@@ -161,14 +165,15 @@
                                             <input type="text"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                 id="customer_address" name="customer_address"
-                                                placeholder="{{ trans('order.customer_address') }}" readonly>
+                                                placeholder="{{ trans('order.customer_address') }}" readonly
+                                                value="{{ $order->customer_address ?? '' }}">
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             {{-- External Customer Section --}}
-                            <div id="external_customer_section" style="display: none;">
+                            <div id="external_customer_section" style="{{ $order->customer_id ? 'display: none;' : '' }}">
                                 <div class="row">
                                     <div class="col-md-6 mb-25">
                                         <div class="form-group">
@@ -179,7 +184,8 @@
                                             <input type="text"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                 id="external_customer_name" name="external_customer_name"
-                                                placeholder="{{ trans('order.customer_name') }}">
+                                                placeholder="{{ trans('order.customer_name') }}"
+                                                value="{{ !$order->customer_id ? $order->customer_name : '' }}">
                                             @error('external_customer_name')
                                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                                             @enderror
@@ -195,7 +201,8 @@
                                             <input type="email"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                 id="external_customer_email" name="external_customer_email"
-                                                placeholder="{{ trans('order.customer_email') }}">
+                                                placeholder="{{ trans('order.customer_email') }}"
+                                                value="{{ !$order->customer_id ? $order->customer_email : '' }}">
                                             @error('external_customer_email')
                                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                                             @enderror
@@ -213,7 +220,8 @@
                                             <input type="tel"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                 id="external_customer_phone" name="external_customer_phone"
-                                                placeholder="{{ trans('order.customer_phone') }}">
+                                                placeholder="{{ trans('order.customer_phone') }}"
+                                                value="{{ !$order->customer_id ? $order->customer_phone : '' }}">
                                             @error('external_customer_phone')
                                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                                             @enderror
@@ -229,7 +237,8 @@
                                             <input type="text"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                 id="external_customer_address" name="external_customer_address"
-                                                placeholder="{{ trans('order.customer_address') }}">
+                                                placeholder="{{ trans('order.customer_address') }}"
+                                                value="{{ !$order->customer_id ? $order->customer_address : '' }}">
                                             @error('external_customer_address')
                                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                                             @enderror
@@ -414,10 +423,10 @@
                             <i class="uil uil-arrow-left me-1"></i>
                             {{ trans('main.cancel') }}
                         </a>
-                        <button type="submit" form="createOrderForm" class="btn btn-primary btn-squared"
+                        <button type="submit" form="editOrderForm" class="btn btn-primary btn-squared"
                             id="submitBtn">
                             <i class="uil uil-check me-1"></i>
-                            {{ trans('order.create_order') }}
+                            {{ trans('order.edit_order') }}
                         </button>
                     </div>
                 </div>
@@ -553,6 +562,101 @@
                     let productCounter = 0;
                     let allCustomers = [];
 
+                    // Debug: Check order data
+                    console.log('Order products count from PHP:', {{ $order->products ? $order->products->count() : 0 }});
+                    console.log('Order extraFeesDiscounts count from PHP:', {{ $order->extraFeesDiscounts ? $order->extraFeesDiscounts->count() : 0 }});
+                    console.log('Order fees count from PHP:', {{ $order->extraFeesDiscounts ? $order->extraFeesDiscounts->where('type', 'fee')->count() : 0 }});
+                    console.log('Order discounts count from PHP:', {{ $order->extraFeesDiscounts ? $order->extraFeesDiscounts->where('type', 'discount')->count() : 0 }});
+
+                    // Pre-populate existing order products
+                    @if($order->products && $order->products->count() > 0)
+                        @foreach($order->products as $orderProduct)
+                            @php
+                                $productName = $orderProduct->vendorProduct?->product?->getTranslation('title', app()->getLocale()) ?? 'N/A';
+                                $variantName = $orderProduct->vendorProductVariant?->variantConfiguration?->getTranslation('name', app()->getLocale()) ?? '';
+                                $fullName = $variantName ? $productName . ' - ' . $variantName : $productName;
+                                $taxRate = $orderProduct->taxes?->percentage ?? 0;
+                                $categoryId = $orderProduct->vendorProduct?->product?->category_id ?? null;
+                                $categoryName = $orderProduct->vendorProduct?->product?->category?->getTranslation('name', app()->getLocale()) ?? '';
+                                $price = $orderProduct->price ?? 0;
+                                $quantity = $orderProduct->quantity ?? 1;
+                                $total = $price * $quantity;
+                                $sku = $orderProduct->vendorProductVariant?->sku ?? $orderProduct->vendorProduct?->sku ?? 'N/A';
+                                $vendorName = $orderProduct->vendorProduct?->vendor?->getTranslation('name', app()->getLocale()) ?? 'N/A';
+                                $productImage = $orderProduct->vendorProduct?->product?->image ?? '';
+                            @endphp
+                            products.push({
+                                id: productCounter++,
+                                vendor_product_id: {{ $orderProduct->vendor_product_id ?? 'null' }},
+                                vendor_product_variant_id: {{ $orderProduct->vendor_product_variant_id ?? 'null' }},
+                                name: "{{ addslashes($fullName) }}",
+                                price: {{ $price }},
+                                quantity: {{ $quantity }},
+                                taxRate: {{ $taxRate }},
+                                total: {{ $total }},
+                                category_id: {{ $categoryId ?? 'null' }},
+                                category_name: "{{ addslashes($categoryName) }}",
+                                sku: "{{ addslashes($sku) }}",
+                                variantName: "{{ addslashes($variantName) }}",
+                                vendorName: "{{ addslashes($vendorName) }}",
+                                image: "{{ $productImage }}"
+                            });
+                        @endforeach
+                    @endif
+
+                    // Pre-populate existing fees
+                    console.log('Checking for fees...');
+                    console.log('extraFeesDiscounts exists:', {{ $order->extraFeesDiscounts ? 'true' : 'false' }});
+                    console.log('extraFeesDiscounts count:', {{ $order->extraFeesDiscounts ? $order->extraFeesDiscounts->count() : 0 }});
+                    @if($order->extraFeesDiscounts)
+                        @php
+                            $feesCollection = $order->extraFeesDiscounts->where('type', 'fee');
+                        @endphp
+                        console.log('Fees collection count:', {{ $feesCollection->count() }});
+                        @if($feesCollection->count() > 0)
+                            console.log('Loading fees from order...');
+                            @foreach($feesCollection as $fee)
+                                console.log('Fee found:', { reason: "{{ addslashes($fee->reason ?? '') }}", amount: {{ $fee->cost ?? 0 }} });
+                                fees.push({
+                                    id: feeCounter++,
+                                    reason: "{{ addslashes($fee->reason ?? '') }}",
+                                    amount: {{ $fee->cost ?? 0 }}
+                                });
+                            @endforeach
+                        @else
+                            console.log('No fees found (count is 0)');
+                        @endif
+                    @else
+                        console.log('extraFeesDiscounts is null/empty');
+                    @endif
+
+                    // Pre-populate existing discounts
+                    console.log('Checking for discounts...');
+                    @if($order->extraFeesDiscounts)
+                        @php
+                            $discountsCollection = $order->extraFeesDiscounts->where('type', 'discount');
+                        @endphp
+                        console.log('Discounts collection count:', {{ $discountsCollection->count() }});
+                        @if($discountsCollection->count() > 0)
+                            console.log('Loading discounts from order...');
+                            @foreach($discountsCollection as $discount)
+                                console.log('Discount found:', { reason: "{{ addslashes($discount->reason ?? '') }}", amount: {{ $discount->cost ?? 0 }} });
+                                discounts.push({
+                                    id: discountCounter++,
+                                    reason: "{{ addslashes($discount->reason ?? '') }}",
+                                    amount: {{ $discount->cost ?? 0 }}
+                                });
+                            @endforeach
+                        @else
+                            console.log('No discounts found (count is 0)');
+                        @endif
+                    @else
+                        console.log('extraFeesDiscounts is null/empty');
+                    @endif
+
+                    console.log('Fees array after loading:', fees);
+                    console.log('Discounts array after loading:', discounts);
+
                     // Note: Products are now loaded via direct AJAX search, not pre-loaded
 
                     // Load all products
@@ -562,7 +666,7 @@
                             type: 'GET',
                             dataType: 'json',
                             data: {
-                                vendor_id: "{{ (auth()->user()->vendor) ? auth()->user()->vendor->id : '' }}"
+                                vendor_id: "{{ !isAdmin() && auth()->user()->vendor ? auth()->user()->vendor->id : '' }}"
                             },
                             headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
@@ -703,7 +807,7 @@
                                                     const vendorName = variant.vendor_name || 'N/A';
 
                                                     html += `
-                                                <div class="p-2 border-bottom cursor-pointer product-suggestion"
+                                                <div class="p-2 border-bottom cursor-pointer product-suggestion ${variantStock <= 0 ? 'text-muted' : ''}"
                                                      data-id="${variant.id}"
                                                      data-product-id="${product.id}"
                                                      data-name="${productName} - ${variantName}"
@@ -718,7 +822,7 @@
                                                      data-image="${productImage || ''}"
                                                      data-stock="${variantStock}"
                                                      style="cursor: pointer;">
-                                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                                    <div class="d-flex align-items-center gap-2">
                                                         ${productImage ? 
                                                             `<img src="${productImage}" alt="${productName}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #dee2e6;">` : 
                                                             `<div class="rounded d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; border: 1px solid #dee2e6;"><i class="uil uil-image text-muted"></i></div>`
@@ -728,7 +832,7 @@
                                                                 <span class="fw-500">${productName}</span>
                                                                 <span class="text-muted">${price.toFixed(2)} {{ currency() }}</span>
                                                             </div>
-                                                            <small class="text-muted d-block">${variantName} (SKU: ${variantSku} | Stock: ${variantStock}) ${limitation > 0 ? `- Max: ${limitation}` : ''}</small>
+                                                            <small class="text-muted d-block">${variantName} (SKU: ${variantSku} | Stock: ${variantStock <= 0 ? '<span class="text-danger">Out of Stock</span>' : variantStock}) ${limitation > 0 ? `- Max: ${limitation}` : ''}</small>
                                                             <small class="text-primary d-block"><i class="uil uil-store me-1"></i>${vendorName}</small>
                                                         </div>
                                                     </div>
@@ -747,9 +851,8 @@
                                                  data-tax-rate="${taxRate}"
                                                  data-category-id="${categoryId}"
                                                  data-category-name="${categoryName}"
-                                                 data-stock="${productStock}"
                                                  style="cursor: pointer;">
-                                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                                <div class="d-flex align-items-center gap-2">
                                                     ${productImage ? 
                                                         `<img src="${productImage}" alt="${productName}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #dee2e6;">` : 
                                                         `<div class="rounded d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; border: 1px solid #dee2e6;"><i class="uil uil-image text-muted"></i></div>`
@@ -965,7 +1068,7 @@
                     });
 
                     // Load customer addresses
-                    function loadCustomerAddresses(customerId) {
+                    function loadCustomerAddresses(customerId, preSelectAddress = null) {
                         $.ajax({
                             url: `/api/customers/${customerId}/addresses`,
                             type: 'GET',
@@ -986,20 +1089,31 @@
                                     '<option value="">{{ trans('order.select_address') }}</option>');
 
                                 if (response.data && response.data.length > 0) {
+                                    let matchedAddressId = null;
+                                    
                                     response.data.forEach(address => {
                                         addressSelect.append(
                                             `<option value="${address.id}" data-address="${address.address}">${address.title} - ${address.address}</option>`
                                         );
+                                        
+                                        // Check if this address matches the pre-select address
+                                        if (preSelectAddress && address.address === preSelectAddress) {
+                                            matchedAddressId = address.id;
+                                        }
                                     });
+                                    
+                                    // Pre-select the matched address
+                                    if (matchedAddressId) {
+                                        addressSelect.val(matchedAddressId);
+                                        $('#customer_address').val(preSelectAddress);
+                                    }
+                                    
                                     $('#customer_address_section').show();
                                     $('#no_address_section').hide();
                                 } else {
                                     $('#customer_address_section').hide();
                                     $('#no_address_section').show();
                                 }
-
-                                // Clear address field until user selects one
-                                $('#customer_address').val('');
 
                                 // Store current customer ID for address creation
                                 $('#addAddressForm').data('customer-id', customerId);
@@ -1310,6 +1424,73 @@
                     loadAllCustomers();
                     loadCitiesForCurrentCountry();
 
+                    // Load customer addresses on page load if there's an existing customer
+                    @if($order->customer_id)
+                        loadCustomerAddresses({{ $order->customer_id }}, "{{ addslashes($order->customer_address ?? '') }}");
+                    @endif
+
+                    // Pre-populate shipping value
+                    @if($order->shipping)
+                        $('#shipping').val({{ $order->shipping }});
+                    @endif
+
+                    // Debug: Log products array
+                    console.log('Pre-populated products:', products);
+                    console.log('Products count:', products.length);
+
+                    // Render pre-populated fees on page load FIRST
+                    console.log('Rendering fees, count:', fees.length);
+                    fees.forEach(function(fee) {
+                        const feeHtml = `
+                        <div class="fee-item mb-10 p-10 rounded" data-fee-id="fee_${fee.id}">
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control fee-reason" placeholder="{{ trans('order.reason') }}" value="${fee.reason}" required style="background-color: transparent; border: 1px solid #ddd;">
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="number" class="form-control fee-amount" placeholder="0.00" step="0.01" min="0" value="${fee.amount}" required style="background-color: transparent; border: 1px solid #ddd;">
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="button" class="btn btn-sm btn-danger remove-fee w-100">
+                                        <i class="uil uil-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>`;
+                        $('#feesContainer').append(feeHtml);
+                    });
+
+                    // Render pre-populated discounts on page load FIRST
+                    console.log('Rendering discounts, count:', discounts.length);
+                    discounts.forEach(function(discount) {
+                        const discountHtml = `
+                        <div class="discount-item mb-10 p-10 rounded" data-discount-id="discount_${discount.id}">
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control discount-reason" placeholder="{{ trans('order.reason') }}" value="${discount.reason}" required style="background-color: transparent; border: 1px solid #ddd;">
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="number" class="form-control discount-amount" placeholder="0.00" step="0.01" min="0" value="${discount.amount}" required style="background-color: transparent; border: 1px solid #ddd;">
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="button" class="btn btn-sm btn-danger remove-discount w-100">
+                                        <i class="uil uil-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>`;
+                        $('#discountsContainer').append(discountHtml);
+                    });
+
+                    // Render pre-populated products on page load AFTER fees/discounts
+                    if (products.length > 0) {
+                        console.log('Rendering products table...');
+                        renderProductsTable();
+                    }
+
+                    // Update totals after rendering ALL pre-populated data
+                    updateSummary();
+
                     // Add Fee
                     $('#addFeeBtn').on('click', function() {
                         const feeId = `fee_${feeCounter++}`;
@@ -1481,8 +1662,14 @@
                     // Remove Product
                     $(document).on('click', '.remove-product', function() {
                         const productId = $(this).data('product-id');
+                        console.log('Removing product with ID:', productId);
+                        console.log('Products before removal:', JSON.stringify(products));
+                        
                         // Use == for loose comparison to handle both string and number IDs
                         products = products.filter(p => p.id != productId);
+                        
+                        console.log('Products after removal:', JSON.stringify(products));
+                        
                         renderProductsTable();
                         updateSummary();
                         // Recalculate shipping when product is removed
@@ -1550,22 +1737,55 @@
                             const lineTotal = priceExcl * product.quantity;
                             const lineTax = lineTotal * (taxRate / 100);
 
+                            console.log('Product tax calculation:', {
+                                name: product.name,
+                                taxRate: taxRate,
+                                priceExcl: priceExcl,
+                                lineTotal: lineTotal,
+                                lineTax: lineTax
+                            });
+
                             subtotal += lineTotal;
                             totalTax += lineTax;
                         });
 
-                        $('.fee-item').each(function() {
-                            const amount = parseFloat($(this).find('.fee-amount').val()) || 0;
-                            totalFees += amount;
+                        console.log('Summary totals:', {
+                            subtotal: subtotal,
+                            totalTax: totalTax,
+                            productsCount: products.length
                         });
 
+                        // Sync fees array from DOM inputs
+                        let tempFees = [];
+                        $('.fee-item').each(function() {
+                            const reason = $(this).find('.fee-reason').val();
+                            const amount = parseFloat($(this).find('.fee-amount').val()) || 0;
+                            tempFees.push({ reason: reason, amount: amount });
+                            totalFees += amount;
+                        });
+                        fees = tempFees;
+
+                        // Sync discounts array from DOM inputs
+                        let tempDiscounts = [];
                         $('.discount-item').each(function() {
+                            const reason = $(this).find('.discount-reason').val();
                             const amount = parseFloat($(this).find('.discount-amount').val()) || 0;
+                            tempDiscounts.push({ reason: reason, amount: amount });
                             totalDiscounts += amount;
                         });
+                        discounts = tempDiscounts;
 
                         const shipping = parseFloat($('#shipping').val()) || 0;
                         const grandTotal = subtotal + shipping + totalFees + totalTax - totalDiscounts;
+
+                        console.log('Updating UI with:', {
+                            subtotal: subtotal,
+                            shipping: shipping,
+                            totalTax: totalTax,
+                            totalFees: totalFees,
+                            totalDiscounts: totalDiscounts,
+                            grandTotal: grandTotal
+                        });
 
                         $('#subtotal').text(subtotal.toFixed(2) + ' {{ __('common.currency') }}');
                         $('#shippingDisplay').text(shipping.toFixed(2) + ' {{ __('common.currency') }}');
@@ -1574,8 +1794,11 @@
                         if (totalTax > 0) {
                             $('#totalTax').text(totalTax.toFixed(2) + ' {{ __('common.currency') }}');
                             $('#taxSection').removeClass('d-none').addClass('d-flex');
+                            console.log('Showing tax section with value:', totalTax.toFixed(2));
                         } else {
+                            $('#totalTax').text('0.00 {{ __('common.currency') }}');
                             $('#taxSection').removeClass('d-flex').addClass('d-none');
+                            console.log('Hiding tax section, totalTax is:', totalTax);
                         }
 
                         $('#totalFeesDisplay').text(totalFees.toFixed(2) + ' {{ __('common.currency') }}');
@@ -1583,23 +1806,6 @@
                         $('#grandTotal').text(grandTotal.toFixed(2) + ' {{ __('common.currency') }}');
 
                         // Update hidden inputs
-                        fees = [];
-                        discounts = [];
-
-                        $('.fee-item').each(function() {
-                            fees.push({
-                                reason: $(this).find('.fee-reason').val(),
-                                amount: parseFloat($(this).find('.fee-amount').val()) || 0
-                            });
-                        });
-
-                        $('.discount-item').each(function() {
-                            discounts.push({
-                                reason: $(this).find('.discount-reason').val(),
-                                amount: parseFloat($(this).find('.discount-amount').val()) || 0
-                            });
-                        });
-
                         $('#feesData').val(JSON.stringify(fees));
                         $('#discountsData').val(JSON.stringify(discounts));
                     }
@@ -1732,7 +1938,7 @@
                     }
 
                     // Form submission
-                    $('#createOrderForm').on('submit', function(e) {
+                    $('#editOrderForm').on('submit', function(e) {
                         e.preventDefault();
 
                         // Validate form first
@@ -1788,7 +1994,7 @@
 
                         if (typeof LoadingOverlay !== 'undefined') {
                             LoadingOverlay.show({
-                                text: '{{ trans('order.create_order') }}',
+                                text: '{{ trans('order.edit_order') }}',
                                 subtext: '{{ trans('main.please wait') }}'
                             });
                         }
@@ -1956,5 +2162,5 @@
 
     {{-- Include Loading Overlay Component --}}
     @push('after-body')
-        <x-loading-overlay :loadingText="trans('order.create_order')" :loadingSubtext="trans('main.please wait')" />
+        <x-loading-overlay :loadingText="trans('order.edit_order')" :loadingSubtext="trans('main.please wait')" />
     @endpush

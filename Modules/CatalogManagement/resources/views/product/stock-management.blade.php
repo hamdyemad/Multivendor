@@ -201,7 +201,7 @@
                                                                                     value="{{ $stock->quantity }}"
                                                                                     min="0" placeholder="0">
                                                                             </td>
-                                                                            <td class="text-center">
+                                                                            <td class="text-center d-flex justify-content-center">
                                                                                 <button type="button"
                                                                                     class="btn btn-danger btn-sm remove-stock-row">
                                                                                     <i class="uil uil-trash-alt m-0"></i>
@@ -233,7 +233,7 @@
                                                                                     value="0" min="0"
                                                                                     placeholder="0">
                                                                             </td>
-                                                                            <td class="text-center">
+                                                                            <td class="text-center d-flex justify-content-center">
                                                                                 <button type="button"
                                                                                     class="btn btn-danger btn-sm remove-stock-row">
                                                                                     <i class="uil uil-trash-alt m-0"></i>
@@ -528,7 +528,7 @@
                                                                                             min="0"
                                                                                             placeholder="0">
                                                                                     </td>
-                                                                                    <td class="text-center">
+                                                                                    <td class="text-center d-flex justify-content-center">
                                                                                         <button type="button"
                                                                                             class="btn btn-danger btn-sm remove-stock-row">
                                                                                             <i
@@ -568,7 +568,7 @@
                                                                                             value="0" min="0"
                                                                                             placeholder="0">
                                                                                     </td>
-                                                                                    <td class="text-center">
+                                                                                    <td class="text-center d-flex justify-content-center">
                                                                                         <button type="button"
                                                                                             class="btn btn-danger btn-sm remove-stock-row">
                                                                                             <i
@@ -849,7 +849,7 @@
                 <input type="number" name="__NAME_PREFIX__[stocks][__STOCK_INDEX__][quantity]"
                     class="form-control quantity-input" min="0" placeholder="0" required>
             </td>
-            <td class="text-center">
+            <td class="text-center d-flex justify-content-center">
                 <button type="button" class="btn btn-danger btn-sm remove-stock-row">
                     <i class="uil uil-trash-alt m-0"></i>
                 </button>
@@ -1621,7 +1621,7 @@
                 <td>
                     <input type="number" name="stocks[${rowCount}][quantity]" class="form-control quantity-input" value="0" min="0" placeholder="0">
                 </td>
-                <td class="text-center">
+                <td class="text-center d-flex justify-content-center">
                     <button type="button" class="btn btn-danger btn-sm remove-stock-row">
                         <i class="uil uil-trash-alt m-0"></i>
                     </button>
@@ -1702,14 +1702,18 @@
                     $row.find('input[name*="[quantity]"]').attr('name', `stocks[${index}][quantity]`);
                 });
 
-                // Reindex variant stocks
-                $('.variant-configuration-section').each(function() {
-                    const $section = $(this);
-                    const variantIndex = $section.find('input[name*="[id]"]').first().attr('name')?.match(
-                        /variants\[(\d+)\]/)?.[1];
+                // Reindex variant stocks - iterate through each variant card individually
+                $('[id^="variant-"][id$="-section"]').each(function() {
+                    const $card = $(this);
+                    const cardId = $card.attr('id');
+                    // Extract variant index from card id (e.g., "variant-0-section" -> "0")
+                    const variantIndex = cardId.match(/variant-(\d+)-section/)?.[1];
 
                     if (variantIndex !== undefined) {
-                        $section.find('tr.stock-row').each(function(stockIndex) {
+                        // Find the stock rows tbody for this variant
+                        const $stockRows = $card.find(`#variant-${variantIndex}-stock-rows tr.stock-row`);
+                        
+                        $stockRows.each(function(stockIndex) {
                             const $row = $(this);
 
                             // Update hidden inputs
@@ -1726,6 +1730,8 @@
                             $row.find('input[name*="[quantity]"]').attr('name',
                                 `variants[${variantIndex}][stocks][${stockIndex}][quantity]`);
                         });
+                        
+                        console.log(`✅ Reindexed ${$stockRows.length} stock rows for variant ${variantIndex}`);
                     }
                 });
 
@@ -1764,7 +1770,7 @@
                 <td>
                     <input type="number" name="variants[${variantIndex}][stocks][${rowCount}][quantity]" class="form-control quantity-input" value="0" min="0" placeholder="0">
                 </td>
-                <td class="text-center">
+                <td class="text-center d-flex justify-content-center">
                     <button type="button" class="btn btn-danger btn-sm remove-stock-row">
                         <i class="uil uil-trash-alt m-0"></i>
                     </button>

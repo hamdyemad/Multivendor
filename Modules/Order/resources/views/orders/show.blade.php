@@ -159,13 +159,25 @@
                                 </thead>
                                 <tbody>
                                     @forelse($order->products as $key => $product)
+                                        @php
+                                            $productImage = $product->vendorProduct?->product?->mainImage?->path;
+                                            $vendorName = $product->vendorProduct?->vendor?->getTranslation('name', app()->getLocale()) ?? 'N/A';
+                                            
+                                            // Build variant path: Key → Value
+                                            $variantConfig = $product->vendorProductVariant?->variantConfiguration;
+                                            $variantKey = $variantConfig?->key?->getTranslation('name', app()->getLocale()) ?? null;
+                                            $variantValue = $variantConfig?->getTranslation('name', app()->getLocale()) ?? null;
+                                            $variantPath = null;
+                                            if ($variantKey && $variantValue) {
+                                                $variantPath = $variantKey . ' → ' . $variantValue;
+                                            } elseif ($variantValue) {
+                                                $variantPath = $variantValue;
+                                            }
+                                        @endphp
                                         <tr>
                                             <td class="fw-bold">{{ $key + 1 }}</td>
                                             <td>
                                                 <div class="d-flex align-items-center gap-3">
-                                                    @php
-                                                        $productImage = $product->vendorProduct?->product?->mainImage?->path;
-                                                    @endphp
                                                     @if($productImage)
                                                         <img src="{{ asset('storage/' . $productImage) }}" 
                                                              alt="{{ $product->vendorProduct->product->name ?? 'Product' }}"
@@ -180,19 +192,22 @@
                                                     <div>
                                                         <p class="fw-bold mb-2">
                                                             {{ $product->vendorProduct->product->name ?? 'N/A' }}</p>
-                                                        <small class="text-muted d-block mb-1">SKU:
-                                                            {{ $product->vendorProduct?->sku ?? 'N/A' }}</small>
-                                                        @if ($product->vendorProductVariant->variantConfiguration)
+                                                        <small class="text-muted d-block mb-1">
+                                                            <strong>{{ trans('order::order.sku') }}:</strong>
+                                                            {{ $product->vendorProductVariant?->sku ?? $product->vendorProduct?->sku ?? 'N/A' }}
+                                                        </small>
+                                                        @if ($variantPath)
                                                             <small class="text-muted d-block mb-1">
                                                                 <i class="uil uil-tag me-1"></i>
                                                                 <strong>{{ trans('order::order.variant') }}:</strong>
-                                                                @if ($product->vendorProductVariant->variantConfiguration)
-                                                                    {{ app()->getLocale() === 'ar' ? $product->vendorProductVariant->variant_path_ar : $product->vendorProductVariant->variant_path_en }}
-                                                                @else
-                                                                    {{ trans('order::order.no_variant') }}
-                                                                @endif
+                                                                {{ $variantPath }}
                                                             </small>
                                                         @endif
+                                                        <small class="text-muted d-block">
+                                                            <i class="uil uil-store me-1"></i>
+                                                            <strong>{{ trans('order::order.vendor') }}:</strong>
+                                                            {{ $vendorName }}
+                                                        </small>
                                                     </div>
                                                 </div>
                                             </td>
@@ -208,7 +223,7 @@
                                             <td colspan="5" class="text-center text-muted py-20">
                                                 {{ trans('common.no_data') }}
                                             </td>
-                                        </tr
+                                        </tr>
                                     @endforelse
                                 </tbody>
                             </table>

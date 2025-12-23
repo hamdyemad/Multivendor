@@ -19,7 +19,7 @@ class OrderRepository implements OrderRepositoryInterface
     {
         $query = Order::query();
 
-        $query->with(['stage', 'customer', 'products'])->filter($filters)->latest('order_number');
+        $query->with(['stage', 'customer', 'products'])->filter($filters)->latest('created_at');
         
         // Filter by vendor if user is not admin
         if (!isAdmin()) {
@@ -40,8 +40,11 @@ class OrderRepository implements OrderRepositoryInterface
         return Order::with([
             'stage', 
             'customer', 
-            'products.vendorProduct.product', 
+            'products.vendorProduct.product.category',
+            'products.vendorProduct.product.mainImage',
+            'products.vendorProduct.vendor',
             'products.vendorProductVariant.variantConfiguration.key', 
+            'products.taxes',
             'extraFeesDiscounts'
         ])->findOrFail($id);
     }
@@ -200,5 +203,33 @@ class OrderRepository implements OrderRepositoryInterface
         // DB::table('pricing')
         //     ->where('id', $priceId)
         //     ->update(['status' => 'reserved']);
+    }
+
+    /**
+     * Delete an order and its related data
+     *
+     * @param int $id
+     * @return bool
+     */
+    public function deleteOrder($id): bool
+    {
+        return DB::transaction(function () use ($id) {
+            $order = Order::findOrFail($id);
+            
+            // Delete related order products and their taxes
+            foreach ($order->products as $product) {
+                $product->taxes()->delete();
+            }
+            $order->products()->delete();
+            
+            // Delete related fulfillments
+            $order->fulfillments()->delete();
+            
+            // Delete related extra fees and discounts
+            $order->extraFeesDiscounts()->delete();
+            
+            // Delete the order
+            return $order->delete();
+        });
     }
 }

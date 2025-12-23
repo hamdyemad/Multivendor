@@ -69,8 +69,11 @@ class OrderFulfillmentRepository implements OrderFulfillmentRepositoryInterface
      */
     public function getStockDataForOrder($orderId)
     {
-        $order = Order::with(['products.vendorProduct', 'products.vendorProductVariant'])
-            ->findOrFail($orderId);
+        $order = Order::with([
+            'products.vendorProduct.product',
+            'products.vendorProduct.vendor',
+            'products.vendorProductVariant.variantConfiguration.key'
+        ])->findOrFail($orderId);
 
         $regions = Region::with('stocks')->get();
         $existingFulfillments = $this->getByOrderWithRelations($orderId);

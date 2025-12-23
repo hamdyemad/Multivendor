@@ -14,4 +14,5 @@ interface OrderRepositoryInterface
     public function syncOrderExtras(Order $order, array $fees, string $type): void;
     public function updateProductSales(array $productSalesData);
     public function updatePricingStatus(int $priceId);
+    public function deleteOrder($id): bool;
 }

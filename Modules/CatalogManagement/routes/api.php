@@ -20,7 +20,7 @@ Route::apiResource('brands', BrandApiController::class);
 
 // Product Routes - Optional Authentication (handles both guests and authenticated users via web or API)
 // Throttling disabled - using per-request rate limiting instead
-Route::prefix('products')->middleware(['auth.optional:web,sanctum'])->group(function () {
+Route::prefix('products')->group(function () {
     Route::get('/', [ProductApiController::class, 'index']);
     Route::get('/featured', [ProductApiController::class, 'featured']);
     Route::get('/best-selling', [ProductApiController::class, 'bestSelling']);

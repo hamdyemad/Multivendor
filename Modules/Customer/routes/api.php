@@ -6,6 +6,8 @@ use Modules\Customer\app\Http\Controllers\Api\CustomerAuthController;
 use Modules\Customer\app\Http\Controllers\Api\CustomerAddressController;
 use Modules\Customer\app\Http\Controllers\Api\CustomerPointsApiController;
 
+use Modules\Customer\app\Http\Controllers\Api\SubscriptionController;
+
 // Auth routes (no authentication required)
 Route::prefix('auth')->group(function () {
     // Registration flow
@@ -60,4 +62,4 @@ Route::middleware(['auth:sanctum', 'check.customer.auth'])->prefix('points')->gr
     Route::get('settings', [CustomerPointsApiController::class, 'settings'])->name('settings');
 });
 
-
+Route::post('subscriptions', [SubscriptionController::class, 'store']);

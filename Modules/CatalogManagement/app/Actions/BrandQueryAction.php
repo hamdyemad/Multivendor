@@ -22,26 +22,34 @@ class BrandQueryAction
             $query->filter($filters);
         }
 
-        // Apply products count with filter if vendor_id exists
-        if (isset($filters['vendor_id'])) {
-            $vendorIdentifier = $filters['vendor_id'];
-            $vendor = \Modules\Vendor\app\Models\Vendor::where('slug', $vendorIdentifier)
-                ->orWhere('id', $vendorIdentifier)->first();
-
-            if ($vendor) {
-                $query->withCount(['products' => function ($q) use ($vendor) {
+        // Apply products count with combined filters
+        $query->withCount(['products' => function ($q) use ($filters) {
+            // Vendor filter for product count
+            if (isset($filters['vendor_id'])) {
+                $vendorIdentifier = $filters['vendor_id'];
+                $vendor = \Modules\Vendor\app\Models\Vendor::where('slug', $vendorIdentifier)
+                    ->orWhere('id', $vendorIdentifier)->first();
+                if ($vendor) {
                     $q->whereHas('vendorProducts', function ($vq) use ($vendor) {
                         $vq->where('vendor_id', $vendor->id)
                             ->where('is_active', true)
                             ->where('status', 'approved');
                     });
-                }]);
-            } else {
-                $query->withCount('products');
+                }
             }
-        } else {
-            $query->withCount('products');
-        }
+
+            // Department filter for product count
+            if (isset($filters['department_id'])) {
+                $deptId = $filters['department_id'];
+                $q->where(function ($dq) use ($deptId) {
+                    $dq->where('department_id', $deptId)
+                        ->orWhereHas('department', function ($sdq) use ($deptId) {
+                            $sdq->where('id', $deptId)
+                                ->orWhere('slug', $deptId);
+                        });
+                });
+            }
+        }]);
 
         $query = $this->applySorting($query, $filters);
 

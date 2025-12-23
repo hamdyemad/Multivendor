@@ -25,12 +25,29 @@ class CustomerPointsApiController extends Controller
             // Get user points
             $userPoints = UserPoints::where('user_id', $user->id)->first();
 
+            $currencyId = $user->country?->currency?->id;
+            $settings = $currencyId ? PointsSetting::where('currency_id', $currencyId)->first() : null;
+            
+            $pointsValue = 0;
+            if ($userPoints && $settings && $settings->points_per_currency > 0) {
+                $pointsValue = ($userPoints->total_points / $settings->points_per_currency) * $settings->currency_per_point;
+            }
+
+            $expiringSoon = UserPointsTransaction::where('user_id', $user->id)
+                ->where('expires_at', '>', now())
+                ->where('expires_at', '<=', now()->addDays(30))
+                ->where('points', '>', 0)
+                ->orderBy('expires_at')
+                ->get();
+
             $data = [
-                'total_points' => $userPoints ? number_format($userPoints->total_points, 2) : '0.00',
-                'earned_points' => $userPoints ? number_format($userPoints->earned_points, 2) : '0.00',
-                'redeemed_points' => $userPoints ? number_format($userPoints->redeemed_points, 2) : '0.00',
-                'expired_points' => $userPoints ? number_format($userPoints->expired_points, 2) : '0.00',
-                'available_points' => $userPoints ? number_format($userPoints->available_points, 2) : '0.00',
+                'total_points' => $userPoints ? floatval(number_format($userPoints->total_points, 2)) : '0.00',
+                'points_value' => $pointsValue ? floatval(number_format($pointsValue, 2)) : '0.00',
+                'earned_points' => $userPoints ? floatval(number_format($userPoints->earned_points, 2)) : '0.00',
+                'redeemed_points' => $userPoints ? floatval(number_format($userPoints->redeemed_points, 2)) : '0.00',
+                'expired_points' => $userPoints ? floatval(number_format($userPoints->expired_points, 2)) : '0.00',
+                'available_points' => $userPoints ? floatval(number_format($userPoints->available_points, 2)) : '0.00',
+                'expiring_soon' => $expiringSoon
             ];
 
             return $this->sendRes(
@@ -40,7 +57,7 @@ class CustomerPointsApiController extends Controller
             );
         } catch (\Exception $e) {
             return $this->sendRes(
-                trans('common.error_occurred'),
+                trans('common.error_occurred') . ': ' . $e->getMessage(),
                 false,
                 [],
                 [],
@@ -125,10 +142,10 @@ class CustomerPointsApiController extends Controller
             // Get points settings
             $settings = [
                 'system_enabled' => PointsSystem::isEnabled(),
-                'points_per_currency' => PointsSetting::where('currency_id', $user->country->currency->id)->first()?->points_value ?? 1, // Points per currency unit
-                'welcome_points' => PointsSetting::where('currency_id', $user->country->currency->id)->first()?->welcome_points ?? 1, // Welcome points
+                'points_per_currency' => floatval(number_format(PointsSetting::where('currency_id', $user->country->currency->id)->first()?->points_value ?? 1, 2)), // Points per currency unit
+                'welcome_points' => floatval(number_format(PointsSetting::where('currency_id', $user->country->currency->id)->first()?->welcome_points ?? 1, 2)), // Welcome points
             ];
-
+            
             return $this->sendRes(
                 trans('systemsetting::points.settings_retrieved_successfully'),
                 true,

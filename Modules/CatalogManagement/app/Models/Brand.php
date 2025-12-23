@@ -98,8 +98,21 @@ class Brand extends BaseModel
      */
     public function scopeFilter($query, array $filters)
     {
-
         // Char filter (filter by first letter)
+        if (isset($filters['char']) && !empty($filters['char'])) {
+            $char = $filters['char'];
+            $query->whereHas('translations', function ($q) use ($char) {
+                $q->where('translatable_type', Brand::class)
+                    ->where('lang_key', 'name')
+                    ->where('lang_value', 'like', $char . '%');
+            });
+        }
+
+        // Department filter
+        if (isset($filters['department_id']) && !empty($filters['department_id'])) {
+            $query->byDepartment($filters['department_id']);
+        }
+
         if (isset($filters['brand_id'])) {
             $query->where(function ($query) use ($filters) {
                 $query->where('id', $filters['brand_id'])
@@ -107,17 +120,18 @@ class Brand extends BaseModel
             });
         }
 
-        if (isset($filters['vendor_id'])) {
+        if (isset($filters['vendor_id']) && !empty($filters['vendor_id'])) {
             $vendor = Vendor::where('slug', $filters['vendor_id'])->orWhere('id', $filters['vendor_id'])->first();
-            $query->whereHas('products', function ($query) use($vendor) {
-                $query->whereHas('vendorProducts', function ($query) use($vendor) {
-                    $query->where('vendor_id', $vendor->id)
-                          ->where('is_active', true)
-                          ->where('status', 'approved');
+            if ($vendor) {
+                $query->whereHas('products', function ($query) use($vendor) {
+                    $query->whereHas('vendorProducts', function ($query) use($vendor) {
+                        $query->where('vendor_id', $vendor->id)
+                              ->where('is_active', true)
+                              ->where('status', 'approved');
+                    });
                 });
-            });
+            }
         }
-
 
         return $query;
     }

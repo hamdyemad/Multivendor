@@ -31,7 +31,7 @@ class VendorApiRepository implements VendorApiRepositoryInterface
     public function find(VendorFilterDTO $dto, $id)
     {
         $filters = $dto->toArray();
-        return $this->query->handle($filters)->with('activeActivities')->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id))->firstOrFail();
+        return $this->query->handle($filters)->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id))->firstOrFail();
     }
 
     /**

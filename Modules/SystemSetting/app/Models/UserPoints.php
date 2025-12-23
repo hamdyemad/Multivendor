@@ -5,6 +5,7 @@ namespace Modules\SystemSetting\app\Models;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Customer\app\Models\Customer;
 
 class UserPoints extends Model
 {
@@ -25,7 +26,7 @@ class UserPoints extends Model
      */
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Customer::class);
     }
 
     public function transactions()

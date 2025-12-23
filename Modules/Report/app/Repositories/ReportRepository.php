@@ -16,7 +16,7 @@ class ReportRepository implements ReportRepositoryInterface
     public function getRegisteredUsersReport(ReportFilterDTO $filter): array
     {
         \Log::info('ReportRepository::getRegisteredUsersReport', ['filter' => (array)$filter]);
-        
+
         $query = Customer::query();
 
         // Date range filter
@@ -40,10 +40,12 @@ class ReportRepository implements ReportRepositoryInterface
         // Search filter
         if ($filter->search) {
             $query->where(function ($q) use ($filter) {
-                $q->where('first_name', 'like', '%' . $filter->search . '%')
-                  ->orWhere('last_name', 'like', '%' . $filter->search . '%')
-                  ->orWhere('email', 'like', '%' . $filter->search . '%')
-                  ->orWhere('phone', 'like', '%' . $filter->search . '%');
+                $q->whereHas('translations', function ($transQ) use ($filter) {
+                    $transQ->where('lang_key', 'name')
+                           ->where('lang_value', 'like', '%' . $filter->search . '%');
+                })
+                ->orWhere('email', 'like', '%' . $filter->search . '%')
+                ->orWhere('phone', 'like', '%' . $filter->search . '%');
             });
         }
 
@@ -51,8 +53,8 @@ class ReportRepository implements ReportRepositoryInterface
         \Log::info('ReportRepository::Total count', ['total' => $total, 'sql' => $query->toSql()]);
 
         // Get statistics and chart data for ALL matching records (not just current page)
-        $allData = $query->get(['id', 'first_name', 'last_name', 'email', 'phone', 'gender', 'status', 'created_at']);
-        
+        $allData = $query->get(['id', 'email', 'phone', 'gender', 'status', 'created_at']);
+
         // Calculate statistics
         $activeCount = $allData->where('status', 1)->count();
         $inactiveCount = $allData->where('status', 0)->count();
@@ -61,7 +63,7 @@ class ReportRepository implements ReportRepositoryInterface
             'female' => $allData->where('gender', 'female')->count(),
             'other' => $allData->where('gender', 'other')->count(),
         ];
-        
+
         // Calculate registration trend by date
         $registrationTrend = [];
         foreach ($allData as $customer) {
@@ -76,7 +78,7 @@ class ReportRepository implements ReportRepositoryInterface
         $data = $query->paginate(
             perPage: $filter->per_page,
             page: $filter->page,
-            columns: ['id', 'first_name', 'last_name', 'email', 'phone', 'gender', 'status', 'created_at']
+            columns: ['id', 'email', 'phone', 'gender', 'status', 'created_at']
         );
 
         // Add index to each item
@@ -84,6 +86,7 @@ class ReportRepository implements ReportRepositoryInterface
         $startIndex = ($filter->page - 1) * $filter->per_page + 1;
         foreach ($items as $index => $item) {
             $item->index = $startIndex + $index;
+            $item->name = $item->name ?? 'N/A';
         }
 
         \Log::info('ReportRepository::Data retrieved', ['count' => count($items), 'items' => $items]);
@@ -145,10 +148,12 @@ class ReportRepository implements ReportRepositoryInterface
         // Search filter
         if ($filter->search) {
             $query->where(function ($q) use ($filter) {
-                $q->where('first_name', 'like', '%' . $filter->search . '%')
-                  ->orWhere('last_name', 'like', '%' . $filter->search . '%')
-                  ->orWhere('email', 'like', '%' . $filter->search . '%')
-                  ->orWhere('phone', 'like', '%' . $filter->search . '%');
+                $q->whereHas('translations', function ($transQ) use ($filter) {
+                    $transQ->where('lang_key', 'name')
+                           ->where('lang_value', 'like', '%' . $filter->search . '%');
+                })
+                ->orWhere('email', 'like', '%' . $filter->search . '%')
+                ->orWhere('phone', 'like', '%' . $filter->search . '%');
             });
         }
 
@@ -156,11 +161,11 @@ class ReportRepository implements ReportRepositoryInterface
 
         // Get all data for statistics and charts
         $allData = $query->with(['city'])->get();
-        
+
         // Calculate statistics
         $activeCount = $allData->where('status', 1)->count();
         $inactiveCount = $allData->where('status', 0)->count();
-        
+
         // Calculate registration trend by date
         $registrationTrend = [];
         foreach ($allData as $customer) {
@@ -184,7 +189,7 @@ class ReportRepository implements ReportRepositoryInterface
             ->paginate(
                 perPage: $filter->per_page,
                 page: $filter->page,
-                columns: ['id', 'first_name', 'last_name', 'email', 'phone', 'status', 'created_at', 'city_id']
+                columns: ['id', 'email', 'phone', 'status', 'created_at', 'city_id']
             );
 
         // Add index and city name to each item
@@ -192,7 +197,7 @@ class ReportRepository implements ReportRepositoryInterface
         $startIndex = ($filter->page - 1) * $filter->per_page + 1;
         foreach ($items as $index => $item) {
             $item->index = $startIndex + $index;
-            $item->name = $item->first_name . ' ' . $item->last_name;
+            $item->name = $item->name ?? 'N/A';
             $item->city_name = $item->city?->name ?? 'N/A';
         }
 
@@ -249,8 +254,10 @@ class ReportRepository implements ReportRepositoryInterface
             $query->where(function ($q) use ($filter) {
                 $q->where('order_number', 'like', '%' . $filter->search . '%')
                   ->orWhereHas('customer', function ($customerQ) use ($filter) {
-                      $customerQ->where('first_name', 'like', '%' . $filter->search . '%')
-                               ->orWhere('last_name', 'like', '%' . $filter->search . '%');
+                      $customerQ->whereHas('translations', function ($transQ) use ($filter) {
+                          $transQ->where('lang_key', 'name')
+                                 ->where('lang_value', 'like', '%' . $filter->search . '%');
+                      });
                   });
             });
         }
@@ -259,7 +266,7 @@ class ReportRepository implements ReportRepositoryInterface
 
         // Get all data for charts before pagination
         $allData = clone $query;
-        
+
         // Calculate stage distribution
         $stageDistribution = $allData->clone()
             ->join('order_stages', 'orders.stage_id', '=', 'order_stages.id')
@@ -274,7 +281,7 @@ class ReportRepository implements ReportRepositoryInterface
             })
             ->select(
                 'order_stages.type',
-                \DB::raw('COALESCE(stage_trans.lang_value, order_stages.slug) as stage_name'), 
+                \DB::raw('COALESCE(stage_trans.lang_value, order_stages.slug) as stage_name'),
                 \DB::raw('COUNT(orders.id) as count')
             )
             ->groupBy('order_stages.type', 'order_stages.id', 'stage_trans.lang_value', 'order_stages.slug')
@@ -318,7 +325,7 @@ class ReportRepository implements ReportRepositoryInterface
             $transformedItems[] = [
                 'index' => ($filter->page - 1) * $filter->per_page + $index + 1,
                 'order_number' => $order->order_number,
-                'customer_name' => $order->customer ? ($order->customer->first_name . ' ' . $order->customer->last_name) : 'N/A',
+                'customer_name' => $order->customer?->name ?? 'N/A',
                 'stage' => $order->stage ? $order->stage->name : 'N/A',
                 'stage_type' => $order->stage ? $order->stage->type : null,
                 'total' => $order->total_price,
@@ -405,7 +412,7 @@ class ReportRepository implements ReportRepositoryInterface
 
         // Get all data for statistics
         $allData = clone $query;
-        
+
         // Calculate status distribution
         $statusDistribution = $allData->clone()
             ->select('status', \DB::raw('COUNT(*) as count'))
@@ -475,15 +482,19 @@ class ReportRepository implements ReportRepositoryInterface
      */
     public function getPointsReport(ReportFilterDTO $filter): array
     {
-        $query = \Modules\SystemSetting\app\Models\UserPoints::withoutCountryFilter();
+        $query = \Modules\SystemSetting\app\Models\UserPoints::query()
+            ->whereHas('user'); // Only include user_points with valid users
 
-        // Apply country filter manually
+        // Apply country filter through user relationship (only if users have country_id)
         $countryCode = session('country_code') ?? request('country_code') ?? config('app.default_country_code');
         if ($countryCode) {
             $countryId = \Modules\AreaSettings\app\Models\Country::where('code', $countryCode)->value('id');
             if ($countryId) {
                 $query->whereHas('user', function($q) use ($countryId) {
-                    $q->where('country_id', $countryId);
+                    $q->where(function($subQ) use ($countryId) {
+                        $subQ->where('country_id', $countryId)
+                             ->orWhereNull('country_id'); // Include users without country
+                    });
                 });
             }
         }
@@ -499,9 +510,11 @@ class ReportRepository implements ReportRepositoryInterface
         // Search filter
         if ($filter->search) {
             $query->whereHas('user', function ($q) use ($filter) {
-                $q->where('first_name', 'like', '%' . $filter->search . '%')
-                  ->orWhere('last_name', 'like', '%' . $filter->search . '%')
-                  ->orWhere('email', 'like', '%' . $filter->search . '%');
+                $q->whereHas('translations', function ($transQ) use ($filter) {
+                    $transQ->where('lang_key', 'name')
+                           ->where('lang_value', 'like', '%' . $filter->search . '%');
+                })
+                ->orWhere('email', 'like', '%' . $filter->search . '%');
             });
         }
 
@@ -509,7 +522,7 @@ class ReportRepository implements ReportRepositoryInterface
 
         // Get all data for statistics
         $allData = clone $query;
-        
+
         // Calculate points distribution
         $pointsDistribution = [
             'high' => $allData->clone()->where('total_points', '>=', 1000)->count(),
@@ -543,14 +556,24 @@ class ReportRepository implements ReportRepositoryInterface
         foreach ($items as $index => $userPoint) {
             $transformedItems[] = [
                 'index' => ($filter->page - 1) * $filter->per_page + $index + 1,
-                'user_name' => $userPoint->user ? ($userPoint->user->first_name . ' ' . $userPoint->user->last_name) : 'N/A',
+                'user_name' => $userPoint->user?->name ?: ($userPoint->user?->email ?? 'N/A'),
                 'email' => $userPoint->user?->email ?? 'N/A',
                 'total_points' => $userPoint->total_points,
                 'earned_points' => $userPoint->earned_points,
                 'redeemed_points' => $userPoint->redeemed_points,
+                'points_spent' => $userPoint->redeemed_points, // Same as redeemed
+                'remaining_points' => $userPoint->total_points, // Current total points
                 'created_at' => $userPoint->created_at,
             ];
         }
+
+        // Calculate totals for all users (not just filtered)
+        $allUsersQuery = \Modules\SystemSetting\app\Models\UserPoints::query()->whereHas('user');
+
+        $totalUsers = $allUsersQuery->count();
+        $totalEarned = $allUsersQuery->sum('earned_points');
+        $totalRedeemed = $allUsersQuery->sum('redeemed_points');
+        $avgPoints = $totalUsers > 0 ? $totalEarned / $totalUsers : 0;
 
         return [
             'total' => $total,
@@ -562,13 +585,13 @@ class ReportRepository implements ReportRepositoryInterface
             'to' => $data->lastItem(),
             'data' => $transformedItems,
             'statistics' => [
-                'points_distribution' => $pointsDistribution,
-                'points_trend' => $pointsTrend,
-                'total_points' => $totalPoints,
+                'total_users' => $totalUsers,
                 'total_earned' => $totalEarned,
                 'total_redeemed' => $totalRedeemed,
-                'total_filtered' => $total,
-            ],
+                'avg_points' => round($avgPoints, 2),
+                'points_distribution' => $pointsDistribution,
+                'points_trend' => $pointsTrend,
+            ]
         ];
     }
 }

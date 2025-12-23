@@ -18,6 +18,7 @@ use Modules\Order\app\Pipelines\CreateOrder;
 use Modules\Order\app\Pipelines\SyncOrderProducts;
 use Modules\Order\app\Pipelines\UpdateProductSales;
 use Modules\Order\app\Pipelines\EmptyCart;
+use Modules\Order\app\Pipelines\CalculatePointsUsagePipeline;
 
 class OrderApiService
 {
@@ -50,6 +51,7 @@ class OrderApiService
                     CalculateShipping::class,
                     CalculateExtras::class,
                     CalculateFinalTotal::class,
+                    CalculatePointsUsagePipeline::class,
                     CreateOrder::class,
                     SyncOrderProducts::class,
                     UpdateProductSales::class,

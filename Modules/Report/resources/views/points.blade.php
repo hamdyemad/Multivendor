@@ -37,31 +37,31 @@
                             <h1 class="ap-po-details__title" style="color: {{ config('branding.colors.primary') }};">
                                 <span id="record-count">0</span>
                             </h1>
-                            <p class="ap-po-details__text">{{ trans('report.customers_in_report') }}</p>
+                            <p class="ap-po-details__text">{{ trans('report.points_in_report') }}</p>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 col-sm-6">
-                <div class="ap-po-details ap-po-details--3 p-25 radius-xl" style="border-left: 4px solid {{ config('branding.colors.secondary') }};">
-                    <div class="overview-content">
-                        <div class="ap-po-details__titlebar">
-                            <h1 class="ap-po-details__title" style="color: {{ config('branding.colors.secondary') }};">
-                                <span id="total-count">0</span>
-                            </h1>
-                            <p class="ap-po-details__text">{{ trans('report.total_customers') }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-6">
-                <div class="ap-po-details ap-po-details--4 p-25 radius-xl" style="border-left: 4px solid #28a745;">
+                <div class="ap-po-details ap-po-details--3 p-25 radius-xl" style="border-left: 4px solid #28a745;">
                     <div class="overview-content">
                         <div class="ap-po-details__titlebar">
                             <h1 class="ap-po-details__title" style="color: #28a745;">
-                                <span id="total-points">0</span>
+                                <span id="earned-points">0</span>
                             </h1>
-                            <p class="ap-po-details__text">{{ trans('report.total_points') }}</p>
+                            <p class="ap-po-details__text">{{ trans('report.total_earned_points') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <div class="ap-po-details ap-po-details--4 p-25 radius-xl" style="border-left: 4px solid #dc3545;">
+                    <div class="overview-content">
+                        <div class="ap-po-details__titlebar">
+                            <h1 class="ap-po-details__title" style="color: #dc3545;">
+                                <span id="redeemed-points">0</span>
+                            </h1>
+                            <p class="ap-po-details__text">{{ trans('report.total_redeemed_points') }}</p>
                         </div>
                     </div>
                 </div>
@@ -211,11 +211,11 @@
                             <thead>
                                 <tr class="userDatatable-header">
                                     <th class="text-center"><span class="userDatatable-title">#</span></th>
-                                    <th><span class="userDatatable-title">{{ __('report.customer_name') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('report.email') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('report.total_points') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('report.points_spent') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('report.remaining_points') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ __('report.user_name') }}</span></th>
+                                    <th class="text-center"><span class="userDatatable-title">{{ __('report.earned_points') }}</span></th>
+                                    <th class="text-center"><span class="userDatatable-title">{{ __('report.redeemed_points') }}</span></th>
+                                    <th class="text-center"><span class="userDatatable-title">{{ __('report.points_spent') }}</span></th>
+                                    <th class="text-center"><span class="userDatatable-title">{{ __('report.remaining_points') }}</span></th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -335,24 +335,27 @@
                     },
                     dataFilter: function(data) {
                         let json = JSON.parse(data);
-                        if (json.status && json.data) {
-                            json.recordsTotal = json.data.total || 0;
-                            json.recordsFiltered = json.data.count || 0;
-                            json.total_points = json.data.statistics?.total_points || 0;
-                            json.avg_points = json.data.statistics?.avg_points || 0;
-                            json.points_trend = json.data.points_trend || {};
-                            json.points_distribution = json.data.points_distribution || {};
-                            json.data = json.data.data || [];
+                        console.log('Raw response:', json);
+                        
+                        // Update statistics if available
+                        if (json.statistics) {
+                            console.log('Updating statistics:', json.statistics);
+                            $('#record-count').text(json.statistics.total_users || 0);
+                            $('#earned-points').text(json.statistics.total_earned || 0);
+                            $('#redeemed-points').text(json.statistics.total_redeemed || 0);
+                            $('#avg-points').text(json.statistics.avg_points || 0);
                         }
+                        
                         return JSON.stringify(json);
                     },
                     dataSrc: function(json) {
-                        if (!json.status) return [];
-                        $('#record-count').text(json.recordsFiltered || 0);
-                        $('#total-count').text(json.recordsTotal || 0);
-                        $('#total-points').text((json.total_points || 0).toLocaleString());
-                        $('#avg-points').text((json.avg_points || 0).toFixed(2).toLocaleString());
-                        updateChartsWithData(json.points_distribution || {}, json.points_trend || {});
+                        console.log('DataSrc data:', json.data);
+                        
+                        // Update charts with statistics data
+                        if (json.statistics) {
+                            updateChartsWithData(json.statistics.points_distribution || {}, json.statistics.points_trend || {});
+                        }
+                        
                         return json.data || [];
                     }
                 },
@@ -361,46 +364,85 @@
                         data: 'index',
                         orderable: false,
                         searchable: false,
-                        className: 'text-center fw-bold'
-                    },
-                    {
-                        data: 'customer_name',
-                        orderable: false,
-                        searchable: false,
-                        render: function(data) {
-                            return '<strong>' + (data || '') + '</strong>';
+                        className: 'text-center',
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
                         }
                     },
                     {
-                        data: 'email',
+                        data: 'user_name',
                         orderable: false,
                         searchable: false,
-                        render: function(data) {
-                            return '<span class="text-truncate">' + (data || '--') + '</span>';
+                        render: function(data, type, row) {
+                            let html = '<div class="userDatatable-content">';
+                            html += '<div style="margin-bottom: 4px;">';
+                            html += '<span>' + $('<div/>').text(data).html() + '</span>';
+                            html += '</div>';
+                            html += '<div>';
+                            html += '<div><strong>{{ trans('report.email') }}:</strong> <span style="text-transform: lowercase;">' + row.email + '</span></div>';
+                            html += '</div>';
+                            html += '</div>';
+                            return html;
                         }
                     },
                     {
-                        data: 'total_points',
+                        data: 'earned_points',
                         orderable: false,
                         searchable: false,
+                        className: 'text-center',
                         render: function(data) {
-                            return '<span class="badge bg-light text-dark"><i class="uil uil-award"></i> ' + (data ? parseInt(data).toLocaleString() : '0') + '</span>';
+                            let spanClass = 'success';
+                            if(data == 0) {
+                                spanClass = 'primary';
+                            } else if(data < 0) {
+                                spanClass = 'danger';
+                            }
+                            return `<span class="badge badge-round badge-lg badge-${spanClass}" style="padding: 6px 10px; font-size: 12px;">${data}</span>`;
+                        }
+                    },
+                    {
+                        data: 'redeemed_points',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center',
+                        render: function(data) {
+                            let spanClass = 'success';
+                            if(data == 0) {
+                                spanClass = 'primary';
+                            } else if(data < 0) {
+                                spanClass = 'danger';
+                            }
+                            return `<span class="badge badge-round badge-lg badge-${spanClass}" style="padding: 6px 10px; font-size: 12px;">${data}</span>`;
                         }
                     },
                     {
                         data: 'points_spent',
                         orderable: false,
                         searchable: false,
+                        className: 'text-center',
                         render: function(data) {
-                            return '<span class="badge bg-danger">' + (data ? parseInt(data).toLocaleString() : '0') + '</span>';
+                            let spanClass = 'success';
+                            if(data == 0) {
+                                spanClass = 'primary';
+                            } else if(data < 0) {
+                                spanClass = 'danger';
+                            }
+                            return `<span class="badge badge-round badge-lg badge-${spanClass}" style="padding: 6px 10px; font-size: 12px;">${data}</span>`;
                         }
                     },
                     {
                         data: 'remaining_points',
                         orderable: false,
                         searchable: false,
+                        className: 'text-center',
                         render: function(data) {
-                            return '<span class="badge bg-success">' + (data ? parseInt(data).toLocaleString() : '0') + '</span>';
+                            let spanClass = 'success';
+                            if(data == 0) {
+                                spanClass = 'primary';
+                            } else if(data < 0) {
+                                spanClass = 'danger';
+                            }
+                            return `<span class="badge badge-round badge-lg badge-${spanClass}" style="padding: 6px 10px; font-size: 12px;">${data}</span>`;
                         }
                     }
                 ],
@@ -479,11 +521,11 @@
             distributionChart = new Chart(ctxDist, {
                 type: 'bar',
                 data: {
-                    labels: ['0-100', '101-500', '501-1000', '1000+'],
+                    labels: ['Low (<100)', 'Medium (100-999)', 'High (1000+)'],
                     datasets: [{
-                        label: 'Customers',
-                        data: [0, 0, 0, 0],
-                        backgroundColor: [primaryColor, secondaryColor, '#28a745', '#ffc107'],
+                        label: 'Users',
+                        data: [0, 0, 0],
+                        backgroundColor: [primaryColor, secondaryColor, '#28a745'],
                         borderColor: '#fff',
                         borderWidth: 1
                     }]
@@ -503,16 +545,17 @@
         }
 
         function updateChartsWithData(pointsDistribution, pointsTrend) {
+            // Update points trend chart
             const dates = Object.keys(pointsTrend).sort();
             pointsChart.data.labels = dates;
             pointsChart.data.datasets[0].data = dates.map(date => pointsTrend[date]);
             pointsChart.update();
 
+            // Update distribution chart with correct keys
             distributionChart.data.datasets[0].data = [
-                pointsDistribution['0-100'] || 0,
-                pointsDistribution['101-500'] || 0,
-                pointsDistribution['501-1000'] || 0,
-                pointsDistribution['1000+'] || 0
+                pointsDistribution.low || 0,
+                pointsDistribution.medium || 0,
+                pointsDistribution.high || 0
             ];
             distributionChart.update();
         }

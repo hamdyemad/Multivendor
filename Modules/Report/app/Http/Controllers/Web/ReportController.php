@@ -194,17 +194,11 @@ class ReportController extends Controller
         try {
             $reportData = $this->reportService->getProductsReport($request->validated());
             return response()->json([
-                'status' => true,
-                'data' => [
-                    'data' => $reportData['data'],
-                    'total' => $reportData['total'],
-                    'count' => $reportData['count'],
-                    'per_page' => $reportData['per_page'],
-                    'current_page' => $reportData['current_page'],
-                    'last_page' => $reportData['last_page'],
-                    'from' => $reportData['from'],
-                    'to' => $reportData['to'],
-                ],
+                'draw' => intval($request->input('draw', 1)),
+                'recordsTotal' => $reportData['total'],
+                'recordsFiltered' => $reportData['total'],
+                'data' => $reportData['data'],
+                'statistics' => $reportData['statistics'] ?? [],
             ], 200, [], JSON_UNESCAPED_SLASHES);
         } catch (\Exception $e) {
             Log::error('Report Error: ' . $e->getMessage(), ['exception' => $e]);
@@ -231,17 +225,11 @@ class ReportController extends Controller
         try {
             $reportData = $this->reportService->getPointsReport($request->validated());
             return response()->json([
-                'status' => true,
-                'data' => [
-                    'data' => $reportData['data'],
-                    'total' => $reportData['total'],
-                    'count' => $reportData['count'],
-                    'per_page' => $reportData['per_page'],
-                    'current_page' => $reportData['current_page'],
-                    'last_page' => $reportData['last_page'],
-                    'from' => $reportData['from'],
-                    'to' => $reportData['to'],
-                ],
+                'draw' => intval($request->input('draw', 1)),
+                'recordsTotal' => $reportData['total'],
+                'recordsFiltered' => $reportData['total'],
+                'data' => $reportData['data'],
+                'statistics' => $reportData['statistics'] ?? [],
             ], 200, [], JSON_UNESCAPED_SLASHES);
         } catch (\Exception $e) {
             Log::error('Report Error: ' . $e->getMessage(), ['exception' => $e]);

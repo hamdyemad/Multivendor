@@ -19,7 +19,7 @@ class ReportFilterRequest extends FormRequest
             'from_date' => 'nullable|date_format:Y-m-d',
             'to_date' => 'nullable|date_format:Y-m-d',
             'search' => 'nullable|string|max:500',
-            'status' => 'nullable|string|in:active,inactive',
+            'status' => 'nullable|string|in:active,inactive,approved,pending,rejected',
             'gender' => 'nullable|string|in:male,female,other',
             'type' => 'nullable|string|max:255',
             'city_id' => 'nullable|integer',

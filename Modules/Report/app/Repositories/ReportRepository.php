@@ -350,7 +350,16 @@ class ReportRepository implements ReportRepositoryInterface
      */
     public function getProductsReport(ReportFilterDTO $filter): array
     {
-        $query = Product::query();
+        $query = \Modules\CatalogManagement\app\Models\VendorProduct::withoutCountryFilter();
+
+        // Apply country filter manually
+        $countryCode = session('country_code') ?? request('country_code') ?? config('app.default_country_code');
+        if ($countryCode) {
+            $countryId = \Modules\AreaSettings\app\Models\Country::where('code', $countryCode)->value('id');
+            if ($countryId) {
+                $query->where('vendor_products.country_id', $countryId);
+            }
+        }
 
         // Date range filter
         if ($filter->from) {
@@ -362,13 +371,13 @@ class ReportRepository implements ReportRepositoryInterface
 
         // Status filter
         if ($filter->status) {
-            $query->where('status', $filter->status === 'active' ? 1 : 0);
+            $query->where('status', $filter->status);
         }
 
         // Category filter
         if ($filter->category) {
-            $query->whereHas('category', function ($q) use ($filter) {
-                $q->where('id', $filter->category);
+            $query->whereHas('product', function ($q) use ($filter) {
+                $q->where('category_id', $filter->category);
             });
         }
 
@@ -379,20 +388,68 @@ class ReportRepository implements ReportRepositoryInterface
 
         // Search filter
         if ($filter->search) {
-            $query->where(function ($q) use ($filter) {
-                $q->where('name_en', 'like', '%' . $filter->search . '%')
-                  ->orWhere('name_ar', 'like', '%' . $filter->search . '%')
-                  ->orWhere('sku', 'like', '%' . $filter->search . '%');
+            $searchTerm = strtolower($filter->search);
+            $query->where(function ($q) use ($searchTerm) {
+                $q->whereRaw('LOWER(sku) LIKE ?', ['%' . $searchTerm . '%'])
+                  ->orWhereRaw('LOWER(status) LIKE ?', ['%' . $searchTerm . '%'])
+                  ->orWhereHas('product', function ($productQ) use ($searchTerm) {
+                      $productQ->whereHas('translations', function ($transQ) use ($searchTerm) {
+                          $transQ->whereRaw('LOWER(lang_value) LIKE ?', ['%' . $searchTerm . '%'])
+                                 ->where('lang_key', 'title');
+                      });
+                  });
             });
         }
 
         $total = $query->count();
 
-        $data = $query->with('category', 'vendor')
+        // Get all data for statistics
+        $allData = clone $query;
+        
+        // Calculate status distribution
+        $statusDistribution = $allData->clone()
+            ->select('status', \DB::raw('COUNT(*) as count'))
+            ->groupBy('status')
+            ->get()
+            ->pluck('count', 'status')
+            ->toArray();
+
+        // Calculate products trend (by date)
+        $productsTrend = $allData->clone()
+            ->selectRaw('DATE(created_at) as date, COUNT(id) as count')
+            ->groupByRaw('DATE(created_at)')
+            ->orderBy('date')
+            ->get()
+            ->pluck('count', 'date')
+            ->toArray();
+
+        // Calculate active/inactive counts
+        $activeCount = $allData->clone()->where('is_active', 1)->count();
+        $inactiveCount = $allData->clone()->where('is_active', 0)->count();
+
+        $data = $query->with(['product.category', 'vendor'])
             ->paginate(
                 perPage: $filter->per_page,
                 page: $filter->page
             );
+
+        // Transform data for frontend
+        $items = $data->items();
+        $transformedItems = [];
+        foreach ($items as $index => $vendorProduct) {
+            $transformedItems[] = [
+                'index' => ($filter->page - 1) * $filter->per_page + $index + 1,
+                'name' => $vendorProduct->product ? $vendorProduct->product->name : 'N/A',
+                'sku' => $vendorProduct->sku,
+                'category' => $vendorProduct->product?->category ? $vendorProduct->product->category->name : 'N/A',
+                'vendor' => $vendorProduct->vendor ? $vendorProduct->vendor->name : 'N/A',
+                'status' => $vendorProduct->status,
+                'is_active' => $vendorProduct->is_active,
+                'sales' => $vendorProduct->sales,
+                'views' => $vendorProduct->views,
+                'created_at' => $vendorProduct->created_at,
+            ];
+        }
 
         return [
             'total' => $total,
@@ -402,7 +459,14 @@ class ReportRepository implements ReportRepositoryInterface
             'last_page' => $data->lastPage(),
             'from' => $data->firstItem(),
             'to' => $data->lastItem(),
-            'data' => $data->items(),
+            'data' => $transformedItems,
+            'statistics' => [
+                'status_distribution' => $statusDistribution,
+                'products_trend' => $productsTrend,
+                'active' => $activeCount,
+                'inactive' => $inactiveCount,
+                'total_filtered' => $total,
+            ],
         ];
     }
 
@@ -411,8 +475,18 @@ class ReportRepository implements ReportRepositoryInterface
      */
     public function getPointsReport(ReportFilterDTO $filter): array
     {
-        // Assuming there's a CustomerPoints or similar model
-        $query = Customer::query()->whereHas('points');
+        $query = \Modules\SystemSetting\app\Models\UserPoints::withoutCountryFilter();
+
+        // Apply country filter manually
+        $countryCode = session('country_code') ?? request('country_code') ?? config('app.default_country_code');
+        if ($countryCode) {
+            $countryId = \Modules\AreaSettings\app\Models\Country::where('code', $countryCode)->value('id');
+            if ($countryId) {
+                $query->whereHas('user', function($q) use ($countryId) {
+                    $q->where('country_id', $countryId);
+                });
+            }
+        }
 
         // Date range filter
         if ($filter->from) {
@@ -424,7 +498,7 @@ class ReportRepository implements ReportRepositoryInterface
 
         // Search filter
         if ($filter->search) {
-            $query->where(function ($q) use ($filter) {
+            $query->whereHas('user', function ($q) use ($filter) {
                 $q->where('first_name', 'like', '%' . $filter->search . '%')
                   ->orWhere('last_name', 'like', '%' . $filter->search . '%')
                   ->orWhere('email', 'like', '%' . $filter->search . '%');
@@ -433,12 +507,50 @@ class ReportRepository implements ReportRepositoryInterface
 
         $total = $query->count();
 
-        $data = $query->with('points')
+        // Get all data for statistics
+        $allData = clone $query;
+        
+        // Calculate points distribution
+        $pointsDistribution = [
+            'high' => $allData->clone()->where('total_points', '>=', 1000)->count(),
+            'medium' => $allData->clone()->whereBetween('total_points', [100, 999])->count(),
+            'low' => $allData->clone()->where('total_points', '<', 100)->count(),
+        ];
+
+        // Calculate points trend (by date)
+        $pointsTrend = $allData->clone()
+            ->selectRaw('DATE(created_at) as date, SUM(total_points) as total')
+            ->groupByRaw('DATE(created_at)')
+            ->orderBy('date')
+            ->get()
+            ->pluck('total', 'date')
+            ->toArray();
+
+        // Calculate totals
+        $totalPoints = $allData->clone()->sum('total_points');
+        $totalEarned = $allData->clone()->sum('earned_points');
+        $totalRedeemed = $allData->clone()->sum('redeemed_points');
+
+        $data = $query->with('user')
             ->paginate(
                 perPage: $filter->per_page,
-                page: $filter->page,
-                columns: ['id', 'first_name', 'last_name', 'email', 'created_at']
+                page: $filter->page
             );
+
+        // Transform data for frontend
+        $items = $data->items();
+        $transformedItems = [];
+        foreach ($items as $index => $userPoint) {
+            $transformedItems[] = [
+                'index' => ($filter->page - 1) * $filter->per_page + $index + 1,
+                'user_name' => $userPoint->user ? ($userPoint->user->first_name . ' ' . $userPoint->user->last_name) : 'N/A',
+                'email' => $userPoint->user?->email ?? 'N/A',
+                'total_points' => $userPoint->total_points,
+                'earned_points' => $userPoint->earned_points,
+                'redeemed_points' => $userPoint->redeemed_points,
+                'created_at' => $userPoint->created_at,
+            ];
+        }
 
         return [
             'total' => $total,
@@ -448,7 +560,15 @@ class ReportRepository implements ReportRepositoryInterface
             'last_page' => $data->lastPage(),
             'from' => $data->firstItem(),
             'to' => $data->lastItem(),
-            'data' => $data->items(),
+            'data' => $transformedItems,
+            'statistics' => [
+                'points_distribution' => $pointsDistribution,
+                'points_trend' => $pointsTrend,
+                'total_points' => $totalPoints,
+                'total_earned' => $totalEarned,
+                'total_redeemed' => $totalRedeemed,
+                'total_filtered' => $total,
+            ],
         ];
     }
 }

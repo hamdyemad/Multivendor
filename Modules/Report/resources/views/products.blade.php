@@ -169,8 +169,9 @@
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="status-filter">
                                                 <option value="">{{ trans('report.all_status') }}</option>
-                                                <option value="active">{{ trans('report.active') }}</option>
-                                                <option value="inactive">{{ trans('report.inactive') }}</option>
+                                                <option value="approved">{{ trans('report.approved') }}</option>
+                                                <option value="pending">{{ trans('report.pending') }}</option>
+                                                <option value="rejected">{{ trans('report.rejected') }}</option>
                                             </select>
                                         </div>
                                     </div>
@@ -217,9 +218,12 @@
                                     <th class="text-center"><span class="userDatatable-title">#</span></th>
                                     <th><span class="userDatatable-title">{{ __('report.product_name') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('report.sku') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ __('report.category') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('report.vendor') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('report.status') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('report.created_date') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ __('report.product_status') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ __('report.sales') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ __('report.views') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ __('report.product_date') }}</span></th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -338,37 +342,44 @@
                         return d;
                     },
                     dataFilter: function(data) {
+                        console.log('Raw response:', data);
                         let json = JSON.parse(data);
-                        if (json.status && json.data) {
-                            json.recordsTotal = json.data.total || 0;
-                            json.recordsFiltered = json.data.count || 0;
-                            json.active = json.data.statistics?.active || 0;
-                            json.inactive = json.data.statistics?.inactive || 0;
-                            json.products_trend = json.data.products_trend || {};
-                            json.status_distribution = json.data.status_distribution || {};
-                            json.data = json.data.data || [];
-                        }
+                        console.log('Parsed response:', json);
                         return JSON.stringify(json);
                     },
                     dataSrc: function(json) {
-                        if (!json.status) return [];
+                        console.log('Response received:', json);
+
+                        // Update statistics
                         $('#record-count').text(json.recordsFiltered || 0);
                         $('#total-count').text(json.recordsTotal || 0);
-                        $('#active-count').text(json.active || 0);
-                        $('#inactive-count').text(json.inactive || 0);
-                        updateChartsWithData(json.status_distribution || {}, json.products_trend || {});
+
+                        if (json.statistics) {
+                            $('#active-count').text(json.statistics.active || 0);
+                            $('#inactive-count').text(json.statistics.inactive || 0);
+
+                            // Update charts
+                            updateChartsWithData(json.statistics.status_distribution || {}, json.statistics.products_trend || {});
+                        }
+
                         return json.data || [];
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Ajax Error Details:', { xhr, status, error });
+                        console.error('Response Text:', xhr.responseText);
                     }
                 },
                 columns: [
                     {
                         data: 'index',
+                        name: 'index',
                         orderable: false,
                         searchable: false,
                         className: 'text-center fw-bold'
                     },
                     {
                         data: 'name',
+                        name: 'name',
                         orderable: false,
                         searchable: false,
                         render: function(data) {
@@ -377,14 +388,25 @@
                     },
                     {
                         data: 'sku',
+                        name: 'sku',
                         orderable: false,
                         searchable: false,
                         render: function(data) {
-                            return '<span class="badge bg-light text-dark">' + (data || '--') + '</span>';
+                            return '<span class="badge bg-primary text-white px-3 py-2 rounded-pill fw-bold">' + (data || '--') + '</span>';
                         }
                     },
                     {
-                        data: 'vendor_name',
+                        data: 'category',
+                        name: 'category',
+                        orderable: false,
+                        searchable: false,
+                        render: function(data) {
+                            return data || '--';
+                        }
+                    },
+                    {
+                        data: 'vendor',
+                        name: 'vendor',
                         orderable: false,
                         searchable: false,
                         render: function(data) {
@@ -393,22 +415,50 @@
                     },
                     {
                         data: 'status',
+                        name: 'status',
                         orderable: false,
                         searchable: false,
                         render: function(data) {
-                            return data === 'active' ?
-                                '<span class="badge bg-success">{{ __('Active') }}</span>' :
-                                '<span class="badge bg-danger">{{ __('Inactive') }}</span>';
+                            const statusColors = {
+                                'approved': 'primary',
+                                'pending': 'warning',
+                                'rejected': 'danger'
+                            };
+                            const color = statusColors[data] || 'secondary';
+                            const label = data.charAt(0).toUpperCase() + data.slice(1);
+                            return '<span class="badge bg-' + color + ' text-white px-3 py-2 rounded-pill fw-bold">' + label + '</span>';
+                        }
+                    },
+                    {
+                        data: 'sales',
+                        name: 'sales',
+                        orderable: false,
+                        searchable: false,
+                        render: function(data) {
+                            return '<span class="badge bg-info text-white">' + (data || 0) + '</span>';
+                        }
+                    },
+                    {
+                        data: 'views',
+                        name: 'views',
+                        orderable: false,
+                        searchable: false,
+                        render: function(data) {
+                            return '<span class="badge bg-secondary text-white">' + (data || 0) + '</span>';
                         }
                     },
                     {
                         data: 'created_at',
+                        name: 'created_at',
                         orderable: false,
                         searchable: false,
                         render: function(data) {
                             if (!data) return '--';
                             const date = new Date(data);
-                            return date.toLocaleDateString();
+                            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
                         }
                     }
                 ],
@@ -487,10 +537,14 @@
             statusChart = new Chart(ctxStatus, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Active', 'Inactive'],
+                    labels: ['Approved', 'Pending', 'Rejected'],
                     datasets: [{
                         data: [0, 0],
-                        backgroundColor: [primaryColor, secondaryColor],
+                        backgroundColor: [
+                            '#0d6efd', // bg-primary - approved (blue)
+                            '#ffc107', // bg-warning - pending (yellow)
+                            '#dc3545'  // bg-danger - rejected (red)
+                        ],
                         borderColor: '#fff',
                         borderWidth: 2
                     }]
@@ -506,15 +560,42 @@
         }
 
         function updateChartsWithData(statusDistribution, productsTrend) {
-            const dates = Object.keys(productsTrend).sort();
-            productsChart.data.labels = dates;
-            productsChart.data.datasets[0].data = dates.map(date => productsTrend[date]);
+            // Update daily products bar chart
+            const sortedDates = Object.keys(productsTrend).sort();
+            const formattedDates = sortedDates.map(date => {
+                const d = new Date(date);
+                return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            });
+
+            productsChart.data.labels = formattedDates;
+            productsChart.data.datasets[0].data = sortedDates.map(date => productsTrend[date]);
             productsChart.update();
 
-            statusChart.data.datasets[0].data = [
-                statusDistribution['active'] || 0,
-                statusDistribution['inactive'] || 0
-            ];
+            // Update status distribution doughnut chart with dynamic colors
+            const statusLabels = Object.keys(statusDistribution).map(key => {
+                return key.charAt(0).toUpperCase() + key.slice(1);
+            });
+            const statusData = Object.values(statusDistribution);
+
+            // Get CSS variable colors
+            const rootStyles = getComputedStyle(document.documentElement);
+            const primaryColor = rootStyles.getPropertyValue('--bg-primary') || '#0d6efd';
+            const warningColor = rootStyles.getPropertyValue('--bg-warning') || '#ffc107';
+            const dangerColor = '#dc3545';
+
+            // Map colors based on actual status keys
+            const statusColors = Object.keys(statusDistribution).map(status => {
+                switch(status) {
+                    case 'approved': return primaryColor;
+                    case 'pending': return warningColor;
+                    case 'rejected': return dangerColor;
+                    default: return '#6c757d'; // secondary color for unknown status
+                }
+            });
+
+            statusChart.data.labels = statusLabels;
+            statusChart.data.datasets[0].data = statusData;
+statusChart.data.datasets[0].backgroundColor = statusColors;
             statusChart.update();
         }
     </script>

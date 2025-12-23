@@ -60,6 +60,7 @@ class VendorRepository implements VendorInterface
                 'email' => $data['email'],
                 'password' => $data['password'],
                 'active' => $data['active'] ?? false,
+                'translations' => $data['translations'] ?? [],
             ];
             $user = $this->userService->createVendorAccount($userData);
             
@@ -84,6 +85,9 @@ class VendorRepository implements VendorInterface
                     'path' => $logoPath,
                     'type' => 'logo',
                 ]);
+                
+                // Update user image with vendor logo
+                $user->update(['image' => $logoPath]);
             }
 
             // Handle banner upload
@@ -121,6 +125,9 @@ class VendorRepository implements VendorInterface
                                 'path' => $vendorRequest->company_logo,
                                 'type' => 'logo',
                             ]);
+                            
+                            // Update user image with vendor request logo
+                            $user->update(['image' => $vendorRequest->company_logo]);
                         }
                     }
                 }
@@ -139,6 +146,7 @@ class VendorRepository implements VendorInterface
             if ($vendor->user) {
                 $userUpdateData = [
                     'id' => $vendor->user->id,
+                    'translations' => $data['translations'] ?? [],
                 ];
                 // Update password if provided
                 if (isset($data['password']) && !empty($data['password'])) {
@@ -154,8 +162,12 @@ class VendorRepository implements VendorInterface
                 }
                 // Update user if there's data to update
                 $this->userService->updateVendorAccount($userUpdateData);
-                // $role = rand(0, 9999);
-                // $vendor->user->roles()->sync([$role]);
+                
+                // Ensure the vendor role is assigned to the user
+                $vendorRole = \App\Models\Role::where('type', \App\Models\Role::VENDOR_ROLE_TYPE)->first();
+                if ($vendorRole && !$vendor->user->roles()->where('roles.id', $vendorRole->id)->exists()) {
+                    $vendor->user->roles()->syncWithoutDetaching([$vendorRole->id]);
+                }
             }
 
             // Handle logo upload
@@ -169,6 +181,11 @@ class VendorRepository implements VendorInterface
                     'path' => $logoPath,
                     'type' => 'logo',
                 ]);
+                
+                // Update user image with vendor logo
+                if ($vendor->user) {
+                    $vendor->user->update(['image' => $logoPath]);
+                }
             }
 
             // Handle banner upload

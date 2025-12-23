@@ -206,8 +206,6 @@
                                     @if(isAdmin())
                                     <th><span class="userDatatable-title">{{ __('customer::customer.created_by_vendor') }}</span></th>
                                     @endif
-                                    <th><span class="userDatatable-title">{{ __('customer::customer.city') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('customer::customer.region') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('customer::customer.status') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('customer::customer.email_verified') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('customer::customer.created_at') }}</span></th>
@@ -391,9 +389,16 @@
                         render: function(data, type, row) {
                             let info = '<div class="userDatatable-content">';
                             info += '<div class="mb-2"><strong>' + (row.full_name || '-') + '</strong></div>';
-                            info += '<div class="mb-2"  style="text-transform: lowercase;"><strong>{{ __("customer::customer.email") }}:</strong> ' + (row.email || '-') + '</div>';
-                            (row.phone) ? info += '<div><strong>{{ __("customer::customer.phone") }}:</strong> ' + (row.phone) + '</div>' : '';
-                            ;
+                            info += '<div class="mb-2" style="text-transform: lowercase;"><strong>{{ __("customer::customer.email") }}:</strong> ' + (row.email || '-') + '</div>';
+                            if (row.phone) {
+                                info += '<div class="mb-2"><strong>{{ __("customer::customer.phone") }}:</strong> ' + row.phone + '</div>';
+                            }
+                            if (row.city_name && row.city_name !== '-') {
+                                info += '<div class="mb-2"><strong>{{ __("customer::customer.city") }}:</strong> ' + row.city_name + '</div>';
+                            }
+                            if (row.region_name && row.region_name !== '-') {
+                                info += '<div class="mb-2"><strong>{{ __("customer::customer.region") }}:</strong> ' + row.region_name + '</div>';
+                            }
                             info += '</div>';
                             return info;
                         }
@@ -413,29 +418,21 @@
                     },
                     @endif
                     {
-                        data: 'city_name',
-                        name: 'city_name',
-                        orderable: false,
-                        render: function(data, type, row) {
-                            return '<div class="userDatatable-content">' + (data || '-') + '</div>';
-                        }
-                    },
-                    {
-                        data: 'region_name',
-                        name: 'region_name',
-                        orderable: false,
-                        render: function(data, type, row) {
-                            return '<div class="userDatatable-content">' + (data || '-') + '</div>';
-                        }
-                    },
-                    {
                         data: 'status',
                         name: 'status',
                         orderable: false,
                         render: function(data, type, row) {
+                            if (!row.can_manage) {
+                                // Show status badge only (no toggle) for customers vendor cannot manage
+                                if (data) {
+                                    return '<div class="userDatatable-content"><span class="badge badge-success badge-round">{{ __("customer::customer.active") }}</span></div>';
+                                } else {
+                                    return '<div class="userDatatable-content"><span class="badge badge-danger badge-round">{{ __("customer::customer.inactive") }}</span></div>';
+                                }
+                            }
                             let checked = data ? 'checked' : '';
                             return `<div class="userDatatable-content">
-                                <div class="form-check form-switch">
+                                <div class="form-check form-switch d-flex justify-content-center">
                                     <input class="form-check-input status-switch" type="checkbox"
                                         data-id="${row.id}" ${checked} style="cursor: pointer; width: 40px; height: 20px;">
                                 </div>
@@ -447,9 +444,17 @@
                         name: 'email_verified_at',
                         orderable: false,
                         render: function(data, type, row) {
+                            if (!row.can_manage) {
+                                // Show verification badge only (no toggle) for customers vendor cannot manage
+                                if (data) {
+                                    return '<div class="userDatatable-content"><span class="badge badge-success badge-round">{{ __("customer::customer.verified") }}</span></div>';
+                                } else {
+                                    return '<div class="userDatatable-content"><span class="badge badge-warning badge-round">{{ __("customer::customer.not_verified") }}</span></div>';
+                                }
+                            }
                             let checked = data ? 'checked' : '';
                             return `<div class="userDatatable-content">
-                                <div class="form-check form-switch">
+                                <div class="form-check form-switch d-flex justify-content-center">
                                     <input class="form-check-input verification-switch" type="checkbox"
                                         data-id="${row.id}" ${checked} style="cursor: pointer; width: 40px; height: 20px;">
                                 </div>
@@ -475,12 +480,14 @@
                             actions += '<a href="' + '{{ route("admin.customers.show", "__id__") }}'.replace('__id__', data) + '" class="btn btn-outline-info btn-sm" title="{{ __('customer::customer.view') }}">';
                             actions += '<i class="uil uil-eye m-0"></i>';
                             actions += '</a>';
-                            actions += '<a href="' + '{{ route("admin.customers.edit", "__id__") }}'.replace('__id__', data) + '" class="btn btn-outline-primary btn-sm" title="{{ __('customer::customer.edit') }}">';
-                            actions += '<i class="uil uil-edit m-0"></i>';
-                            actions += '</a>';
-                            actions += '<a href="javascript:void(0);" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modal-delete-customer" data-item-id="' + data + '" data-item-name="' + row.full_name + '" title="{{ __('customer::customer.delete') }}">';
-                            actions += '<i class="uil uil-trash m-0"></i>';
-                            actions += '</a>';
+                            if (row.can_manage) {
+                                actions += '<a href="' + '{{ route("admin.customers.edit", "__id__") }}'.replace('__id__', data) + '" class="btn btn-outline-primary btn-sm" title="{{ __('customer::customer.edit') }}">';
+                                actions += '<i class="uil uil-edit m-0"></i>';
+                                actions += '</a>';
+                                actions += '<a href="javascript:void(0);" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modal-delete-customer" data-item-id="' + data + '" data-item-name="' + row.full_name + '" title="{{ __('customer::customer.delete') }}">';
+                                actions += '<i class="uil uil-trash m-0"></i>';
+                                actions += '</a>';
+                            }
                             actions += '</div>';
                             actions += '</div>';
                             return actions;

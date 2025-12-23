@@ -352,14 +352,25 @@
                             // Vendor Email
                             const email = row.email || '-';
 
+                            // Vendor Logo
+                            let logoHtml = '';
+                            if (row.logo_url) {
+                                logoHtml = `<img src="${row.logo_url}" alt="${$('<div>').text(nameEn).html()}" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">`;
+                            } else {
+                                logoHtml = `<div class="rounded-circle me-3 d-flex align-items-center justify-content-center bg-primary text-white" style="width: 50px; height: 50px; font-size: 20px; font-weight: bold;">${nameEn.charAt(0).toUpperCase()}</div>`;
+                            }
+
                             let html = `
                                 <div class="vendor-card p-2 bg-light-subtle rounded-3">
-                                    <div class="d-flex flex-column">
-                                        <div class="fw-semibold text-dark text-capitalize mb-1">
-                                            ${$('<div>').text(nameEn).html()}
-                                        </div>
-                                        <div class="text-muted small">
-                                            <i class="uil uil-envelope me-1"></i>${$('<div>').text(email).html()}
+                                    <div class="d-flex align-items-center">
+                                        ${logoHtml}
+                                        <div class="d-flex flex-column">
+                                            <div class="fw-semibold text-dark text-capitalize mb-1">
+                                                ${$('<div>').text(nameEn).html()}
+                                            </div>
+                                            <div class="text-muted small">
+                                                <i class="uil uil-envelope me-1"></i>${$('<div>').text(email).html()}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

@@ -98,7 +98,7 @@
                                             {{ __('admin.email') }}
                                             <span class="text-danger">*</span>
                                         </label>
-                                        <input autocomplete="new-email"  type="email" class="form-control text-lowercase" id="email"
+                                        <input autocomplete="new-email" placeholder="{{ __('admin.email') }}"  type="email" class="form-control text-lowercase" id="email"
                                             name="email" value="{{ old('email', isset($user) ? $user->email : '') }}">
                                         <div id="email-error-container">
                                             @error('email')
@@ -111,51 +111,76 @@
                                 <!-- Vendor -->
                                 @if (isAdmin())
                                     <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label for="vendor_id" class="form-label">
-                                                {{ __('admin.vendor') }}
-                                                <span class="text-danger">*</span>
-                                            </label>
-                                            <select class="form-control select2" id="vendor_id" name="vendor_id" autocomplete="off">
-                                                <option value="">{{ __('admin.select_vendor') }}</option>
-                                                @foreach ($vendors as $vendor)
-                                                    <option value="{{ $vendor->id }}"
-                                                        {{ old('vendor_id', isset($user) ? $user->vendor_id : '') == $vendor->id ? 'selected' : '' }}>
-                                                        {{ $vendor->getTranslation('name', app()->getLocale()) }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            <div id="vendor_id-error-container">
-                                                @error('vendor_id')
-                                                    <div class="text-danger small mt-1">{{ $message }}</div>
-                                                @enderror
-                                            </div>
+                                        <x-searchable-tags 
+                                            name="vendor_id" 
+                                            :label="__('admin.vendor')" 
+                                            :options="$vendors->map(fn($vendor) => [
+                                                'id' => $vendor->id,
+                                                'name' => $vendor->getTranslation('name', app()->getLocale()),
+                                            ])->toArray()"
+                                            :selected="old('vendor_id', isset($user) ? [$user->vendor_id] : [])" 
+                                            :placeholder="__('admin.select_vendor')" 
+                                            :required="true" 
+                                            :multiple="false" 
+                                            id="vendor_id"
+                                        />
+                                        <div id="vendor_id-error-container">
+                                            @error('vendor_id')
+                                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                     </div>
                                 @else
-                                    <input type="hidden" name="vendor_id"
-                                        value="{{ auth()->user()->vendor_id ?? auth()->id() }}">
+                                    @php
+                                        $vendorId = auth()->user()->vendor_id;
+                                        if (!$vendorId && auth()->user()->vendorByUser) {
+                                            $vendorId = auth()->user()->vendorByUser->id;
+                                        }
+                                    @endphp
+                                    <input type="hidden" name="vendor_id" value="{{ $vendorId }}">
                                 @endif
 
                                 <!-- Roles -->
                                 <div class="col-md-6">
-                                    <x-searchable-tags name="role_ids[]" :label="__('admin.roles')" :options="$roles
-                                        ->map(
-                                            fn($role) => [
-                                                'id' => $role->id,
-                                                'name' => $role->getTranslation('name', app()->getLocale()),
-                                            ],
-                                        )
-                                        ->toArray()"
-                                        :selected="old(
-                                            'role_ids',
-                                            isset($user) ? $user->roles->pluck('id')->toArray() : [],
-                                        )" :placeholder="__('admin.select_roles')" :required="true" :multiple="true" />
-                                    <div id="role_ids-error-container">
-                                        @error('role_ids')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
+                                    @if(isAdmin() && !isset($user))
+                                        <div class="form-group mb-3">
+                                            <label class="il-gray fs-14 fw-500 mb-10 d-block">
+                                                {{ __('admin.roles') }}
+                                                <span class="text-danger">*</span>
+                                            </label>
+                                            <div id="roles-placeholder" class="alert alert-info mb-0 py-2" style="{{ old('vendor_id') ? 'display:none;' : '' }}">
+                                                <i class="uil uil-info-circle me-1"></i>
+                                                {{ __('admin.select_vendor_first_to_load_roles') }}
+                                            </div>
+                                            <div id="roles-container" style="{{ old('vendor_id') ? '' : 'display:none;' }}">
+                                                <x-searchable-tags name="role_ids[]" :label="null"
+                                                    :selected="old('role_ids', [])" :placeholder="__('admin.select_roles')" :required="true" :multiple="true" />
+                                            </div>
+                                            <div id="role_ids-error-container">
+                                                @error('role_ids')
+                                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    @else
+                                        <x-searchable-tags name="role_ids[]" :label="__('admin.roles')" :options="$roles
+                                            ->map(
+                                                fn($role) => [
+                                                    'id' => $role->id,
+                                                    'name' => $role->getTranslation('name', app()->getLocale()),
+                                                ],
+                                            )
+                                            ->toArray()"
+                                            :selected="old(
+                                                'role_ids',
+                                                isset($user) ? $user->roles->pluck('id')->toArray() : [],
+                                            )" :placeholder="__('admin.select_roles')" :required="true" :multiple="true" />
+                                        <div id="role_ids-error-container">
+                                            @error('role_ids')
+                                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    @endif
                                 </div>
 
                                 <!-- Password -->
@@ -264,7 +289,7 @@
                                             class="btn btn-light btn-default btn-squared text-capitalize">
                                             <i class="uil uil-arrow-left"></i> {{ __('admin.back_to_list') }}
                                         </a>
-                                        <button type="submit"
+                                        <button type="button" id="submitBtn"
                                             class="btn btn-primary btn-default btn-squared text-capitalize ms-2">
                                             <i class="uil uil-check"></i>
                                             {{ isset($user) ? __('admin.update_user') : __('admin.create_vendor_user') }}
@@ -286,359 +311,292 @@
 
 @push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Select2
-            $('.select2').select2({
-                width: '100%'
+        // Handle vendor selection change - load roles for selected vendor
+        @if(isAdmin())
+        // Watch for vendor selection changes via MutationObserver on the hidden input
+        var vendorWrapper = document.querySelector('[data-name="vendor_id"]');
+        if (vendorWrapper) {
+            var observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'childList') {
+                        // Check if a hidden input was added or removed
+                        var vendorInput = vendorWrapper.querySelector('input[type="hidden"][name="vendor_id"]');
+                        var vendorId = vendorInput ? vendorInput.value : '';
+                        loadRolesForVendor(vendorId);
+                    }
+                });
             });
-
-            const vendorUserForm = document.getElementById('vendorUserForm');
-            const submitBtn = vendorUserForm.querySelector('button[type="submit"]');
-            const alertContainer = document.getElementById('alertContainer');
-            let originalBtnHtml = '';
-
-            vendorUserForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                // Disable submit button and show loading
-                submitBtn.disabled = true;
-                originalBtnHtml = submitBtn.innerHTML;
-                submitBtn.innerHTML =
-                    '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>{{ __('common.processing') ?? 'Processing...' }}';
-
-                // Show loading overlay
-                LoadingOverlay.show();
-
-                // Clear previous alerts
-                alertContainer.innerHTML = '';
-
-                // Remove previous validation errors
-                document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-                document.querySelectorAll('.text-danger.small').forEach(el => el.remove());
-
-                // Start progress bar
-                LoadingOverlay.animateProgressBar(30, 300).then(() => {
-                        const formData = new FormData(vendorUserForm);
-
-                        return fetch(vendorUserForm.action, {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'Accept': 'application/json',
-                            }
-                        });
-                    })
-                    .then(response => {
-                        LoadingOverlay.animateProgressBar(60, 200);
-
-                        if (!response.ok) {
-                            return response.json().then(data => {
-                                throw data;
-                            });
+            
+            observer.observe(vendorWrapper, { childList: true, subtree: true });
+        }
+        
+        function loadRolesForVendor(vendorId) {
+            var rolesUrl = '{{ route("admin.vendor-users-management.roles.by-vendor") }}';
+            
+            // Show/hide placeholder and roles container
+            if (!vendorId) {
+                $('#roles-placeholder').show();
+                $('#roles-container').hide();
+                return;
+            }
+            
+            $('#roles-placeholder').hide();
+            $('#roles-container').show();
+            
+            // Get the searchable tags wrapper for roles
+            var $rolesWrapper = $('[data-name="role_ids[]"]');
+            var componentId = $rolesWrapper.find('.tag-input-container').data('id');
+            var $tagsDisplay = $rolesWrapper.find('#' + componentId + '-tags-display');
+            var $dropdown = $rolesWrapper.find('#' + componentId + '-dropdown');
+            var $input = $rolesWrapper.find('#' + componentId + '-input');
+            
+            // Clear current selections
+            $tagsDisplay.empty();
+            
+            // Show loading state
+            $dropdown.html('<div class="tag-option text-muted p-2">{{ __("common.loading") }}...</div>');
+            
+            // Fetch roles for selected vendor
+            $.ajax({
+                url: rolesUrl,
+                type: 'GET',
+                data: { vendor_id: vendorId },
+                success: function(response) {
+                    if (response.success && response.roles) {
+                        // Rebuild dropdown options
+                        $dropdown.empty();
+                        var inputName = 'role_ids[]';
+                        
+                        if (response.roles.length === 0) {
+                            $dropdown.html('<div class="tag-option text-muted p-2">{{ __("common.no_roles_found") }}</div>');
+                            return;
                         }
-                        return response.json();
-                    })
-                    .then(data => {
-                        return LoadingOverlay.animateProgressBar(90, 200).then(() => data);
-                    })
-                    .then(data => {
-                        return LoadingOverlay.animateProgressBar(100, 200).then(() => {
-                            const successMessage = @json(isset($user) ? trans('loading.updated_successfully') : trans('loading.created_successfully'));
-                            LoadingOverlay.showSuccess(
-                                successMessage,
-                                '{{ trans('loading.redirecting') }}'
-                            );
-
-                            setTimeout(() => {
-                                window.location.href = data.redirect ||
-                                    '{{ route('admin.vendor-users-management.vendor-users.index') }}';
-                            }, 1500);
-                        });
-                    })
-                    .catch(error => {
-                        LoadingOverlay.hide();
-
-                        // Handle validation errors
-                        if (error.errors) {
-                            Object.keys(error.errors).forEach(key => {
-                                let input = null;
-
-                                // Try direct match first
-                                input = document.querySelector(`[name="${key}"]`);
-
-                                // Convert dot notation to bracket notation
-                                if (!input && key.includes('.')) {
-                                    const parts = key.split('.');
-                                    const bracketKey = parts[0] + parts.slice(1).map(part =>
-                                        `[${part}]`).join('');
-                                    input = document.querySelector(`[name="${bracketKey}"]`);
-
-                                    // Special case for role_ids.*
-                                    if (!input && key.startsWith('role_ids.')) {
-                                        input = document.querySelector('#role_ids');
-                                    }
-                                }
-
-                                if (input) {
-                                    input.classList.add('is-invalid');
-                                    const feedback = document.createElement('div');
-                                    feedback.className = 'text-danger small mt-1';
-                                    feedback.textContent = error.errors[key][0];
-
-                                    if (input.classList.contains('select2-hidden-accessible')) {
-                                        input.nextElementSibling.after(feedback);
-                                    } else {
-                                        input.parentNode.appendChild(feedback);
-                                    }
-                                }
-                            });
-
-                            // Scroll to first error
-                            const firstError = document.querySelector('.is-invalid');
-                            if (firstError) {
-                                firstError.scrollIntoView({
-                                    behavior: 'smooth',
-                                    block: 'center'
+                        
+                        response.roles.forEach(function(role) {
+                            var $option = $('<div>')
+                                .addClass('tag-option p-2 cursor-pointer')
+                                .attr('data-id', role.id)
+                                .attr('data-name', role.name)
+                                .text(role.name)
+                                .on('click', function(e) {
+                                    e.stopPropagation();
+                                    window.searchableTags.addTag(componentId, String(role.id), role.name, inputName, true);
                                 });
-                            }
-                        }
-
-                        // Show error message
-                        const errorMessage = error.message || '{{ __('admin.error_occurred') }}';
-                        alertContainer.innerHTML = `
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <strong>${errorMessage}</strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            `;
-
-                        // Re-enable button
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalBtnHtml;
-                    });
+                            $dropdown.append($option);
+                        });
+                        
+                        // Reset input placeholder
+                        $input.attr('placeholder', '{{ __("admin.select_roles") }}');
+                    }
+                },
+                error: function() {
+                    $dropdown.html('<div class="tag-option text-danger p-2">{{ __("common.error_loading_roles") }}</div>');
+                }
             });
-        });
-    </script>
-@endpush
+        }
+        @endif
+
+        $(document).ready(function() {
+
+            var vendorUserForm = document.getElementById('vendorUserForm');
+            var submitBtn = document.getElementById('submitBtn');
+            var alertContainer = document.getElementById('alertContainer');
+            var originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
 
 
-@push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Select2
-            $('.select2').select2({
-                width: '100%'
-            });
-
-            const vendorUserForm = document.getElementById('vendorUserForm');
-            const submitBtn = vendorUserForm.querySelector('button[type="submit"]');
-            const alertContainer = document.getElementById('alertContainer');
-            let originalBtnHtml = '';
-
-            // Handle clearing errors on focus/input
-            vendorUserForm.addEventListener('focusin', function(e) {
-                clearFieldError(e.target);
-            });
-
-            vendorUserForm.addEventListener('input', function(e) {
-                clearFieldError(e.target);
-            });
-
-            function clearFieldError(target) {
-                const group = target.closest('.form-group') ||
-                    target.closest('.searchable-tags-wrapper') ||
-                    target.closest('.row');
-
-                if (group) {
-                    // Remove is-invalid class from input or specialized container
-                    const invalidElements = group.querySelectorAll('.is-invalid');
-                    invalidElements.forEach(el => el.classList.remove('is-invalid'));
-
-                    // Remove error messages
-                    const errorMessages = group.querySelectorAll('.text-danger.small, .invalid-feedback');
-                    errorMessages.forEach(msg => msg.remove());
-
-                    // Show helper text again
-                    const helperText = group.querySelector('.helper-text');
-                    if (helperText) helperText.classList.remove('d-none');
+            // Function to clear validation errors
+            function clearError(target) {
+                var $target = $(target);
+                $target.removeClass('is-invalid');
+                
+                var $formGroup = $target.closest('.form-group');
+                var $searchableWrapper = $target.closest('.searchable-tags-wrapper');
+                
+                if ($formGroup.length) {
+                    $formGroup.find('.is-invalid').removeClass('is-invalid');
+                    $formGroup.find('.text-danger.small').remove();
+                    $formGroup.find('.invalid-feedback').remove();
+                    $formGroup.find('.helper-text').removeClass('d-none');
+                    $formGroup.find('[id$="-error-container"]').empty();
+                }
+                
+                if ($searchableWrapper.length) {
+                    $searchableWrapper.find('.is-invalid').removeClass('is-invalid');
+                    $searchableWrapper.find('.tag-input-container').removeClass('is-invalid');
+                    $searchableWrapper.find('.text-danger.small').remove();
+                    $searchableWrapper.find('[id$="-error-container"]').empty();
+                }
+                
+                if ($target.hasClass('select2-hidden-accessible')) {
+                    $target.next('.select2-container').removeClass('is-invalid');
                 }
             }
 
-            vendorUserForm.addEventListener('submit', function(e) {
-                e.preventDefault();
+            // Event listeners for clearing errors
+            $(vendorUserForm).on('input change focusin', 'input, select, textarea', function(e) {
+                clearError(e.target);
+            });
 
-                // Disable submit button and show loading
-                submitBtn.disabled = true;
-                originalBtnHtml = submitBtn.innerHTML;
-                submitBtn.innerHTML =
-                    '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>{{ __('common.processing') ?? 'Processing...' }}';
+            $('.select2').on('select2:open select2:select', function() {
+                clearError(this);
+            });
 
-                // Update loading text
-                const loadingText = @json(isset($user) ? trans('loading.updating') : trans('loading.creating'));
-                const loadingSubtext = '{{ trans('loading.please_wait') }}';
-                const overlay = document.getElementById('loadingOverlay');
-                if (overlay) {
-                    overlay.querySelector('.loading-text').textContent = loadingText;
-                    overlay.querySelector('.loading-subtext').textContent = loadingSubtext;
+            $(document).on('click focus', '.tag-input-container, .tag-input', function() {
+                clearError(this);
+            });
+
+            // Show alert function
+            function showAlert(type, message) {
+                if (alertContainer) {
+                    alertContainer.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible fade show mb-20"><i class="uil uil-' + (type === 'success' ? 'check-circle' : 'exclamation-triangle') + '"></i> ' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
                 }
+            }
+
+            // Submit button click handler
+            $(document).on('click', '#submitBtn', function(e) {
+                e.preventDefault();
+                
+                var isUpdate = {{ isset($user) ? 'true' : 'false' }};
+                var loadingText = isUpdate ? '{{ trans("loading.updating") }}' : '{{ trans("loading.creating") }}';
+                var successMessage = isUpdate ? '{{ trans("loading.updated_successfully") }}' : '{{ trans("loading.created_successfully") }}';
+                var redirectUrl = '{{ route("admin.vendor-users-management.vendor-users.index") }}';
+
+                // Disable button
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>{{ trans("common.processing") }}';
 
                 // Show loading overlay
-                LoadingOverlay.show();
+                if (window.LoadingOverlay) {
+                    var overlay = document.getElementById('loadingOverlay');
+                    if (overlay) {
+                        var loadingTextEl = overlay.querySelector('.loading-text');
+                        var loadingSubtextEl = overlay.querySelector('.loading-subtext');
+                        if (loadingTextEl) loadingTextEl.textContent = loadingText;
+                        if (loadingSubtextEl) loadingSubtextEl.textContent = '{{ trans("loading.please_wait") }}';
+                    }
+                    LoadingOverlay.show();
+                }
 
-                // Clear previous alerts
-                alertContainer.innerHTML = '';
+                // Clear previous errors
+                if (alertContainer) alertContainer.innerHTML = '';
+                $(vendorUserForm).find('.is-invalid').removeClass('is-invalid');
+                $(vendorUserForm).find('.text-danger.small').remove();
+                $(vendorUserForm).find('.invalid-feedback').remove();
+                $(vendorUserForm).find('[id$="-error-container"]').empty();
 
-                // Remove previous validation errors
-                document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-                document.querySelectorAll('.text-danger.small, .invalid-feedback').forEach(el => el
-                    .remove());
-                document.querySelectorAll('.helper-text').forEach(el => el.classList.remove('d-none'));
+                // Submit form via AJAX
+                var formData = new FormData(vendorUserForm);
 
-                // Start progress bar
-                LoadingOverlay.animateProgressBar(30, 300).then(() => {
-                        const formData = new FormData(vendorUserForm);
-
-                        return fetch(vendorUserForm.action, {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'Accept': 'application/json',
-                            }
-                        });
-                    })
-                    .then(response => {
-                        LoadingOverlay.animateProgressBar(60, 200);
-
-                        if (!response.ok) {
-                            return response.json().then(data => {
-                                throw data;
-                            });
+                LoadingOverlay.animateProgressBar(30, 300).then(function() {
+                    return $.ajax({
+                        url: vendorUserForm.action,
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
                         }
-                        return response.json();
-                    })
-                    .then(data => {
-                        return LoadingOverlay.animateProgressBar(90, 200).then(() => data);
-                    })
-                    .then(data => {
-                        return LoadingOverlay.animateProgressBar(100, 200).then(() => {
-                            const successMessage = @json(isset($user) ? trans('loading.updated_successfully') : trans('loading.created_successfully'));
-                            LoadingOverlay.showSuccess(
-                                successMessage,
-                                '{{ trans('loading.redirecting') }}'
-                            );
-
-                            setTimeout(() => {
-                                window.location.href = data.redirect ||
-                                    '{{ route('admin.vendor-users-management.vendor-users.index') }}';
-                            }, 1500);
-                        });
-                    })
-                    .catch(error => {
-                        LoadingOverlay.hide();
-
-                        // Handle validation errors
-                        if (error.errors) {
-                            console.log('Validation errors:', error.errors);
-
-                            Object.keys(error.errors).forEach(key => {
-                                let input = null;
-
-                                // Try direct match first
-                                input = document.querySelector(`[name="${key}"]`) ||
-                                    document.querySelector(`[name="${key}[]"]`) ||
-                                    document.querySelector(
-                                        `.searchable-tags-wrapper[data-name="${key}[]"]`);
-
-                                // Convert dot notation to bracket notation
-                                if (!input && key.includes('.')) {
-                                    // Split by dots and rebuild with brackets
-                                    const parts = key.split('.');
-                                    const bracketKey = parts[0] + parts.slice(1).map(part =>
-                                        `[${part}]`).join('');
-                                    input = document.querySelector(`[name="${bracketKey}"]`);
+                    });
+                }).then(function(data) {
+                    return LoadingOverlay.animateProgressBar(100, 300).then(function() {
+                        LoadingOverlay.showSuccess(successMessage, '{{ trans("loading.redirecting") }}');
+                        setTimeout(function() {
+                            window.location.href = data.redirect || redirectUrl;
+                        }, 1500);
+                    });
+                }).catch(function(xhr) {
+                    LoadingOverlay.hide();
+                    
+                    var error = xhr.responseJSON || {};
+                    
+                    if (error.errors) {
+                        var processedFields = {};
+                        
+                        $.each(error.errors, function(key, messages) {
+                            var fieldKey = key.indexOf('.') !== -1 ? key.split('.')[0] : key;
+                            
+                            // For translation fields, use the full key to avoid duplicates
+                            var uniqueKey = key;
+                            if (processedFields[uniqueKey]) return;
+                            
+                            var input = null;
+                            
+                            // Handle translation fields like translations.1.name -> translations[1][name]
+                            if (key.indexOf('translations.') === 0) {
+                                var parts = key.split('.');
+                                if (parts.length === 3) {
+                                    var bracketKey = parts[0] + '[' + parts[1] + '][' + parts[2] + ']';
+                                    input = document.querySelector('[name="' + bracketKey + '"]');
                                 }
-
-                                // Special case for role_ids.*
-                                if (!input && key.startsWith('role_ids.')) {
-                                    input = document.querySelector(`[name="role_ids[]"]`) ||
-                                        document.querySelector(
-                                            `.searchable-tags-wrapper[data-name="role_ids[]"]`);
+                            }
+                            
+                            // Try other selectors if not found
+                            if (!input) {
+                                input = document.querySelector('[name="' + key + '"]') ||
+                                       document.querySelector('[name="' + key + '[]"]') ||
+                                       document.querySelector('[name="' + fieldKey + '[]"]') ||
+                                       document.querySelector('.searchable-tags-wrapper[data-name="' + fieldKey + '[]"]');
+                            }
+                            
+                            // Convert dot notation to bracket notation for other fields
+                            if (!input && key.indexOf('.') !== -1) {
+                                var keyParts = key.split('.');
+                                var bracketKey = keyParts[0];
+                                for (var i = 1; i < keyParts.length; i++) {
+                                    bracketKey += '[' + keyParts[i] + ']';
                                 }
-
-                                // Special case for vendor_id (select2)
-                                if (!input && key === 'vendor_id') {
-                                    input = document.querySelector('#vendor_id');
+                                input = document.querySelector('[name="' + bracketKey + '"]');
+                            }
+                            
+                            if (!input && (key === 'vendor_id' || fieldKey === 'vendor_id')) {
+                                input = document.getElementById('vendor_id');
+                            }
+                            
+                            if (input) {
+                                processedFields[uniqueKey] = true;
+                                
+                                if (input.classList.contains('searchable-tags-wrapper')) {
+                                    var container = input.querySelector('.tag-input-container');
+                                    if (container) container.classList.add('is-invalid');
+                                } else if (input.classList.contains('select2-hidden-accessible')) {
+                                    var select2Container = input.nextElementSibling;
+                                    if (select2Container) select2Container.classList.add('is-invalid');
+                                } else {
+                                    input.classList.add('is-invalid');
                                 }
-
-                                if (input) {
-                                    console.log(`Found input for ${key}:`, input);
-
-                                    // Handle searchable tags specifically
-                                    if (input.classList.contains('searchable-tags-wrapper')) {
-                                        const container = input.querySelector(
-                                            '.tag-input-container');
-                                        if (container) container.classList.add('is-invalid');
-                                    } else if (input.classList.contains('select2-hidden-accessible')) {
-                                        // Handle select2
-                                        const select2Container = input.nextElementSibling;
-                                        if (select2Container) select2Container.classList.add('is-invalid');
-                                    } else {
-                                        input.classList.add('is-invalid');
-                                    }
-
-                                    // Hide helper text if error exists
-                                    const formGroup = input.closest('.form-group');
-                                    if (formGroup) {
-                                        const helperText = formGroup.querySelector(
-                                            '.helper-text');
-                                        if (helperText) helperText.classList.add('d-none');
-                                    }
-
-                                    // Append error message to a dedicated container if it exists, otherwise to parent
-                                    const safeKey = key.replace(/\./g, '_').replace(/\[|\]/g,
-                                        '_');
-                                    const errorContainer = document.getElementById(
-                                            `${safeKey}-error-container`) ||
-                                        (formGroup ? formGroup : null) ||
-                                        input.closest('.searchable-tags-wrapper') ||
-                                        input.parentNode;
-
-                                    if (errorContainer) {
-                                        const feedback = document.createElement('div');
-                                        feedback.className = 'text-danger small mt-1 py-1';
-                                        feedback.textContent = error.errors[key][0];
+                                
+                                var formGroup = input.closest('.form-group') || input.closest('.searchable-tags-wrapper') || input.parentNode;
+                                var safeKey = key.replace(/\./g, '_').replace(/[\[\]]/g, '_');
+                                var errorContainer = document.getElementById(safeKey + '-error-container') || formGroup;
+                                
+                                if (errorContainer) {
+                                    // Check if error message already exists
+                                    var existingError = errorContainer.querySelector('.text-danger.small');
+                                    if (!existingError) {
+                                        var feedback = document.createElement('div');
+                                        feedback.className = 'text-danger small mt-1';
+                                        feedback.textContent = messages[0];
                                         errorContainer.appendChild(feedback);
                                     }
-                                } else {
-                                    console.warn(`Could not find input for error key: ${key}`);
                                 }
-                            });
-
-                            // Scroll to first error
-                            const firstError = document.querySelector('.is-invalid');
-                            if (firstError) {
-                                firstError.scrollIntoView({
-                                    behavior: 'smooth',
-                                    block: 'center'
-                                });
                             }
+                        });
+                        
+                        var firstError = document.querySelector('.is-invalid');
+                        if (firstError) {
+                            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }
-
-                        // Show error message
-                        const errorMessage = error.message || '{{ __('admin.error_occurred') }}';
-                        alertContainer.innerHTML = `
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <strong>${errorMessage}</strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            `;
-
-                        // Re-enable button
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalBtnHtml;
-                    });
+                        
+                        showAlert('danger', '{{ __("admin.please_check_form_errors") }}');
+                    } else {
+                        showAlert('danger', error.message || '{{ __("admin.error_occurred") }}');
+                    }
+                    
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnHtml;
+                });
             });
         });
     </script>

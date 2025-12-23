@@ -47,7 +47,7 @@
                             <div class="card-body">
                                 <div class="row g-3 align-items-end">
 
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="search" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-search me-1"></i> {{ trans('common.search') }}
@@ -59,7 +59,23 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-4">
+                                    @if(!auth()->user()->isVendor() && count($vendors) > 0)
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="vendor_filter" class="il-gray fs-14 fw-500 mb-10">
+                                                <i class="uil uil-store me-1"></i> {{ trans('vendor::vendor.vendor') }}
+                                            </label>
+                                            <select id="vendor_filter" class="select2 form-control ih-medium ip-gray radius-xs b-light">
+                                                <option value="">{{ trans('common.all') }}</option>
+                                                @foreach($vendors as $vendor)
+                                                    <option value="{{ $vendor['id'] }}">{{ $vendor['name'] }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    @endif
+
+                                    <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="created_date_from" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-calendar-alt me-1"></i>
@@ -71,7 +87,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="created_date_to" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-calendar-alt me-1"></i>
@@ -131,6 +147,7 @@
                                     @endforeach
                                     <th><span class="userDatatable-title">{{ trans('roles.permissions') }}</span></th>
                                     <th><span class="userDatatable-title">{{ trans('roles.type') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ trans('vendor::vendor.vendor') }}</span></th>
                                     <th><span class="userDatatable-title">{{ trans('roles.created_at') }}</span></th>
                                     <th><span class="userDatatable-title">{{ trans('common.actions') }}</span></th>
                                 </tr>
@@ -194,6 +211,8 @@
                         d.search = $('#search').val();
                         d.created_date_from = $('#created_date_from').val();
                         d.created_date_to = $('#created_date_to').val();
+                        // Get vendor_id from select2
+                        d.vendor_id = $('#vendor_filter').val() || '';
                         // Add sorting parameters
                         if (d.order && d.order.length > 0) {
                             d.orderColumnIndex = d.order[0].column;
@@ -312,6 +331,19 @@
                                 label + '</span></div>';
                         }
                     },
+                    // Vendor column
+                    {
+                        data: 'vendor_name',
+                        name: 'vendor',
+                        orderable: false,
+                        render: function(data, type, row) {
+                            if (data) {
+                                return '<div class="userDatatable-content"><span class="badge badge-info" style="border-radius: 6px; padding: 6px 12px;"><i class="uil uil-store me-1"></i>' +
+                                    $('<div>').text(data).html() + '</span></div>';
+                            }
+                            return '<div class="userDatatable-content"><span class="badge badge-light" style="border-radius: 6px; padding: 6px 12px;">{{ trans("common.system") }}</span></div>';
+                        }
+                    },
                     // Created At column
                     {
                         data: 'created_at',
@@ -412,6 +444,14 @@
                     minimumResultsForSearch: Infinity,
                     width: '100%'
                 });
+                
+                // Initialize Select2 on vendor filter
+                $('#vendor_filter').select2({
+                    theme: 'bootstrap-5',
+                    allowClear: true,
+                    placeholder: '{{ trans("common.all") }}',
+                    width: '100%'
+                });
             } else {
                 console.error('Select2 is not loaded');
             }
@@ -448,6 +488,12 @@
                 table.ajax.reload();
             });
 
+            // Vendor filter change handler
+            $('#vendor_filter').on('change', function() {
+                updateUrlWithFilters();
+                table.ajax.reload();
+            });
+
             // Reset filters button
             $('#resetFilters').on('click', function() {
                 console.log('Resetting all filters...');
@@ -455,6 +501,7 @@
                 $('#search').val('');
                 $('#created_date_from').val('');
                 $('#created_date_to').val('');
+                $('#vendor_filter').val('').trigger('change');
                 // Update URL and reload table
                 updateUrlWithFilters();
                 table.ajax.reload();

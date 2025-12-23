@@ -90,6 +90,137 @@
         $rejected_transactions = 0;
         $all_transactions = 0;
     }
+
+    // Get admin roles count (filtered by country + system roles)
+    $admin_roles_count = 0;
+    $admins_count = 0;
+    try {
+        // Get country code from route parameter (more reliable than session when switching countries)
+        $countryCode = request()->route('countryCode') ?? session('country_code');
+        $countryCode = strtoupper($countryCode);
+        $currentCountryId = \Modules\AreaSettings\app\Models\Country::where('code', $countryCode)->value('id');
+        
+        // Build query matching exactly what RoleAction does for admin roles
+        $rolesQuery = \App\Models\Role::where('type', 'admin');
+        
+        // Apply user type scope based on current user
+        $userTypeId = auth()->user()->user_type_id ?? null;
+        switch ($userTypeId) {
+            case \App\Models\UserType::SUPER_ADMIN_TYPE:
+                $rolesQuery->superAdminShowRoles();
+                break;
+            case \App\Models\UserType::ADMIN_TYPE:
+                $rolesQuery->adminShowRoles();
+                break;
+            case \App\Models\UserType::VENDOR_TYPE:
+            case \App\Models\UserType::VENDOR_USER_TYPE:
+                $rolesQuery->vendorShowRoles();
+                break;
+        }
+        
+        // Filter by country
+        if ($currentCountryId) {
+            $rolesQuery->where(function($q) use ($currentCountryId) {
+                $q->where('country_id', $currentCountryId)
+                  ->orWhereNull('country_id');
+            });
+        }
+        
+        $admin_roles_count = $rolesQuery->count();
+            
+        // Get admins count (filtered by country + system admins)
+        $adminsQuery = \App\Models\User::where('id', '!=', auth()->id());
+        
+        // Apply user type scope based on current user
+        switch ($userTypeId) {
+            case \App\Models\UserType::SUPER_ADMIN_TYPE:
+                $adminsQuery->superAdminShow();
+                break;
+            case \App\Models\UserType::ADMIN_TYPE:
+                $adminsQuery->adminShow();
+                break;
+            case \App\Models\UserType::VENDOR_TYPE:
+                $adminsQuery->vendorShow();
+                break;
+            case \App\Models\UserType::VENDOR_USER_TYPE:
+                $adminsQuery->otherShow();
+                break;
+        }
+        
+        // Filter by country
+        if ($currentCountryId) {
+            $adminsQuery->where(function($q) use ($currentCountryId) {
+                $q->where('country_id', $currentCountryId)
+                  ->orWhereNull('country_id');
+            });
+        }
+        
+        $admins_count = $adminsQuery->count();
+        
+        // Get vendor user roles count (filtered by country + system roles)
+        $vendorUserRolesQuery = \App\Models\Role::where('type', 'vendor_user');
+        
+        // Apply user type scope based on current user
+        switch ($userTypeId) {
+            case \App\Models\UserType::SUPER_ADMIN_TYPE:
+                $vendorUserRolesQuery->superAdminShowRoles();
+                break;
+            case \App\Models\UserType::ADMIN_TYPE:
+                $vendorUserRolesQuery->adminShowRoles();
+                break;
+            case \App\Models\UserType::VENDOR_TYPE:
+            case \App\Models\UserType::VENDOR_USER_TYPE:
+                $vendorUserRolesQuery->vendorShowRoles();
+                // Filter by vendor_id for vendor users
+                if (auth()->user()->isVendor()) {
+                    $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+                    if ($vendor) {
+                        $vendorUserRolesQuery->where(function($q) use ($vendor) {
+                            $q->where('vendor_id', $vendor->id)
+                              ->orWhereNull('vendor_id');
+                        });
+                    }
+                }
+                break;
+        }
+        
+        // Filter by country
+        if ($currentCountryId) {
+            $vendorUserRolesQuery->where(function($q) use ($currentCountryId) {
+                $q->where('country_id', $currentCountryId)
+                  ->orWhereNull('country_id');
+            });
+        }
+        
+        $vendor_user_roles_count = $vendorUserRolesQuery->count();
+        
+        // Get vendor users count (filtered by country)
+        $vendorUsersQuery = \App\Models\User::where('user_type_id', \App\Models\UserType::VENDOR_USER_TYPE)
+            ->where('id', '!=', auth()->id());
+        
+        // If current user is vendor, filter by their vendor
+        if (auth()->user()->isVendor()) {
+            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+            if ($vendor) {
+                $vendorUsersQuery->where('vendor_id', $vendor->id);
+            }
+        }
+        
+        // Filter by country
+        if ($currentCountryId) {
+            $vendorUsersQuery->where(function($q) use ($currentCountryId) {
+                $q->where('country_id', $currentCountryId)
+                  ->orWhereNull('country_id');
+            });
+        }
+        
+        $vendor_users_count = $vendorUsersQuery->count();
+    } catch (\Exception $e) {
+        $admin_roles_count = 0;
+        $admins_count = 0;
+        $vendor_user_roles_count = 0;
+        $vendor_users_count = 0;
+    }
 @endphp
 <div class="sidebar__menu-group">
     <ul class="sidebar_nav">
@@ -454,12 +585,14 @@
                     <span class="badge badge-round ms-1"
                         style="{{ getBadgeStyle(isMenuActive(['admin.occasions.index', 'admin.occasions.create', 'admin.occasions.show', 'admin.occasions.edit'], $currentRoute)) }}">
                         @php
-                            $occasions_count = \Modules\CatalogManagement\app\Models\Occasion::count();
-                            if (in_array($user_type_id, \App\Models\UserType::vendorIds())) {
-                                $occasions_count = \Modules\CatalogManagement\app\Models\Occasion::where(
-                                    'vendor_id',
-                                    $vendor->id,
-                                )->count();
+                            $occasions_count = 0;
+                            if (isAdmin()) {
+                                $occasions_count = \Modules\CatalogManagement\app\Models\Occasion::count();
+                            } else {
+                                $occasionVendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+                                if ($occasionVendor) {
+                                    $occasions_count = \Modules\CatalogManagement\app\Models\Occasion::where('vendor_id', $occasionVendor->id)->count();
+                                }
                             }
                         @endphp
                         {{ $occasions_count }}
@@ -631,6 +764,10 @@
                             <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.admin-management.roles.index', 'admin.admin-management.roles.create', 'admin.admin-management.roles.show', 'admin.admin-management.roles.edit'], $currentRoute) ? 'active' : '' }}"
                                 href="{{ route('admin.admin-management.roles.index') }}">
                                 {{ trans('menu.admin managment.roles managment') }}
+                                <span class="badge badge-round ms-1"
+                                    style="{{ getBadgeStyle(isMenuActive(['admin.admin-management.roles.index', 'admin.admin-management.roles.create', 'admin.admin-management.roles.show', 'admin.admin-management.roles.edit'], $currentRoute)) }}">
+                                    {{ $admin_roles_count }}
+                                </span>
                             </a>
                         </li>
                     @endcan
@@ -640,6 +777,10 @@
                             <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.admin-management.admins.index', 'admin.admin-management.admins.create', 'admin.admin-management.admins.show', 'admin.admin-management.admins.edit'], $currentRoute) ? 'active' : '' }}"
                                 href="{{ route('admin.admin-management.admins.index') }}">
                                 {{ trans('menu.admin managment.admin managment') }}
+                                <span class="badge badge-round ms-1"
+                                    style="{{ getBadgeStyle(isMenuActive(['admin.admin-management.admins.index', 'admin.admin-management.admins.create', 'admin.admin-management.admins.show', 'admin.admin-management.admins.edit'], $currentRoute)) }}">
+                                    {{ $admins_count }}
+                                </span>
                             </a>
                         </li>
                     @endcan
@@ -662,6 +803,10 @@
                             <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.vendor-users-management.roles.index', 'admin.vendor-users-management.roles.create', 'admin.vendor-users-management.roles.show', 'admin.vendor-users-management.roles.edit'], $currentRoute) ? 'active' : '' }}"
                                 href="{{ route('admin.vendor-users-management.roles.index') }}">
                                 {{ trans('menu.admin managment.vendor users roles management') }}
+                                <span class="badge badge-round ms-1"
+                                    style="{{ getBadgeStyle(isMenuActive(['admin.vendor-users-management.roles.index', 'admin.vendor-users-management.roles.create', 'admin.vendor-users-management.roles.show', 'admin.vendor-users-management.roles.edit'], $currentRoute)) }}">
+                                    {{ $vendor_user_roles_count }}
+                                </span>
                             </a>
                         </li>
                     @endcan
@@ -671,6 +816,10 @@
                             <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive(['admin.vendor-users-management.vendor-users.index', 'admin.vendor-users-management.vendor-users.create', 'admin.vendor-users-management.vendor-users.show', 'admin.vendor-users-management.vendor-users.edit'], $currentRoute) ? 'active' : '' }}"
                                 href="{{ route('admin.vendor-users-management.vendor-users.index') }}">
                                 {{ trans('menu.admin managment.vendor users management') }}
+                                <span class="badge badge-round ms-1"
+                                    style="{{ getBadgeStyle(isMenuActive(['admin.vendor-users-management.vendor-users.index', 'admin.vendor-users-management.vendor-users.create', 'admin.vendor-users-management.vendor-users.show', 'admin.vendor-users-management.vendor-users.edit'], $currentRoute)) }}">
+                                    {{ $vendor_users_count }}
+                                </span>
                             </a>
                         </li>
                     @endcan
@@ -777,7 +926,18 @@
                             {{ trans('menu.customers.all') }}
                             <span class="badge badge-round ms-1"
                                 style="{{ getBadgeStyle(isMenuActive('admin.customers.index', $currentRoute)) }}">
-                                {{ isAdmin() ? \Modules\Customer\app\Models\Customer::count() : \Modules\Customer\app\Models\Customer::where('vendor_id', auth()->user()->vendor_id ?? auth()->id())->count() }}
+                                @php
+                                    $customerCount = 0;
+                                    if (isAdmin()) {
+                                        $customerCount = \Modules\Customer\app\Models\Customer::count();
+                                    } else {
+                                        $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+                                        if ($vendor) {
+                                            $customerCount = \Modules\Customer\app\Models\Customer::where('vendor_id', $vendor->id)->count();
+                                        }
+                                    }
+                                @endphp
+                                {{ $customerCount }}
                             </span>
                         </a>
                     </li>
@@ -804,7 +964,20 @@
                                 {{ trans('menu.orders.all') }}
                                 <span class="badge badge-round ms-1"
                                     style="{{ getBadgeStyle(isMenuActive('admin.orders.index', $currentRoute) && !request()->has('stage')) }}">
-                                    {{ isAdmin() ? \Modules\Order\app\Models\Order::count() : \Modules\Order\app\Models\Order::whereHas('products', function($q) { $q->where('vendor_id', auth()->user()->vendor_id ?? auth()->id()); })->count() }}
+                                    @php
+                                        $allOrdersCount = 0;
+                                        if (isAdmin()) {
+                                            $allOrdersCount = \Modules\Order\app\Models\Order::count();
+                                        } else {
+                                            $orderVendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+                                            if ($orderVendor) {
+                                                $allOrdersCount = \Modules\Order\app\Models\Order::whereHas('products', function($q) use ($orderVendor) { 
+                                                    $q->where('vendor_id', $orderVendor->id); 
+                                                })->count();
+                                            }
+                                        }
+                                    @endphp
+                                    {{ $allOrdersCount }}
                                 </span>
                             </a>
                         </li>
@@ -841,6 +1014,12 @@
                             })
                                 ->orderBy('sort_order')
                                 ->get();
+                            
+                            // Get vendor for stage counts
+                            $stageVendor = null;
+                            if (!isAdmin()) {
+                                $stageVendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+                            }
                         @endphp
                         @foreach ($orderStages as $stage)
                             <li class="l_sidebar">
@@ -849,7 +1028,18 @@
                                     {{ $stage->translations->where('lang_key', 'name')->first()?->lang_value ?? $stage->slug }}
                                     <span class="badge badge-round ms-1"
                                         style="{{ getBadgeStyle(request()->get('stage') == $stage->id) }}">
-                                        {{ isAdmin() ? \Modules\Order\app\Models\Order::where('stage_id', $stage->id)->count() : \Modules\Order\app\Models\Order::where('stage_id', $stage->id)->whereHas('products', function($q) { $q->where('vendor_id', auth()->user()->vendor_id ?? auth()->id()); })->count() }}
+                                        @php
+                                            $stageOrderCount = 0;
+                                            if (isAdmin()) {
+                                                $stageOrderCount = \Modules\Order\app\Models\Order::where('stage_id', $stage->id)->count();
+                                            } elseif ($stageVendor) {
+                                                $stageOrderCount = \Modules\Order\app\Models\Order::where('stage_id', $stage->id)
+                                                    ->whereHas('products', function($q) use ($stageVendor) { 
+                                                        $q->where('vendor_id', $stageVendor->id); 
+                                                    })->count();
+                                            }
+                                        @endphp
+                                        {{ $stageOrderCount }}
                                     </span>
                                 </a>
                             </li>

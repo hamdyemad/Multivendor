@@ -85,6 +85,12 @@ $(document).ready(function() {
                       $('.image-preview-container img').length > 0 ||
                       $('input[name="translations"]').filter(function() { return $(this).val() !== ''; }).length > 0;
 
+    // In edit mode, unlock all wizard steps so user can navigate freely
+    if (isEditMode) {
+        console.log('📝 Edit mode detected - unlocking all wizard steps');
+        $('.wizard-step-nav').removeClass('locked').css('cursor', 'pointer');
+    }
+
     if (!isEditMode) {
         addDocumentRow();
     }
@@ -162,6 +168,13 @@ $(document).ready(function() {
     // Click on wizard step navigation - Validate before moving forward
     $('.wizard-step-nav').on('click', function() {
         console.log('🖱️ Wizard step clicked!');
+        
+        // Don't allow clicking on locked steps
+        if ($(this).hasClass('locked')) {
+            console.log('❌ Step is locked, ignoring click');
+            return;
+        }
+        
         const targetStep = parseInt($(this).data('step'));
         console.log('Clicked step:', targetStep);
 
@@ -613,17 +626,28 @@ function showStep(step, noScroll = false) {
         console.log(`Step ${index + 1}: display=${display}, active=${hasActive}`);
     });
 
-    // Update wizard navigation
-    $('.wizard-step-nav').removeClass('current');
-    $(`.wizard-step-nav[data-step="${step}"]`).addClass('current');
-
-    // Mark completed steps
+    // Update wizard navigation - current, completed, and locked states
     $('.wizard-step-nav').each(function() {
         const stepNum = parseInt($(this).data('step'));
-        if (stepNum < step) {
+        
+        // Remove all state classes first
+        $(this).removeClass('current completed locked');
+        
+        if (stepNum === step) {
+            // Current step
+            $(this).addClass('current');
+            $(this).css('cursor', 'pointer');
+        } else if (stepNum < step) {
+            // Completed steps (before current)
             $(this).addClass('completed');
+            $(this).css('cursor', 'pointer');
+        } else if (stepNum === step + 1) {
+            // Next step - unlocked but not completed
+            $(this).css('cursor', 'pointer');
         } else {
-            $(this).removeClass('completed');
+            // Future steps (more than 1 ahead) - locked
+            $(this).addClass('locked');
+            $(this).css('cursor', 'not-allowed');
         }
     });
 

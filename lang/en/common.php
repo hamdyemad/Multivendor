@@ -126,6 +126,7 @@ return [
     'translations' => 'Translations',
     // DataTables
     'entries' => 'entries',
+    'items' => 'items',
     'show' => 'Show',
     'showing' => 'Showing',
     'to' => 'to',
@@ -219,4 +220,8 @@ return [
     'email' => 'Email',
     'phone' => 'Phone',
     'date' => 'Date',
+    'system' => 'System',
+    'no_roles_found' => 'No roles found',
+    'error_loading_roles' => 'Error loading roles',
+    'vendor_country_restriction' => 'You can only access your assigned country.',
 ];

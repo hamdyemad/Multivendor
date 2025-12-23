@@ -22,13 +22,31 @@ class VendorUserRepository
             ->filter($filters);
 
         $currentUser = Auth::user();
-        if ($currentUser->user_type_id == UserType::VENDOR_TYPE) {
-            $query->where('vendor_id', $currentUser->id);
+        
+        // If current user is a vendor, filter by their vendor_id
+        if ($currentUser->isVendor()) {
+            // Get vendor from vendorByUser (owner) or vendorById (employee)
+            $vendor = $currentUser->vendorByUser ?? $currentUser->vendorById;
+            if ($vendor) {
+                $query->where('vendor_id', $vendor->id);
+            }
         } elseif (!empty($filters['vendor_id'])) {
             $query->where('vendor_id', $filters['vendor_id']);
         }
+        
+        // Filter by country: show vendor users for current country OR system users (null country_id)
+        $countryCode = request()->route('countryCode') ?? session('country_code');
+        $countryCode = strtoupper($countryCode);
+        $currentCountryId = \Modules\AreaSettings\app\Models\Country::where('code', $countryCode)->value('id');
+        
+        if ($currentCountryId) {
+            $query->where(function($q) use ($currentCountryId) {
+                $q->where('country_id', $currentCountryId)
+                  ->orWhereNull('country_id');
+            });
+        }
 
-        return $query;
+        return $query->orderBy('created_at', 'desc');
     }
 
     /**
@@ -36,9 +54,19 @@ class VendorUserRepository
      */
     public function getVendorUserById(int $id)
     {
-        return User::with(['roles', 'roles.translations', 'translations', 'vendorById'])
-            ->where('user_type_id', UserType::VENDOR_USER_TYPE)
-            ->findOrFail($id);
+        $query = User::with(['roles', 'roles.translations', 'translations', 'vendorById'])
+            ->where('user_type_id', UserType::VENDOR_USER_TYPE);
+        
+        // If current user is a vendor, only allow access to users in their vendor
+        $currentUser = Auth::user();
+        if ($currentUser && $currentUser->isVendor()) {
+            $vendor = $currentUser->vendorByUser ?? $currentUser->vendorById;
+            if ($vendor) {
+                $query->where('vendor_id', $vendor->id);
+            }
+        }
+        
+        return $query->findOrFail($id);
     }
 
     /**
@@ -77,7 +105,18 @@ class VendorUserRepository
     public function updateVendorUser(int $id, array $data)
     {
         return DB::transaction(function () use ($id, $data) {
-            $user = User::where('user_type_id', UserType::VENDOR_USER_TYPE)->findOrFail($id);
+            $query = User::where('user_type_id', UserType::VENDOR_USER_TYPE);
+            
+            // If current user is a vendor, only allow access to users in their vendor
+            $currentUser = Auth::user();
+            if ($currentUser && $currentUser->isVendor()) {
+                $vendor = $currentUser->vendorByUser ?? $currentUser->vendorById;
+                if ($vendor) {
+                    $query->where('vendor_id', $vendor->id);
+                }
+            }
+            
+            $user = $query->findOrFail($id);
 
             $updateData = [];
 
@@ -129,7 +168,18 @@ class VendorUserRepository
     public function deleteVendorUser(int $id)
     {
         return DB::transaction(function () use ($id) {
-            $user = User::where('user_type_id', UserType::VENDOR_USER_TYPE)->findOrFail($id);
+            $query = User::where('user_type_id', UserType::VENDOR_USER_TYPE);
+            
+            // If current user is a vendor, only allow access to users in their vendor
+            $currentUser = Auth::user();
+            if ($currentUser && $currentUser->isVendor()) {
+                $vendor = $currentUser->vendorByUser ?? $currentUser->vendorById;
+                if ($vendor) {
+                    $query->where('vendor_id', $vendor->id);
+                }
+            }
+            
+            $user = $query->findOrFail($id);
             
             // Delete user translations
             $user->translations()->delete();
@@ -149,7 +199,18 @@ class VendorUserRepository
      */
     public function changeStatus(int $id, $status, $type)
     {
-        $user = User::where('user_type_id', UserType::VENDOR_USER_TYPE)->findOrFail($id);
+        $query = User::where('user_type_id', UserType::VENDOR_USER_TYPE);
+        
+        // If current user is a vendor, only allow access to users in their vendor
+        $currentUser = Auth::user();
+        if ($currentUser && $currentUser->isVendor()) {
+            $vendor = $currentUser->vendorByUser ?? $currentUser->vendorById;
+            if ($vendor) {
+                $query->where('vendor_id', $vendor->id);
+            }
+        }
+        
+        $user = $query->findOrFail($id);
         
         if ($type == 'block') {
             $user->update(['block' => $status]);

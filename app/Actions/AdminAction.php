@@ -51,25 +51,18 @@ class AdminAction
         // Get languages
         $languages = $this->languageService->getAll();
 
-        // Get total records before filtering
-        $totalRecords = $this->adminService->getAdminsQuery([])->count();
-
-        // Get admins with filters
-        $baseQuery = $this->adminService->getAdminsQuery($filters);
-        $filteredRecords = clone($baseQuery);
-        $filteredRecords = $filteredRecords->count();
-
         // Prepare sorting parameters
         $orderBy = $this->determineSorting($request, $languages, $orderColumnIndex);
 
-        // Get admins with sorting applied
+        // Get admins with filters
         $query = $this->adminService->getAdminsQuery($filters, $orderBy, $orderDirection);
 
-        // Apply pagination
-        $perPage = $request->get('per_page', 10);
-        $page = $request->get('page', 1);
+        // Get current country_id from route parameter (more reliable when switching countries)
+        $countryCode = request()->route('countryCode') ?? session('country_code');
+        $countryCode = strtoupper($countryCode);
+        $currentCountryId = \Modules\AreaSettings\app\Models\Country::where('code', $countryCode)->value('id');
 
-        // Start Permessions for roles
+        // Apply user type permissions scope
         switch (auth()->user()->user_type_id) {
             case UserType::SUPER_ADMIN_TYPE:
                 $query->superAdminShow();
@@ -84,7 +77,49 @@ class AdminAction
                 $query->otherShow();
                 break;
         }
-        // End Permessions for roles
+
+        // Filter by country: show admins for current country OR system admins (null country_id)
+        if ($currentCountryId) {
+            $query->where(function($q) use ($currentCountryId) {
+                $q->where('country_id', $currentCountryId)
+                  ->orWhereNull('country_id');
+            });
+        }
+
+        // Get total records (with permission scope, without filters)
+        $totalQuery = $this->adminService->getAdminsQuery([]);
+        switch (auth()->user()->user_type_id) {
+            case UserType::SUPER_ADMIN_TYPE:
+                $totalQuery->superAdminShow();
+                break;
+            case UserType::ADMIN_TYPE:
+                $totalQuery->adminShow();
+                break;
+            case UserType::VENDOR_TYPE:
+                $totalQuery->vendorShow();
+                break;
+            case UserType::VENDOR_USER_TYPE:
+                $totalQuery->otherShow();
+                break;
+        }
+        
+        // Apply country filter to total query as well
+        if ($currentCountryId) {
+            $totalQuery->where(function($q) use ($currentCountryId) {
+                $q->where('country_id', $currentCountryId)
+                  ->orWhereNull('country_id');
+            });
+        }
+        
+        $totalRecords = $totalQuery->count();
+
+        // Get filtered records count
+        $filteredRecords = clone $query;
+        $filteredRecords = $filteredRecords->count();
+
+        // Apply pagination
+        $perPage = $request->get('per_page', $length);
+        $page = $request->get('page', 1);
 
         $admins = $query->paginate($perPage, ['*'], 'page', $page);
 

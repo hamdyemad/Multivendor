@@ -47,6 +47,7 @@ return [
     'variants_stock' => 'Variants & Stock',
     'region' => 'Region',
     'stock' => 'Stock',
+    'stock_status' => 'Stock Status',
     'stock_per_region' => 'Stock per Region',
     'total' => 'Total',
     'points' => 'Points',

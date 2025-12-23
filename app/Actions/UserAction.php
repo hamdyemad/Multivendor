@@ -22,7 +22,7 @@ class UserAction {
 
         if($user) {
             // Check if user account is inactive
-            if(!$user->active()) {
+            if(!$user->active) {
                 try {
                     $this->logActivityForUser(
                         user: $user,
@@ -39,7 +39,7 @@ class UserAction {
             }
 
             // Check if user account is blocked
-            if(!$user->blocked()) {
+            if($user->block) {
                 try {
                     $this->logActivityForUser(
                         user: $user,
@@ -53,6 +53,26 @@ class UserAction {
                     // Ignore logging errors
                 }
                 return $this->sendData(__('auth.account_blocked'), false);
+            }
+
+            // Check if user is a vendor owner (not vendor_id) and vendor is inactive
+            if (!$user->vendor_id) {
+                $vendor = $user->vendorByUser;
+                if ($vendor && !$vendor->active) {
+                    try {
+                        $this->logActivityForUser(
+                            user: $user,
+                            action: 'login_failed',
+                            descriptionKey: 'activity_log.login_failed_vendor_inactive',
+                            descriptionParams: [],
+                            model: $user,
+                            properties: ['email' => $user->email]
+                        );
+                    } catch (\Exception $e) {
+                        // Ignore logging errors
+                    }
+                    return $this->sendData(__('auth.vendor_not_activated'), false);
+                }
             }
         }
 

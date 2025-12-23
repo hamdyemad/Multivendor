@@ -96,7 +96,7 @@ class VendorAction {
                 'row_number' => ($vendors->currentPage() - 1) * $vendors->perPage() + $index + 1,
                 'id' => $vendor->id,
                 'translations' => [],
-                'logo' => $vendor->logo ? asset('storage/' . $vendor->logo->path) : null,
+                'logo_url' => $vendor->logo ? asset('storage/' . $vendor->logo->path) : null,
                 'email' => $vendor->user->email ?? '-',
                 'country_name' => $vendor->country ? $vendor->country->getTranslation('name', app()->getLocale()) : '-',
                 'departments' => $vendor->departments->map(function($d) {

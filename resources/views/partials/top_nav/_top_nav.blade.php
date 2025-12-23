@@ -18,8 +18,10 @@
         <ul class="navbar-right__menu">
             {{-- @include('partials.top_nav._search') --}}
             @include('partials.top_nav._country_selector')
+            @if(isAdmin())
             @include('partials.top_nav._vendors_withdraw_requests')
             @include('partials.top_nav._become_vendor_requests')
+            @endif
             @include('partials.top_nav._orders')
             @include('partials.top_nav._messages')
             @include('partials.top_nav._notifications')

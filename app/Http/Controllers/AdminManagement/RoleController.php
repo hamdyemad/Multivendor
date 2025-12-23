@@ -230,8 +230,24 @@ class RoleController extends Controller
     public function vendorUserRolesIndex(Request $request)
     {
         $languages = $this->languageService->getAll();
+        
+        // Get vendors for filter (only for non-vendor users)
+        $vendors = [];
+        if (!auth()->user()->isVendor()) {
+            $vendors = \Modules\Vendor\app\Models\Vendor::query()
+                ->get()
+                ->map(function ($vendor) {
+                    return [
+                        'id' => $vendor->id,
+                        'name' => $vendor->getTranslation('name', app()->getLocale()),
+                    ];
+                })
+                ->toArray();
+        }
+        
         $data = [
             'languages' => $languages,
+            'vendors' => $vendors,
             'title' => trans('Vendor Users Roles Management'),
             'type' => 'vendor_user',
         ];
@@ -254,6 +270,7 @@ class RoleController extends Controller
             'created_date_from' => $request->get('created_date_from'),
             'created_date_to' => $request->get('created_date_to'),
             'type' => 'vendor_user', // Filter for vendor user roles
+            'vendor_id' => $request->get('vendor_id'), // Filter by vendor
         ];
 
         $response = $this->roleAction->getDataTable($data);
@@ -397,5 +414,51 @@ class RoleController extends Controller
 
         return redirect()->route('admin.vendor-users-management.roles.index')
                         ->with('success', __('Role deleted successfully'));
+    }
+
+    /**
+     * Get roles by vendor ID (API endpoint for AJAX)
+     */
+    public function getRolesByVendor(Request $request)
+    {
+        $vendorId = $request->get('vendor_id');
+        
+        // Get current country_id for filtering
+        $countryCode = request()->route('countryCode') ?? session('country_code');
+        $countryCode = strtoupper($countryCode);
+        $currentCountryId = \Modules\AreaSettings\app\Models\Country::where('code', $countryCode)->value('id');
+        
+        // Get vendor user roles filtered by vendor_id or system roles (null vendor_id)
+        $rolesQuery = $this->roleService->getRolesQuery(['type' => 'vendor_user']);
+        
+        // Filter by country: show roles for current country OR system roles (null country_id)
+        if ($currentCountryId) {
+            $rolesQuery->where(function($q) use ($currentCountryId) {
+                $q->where('country_id', $currentCountryId)
+                  ->orWhereNull('country_id');
+            });
+        }
+        
+        if ($vendorId) {
+            $rolesQuery->where(function($q) use ($vendorId) {
+                $q->where('vendor_id', $vendorId)
+                  ->orWhereNull('vendor_id');
+            });
+        } else {
+            // If no vendor selected, return only system roles (null vendor_id)
+            $rolesQuery->whereNull('vendor_id');
+        }
+        
+        $roles = $rolesQuery->get()->map(function($role) {
+            return [
+                'id' => $role->id,
+                'name' => $role->getTranslation('name', app()->getLocale()),
+            ];
+        });
+        
+        return response()->json([
+            'success' => true,
+            'roles' => $roles
+        ]);
     }
 }

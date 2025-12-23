@@ -12,11 +12,13 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Traits\AutoStoreCountryId;
 use Modules\Vendor\app\Models\Vendor;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, Translation, SoftDeletes, HumanDates;
+    use HasApiTokens, HasFactory, Notifiable, Translation, SoftDeletes, 
+    HumanDates, AutoStoreCountryId;
 
     /**
      * The relationships that should always be loaded.
@@ -108,6 +110,14 @@ class User extends Authenticatable
     public function getVendorAttribute()
     {
         return $this->vendorByUser ?? $this->vendorById;
+    }
+
+    /**
+     * Check if user is a vendor (owns a vendor or belongs to a vendor)
+     */
+    public function isVendor(): bool
+    {
+        return $this->vendorByUser !== null || $this->vendor_id !== null;
     }
 
 

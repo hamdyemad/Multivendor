@@ -51,9 +51,40 @@ class VendorUserController extends Controller
     public function create()
     {
         $languages = $this->languageService->getAll();
-        $roles = $this->roleService->getRolesQuery(['type' => 'vendor_user'])->get();
         $vendors = $this->vendorService->getAllVendors();
-        return view('pages.vendor_users_management.vendor_user.form', compact('languages', 'roles', 'vendors'));
+        
+        // Get current country_id for filtering
+        $countryCode = request()->route('countryCode') ?? session('country_code');
+        $countryCode = strtoupper($countryCode);
+        $currentCountryId = \Modules\AreaSettings\app\Models\Country::where('code', $countryCode)->value('id');
+        
+        // Get roles filtered by vendor_id for vendor users
+        $rolesQuery = $this->roleService->getRolesQuery(['type' => 'vendor_user']);
+        
+        // Filter by country: show roles for current country OR system roles (null country_id)
+        if ($currentCountryId) {
+            $rolesQuery->where(function($q) use ($currentCountryId) {
+                $q->where('country_id', $currentCountryId)
+                  ->orWhereNull('country_id');
+            });
+        }
+        
+        // If user is a vendor, filter roles by their vendor_id or system roles (null vendor_id)
+        if (auth()->user()->isVendor()) {
+            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+            if ($vendor) {
+                $rolesQuery->where(function($q) use ($vendor) {
+                    $q->where('vendor_id', $vendor->id)
+                      ->orWhereNull('vendor_id');
+                });
+            }
+            $roles = $rolesQuery->get();
+        } else {
+            // For admins, start with empty roles - they will be loaded via AJAX when vendor is selected
+            $roles = collect([]);
+        }
+        
+        return view('pages.vendor_users_management.vendor_user.form', compact('languages', 'vendors', 'roles'));
     }
 
     /**
@@ -112,10 +143,47 @@ class VendorUserController extends Controller
     {
         try {
             $languages = $this->languageService->getAll();
-            $roles = $this->roleService->getRolesQuery(['type' => 'vendor_user'])->get();
-            $vendors = $this->vendorService->getAllVendors();
             $user = $this->vendorUserService->getVendorUserById((int) $id);
-            return view('pages.vendor_users_management.vendor_user.form', compact('user', 'languages', 'roles', 'vendors'));
+            $vendors = $this->vendorService->getAllVendors();
+            
+            // Get current country_id for filtering
+            $urlCountryCode = request()->route('countryCode') ?? session('country_code');
+            $urlCountryCode = strtoupper($urlCountryCode);
+            $currentCountryId = \Modules\AreaSettings\app\Models\Country::where('code', $urlCountryCode)->value('id');
+            
+            // Get roles filtered by vendor_id for vendor users
+            $rolesQuery = $this->roleService->getRolesQuery(['type' => 'vendor_user']);
+            
+            // Filter by country: show roles for current country OR system roles (null country_id)
+            if ($currentCountryId) {
+                $rolesQuery->where(function($q) use ($currentCountryId) {
+                    $q->where('country_id', $currentCountryId)
+                      ->orWhereNull('country_id');
+                });
+            }
+            
+            // If user is a vendor, filter roles by their vendor_id or system roles (null vendor_id)
+            if (auth()->user()->isVendor()) {
+                $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+                if ($vendor) {
+                    $rolesQuery->where(function($q) use ($vendor) {
+                        $q->where('vendor_id', $vendor->id)
+                          ->orWhereNull('vendor_id');
+                    });
+                }
+            } else {
+                // For admins editing a user, filter by the user's vendor_id
+                if ($user->vendor_id) {
+                    $rolesQuery->where(function($q) use ($user) {
+                        $q->where('vendor_id', $user->vendor_id)
+                          ->orWhereNull('vendor_id');
+                    });
+                }
+            }
+            
+            $roles = $rolesQuery->get();
+            
+            return view('pages.vendor_users_management.vendor_user.form', compact('user', 'languages', 'vendors', 'roles'));
         } catch (\Exception $e) {
             return redirect()->route('admin.vendor-users-management.vendor-users.index')
                 ->with('error', __('admin.vendor_user_not_found'));

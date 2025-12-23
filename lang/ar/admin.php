@@ -63,6 +63,7 @@ return [
     'leave_empty_to_keep_password' => 'اتركه فارغاً للحفاظ على كلمة المرور الحالية',
     'select_role' => 'اختر الدور',
     'select_roles' => 'اختر الأدوار',
+    'select_vendor_first_to_load_roles' => 'يرجى اختيار البائع أولاً لتحميل الأدوار المتاحة',
     
     // Messages
     'admin_created_successfully' => 'تم إنشاء المسؤول بنجاح',
@@ -89,6 +90,7 @@ return [
     'permissions' => 'الصلاحيات',
     'validation_errors' => 'أخطاء التحقق',
     'error_occurred' => 'حدث خطأ',
+    'please_check_form_errors' => 'يرجى التحقق من أخطاء النموذج',
     
     // Validation Messages
     'at_least_one_translation_required' => 'مطلوب ترجمة واحدة على الأقل',

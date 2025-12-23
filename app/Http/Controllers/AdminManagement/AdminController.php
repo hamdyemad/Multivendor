@@ -49,7 +49,9 @@ class AdminController extends Controller
     public function create($lang, $countryCode)
     {
         $languages = $this->languageService->getAll();
-        $roles = $this->roleService->getAllRoles(['exclude_system' => true], 0);
+        $roles = $this->roleService->getAllRoles([
+            'type' => 'admin'
+        ], 0);
         return view('pages.admin_management.admin.form', compact('languages', 'roles'));
     }
 
@@ -110,7 +112,9 @@ class AdminController extends Controller
         try {
             $languages = $this->languageService->getAll();
             $admin = $this->adminService->getAdminById((int) $id);
-            $roles = $this->roleService->getAllRoles(['exclude_system' => true], 0);
+            $roles = $this->roleService->getAllRoles([
+                'type' => 'admin'
+            ], 0);
             return view('pages.admin_management.admin.form', compact('admin', 'languages', 'roles'));
         } catch (\Exception $e) {
             return redirect()->route('admin.admin-management.admins.index')

@@ -29,7 +29,20 @@ class CustomerRepository implements CustomerRepositoryInterface
 
     public function getCustomerById(int $id): ?Customer
     {
-        return Customer::findOrFail($id);
+        $query = Customer::query();
+        
+        // If current user is a vendor, only allow access to customers in their vendor OR customers with no vendor
+        if (auth()->check() && auth()->user()->isVendor()) {
+            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+            if ($vendor) {
+                $query->where(function ($q) use ($vendor) {
+                    $q->where('vendor_id', $vendor->id)
+                      ->orWhereNull('vendor_id');
+                });
+            }
+        }
+        
+        return $query->findOrFail($id);
     }
 
     public function findById($id, array $filters = [])
@@ -40,9 +53,12 @@ class CustomerRepository implements CustomerRepositoryInterface
     public function createCustomer(array $data)
     {
         return DB::transaction(function () use ($data) {
-            // Add vendor_id if user is vendor
+            // Add vendor_id if user is vendor and vendor_id not provided
             if (!isAdmin() && !isset($data['vendor_id'])) {
-                $data['vendor_id'] = auth()->user()->vendor_id ?? auth()->id();
+                $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+                if ($vendor) {
+                    $data['vendor_id'] = $vendor->id;
+                }
             }
 
             $customer = Customer::create([
@@ -74,7 +90,20 @@ class CustomerRepository implements CustomerRepositoryInterface
     public function updateCustomer(int $id, array $data)
     {
         return DB::transaction(function () use ($id, $data) {
-            $customer = Customer::findOrFail($id);
+            $query = Customer::query();
+            
+            // If current user is a vendor, only allow access to customers in their vendor OR customers with no vendor
+            if (auth()->check() && auth()->user()->isVendor()) {
+                $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+                if ($vendor) {
+                    $query->where(function ($q) use ($vendor) {
+                        $q->where('vendor_id', $vendor->id)
+                          ->orWhereNull('vendor_id');
+                    });
+                }
+            }
+            
+            $customer = $query->findOrFail($id);
             \Log::info($data);
 
             $updateData = [
@@ -116,7 +145,20 @@ class CustomerRepository implements CustomerRepositoryInterface
 
     public function deleteCustomer(int $id)
     {
-        $customer = Customer::findOrFail($id);
+        $query = Customer::query();
+        
+        // If current user is a vendor, only allow access to customers in their vendor OR customers with no vendor
+        if (auth()->check() && auth()->user()->isVendor()) {
+            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+            if ($vendor) {
+                $query->where(function ($q) use ($vendor) {
+                    $q->where('vendor_id', $vendor->id)
+                      ->orWhereNull('vendor_id');
+                });
+            }
+        }
+        
+        $customer = $query->findOrFail($id);
         return $customer->delete();
     }
 
@@ -137,9 +179,12 @@ class CustomerRepository implements CustomerRepositoryInterface
 
     public function create(array $data): Customer
     {
-        // Add vendor_id if user is vendor
+        // Add vendor_id if user is vendor and vendor_id not provided
         if (!isAdmin() && !isset($data['vendor_id'])) {
-            $data['vendor_id'] = auth()->user()->vendor_id ?? auth()->id();
+            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+            if ($vendor) {
+                $data['vendor_id'] = $vendor->id;
+            }
         }
         
         return Customer::create($data);
@@ -172,7 +217,20 @@ class CustomerRepository implements CustomerRepositoryInterface
 
     public function getCustomerCount(): int
     {
-        return Customer::count();
+        $query = Customer::query();
+        
+        // Filter by vendor if user is a vendor - include vendor's customers AND customers with no vendor
+        if (auth()->check() && auth()->user()->isVendor()) {
+            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+            if ($vendor) {
+                $query->where(function ($q) use ($vendor) {
+                    $q->where('vendor_id', $vendor->id)
+                      ->orWhereNull('vendor_id');
+                });
+            }
+        }
+        
+        return $query->count();
     }
 
     /**
@@ -180,7 +238,20 @@ class CustomerRepository implements CustomerRepositoryInterface
      */
     public function getCustomerWithDetails($customerId)
     {
-        return Customer::with(['addresses', 'fcmTokens'])->findOrFail($customerId);
+        $query = Customer::with(['addresses', 'fcmTokens']);
+        
+        // If current user is a vendor, only allow access to customers in their vendor OR customers with no vendor
+        if (auth()->check() && auth()->user()->isVendor()) {
+            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+            if ($vendor) {
+                $query->where(function ($q) use ($vendor) {
+                    $q->where('vendor_id', $vendor->id)
+                      ->orWhereNull('vendor_id');
+                });
+            }
+        }
+        
+        return $query->findOrFail($customerId);
     }
 
     /**

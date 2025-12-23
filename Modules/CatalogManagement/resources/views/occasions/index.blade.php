@@ -128,6 +128,24 @@
                                         </div>
                                     </div>
 
+                                    {{-- Vendor Filter (Admin Only) --}}
+                                    @if(isAdmin())
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="vendor_filter" class="il-gray fs-14 fw-500 mb-10">
+                                                <i class="uil uil-store me-1"></i>
+                                                {{ __('vendor::vendor.vendor') }}
+                                            </label>
+                                            <select class="form-control select2" id="vendor_filter" style="width: 100%;">
+                                                <option value="">{{ __('common.all') }}</option>
+                                                @foreach($vendors as $vendor)
+                                                    <option value="{{ $vendor->id }}">{{ $vendor->getTranslation('name', app()->getLocale()) }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    @endif
+
                                     <div class="col-md-12 d-flex align-items-center mt-3">
                                         <button type="button" id="searchBtn"
                                             class="btn btn-success btn-default btn-squared me-1"
@@ -209,6 +227,15 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
+            // Initialize Select2
+            if ($.fn.select2) {
+                $('.select2').select2({
+                    width: '100%',
+                    allowClear: true,
+                    placeholder: '{{ __("common.all") }}'
+                });
+            }
+
             let per_page = 10;
 
             // Populate filters from URL parameters on page load
@@ -236,6 +263,7 @@
                         d.created_until = $('#created_until_filter').val();
                         d.start_date = $('#start_date_filter').val();
                         d.end_date = $('#end_date_filter').val();
+                        d.vendor_id = $('#vendor_filter').val();
                         return d;
                     }
                 },
@@ -445,11 +473,14 @@
             // Reset filters
             $('#resetFilters').on('click', function() {
                 $('#search').val('');
-                $('#active').val('');
+                $('#active').val(null).trigger('change');
                 $('#created_from_filter').val('');
                 $('#created_until_filter').val('');
                 $('#start_date_filter').val('');
                 $('#end_date_filter').val('');
+                @if(isAdmin())
+                $('#vendor_filter').val(null).trigger('change');
+                @endif
                 table.ajax.reload();
                 // Clear URL params
                 window.history.replaceState({}, '', window.location.pathname);
@@ -503,6 +534,14 @@
                     table.ajax.reload();
                     updateUrlParams();
                 });
+
+            // Vendor filter - live search on change
+            @if(isAdmin())
+            $('#vendor_filter').on('change', function() {
+                table.ajax.reload();
+                updateUrlParams();
+            });
+            @endif
 
             // Enter key to search immediately
             $('#search').on('keypress', function(e) {

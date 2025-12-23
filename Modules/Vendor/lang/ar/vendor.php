@@ -1,6 +1,9 @@
 <?php
 
 return [
+    // General
+    'vendor' => 'المورد',
+    
     // Page Titles
     'vendors_management' => 'إدارة البائعين',
     'vendors' => 'البائعون',
@@ -258,4 +261,38 @@ return [
     'rejection_reason_visible' => 'سيكون هذا السبب مرئياً للمورد.',
     'reject_request' => 'رفض الطلب',
     'vendor_request_details' => 'تفاصيل طلب المورد',
+
+    // Order & Product Statistics
+    'order_statistics' => 'إحصائيات الطلبات',
+    'total_orders' => 'إجمالي الطلبات',
+    'total_revenue' => 'إجمالي الإيرادات',
+    'delivered_orders' => 'الطلبات المسلمة',
+    'pending_orders' => 'الطلبات المعلقة',
+    'cancelled_orders' => 'الطلبات الملغاة',
+    'total_products' => 'إجمالي المنتجات',
+    'vendor_orders' => 'طلبات المورد',
+    'order_number' => 'رقم الطلب',
+    'customer' => 'العميل',
+    'order_total' => 'إجمالي الطلب',
+    'order_status' => 'حالة الطلب',
+    'order_date' => 'تاريخ الطلب',
+    'no_orders_found' => 'لا توجد طلبات لهذا المورد',
+    'vendor_products' => 'منتجات المورد',
+    'product_image' => 'الصورة',
+    'product_name' => 'اسم المنتج',
+    'sku' => 'رمز المنتج',
+    'variants_count' => 'المتغيرات',
+    'total_stock' => 'إجمالي المخزون',
+    'product_status' => 'الحالة',
+    'no_products_found' => 'لا توجد منتجات لهذا المورد',
+
+    // Order Products
+    'vendor_order_products' => 'منتجات طلبات المورد',
+    'variant' => 'المتغير',
+    'quantity' => 'الكمية',
+    'unit_price' => 'سعر الوحدة',
+    'total_price' => 'السعر الإجمالي',
+    'no_order_products_found' => 'لا توجد منتجات طلبات لهذا المورد',
+    'total_quantity_sold' => 'إجمالي الكمية المباعة',
+    'total_order_products' => 'إجمالي منتجات الطلبات',
 ];

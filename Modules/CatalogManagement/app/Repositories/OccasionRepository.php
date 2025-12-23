@@ -29,14 +29,24 @@ class OccasionRepository implements OccasionRepositoryInterface
      */
     public function getOccasionById($id)
     {
-        return Occasion::with([
+        $query = Occasion::with([
             'translations',
             'vendor',
             'occasionProducts'
         ])
-        ->where('id', $id)
-        ->orWhere('slug', $id)
-        ->first();
+        ->where(function($q) use ($id) {
+            $q->where('id', $id)->orWhere('slug', $id);
+        });
+        
+        // If current user is a vendor, only allow access to occasions in their vendor
+        if (auth()->check() && auth()->user()->isVendor()) {
+            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+            if ($vendor) {
+                $query->where('vendor_id', $vendor->id);
+            }
+        }
+        
+        return $query->firstOrFail();
     }
 
     /**
@@ -122,6 +132,15 @@ class OccasionRepository implements OccasionRepositoryInterface
     public function deleteOccasion($id)
     {
         $occasion = $this->getOccasionById($id);
+        
+        // If current user is a vendor, verify they have access to this occasion
+        if (auth()->check() && auth()->user()->isVendor()) {
+            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+            if ($vendor && $occasion->vendor_id !== $vendor->id) {
+                abort(404);
+            }
+        }
+        
         return $occasion->delete();
     }
 
@@ -139,6 +158,15 @@ class OccasionRepository implements OccasionRepositoryInterface
     public function toggleOccasionStatus($id)
     {
         $occasion = $this->getOccasionById($id);
+        
+        // If current user is a vendor, verify they have access to this occasion
+        if (auth()->check() && auth()->user()->isVendor()) {
+            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+            if ($vendor && $occasion->vendor_id !== $vendor->id) {
+                abort(404);
+            }
+        }
+        
         $occasion->update(['is_active' => !$occasion->is_active]);
         return $occasion->fresh();
     }

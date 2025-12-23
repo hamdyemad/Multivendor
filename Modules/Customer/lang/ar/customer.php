@@ -81,6 +81,7 @@ return [
     'error_changing_status' => 'خطأ في تغيير حالة العميل',
     'verification_changed_successfully' => 'تم تغيير حالة التحقق بنجاح',
     'error_changing_verification' => 'خطأ في تغيير حالة التحقق',
+    'cannot_manage_customer' => 'ليس لديك صلاحية لإدارة هذا العميل',
 
     // Form fields
     'first_name' => 'الاسم الأول',
@@ -138,4 +139,19 @@ return [
         'footer_note' => 'هذا بريد إلكتروني آلي. يرجى عدم الرد على هذه الرسالة.',
         'app_name' => 'متجر إي رامو',
     ],
+
+    // Order Statistics
+    'order_statistics' => 'إحصائيات الطلبات',
+    'total_orders' => 'إجمالي الطلبات',
+    'total_spent' => 'إجمالي الإنفاق',
+    'delivered_orders' => 'الطلبات المسلمة',
+    'pending_orders' => 'الطلبات المعلقة',
+    'cancelled_orders' => 'الطلبات الملغاة',
+    'average_order_value' => 'متوسط قيمة الطلب',
+    'customer_orders' => 'طلبات العميل',
+    'order_number' => 'رقم الطلب',
+    'order_total' => 'إجمالي الطلب',
+    'order_status' => 'حالة الطلب',
+    'order_date' => 'تاريخ الطلب',
+    'no_orders_found' => 'لا توجد طلبات لهذا العميل',
 ];

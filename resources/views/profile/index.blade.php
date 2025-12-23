@@ -156,13 +156,13 @@
                                                     </div>
                                                 </div>
 
-                                                @if ($user->vendor)
+                                                @if ($user->vendor_id && $user->vendorById)
                                                     <div class="col-md-3 mb-25 text-muted">
                                                         <label
                                                             class="form-label fw-500 mb-1 d-block">{{ trans('admin.vendor') }}</label>
                                                         <p class="fs-14 color-dark mb-0">
                                                             <i class="uil uil-building me-1 text-primary"></i>
-                                                            {{ $user->vendor->name }}
+                                                            {{ $user->vendorById->name }}
                                                         </p>
                                                     </div>
                                                 @endif

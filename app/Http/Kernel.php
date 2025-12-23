@@ -43,6 +43,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\CheckUserBlocked::class,
             \App\Http\Middleware\SetAdminRouteDefaults::class,
+            \App\Http\Middleware\VendorCountryRestriction::class,
         ],
 
         'api' => [
@@ -87,6 +88,7 @@ class Kernel extends HttpKernel
 
         'setLanguageCountry' => \App\Http\Middleware\SetLanguageCountry::class,
         'setAdminRouteDefaults' => \App\Http\Middleware\SetAdminRouteDefaults::class,
+        'vendorCountryRestriction' => \App\Http\Middleware\VendorCountryRestriction::class,
 
     ];
 }

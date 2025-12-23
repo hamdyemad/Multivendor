@@ -62,4 +62,6 @@ return [
     'languages' => 'Languages',
     'users' => 'Users',
     'type' => 'Role Type',
+    'system_protected' => 'System Protected',
+    'system_role' => 'System Role',
 ];

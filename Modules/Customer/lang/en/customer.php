@@ -81,6 +81,7 @@ return [
     'error_changing_status' => 'Error changing customer status',
     'verification_changed_successfully' => 'Customer verification status changed successfully',
     'error_changing_verification' => 'Error changing verification status',
+    'cannot_manage_customer' => 'You do not have permission to manage this customer',
 
     // Form fields
     'first_name' => 'First Name',
@@ -138,4 +139,19 @@ return [
         'footer_note' => 'This is an automated email. Please do not reply to this message.',
         'app_name' => 'E-RAMO Store',
     ],
+
+    // Order Statistics
+    'order_statistics' => 'Order Statistics',
+    'total_orders' => 'Total Orders',
+    'total_spent' => 'Total Spent',
+    'delivered_orders' => 'Delivered Orders',
+    'pending_orders' => 'Pending Orders',
+    'cancelled_orders' => 'Cancelled Orders',
+    'average_order_value' => 'Average Order Value',
+    'customer_orders' => 'Customer Orders',
+    'order_number' => 'Order Number',
+    'order_total' => 'Order Total',
+    'order_status' => 'Order Status',
+    'order_date' => 'Order Date',
+    'no_orders_found' => 'No orders found for this customer',
 ];

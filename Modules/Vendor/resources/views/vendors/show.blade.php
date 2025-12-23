@@ -547,7 +547,6 @@
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                             {{-- Vendor Branding (Logo & Banner) --}}
                             <div class="col-md-4 order-1 order-md-2">
@@ -594,7 +593,227 @@
 
 
                             </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                {{-- Order Statistics Section --}}
+                                <div class="card card-holder mt-3">
+                                    <div class="card-header">
+                                        <h3>
+                                            <i class="uil uil-chart-bar me-1"></i>{{ trans('vendor::vendor.order_statistics') }}
+                                        </h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            {{-- Total Order Products --}}
+                                            <div class="col-md-3 mb-3">
+                                                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #5b69ff15 0%, #5b69ff05 100%);">
+                                                    <div class="card-body text-center py-4">
+                                                        <div class="mb-2">
+                                                            <i class="uil uil-shopping-cart fs-1" style="color: #5b69ff;"></i>
+                                                        </div>
+                                                        <h3 class="mb-1 fw-bold" style="color: #5b69ff;">{{ $orderStats['total_order_products'] ?? 0 }}</h3>
+                                                        <p class="mb-0 text-muted small">{{ trans('vendor::vendor.total_order_products') }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
 
+                                            {{-- Total Revenue --}}
+                                            <div class="col-md-3 mb-3">
+                                                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #20c99715 0%, #20c99705 100%);">
+                                                    <div class="card-body text-center py-4">
+                                                        <div class="mb-2">
+                                                            <i class="uil uil-money-bill fs-1" style="color: #20c997;"></i>
+                                                        </div>
+                                                        <h3 class="mb-1 fw-bold" style="color: #20c997;">{{ number_format($orderStats['total_revenue'] ?? 0, 2) }} {{ currency() }}</h3>
+                                                        <p class="mb-0 text-muted small">{{ trans('vendor::vendor.total_revenue') }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Total Quantity Sold --}}
+                                            <div class="col-md-3 mb-3">
+                                                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #17a2b815 0%, #17a2b805 100%);">
+                                                    <div class="card-body text-center py-4">
+                                                        <div class="mb-2">
+                                                            <i class="uil uil-package fs-1" style="color: #17a2b8;"></i>
+                                                        </div>
+                                                        <h3 class="mb-1 fw-bold" style="color: #17a2b8;">{{ $orderStats['total_quantity_sold'] ?? 0 }}</h3>
+                                                        <p class="mb-0 text-muted small">{{ trans('vendor::vendor.total_quantity_sold') }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Total Products --}}
+                                            <div class="col-md-3 mb-3">
+                                                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #6f42c115 0%, #6f42c105 100%);">
+                                                    <div class="card-body text-center py-4">
+                                                        <div class="mb-2">
+                                                            <i class="uil uil-box fs-1" style="color: #6f42c1;"></i>
+                                                        </div>
+                                                        <h3 class="mb-1 fw-bold" style="color: #6f42c1;">{{ $orderStats['total_products'] ?? 0 }}</h3>
+                                                        <p class="mb-0 text-muted small">{{ trans('vendor::vendor.total_products') }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Delivered Order Products --}}
+                                            <div class="col-md-4 mb-3">
+                                                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #28a74515 0%, #28a74505 100%);">
+                                                    <div class="card-body text-center py-4">
+                                                        <div class="mb-2">
+                                                            <i class="uil uil-check-circle fs-1" style="color: #28a745;"></i>
+                                                        </div>
+                                                        <h3 class="mb-1 fw-bold" style="color: #28a745;">{{ $orderStats['delivered_order_products'] ?? 0 }}</h3>
+                                                        <p class="mb-0 text-muted small">{{ trans('vendor::vendor.delivered_orders') }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Pending Order Products --}}
+                                            <div class="col-md-4 mb-3">
+                                                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #ffc10715 0%, #ffc10705 100%);">
+                                                    <div class="card-body text-center py-4">
+                                                        <div class="mb-2">
+                                                            <i class="uil uil-clock fs-1" style="color: #ffc107;"></i>
+                                                        </div>
+                                                        <h3 class="mb-1 fw-bold" style="color: #ffc107;">{{ $orderStats['pending_order_products'] ?? 0 }}</h3>
+                                                        <p class="mb-0 text-muted small">{{ trans('vendor::vendor.pending_orders') }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Cancelled Order Products --}}
+                                            <div class="col-md-4 mb-3">
+                                                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #dc354515 0%, #dc354505 100%);">
+                                                    <div class="card-body text-center py-4">
+                                                        <div class="mb-2">
+                                                            <i class="uil uil-times-circle fs-1" style="color: #dc3545;"></i>
+                                                        </div>
+                                                        <h3 class="mb-1 fw-bold" style="color: #dc3545;">{{ $orderStats['cancelled_order_products'] ?? 0 }}</h3>
+                                                        <p class="mb-0 text-muted small">{{ trans('vendor::vendor.cancelled_orders') }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Order Products Table Section --}}
+                                <div class="card card-holder mt-3">
+                                    <div class="card-header">
+                                        <h3>
+                                            <i class="uil uil-shopping-bag me-1"></i>{{ trans('vendor::vendor.vendor_order_products') }}
+                                        </h3>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <div class="userDatatable global-shadow border-light-0 bg-white w-100">
+                                            <div class="table-responsive">
+                                                <table class="table mb-0 table-bordered table-hover">
+                                                    <thead>
+                                                        <tr class="userDatatable-header">
+                                                            <th><span class="userDatatable-title">#</span></th>
+                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.order_number') }}</span></th>
+                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.product_image') }}</span></th>
+                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.product_name') }}</span></th>
+                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.sku') }}</span></th>
+                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.variant') }}</span></th>
+                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.quantity') }}</span></th>
+                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.unit_price') }}</span></th>
+                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.total_price') }}</span></th>
+                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.order_status') }}</span></th>
+                                                            <th><span class="userDatatable-title">{{ trans('common.actions') }}</span></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @forelse ($orderProducts ?? [] as $index => $orderProduct)
+                                                            <tr>
+                                                                <td><div class="userDatatable-content">{{ ($orderProducts->currentPage() - 1) * $orderProducts->perPage() + $index + 1 }}</div></td>
+                                                                <td><div class="userDatatable-content fw-medium">#{{ $orderProduct->order->order_number ?? $orderProduct->order_id }}</div></td>
+                                                                <td>
+                                                                    <div class="userDatatable-content">
+                                                                        @if($orderProduct->vendorProduct && $orderProduct->vendorProduct->product && $orderProduct->vendorProduct->product->mainImage)
+                                                                            <img src="{{ asset('storage/' . $orderProduct->vendorProduct->product->mainImage->path) }}" 
+                                                                                alt="{{ $orderProduct->vendorProduct->product->getTranslation('name', app()->getLocale()) }}" 
+                                                                                class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                                                        @else
+                                                                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                                                <i class="uil uil-image text-muted"></i>
+                                                                            </div>
+                                                                        @endif
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="userDatatable-content">
+                                                                        @if($orderProduct->vendorProduct && $orderProduct->vendorProduct->product)
+                                                                            {{ $orderProduct->vendorProduct->product->getTranslation('name', app()->getLocale()) }}
+                                                                        @else
+                                                                            <span class="text-muted">-</span>
+                                                                        @endif
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="userDatatable-content">
+                                                                        @if($orderProduct->vendorProductVariant)
+                                                                            <code>{{ $orderProduct->vendorProductVariant->sku ?? '-' }}</code>
+                                                                        @elseif($orderProduct->vendorProduct)
+                                                                            <code>{{ $orderProduct->vendorProduct->sku ?? '-' }}</code>
+                                                                        @else
+                                                                            <span class="text-muted">-</span>
+                                                                        @endif
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="userDatatable-content">
+                                                                        @if($orderProduct->vendorProductVariant && $orderProduct->vendorProductVariant->variantConfiguration)
+                                                                            <span class="badge badge-primary badge-round badge-lg">{{ $orderProduct->vendorProductVariant->variant_name }}</span>
+                                                                        @else
+                                                                            <span class="text-muted">-</span>
+                                                                        @endif
+                                                                    </div>
+                                                                </td>
+                                                                <td><div class="userDatatable-content fw-medium">{{ $orderProduct->quantity }}</div></td>
+                                                                <td><div class="userDatatable-content">{{ number_format($orderProduct->price ?? 0, 2) }} {{ currency() }}</div></td>
+                                                                <td><div class="userDatatable-content fw-bold text-success">{{ number_format(($orderProduct->price ?? 0) * ($orderProduct->quantity ?? 1), 2) }} {{ currency() }}</div></td>
+                                                                <td>
+                                                                    <div class="userDatatable-content">
+                                                                        @if($orderProduct->order && $orderProduct->order->stage)
+                                                                            <span class="badge badge-round badge-lg" style="background-color: {{ $orderProduct->order->stage->color ?? '#6c757d' }}">
+                                                                                {{ $orderProduct->order->stage->getTranslation('name', app()->getLocale()) }}
+                                                                            </span>
+                                                                        @else
+                                                                            <span class="badge bg-secondary">-</span>
+                                                                        @endif
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="userDatatable-content">
+                                                                        <a href="{{ route('admin.orders.show', $orderProduct->order_id) }}" target="_blank" class="btn btn-sm btn-primary">
+                                                                            <i class="uil uil-eye m-0"></i>
+                                                                        </a>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        @empty
+                                                            <tr>
+                                                                <td colspan="11" class="text-center text-muted py-4">{{ trans('vendor::vendor.no_order_products_found') }}</td>
+                                                            </tr>
+                                                        @endforelse
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center p-3 border-top">
+                                                <div class="text-muted small">
+                                                    {{ trans('common.showing') }} {{ $orderProducts->firstItem() ?? 0 }} - {{ $orderProducts->lastItem() ?? 0 }} {{ trans('common.of') }} {{ $orderProducts->total() }} {{ trans('common.items') }}
+                                                </div>
+                                                @if($orderProducts && $orderProducts->hasPages())
+                                                    {{ $orderProducts->links('vendor.pagination.custom') }}
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

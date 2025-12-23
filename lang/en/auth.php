@@ -23,6 +23,7 @@ return [
     'logout success' => 'logout success',
     'account_not_activated' => 'Your account has not been activated yet. Please contact administrator.',
     'account_blocked' => 'Your account has been blocked. Please contact administrator.',
+    'vendor_not_activated' => 'Your vendor account has not been activated yet. Please contact administrator.',
     'invalid_credentials' => 'Invalid email or password.',
 
 ];

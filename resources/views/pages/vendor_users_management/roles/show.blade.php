@@ -48,27 +48,28 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
-                                            {{-- Dynamic Language Translations for Role Name --}}
-                                            @foreach ($languages as $language)
+                                            {{-- Role Name Translations --}}
+                                            <x-translation-display 
+                                                :label="trans('roles.name')" 
+                                                :model="$role" 
+                                                fieldName="name" 
+                                                :languages="$languages" 
+                                            />
+
+                                            {{-- System Protected Badge --}}
+                                            @if($role->is_system_protected)
                                                 <div class="col-md-6">
                                                     <div class="view-item">
-                                                        <label class="il-gray fs-14 fw-500 mb-10"
-                                                            @if ($language->rtl) dir="rtl" style="text-align: right; display: block;" @endif>
-                                                            @if ($language->code == 'ar')
-                                                                الاسم بالعربية
-                                                            @elseif($language->code == 'en')
-                                                                {{ trans('roles.name') }}
-                                                            @else
-                                                                {{ trans('roles.name') }} ({{ $language->name }})
-                                                            @endif
-                                                        </label>
-                                                        <p class="fs-15 color-dark fw-500"
-                                                            @if ($language->rtl) dir="rtl" style="text-align: right;" @endif>
-                                                            {{ $role->getTranslation('name', $language->code) ?? '-' }}
+                                                        <label class="il-gray fs-14 fw-500 mb-10">{{ trans('roles.system_protected') }}</label>
+                                                        <p class="fs-15 color-dark">
+                                                            <span class="badge badge-warning badge-round badge-lg">
+                                                                <i class="uil uil-lock me-1"></i>
+                                                                {{ trans('roles.system_role') }}
+                                                            </span>
                                                         </p>
                                                     </div>
                                                 </div>
-                                            @endforeach
+                                            @endif
 
                                             {{-- Permissions Count --}}
                                             <div class="col-md-6">

@@ -47,6 +47,7 @@ return [
     'variants_stock' => 'المتغيرات والمخزون',
     'region' => 'المنطقة',
     'stock' => 'المخزون',
+    'stock_status' => 'حالة المخزون',
     'stock_per_region' => 'المخزون حسب المنطقة',
     'total' => 'الإجمالي',
     'points' => 'النقاط',

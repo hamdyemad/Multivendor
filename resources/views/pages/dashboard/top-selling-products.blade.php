@@ -11,151 +11,67 @@
                         <th><span class="userDatatable-title">{{ trans('dashboard.product_name') }}</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.vendor_name') }}</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.sold_count') }}</span></th>
-                        <th><span class="userDatatable-title">{{ trans('dashboard.price') }}</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.total') }}</span></th>
-                        <th><span class="userDatatable-title">{{ trans('dashboard.commission') }} {{ currency() }}</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.actions') }}</span></th>
                     </tr>
                 </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>
-                                    <a href="">
+                <tbody>
+                    @forelse($topSellingProducts ?? [] as $index => $item)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>
+                            @if($item->vendorProduct && $item->vendorProduct->product)
+                                @php $product = $item->vendorProduct->product; @endphp
+                                <a href="{{ route('admin.products.show', $product->id) }}" target="_blank" class="d-flex align-items-center">
+                                    @if($product->mainImage)
                                         <img class="rounded-circle"
-                                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4lh5HPNDdbs0EeH50dYsH0envY10K99paRg&s"
+                                            src="{{ asset('storage/' . $product->mainImage->path) }}"
                                             alt="product" style="width: 40px; height: 40px; object-fit: cover;">
-                                        <span class="ms-3">Product 1</span>
-                                    </a>
-                                </td>
-                                <td>
-                                    <a href="">
+                                    @else
+                                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                            <i class="uil uil-box text-muted"></i>
+                                        </div>
+                                    @endif
+                                    <span class="ms-3">{{ $product->title }}</span>
+                                </a>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($item->vendorData)
+                                <a href="{{ route('admin.vendors.show', $item->vendor_id) }}" target="_blank">
+                                    @if($item->vendorData->logo)
                                         <img class="rounded-circle"
-                                            src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Fresh_Electric.jpg"
-                                            alt="product" style="width: 40px; height: 40px; object-fit: cover;">
-                                        <span class="ms-3">Fresh</span>
-                                    </a>
-                                </td>
-                                <td>156</td>
-                                <td>89.99 {{ currency() }}</td>
-                                <td class="fw-bold text-success">14,038.44 {{ currency() }}</td>
-                                <td class="fw-bold text-success">1,403.844 {{ currency() }}</td>
-                                <td class="actions">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="uil uil-eye m-0"></i>
-
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>
-                                    <img class="rounded-circle"
-                                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRH4CbBiARYvpPP6dEGTT_cSind4K9Z2fk6pA&s"
-                                        alt="product" style="width: 40px; height: 40px; object-fit: cover;">
-                                    <span class="ms-3">Product 2</span>
-                                </td>
-                                <td>
-                                    <a href="">
-                                        <img class="rounded-circle"
-                                            src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Fresh_Electric.jpg"
-                                            alt="product" style="width: 40px; height: 40px; object-fit: cover;">
-                                        <span class="ms-3">Fresh</span>
-                                    </a>
-                                </td>
-                                <td>234</td>
-                                <td>299.00 {{ currency() }}</td>
-                                <td class="fw-bold text-success">69,966.00 {{ currency() }}</td>
-                                <td class="fw-bold text-success">6,996.6 {{ currency() }}</td>
-                                <td class="actions">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="uil uil-eye m-0"></i>
-
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>
-                                    <img class="rounded-circle"
-                                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_hxP_PNuc7iNuHmvJsUyXg8HsPf7H-iFE4Q&s"
-                                        alt="product" style="width: 40px; height: 40px; object-fit: cover;">
-                                    <span class="ms-3">Product 3</span>
-                                </td>
-                                <td>
-                                    <a href="">
-                                        <img class="rounded-circle"
-                                            src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Fresh_Electric.jpg"
-                                            alt="product" style="width: 40px; height: 40px; object-fit: cover;">
-                                        <span class="ms-3">Fresh</span>
-                                    </a>
-                                </td>
-                                <td>189</td>
-                                <td>45.50 {{ currency() }}</td>
-                                <td class="fw-bold text-success">8,599.50 {{ currency() }}</td>
-                                <td class="fw-bold text-success">859.95 {{ currency() }}</td>
-                                <td class="actions">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="uil uil-eye m-0"></i>
-
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>4</td>
-                                <td>
-                                    <img class="rounded-circle"
-                                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_hxP_PNuc7iNuHmvJsUyXg8HsPf7H-iFE4Q&s"
-                                        alt="product" style="width: 40px; height: 40px; object-fit: cover;">
-                                    <span class="ms-3">Product 4</span>
-                                </td>
-                                <td>
-                                    <a href="">
-                                        <img class="rounded-circle"
-                                            src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Fresh_Electric.jpg"
-                                            alt="product" style="width: 40px; height: 40px; object-fit: cover;">
-                                        <span class="ms-3">Fresh</span>
-                                    </a>
-                                </td>
-                                <td>445</td>
-                                <td>19.99 {{ currency() }}</td>
-                                <td class="fw-bold text-success">8,895.55 {{ currency() }}</td>
-                                <td class="fw-bold text-success">889.555 {{ currency() }}</td>
-                                <td class="actions">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="uil uil-eye m-0"></i>
-
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>5</td>
-                                <td>
-                                    <img class="rounded-circle"
-                                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_hxP_PNuc7iNuHmvJsUyXg8HsPf7H-iFE4Q&s"
-                                        alt="product" style="width: 40px; height: 40px; object-fit: cover;">
-                                    <span class="ms-3">Product 5</span>
-                                </td>
-                                <td>
-                                    <a href="">
-                                        <img class="rounded-circle"
-                                            src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Fresh_Electric.jpg"
-                                            alt="product" style="width: 40px; height: 40px; object-fit: cover;">
-                                        <span class="ms-3">Fresh</span>
-                                    </a>
-                                </td>
-                                <td>98</td>
-                                <td>129.99 {{ currency() }}</td>
-                                <td class="fw-bold text-success">12,739.02 {{ currency() }}</td>
-                                <td class="fw-bold text-success">1,273.902 {{ currency() }}</td>
-                                <td class="actions">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="uil uil-eye m-0"></i>
-
-                                    </a>
-                                </td>
-                            </tr>
-                        </tbody>
+                                            src="{{ asset('storage/' . $item->vendorData->logo->path) }}"
+                                            alt="vendor" style="width: 40px; height: 40px; object-fit: cover;">
+                                    @else
+                                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                            <i class="uil uil-store text-muted"></i>
+                                        </div>
+                                    @endif
+                                    <span class="ms-3">{{ $item->vendorData->getTranslation('name', app()->getLocale()) }}</span>
+                                </a>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </td>
+                        <td>{{ $item->total_sold ?? 0 }}</td>
+                        <td class="fw-bold text-success">{{ number_format($item->total_revenue ?? 0, 2) }} {{ currency() }}</td>
+                        <td class="actions">
+                            @if($item->vendorProduct && $item->vendorProduct->product)
+                            <a href="{{ route('admin.products.show', $item->vendorProduct->product->id) }}" target="_blank" class="btn btn-sm btn-primary">
+                                <i class="uil uil-eye m-0"></i>
+                            </a>
+                            @endif
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">{{ trans('common.no_data_available') }}</td>
+                    </tr>
+                    @endforelse
+                </tbody>
             </table>
         </div>
     </div>

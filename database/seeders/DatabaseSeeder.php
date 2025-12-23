@@ -44,6 +44,6 @@ class DatabaseSeeder extends Seeder
 
         // $this->call(OrderStageSeeder::class);
 
-
+        $this->call(SyncVendorUsersSeeder::class);
     }
 }

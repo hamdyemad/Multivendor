@@ -29,13 +29,45 @@ class RoleRepository implements RoleRepositoryInterface
             $query->adminShowRoles();
         } else if(in_array(auth()->user()->user_type_id, [UserType::VENDOR_TYPE, UserType::VENDOR_USER_TYPE])) {
             $query->vendorShowRoles();
+            // Filter by vendor_id for vendor users
+            $this->applyVendorFilter($query);
         }
+        
+        // Filter by country: show roles for current country OR system roles (null country_id)
+        $countryCode = request()->route('countryCode') ?? session('country_code');
+        $countryCode = strtoupper($countryCode);
+        $currentCountryId = \Modules\AreaSettings\app\Models\Country::where('code', $countryCode)->value('id');
+        
+        if ($currentCountryId) {
+            $query->where(function($q) use ($currentCountryId) {
+                $q->where('country_id', $currentCountryId)
+                  ->orWhereNull('country_id');
+            });
+        }
+        
         return $per_page == 0 ? $query->get() : $query->paginate($per_page);
     }
 
     public function getRolesQuery($filter = []) {
         $query = Role::filter($filter)->latest();
         return $query;
+    }
+
+    /**
+     * Apply vendor filter to query - show only roles belonging to the vendor
+     */
+    protected function applyVendorFilter($query)
+    {
+        if (auth()->check() && auth()->user()->isVendor()) {
+            $vendor = auth()->user()->vendor ?? auth()->user()->vendorByUser;
+            if ($vendor) {
+                // Show roles that belong to this vendor OR have no vendor (system roles)
+                $query->where(function($q) use ($vendor) {
+                    $q->where('vendor_id', $vendor->id)
+                      ->orWhereNull('vendor_id');
+                });
+            }
+        }
     }
 
     /**
@@ -119,7 +151,20 @@ class RoleRepository implements RoleRepositoryInterface
      */
     public function findById(int $id): ?Role
     {
-        return Role::with('permessions')->find($id);
+        $query = Role::with('permessions');
+        
+        // If current user is a vendor, only allow access to roles in their vendor or system roles
+        if (auth()->check() && auth()->user()->isVendor()) {
+            $vendor = auth()->user()->vendor ?? auth()->user()->vendorByUser;
+            if ($vendor) {
+                $query->where(function($q) use ($vendor) {
+                    $q->where('vendor_id', $vendor->id)
+                      ->orWhereNull('vendor_id');
+                });
+            }
+        }
+        
+        return $query->findOrFail($id);
     }
 
     /**
@@ -127,10 +172,21 @@ class RoleRepository implements RoleRepositoryInterface
      */
     public function create(array $data)
     {
-        // Create role with type
-        $role = Role::create([
+        // Create role with type, vendor_id and country_id if user is vendor
+        $roleData = [
             'type' => $data['type'] ?? 'other'
-        ]);
+        ];
+
+        // If user is a vendor, add vendor_id and country_id to the role
+        if (auth()->check() && auth()->user()->isVendor()) {
+            $vendor = auth()->user()->vendor ?? auth()->user()->vendorByUser;
+            if ($vendor) {
+                $roleData['vendor_id'] = $vendor->id;
+                $roleData['country_id'] = auth()->user()->country_id;
+            }
+        }
+
+        $role = Role::create($roleData);
 
         // Add translations for all languages
         $languages = $this->languageService->getAll();
@@ -154,6 +210,17 @@ class RoleRepository implements RoleRepositoryInterface
      */
     public function update(Role $role, array $data)
     {
+        // If current user is a vendor, verify they have access to this role
+        if (auth()->check() && auth()->user()->isVendor()) {
+            $vendor = auth()->user()->vendor ?? auth()->user()->vendorByUser;
+            if ($vendor) {
+                // Only allow updating roles that belong to this vendor (not system roles)
+                if ($role->vendor_id !== $vendor->id) {
+                    abort(404);
+                }
+            }
+        }
+        
         // Get all languages
         $languages = $this->languageService->getAll();
         // Update translations for all languages (no name column to update)
@@ -182,6 +249,17 @@ class RoleRepository implements RoleRepositoryInterface
      */
     public function delete(Role $role)
     {
+        // If current user is a vendor, verify they have access to this role
+        if (auth()->check() && auth()->user()->isVendor()) {
+            $vendor = auth()->user()->vendor ?? auth()->user()->vendorByUser;
+            if ($vendor) {
+                // Only allow deleting roles that belong to this vendor (not system roles)
+                if ($role->vendor_id !== $vendor->id) {
+                    abort(404);
+                }
+            }
+        }
+        
         // Detach all permissions before deleting
         $role->permessions()->detach();
         // Delete all translations

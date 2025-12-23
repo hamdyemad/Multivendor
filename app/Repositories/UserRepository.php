@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\UserType;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UserRepository implements UserInterface {
 
@@ -36,12 +37,34 @@ class UserRepository implements UserInterface {
     public function createVendorAccount($data) {
         // Create user account
         $user = User::create([
-            'uuid' => \Str::uuid(),
+            'uuid' => Str::uuid(),
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'user_type_id' => UserType::VENDOR_TYPE, // Vendor type,
             'active' => $data['active'],
+            'image' => $data['image'] ?? null,
         ]);
+        
+        // Store name translations if provided
+        if (!empty($data['translations'])) {
+            foreach ($data['translations'] as $languageId => $fields) {
+                $language = \App\Models\Language::find($languageId);
+                if (!$language || empty($fields['name'])) {
+                    continue;
+                }
+                
+                $user->translations()->updateOrCreate(
+                    [
+                        'lang_id' => $language->id,
+                        'lang_key' => 'name',
+                    ],
+                    [
+                        'lang_value' => $fields['name'],
+                    ]
+                );
+            }
+        }
+        
         return $user;
     }
     public function updateVendorAccount($data) {
@@ -62,8 +85,32 @@ class UserRepository implements UserInterface {
             $updateData['active'] = $data['active'];
         }
         
+        if (isset($data['image'])) {
+            $updateData['image'] = $data['image'];
+        }
+        
         if (!empty($updateData)) {
             $user->update($updateData);
+        }
+        
+        // Update name translations if provided
+        if (!empty($data['translations'])) {
+            foreach ($data['translations'] as $languageId => $fields) {
+                $language = \App\Models\Language::find($languageId);
+                if (!$language || empty($fields['name'])) {
+                    continue;
+                }
+                
+                $user->translations()->updateOrCreate(
+                    [
+                        'lang_id' => $language->id,
+                        'lang_key' => 'name',
+                    ],
+                    [
+                        'lang_value' => $fields['name'],
+                    ]
+                );
+            }
         }
         
         return $user;

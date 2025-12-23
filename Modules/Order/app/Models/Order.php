@@ -172,9 +172,19 @@ class Order extends BaseModel
 
     public function scopeFilter(Builder $query, array $filters)
     {
+        // Filter by vendor if user is a vendor
+        if (auth()->check() && auth()->user()->isVendor()) {
+            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+            if ($vendor) {
+                $query->whereHas('products', function ($q) use ($vendor) {
+                    $q->where('vendor_id', $vendor->id);
+                });
+            }
+        }
+
         // Search filter
         if (!empty($filters['search'])) {
-            $query->applyCustomSearch($filters['search']);
+            $this->applyCustomSearch($query, $filters['search']);
             unset($filters['search']);
         }
 

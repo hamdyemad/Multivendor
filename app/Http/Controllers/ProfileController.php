@@ -42,7 +42,26 @@ class ProfileController extends Controller
                 if ($user->image) {
                     \Storage::disk('public')->delete($user->image);
                 }
-                $user->image = $request->file('image')->store('admins', 'public');
+                $imagePath = $request->file('image')->store('admins', 'public');
+                $user->image = $imagePath;
+                
+                // If user is a vendor owner, also update the vendor's logo
+                if ($user->isVendor()) {
+                    $vendor = $user->vendorByUser;
+                    if ($vendor) {
+                        // Delete old logo attachment if exists
+                        if ($vendor->logo) {
+                            \Storage::disk('public')->delete($vendor->logo->path);
+                            $vendor->logo()->delete();
+                        }
+                        
+                        // Create new logo attachment with the same image path
+                        $vendor->attachments()->create([
+                            'path' => $imagePath,
+                            'type' => 'logo',
+                        ]);
+                    }
+                }
             }
 
             $user->save();
@@ -53,6 +72,19 @@ class ProfileController extends Controller
                     ['lang_key' => 'name', 'lang_id' => $langId],
                     ['lang_value' => $data['name']]
                 );
+            }
+            
+            // If user is a vendor owner, also update the vendor's name translations
+            if ($user->isVendor()) {
+                $vendor = $user->vendorByUser;
+                if ($vendor) {
+                    foreach ($validated['translations'] as $langId => $data) {
+                        $vendor->translations()->updateOrCreate(
+                            ['lang_key' => 'name', 'lang_id' => $langId],
+                            ['lang_value' => $data['name']]
+                        );
+                    }
+                }
             }
 
             return redirect()->route('admin.profile.index')->with('success', __('admin.profile_updated_successfully'));

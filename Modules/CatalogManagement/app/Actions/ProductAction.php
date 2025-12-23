@@ -48,6 +48,7 @@ class ProductAction {
                 'configuration' => $data['configuration'] ?? null,
                 'is_active' => $data['active'] ?? null,
                 'status' => $data['status'] ?? null,
+                'stock' => $data['stock'] ?? null,
                 'created_date_from' => $data['created_date_from'] ?? '',
                 'created_date_to' => $data['created_date_to'] ?? '',
                 'type' => $data['type'] ?? null,
@@ -66,7 +67,8 @@ class ProductAction {
                 'product.brand',
                 'product.category',
                 'product.translations',
-                'vendor'
+                'vendor',
+                'variants.stocks'
             ]);
 
             // Apply vendor filter only for vendor users
@@ -150,6 +152,24 @@ class ProductAction {
                 $query->whereDate('created_at', '<=', $filters['created_date_to']);
             }
 
+            // Stock filter
+            if (!empty($filters['stock'])) {
+                if ($filters['stock'] === 'instock') {
+                    $query->whereHas('variants', function($q) {
+                        $q->whereHas('stocks', function($sq) {
+                            $sq->where('quantity', '>', 0);
+                        });
+                    });
+                } elseif ($filters['stock'] === 'outofstock') {
+                    $query->where(function($q) {
+                        $q->whereDoesntHave('variants')
+                          ->orWhereDoesntHave('variants.stocks', function($sq) {
+                              $sq->where('quantity', '>', 0);
+                          });
+                    });
+                }
+            }
+
             // Get total records based on vendor filter
             if($vendorId) {
                 $totalRecords = VendorProduct::where('vendor_id', $vendorId)->count();
@@ -173,6 +193,11 @@ class ProductAction {
                     // Get product names in EN and AR
                     $nameEn = $product->getTranslation('title', 'en') ?? '-';
                     $nameAr = $product->getTranslation('title', 'ar') ?? '-';
+
+                    // Calculate total stock from all variants
+                    $totalStock = $item->variants->sum(function($variant) {
+                        return $variant->stocks->sum('quantity');
+                    });
 
                     $rowData = [
                         'id' => $product->id ?? '',
@@ -201,6 +226,7 @@ class ProductAction {
                         'product_type' => $product->type,
                         'configuration_type' => $product->configuration_type,
                         'created_at' => $item->created_at,
+                        'total_stock' => $totalStock,
                     ];
 
                     // Add vendor information for admin users

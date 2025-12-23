@@ -9,120 +9,45 @@
                     <tr class="userDatatable-header">
                         <th><span class="userDatatable-title">#</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.vendor_name') }}</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.orders_count') }}</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.total_selling') }}</span></th>
-                        <th><span class="userDatatable-title">{{ trans('dashboard.commission') }} %</span></th>
-                        <th><span class="userDatatable-title">{{ trans('dashboard.commission') }} {{ currency() }}</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.joined_at') }}</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.actions') }}</span></th>
                     </tr>
                 </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>
-                                    <a href="">
-                                        <img class="rounded-circle"
-                                            src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Fresh_Electric.jpg"
-                                            alt="product" style="width: 40px; height: 40px; object-fit: cover;">
-                                        <span class="ms-3">Fresh</span>
-                                    </a>
-                                </td>
-                                <td class="fw-bold text-success">85,450.00 {{ currency() }}</td>
-                                <td class="fw-bold text-success">10%</td>
-                                <td class="fw-bold text-success">8,545.00 {{ currency() }}</td>
-                                <td>Jan 10, 2024</td>
-                                <td class="actions">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="uil uil-eye m-0"></i>
-
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>
-                                    <a href="">
-                                        <img class="rounded-circle"
-                                            src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Fresh_Electric.jpg"
-                                            alt="product" style="width: 40px; height: 40px; object-fit: cover;">
-                                        <span class="ms-3">Fresh</span>
-                                    </a>
-                                </td>
-                                <td class="fw-bold text-success">72,890.00 {{ currency() }}</td>
-                                <td class="fw-bold text-success">10%</td>
-                                <td class="fw-bold text-success">7,289.00 {{ currency() }}</td>
-                                <td>Feb 15, 2024</td>
-                                <td class="actions">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="uil uil-eye m-0"></i>
-
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>
-                                    <a href="">
-                                        <img class="rounded-circle"
-                                            src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Fresh_Electric.jpg"
-                                            alt="product" style="width: 40px; height: 40px; object-fit: cover;">
-                                        <span class="ms-3">Fresh</span>
-                                    </a>
-                                </td>
-                                <td class="fw-bold text-success">65,320.00 {{ currency() }}</td>
-                                <td class="fw-bold text-success">10%</td>
-                                <td class="fw-bold text-success">6,532.00 {{ currency() }}</td>
-                                <td>Mar 20, 2024</td>
-                                <td class="actions">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="uil uil-eye m-0"></i>
-
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>4</td>
-                                <td>
-                                    <a href="">
-                                        <img class="rounded-circle"
-                                            src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Fresh_Electric.jpg"
-                                            alt="product" style="width: 40px; height: 40px; object-fit: cover;">
-                                        <span class="ms-3">Fresh</span>
-                                    </a>
-                                </td>
-                                <td class="fw-bold text-success">58,750.00 {{ currency() }}</td>
-                                <td class="fw-bold text-success">10%</td>
-                                <td class="fw-bold text-success">5,875.00 {{ currency() }}</td>
-                                <td>Apr 12, 2024</td>
-                                <td class="actions">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="uil uil-eye m-0"></i>
-
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>5</td>
-                                <td>
-                                    <a href="">
-                                        <img class="rounded-circle"
-                                            src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Fresh_Electric.jpg"
-                                            alt="product" style="width: 40px; height: 40px; object-fit: cover;">
-                                        <span class="ms-3">Fresh</span>
-                                    </a>
-                                </td>
-                                <td class="fw-bold text-success">52,180.00 {{ currency() }}</td>
-                                <td class="fw-bold text-success">10%</td>
-                                <td class="fw-bold text-success">5,218.00 {{ currency() }}</td>
-                                <td>May 08, 2024</td>
-                                <td class="actions">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="uil uil-eye m-0"></i>
-
-                                    </a>
-                                </td>
-                            </tr>
-                        </tbody>
+                <tbody>
+                    @forelse($topVendors ?? [] as $index => $vendor)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>
+                            <a href="{{ route('admin.vendors.show', $vendor->id) }}" target="_blank">
+                                @if($vendor->media && $vendor->media->first())
+                                    <img class="rounded-circle"
+                                        src="{{ asset('storage/' . $vendor->media->first()->path) }}"
+                                        alt="vendor" style="width: 40px; height: 40px; object-fit: cover;">
+                                @else
+                                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="uil uil-store text-muted"></i>
+                                    </div>
+                                @endif
+                                <span class="ms-3">{{ $vendor->getTranslation('name', app()->getLocale()) }}</span>
+                            </a>
+                        </td>
+                        <td>{{ $vendor->total_orders_count ?? 0 }}</td>
+                        <td class="fw-bold text-success">{{ number_format($vendor->total_orders_sum_price ?? 0, 2) }} {{ currency() }}</td>
+                        <td>{{ $vendor->created_at ? $vendor->created_at : '-' }}</td>
+                        <td class="actions">
+                            <a href="{{ route('admin.vendors.show', $vendor->id) }}" target="_blank" class="btn btn-sm btn-primary">
+                                <i class="uil uil-eye m-0"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">{{ trans('common.no_data_available') }}</td>
+                    </tr>
+                    @endforelse
+                </tbody>
             </table>
         </div>
     </div>

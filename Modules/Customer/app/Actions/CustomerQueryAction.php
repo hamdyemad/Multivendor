@@ -13,10 +13,15 @@ class CustomerQueryAction
     {
         $query = Customer::query()->with('country');
 
-        // Filter by vendor if user is not admin
-        if (!isAdmin()) {
-            $vendorId = auth()->user()->vendor_id ?? auth()->id();
-            $query->where('vendor_id', $vendorId);
+        // Filter by vendor if user is not admin - include vendor's customers AND customers with no vendor
+        if (!isAdmin() && auth()->check() && auth()->user()->isVendor()) {
+            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+            if ($vendor) {
+                $query->where(function ($q) use ($vendor) {
+                    $q->where('vendor_id', $vendor->id)
+                      ->orWhereNull('vendor_id');
+                });
+            }
         }
 
         // Search filter

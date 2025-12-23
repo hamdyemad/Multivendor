@@ -2,7 +2,6 @@
 
 namespace App\Actions;
 
-use App\Models\UserType;
 use App\Services\VendorUserService;
 use App\Services\LanguageService;
 use Illuminate\Http\Request;
@@ -46,12 +45,12 @@ class VendorUserAction
         // Get languages
         $languages = $this->languageService->getAll();
 
-        // Get total records before filtering
+        // Get total records before filtering (but still respecting vendor filter for vendor users)
+        // Pass empty filters but the repository will still apply vendor filter for isVendor() users
         $totalRecords = $this->vendorUserService->getVendorUsersQuery([])->count();
 
         // Get query with filters
         $query = $this->vendorUserService->getVendorUsersQuery($filters);
-        
         // Use paginate for DataTables
         $perPage = $request->get('length', 10);
         $page = ($request->get('start', 0) / $perPage) + 1;

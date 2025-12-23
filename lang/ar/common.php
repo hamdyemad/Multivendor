@@ -130,6 +130,7 @@ return [
 
     // DataTables
     'entries' => 'سجل',
+    'items' => 'عنصر',
     'show' => 'عرض',
     'showing' => 'عرض',
     'to' => 'إلى',
@@ -224,4 +225,8 @@ return [
     'email' => 'البريد الإلكتروني',
     'phone' => 'الهاتف',
     'date' => 'التاريخ',
+    'system' => 'النظام',
+    'no_roles_found' => 'لا توجد أدوار',
+    'error_loading_roles' => 'خطأ في تحميل الأدوار',
+    'vendor_country_restriction' => 'يمكنك الوصول فقط إلى الدولة المخصصة لك.',
 ];

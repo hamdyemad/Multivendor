@@ -221,6 +221,22 @@
                                         </div>
                                     </div>
 
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="stock_filter" class="il-gray fs-14 fw-500 mb-10">
+                                                <i class="uil uil-box me-1"></i>
+                                                {{ __('catalogmanagement::product.stock_status') ?? 'Stock Status' }}
+                                            </label>
+                                            <select
+                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                id="stock_filter">
+                                                <option value="">{{ __('common.all') }}</option>
+                                                <option value="instock" @if(request('stock') == 'instock') selected @endif>{{ __('dashboard.instock') }}</option>
+                                                <option value="outofstock" @if(request('stock') == 'outofstock') selected @endif>{{ __('dashboard.out_of_stock') }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
                                     @if(!isset($statusFilter))
                                     <div class="col-md-3">
                                         <div class="form-group">
@@ -293,6 +309,7 @@
                                     @if(auth()->user() && in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
                                         <th><span class="userDatatable-title">{{ __('catalogmanagement::product.vendor') }}</span></th>
                                     @endif
+                                    <th><span class="userDatatable-title">{{ __('catalogmanagement::product.total_stock') ?? 'Total Stock' }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('catalogmanagement::product.approval_status') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('common.activation') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('common.created_at') }}</span></th>
@@ -422,6 +439,7 @@
             }
             if (urlParams.has('active')) $('#active').val(urlParams.get('active')).trigger('change');
             if (urlParams.has('status')) $('#status').val(urlParams.get('status')).trigger('change');
+            if (urlParams.has('stock')) $('#stock_filter').val(urlParams.get('stock')).trigger('change');
             if (urlParams.has('created_date_from')) $('#created_date_from').val(urlParams.get('created_date_from'));
             if (urlParams.has('created_date_to')) $('#created_date_to').val(urlParams.get('created_date_to'));
 
@@ -441,6 +459,7 @@
                         d.configuration = $('#configuration_filter').length ? $('#configuration_filter').val() : '';
                         d.active = $('#active').val();
                         d.status = $('#status').val();
+                        d.stock = $('#stock_filter').val();
                         @if(isset($statusFilter) && $statusFilter)
                         d.status = '{{ $statusFilter }}';
                         @endif
@@ -543,6 +562,21 @@
                         }
                     },
                     @endif
+                    {
+                        data: 'total_stock',
+                        name: 'total_stock',
+                        searchable: false,
+                        orderable: false,
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            const stock = data || 0;
+                            if (stock > 0) {
+                                return `<span class="badge badge-success badge-round badge-lg">${stock}</span>`;
+                            } else {
+                                return `<span class="badge badge-danger badge-round badge-lg">{{ __('dashboard.out_of_stock') }}</span>`;
+                            }
+                        }
+                    },
                     {
                         data: 'status',
                         name: 'status',
@@ -676,9 +710,9 @@
                 lengthMenu: [10, 25, 50, 100],
                 order: [
                     @if(auth()->user() && in_array(auth()->user()->user_type_id, [\App\Models\UserType::SUPER_ADMIN_TYPE, \App\Models\UserType::ADMIN_TYPE]))
-                        [4, 'desc'] // Created at column for admin users (with vendor column)
+                        [6, 'desc'] // Created at column for admin users (with vendor column + total_stock)
                     @else
-                        [3, 'desc'] // Created at column for vendor users (without vendor column)
+                        [5, 'desc'] // Created at column for vendor users (without vendor column, with total_stock)
                     @endif
                 ],
                 language: {
@@ -740,6 +774,7 @@
                 const configuration = $('#configuration_filter').val();
                 const active = $('#active').val();
                 const status = $('#status').val();
+                const stock = $('#stock_filter').val();
                 const dateFrom = $('#created_date_from').val();
                 const dateTo = $('#created_date_to').val();
 
@@ -755,6 +790,7 @@
                 if (configuration) params.set('configuration', configuration);
                 if (active) params.set('active', active);
                 if (status) params.set('status', status);
+                if (stock) params.set('stock', stock);
                 if (dateFrom) params.set('created_date_from', dateFrom);
                 if (dateTo) params.set('created_date_to', dateTo);
 
@@ -772,7 +808,7 @@
             });
 
             // Filters - Use 'select2:select' and 'select2:clear' events for Select2 dropdowns
-            $('#department_filter, #vendor_filter, #brand_filter, #category_filter, #product_type, #configuration_filter, #active, #status').on('select2:select select2:clear change', function() {
+            $('#department_filter, #vendor_filter, #brand_filter, #category_filter, #product_type, #configuration_filter, #active, #status, #stock_filter').on('select2:select select2:clear change', function() {
                 table.ajax.reload();
             });
 
@@ -798,6 +834,7 @@
                 $('#configuration_filter').val('').trigger('change');
                 $('#active').val('').trigger('change');
                 $('#status').val('').trigger('change');
+                $('#stock_filter').val('').trigger('change');
 
                 // Reload table
                 table.ajax.reload();

@@ -6,10 +6,11 @@ use App\Models\Traits\HumanDates;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Translation;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Traits\AutoStoreCountryId;
 
 class Role extends Model
 {
-    use Translation, SoftDeletes, HumanDates;
+    use Translation, SoftDeletes, HumanDates, AutoStoreCountryId;
 
     protected $guarded = [];
     
@@ -51,6 +52,14 @@ class Role extends Model
                     ->withTimestamps();
     }
 
+    /**
+     * Get the vendor that owns this role.
+     */
+    public function vendor()
+    {
+        return $this->belongsTo(\Modules\Vendor\app\Models\Vendor::class);
+    }
+
     public function scopeSuperAdminShowRoles($query) {
         return $query->whereIn('type', [Role::SUPER_ADMIN_ROLE_TYPE, Role::ADMIN_ROLE_TYPE, Role::VENDOR_ROLE_TYPE, Role::OTHER_ROLE_TYPE, 'vendor_user']);
     }
@@ -81,9 +90,13 @@ class Role extends Model
             $query->whereDate('created_at', '<=', $filter['created_date_to']);
         }
 
-        // Filter by type
+        // Filter by type (supports single type or array of types)
         if (isset($filter['type']) && !empty($filter['type'])) {
-            $query->where('type', $filter['type']);
+            if (is_array($filter['type'])) {
+                $query->whereIn('type', $filter['type']);
+            } else {
+                $query->where('type', $filter['type']);
+            }
         }
 
         // Exclude system-protected roles

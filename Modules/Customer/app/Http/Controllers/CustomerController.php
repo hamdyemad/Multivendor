@@ -27,6 +27,28 @@ class CustomerController extends Controller
         $this->middleware('can:customers.delete')->only(['destroy']);
     }
 
+    /**
+     * Check if vendor can manage (edit/delete/change status) this customer
+     * Vendors can only manage customers that belong to their vendor
+     */
+    private function canVendorManageCustomer($customer): bool
+    {
+        // Admins can manage all customers
+        if (isAdmin()) {
+            return true;
+        }
+
+        // Vendors can only manage customers that belong to their vendor
+        if (auth()->check() && auth()->user()->isVendor()) {
+            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+            if ($vendor && $customer->vendor_id === $vendor->id) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function index()
     {
         $vendors = [];
@@ -57,7 +79,22 @@ class CustomerController extends Controller
 
         $customers = $query->with('vendor')->paginate($perPage, ['*'], 'page', $page);
 
-        $data = $customers->map(function ($customer, $index) use ($page, $perPage) {
+        // Get current vendor ID if user is vendor
+        $currentVendorId = null;
+        $isVendorUser = false;
+        if (!isAdmin() && auth()->check() && auth()->user()->isVendor()) {
+            $isVendorUser = true;
+            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+            $currentVendorId = $vendor ? $vendor->id : null;
+        }
+
+        $data = $customers->map(function ($customer, $index) use ($page, $perPage, $isVendorUser, $currentVendorId) {
+            // Determine if vendor can manage this customer
+            $canManage = true;
+            if ($isVendorUser) {
+                $canManage = $customer->vendor_id === $currentVendorId;
+            }
+
             return [
                 'index' => ($page - 1) * $perPage + $index + 1,
                 'id' => $customer->id,
@@ -72,6 +109,7 @@ class CustomerController extends Controller
                 'status' => $customer->status,
                 'email_verified_at' => $customer->email_verified_at,
                 'created_at' => $customer->created_at,
+                'can_manage' => $canManage,
             ];
         })->toArray();
 
@@ -108,12 +146,55 @@ class CustomerController extends Controller
 
     public function show($lang, $countryCode, $id)
     {
-        $customer = $this->customerService->findById($id, []);
+        $customer = $this->customerService->findById($id, ['addresses']);
         if (!$customer) {
             abort(404);
         }
 
-        return view('customer::customer.show', compact('customer'));
+        // Build orders query - filter by vendor if user is vendor
+        $ordersQuery = $customer->orders()->with('stage');
+        
+        if (!isAdmin() && auth()->check() && auth()->user()->isVendor()) {
+            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+            if ($vendor) {
+                // Filter orders that have products from this vendor
+                $ordersQuery->whereHas('products', function ($q) use ($vendor) {
+                    $q->where('vendor_id', $vendor->id);
+                });
+            }
+        }
+
+        // Get all filtered orders for statistics
+        $filteredOrders = $ordersQuery->get();
+
+        // Calculate customer order statistics based on filtered orders
+        $orderStats = [
+            'total_orders' => $filteredOrders->count(),
+            'total_spent' => $filteredOrders->sum('total_price'),
+            'delivered_orders' => $filteredOrders->filter(fn($o) => $o->stage && $o->stage->type === 'deliver')->count(),
+            'pending_orders' => $filteredOrders->filter(fn($o) => $o->stage && in_array($o->stage->type, ['new', 'in_progress']))->count(),
+            'cancelled_orders' => $filteredOrders->filter(fn($o) => $o->stage && $o->stage->type === 'cancel')->count(),
+            'average_order_value' => $filteredOrders->count() > 0 ? $filteredOrders->sum('total_price') / $filteredOrders->count() : 0,
+        ];
+
+        // Get orders for the table (latest first) with pagination - rebuild query for pagination
+        $ordersQuery = $customer->orders()->with('stage');
+        
+        if (!isAdmin() && auth()->check() && auth()->user()->isVendor()) {
+            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+            if ($vendor) {
+                $ordersQuery->whereHas('products', function ($q) use ($vendor) {
+                    $q->where('vendor_id', $vendor->id);
+                });
+            }
+        }
+        
+        $orders = $ordersQuery->orderBy('created_at', 'desc')->paginate(10);
+
+        // Check if vendor can manage this customer (for showing/hiding edit, delete, status buttons)
+        $canManage = $this->canVendorManageCustomer($customer);
+
+        return view('customer::customer.show', compact('customer', 'orderStats', 'orders', 'canManage'));
     }
 
     public function edit($lang, $countryCode, $id)
@@ -122,6 +203,11 @@ class CustomerController extends Controller
 
         if (!$customer) {
             abort(404);
+        }
+
+        // Check if vendor can manage this customer
+        if (!$this->canVendorManageCustomer($customer)) {
+            abort(403, __('customer::customer.cannot_manage_customer'));
         }
 
         return view('customer::customer.form', compact('customer'));
@@ -133,6 +219,17 @@ class CustomerController extends Controller
 
         if (!$customer) {
             abort(404);
+        }
+
+        // Check if vendor can manage this customer
+        if (!$this->canVendorManageCustomer($customer)) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('customer::customer.cannot_manage_customer')
+                ], 403);
+            }
+            abort(403, __('customer::customer.cannot_manage_customer'));
         }
 
         $this->customerService->updateCustomer($id, $request->validated());
@@ -152,6 +249,23 @@ class CustomerController extends Controller
     public function destroy($lang, $countryCode, $id)
     {
         try {
+            $customer = $this->customerService->findById($id, []);
+
+            if (!$customer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('customer::customer.customer_not_found')
+                ], 404);
+            }
+
+            // Check if vendor can manage this customer
+            if (!$this->canVendorManageCustomer($customer)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('customer::customer.cannot_manage_customer')
+                ], 403);
+            }
+
             $this->customerService->deleteCustomer($id);
             return response()->json([
                 'success' => true,
@@ -176,6 +290,14 @@ class CustomerController extends Controller
                     'success' => false,
                     'message' => __('customer::customer.customer_not_found')
                 ], 404);
+            }
+
+            // Check if vendor can manage this customer
+            if (!$this->canVendorManageCustomer($customer)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('customer::customer.cannot_manage_customer')
+                ], 403);
             }
 
             $newStatus = !$customer->status;
@@ -208,6 +330,14 @@ class CustomerController extends Controller
                     'success' => false,
                     'message' => __('customer::customer.customer_not_found')
                 ], 404);
+            }
+
+            // Check if vendor can manage this customer
+            if (!$this->canVendorManageCustomer($customer)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('customer::customer.cannot_manage_customer')
+                ], 403);
             }
 
             $isVerified = !is_null($customer->email_verified_at);

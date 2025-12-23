@@ -9,125 +9,57 @@
                     <tr class="userDatatable-header">
                         <th><span class="userDatatable-title">#</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.order_number') }}</span></th>
-                        <th><span class="userDatatable-title">{{ trans('dashboard.vendor_name') }}</span></th>
-                        <th><span class="userDatatable-title">{{ trans('dashboard.price') }}</span></th>
+                        <th><span class="userDatatable-title">{{ trans('dashboard.customer') }}</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.total') }}</span></th>
-                        <th><span class="userDatatable-title">{{ trans('dashboard.commission') }} %</span></th>
-                        <th><span class="userDatatable-title">{{ trans('dashboard.commission') }} {{ currency() }}</span></th>
+                        <th><span class="userDatatable-title">Status</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.actions') }}</span></th>
                     </tr>
                 </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td><span class="fw-medium">#2029</span></td>
-                                <td>
-                                    <a href="">
-                                        <img class="rounded-circle"
-                                            src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Fresh_Electric.jpg"
-                                            alt="product" style="width: 20px; height: 20px; object-fit: cover;">
-                                        <span class="ms-3">Fresh</span>
-                                    </a>
-                                </td>
-                                <td class="fw-bold text-primary">299.00 {{ currency() }}</td>
-                                <td class="fw-bold text-success">299.00 {{ currency() }}</td>
-                                <td class="fw-bold text-success">10%</td>
-                                <td class="fw-bold text-success">29.90 {{ currency() }}</td>
-                                <td class="actions">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="uil uil-eye m-0"></i>
-
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td><span class="fw-medium">#2028</span></td>
-                                <td>
-                                    <a href="">
-                                        <img class="rounded-circle"
-                                            src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Fresh_Electric.jpg"
-                                            alt="product" style="width: 20px; height: 20px; object-fit: cover;">
-                                        <span class="ms-3">Fresh</span>
-                                    </a>
-                                </td>
-                                <td class="fw-bold text-primary">89.99 {{ currency() }}</td>
-                                <td class="fw-bold text-success">179.98 {{ currency() }}</td>
-                                <td class="fw-bold text-success">10%</td>
-                                <td class="fw-bold text-success">18.00 {{ currency() }}</td>
-                                <td class="actions">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="uil uil-eye m-0"></i>
-
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td><span class="fw-medium">#2027</span></td>
-                                <td>
-                                    <a href="">
-                                        <img class="rounded-circle"
-                                            src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Fresh_Electric.jpg"
-                                            alt="product" style="width: 20px; height: 20px; object-fit: cover;">
-                                        <span class="ms-3">Fresh</span>
-                                    </a>
-                                </td>
-                                <td class="fw-bold text-primary">45.50 {{ currency() }}</td>
-                                <td class="fw-bold text-success">136.50 {{ currency() }}</td>
-                                <td class="fw-bold text-success">10%</td>
-                                <td class="fw-bold text-success">13.65 {{ currency() }}</td>
-                                <td class="actions">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="uil uil-eye m-0"></i>
-
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>4</td>
-                                <td><span class="fw-medium">#2026</span></td>
-                                <td>
-                                    <a href="">
-                                        <img class="rounded-circle"
-                                            src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Fresh_Electric.jpg"
-                                            alt="product" style="width: 20px; height: 20px; object-fit: cover;">
-                                        <span class="ms-3">Fresh</span>
-                                    </a>
-                                </td>
-                                <td class="fw-bold text-primary">19.99 {{ currency() }}</td>
-                                <td class="fw-bold text-success">79.96 {{ currency() }}</td>
-                                <td class="fw-bold text-success">10%</td>
-                                <td class="fw-bold text-success">8.00 {{ currency() }}</td>
-                                <td class="actions">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="uil uil-eye m-0"></i>
-
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>5</td>
-                                <td><span class="fw-medium">#2025</span></td>
-                                <td>
-                                    <a href="">
-                                        <img class="rounded-circle"
-                                            src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Fresh_Electric.jpg"
-                                            alt="product" style="width: 20px; height: 20px; object-fit: cover;">
-                                        <span class="ms-3">Fresh</span>
-                                    </a>
-                                </td>
-                                <td class="fw-bold text-primary">129.99 {{ currency() }}</td>
-                                <td class="fw-bold text-success">259.98 {{ currency() }}</td>
-                                <td class="fw-bold text-success">10%</td>
-                                <td class="fw-bold text-success">26.00 {{ currency() }}</td>
-                                <td class="actions">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="uil uil-eye m-0"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        </tbody>
+                <tbody>
+                    @forelse($latestOrders ?? [] as $index => $order)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td><span class="fw-medium">#{{ $order->order_number ?? $order->id }}</span></td>
+                        <td>
+                            @if($order->customer)
+                                <div class="d-flex align-items-center">
+                                    <div class="me-2">
+                                        @if($order->customer->image)
+                                            <img src="{{ asset($order->customer->image) }}" alt="{{ $order->customer->full_name }}" class="rounded-circle" style="width: 35px; height: 35px; object-fit: cover;">
+                                        @else
+                                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white" style="width: 35px; height: 35px; font-size: 14px;">
+                                                {{ strtoupper(substr($order->customer->first_name ?? 'C', 0, 1)) }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <span>{{ $order->customer->full_name ?? $order->customer->email }}</span>
+                                </div>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </td>
+                        <td class="fw-bold text-success">{{ number_format($order->total_price ?? 0, 2) }} {{ currency() }}</td>
+                        <td>
+                            @if($order->stage)
+                                <span class="badge badge-round badge-lg" style="background-color: {{ $order->stage->color ?? '#6c757d' }}">
+                                    {{ $order->stage->getTranslation('name', app()->getLocale()) }}
+                                </span>
+                            @else
+                                <span class="badge bg-secondary badge-round badge-lg">-</span>
+                            @endif
+                        </td>
+                        <td class="actions">
+                            <a href="{{ route('admin.orders.show', $order->id) }}" target="_blank" class="btn btn-sm btn-primary">
+                                <i class="uil uil-eye m-0"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">{{ trans('common.no_data_available') }}</td>
+                    </tr>
+                    @endforelse
+                </tbody>
             </table>
         </div>
     </div>

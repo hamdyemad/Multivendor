@@ -15,88 +15,35 @@
                         <th><span class="userDatatable-title">{{ trans('dashboard.actions') }}</span></th>
                     </tr>
                 </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>
-                                    <img class="rounded-circle" src="{{ asset('/assets/img/author/robert-3.png') }}" alt="user" style="width: 40px; height: 40px; object-fit: cover;">
-                                    <span class="ms-3">John Smith</span>
-                                </td>
-                                <td>45</td>
-                                <td class="fw-bold text-success">12,450.00 {{ currency() }}</td>
-                                <td>Jan 15, 2024</td>
-                                <td class="actions">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="uil uil-eye m-0"></i>
-
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>
-                                    <img class="rounded-circle" src="{{ asset('/assets/img/author/robert-3.png') }}" alt="user" style="width: 40px; height: 40px; object-fit: cover;">
-                                    <span class="ms-3">Sarah Johnson</span>
-                                </td>
-                                <td>38</td>
-                                <td class="fw-bold text-success">10,890.00 {{ currency() }}</td>
-                                <td>Feb 22, 2024</td>
-                                <td class="actions">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="uil uil-eye m-0"></i>
-
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>
-                                    <img class="rounded-circle" src="{{ asset('/assets/img/author/robert-3.png') }}" alt="user" style="width: 40px; height: 40px; object-fit: cover;">
-                                    <span class="ms-3">Michael Brown</span>
-                                </td>
-                                <td>32</td>
-                                <td class="fw-bold text-success">9,560.00 {{ currency() }}</td>
-                                <td>Mar 10, 2024</td>
-                                <td class="actions">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="uil uil-eye m-0"></i>
-
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>4</td>
-                                <td>
-                                    <img class="rounded-circle" src="{{ asset('/assets/img/author/robert-3.png') }}" alt="user" style="width: 40px; height: 40px; object-fit: cover;">
-                                    <span class="ms-3">Emily Davis</span>
-                                </td>
-                                <td>28</td>
-                                <td class="fw-bold text-success">8,340.00 {{ currency() }}</td>
-                                <td>Apr 05, 2024</td>
-                                <td class="actions">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="uil uil-eye m-0"></i>
-
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>5</td>
-                                <td>
-                                    <img class="rounded-circle" src="{{ asset('/assets/img/author/robert-3.png') }}" alt="user" style="width: 40px; height: 40px; object-fit: cover;">
-                                    <span class="ms-3">David Wilson</span>
-                                </td>
-                                <td>25</td>
-                                <td class="fw-bold text-success">7,750.00 {{ currency() }}</td>
-                                <td>May 18, 2024</td>
-                                <td class="actions">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="uil uil-eye m-0"></i>
-
-                                    </a>
-                                </td>
-                            </tr>
-                        </tbody>
+                <tbody>
+                    @forelse($bestCustomers ?? [] as $index => $customer)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>
+                            @if($customer->image)
+                                <img class="rounded-circle" src="{{ asset('storage/' . $customer->image) }}" alt="user" style="width: 40px; height: 40px; object-fit: cover;">
+                            @else
+                                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="uil uil-user text-muted"></i>
+                                </div>
+                            @endif
+                            <span class="ms-3">{{ $customer->full_name ?? $customer->email }}</span>
+                        </td>
+                        <td>{{ $customer->orders_count ?? 0 }}</td>
+                        <td class="fw-bold text-success">{{ number_format($customer->orders_sum_total_price ?? 0, 2) }} {{ currency() }}</td>
+                        <td>{{ $customer->created_at ? $customer->created_at : '-' }}</td>
+                        <td class="actions">
+                            <a href="{{ route('admin.customers.show', $customer->id) }}" target="_blank" class="btn btn-sm btn-primary">
+                                <i class="uil uil-eye m-0"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">{{ trans('common.no_data_available') }}</td>
+                    </tr>
+                    @endforelse
+                </tbody>
             </table>
         </div>
     </div>

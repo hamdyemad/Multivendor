@@ -153,10 +153,50 @@ class VendorController extends Controller {
     public function show($lang, $countryCode, $id) {
         $vendor = $this->vendorService->getVendorById($id);
         $languages = $this->languageService->getAll();
+
+        // Get vendor products with variants
+        $vendorProducts = \Modules\CatalogManagement\app\Models\VendorProduct::with([
+            'product.translations',
+            'product.mainImage',
+            'variants.stocks'
+        ])->where('vendor_id', $id)->orderBy('created_at', 'desc')->get();
+
+        // Get order products for this vendor with pagination
+        $orderProducts = \Modules\Order\app\Models\OrderProduct::with([
+            'order.stage', 
+            'order.customer',
+            'vendorProduct.product.mainImage',
+            'vendorProduct.product.translations',
+            'vendorProductVariant.variantConfiguration'
+        ])
+            ->where('vendor_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        // Get all order products for stats calculation (without pagination)
+        $allOrderProducts = \Modules\Order\app\Models\OrderProduct::with(['order.stage'])
+            ->where('vendor_id', $id)
+            ->get();
+
+        // Calculate order statistics for this vendor
+        $orderStats = [
+            'total_order_products' => $allOrderProducts->count(),
+            'total_revenue' => $allOrderProducts->sum(function($op) {
+                return $op->price * $op->quantity;
+            }),
+            'delivered_order_products' => $allOrderProducts->filter(fn($op) => $op->order && $op->order->stage && $op->order->stage->type === 'deliver')->count(),
+            'pending_order_products' => $allOrderProducts->filter(fn($op) => $op->order && $op->order->stage && in_array($op->order->stage->type, ['new', 'in_progress']))->count(),
+            'cancelled_order_products' => $allOrderProducts->filter(fn($op) => $op->order && $op->order->stage && $op->order->stage->type === 'cancel')->count(),
+            'total_products' => $vendorProducts->count(),
+            'total_quantity_sold' => $allOrderProducts->sum('quantity'),
+        ];
+
         $data = [
             'title' => __('vendor::vendor.vendor_details'),
             'vendor' => $vendor,
-            'languages' => $languages
+            'languages' => $languages,
+            'orderProducts' => $orderProducts,
+            'orderStats' => $orderStats,
         ];
         return view('vendor::vendors.show', $data);
     }

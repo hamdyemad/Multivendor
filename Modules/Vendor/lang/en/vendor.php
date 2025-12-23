@@ -1,6 +1,9 @@
 <?php
 
 return [
+    // General
+    'vendor' => 'Vendor',
+    
     // Page Titles
     'vendors_management' => 'Vendors Management',
     'vendors' => 'Vendors',
@@ -268,4 +271,38 @@ return [
     'rejection_reason_visible' => 'This reason will be visible to the vendor.',
     'reject_request' => 'Reject Request',
     'vendor_request_details' => 'Vendor Request Details',
+
+    // Order & Product Statistics
+    'order_statistics' => 'Order Statistics',
+    'total_orders' => 'Total Orders',
+    'total_revenue' => 'Total Revenue',
+    'delivered_orders' => 'Delivered Orders',
+    'pending_orders' => 'Pending Orders',
+    'cancelled_orders' => 'Cancelled Orders',
+    'total_products' => 'Total Products',
+    'vendor_orders' => 'Vendor Orders',
+    'order_number' => 'Order Number',
+    'customer' => 'Customer',
+    'order_total' => 'Order Total',
+    'order_status' => 'Order Status',
+    'order_date' => 'Order Date',
+    'no_orders_found' => 'No orders found for this vendor',
+    'vendor_products' => 'Vendor Products',
+    'product_image' => 'Image',
+    'product_name' => 'Product Name',
+    'sku' => 'SKU',
+    'variants_count' => 'Variants',
+    'total_stock' => 'Total Stock',
+    'product_status' => 'Status',
+    'no_products_found' => 'No products found for this vendor',
+
+    // Order Products
+    'vendor_order_products' => 'Vendor Order Products',
+    'variant' => 'Variant',
+    'quantity' => 'Quantity',
+    'unit_price' => 'Unit Price',
+    'total_price' => 'Total Price',
+    'no_order_products_found' => 'No order products found for this vendor',
+    'total_quantity_sold' => 'Total Quantity Sold',
+    'total_order_products' => 'Total Order Products',
 ];

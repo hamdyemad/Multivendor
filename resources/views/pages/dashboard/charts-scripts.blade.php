@@ -1,77 +1,26 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Sales Today
-        const salesTodayCtx = document.getElementById('salesToday');
-        if (salesTodayCtx) {
-            new Chart(salesTodayCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['12am', '3am', '6am', '9am', '12pm', '3pm', '6pm', '9pm'],
-                    datasets: [{
-                        label: 'Sales',
-                        data: [500, 800, 600, 1200, 1000, 1500, 1300, 1800],
-                        backgroundColor: 'rgba(91, 105, 255, 0.2)',
-                        borderColor: 'rgba(91, 105, 255, 1)',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
-                }
-            });
-        }
+        // Data from backend
+        const ordersOverviewData = {
+            new: {{ $ordersOverview['new'] ?? 0 }},
+            in_progress: {{ $ordersOverview['in_progress'] ?? 0 }},
+            delivered: {{ $ordersOverview['delivered'] ?? 0 }},
+            cancelled: {{ $ordersOverview['cancelled'] ?? 0 }},
+            want_to_return: {{ $ordersOverview['want_to_return'] ?? 0 }},
+            return_in_progress: {{ $ordersOverview['return_in_progress'] ?? 0 }},
+            refunded: {{ $ordersOverview['refunded'] ?? 0 }}
+        };
 
-        // Sales Week
-        const salesWeekCtx = document.getElementById('salesWeek');
-        if (salesWeekCtx) {
-            new Chart(salesWeekCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                    datasets: [{
-                        label: 'Sales',
-                        data: [5000, 7500, 6000, 9000, 8000, 10000, 9500],
-                        backgroundColor: 'rgba(91, 105, 255, 0.2)',
-                        borderColor: 'rgba(91, 105, 255, 1)',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
-                }
-            });
-        }
+        const salesChartLabels = {!! json_encode($salesChart['labels'] ?? []) !!};
+        const salesChartData = {!! json_encode($salesChart['data'] ?? []) !!};
+        const salesChartHourly = {!! json_encode($salesChart['hourly'] ?? [0,0,0,0,0,0,0,0]) !!};
+        const salesChartWeekly = {!! json_encode($salesChart['weekly'] ?? [0,0,0,0,0,0,0]) !!};
+        const salesChartYearlyLabels = {!! json_encode($salesChart['yearly_labels'] ?? []) !!};
+        const salesChartYearlyData = {!! json_encode($salesChart['yearly_data'] ?? []) !!};
 
-        // Sales Month
-        const salesMonthCtx = document.getElementById('salesMonth');
-        if (salesMonthCtx) {
-            new Chart(salesMonthCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                    datasets: [{
-                        label: 'Sales',
-                        data: [12000, 19000, 15000, 25000, 22000, 30000, 28000, 32000, 27000, 35000, 40000, 38000],
-                        backgroundColor: 'rgba(91, 105, 255, 0.2)',
-                        borderColor: 'rgba(91, 105, 255, 1)',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
-                }
-            });
-        }
+        const incomeExpenseMonthDaily = {!! json_encode($incomeExpense['month']['daily_data'] ?? []) !!};
+        const incomeExpenseYearMonthly = {!! json_encode($incomeExpense['year']['monthly_data'] ?? []) !!};
 
         // Orders Overview Pie Chart
         const ordersOverviewCtx = document.getElementById('ordersOverviewChart');
@@ -79,16 +28,20 @@
             new Chart(ordersOverviewCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['New', 'In Progress', 'Delivered', 'Cancelled', 'Want to Return', 'Return in Progress', 'Refunded'],
+                    labels: ['{{ trans("dashboard.new") }}', '{{ trans("dashboard.in_progress") }}', '{{ trans("dashboard.delivered") }}', '{{ trans("dashboard.cancelled") }}', '{{ trans("dashboard.want_to_return") }}', '{{ trans("dashboard.return_in_progress") }}', '{{ trans("dashboard.refunded") }}'],
                     datasets: [{
-                        data: [2, 2, 2, 3, 0, 0, 1],
+                        data: [
+                            ordersOverviewData.new,
+                            ordersOverviewData.in_progress,
+                            ordersOverviewData.delivered,
+                            ordersOverviewData.cancelled,
+                            ordersOverviewData.want_to_return,
+                            ordersOverviewData.return_in_progress,
+                            ordersOverviewData.refunded
+                        ],
                         backgroundColor: [
                             'rgba(91, 105, 255, 0.8)', 'rgba(255, 193, 7, 0.8)', 'rgba(32, 201, 151, 0.8)',
                             'rgba(255, 76, 81, 0.8)', 'rgba(255, 152, 0, 0.8)', 'rgba(156, 39, 176, 0.8)', 'rgba(103, 58, 183, 0.8)'
-                        ],
-                        borderColor: [
-                            'rgba(91, 105, 255, 1)', 'rgba(255, 193, 7, 1)', 'rgba(32, 201, 151, 1)',
-                            'rgba(255, 76, 81, 1)', 'rgba(255, 152, 0, 1)', 'rgba(156, 39, 176, 1)', 'rgba(103, 58, 183, 1)'
                         ],
                         borderWidth: 2
                     }]
@@ -96,16 +49,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return (context.label || '') + ': ' + context.parsed + ' orders';
-                                }
-                            }
-                        }
-                    }
+                    plugins: { legend: { display: false } }
                 }
             });
         }
@@ -118,8 +62,8 @@
                 data: {
                     labels: ['12am', '3am', '6am', '9am', '12pm', '3pm', '6pm', '9pm'],
                     datasets: [{
-                        label: 'Total Sales',
-                        data: [600, 900, 700, 1400, 1200, 1700, 1500, 2000],
+                        label: '{{ trans("dashboard.total_sales") }}',
+                        data: salesChartHourly,
                         backgroundColor: 'rgba(130, 49, 211, 0.1)',
                         borderColor: 'rgba(130, 49, 211, 1)',
                         borderWidth: 2,
@@ -144,8 +88,8 @@
                 data: {
                     labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                     datasets: [{
-                        label: 'Total Sales',
-                        data: [6000, 8500, 7000, 10000, 9000, 11000, 10500],
+                        label: '{{ trans("dashboard.total_sales") }}',
+                        data: salesChartWeekly,
                         backgroundColor: 'rgba(130, 49, 211, 0.1)',
                         borderColor: 'rgba(130, 49, 211, 1)',
                         borderWidth: 2,
@@ -168,10 +112,62 @@
             new Chart(totalSalesMonthCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    labels: salesChartLabels.length ? salesChartLabels : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                     datasets: [{
-                        label: 'Total Sales',
-                        data: [15000, 22000, 18000, 28000, 25000, 35000, 32000, 38000, 33000, 42000, 48000, 45000],
+                        label: '{{ trans("dashboard.total_sales") }}',
+                        data: salesChartData.length ? salesChartData : Array(12).fill(0),
+                        backgroundColor: 'rgba(130, 49, 211, 0.1)',
+                        borderColor: 'rgba(130, 49, 211, 1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        // Total Sales Year
+        const totalSalesYearCtx = document.getElementById('totalSalesYear');
+        if (totalSalesYearCtx) {
+            new Chart(totalSalesYearCtx, {
+                type: 'line',
+                data: {
+                    labels: salesChartLabels.length ? salesChartLabels : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: '{{ trans("dashboard.total_sales") }}',
+                        data: salesChartData.length ? salesChartData : Array(12).fill(0),
+                        backgroundColor: 'rgba(130, 49, 211, 0.1)',
+                        borderColor: 'rgba(130, 49, 211, 1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        // Total Sales 5 Years
+        const totalSales5YearsCtx = document.getElementById('totalSales5Years');
+        if (totalSales5YearsCtx) {
+            new Chart(totalSales5YearsCtx, {
+                type: 'line',
+                data: {
+                    labels: salesChartYearlyLabels.length ? salesChartYearlyLabels : [{{ date('Y')-4 }}, {{ date('Y')-3 }}, {{ date('Y')-2 }}, {{ date('Y')-1 }}, {{ date('Y') }}],
+                    datasets: [{
+                        label: '{{ trans("dashboard.total_sales") }}',
+                        data: salesChartYearlyData.length ? salesChartYearlyData : [0,0,0,0,0],
                         backgroundColor: 'rgba(130, 49, 211, 0.1)',
                         borderColor: 'rgba(130, 49, 211, 1)',
                         borderWidth: 2,
@@ -197,7 +193,7 @@
                     labels: ['12am', '3am', '6am', '9am', '12pm', '3pm', '6pm', '9pm'],
                     datasets: [{
                         label: 'Earnings',
-                        data: [600, 900, 700, 1400, 1200, 1700, 1500, 2000],
+                        data: salesChartHourly,
                         backgroundColor: 'rgba(32, 201, 151, 0.1)',
                         borderColor: 'rgba(32, 201, 151, 1)',
                         borderWidth: 2,
@@ -223,7 +219,7 @@
                     labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                     datasets: [{
                         label: 'Earnings',
-                        data: [6000, 8500, 7000, 10000, 9000, 11000, 10500],
+                        data: salesChartWeekly,
                         backgroundColor: 'rgba(32, 201, 151, 0.1)',
                         borderColor: 'rgba(32, 201, 151, 1)',
                         borderWidth: 2,
@@ -246,64 +242,12 @@
             new Chart(earningsMonthCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    labels: salesChartLabels.length ? salesChartLabels : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                     datasets: [{
                         label: 'Earnings',
-                        data: [15000, 22000, 18000, 28000, 25000, 35000, 32000, 38000, 33000, 42000, 48000, 45000],
+                        data: salesChartData.length ? salesChartData : Array(12).fill(0),
                         backgroundColor: 'rgba(32, 201, 151, 0.1)',
                         borderColor: 'rgba(32, 201, 151, 1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
-                }
-            });
-        }
-
-        // Total Sales Year
-        const totalSalesYearCtx = document.getElementById('totalSalesYear');
-        if (totalSalesYearCtx) {
-            new Chart(totalSalesYearCtx, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                    datasets: [{
-                        label: 'Total Sales',
-                        data: [18000, 25000, 22000, 32000, 28000, 38000, 35000, 42000, 38000, 48000, 52000, 50000],
-                        backgroundColor: 'rgba(130, 49, 211, 0.1)',
-                        borderColor: 'rgba(130, 49, 211, 1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
-                }
-            });
-        }
-
-        // Total Sales 5 Years
-        const totalSales5YearsCtx = document.getElementById('totalSales5Years');
-        if (totalSales5YearsCtx) {
-            new Chart(totalSales5YearsCtx, {
-                type: 'line',
-                data: {
-                    labels: ['2021', '2022', '2023', '2024', '2025'],
-                    datasets: [{
-                        label: 'Total Sales',
-                        data: [180000, 220000, 280000, 350000, 420000],
-                        backgroundColor: 'rgba(130, 49, 211, 0.1)',
-                        borderColor: 'rgba(130, 49, 211, 1)',
                         borderWidth: 2,
                         fill: true,
                         tension: 0.4
@@ -324,10 +268,10 @@
             new Chart(earningsYearCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    labels: salesChartLabels.length ? salesChartLabels : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                     datasets: [{
                         label: 'Earnings',
-                        data: [8000, 12000, 10000, 15000, 13000, 18000, 16000, 20000, 18000, 22000, 25000, 23000],
+                        data: salesChartData.length ? salesChartData : Array(12).fill(0),
                         backgroundColor: 'rgba(32, 201, 151, 0.1)',
                         borderColor: 'rgba(32, 201, 151, 1)',
                         borderWidth: 2,
@@ -350,10 +294,10 @@
             new Chart(earnings5YearsCtx, {
                 type: 'line',
                 data: {
-                    labels: ['2021', '2022', '2023', '2024', '2025'],
+                    labels: salesChartYearlyLabels.length ? salesChartYearlyLabels : [{{ date('Y')-4 }}, {{ date('Y')-3 }}, {{ date('Y')-2 }}, {{ date('Y')-1 }}, {{ date('Y') }}],
                     datasets: [{
                         label: 'Earnings',
-                        data: [85000, 110000, 145000, 180000, 220000],
+                        data: salesChartYearlyData.length ? salesChartYearlyData : [0,0,0,0,0],
                         backgroundColor: 'rgba(32, 201, 151, 0.1)',
                         borderColor: 'rgba(32, 201, 151, 1)',
                         borderWidth: 2,
@@ -370,128 +314,78 @@
             });
         }
 
-        // Monthly Accounting Chart (Income & Expenses by Days)
+        // Monthly Accounting Chart
         const monthlyAccountingCtx = document.getElementById('monthlyAccountingChart');
         if (monthlyAccountingCtx) {
+            const dailyLabels = incomeExpenseMonthDaily.map(d => d.day);
+            const dailyIncome = incomeExpenseMonthDaily.map(d => d.income);
+            const dailyExpenses = incomeExpenseMonthDaily.map(d => d.expenses);
+            
             new Chart(monthlyAccountingCtx, {
                 type: 'line',
                 data: {
-                    labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31'],
+                    labels: dailyLabels.length ? dailyLabels : Array.from({length: 31}, (_, i) => i + 1),
                     datasets: [{
-                        label: 'Income',
-                        data: [800, 1200, 950, 1100, 1300, 1050, 900, 1400, 1250, 1150, 1350, 1200, 1100, 1450, 1300, 1250, 1400, 1500, 1350, 1200, 1450, 1550, 1400, 1300, 1500, 1600, 1450, 1550, 1650, 1700, 1800],
+                        label: '{{ trans("dashboard.income") }}',
+                        data: dailyIncome.length ? dailyIncome : Array(31).fill(0),
                         backgroundColor: 'rgba(40, 167, 69, 0.2)',
                         borderColor: 'rgba(40, 167, 69, 1)',
                         borderWidth: 2,
                         fill: true,
-                        tension: 0.4,
-                        pointRadius: 2,
-                        pointBackgroundColor: 'rgba(40, 167, 69, 1)',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 1
+                        tension: 0.4
                     }, {
-                        label: 'Expenses',
-                        data: [600, 750, 650, 800, 900, 700, 650, 950, 850, 800, 900, 850, 750, 1000, 900, 850, 950, 1050, 900, 800, 950, 1100, 950, 850, 1000, 1150, 950, 1050, 1100, 1200, 1250],
+                        label: '{{ trans("dashboard.expenses") }}',
+                        data: dailyExpenses.length ? dailyExpenses : Array(31).fill(0),
                         backgroundColor: 'rgba(220, 53, 69, 0.2)',
                         borderColor: 'rgba(220, 53, 69, 1)',
                         borderWidth: 2,
                         fill: true,
-                        tension: 0.4,
-                        pointRadius: 2,
-                        pointBackgroundColor: 'rgba(220, 53, 69, 1)',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 1
+                        tension: 0.4
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + context.parsed.y.toLocaleString() + '';
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: { display: false }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return (value / 1000) + '';
-                                }
-                            }
-                        }
-                    }
+                    plugins: { legend: { display: false } },
+                    scales: { x: { grid: { display: false } }, y: { beginAtZero: true } }
                 }
             });
         }
 
-        // Yearly Accounting Chart (Income & Expenses by Year)
+        // Yearly Accounting Chart
         const yearlyAccountingCtx = document.getElementById('yearlyAccountingChart');
         if (yearlyAccountingCtx) {
+            const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const monthlyIncome = incomeExpenseYearMonthly.map(d => d.income);
+            const monthlyExpenses = incomeExpenseYearMonthly.map(d => d.expenses);
+            
             new Chart(yearlyAccountingCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    labels: monthLabels,
                     datasets: [{
-                        label: 'Income',
-                        data: [15000, 18000, 22000, 25000, 28000, 30000, 32000, 35000, 38000, 40000, 42000, 45000],
+                        label: '{{ trans("dashboard.income") }}',
+                        data: monthlyIncome.length ? monthlyIncome : Array(12).fill(0),
                         backgroundColor: 'rgba(40, 167, 69, 0.2)',
                         borderColor: 'rgba(40, 167, 69, 1)',
                         borderWidth: 2,
                         fill: true,
-                        tension: 0.4,
-                        pointRadius: 4,
-                        pointBackgroundColor: 'rgba(40, 167, 69, 1)',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2
+                        tension: 0.4
                     }, {
-                        label: 'Expenses',
-                        data: [12000, 14000, 18000, 20000, 22000, 24000, 26000, 28000, 30000, 32000, 34000, 36000],
+                        label: '{{ trans("dashboard.expenses") }}',
+                        data: monthlyExpenses.length ? monthlyExpenses : Array(12).fill(0),
                         backgroundColor: 'rgba(220, 53, 69, 0.2)',
                         borderColor: 'rgba(220, 53, 69, 1)',
                         borderWidth: 2,
                         fill: true,
-                        tension: 0.4,
-                        pointRadius: 4,
-                        pointBackgroundColor: 'rgba(220, 53, 69, 1)',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2
+                        tension: 0.4
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + context.parsed.y.toLocaleString() + '';
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: { display: false }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return (value / 1000) + '';
-                                }
-                            }
-                        }
-                    }
+                    plugins: { legend: { display: false } },
+                    scales: { x: { grid: { display: false } }, y: { beginAtZero: true } }
                 }
             });
         }

@@ -55,6 +55,7 @@ class OccasionController extends Controller
                 'created_until' => $request->get('created_until'),
                 'start_date' => $request->get('start_date'),
                 'end_date' => $request->get('end_date'),
+                'vendor_id' => $request->get('vendor_id'),
             ];
 
             // Get occasions query with filters (use 0 for no pagination in DataTables)

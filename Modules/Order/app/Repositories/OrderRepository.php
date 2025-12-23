@@ -21,14 +21,6 @@ class OrderRepository implements OrderRepositoryInterface
 
         $query->with(['stage', 'customer', 'products'])->filter($filters)->latest('created_at');
         
-        // Filter by vendor if user is not admin
-        if (!isAdmin()) {
-            $vendorId = auth()->user()->vendor_id ?? auth()->id();
-            $query->whereHas('products', function($q) use ($vendorId) {
-                $q->where('vendor_id', $vendorId);
-            });
-        }
-        
         return $query;
     }
 
@@ -37,7 +29,7 @@ class OrderRepository implements OrderRepositoryInterface
      */
     public function getOrderById($id)
     {
-        return Order::with([
+        $query = Order::with([
             'stage', 
             'customer', 
             'products.vendorProduct.product.category',
@@ -46,7 +38,19 @@ class OrderRepository implements OrderRepositoryInterface
             'products.vendorProductVariant.variantConfiguration.key', 
             'products.taxes',
             'extraFeesDiscounts'
-        ])->findOrFail($id);
+        ]);
+        
+        // If current user is a vendor, only allow access to orders that have products from their vendor
+        if (auth()->check() && auth()->user()->isVendor()) {
+            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+            if ($vendor) {
+                $query->whereHas('products', function($q) use ($vendor) {
+                    $q->where('vendor_id', $vendor->id);
+                });
+            }
+        }
+        
+        return $query->findOrFail($id);
     }
 
     /**
@@ -55,7 +59,19 @@ class OrderRepository implements OrderRepositoryInterface
     public function changeOrderStage($id, $stageId)
     {
         return DB::transaction(function () use ($id, $stageId) {
-            $order = Order::with('stage')->findOrFail($id);
+            $query = Order::with('stage');
+            
+            // If current user is a vendor, only allow access to orders that have products from their vendor
+            if (auth()->check() && auth()->user()->isVendor()) {
+                $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+                if ($vendor) {
+                    $query->whereHas('products', function($q) use ($vendor) {
+                        $q->where('vendor_id', $vendor->id);
+                    });
+                }
+            }
+            
+            $order = $query->findOrFail($id);
 
             // Fetch the new stage
             $newStage = OrderStage::findOrFail($stageId);
@@ -214,7 +230,19 @@ class OrderRepository implements OrderRepositoryInterface
     public function deleteOrder($id): bool
     {
         return DB::transaction(function () use ($id) {
-            $order = Order::findOrFail($id);
+            $query = Order::query();
+            
+            // If current user is a vendor, only allow access to orders that have products from their vendor
+            if (auth()->check() && auth()->user()->isVendor()) {
+                $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+                if ($vendor) {
+                    $query->whereHas('products', function($q) use ($vendor) {
+                        $q->where('vendor_id', $vendor->id);
+                    });
+                }
+            }
+            
+            $order = $query->findOrFail($id);
             
             // Delete related order products and their taxes
             foreach ($order->products as $product) {

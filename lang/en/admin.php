@@ -63,6 +63,7 @@ return [
     'leave_empty_to_keep_password' => 'Leave empty to keep current password',
     'select_role' => 'Select Role',
     'select_roles' => 'Select Roles',
+    'select_vendor_first_to_load_roles' => 'Please select a vendor first to load available roles',
     
     // Messages
     'admin_created_successfully' => 'Admin created successfully',
@@ -89,6 +90,7 @@ return [
     'permissions' => 'Permissions',
     'validation_errors' => 'Validation Errors',
     'error_occurred' => 'An error occurred',
+    'please_check_form_errors' => 'Please check the form for errors',
     
     // Validation Messages
     'at_least_one_translation_required' => 'At least one translation is required',

@@ -19,7 +19,7 @@
                                 </div>
                                 <div>
                                     <p class="text-muted mb-1 small">{{ trans('dashboard.new') }}</p>
-                                    <h5 class="mb-0 fw-bold">2</h5>
+                                    <h5 class="mb-0 fw-bold">{{ $ordersOverview['new'] ?? 0 }}</h5>
                                 </div>
                             </div>
                         </div>
@@ -33,7 +33,7 @@
                                 </div>
                                 <div>
                                     <p class="text-muted mb-1 small">{{ trans('dashboard.in_progress') }}</p>
-                                    <h5 class="mb-0 fw-bold">2</h5>
+                                    <h5 class="mb-0 fw-bold">{{ $ordersOverview['in_progress'] ?? 0 }}</h5>
                                 </div>
                             </div>
                         </div>
@@ -47,7 +47,7 @@
                                 </div>
                                 <div>
                                     <p class="text-muted mb-1 small">{{ trans('dashboard.delivered') }}</p>
-                                    <h5 class="mb-0 fw-bold">2</h5>
+                                    <h5 class="mb-0 fw-bold">{{ $ordersOverview['delivered'] ?? 0 }}</h5>
                                 </div>
                             </div>
                         </div>
@@ -61,7 +61,7 @@
                                 </div>
                                 <div>
                                     <p class="text-muted mb-1 small">{{ trans('dashboard.cancelled') }}</p>
-                                    <h5 class="mb-0 fw-bold">3</h5>
+                                    <h5 class="mb-0 fw-bold">{{ $ordersOverview['cancelled'] ?? 0 }}</h5>
                                 </div>
                             </div>
                         </div>
@@ -75,7 +75,7 @@
                                 </div>
                                 <div>
                                     <p class="text-muted mb-1 small">{{ trans('dashboard.refunded') }}</p>
-                                    <h5 class="mb-0 fw-bold">1</h5>
+                                    <h5 class="mb-0 fw-bold">{{ $ordersOverview['refunded'] ?? 0 }}</h5>
                                 </div>
                             </div>
                         </div>

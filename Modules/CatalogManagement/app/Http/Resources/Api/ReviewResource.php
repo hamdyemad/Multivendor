@@ -5,6 +5,7 @@ namespace Modules\CatalogManagement\app\Http\Resources\Api;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Modules\CatalogManagement\app\Models\VendorProduct;
+use Modules\Customer\app\Transformers\CustomerApiResource;
 use Modules\Vendor\app\Http\Resources\Api\VendorApiResource;
 
 class ReviewResource extends JsonResource
@@ -40,11 +41,7 @@ class ReviewResource extends JsonResource
             'reviewable_id' => $this->reviewable_id,
             'reviewable_type' => $isProduct ? "products" : "vendors",
             'customer_id' => $this->customer_id,
-            'customer' => [
-                'id' => $this->customer?->id,
-                'name' => $this->customer?->full_name,
-                'email' => $this->customer?->email,
-            ],
+            'customer' => new CustomerApiResource($this->customer),
             'review' => $this->review,
             'star' => $this->star,
             'reviewable' => $reviewable,

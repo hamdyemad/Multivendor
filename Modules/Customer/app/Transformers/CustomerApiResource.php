@@ -20,7 +20,7 @@ class CustomerApiResource extends JsonResource
             'full_name' => $this->full_name,
             'email' => $this->email,
             'phone' => $this->phone,
-            'image' => $this->image ? asset('storage/' . $this->image) : null,
+            'image' => $this->image ? asset('storage/' . $this->image) : '',
             'lang' => $this->lang,
             'addresses' => AddressResource::collection($this->whenLoaded('addresses')),
             'status' => (bool) $this->status,

@@ -38,11 +38,17 @@ class CartApiController extends Controller
 
         $customer = $request->user();
         $cart = $this->cartService->getCustomerCart($dto, $customer->id);
+        $summary = $this->cartService->getCartSummary($customer->id);
 
         return $this->sendRes(
             config('responses.success')[app()->getLocale()],
             true,
-            CartResource::collection($cart)
+            [
+                'items' => CartResource::collection($cart),
+                'totalProductPrice' => $summary ? round($summary['totalProductPrice'], 2) : 0,
+                'totalTaxAmount' => $summary ? round($summary['totalTaxAmount'], 2) : 0,
+                'totalPrice' => $summary ? round($summary['finalTotalPrice'], 2) : 0,
+            ]
         );
     }
 

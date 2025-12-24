@@ -20,54 +20,49 @@ class Authenticate extends Middleware
     {
         $this->authenticate($request, $guards);
 
+        // Skip additional checks for API requests with sanctum guard
+        $isApiRequest = $request->expectsJson() || $request->is('api/*');
+        
         // Check if authenticated user is inactive
         $user = Auth::user();
         if ($user && !$user->active) {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
-            if ($request->expectsJson()) {
-                throw new AuthenticationException(
-                    __('auth.account_not_activated'),
-                    $guards
-                );
+            if (!$isApiRequest) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                return redirect()->route('login')->with('error', __('auth.account_not_activated'));
             }
-
-            return redirect()->route('login')->with('error', __('auth.account_not_activated'));
+            
+            throw new AuthenticationException(
+                __('auth.account_not_activated'),
+                $guards
+            );
         }
 
         // Check if authenticated user is blocked
         if ($user && $user->block) {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
-            if ($request->expectsJson()) {
-                throw new AuthenticationException(
-                    __('auth.account_blocked'),
-                    $guards
-                );
+            if (!$isApiRequest) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                return redirect()->route('login')->with('error', __('auth.account_blocked'));
             }
-
-            return redirect()->route('login')->with('error', __('auth.account_blocked'));
+            
+            throw new AuthenticationException(
+                __('auth.account_blocked'),
+                $guards
+            );
         }
 
         // Check if user is a vendor (has vendor relationship via user_id, not vendor_id)
         // and if the vendor is inactive, logout the user
-        if ($user && !$user->vendor_id) {
+        // Only check for web users, not API customers
+        if (!$isApiRequest && $user && !$user->vendor_id) {
             $vendor = $user->vendorByUser;
             if ($vendor && !$vendor->active) {
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
-
-                if ($request->expectsJson()) {
-                    throw new AuthenticationException(
-                        __('auth.vendor_not_activated'),
-                        $guards
-                    );
-                }
 
                 return redirect()->route('login')->with('error', __('auth.vendor_not_activated'));
             }

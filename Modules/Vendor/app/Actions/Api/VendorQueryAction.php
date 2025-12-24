@@ -18,6 +18,8 @@ class VendorQueryAction
             ->withCount(['vendorProducts' => function($q) {
                 $q->status('approved')->active();
             }])
+            ->withCount('reviews')
+            ->withAvg('reviews', 'star')
             ->active()
             ;
 
@@ -62,8 +64,7 @@ class VendorQueryAction
                 );
                 break;
             case 'rating':
-                // $query->withAvg('reviews', 'rating')
-                //     ->orderBy('reviews_avg_rating', $sortType);
+                $query->orderBy('reviews_avg_star', $sortType);
                 break;
             default:
                 $query->orderBy('created_at', $sortType);

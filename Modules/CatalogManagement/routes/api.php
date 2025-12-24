@@ -41,7 +41,7 @@ Route::get('{reviewableType}/{reviewableId}/reviews', [ReviewApiController::clas
 
 // Review Routes (authenticated)
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::post('/{reviewableType}/{reviewableId}/reviews', [ReviewApiController::class, 'store']);
+    // Route::post('/{reviewableType}/{reviewableId}/reviews', [ReviewApiController::class, 'store']);
     Route::get('/reviews/my-reviews', [ReviewApiController::class, 'getCustomerReviews']);
 });
 

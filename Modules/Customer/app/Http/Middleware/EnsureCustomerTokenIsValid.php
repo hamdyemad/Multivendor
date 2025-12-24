@@ -68,8 +68,8 @@ class EnsureCustomerTokenIsValid
             );
         }
 
-        // Set the authenticated user
-        auth('sanctum')->setUser($customer);
+        // Set the authenticated user using the sanctum guard
+        auth()->guard('sanctum')->setUser($customer);
         $request->setUserResolver(function () use ($customer) {
             return $customer;
         });

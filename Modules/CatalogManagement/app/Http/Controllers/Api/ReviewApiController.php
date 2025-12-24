@@ -36,8 +36,9 @@ class ReviewApiController extends Controller
                 404
             );
         }
-
-        $review = $this->reviewService->createReview($data, $reviewableId, $reviewableType);
+        
+        $customerId = $request->user()?->id;
+        $review = $this->reviewService->createReview($data, $reviewableId, $reviewableType, $customerId);
 
         if(!$review)
         {
@@ -67,8 +68,10 @@ class ReviewApiController extends Controller
     {
         $dto = ReviewFilterDTO::fromRequest($request);
         $dto->reviewable_id = $reviewableId;
-        $dto->reviewable_type = $reviewableType == "products" ? VendorProduct::class : "Vendor";
+        // Keep original type for validation
+        $dto->reviewable_type = $reviewableType;
         $dto->status = 'approved';
+        
         if (!$dto->validate()) {
             return $this->sendRes(
                 config('responses.validation')[app()->getLocale()],
@@ -78,6 +81,11 @@ class ReviewApiController extends Controller
                 422
             );
         }
+        
+        // After validation, set the full class name for the query
+        $dto->reviewable_type = $reviewableType == "products" 
+            ? VendorProduct::class 
+            : \Modules\Vendor\app\Models\Vendor::class;
 
         $reviews = $this->reviewService->getReviews($dto);
         return $this->sendRes(
@@ -93,7 +101,7 @@ class ReviewApiController extends Controller
      */
     public function getCustomerReviews(Request $request)
     {
-        $customerId = auth('sanctum')->id();
+        $customerId = $request->user()?->id;
         $dto = ReviewFilterDTO::fromRequest($request);
         $dto->customer_id = $customerId;
 

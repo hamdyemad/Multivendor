@@ -18,9 +18,9 @@ class ReviewService
     /**
      * Create a new review
      */
-    public function createReview(array $data, string $reviewableId, string $reviewableType)
+    public function createReview(array $data, string $reviewableId, string $reviewableType, $customerId = null)
     {
-        $data['customer_id'] = auth('sanctum')->id();
+        $data['customer_id'] = $customerId ?? auth()->id();
         $data['status'] = 'pending';
 
         if($reviewableType == 'products')

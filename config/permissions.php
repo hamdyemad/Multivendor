@@ -93,6 +93,22 @@ return [
         ]
     ],
 
+    'Vendor Reviews' => [
+        'name' => ['en' => 'Vendor Reviews', 'ar' => 'تقييمات البائعين'],
+        'icon' => 'uil-star',
+        'type' => 'admin',
+        'sub_modules' => [
+            'Vendor Reviews' => [
+                'name' => ['en' => 'Vendor Reviews', 'ar' => 'تقييمات البائعين'],
+                'permissions' => [
+                    'read' => ['name' => ['en' => 'Read', 'ar' => 'قراءة'], 'key' => 'vendor_reviews.index', 'type' => 'admin'],
+                    'approve' => ['name' => ['en' => 'Approve', 'ar' => 'موافقة'], 'key' => 'vendor_reviews.approve', 'type' => 'admin'],
+                    'reject' => ['name' => ['en' => 'Reject', 'ar' => 'رفض'], 'key' => 'vendor_reviews.reject', 'type' => 'admin'],
+                ]
+            ],
+        ]
+    ],
+
     'Vendor Requests' => [
         'name' => ['en' => 'Vendor Requests', 'ar' => 'طلبات الموردين'],
         'icon' => 'uil-clipboard-notes',

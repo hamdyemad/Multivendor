@@ -150,6 +150,12 @@
             'rejected' => 'rejected',
             'new' => 'new',
         ],
+        'vendor_reviews' => [
+            'title' => 'vendor reviews',
+            'all' => 'all',
+            'accepted' => 'accepted',
+            'rejected' => 'rejected',
+        ],
         'promos' => [
             'title' => 'promos',
         ],

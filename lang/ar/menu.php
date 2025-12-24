@@ -142,6 +142,12 @@
             'rejected' => 'مرفوض',
             'new' => 'جديد',
         ],
+        'vendor_reviews' => [
+            'title' => 'تقييمات البائعين',
+            'all' => 'الكل',
+            'accepted' => 'مقبول',
+            'rejected' => 'مرفوض',
+        ],
         'promos' => [
             'title' => 'الترويجات',
         ],

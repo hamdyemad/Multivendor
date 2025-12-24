@@ -100,16 +100,10 @@
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <span class="badge badge-lg badge-round badge-secondary">
-                                        {{ ($bundle ? $bundle->bundleProducts->sum('limitation_quantity') : collect($products)->sum('limitation_quantity')) ?? 0 }}
-                                    </span>
                                 </td>
                                 @if ($showActions)
                                     <td class="text-center">
-                                        <span class="badge badge-lg badge-round badge-success">
-                                            {{ number_format(($bundle ? $bundle->bundleTotalPrice() : 0) ?? 0, 2) }}
-                                            {{ currency() }}
-                                        </span>
+                                        
                                     </td>
                                 @endif
                             </tr>

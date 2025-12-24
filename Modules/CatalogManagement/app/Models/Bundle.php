@@ -69,7 +69,7 @@ class Bundle extends Model
 
     public function bundleTotalPrice()
     {
-        return $this->bundleProductsPrice() * $this->bundleProductsCount();
+        return $this->bundleProducts()->sum(\DB::raw('min_quantity * price'));
     }
 
     public function bundleProductsCount()

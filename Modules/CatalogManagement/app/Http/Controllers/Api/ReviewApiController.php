@@ -36,10 +36,8 @@ class ReviewApiController extends Controller
                 404
             );
         }
-        
         $customerId = $request->user()?->id;
         $review = $this->reviewService->createReview($data, $reviewableId, $reviewableType, $customerId);
-
         if(!$review)
         {
             $message = $reviewableType == "products" ? config('responses.product_not_found')[app()->getLocale()] : config('responses.vendor_not_found')[app()->getLocale()];
@@ -55,7 +53,7 @@ class ReviewApiController extends Controller
         return $this->sendRes(
             config('responses.review_sent_successfully')[app()->getLocale()],
             true,
-            new ReviewResource($review),
+            [],
             [],
             201
         );

@@ -34,7 +34,6 @@ class ReviewRepository implements ReviewRepositoryInterface
         $query = Review::query()
             ->with(['vendorProduct', 'customer'])
             ->filter($filters);
-        return $query->get();
 
         // Apply sorting
         $sortBy = $dto->sort_by ?? 'created_at';

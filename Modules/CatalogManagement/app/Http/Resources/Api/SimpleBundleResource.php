@@ -27,7 +27,7 @@ class SimpleBundleResource extends JsonResource
                 return new BundleCategoryResource($this->bundleCategory);
             }),
             'bundle_products_count' => $this->bundle_products_count ?? 0,
-            'total_price' => number_format($this->bundleTotalPrice(), 2, '.', '.'),
+            'total_price' => round($this->bundleTotalPrice(), 2),
             // Relationships
             'vendor' => $this->when('vendor', function() {
                 return new LightVendorResource($this->vendor);

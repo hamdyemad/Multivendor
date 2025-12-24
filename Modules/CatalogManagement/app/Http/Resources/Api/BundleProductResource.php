@@ -4,6 +4,7 @@ namespace Modules\CatalogManagement\app\Http\Resources\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Modules\CatalogManagement\app\Models\VendorProduct;
 
 class BundleProductResource extends JsonResource
 {
@@ -12,6 +13,15 @@ class BundleProductResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        // Load the vendor product with its relations if variant is loaded
+        $vendorProduct = null;
+        if ($this->vendorProductVariant) {
+            $vendorProduct = VendorProduct::with(['product.mainImage', 'product.brand', 'product.department', 'product.category', 'product.subCategory', 'vendor', 'tax'])
+                ->withCount('reviews')
+                ->withAvg('reviews', 'star')
+                ->find($this->vendorProductVariant->vendor_product_id);
+        }
+
         return [
             'id' => $this->id,
             'bundle_id' => $this->bundle_id,
@@ -27,7 +37,7 @@ class BundleProductResource extends JsonResource
             // Vendor Product Variant Details
             'vendor_product_variant' => $this->whenLoaded('vendorProductVariant', function() {
                 return new VendorProductVariantResource($this->vendorProductVariant);
-            })
+            }),
         ];
     }
 }

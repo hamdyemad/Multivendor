@@ -28,7 +28,7 @@ class CartResource extends JsonResource
             'occasion' => ($this->occasion && $this->type === "occasion") ? new OccasionResource($this->occasion) : null,
             'limitation' => $limit[0],
             'min' => $limit[1],
-            'price' => $this->price(),
+            'price' => round($this->price(), 2),
             'taxes' => TaxResource::make($this->vendorProduct->tax),
         ];
     }

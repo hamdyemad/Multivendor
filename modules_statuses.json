@@ -9,5 +9,5 @@
     "Withdraw": true,
     "Customer": true,
     "Promocodes": true,
-    "Report": false
+    "Report": true
 }

@@ -768,4 +768,42 @@ return [
         ]
     ],
 
+    'Reports' => [
+        'name' => ['en' => 'Reports', 'ar' => 'التقارير'],
+        'icon' => 'uil-chart-line',
+        'type' => 'admin',
+        'sub_modules' => [
+            'Registered Users' => [
+                'name' => ['en' => 'Registered Users', 'ar' => 'المستخدمين المسجلين'],
+                'permissions' => [
+                    'view' => ['name' => ['en' => 'View Registered Users Report', 'ar' => 'عرض تقرير المستخدمين المسجلين'], 'key' => 'reports.registered_users.view', 'type' => 'admin'],
+                ]
+            ],
+            'Area Users' => [
+                'name' => ['en' => 'Area Users', 'ar' => 'مستخدمي المناطق'],
+                'permissions' => [
+                    'view' => ['name' => ['en' => 'View Area Users Report', 'ar' => 'عرض تقرير مستخدمي المناطق'], 'key' => 'reports.area_users.view', 'type' => 'admin'],
+                ]
+            ],
+            'Orders Report' => [
+                'name' => ['en' => 'Orders Report', 'ar' => 'تقرير الطلبات'],
+                'permissions' => [
+                    'view' => ['name' => ['en' => 'View Orders Report', 'ar' => 'عرض تقرير الطلبات'], 'key' => 'reports.orders.view', 'type' => 'admin'],
+                ]
+            ],
+            'Products Report' => [
+                'name' => ['en' => 'Products Report', 'ar' => 'تقرير المنتجات'],
+                'permissions' => [
+                    'view' => ['name' => ['en' => 'View Products Report', 'ar' => 'عرض تقرير المنتجات'], 'key' => 'reports.products.view', 'type' => 'admin'],
+                ]
+            ],
+            'Points Report' => [
+                'name' => ['en' => 'Points Report', 'ar' => 'تقرير النقاط'],
+                'permissions' => [
+                    'view' => ['name' => ['en' => 'View Points Report', 'ar' => 'عرض تقرير النقاط'], 'key' => 'reports.points.view', 'type' => 'admin'],
+                ]
+            ],
+        ]
+    ],
+
 ];

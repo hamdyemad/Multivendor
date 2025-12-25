@@ -466,6 +466,39 @@ class OrderController extends Controller
     public function changeStage($lang, $countryCode, $id, ChangeOrderStageRequest $request)
     {
         try {
+            // Get the order with current stage
+            $order = $this->orderService->getOrderById($id);
+            if (!$order) {
+                return response()->json([
+                    'status' => false,
+                    'message' => trans('order::order.order_not_found'),
+                ], 404);
+            }
+
+            // Get current stage type
+            $currentStage = OrderStage::withoutGlobalScopes()->find($order->stage_id);
+            $currentStageType = $currentStage ? $currentStage->type : null;
+
+            // Get new stage type
+            $newStage = OrderStage::withoutGlobalScopes()->find($request->stage_id);
+            $newStageType = $newStage ? $newStage->type : null;
+
+            // Validation: Cannot change from final stages (deliver, cancel)
+            if (in_array($currentStageType, ['deliver', 'cancel'])) {
+                return response()->json([
+                    'status' => false,
+                    'message' => trans('order::order.cannot_change_final_stage'),
+                ], 422);
+            }
+
+            // Validation: Cannot go back from in_progress to new
+            if ($currentStageType === 'in_progress' && $newStageType === 'new') {
+                return response()->json([
+                    'status' => false,
+                    'message' => trans('order::order.cannot_go_back_to_new'),
+                ], 422);
+            }
+
             $order = $this->orderService->changeOrderStage($id, $request->stage_id);
 
             return response()->json([

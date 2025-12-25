@@ -12,6 +12,7 @@
                 <div class="modal-body">
                     <input type="hidden" id="orderId" name="order_id" value="{{ $orderId }}">
                     <input type="hidden" id="currentStageId" value="{{ $currentStageId }}">
+                    <input type="hidden" id="currentStageType" value="">
                     <div class="form-group">
                         <label for="newStage" class="form-label">{{ trans('order::order.select_new_stage') }}</label>
                         <select id="newStage" name="stage_id" class="form-select" required>
@@ -34,23 +35,48 @@
         $(document).ready(function() {
             let orderStages = @json($orderStages);
 
-            // Populate stage select dropdown
+            // Populate stage select dropdown with restrictions
             function populateStageSelect() {
                 const newStageSelect = $('#newStage');
                 const currentStageId = $('#currentStageId').val();
+                const currentStageType = $('#currentStageType').val();
                 newStageSelect.find('option:not(:first)').remove();
+
+                // Find current stage to get its type
+                const currentStage = orderStages.find(s => s.id == currentStageId);
+                const currentType = currentStageType || (currentStage ? currentStage.type : null);
 
                 orderStages.forEach(stage => {
                     const stageName = stage.name;
-                    const isSelected = currentStageId && stage.id == currentStageId ? 'selected' : '';
-                    newStageSelect.append(
-                        `<option value="${stage.id}" ${isSelected}>${stageName}</option>`);
+                    const stageType = stage.type;
+                    
+                    // Apply restrictions based on current stage type
+                    let isDisabled = false;
+                    let disabledReason = '';
+                    
+                    // If current stage is 'in_progress', cannot go back to 'new'
+                    if (currentType === 'in_progress' && stageType === 'new') {
+                        isDisabled = true;
+                        disabledReason = ' ({{ trans("order::order.cannot_go_back") }})';
+                    }
+                    
+                    // If current stage is 'deliver' or 'cancel', cannot change to anything
+                    if (currentType === 'deliver' || currentType === 'cancel') {
+                        isDisabled = true;
+                        disabledReason = ' ({{ trans("order::order.final_stage") }})';
+                    }
+                    
+                    // Skip current stage
+                    if (stage.id == currentStageId) {
+                        return;
+                    }
+                    
+                    if (!isDisabled) {
+                        newStageSelect.append(
+                            `<option value="${stage.id}">${stageName}</option>`
+                        );
+                    }
                 });
-
-                // Set the current stage as selected if available
-                if (currentStageId) {
-                    newStageSelect.val(currentStageId);
-                }
             }
 
             // Handle form submission
@@ -148,8 +174,10 @@
                 if (button.length && button.data('id')) {
                     const orderId = button.data('id');
                     const stageId = button.data('stage-id');
+                    const stageType = button.data('stage-type');
                     $('#orderId').val(orderId);
                     $('#currentStageId').val(stageId);
+                    $('#currentStageType').val(stageType);
                 }
             });
 

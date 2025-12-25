@@ -54,6 +54,9 @@
             'vendors accepted requests' => 'طلبات الموردين المقبولة',
             'vendors rejected requests' => 'طلبات الموردين المرفوضة',
             'vendors new requests' => 'طلبات الموردين الجديدة',
+            'my_new_requests' => 'طلباتي الجديدة',
+            'my_accepted_requests' => 'طلباتي المقبولة',
+            'my_rejected_requests' => 'طلباتي المرفوضة',
         ],
         'products' => [
             'title' => 'المنتجات',

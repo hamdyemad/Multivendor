@@ -44,6 +44,10 @@ return [
     'updating_stage' => 'جاري تحديث المرحلة...',
     'stage_updated_successfully' => 'تم تحديث مرحلة الطلب بنجاح',
     'error_updating_stage' => 'خطأ في تحديث مرحلة الطلب',
+    'cannot_change_final_stage' => 'لا يمكن تغيير المرحلة للطلبات المسلمة أو الملغاة',
+    'cannot_go_back_to_new' => 'لا يمكن تغيير الحالة إلى جديد من قيد التنفيذ',
+    'cannot_go_back' => 'لا يمكن الرجوع',
+    'final_stage' => 'مرحلة نهائية',
 
     // Payment Types
     'cash_on_delivery' => 'الدفع عند الاستلام',

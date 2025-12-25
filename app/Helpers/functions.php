@@ -233,12 +233,12 @@ function roles_reset()
                 $permissions = Permession::whereIn('type', ['admin', 'all'])->get();
                 $role->permessions()->sync($permissions->pluck('id'));
             } else if ($roleData['type'] == 'vendor') {
-                // Vendor gets all permissions with type = 'all'
-                $permissions = Permession::where('type', 'all')->get();
+                // Vendor gets all permissions with type = 'vendor' or 'all'
+                $permissions = Permession::whereIn('type', ['vendor', 'all'])->get();
                 $role->permessions()->sync($permissions->pluck('id'));
             } else if ($roleData['type'] == 'vendor_user') {
-                // Vendor User gets all permissions with type = 'all'
-                $permissions = Permession::where('type', 'all')->get();
+                // Vendor User gets all permissions with type = 'vendor' or 'all'
+                $permissions = Permession::whereIn('type', ['vendor', 'all'])->get();
                 $role->permessions()->sync($permissions->pluck('id'));
             }
         }

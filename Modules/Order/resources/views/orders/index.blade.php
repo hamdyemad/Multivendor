@@ -589,6 +589,7 @@
                                         data-bs-target="#changeStageModal"
                                         data-id="${row.id}"
                                         data-stage-id="${row.stage?.id || ''}"
+                                        data-stage-type="${row.stage?.type || ''}"
                                         title="{{ trans('order::order.change_order_stage') }}">
                                             <i class="uil uil-exchange-alt table_action_icon"></i>
                                         </button>

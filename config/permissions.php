@@ -460,8 +460,8 @@ return [
                 'permissions' => [
                     'read' => ['name' => ['en' => 'Read', 'ar' => 'قراءة'], 'key' => 'orders.index', 'type' => 'all'],
                     'create' => ['name' => ['en' => 'Create', 'ar' => 'إنشاء'], 'key' => 'orders.create', 'type' => 'all'],
-                    'edit' => ['name' => ['en' => 'Edit', 'ar' => 'تعديل'], 'key' => 'orders.edit', 'type' => 'all'],
-                    'delete' => ['name' => ['en' => 'Delete', 'ar' => 'حذف'], 'key' => 'orders.delete', 'type' => 'all'],
+                    'edit' => ['name' => ['en' => 'Edit', 'ar' => 'تعديل'], 'key' => 'orders.edit', 'type' => 'admin'],
+                    'delete' => ['name' => ['en' => 'Delete', 'ar' => 'حذف'], 'key' => 'orders.delete', 'type' => 'admin'],
                     'show' => ['name' => ['en' => 'View', 'ar' => 'عرض'], 'key' => 'orders.show', 'type' => 'all'],
                     'stage' => ['name' => ['en' => 'Change Stage', 'ar' => 'تغيير المرحلة'], 'key' => 'orders.change-stage', 'type' => 'admin'],
                 ]
@@ -580,8 +580,8 @@ return [
             'Vendor Transactions' => [
                 'name' => ['en' => 'Vendor Transactions', 'ar' => 'معاملات المورد'],
                 'permissions' => [
-                    'view' => ['name' => ['en' => 'View My Transactions', 'ar' => 'عرض معاملاتي'], 'key' => 'withdraw.my_transactions.view', 'type' => 'all'],
-                    'request' => ['name' => ['en' => 'Send Withdraw Request', 'ar' => 'إرسال طلب سحب'], 'key' => 'withdraw.request.create', 'type' => 'all'],
+                    'view' => ['name' => ['en' => 'View My Transactions', 'ar' => 'عرض معاملاتي'], 'key' => 'withdraw.my_transactions.view', 'type' => 'vendor'],
+                    'request' => ['name' => ['en' => 'Send Withdraw Request', 'ar' => 'إرسال طلب سحب'], 'key' => 'withdraw.request.create', 'type' => 'vendor'],
                 ]
             ],
             'Vendor Requests' => [

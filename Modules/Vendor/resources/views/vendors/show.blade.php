@@ -605,21 +605,21 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
-                                            {{-- Total Order Products --}}
-                                            <div class="col-md-3 mb-3">
+                                            {{-- Total Orders --}}
+                                            <div class="col-md-4 mb-3">
                                                 <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #5b69ff15 0%, #5b69ff05 100%);">
                                                     <div class="card-body text-center py-4">
                                                         <div class="mb-2">
                                                             <i class="uil uil-shopping-cart fs-1" style="color: #5b69ff;"></i>
                                                         </div>
                                                         <h3 class="mb-1 fw-bold" style="color: #5b69ff;">{{ $orderStats['total_order_products'] ?? 0 }}</h3>
-                                                        <p class="mb-0 text-muted small">{{ trans('vendor::vendor.total_order_products') }}</p>
+                                                        <p class="mb-0 text-muted small">{{ trans('vendor::vendor.total_orders') }}</p>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             {{-- Total Revenue --}}
-                                            <div class="col-md-3 mb-3">
+                                            <div class="col-md-4 mb-3">
                                                 <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #20c99715 0%, #20c99705 100%);">
                                                     <div class="card-body text-center py-4">
                                                         <div class="mb-2">
@@ -631,21 +631,8 @@
                                                 </div>
                                             </div>
 
-                                            {{-- Total Quantity Sold --}}
-                                            <div class="col-md-3 mb-3">
-                                                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #17a2b815 0%, #17a2b805 100%);">
-                                                    <div class="card-body text-center py-4">
-                                                        <div class="mb-2">
-                                                            <i class="uil uil-package fs-1" style="color: #17a2b8;"></i>
-                                                        </div>
-                                                        <h3 class="mb-1 fw-bold" style="color: #17a2b8;">{{ $orderStats['total_quantity_sold'] ?? 0 }}</h3>
-                                                        <p class="mb-0 text-muted small">{{ trans('vendor::vendor.total_quantity_sold') }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
                                             {{-- Total Products --}}
-                                            <div class="col-md-3 mb-3">
+                                            <div class="col-md-4 mb-3">
                                                 <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #6f42c115 0%, #6f42c105 100%);">
                                                     <div class="card-body text-center py-4">
                                                         <div class="mb-2">
@@ -657,44 +644,22 @@
                                                 </div>
                                             </div>
 
-                                            {{-- Delivered Order Products --}}
-                                            <div class="col-md-4 mb-3">
-                                                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #28a74515 0%, #28a74505 100%);">
-                                                    <div class="card-body text-center py-4">
-                                                        <div class="mb-2">
-                                                            <i class="uil uil-check-circle fs-1" style="color: #28a745;"></i>
+                                            {{-- Dynamic Stage Cards --}}
+                                            @if(isset($orderStats['stages']) && count($orderStats['stages']) > 0)
+                                                @foreach($orderStats['stages'] as $stageId => $stage)
+                                                    <div class="col-md-3 mb-3">
+                                                        <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, {{ $stage['color'] }}15 0%, {{ $stage['color'] }}05 100%);">
+                                                            <div class="card-body text-center py-4">
+                                                                <div class="mb-2">
+                                                                    <i class="uil {{ $stage['icon'] }} fs-1" style="color: {{ $stage['color'] }};"></i>
+                                                                </div>
+                                                                <h3 class="mb-1 fw-bold" style="color: {{ $stage['color'] }};">{{ $stage['count'] }}</h3>
+                                                                <p class="mb-0 text-muted small">{{ $stage['name'] }}</p>
+                                                            </div>
                                                         </div>
-                                                        <h3 class="mb-1 fw-bold" style="color: #28a745;">{{ $orderStats['delivered_order_products'] ?? 0 }}</h3>
-                                                        <p class="mb-0 text-muted small">{{ trans('vendor::vendor.delivered_orders') }}</p>
                                                     </div>
-                                                </div>
-                                            </div>
-
-                                            {{-- Pending Order Products --}}
-                                            <div class="col-md-4 mb-3">
-                                                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #ffc10715 0%, #ffc10705 100%);">
-                                                    <div class="card-body text-center py-4">
-                                                        <div class="mb-2">
-                                                            <i class="uil uil-clock fs-1" style="color: #ffc107;"></i>
-                                                        </div>
-                                                        <h3 class="mb-1 fw-bold" style="color: #ffc107;">{{ $orderStats['pending_order_products'] ?? 0 }}</h3>
-                                                        <p class="mb-0 text-muted small">{{ trans('vendor::vendor.pending_orders') }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {{-- Cancelled Order Products --}}
-                                            <div class="col-md-4 mb-3">
-                                                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #dc354515 0%, #dc354505 100%);">
-                                                    <div class="card-body text-center py-4">
-                                                        <div class="mb-2">
-                                                            <i class="uil uil-times-circle fs-1" style="color: #dc3545;"></i>
-                                                        </div>
-                                                        <h3 class="mb-1 fw-bold" style="color: #dc3545;">{{ $orderStats['cancelled_order_products'] ?? 0 }}</h3>
-                                                        <p class="mb-0 text-muted small">{{ trans('vendor::vendor.cancelled_orders') }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                                @endforeach
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -775,7 +740,7 @@
                                                                 <td>
                                                                     <div class="userDatatable-content">
                                                                         @php
-                                                                            $orderStage = $orderProduct->order ? \Modules\Order\app\Models\OrderStage::withoutGlobalScopes()->find($orderProduct->order->order_stage_id) : null;
+                                                                            $orderStage = $orderProduct->order ? \Modules\Order\app\Models\OrderStage::withoutGlobalScopes()->find($orderProduct->order->stage_id) : null;
                                                                         @endphp
                                                                         @if($orderStage)
                                                                             <span class="badge badge-round badge-lg" style="background-color: {{ $orderStage->color ?? '#6c757d' }}; color: #fff;">

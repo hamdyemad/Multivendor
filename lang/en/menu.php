@@ -54,6 +54,9 @@
             'vendors accepted requests' => 'vendors accepted requests',
             'vendors rejected requests' => 'vendors rejected requests',
             'vendors new requests' => 'vendors new requests',
+            'my_new_requests' => 'my new requests',
+            'my_accepted_requests' => 'my accepted requests',
+            'my_rejected_requests' => 'my rejected requests',
         ],
         'withdrawl module' => [
             'title' => 'withdrawl module',

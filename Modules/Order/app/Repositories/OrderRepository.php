@@ -40,6 +40,7 @@ class OrderRepository implements OrderRepositoryInterface
             'products.vendorProduct.product.category',
             'products.vendorProduct.product.mainImage',
             'products.vendorProduct.vendor',
+            'products.vendorProduct.tax',
             'products.vendorProductVariant.variantConfiguration.key', 
             'products.taxes',
             'extraFeesDiscounts'

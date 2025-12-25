@@ -18,12 +18,12 @@
         // For vendor: calculate their own totals
         if ($vendor) {
             $totalNeeded = $vendor->total_balance;
-            $totalSentMoney = $vendor->total_sent_money;
+            $totalSentMoney = $vendor->total_sent;
             $totalRemaining = $vendor->total_remaining;
         } else {
             $vendor = \Modules\Vendor\app\Models\Vendor::where('user_id', auth()->user()->vendor_id)->first();
             $totalNeeded = $vendor->total_balance ?? 0;
-            $totalSentMoney = $vendor->total_sent_money ?? 0;
+            $totalSentMoney = $vendor->total_sent ?? 0;
             $totalRemaining = $vendor->total_remaining ?? 0;
         }
     }

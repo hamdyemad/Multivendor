@@ -78,9 +78,13 @@ class RoleRepository implements RoleRepositoryInterface
         $query = Permession::query();
         $user = auth()->user();
 
-        // If user is a vendor or vendor user, only show permissions with type 'all'
+        // Filter permissions based on user type and role type being created/edited
         if (isVendor()) {
-            $query->where('type', 'all');
+            // Vendor users see permissions with type 'vendor' or 'all'
+            $query->whereIn('type', ['vendor', 'all']);
+        } elseif (isAdmin()) {
+            // Admin users see permissions with type 'admin' or 'all'
+            $query->whereIn('type', ['admin', 'all']);
         } elseif ($type == 'vendor_user') {
             $query->whereIn('type', ['vendor', 'all']);
         }

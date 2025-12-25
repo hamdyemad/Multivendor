@@ -31,7 +31,7 @@
         // For vendor: calculate their own totals
         if ($vendor) {
             $totalNeeded = $vendor->total_balance;
-            $totalSentMoney = $vendor->total_sent_money;
+            $totalSentMoney = $vendor->total_sent;
             $totalRemaining = $vendor->total_remaining;
         }
     }

@@ -44,6 +44,10 @@ return [
     'updating_stage' => 'Updating stage...',
     'stage_updated_successfully' => 'Order stage updated successfully',
     'error_updating_stage' => 'Error updating order stage',
+    'cannot_change_final_stage' => 'Cannot change stage for delivered or cancelled orders',
+    'cannot_go_back_to_new' => 'Cannot change status back to new from in progress',
+    'cannot_go_back' => 'Cannot go back',
+    'final_stage' => 'Final stage',
 
     // Payment Types
     'cash_on_delivery' => 'Cash on Delivery',

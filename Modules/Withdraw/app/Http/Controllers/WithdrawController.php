@@ -429,24 +429,16 @@ class WithdrawController extends Controller
                 ->with('error', "No admin user found to receive the request!");
         }
 
-        $total_vendor_balance = $vendor->total_balance;
-
-        $last_withdraw = Withdraw::where(function ($q) use ($vendor_id) {
-           $q->where('reciever_id', $vendor_id);
-        })
-            ->where('status', 'accepted')
-            ->latest()
-            ->first();
-
-        $final_last_before_sending_money = $last_withdraw ? $last_withdraw->after_sending_amount : $total_vendor_balance;
+        // Use the current remaining balance (total_balance - total_sent) as before_sending_money
+        $before_sending_money = $remaining;
+        $after_sending_money = $remaining - $data["sent_amount"];
 
         Withdraw::create([
             "request_from" => "vendor",
-            // "sender_id" => $user_id,
             "reciever_id" => $vendor_id,
-            "before_sending_money" => $final_last_before_sending_money,
+            "before_sending_money" => $before_sending_money,
             "sent_amount" => $data["sent_amount"],
-            "after_sending_amount" => $final_last_before_sending_money - $data["sent_amount"],
+            "after_sending_amount" => $after_sending_money,
             "status" => "new"
         ]);
 

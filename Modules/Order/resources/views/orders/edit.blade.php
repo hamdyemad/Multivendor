@@ -575,7 +575,8 @@
                                 $productName = $orderProduct->vendorProduct?->product?->getTranslation('title', app()->getLocale()) ?? 'N/A';
                                 $variantName = $orderProduct->vendorProductVariant?->variantConfiguration?->getTranslation('name', app()->getLocale()) ?? '';
                                 $fullName = $variantName ? $productName . ' - ' . $variantName : $productName;
-                                $taxRate = $orderProduct->taxes?->percentage ?? 0;
+                                // Get tax rate from the product's tax, not from order product tax
+                                $taxRate = $orderProduct->vendorProduct?->tax?->tax_rate ?? 0;
                                 $categoryId = $orderProduct->vendorProduct?->product?->category_id ?? null;
                                 $categoryName = $orderProduct->vendorProduct?->product?->category?->getTranslation('name', app()->getLocale()) ?? '';
                                 $price = $orderProduct->price ?? 0;

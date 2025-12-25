@@ -40,7 +40,7 @@
 
         .auth-image {
             flex: 1;
-            background: url('{{ asset("assets/img/electrical.avif') }}") center center/cover no-repeat;
+            background: url("{{ asset('assets/img/electrical.avif') }}") center center/cover no-repeat;
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
@@ -110,6 +110,7 @@
             transform: translateY(-50%);
             color: #aaa;
             font-size: 18px;
+            z-index: 20;
         }
 
         .position-relative {
@@ -172,13 +173,25 @@
                     </div>
                 @endif
 
-                <form action="{{ route('forgetPassword.reset-store', $user) }}" method="POST">
+                @if (session('success'))
+                    <div class="alert alert-success text-center mb-3">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="alert alert-danger text-center mb-3">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                <form action="{{ route('forgetPassword.reset-store', $user) }}" method="POST" autocomplete="off">
                     @csrf
                     <div class="mb-3">
                         <div class="position-relative">
                             <i class="uil uil-key-skeleton input-icon"></i>
                             <input type="text" class="form-control" id="reset_code" name="reset_code"
-                                value="{{ old('reset_code') }}" placeholder="Reset Code">
+                                value="{{ old('reset_code') }}" placeholder="Reset Code" autocomplete="off">
                         </div>
                         @error('reset_code')
                             <p class="text-danger small mt-1">{{ $message }}</p>
@@ -189,7 +202,7 @@
                         <div class="position-relative">
                             <i class="uil uil-lock-alt input-icon"></i>
                             <input type="password" class="form-control" id="password" name="password"
-                                placeholder="New Password">
+                                placeholder="New Password" autocomplete="new-password">
                         </div>
                         @error('password')
                             <p class="text-danger small mt-1">{{ $message }}</p>
@@ -200,7 +213,7 @@
                         <div class="position-relative">
                             <i class="uil uil-lock-alt input-icon"></i>
                             <input type="password" class="form-control" id="password_confirmation"
-                                name="password_confirmation" placeholder="Confirm Password">
+                                name="password_confirmation" placeholder="Confirm Password" autocomplete="new-password">
                         </div>
                         @error('password_confirmation')
                             <p class="text-danger small mt-1">{{ $message }}</p>

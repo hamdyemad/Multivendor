@@ -78,8 +78,9 @@ class AuthController extends Controller {
     public function forgetPassword(ForgetPasswordRequest $request){
         $res = $this->userService->forgetPassword($request);
         if(isset($res) && $res['status']) {
-            return redirect(route('forgetPassword.reset', ['user' => $res['data']['uuid']]))->with('success', $res['message']);
+            return redirect()->route('forgetPassword.reset', ['user' => $res['data']['uuid']])->with('success', $res['message']);
         }
+        return redirect()->back()->with('message', $res['message'] ?? __('auth.something_went_wrong'));
     }
 
     /**
@@ -104,12 +105,13 @@ class AuthController extends Controller {
     public function resetPassword(ResetPasswordRequest $request, $uuid){
         $res = $this->userService->resetPassword($request, $uuid);
         if(isset($res)) {
-            if(isset($res) && $res['status']) {
-                return redirect(route('login'))->with('success', $res['message']);
+            if($res['status']) {
+                return redirect()->route('login')->with('success', $res['message']);
             } else {
-                return redirect(back())->with('error', $res['message']);
+                return redirect()->back()->with('message', $res['message']);
             }
         }
+        return redirect()->back()->with('message', __('auth.something_went_wrong'));
     }
 
     public function previewFunc($path) {

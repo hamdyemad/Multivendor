@@ -105,7 +105,7 @@
 
     <style>
         .primary{
-            background: #8231D3;
+            background: #0056B7;
         }
         .bg_white{
             background: #ffffff;
@@ -130,7 +130,7 @@
         }
         .btn.btn-primary{
             border-radius: 5px;
-            background: #8231D3;
+            background: #0056B7;
             color: #ffffff;
         }
         .btn.btn-white{
@@ -172,7 +172,7 @@
         }
 
         a{
-            color: #8231D3;
+            color: #0056B7;
         }
 
         table{
@@ -183,7 +183,7 @@
             margin: 0;
         }
         .logo h1 a{
-            color: #8231D3;
+            color: #0056B7;
             font-size: 24px;
             font-weight: 700;
             font-family: 'Work Sans', sans-serif;
@@ -319,7 +319,7 @@
                                             <p style="color: #000; font-size: 14px; font-weight: 600; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">
                                                 Email Address
                                             </p>
-                                            <p style="color: #8231D3; font-size: 18px; font-weight: 600; margin-bottom: 30px; padding: 15px; background-color: #f8fafc; border-radius: 8px; border-left: 4px solid #8231D3;">
+                                            <p style="color: #0056B7; font-size: 18px; font-weight: 600; margin-bottom: 30px; padding: 15px; background-color: #f8fafc; border-radius: 8px; border-left: 4px solid #0056B7;">
                                                 @if (isset($data))
                                                     {{ $data['email'] }}
                                                 @endif
@@ -332,7 +332,7 @@
                                             <p style="color: #000; font-size: 14px; font-weight: 600; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">
                                                 Verification Code
                                             </p>
-                                                <div style="background: linear-gradient(135deg, #6366f1 0%, #8231D3 100%); padding: 20px; border-radius: 12px; margin: 20px 0;">
+                                                <div style="background: linear-gradient(135deg, #6366f1 0%, #0056B7 100%); padding: 20px; border-radius: 12px; margin: 20px 0;">
                                                     <p style="color: #ffffff; font-size: 32px; font-weight: 700; margin: 0; letter-spacing: 8px; font-family: 'Courier New', monospace;">
                                                         {{ $data['code'] }}
                                                     </p>
@@ -356,7 +356,7 @@
                                             <p style="color: rgba(0,0,0,.4); font-size: 14px; line-height: 1.6;">
                                                 If you're having trouble with the verification code, you can also click the button above or copy and paste this link into your browser:
                                             </p>
-                                            <p style="color: #8231D3; font-size: 14px; word-break: break-all; margin: 15px 0;">
+                                            <p style="color: #0056B7; font-size: 14px; word-break: break-all; margin: 15px 0;">
                                                 {{ $data['verfication_link'] }}
                                             </p>
                                         </div> --}}

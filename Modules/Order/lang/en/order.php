@@ -222,4 +222,12 @@ return [
     // Stock validation
     'out_of_stock' => 'Out of Stock',
     'product_out_of_stock_message' => 'This product is out of stock. Please restock it before adding to the order.',
+
+    // Payment API
+    'payment_created' => 'Payment created successfully',
+    'payment_successful' => 'Payment successful',
+    'payment_not_found' => 'Payment not found',
+    'payment_type_not_online' => 'Order payment type is not online',
+    'order_status_not_new' => 'Your order status is not new',
+    'order_already_paid' => 'This order has already been paid',
 ];

@@ -222,4 +222,12 @@ return [
     // Stock validation
     'out_of_stock' => 'نفذ من المخزون',
     'product_out_of_stock_message' => 'هذا المنتج غير متوفر في المخزون. يرجى إعادة تخزينه قبل إضافته إلى الطلب.',
+
+    // Payment API
+    'payment_created' => 'تم إنشاء الدفع بنجاح',
+    'payment_successful' => 'تم الدفع بنجاح',
+    'payment_not_found' => 'لم يتم العثور على الدفع',
+    'payment_type_not_online' => 'نوع دفع الطلب ليس أونلاين',
+    'order_status_not_new' => 'حالة طلبك ليست جديدة',
+    'order_already_paid' => 'تم دفع هذا الطلب بالفعل',
 ];

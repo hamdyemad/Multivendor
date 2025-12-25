@@ -188,6 +188,79 @@ class PaymobService
     }
 
     /**
+     * Find payment by Paymob order ID
+     */
+    public function findPaymentByPaymobOrderId(string $paymobOrderId): ?Payment
+    {
+        return Payment::where('paymob_order_id', $paymobOrderId)
+            ->latest()
+            ->first();
+    }
+
+    /**
+     * Get payment status info
+     */
+    public function getPaymentStatusInfo(Payment $payment): array
+    {
+        $statusMessage = match ($payment->status) {
+            Payment::STATUS_PAID => 'payment_success',
+            Payment::STATUS_FAILED => 'payment_failed',
+            Payment::STATUS_PENDING => 'payment_pending',
+            default => 'payment_unknown',
+        };
+
+        return [
+            'message' => $statusMessage,
+            'order_id' => $payment->order_id,
+            'status' => $payment->status,
+            'amount' => $payment->amount,
+        ];
+    }
+
+    /**
+     * Process callback data and return result
+     */
+    public function processCallback(array $data): array
+    {
+        $transactionId = $data['obj']['id'] ?? $data['id'] ?? null;
+
+        if (!$transactionId) {
+            throw new Exception('Invalid callback data: missing transaction ID');
+        }
+
+        $transaction = $this->retrieveTransaction($transactionId);
+
+        if (!$transaction) {
+            throw new Exception('Transaction not found');
+        }
+
+        $success = $transaction['success'] ?? false;
+        $paymobOrderId = $transaction['order']['id'] ?? null;
+
+        $payment = $this->findPaymentByPaymobOrderId($paymobOrderId);
+
+        if (!$payment) {
+            throw new Exception('Payment not found');
+        }
+
+        if ($success) {
+            $this->handlePaymentSuccess($payment, $transactionId);
+            return [
+                'success' => true,
+                'order_id' => $payment->order_id,
+                'status' => 'success',
+            ];
+        } else {
+            $this->handlePaymentFailure($payment);
+            return [
+                'success' => false,
+                'order_id' => $payment->order_id,
+                'status' => 'failed',
+            ];
+        }
+    }
+
+    /**
      * Verify HMAC signature from webhook
      */
     public function verifyHmac(array $data, string $receivedHmac): bool

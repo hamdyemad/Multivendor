@@ -1016,10 +1016,20 @@
             // Initialize Stock Bookings tables
             $('.stock-bookings-table').each(function() {
                 // Only initialize if table has thead and tbody with proper structure
+                // Skip tables with colspan cells (empty state rows)
                 var $table = $(this);
-                var hasProperStructure = $table.find('thead tr th').length > 0 && 
-                                         $table.find('tbody tr').length > 0 &&
-                                         $table.find('tbody tr td').length > 0;
+                var $tbody = $table.find('tbody');
+                var $rows = $tbody.find('tr');
+                var headerCount = $table.find('thead tr th').length;
+                
+                // Check if table has proper structure:
+                // 1. Has header columns
+                // 2. Has at least one row
+                // 3. First row has same number of cells as headers (no colspan)
+                var hasProperStructure = headerCount > 0 && 
+                                         $rows.length > 0 &&
+                                         $rows.first().find('td').length === headerCount &&
+                                         $rows.first().find('td[colspan]').length === 0;
                 
                 if (hasProperStructure && !$.fn.DataTable.isDataTable(this)) {
                     $(this).DataTable({

@@ -30,9 +30,11 @@ class OrderResource extends JsonResource
             'total_fees' => (float) $this->total_fees,
             'total_discounts' => (float) $this->total_discounts,
             'shipping' => (float) $this->shipping,
+            'points_used' => (float) ($this->points_used ?? 0),
+            'points_cost' => (float) ($this->points_cost ?? 0),
             'total_price' => (float) $this->total_price,
             'promo_code' => $this->customer_promo_code_title,
-            'promo_discount' => $this->customer_promo_code_amount ? (float) $this->customer_promo_code_amount : null,
+            'promo_discount' => $this->customer_promo_code_amount ? (float) $this->customer_promo_code_amount : 0,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

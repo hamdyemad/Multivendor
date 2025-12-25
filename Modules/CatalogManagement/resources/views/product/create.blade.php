@@ -217,8 +217,7 @@
                                                         class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                         placeholder="{{ __('catalogmanagement::product.sku') }}"
                                                         value="{{ isset($product) ? $product->sku : '' }}">
-                                                    <div class="error-message text-danger" id="error-sku"
-                                                        style="display: none;"></div>
+                                                    <div class="invalid-feedback" id="error-sku"></div>
                                                 </div>
                                             </div>
 
@@ -2973,7 +2972,7 @@
 
                                 // Remove previous validation errors
                                 $('.is-invalid').removeClass('is-invalid');
-                                $('.invalid-feedback').remove();
+                                $('.invalid-feedback').hide().text('');
                                 $('.error-message').hide().text('');
 
                                 // Handle validation errors
@@ -2988,11 +2987,12 @@
                                         const $errorElement = $(
                                             `#error-${key.replace(/\./g, '-')}`);
                                         if ($errorElement.length) {
-                                            $errorElement.text(errorMessage).show();
+                                            $errorElement.text(errorMessage).css('display', 'block');
                                         }
 
-                                        // Add invalid class
-                                        $(`[name="${key}"]`).addClass('is-invalid');
+                                        // Add invalid class to input
+                                        const $input = $(`[name="${key}"]`);
+                                        $input.addClass('is-invalid');
 
                                         // Also show toastr notification
                                         if (typeof toastr !== 'undefined') {

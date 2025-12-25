@@ -31,6 +31,7 @@ return [
     'search_order_id_or_customer' => 'Search by order ID or customer...',
     'all_stages' => 'All Stages',
     'all_vendors' => 'All Vendors',
+    'all_types' => 'All Types',
     'created_from' => 'Created From',
     'created_until' => 'Created Until',
 
@@ -47,6 +48,23 @@ return [
     // Payment Types
     'cash_on_delivery' => 'Cash on Delivery',
     'online_payment' => 'Online Payment',
+    'online' => 'Online',
+    'cod' => 'COD',
+    'order_type' => 'Order Type',
+    'payment_success' => 'Paid',
+    'payment_pending' => 'Payment Pending',
+    'payment_failed' => 'Payment Failed',
+    'payment_refunded' => 'Refunded',
+    'payment_status' => 'Payment Status',
+    'payment_transactions' => 'Payment Transactions',
+    'view_payments' => 'View Payments',
+    'back_to_order' => 'Back to Order',
+    'transactions_count' => 'Transactions Count',
+    'paymob_order_id' => 'Paymob Order ID',
+    'transaction_id' => 'Transaction ID',
+    'payment_method' => 'Payment Method',
+    'no_transactions_found' => 'No payment transactions found for this order',
+    'status' => 'Status',
 
     // Order From
     'web' => 'Web',
@@ -69,6 +87,7 @@ return [
     'error_loading_order' => 'Error loading order',
     'cannot_edit_order' => 'You cannot edit this order because it contains products from other vendors',
     'cannot_delete_order' => 'You cannot delete this order because it contains products from other vendors',
+    'cannot_delete_allocated_order' => 'You cannot delete this order because it has allocated stock',
 
     // Validation Messages
     'order_id_required' => 'Order ID is required',

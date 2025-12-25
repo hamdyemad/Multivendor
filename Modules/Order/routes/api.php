@@ -7,6 +7,8 @@ use Modules\Order\app\Http\Controllers\Api\OrderApiController;
 use Modules\Order\app\Http\Controllers\Api\OrderStageApiController;
 use Modules\Order\app\Http\Controllers\Api\ShippingCalculationController;
 use Modules\Order\app\Http\Controllers\Api\RequestQuotationApiController;
+use Modules\Order\app\Http\Controllers\Api\PaymobController;
+use Modules\Order\app\Http\Controllers\Api\PaymobWebhookController;
 
 // Public API routes (no authentication required)
 Route::prefix('order-stages')->group(function () {
@@ -21,6 +23,14 @@ Route::prefix('orders')->group(function () {
 
 // Request Quotation API (public - no auth required)
 Route::post('/request-quotations', [RequestQuotationApiController::class, 'store'])->name('request-quotations.store');
+
+// Paymob Payment Routes (public - no auth required for webhooks/callbacks)
+Route::prefix('paymob')->group(function () {
+    Route::post('/create', [PaymobController::class, 'createPayment'])->name('paymob.create');
+    Route::match(['get', 'post'], '/webhook', [PaymobWebhookController::class, 'handle'])->name('paymob.webhook');
+    Route::match(['get', 'post'], '/callback', [PaymobController::class, 'callback'])->name('paymob.callback');
+    Route::get('/check/{paymob_order_id}', [PaymobController::class, 'checkPayment'])->name('paymob.check');
+});
 
 Route::middleware(['auth:sanctum'])->group(function () {
     // Wishlist API routes

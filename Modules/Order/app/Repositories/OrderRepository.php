@@ -3,12 +3,13 @@
 namespace Modules\Order\app\Repositories;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Modules\Order\app\Interfaces\OrderRepositoryInterface;
 use Modules\Order\app\Models\Order;
 use Modules\Order\app\Models\OrderStage;
 use Modules\Order\app\Models\OrderProduct;
-use Modules\Order\app\Models\OrderFulfillment;
 use Modules\Order\app\Models\OrderExtraFeeDiscount;
+use Modules\CatalogManagement\app\Models\StockBooking;
 
 class OrderRepository implements OrderRepositoryInterface
 {
@@ -19,7 +20,12 @@ class OrderRepository implements OrderRepositoryInterface
     {
         $query = Order::query();
 
-        $query->with(['stage', 'customer', 'products'])->filter($filters)->latest('created_at');
+        $query->with(['customer', 'products'])
+            ->with(['stage' => function($q) {
+                $q->withoutGlobalScopes();
+            }])
+            ->filter($filters)
+            ->latest('created_at');
         
         return $query;
     }
@@ -30,7 +36,6 @@ class OrderRepository implements OrderRepositoryInterface
     public function getOrderById($id)
     {
         $query = Order::with([
-            'stage', 
             'customer', 
             'products.vendorProduct.product.category',
             'products.vendorProduct.product.mainImage',
@@ -38,7 +43,9 @@ class OrderRepository implements OrderRepositoryInterface
             'products.vendorProductVariant.variantConfiguration.key', 
             'products.taxes',
             'extraFeesDiscounts'
-        ]);
+        ])->with(['stage' => function($q) {
+            $q->withoutGlobalScopes();
+        }]);
         
         // If current user is a vendor, only allow access to orders that have products from their vendor
         if (auth()->check() && auth()->user()->isVendor()) {
@@ -59,7 +66,9 @@ class OrderRepository implements OrderRepositoryInterface
     public function changeOrderStage($id, $stageId)
     {
         return DB::transaction(function () use ($id, $stageId) {
-            $query = Order::with('stage');
+            $query = Order::with(['stage' => function($q) {
+                $q->withoutGlobalScopes();
+            }]);
             
             // If current user is a vendor, only allow access to orders that have products from their vendor
             if (auth()->check() && auth()->user()->isVendor()) {
@@ -73,8 +82,8 @@ class OrderRepository implements OrderRepositoryInterface
             
             $order = $query->findOrFail($id);
 
-            // Fetch the new stage
-            $newStage = OrderStage::findOrFail($stageId);
+            // Fetch the new stage (without global scopes to avoid country filtering)
+            $newStage = OrderStage::withoutGlobalScopes()->findOrFail($stageId);
 
             // Update order stage
             $order->update(['stage_id' => $stageId]);
@@ -169,6 +178,26 @@ class OrderRepository implements OrderRepositoryInterface
                     $orderProductTax->save();
                 }
             }
+
+            // Create stock booking for this order product
+            if (!empty($product['vendor_product_variant_id'])) {
+                StockBooking::create([
+                    'order_id' => $order->id,
+                    'order_product_id' => $orderProduct->id,
+                    'vendor_product_variant_id' => $product['vendor_product_variant_id'],
+                    'region_id' => $order->region_id,
+                    'booked_quantity' => $product['quantity'],
+                    'status' => StockBooking::STATUS_BOOKED,
+                    'booked_at' => now(),
+                ]);
+
+                Log::info('Stock booked for order product', [
+                    'order_id' => $order->id,
+                    'order_product_id' => $orderProduct->id,
+                    'variant_id' => $product['vendor_product_variant_id'],
+                    'quantity' => $product['quantity'],
+                ]);
+            }
         }
     }
 
@@ -243,6 +272,18 @@ class OrderRepository implements OrderRepositoryInterface
             }
             
             $order = $query->findOrFail($id);
+            
+            // Check if order has allocated stock bookings - prevent deletion
+            $hasAllocatedStock = \Modules\CatalogManagement\app\Models\StockBooking::where('order_id', $order->id)
+                ->where('status', \Modules\CatalogManagement\app\Models\StockBooking::STATUS_ALLOCATED)
+                ->exists();
+            
+            if ($hasAllocatedStock) {
+                throw new \Exception(__('order::order.cannot_delete_allocated_order'));
+            }
+            
+            // Delete related stock bookings
+            \Modules\CatalogManagement\app\Models\StockBooking::where('order_id', $order->id)->delete();
             
             // Delete related order products and their taxes
             foreach ($order->products as $product) {

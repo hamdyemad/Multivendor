@@ -123,6 +123,7 @@ class OrderController extends Controller
                 'created_date_to' => $request->created_date_to ?? null,
                 'stage_id' => $request->stage ?? null,
                 'vendor_id' => $request->vendor ?? null,
+                'payment_type' => $request->payment_type ?? null,
             ];
 
             // Get total records count
@@ -181,6 +182,8 @@ class OrderController extends Controller
                         'name' => $order->stage?->name ?? '-',
                         'color' => $order->stage?->color ?? '-',
                     ],
+                    'payment_type' => $order->payment_type ?? 'cash_on_delivery',
+                    'payment_visa_status' => $order->payment_visa_status,
                     'created_at' => $order->created_at,
                     'is_exclusive_to_vendor' => $isExclusiveToCurrentVendor,
                 ];
@@ -295,6 +298,27 @@ class OrderController extends Controller
                 return abort(404, trans('order::order.order_not_found'));
             }
             return view('order::orders.show', compact('order'));
+        } catch (\Exception $e) {
+            return abort(500, trans('order::order.error_loading_order'));
+        }
+    }
+
+    /**
+     * Display payments/transactions for an order
+     */
+    public function payments($lang, $countryCode, $id)
+    {
+        try {
+            $order = $this->orderService->getOrderById($id);
+            if (!$order) {
+                return abort(404, trans('order::order.order_not_found'));
+            }
+            
+            $payments = \Modules\Order\app\Models\Payment::where('order_id', $id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+            
+            return view('order::orders.payments', compact('order', 'payments'));
         } catch (\Exception $e) {
             return abort(500, trans('order::order.error_loading_order'));
         }

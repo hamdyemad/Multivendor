@@ -27,7 +27,6 @@ class ProductApiRepository implements ProductApiRepositoryInterface
     {
         $filters = $dto->toArray();
         $query = $this->query->handle($filters);
-        $query->with('highestDiscountVariant');
         $result = $this->paginated->handle($query, $dto->per_page, $dto->paginated);
         return $result;
     }

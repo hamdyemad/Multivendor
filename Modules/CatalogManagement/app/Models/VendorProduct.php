@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Vendor\app\Models\Vendor;
 use Illuminate\Database\Eloquent\Builder;
 use Modules\Order\app\Models\Wishlist;
+use Modules\CatalogManagement\app\Models\StockBooking;
 
 class VendorProduct extends BaseModel
 {
@@ -31,7 +32,8 @@ class VendorProduct extends BaseModel
         'is_featured' => 'boolean',
     ];
 
-    protected $appends = ['reviews_count', 'average_rating', 'is_fav'];
+    // Removed appends to avoid N+1 queries - use withCount and withAvg instead
+    // protected $appends = ['reviews_count', 'average_rating', 'is_fav'];
 
     /**
      * Get all available status values
@@ -294,13 +296,70 @@ class VendorProduct extends BaseModel
 
     public function getIsFavAttribute()
     {
+        // Check both default and sanctum guards for authenticated user
+        $user = auth()->user() ?? auth()->guard('sanctum')->user();
+        
         // For guests, always return false
-        if (!auth()->check()) {
+        if (!$user) {
             return false;
         }
 
-        $user = auth()->user();
+        // Use direct query with withoutGlobalScopes to avoid country filtering issues
+        return \Modules\Order\app\Models\Wishlist::withoutGlobalScopes()
+            ->where('customer_id', $user->id)
+            ->where('vendor_product_id', $this->id)
+            ->exists();
+    }
 
-        return $this->wishlist->where('customer_id', $user->id)->isNotEmpty();
+    /**
+     * Get total stock across all variants
+     */
+    public function getTotalStockAttribute()
+    {
+        if ($this->relationLoaded('variants')) {
+            return $this->variants->sum('total_stock') ?? 0;
+        }
+        return $this->variants()->get()->sum('total_stock') ?? 0;
+    }
+
+    /**
+     * Get total booked stock across all variants
+     */
+    public function getBookedStockAttribute()
+    {
+        return (int) StockBooking::whereIn('vendor_product_variant_id', 
+            $this->variants()->pluck('id')
+        )->where('status', StockBooking::STATUS_BOOKED)
+        ->sum('booked_quantity');
+    }
+
+    /**
+     * Get total allocated stock across all variants
+     */
+    public function getAllocatedStockAttribute()
+    {
+        return (int) StockBooking::whereIn('vendor_product_variant_id', 
+            $this->variants()->pluck('id')
+        )->where('status', StockBooking::STATUS_ALLOCATED)
+        ->sum('booked_quantity');
+    }
+
+    /**
+     * Get total fulfilled stock across all variants
+     */
+    public function getFulfilledStockAttribute()
+    {
+        return (int) StockBooking::whereIn('vendor_product_variant_id', 
+            $this->variants()->pluck('id')
+        )->where('status', StockBooking::STATUS_FULFILLED)
+        ->sum('booked_quantity');
+    }
+
+    /**
+     * Get remaining stock across all variants (total - booked - allocated - fulfilled)
+     */
+    public function getRemainingStockAttribute()
+    {
+        return max(0, $this->total_stock - $this->booked_stock - $this->allocated_stock - $this->fulfilled_stock);
     }
 }

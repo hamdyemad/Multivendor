@@ -51,7 +51,7 @@ class Region extends BaseModel
 
     /**
      * Get available stock for a variant in this region
-     * Available = Total Stock - Allocated Stock (from fulfillments)
+     * Available = Total Stock - Booked Stock (from stock_bookings with status 'booked')
      */
     public function getAvailableStockForVariant($variantId)
     {
@@ -62,14 +62,13 @@ class Region extends BaseModel
 
         $totalStock = $variantStock ? $variantStock->quantity : 0;
 
-        // Get allocated stock from fulfillments using the relation
-        $allocatedStock = $this->fulfillments()->whereIn('status', ['delivered', 'shipped'])
-            ->whereHas('orderProduct', function($query) use ($variantId) {
-                $query->where('vendor_product_variant_id', $variantId);
-            })
-            ->sum('allocated_quantity');
+        // Get booked stock from stock_bookings (only 'booked' status, not yet allocated)
+        $bookedStock = \Modules\CatalogManagement\app\Models\StockBooking::where('vendor_product_variant_id', $variantId)
+            ->where('region_id', $this->id)
+            ->where('status', \Modules\CatalogManagement\app\Models\StockBooking::STATUS_BOOKED)
+            ->sum('booked_quantity');
 
-        return $totalStock - $allocatedStock;
+        return max(0, $totalStock - $bookedStock);
     }
 
     public function scopeByVendor(Builder $query, $vendorIdentifier)

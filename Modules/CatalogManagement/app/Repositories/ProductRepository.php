@@ -53,6 +53,21 @@ class ProductRepository implements ProductInterface
         \Log::info('bankFilters', $bankFilters);
 
         $query = Product::with($with)->filter($bankFilters);
+        
+        // Filter by vendor's departments if vendor_id is provided (for exclude_vendor_id)
+        if (!empty($filters['exclude_vendor_id'])) {
+            $vendorId = $filters['exclude_vendor_id'];
+            $vendor = \Modules\Vendor\app\Models\Vendor::withoutGlobalScopes()->find($vendorId);
+            
+            if ($vendor) {
+                $departmentIds = $vendor->departments()->pluck('departments.id')->toArray();
+                
+                if (!empty($departmentIds)) {
+                    $query->whereIn('department_id', $departmentIds);
+                }
+            }
+        }
+        
         return ($perPage == 0) ? $query->get() : $query->latest()->paginate($perPage);
     }
 

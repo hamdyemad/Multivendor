@@ -3,8 +3,6 @@
 namespace App\Models\Traits;
 
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Http\UploadedFile;
 
 trait HumanDates
 {
@@ -54,5 +52,41 @@ trait HumanDates
                 ->timezone(config('app.timezone'))
                 ->locale(app()->getLocale())
                 ->translatedFormat('d M, Y, h:i A');
+    }
+
+    public function getBookedAtAttribute($value)
+    {
+        if (!$value) return null;
+        return Carbon::parse($value)
+            ->timezone(config('app.timezone'))
+            ->locale(app()->getLocale())
+            ->translatedFormat('d M, Y, h:i A');
+    }
+
+    public function getAllocatedAtAttribute($value)
+    {
+        if (!$value) return null;
+        return Carbon::parse($value)
+            ->timezone(config('app.timezone'))
+            ->locale(app()->getLocale())
+            ->translatedFormat('d M, Y, h:i A');
+    }
+
+    public function getFulfilledAtAttribute($value)
+    {
+        if (!$value) return null;
+        return Carbon::parse($value)
+            ->timezone(config('app.timezone'))
+            ->locale(app()->getLocale())
+            ->translatedFormat('d M, Y, h:i A');
+    }
+
+    public function getReleasedAtAttribute($value)
+    {
+        if (!$value) return null;
+        return Carbon::parse($value)
+            ->timezone(config('app.timezone'))
+            ->locale(app()->getLocale())
+            ->translatedFormat('d M, Y, h:i A');
     }
 }

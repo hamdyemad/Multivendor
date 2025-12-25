@@ -154,7 +154,10 @@ class CustomerController extends Controller
         }
 
         // Build orders query - filter by vendor if user is vendor
-        $ordersQuery = $customer->orders()->with('stage');
+        // Use withoutGlobalScopes for stage to avoid country filtering
+        $ordersQuery = $customer->orders()->with(['stage' => function($q) {
+            $q->withoutGlobalScopes();
+        }]);
         
         if (!isAdmin() && auth()->check() && auth()->user()->isVendor()) {
             $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
@@ -169,18 +172,36 @@ class CustomerController extends Controller
         // Get all filtered orders for statistics
         $filteredOrders = $ordersQuery->get();
 
+        // Get all order stages
+        $allStages = \Modules\Order\app\Models\OrderStage::withoutGlobalScopes()
+            ->active()
+            ->orderBy('id')
+            ->get();
+
+        // Calculate order counts per stage
+        $stageStats = [];
+        foreach ($allStages as $stage) {
+            $stageStats[] = [
+                'id' => $stage->id,
+                'name' => $stage->getTranslation('name', app()->getLocale()),
+                'color' => $stage->color ?? '#6c757d',
+                'type' => $stage->type,
+                'count' => $filteredOrders->where('stage_id', $stage->id)->count(),
+            ];
+        }
+
         // Calculate customer order statistics based on filtered orders
         $orderStats = [
             'total_orders' => $filteredOrders->count(),
             'total_spent' => $filteredOrders->sum('total_price'),
-            'delivered_orders' => $filteredOrders->filter(fn($o) => $o->stage && $o->stage->type === 'deliver')->count(),
-            'pending_orders' => $filteredOrders->filter(fn($o) => $o->stage && in_array($o->stage->type, ['new', 'in_progress']))->count(),
-            'cancelled_orders' => $filteredOrders->filter(fn($o) => $o->stage && $o->stage->type === 'cancel')->count(),
             'average_order_value' => $filteredOrders->count() > 0 ? $filteredOrders->sum('total_price') / $filteredOrders->count() : 0,
+            'stages' => $stageStats,
         ];
 
         // Get orders for the table (latest first) with pagination - rebuild query for pagination
-        $ordersQuery = $customer->orders()->with('stage');
+        $ordersQuery = $customer->orders()->with(['stage' => function($q) {
+            $q->withoutGlobalScopes();
+        }]);
         
         if (!isAdmin() && auth()->check() && auth()->user()->isVendor()) {
             $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;

@@ -8,7 +8,6 @@ use Modules\CategoryManagment\app\Http\Resources\Api\GeneralResoruce;
 use Modules\CategoryManagment\app\Http\Resources\Api\LightCategoryApiResource;
 use Modules\CategoryManagment\app\Http\Resources\Api\LightDepartmentApiResource;
 use Modules\CategoryManagment\app\Http\Resources\Api\LightSubCategoryApiResource;
-use Modules\SystemSetting\app\Resources\CurrencyResource;
 use Modules\Vendor\app\Http\Resources\Api\LightVendorResource;
 use Modules\CatalogManagement\app\Http\Resources\Api\VendorProductVariantResource;
 
@@ -21,49 +20,61 @@ class VendorProductResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $totalReviews = $this->reviews_count;
-        $totalStars = $this->reviews_count * $this->reviews_avg_star;
-        $avgStar = $totalReviews > 0 ? round($totalStars / $totalReviews, 2) : null;
+        // Use pre-loaded counts from withCount/withAvg
+        $totalReviews = $this->reviews_count ?? 0;
+        $avgStar = $this->reviews_avg_star ?? 0;
 
         return [
             'id' => $this->id,
             'vendor_id' => $this->vendor_id,
             'product_id' => $this->product_id,
-            'slug' => $this->product->slug,
+            'slug' => $this->product?->slug,
             'points' => $this->points ?? 0,
             'sku' => $this->sku,
-            'reviews_count' => $this->reviews_count ?? 0,
-            'review_avg_star' => $avgStar ?? 0,
+            'reviews_count' => $totalReviews,
+            'review_avg_star' => round($avgStar, 2),
             'limitation' => $this->max_per_order,
             'status' => $this->is_featured ? __('catalogmanagement::product.featured') : __('catalogmanagement::product.active'),
-            'image' => formatImage($this->product->mainImage),
-            'name' => $this->product->title,
-            'details' => $this->product->details,
-            'summary' => $this->product->summary,
-            'instructions' => $this->product->instructions,
-            'features' => $this->product->features,
-            'extras' => $this->product->extra_description,
-            'matrial' => $this->product->material,
-            'video_link' => $this->product->video_link,
-
+            'image' => $this->whenLoaded('product', function() {
+                return formatImage($this->product->mainImage);
+            }),
+            'name' => $this->product?->title,
+            'details' => $this->product?->details,
+            'summary' => $this->product?->summary,
+            'instructions' => $this->product?->instructions,
+            'features' => $this->product?->features,
+            'extras' => $this->product?->extra_description,
+            'matrial' => $this->product?->material,
+            'video_link' => $this->product?->video_link,
 
             'number_of_sale' => $this->sales,
             'views' => $this->views,
             'stock' => $this->total_stock ?? 0,
+            'booked_stock' => $this->booked_stock ?? 0,
+            'allocated_stock' => $this->allocated_stock ?? 0,
+            'delivered_stock' => $this->fulfilled_stock ?? 0,
+            'remaining_stock' => $this->remaining_stock ?? 0,
 
-            'is_fav' => false,
-            'configuration_type' => $this->product->configuration_type,
-            'tags' => $this->product->tags_array,
-            'currency' => CurrencyResource::make($this->product->currency),
-            'meta_description' => $this->product->meta_description,
-            'meta_keywords' => $this->product->meta_keywords ?? [],
+            'is_fav' => $this->is_fav,
+            'configuration_type' => $this->product?->configuration_type,
+            'tags' => $this->product?->tags_array ?? [],
+            'meta_description' => $this->product?->meta_description,
+            'meta_keywords' => $this->product?->meta_keywords ?? [],
             'vendor' => LightVendorResource::make($this->whenLoaded('vendor')),
-            'brand' => GeneralResoruce::make($this->product->brand),
-            'tax' => TaxResource::make($this->tax),
+            'brand' => $this->whenLoaded('product', function() {
+                return $this->product->brand ? GeneralResoruce::make($this->product->brand) : null;
+            }),
+            'tax' => TaxResource::make($this->whenLoaded('tax')),
             'variants' => VendorProductVariantResource::collection($this->whenLoaded('variants')),
-            'department' => LightDepartmentApiResource::make($this->product->department),
-            'category' => LightCategoryApiResource::make($this->product->category),
-            'sub_category' => LightSubCategoryApiResource::make($this->product->subCategory),
+            'department' => $this->when($this->relationLoaded('product') && $this->product?->relationLoaded('department'), function() {
+                return LightDepartmentApiResource::make($this->product->department);
+            }),
+            'category' => $this->when($this->relationLoaded('product') && $this->product?->relationLoaded('category'), function() {
+                return LightCategoryApiResource::make($this->product->category);
+            }),
+            'sub_category' => $this->when($this->relationLoaded('product') && $this->product?->relationLoaded('subCategory'), function() {
+                return LightSubCategoryApiResource::make($this->product->subCategory);
+            }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

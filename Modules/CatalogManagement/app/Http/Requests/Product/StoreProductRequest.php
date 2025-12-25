@@ -3,6 +3,7 @@
 namespace Modules\CatalogManagement\app\Http\Requests\Product;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 use App\Models\Language;
 use App\Models\UserType;
 use Illuminate\Support\Facades\Auth;
@@ -26,7 +27,7 @@ class StoreProductRequest extends FormRequest
 
         $rules = [
             // Basic Product Information
-            'sku' => 'required|string|max:255|unique:vendor_products,sku',
+            'sku' => 'required|string|max:255',
             'is_active' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
             'max_per_order' => 'required|integer|min:1',
@@ -82,7 +83,7 @@ class StoreProductRequest extends FormRequest
         if ($configurationType === 'variants') {
             $rules = array_merge($rules, [
                 'variants' => 'required|array|min:1',
-                'variants.*.sku' => 'required|string|unique:vendor_product_variants,sku',
+                'variants.*.sku' => 'required|string',
                 'variants.*.price' => 'required|numeric|min:0',
                 'variants.*.has_discount' => 'nullable|boolean',
                 'variants.*.price_before_discount' => 'nullable|numeric|min:0',
@@ -98,6 +99,46 @@ class StoreProductRequest extends FormRequest
         }
 
         return $rules;
+    }
+
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            // Check main product SKU uniqueness
+            $sku = $this->input('sku');
+            if (!empty($sku)) {
+                // Check if SKU exists in database (for new products, no exclusion needed)
+                $exists = \Modules\CatalogManagement\app\Models\VendorProduct::withoutGlobalScopes()
+                    ->where('sku', $sku)
+                    ->exists();
+                
+                if ($exists) {
+                    $validator->errors()->add('sku', __('catalogmanagement::product.sku_unique'));
+                }
+            }
+            
+            // Check variant SKUs uniqueness
+            $variants = $this->input('variants', []);
+            
+            foreach ($variants as $index => $variant) {
+                if (!empty($variant['sku'])) {
+                    // Check if variant SKU exists in database
+                    $exists = \Modules\CatalogManagement\app\Models\VendorProductVariant::withoutGlobalScopes()
+                        ->where('sku', $variant['sku'])
+                        ->exists();
+                    
+                    if ($exists) {
+                        $validator->errors()->add(
+                            "variants.{$index}.sku",
+                            __('catalogmanagement::product.sku_unique')
+                        );
+                    }
+                }
+            }
+        });
     }
 
     /**

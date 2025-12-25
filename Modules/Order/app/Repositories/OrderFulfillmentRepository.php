@@ -7,6 +7,7 @@ use Modules\Order\app\Models\Order;
 use Modules\Order\app\Models\OrderFulfillment;
 use Modules\Order\app\Models\OrderProduct;
 use Modules\AreaSettings\app\Models\Region;
+use Modules\CatalogManagement\app\Models\StockBooking;
 use Illuminate\Support\Facades\DB;
 
 class OrderFulfillmentRepository implements OrderFulfillmentRepositoryInterface
@@ -168,12 +169,17 @@ class OrderFulfillmentRepository implements OrderFulfillmentRepositoryInterface
         $fulfillments = OrderFulfillment::where('order_id', $orderId)->get();
 
         foreach ($fulfillments as $fulfillment) {
-            $variantStock = $fulfillment->orderProduct->vendorProductVariant->stocks()
-                ->where('region_id', $fulfillment->region_id)
+            // Update stock booking with allocated region and status (don't decrement actual stock)
+            $stockBooking = StockBooking::where('order_id', $orderId)
+                ->where('order_product_id', $fulfillment->order_product_id)
                 ->first();
 
-            if ($variantStock) {
-                $variantStock->decrement('quantity', $fulfillment->allocated_quantity);
+            if ($stockBooking) {
+                $stockBooking->update([
+                    'allocated_region_id' => $fulfillment->region_id,
+                    'status' => StockBooking::STATUS_ALLOCATED,
+                    'allocated_at' => now(),
+                ]);
             }
         }
     }

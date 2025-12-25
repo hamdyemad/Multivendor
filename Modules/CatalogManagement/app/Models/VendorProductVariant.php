@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
-use Modules\Order\app\Models\Cart;
-use Modules\Vendor\app\Models\Vendor;
 use Modules\Order\app\Models\OrderFulfillment;
 use Modules\Order\app\Models\OrderProduct;
 
@@ -56,6 +54,22 @@ class VendorProductVariant extends Model
         return $this->hasMany(VendorProductVariantStock::class);
     }
 
+    /**
+     * Get stock bookings for this variant
+     */
+    public function stockBookings()
+    {
+        return $this->hasMany(StockBooking::class);
+    }
+
+    /**
+     * Get active (booked) stock bookings
+     */
+    public function activeBookings()
+    {
+        return $this->stockBookings()->where('status', StockBooking::STATUS_BOOKED);
+    }
+
     public function fulfillments()
     {
         return $this->hasManyThrough(
@@ -88,6 +102,48 @@ class VendorProductVariant extends Model
     public function getTotalStockAttribute()
     {
         return $this->stocks->sum('quantity') ?? 0;
+    }
+
+    /**
+     * Get total booked stock (orders pending/processing)
+     * Not in appends to avoid N+1 - call explicitly when needed
+     */
+    public function getBookedStockAttribute()
+    {
+        return (int) StockBooking::where('vendor_product_variant_id', $this->id)
+            ->where('status', StockBooking::STATUS_BOOKED)
+            ->sum('booked_quantity');
+    }
+
+    /**
+     * Get total allocated stock
+     * Not in appends to avoid N+1 - call explicitly when needed
+     */
+    public function getAllocatedStockAttribute()
+    {
+        return (int) StockBooking::where('vendor_product_variant_id', $this->id)
+            ->where('status', StockBooking::STATUS_ALLOCATED)
+            ->sum('booked_quantity');
+    }
+
+    /**
+     * Get total fulfilled stock (delivered orders)
+     * Not in appends to avoid N+1 - call explicitly when needed
+     */
+    public function getFulfilledStockAttribute()
+    {
+        return (int) StockBooking::where('vendor_product_variant_id', $this->id)
+            ->where('status', StockBooking::STATUS_FULFILLED)
+            ->sum('booked_quantity');
+    }
+
+    /**
+     * Get remaining stock (total - booked - allocated - fulfilled)
+     * Not in appends to avoid N+1 - call explicitly when needed
+     */
+    public function getRemainingStockAttribute()
+    {
+        return max(0, $this->total_stock - $this->booked_stock - $this->allocated_stock - $this->fulfilled_stock);
     }
 
     public function getVariantNameAttribute()

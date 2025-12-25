@@ -629,3 +629,57 @@ html[dir="rtl"] .password-toggle-icon {
     right: auto !important;
     left: 15px !important;
 }
+
+
+/* Custom Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--bg-primary-hover);
+}
+
+/* Firefox scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) #f1f1f1;
+}
+
+/* Scrollbar for specific elements */
+.table-responsive,
+.modal-body,
+.dropdown-menu,
+.multi-select-dropdown,
+.select2-results__options {
+    &::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #f8f9fb;
+        border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--color-primary);
+        border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: var(--bg-primary-hover);
+    }
+}

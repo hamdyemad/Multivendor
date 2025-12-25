@@ -31,20 +31,37 @@ trait CountryCheckIdTrait
     protected static function resolveCountryId()
     {
         try {
+            // Check if we have a cached country_id for this request
+            static $cachedCountryId = null;
+            static $cacheChecked = false;
+            
+            if ($cacheChecked) {
+                return $cachedCountryId;
+            }
+            
+            $cacheChecked = true;
+            
+            // Try request country_id first (most specific)
+            if (request('country_id')) {
+                $cachedCountryId = (int) request('country_id');
+                return $cachedCountryId;
+            }
+            
             // Try multiple sources for country code (in order of priority)
             $code = session('country_code')
                 ?? request('country_code')
                 ?? config('app.default_country_code')
                 ?? null;
 
-            if(request('country_id')) {
-                $countryId = Country::where('id', request('country_id'))->value('id');
-            }
-            if($code) {
-                $countryId = Country::where('code', $code)->value('id');
+            if ($code) {
+                // Cache the country lookup
+                $cacheKey = 'country_id_by_code_' . $code;
+                $cachedCountryId = cache()->remember($cacheKey, 3600, function() use ($code) {
+                    return Country::where('code', $code)->value('id');
+                });
             }
 
-            return $countryId ?? null;
+            return $cachedCountryId;
         } catch (\Exception $e) {
             // If database query fails, return null to skip filtering
             return null;

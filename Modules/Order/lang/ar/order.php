@@ -31,6 +31,7 @@ return [
     'search_order_id_or_customer' => 'ابحث برقم الطلب أو اسم العميل...',
     'all_stages' => 'جميع المراحل',
     'all_vendors' => 'جميع التجار',
+    'all_types' => 'جميع الأنواع',
     'created_from' => 'تم الإنشاء من',
     'created_until' => 'تم الإنشاء حتى',
 
@@ -47,6 +48,23 @@ return [
     // Payment Types
     'cash_on_delivery' => 'الدفع عند الاستلام',
     'online_payment' => 'الدفع الإلكتروني',
+    'online' => 'أونلاين',
+    'cod' => 'عند الاستلام',
+    'order_type' => 'نوع الطلب',
+    'payment_success' => 'تم الدفع',
+    'payment_pending' => 'في انتظار الدفع',
+    'payment_failed' => 'فشل الدفع',
+    'payment_refunded' => 'تم الاسترداد',
+    'payment_status' => 'حالة الدفع',
+    'payment_transactions' => 'معاملات الدفع',
+    'view_payments' => 'عرض المدفوعات',
+    'back_to_order' => 'العودة للطلب',
+    'transactions_count' => 'عدد المعاملات',
+    'paymob_order_id' => 'رقم طلب باي موب',
+    'transaction_id' => 'رقم المعاملة',
+    'payment_method' => 'طريقة الدفع',
+    'no_transactions_found' => 'لا توجد معاملات دفع لهذا الطلب',
+    'status' => 'الحالة',
 
     // Order From
     'web' => 'الويب',
@@ -69,6 +87,7 @@ return [
     'error_loading_order' => 'خطأ في تحميل الطلب',
     'cannot_edit_order' => 'لا يمكنك تعديل هذا الطلب لأنه يحتوي على منتجات من بائعين آخرين',
     'cannot_delete_order' => 'لا يمكنك حذف هذا الطلب لأنه يحتوي على منتجات من بائعين آخرين',
+    'cannot_delete_allocated_order' => 'لا يمكنك حذف هذا الطلب لأنه يحتوي على مخزون مخصص',
 
     // Validation Messages
     'order_id_required' => 'رقم الطلب مطلوب',

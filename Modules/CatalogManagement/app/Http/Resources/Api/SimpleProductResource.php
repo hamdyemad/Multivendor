@@ -39,6 +39,7 @@ class SimpleProductResource extends JsonResource
             'number_of_sale' => $this->sales,
             'views' => $this->views,
             'stock' => $this->total_stock ?? 0,
+            'remaining_stock' => $this->remaining_stock ?? 0,
             'is_fav' => false,
             'configuration_type' => $this->product->configuration_type,
             'tags' => $this->product->tags_array,

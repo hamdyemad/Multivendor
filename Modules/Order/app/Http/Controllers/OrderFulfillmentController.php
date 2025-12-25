@@ -49,7 +49,7 @@ class OrderFulfillmentController extends Controller
             $this->fulfillmentService->updateStockRegions($orderId);
 
             // Update order stage to "in-progress" (slug: in-progress)
-            $inProgressStage = OrderStage::where('slug', 'in-progress')->firstOrFail();
+            $inProgressStage = OrderStage::withoutGlobalScopes()->where('slug', 'in-progress')->firstOrFail();
             $order->update(['stage_id' => $inProgressStage->id]);
 
             return redirect()->route('admin.orders.show', $orderId)

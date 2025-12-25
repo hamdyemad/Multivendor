@@ -39,6 +39,8 @@ class Order extends BaseModel
         'customer_phone',
         'order_from',
         'payment_type',
+        'payment_visa_status',
+        'payment_reference',
         'customer_promo_code_title',
         'customer_promo_code_value',
         'customer_promo_code_type',
@@ -164,6 +166,22 @@ class Order extends BaseModel
         return $this->hasMany(OrderExtraFeeDiscount::class);
     }
 
+    /**
+     * Get the order payments.
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Get the latest payment for the order.
+     */
+    public function latestPayment()
+    {
+        return $this->hasOne(Payment::class)->latestOfMany();
+    }
+
     protected function applyCustomSearch(Builder $query, string $search): Builder
     {
         return $query->where(function ($q) use ($search) {
@@ -176,8 +194,8 @@ class Order extends BaseModel
 
     public function scopeFilter(Builder $query, array $filters)
     {
-        // Filter by vendor if user is a vendor
-        if (auth()->check() && auth()->user()->isVendor()) {
+        // Filter by vendor if user is a vendor (only for admin/vendor users, not customers)
+        if (auth()->check() && auth()->user() instanceof \App\Models\User && method_exists(auth()->user(), 'isVendor') && auth()->user()->isVendor()) {
             $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
             if ($vendor) {
                 $query->whereHas('products', function ($q) use ($vendor) {
@@ -197,6 +215,11 @@ class Order extends BaseModel
             $query->where('stage_id', $filters['stage_id']);
         }
 
+        // Payment type filter (online / cash_on_delivery)
+        if (!empty($filters['payment_type'])) {
+            $query->where('payment_type', $filters['payment_type']);
+        }
+
         if (!empty($filters['created_date_from'])) {
             $query->whereDate('created_at', '>=', $filters['created_date_from']);
         }
@@ -206,9 +229,17 @@ class Order extends BaseModel
         }
 
         if (!empty($filters['vendor_id'])) {
-            $query->whereHas('products', function ($q) use ($filters) {
-                $q->where('vendor_id', $filters['vendor_id']);
-            });
+            // Handle multiple vendor IDs (comma-separated string or array)
+            $vendorIds = is_array($filters['vendor_id']) 
+                ? $filters['vendor_id'] 
+                : explode(',', $filters['vendor_id']);
+            $vendorIds = array_filter($vendorIds); // Remove empty values
+            
+            if (!empty($vendorIds)) {
+                $query->whereHas('products', function ($q) use ($vendorIds) {
+                    $q->whereIn('vendor_id', $vendorIds);
+                });
+            }
         }
 
         return $query;

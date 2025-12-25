@@ -40,15 +40,32 @@ class CartApiController extends Controller
         $cart = $this->cartService->getCustomerCart($dto, $customer->id);
         $summary = $this->cartService->getCartSummary($customer->id);
 
+        // Check if result is paginated (LengthAwarePaginator)
+        $isPaginated = $cart instanceof \Illuminate\Pagination\LengthAwarePaginator;
+
+        $responseData = [
+            'items' => CartResource::collection($isPaginated ? $cart->items() : $cart),
+            'totalProductPrice' => $summary ? round($summary['totalProductPrice'], 2) : 0,
+            'totalTaxAmount' => $summary ? round($summary['totalTaxAmount'], 2) : 0,
+            'totalPrice' => $summary ? round($summary['finalTotalPrice'], 2) : 0,
+        ];
+
+        // Add pagination metadata if paginated
+        if ($isPaginated) {
+            $responseData['pagination'] = [
+                'current_page' => $cart->currentPage(),
+                'last_page' => $cart->lastPage(),
+                'per_page' => $cart->perPage(),
+                'total' => $cart->total(),
+                'from' => $cart->firstItem(),
+                'to' => $cart->lastItem(),
+            ];
+        }
+
         return $this->sendRes(
             config('responses.success')[app()->getLocale()],
             true,
-            [
-                'items' => CartResource::collection($cart),
-                'totalProductPrice' => $summary ? round($summary['totalProductPrice'], 2) : 0,
-                'totalTaxAmount' => $summary ? round($summary['totalTaxAmount'], 2) : 0,
-                'totalPrice' => $summary ? round($summary['finalTotalPrice'], 2) : 0,
-            ]
+            $responseData
         );
     }
 

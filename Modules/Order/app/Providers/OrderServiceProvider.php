@@ -28,6 +28,8 @@ use Modules\Order\app\Repositories\Api\ShippingCalculationRepository;
 use Modules\Order\app\Pipelines\FetchUserData;
 use Modules\Order\app\Pipelines\FetchCartItems;
 use Modules\Order\app\Pipelines\CalculateApiProductPrices;
+use Modules\Order\app\Models\Order;
+use Modules\Order\app\Observers\OrderObserver;
 use Modules\Customer\app\Services\Api\CustomerAuthService;
 use Modules\Customer\app\Services\Api\CustomerAddressService;
 use Modules\CatalogManagement\app\Services\Api\ProductApiService;
@@ -54,6 +56,9 @@ class OrderServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
+
+        // Register Order Observer
+        Order::observe(OrderObserver::class);
     }
 
     /**

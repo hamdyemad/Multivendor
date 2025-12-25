@@ -318,7 +318,22 @@
                                                 </div>
                                             </div>
 
-                                            {{-- Tax is vendor-specific and shown in vendor products section --}}
+                                            {{-- Video Link --}}
+                                            <div class="col-md-6">
+                                                <div class="view-item">
+                                                    <label
+                                                        class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.video_link') }}</label>
+                                                    <p class="fs-15 color-dark fw-500">
+                                                        @if ($product->video_link)
+                                                            <a href="{{ $product->video_link }}" target="_blank" class="btn btn-danger btn-sm text-white" title="{{ __('catalogmanagement::product.open_video_link') }}">
+                                                                <i class="uil uil-play-circle me-1"></i>{{ __('catalogmanagement::product.open_video_link') }}
+                                                            </a>
+                                                        @else
+                                                            <span class="text-muted">-</span>
+                                                        @endif
+                                                    </p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -479,7 +494,7 @@
                                                 <div class="mb-3">
                                                     <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
                                                         {{-- SKU Badge --}}
-                                                        <span class="badge badge-lg"
+                                                        <span class="badge badge-round badge-lg"
                                                             style="background-color: #17a2b8; color: white; padding: 8px 12px; border-radius: 20px;">
                                                             <i
                                                                 class="uil uil-barcode me-1"></i>{{ __('catalogmanagement::product.sku') }}:
@@ -487,7 +502,7 @@
                                                         </span>
 
                                                         {{-- Stock Badge --}}
-                                                        <span class="badge badge-lg"
+                                                        <span class="badge badge-round badge-lg"
                                                             style="background-color: #28a745; color: white; padding: 8px 12px; border-radius: 20px;">
                                                             <i
                                                                 class="uil uil-box me-1"></i>{{ __('catalogmanagement::product.stock') }}:
@@ -548,7 +563,7 @@
                                                                 @if (count($values) > 0)
                                                                     <div class="d-flex align-items-center flex-wrap gap-2">
                                                                         {{-- Display root key badge --}}
-                                                                        <span class="badge badge-lg"
+                                                                        <span class="badge badge-round badge-lg"
                                                                             style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
                                                                                      color: white; padding: 6px 10px; border-radius: 15px; font-size: 12px;
                                                                                      box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-weight: bold;">
@@ -565,7 +580,7 @@
                                                                             @endif
 
                                                                             {{-- Value Badge --}}
-                                                                            <span class="badge badge-lg"
+                                                                            <span class="badge badge-round badge-lg"
                                                                                 style="background: linear-gradient(135deg,
                                                                                          {{ $valueIndex % 3 === 0 ? '#17a2b8' : ($valueIndex % 3 === 1 ? '#28a745' : '#fd7e14') }} 0%,
                                                                                          {{ $valueIndex % 3 === 0 ? '#138496' : ($valueIndex % 3 === 1 ? '#218838' : '#e8590c') }} 100%);
@@ -617,50 +632,257 @@
                                                 </div>
                                                 @if ($variant->stocks && $variant->stocks->count() > 0)
                                                     <div class="mt-3">
-                                                        <div class="d-flex align-items-center gap-3 mb-3">
+                                                        @php
+                                                            $variantTotalStock = $variant->stocks->sum('quantity');
+                                                            $variantBookedStock = \Modules\CatalogManagement\app\Models\StockBooking::where('vendor_product_variant_id', $variant->id)
+                                                                ->where('status', 'booked')
+                                                                ->sum('booked_quantity');
+                                                            $variantAllocatedStock = \Modules\CatalogManagement\app\Models\StockBooking::where('vendor_product_variant_id', $variant->id)
+                                                                ->where('status', 'allocated')
+                                                                ->sum('booked_quantity');
+                                                            $variantFulfilledStock = \Modules\CatalogManagement\app\Models\StockBooking::where('vendor_product_variant_id', $variant->id)
+                                                                ->where('status', 'fulfilled')
+                                                                ->sum('booked_quantity');
+                                                            $variantRemainingStock = max(0, $variantTotalStock - $variantBookedStock - $variantAllocatedStock - $variantFulfilledStock);
+                                                        @endphp
+                                                        <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
                                                             <h6 class="fw-600 mb-0">
                                                                 {{ __('catalogmanagement::product.stock_summary') ?? 'Stock Summary' }}:
                                                             </h6>
                                                             <span class="badge badge-round badge-lg badge-success">
-                                                                <i
-                                                                    class="uil uil-package me-1"></i>{{ __('catalogmanagement::product.total') ?? 'Total' }}:
-                                                                {{ $variant->stocks->sum('quantity') }}
-                                                                {{ __('catalogmanagement::product.units') ?? 'Units' }}
+                                                                <i class="uil uil-package me-1"></i>{{ __('catalogmanagement::product.total') ?? 'Total' }}:
+                                                                {{ $variantTotalStock }}
+                                                            </span>
+                                                            <span class="badge badge-round badge-lg badge-warning">
+                                                                <i class="uil uil-lock me-1"></i>{{ __('common.booked') ?? 'Booked' }}:
+                                                                {{ $variantBookedStock }}
+                                                            </span>
+                                                            <span class="badge badge-round badge-lg badge-info">
+                                                                <i class="uil uil-tag me-1"></i>{{ __('common.allocated') ?? 'Allocated' }}:
+                                                                {{ $variantAllocatedStock }}
+                                                            </span>
+                                                            <span class="badge badge-round badge-lg badge-primary">
+                                                                <i class="uil uil-check-circle me-1"></i>{{ __('common.fulfilled') ?? 'Delivered' }}:
+                                                                {{ $variantFulfilledStock }}
+                                                            </span>
+                                                            <span class="badge badge-round badge-lg badge-secondary">
+                                                                <i class="uil uil-box me-1"></i>{{ __('catalogmanagement::product.remaining') ?? 'Remaining' }}:
+                                                                {{ $variantRemainingStock }}
                                                             </span>
                                                         </div>
                                                         <h6 class="fw-600 mb-3">
                                                             {{ __('catalogmanagement::product.stock_per_region') ?? 'Stock per Region' }}:
                                                         </h6>
-                                                        <div class="row">
-                                                            @forelse ($variant->stocks as $stock)
-                                                                <div class="col-md-4 mb-3">
-                                                                    <div class="p-3 border rounded"
-                                                                        style="background: #f8f9fa;">
-                                                                        <div class="text-muted small mb-2">
-                                                                            @if ($stock->region)
-                                                                                <i class="uil uil-location-point me-1"></i>
-                                                                                {{ $stock->region->getTranslation('name', app()->getLocale()) ?? ($stock->region->getTranslation('name', 'en') ?? ($stock->region->getTranslation('name', 'ar') ?? ($stock->region->name ?? '-'))) }}
-                                                                            @else
-                                                                                <i class="uil uil-location-point me-1"></i>
-                                                                                {{ __('catalogmanagement::product.default_region') ?? 'Default Region' }}
-                                                                            @endif
-                                                                        </div>
-                                                                        <div class="fw-bold"
-                                                                            style="color: #0066cc; font-size: 18px;">
-                                                                            <i class="uil uil-package me-1"></i>
-                                                                            {{ $stock->quantity ?? 0 }}
-                                                                            {{ __('catalogmanagement::product.units') ?? 'Units' }}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            @empty
-                                                                <div class="col-12">
-                                                                    <div class="alert alert-info">
-                                                                        <i class="uil uil-info-circle me-2"></i>
-                                                                        {{ __('catalogmanagement::product.no_regional_stock_data') ?? 'No regional stock data available for this variant.' }}
-                                                                    </div>
-                                                                </div>
-                                                            @endforelse
+                                                        <div class="table-responsive">
+                                                            <table class="table table-bordered table-hover">
+                                                                <thead class="table-light">
+                                                                    <tr>
+                                                                        <th><i class="uil uil-location-point me-1"></i>{{ __('catalogmanagement::product.region') ?? 'Region' }}</th>
+                                                                        <th class="text-center"><i class="uil uil-package me-1"></i>{{ __('catalogmanagement::product.total_stock') ?? 'Total Stock' }}</th>
+                                                                        <th class="text-center"><i class="uil uil-lock me-1"></i>{{ __('common.booked') ?? 'Booked' }}</th>
+                                                                        <th class="text-center"><i class="uil uil-tag me-1"></i>{{ __('common.allocated') ?? 'Allocated' }}</th>
+                                                                        <th class="text-center"><i class="uil uil-check-circle me-1"></i>{{ __('common.fulfilled') ?? 'Delivered' }}</th>
+                                                                        <th class="text-center"><i class="uil uil-box me-1"></i>{{ __('catalogmanagement::product.remaining') ?? 'Remaining' }}</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @php
+                                                                        $totalStock = 0;
+                                                                        $totalBooked = 0;
+                                                                        $totalAllocated = 0;
+                                                                        $totalFulfilled = 0;
+                                                                        $totalRemaining = 0;
+                                                                    @endphp
+                                                                    @forelse ($variant->stocks as $stock)
+                                                                        @php
+                                                                            $bookedInRegion = \Modules\CatalogManagement\app\Models\StockBooking::where('vendor_product_variant_id', $variant->id)
+                                                                                ->where('region_id', $stock->region_id)
+                                                                                ->where('status', 'booked')
+                                                                                ->sum('booked_quantity');
+                                                                            $allocatedInRegion = \Modules\CatalogManagement\app\Models\StockBooking::where('vendor_product_variant_id', $variant->id)
+                                                                                ->where('allocated_region_id', $stock->region_id)
+                                                                                ->where('status', 'allocated')
+                                                                                ->sum('booked_quantity');
+                                                                            $fulfilledInRegion = \Modules\CatalogManagement\app\Models\StockBooking::where('vendor_product_variant_id', $variant->id)
+                                                                                ->where('allocated_region_id', $stock->region_id)
+                                                                                ->where('status', 'fulfilled')
+                                                                                ->sum('booked_quantity');
+                                                                            $remainingInRegion = max(0, $stock->quantity - $bookedInRegion - $allocatedInRegion - $fulfilledInRegion);
+                                                                            
+                                                                            // Accumulate totals
+                                                                            $totalStock += $stock->quantity ?? 0;
+                                                                            $totalBooked += $bookedInRegion;
+                                                                            $totalAllocated += $allocatedInRegion;
+                                                                            $totalFulfilled += $fulfilledInRegion;
+                                                                            $totalRemaining += $remainingInRegion;
+                                                                        @endphp
+                                                                        <tr>
+                                                                            <td>
+                                                                                @if ($stock->region)
+                                                                                    {{ $stock->region->getTranslation('name', app()->getLocale()) ?? ($stock->region->getTranslation('name', 'en') ?? ($stock->region->getTranslation('name', 'ar') ?? ($stock->region->name ?? '-'))) }}
+                                                                                @else
+                                                                                    {{ __('catalogmanagement::product.default_region') ?? 'Default Region' }}
+                                                                                @endif
+                                                                            </td>
+                                                                            <td class="text-center">
+                                                                                <span class="badge badge-round badge-primary badge-lg">{{ $stock->quantity ?? 0 }}</span>
+                                                                            </td>
+                                                                            <td class="text-center">
+                                                                                <span class="badge badge-round badge-warning badge-lg">{{ $bookedInRegion }}</span>
+                                                                            </td>
+                                                                            <td class="text-center">
+                                                                                <span class="badge badge-round badge-info badge-lg">{{ $allocatedInRegion }}</span>
+                                                                            </td>
+                                                                            <td class="text-center">
+                                                                                <span class="badge badge-round badge-success badge-lg">{{ $fulfilledInRegion }}</span>
+                                                                            </td>
+                                                                            <td class="text-center">
+                                                                                <span class="badge badge-round badge-secondary badge-lg">{{ $remainingInRegion }}</span>
+                                                                            </td>
+                                                                        </tr>
+                                                                    @empty
+                                                                        <tr>
+                                                                            <td colspan="6" class="text-center text-muted">
+                                                                                {{ __('catalogmanagement::product.no_regional_stock_data') ?? 'No regional stock data available.' }}
+                                                                            </td>
+                                                                        </tr>
+                                                                    @endforelse
+                                                                </tbody>
+                                                                @if($variant->stocks->count() > 0)
+                                                                <tfoot class="table-light">
+                                                                    <tr>
+                                                                        <th class="fw-bold">{{ __('common.total') ?? 'Total' }}</th>
+                                                                        <th class="text-center">
+                                                                            <span class="badge badge-round badge-primary badge-lg">{{ $totalStock }}</span>
+                                                                        </th>
+                                                                        <th class="text-center">
+                                                                            <span class="badge badge-round badge-warning badge-lg">{{ $totalBooked }}</span>
+                                                                        </th>
+                                                                        <th class="text-center">
+                                                                            <span class="badge badge-round badge-info badge-lg">{{ $totalAllocated }}</span>
+                                                                        </th>
+                                                                        <th class="text-center">
+                                                                            <span class="badge badge-round badge-success badge-lg">{{ $totalFulfilled }}</span>
+                                                                        </th>
+                                                                        <th class="text-center">
+                                                                            <span class="badge badge-round badge-secondary badge-lg">{{ $totalRemaining }}</span>
+                                                                        </th>
+                                                                    </tr>
+                                                                </tfoot>
+                                                                @endif
+                                                            </table>
+                                                        </div>
+
+                                                        {{-- All Stock Bookings in One Table --}}
+                                                        @php
+                                                            $allBookings = \Modules\CatalogManagement\app\Models\StockBooking::with(['order', 'orderProduct', 'region', 'allocatedRegion'])
+                                                                ->where('vendor_product_variant_id', $variant->id)
+                                                                ->latest()
+                                                                ->get();
+                                                        @endphp
+                                                        <div class="mt-4">
+                                                            <h6 class="fw-600 mb-3">
+                                                                <i class="uil uil-clipboard-notes me-1"></i>
+                                                                {{ __('catalogmanagement::product.stock_bookings') ?? 'Stock Bookings' }}
+                                                                <span class="badge badge-round badge-primary ms-2">{{ $allBookings->count() }}</span>
+                                                            </h6>
+                                                            {{-- Status Legend --}}
+                                                            <div class="mb-3 d-flex flex-wrap gap-2">
+                                                                <span class="badge badge-round badge-success">
+                                                                    <i class="uil uil-check-circle me-1"></i>{{ __('common.fulfilled') }}: {{ $allBookings->where('status', 'fulfilled')->count() }}
+                                                                </span>
+                                                                <span class="badge badge-round badge-info">
+                                                                    <i class="uil uil-tag me-1"></i>{{ __('common.allocated') }}: {{ $allBookings->where('status', 'allocated')->count() }}
+                                                                </span>
+                                                                <span class="badge badge-round badge-warning">
+                                                                    <i class="uil uil-clock me-1"></i>{{ __('common.booked') }}: {{ $allBookings->where('status', 'booked')->count() }}
+                                                                </span>
+                                                                <span class="badge badge-round badge-danger">
+                                                                    <i class="uil uil-times-circle me-1"></i>{{ __('common.released') }}: {{ $allBookings->where('status', 'released')->count() }}
+                                                                </span>
+                                                            </div>
+                                                            <div class="table-responsive">
+                                                                <table class="table table-bordered table-hover table-sm stock-bookings-table">
+                                                                    <thead class="table-light">
+                                                                        <tr>
+                                                                            <th>{{ __('order::order.order_id') ?? 'Order ID' }}</th>
+                                                                            <th>{{ __('catalogmanagement::product.booked_region') ?? 'Booked Region' }}</th>
+                                                                            <th>{{ __('catalogmanagement::product.allocated_region') ?? 'Allocated Region' }}</th>
+                                                                            <th class="text-center">{{ __('common.quantity') ?? 'Quantity' }}</th>
+                                                                            <th class="text-center">{{ __('common.status') ?? 'Status' }}</th>
+                                                                            <th>{{ __('common.date') ?? 'Date' }}</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @forelse($allBookings as $booking)
+                                                                            <tr class="@if($booking->status === 'fulfilled') table-success @elseif($booking->status === 'allocated') table-info @elseif($booking->status === 'booked') table-warning @else table-danger @endif">
+                                                                                <td>
+                                                                                    <a href="{{ route('admin.orders.show', $booking->order_id) }}" class="text-primary fw-500">
+                                                                                        #{{ $booking->order->order_number ?? $booking->order_id }}
+                                                                                    </a>
+                                                                                </td>
+                                                                                <td>
+                                                                                    @if($booking->region)
+                                                                                        {{ $booking->region->getTranslation('name', app()->getLocale()) ?? $booking->region->name }}
+                                                                                    @else
+                                                                                        -
+                                                                                    @endif
+                                                                                </td>
+                                                                                <td>
+                                                                                    @if($booking->allocatedRegion)
+                                                                                        <span class="fw-500">
+                                                                                            {{ $booking->allocatedRegion->getTranslation('name', app()->getLocale()) ?? $booking->allocatedRegion->name }}
+                                                                                        </span>
+                                                                                    @else
+                                                                                        <span class="text-muted">-</span>
+                                                                                    @endif
+                                                                                </td>
+                                                                                <td class="text-center">
+                                                                                    <span class="badge badge-round @if($booking->status === 'fulfilled') badge-success @elseif($booking->status === 'allocated') badge-info @elseif($booking->status === 'booked') badge-warning @else badge-danger @endif">
+                                                                                        {{ $booking->booked_quantity }}
+                                                                                    </span>
+                                                                                </td>
+                                                                                <td class="text-center">
+                                                                                    @if($booking->status === 'fulfilled')
+                                                                                        <span class="badge badge-round badge-success">
+                                                                                            <i class="uil uil-check-circle me-1"></i>{{ __('common.fulfilled') }}
+                                                                                        </span>
+                                                                                    @elseif($booking->status === 'allocated')
+                                                                                        <span class="badge badge-round badge-info">
+                                                                                            <i class="uil uil-tag me-1"></i>{{ __('common.allocated') }}
+                                                                                        </span>
+                                                                                    @elseif($booking->status === 'booked')
+                                                                                        <span class="badge badge-round badge-warning">
+                                                                                            <i class="uil uil-clock me-1"></i>{{ __('common.booked') }}
+                                                                                        </span>
+                                                                                    @else
+                                                                                        <span class="badge badge-round badge-danger">
+                                                                                            <i class="uil uil-times-circle me-1"></i>{{ __('common.released') }}
+                                                                                        </span>
+                                                                                    @endif
+                                                                                </td>
+                                                                                <td>
+                                                                                    @if($booking->status === 'fulfilled')
+                                                                                        {{ $booking->fulfilled_at ? $booking->fulfilled_at : '-' }}
+                                                                                    @elseif($booking->status === 'allocated')
+                                                                                        {{ $booking->allocated_at ? $booking->allocated_at : '-' }}
+                                                                                    @elseif($booking->status === 'booked')
+                                                                                        {{ $booking->booked_at ? $booking->booked_at : '-' }}
+                                                                                    @else
+                                                                                        {{ $booking->released_at ? $booking->released_at : '-' }}
+                                                                                    @endif
+                                                                                </td>
+                                                                            </tr>
+                                                                        @empty
+                                                                            <tr>
+                                                                                <td colspan="6" class="text-center text-muted py-3">
+                                                                                    {{ __('catalogmanagement::product.no_stock_bookings') ?? 'No stock bookings yet.' }}
+                                                                                </td>
+                                                                            </tr>
+                                                                        @endforelse
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 @else
@@ -693,6 +915,17 @@
                                                             class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.main_image') }}</label>
                                                         <div class="image-wrapper text-center">
                                                             <img src="{{ asset('storage/' . $product->product->mainImage->path) }}"
+                                                                alt="{{ $product->product->getTranslation('title') }}"
+                                                                class="product-image img-fluid rounded"
+                                                                style="max-height: 300px; object-fit: cover;">
+                                                        </div>
+                                                    </div>
+                                                @else
+                                                    <div class="mb-3">
+                                                        <label
+                                                            class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.main_image') }}</label>
+                                                        <div class="image-wrapper text-center">
+                                                            <img src="{{ asset('assets/img/default.png') }}"
                                                                 alt="{{ $product->product->getTranslation('title') }}"
                                                                 class="product-image img-fluid rounded"
                                                                 style="max-height: 300px; object-fit: cover;">
@@ -775,5 +1008,41 @@
                 modal.show();
             }
         }
+
+        /**
+         * Initialize DataTables for Stock tables
+         */
+        $(document).ready(function() {
+            // Initialize Stock Bookings tables
+            $('.stock-bookings-table').each(function() {
+                if (!$.fn.DataTable.isDataTable(this)) {
+                    $(this).DataTable({
+                        paging: true,
+                        pageLength: 10,
+                        lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "{{ __('common.all') }}"]],
+                        searching: true,
+                        ordering: true,
+                        order: [[0, 'desc']],
+                        info: true,
+                        autoWidth: false,
+                        responsive: true,
+                        language: {
+                            search: "{{ __('common.search') }}:",
+                            lengthMenu: "{{ __('common.show') }} _MENU_ {{ __('common.entries') }}",
+                            info: "{{ __('common.showing') }} _START_ {{ __('common.to') }} _END_ {{ __('common.of') }} _TOTAL_ {{ __('common.entries') }}",
+                            infoEmpty: "{{ __('common.showing') }} 0 {{ __('common.to') }} 0 {{ __('common.of') }} 0 {{ __('common.entries') }}",
+                            infoFiltered: "({{ __('common.filtered_from') }} _MAX_ {{ __('common.total_entries') }})",
+                            zeroRecords: "{{ __('common.no_matching_records_found') }}",
+                            paginate: {
+                                first: "{{ __('common.first') }}",
+                                last: "{{ __('common.last') }}",
+                                next: "{{ __('common.next') }}",
+                                previous: "{{ __('common.previous') }}"
+                            }
+                        }
+                    });
+                }
+            });
+        });
     </script>
 @endpush

@@ -44,6 +44,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\CheckUserBlocked::class,
             \App\Http\Middleware\SetAdminRouteDefaults::class,
             \App\Http\Middleware\VendorCountryRestriction::class,
+            \App\Http\Middleware\CheckVendorActive::class,
         ],
 
         'api' => [

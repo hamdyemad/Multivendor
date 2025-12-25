@@ -118,49 +118,16 @@ class ProductFilterDTO extends FilterDTO
             $this->errors['sort_type'][] = __('validation.sort_type_invalid');
         }
 
-        if ($this->country_id && !$this->countryExists($this->country_id)) {
-            $this->errors['country_id'][] = __('validation.country_id_not_exist');
-        }
-
-        if ($this->city_id && !$this->cityExists($this->city_id)) {
-            $this->errors['city_id'][] = __('validation.city_id_not_exist');
-        }
-
-        if ($this->region_id && !$this->regionExists($this->region_id)) {
-            $this->errors['region_id'][] = __('validation.region_id_not_exist');
-        }
-
-        if ($this->subregion_id && !$this->subregionExists($this->subregion_id)) {
-            $this->errors['subregion_id'][] = __('validation.subregion_id_not_exist');
-        }
-
-        if ($this->department_id && !$this->departmentExists($this->department_id)) {
-            $this->errors['department_id'][] = __('validation.department_id_not_exist');
-        }
-
-        if ($this->category_id && !$this->categoryExists($this->category_id)) {
-            $this->errors['category_id'][] = __('validation.category_id_not_exist');
-        }
-
-        if ($this->sub_category_id && !$this->subCategoryExists($this->sub_category_id)) {
-            $this->errors['sub_category_id'][] = __('validation.sub_category_id_not_exist');
-        }
-
-        if ($this->brand_id && !$this->brandExists($this->brand_id)) {
-            $this->errors['brand_id'][] = __('validation.brand_id_not_exist');
-        }
-
-        if ($this->vendor_id && !$this->vendorExists($this->vendor_id)) {
-            $this->errors['vendor_id'][] = __('validation.vendor_id_not_exist');
-        }
-
-        if ($this->has_discount && !in_array($this->has_discount, [true, false])) {
+        if ($this->has_discount !== null && !in_array($this->has_discount, [true, false])) {
             $this->errors['has_discount'][] = __('validation.has_discount_invalid');
         }
 
         if ($this->rate && !in_array($this->rate, [1, 2, 3, 4, 5])) {
             $this->errors['rate'][] = __('validation.rate_invalid');
         }
+
+        // Skip database validation for better performance - invalid IDs will simply return no results
+        // The filter queries will handle non-existent IDs gracefully
 
         return count($this->errors) === 0;
     }

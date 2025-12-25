@@ -15,16 +15,17 @@ class ProductQueryAction
             ->active()
             ->status(VendorProduct::STATUS_APPROVED)
             ->with([
-                'product' => function ($q) {
-                    $q->with(['brand', 'attachments', 'translations']);
-                },
+                'product',
+                'product.brand',
+                'product.brand.translations',
+                'product.translations',
+                'product.mainImage',
                 'variants',
                 'vendor',
                 'tax',
             ])
             ->withCount('reviews')
-            ->withAvg('reviews', 'star') // assumes your reviews table has a 'star' column;
-            ;
+            ->withAvg('reviews', 'star');
 
         if (!empty($filters)) {
             $query->filter($filters);

@@ -3,6 +3,11 @@
 namespace Modules\Customer\app\Http\Requests\Api;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
+use Modules\AreaSettings\app\Models\City;
+use Modules\AreaSettings\app\Models\Region;
+use Modules\AreaSettings\app\Models\Subregion;
+use Modules\Customer\app\Models\CustomerAddress;
 
 class UpdateAddressRequest extends FormRequest
 {
@@ -31,5 +36,46 @@ class UpdateAddressRequest extends FormRequest
             'subregion_id' => 'sometimes|integer|exists:subregions,id',
             'is_primary' => 'sometimes|boolean',
         ];
+    }
+
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            // Get existing address to use current values if not provided
+            $addressId = $this->route('addressId');
+            $existingAddress = CustomerAddress::find($addressId);
+            
+            $countryId = $this->country_id ?? ($existingAddress->country_id ?? null);
+            $cityId = $this->city_id ?? ($existingAddress->city_id ?? null);
+            $regionId = $this->region_id ?? ($existingAddress->region_id ?? null);
+            $subregionId = $this->subregion_id;
+
+            // Validate city belongs to country
+            if ($cityId && $countryId) {
+                $city = City::withoutGlobalScopes()->find($cityId);
+                if ($city && $city->country_id != $countryId) {
+                    $validator->errors()->add('city_id', __('customer::address.city_not_in_country'));
+                }
+            }
+
+            // Validate region belongs to city
+            if ($regionId && $cityId) {
+                $region = Region::withoutGlobalScopes()->find($regionId);
+                if ($region && $region->city_id != $cityId) {
+                    $validator->errors()->add('region_id', __('customer::address.region_not_in_city'));
+                }
+            }
+
+            // Validate subregion belongs to region (if provided)
+            if ($subregionId && $regionId) {
+                $subregion = Subregion::withoutGlobalScopes()->find($subregionId);
+                if ($subregion && $subregion->region_id != $regionId) {
+                    $validator->errors()->add('subregion_id', __('customer::address.subregion_not_in_region'));
+                }
+            }
+        });
     }
 }

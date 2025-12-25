@@ -4,6 +4,21 @@
 @endsection
 @push('styles')
     <style>
+        /* Fix select heights to match inputs (38px) */
+        .form-select.ih-medium,
+        .form-control.ih-medium {
+            height: 38px !important;
+            min-height: 38px !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        
+        /* Ensure multi-select matches other inputs */
+        .multi-select-display {
+            height: 38px !important;
+            min-height: 38px !important;
+        }
+        
         .vendor-logos {
             display: flex;
             align-items: center;
@@ -153,16 +168,14 @@
                                         </div>
                                     </div>
 
-                                    {{-- stage --}}
+                                    {{-- Stage --}}
                                     <div class="col-md-2">
                                         <div class="form-group">
                                             <label for="stage" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-check-circle me-1"></i>
                                                 {{ trans('order::order.stage') }}
                                             </label>
-                                            <select
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="stage">
+                                            <select class="form-control form-select ih-medium ip-gray radius-xs b-light" id="stage">
                                                 <option value="">{{ trans('order::order.all_stages') }}</option>
                                                 @foreach ($orderStages as $stage)
                                                     <option value="{{ $stage['id'] }}">{{ $stage['name'] }}</option>
@@ -171,28 +184,40 @@
                                         </div>
                                     </div>
 
+                                    {{-- Order Type --}}
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label for="payment_type" class="il-gray fs-14 fw-500 mb-10">
+                                                <i class="uil uil-credit-card me-1"></i>
+                                                {{ trans('order::order.order_type') }}
+                                            </label>
+                                            <select class="form-control form-select ih-medium ip-gray radius-xs b-light" id="payment_type">
+                                                <option value="">{{ trans('order::order.all_types') }}</option>
+                                                <option value="online">{{ trans('order::order.online') }}</option>
+                                                <option value="cash_on_delivery">{{ trans('order::order.cod') }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
                                     @if(isAdmin())
                                         {{-- Vendor --}}
                                         <div class="col-md-2">
                                             <div class="form-group">
-                                                <label for="vendor" class="il-gray fs-14 fw-500 mb-10">
-                                                    <i class="uil uil-store me-1"></i>
-                                                    {{ trans('order::order.vendor') }}
-                                                </label>
-                                                <select
-                                                    class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                    id="vendor">
-                                                    <option value="">{{ trans('order::order.all_vendors') }}</option>
-                                                    @foreach ($vendors as $vendor)
-                                                        <option value="{{ $vendor->id }}">{{ $vendor->name }}</option>
-                                                    @endforeach
-                                                </select>
+                                                <x-multi-select 
+                                                    name="vendor[]" 
+                                                    id="vendor"
+                                                    :label="trans('order::order.vendor')"
+                                                    icon="uil uil-store"
+                                                    :options="$vendors->map(fn($v) => ['id' => $v->id, 'name' => $v->name])->toArray()"
+                                                    :selected="[]"
+                                                    :placeholder="trans('order::order.all_vendors')"
+                                                />
                                             </div>
                                         </div>
                                     @endif
 
                                     {{-- Created From --}}
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <div class="form-group">
                                             <label for="created_from_filter" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-calendar-alt me-1"></i>
@@ -205,7 +230,7 @@
                                     </div>
 
                                     {{-- Created Until --}}
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <div class="form-group">
                                             <label for="created_until_filter" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-calendar-alt me-1"></i>
@@ -301,16 +326,31 @@
     <script>
         $(document).ready(function() {
             let per_page = 10;
+            let table;
+
+            // Initialize multi-select component
+            if (document.getElementById('vendor')) {
+                MultiSelect.init('vendor');
+                
+                // Listen for changes on the multi-select
+                document.getElementById('vendor').addEventListener('change', function() {
+                    table.ajax.reload();
+                    updateUrlParams();
+                });
+            }
 
             // Populate filters from URL parameters on page load
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('search')) $('#search').val(urlParams.get('search'));
             if (urlParams.has('stage')) $('#stage').val(urlParams.get('stage'));
-            if (urlParams.has('vendor')) {
-                $('#vendor').val(urlParams.get('vendor')).trigger('change');
+            if (urlParams.has('payment_type')) $('#payment_type').val(urlParams.get('payment_type'));
+            if (urlParams.has('vendor') && document.getElementById('vendor')) {
+                const vendorValues = urlParams.get('vendor').split(',');
+                MultiSelect.setValues('vendor', vendorValues);
             }
             if (urlParams.has('created_from')) $('#created_from_filter').val(urlParams.get('created_from'));
             if (urlParams.has('created_until')) $('#created_until_filter').val(urlParams.get('created_until'));
+            
             // Server-side processing with pagination
             table = $('#ordersDataTable').DataTable({
                 processing: true,
@@ -323,7 +363,12 @@
                         d.page = (d.start / d.length) + 1;
                         d.search = $('#search').val();
                         d.stage = $('#stage').val();
-                        d.vendor = $('#vendor').val();
+                        d.payment_type = $('#payment_type').val();
+                        // Handle multiple vendor selection from multi-select component
+                        if (document.getElementById('vendor')) {
+                            const vendorValues = MultiSelect.getValues('vendor');
+                            d.vendor = vendorValues.length > 0 ? vendorValues.join(',') : '';
+                        }
                         d.created_date_from = $('#created_from_filter').val();
                         d.created_date_to = $('#created_until_filter').val();
                         return d;
@@ -407,7 +452,45 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
-                            return `<span class="badge badge-round badge-lg" style="background-color: ${data.color}; color: white;">${data.name}</span>`;
+                            let html = '';
+                            
+                            // Order Stage
+                            const stageName = data?.name || '-';
+                            const stageColor = data?.color || '#6c757d';
+                            html += `<div class="mb-1"><span class="badge badge-round badge-lg" style="background-color: ${stageColor}; color: white;">{{ trans("order::order.stage") }}: ${stageName}</span></div>`;
+                            
+                            // Payment Type (Online / COD)
+                            const paymentType = row.payment_type || 'cash_on_delivery';
+                            const paymentTypeLabel = paymentType === 'online' ? '{{ trans("order::order.online") }}' : '{{ trans("order::order.cod") }}';
+                            const paymentTypeColor = paymentType === 'online' ? '#17a2b8' : '#6c757d';
+                            html += `<div class="mb-1"><span class="badge badge-round" style="background-color: ${paymentTypeColor}; color: white; font-size: 10px;">{{ trans("order::order.order_type") }}: ${paymentTypeLabel}</span></div>`;
+                            
+                            // Payment Status (only for online payments)
+                            if (paymentType === 'online' && row.payment_visa_status) {
+                                let paymentStatusLabel = '';
+                                let paymentStatusColor = '';
+                                switch(row.payment_visa_status) {
+                                    case 'success':
+                                        paymentStatusLabel = '{{ trans("order::order.payment_success") }}';
+                                        paymentStatusColor = '#28a745';
+                                        break;
+                                    case 'pending':
+                                        paymentStatusLabel = '{{ trans("order::order.payment_pending") }}';
+                                        paymentStatusColor = '#ffc107';
+                                        break;
+                                    case 'fail':
+                                    case 'failed':
+                                        paymentStatusLabel = '{{ trans("order::order.payment_failed") }}';
+                                        paymentStatusColor = '#dc3545';
+                                        break;
+                                    default:
+                                        paymentStatusLabel = row.payment_visa_status;
+                                        paymentStatusColor = '#6c757d';
+                                }
+                                html += `<div><span class="badge badge-round" style="background-color: ${paymentStatusColor}; color: white; font-size: 10px;">{{ trans("order::order.payment_status") }}: ${paymentStatusLabel}</span></div>`;
+                            }
+                            
+                            return html;
                         }
                     },
                     {
@@ -431,6 +514,9 @@
                             let editUrl =
                                 "{{ route('admin.orders.edit', ':id') }}"
                                 .replace(':id', row.id);
+                            let paymentsUrl =
+                                "{{ route('admin.orders.payments', ':id') }}"
+                                .replace(':id', row.id);
                             // Check if stage is delivered, cancelled, or refund
                             const finalStages = ['deliver', 'cancel', 'refund'];
                             const isFinalStage = row.stage && finalStages.includes(row.stage.slug);
@@ -438,6 +524,9 @@
                             // For vendors: check if order belongs exclusively to them
                             const isVendor = {{ !isAdmin() ? 'true' : 'false' }};
                             const canEditDelete = isVendor ? row.is_exclusive_to_vendor : true;
+                            
+                            // Check if order has online payment
+                            const hasOnlinePayment = row.payment_type === 'online';
 
                             return `
                                 <div class="orderDatatable_actions d-inline-flex gap-1 justify-content-center">
@@ -448,6 +537,13 @@
                                             <i class="uil uil-eye table_action_icon"></i>
                                         </a>
                                     @endcan
+                                    ${hasOnlinePayment ? `
+                                        <a href="${paymentsUrl}"
+                                        class="btn btn-success table_action_father"
+                                        title="{{ trans('order::order.view_payments') }}">
+                                            <i class="uil uil-credit-card table_action_icon"></i>
+                                        </a>
+                                    ` : ''}
                                     @can('orders.edit')
                                         ${!isFinalStage && canEditDelete ? `
                                         <a href="${editUrl}"
@@ -523,8 +619,8 @@
                 updateUrlParams();
             });
 
-            // Filter change handlers
-            $('#stage, #vendor, #created_from_filter, #created_until_filter').on('change', function() {
+            // Filter change handlers for select and date inputs
+            $('#stage, #payment_type, #created_from_filter, #created_until_filter').on('change', function() {
                 table.ajax.reload();
                 updateUrlParams();
             });
@@ -533,9 +629,13 @@
             $('#resetFilters').on('click', function() {
                 $('#search').val('');
                 $('#stage').val('');
-                $('#vendor').val('');
+                $('#payment_type').val('');
+                if (document.getElementById('vendor')) {
+                    MultiSelect.clear('vendor');
+                }
                 $('#created_from_filter').val('');
                 $('#created_until_filter').val('');
+                
                 table.ajax.reload();
                 // Clear URL parameters
                 window.history.replaceState({}, '', window.location.pathname);
@@ -546,7 +646,12 @@
                 const params = new URLSearchParams();
                 if ($('#search').val()) params.set('search', $('#search').val());
                 if ($('#stage').val()) params.set('stage', $('#stage').val());
-                if ($('#vendor').val()) params.set('vendor', $('#vendor').val());
+                if ($('#payment_type').val()) params.set('payment_type', $('#payment_type').val());
+                // Handle multiple vendor selection from multi-select component
+                if (document.getElementById('vendor')) {
+                    const vendorValues = MultiSelect.getValues('vendor');
+                    if (vendorValues.length > 0) params.set('vendor', vendorValues.join(','));
+                }
                 if ($('#created_from_filter').val()) params.set('created_from', $('#created_from_filter').val());
                 if ($('#created_until_filter').val()) params.set('created_until', $('#created_until_filter').val());
 
@@ -554,11 +659,6 @@
                     .location.pathname;
                 window.history.replaceState({}, '', newUrl);
             }
-
-            $('#vendor').select2({
-                theme: 'bootstrap-5',
-                width: '100%'
-            });
 
         });
     </script>

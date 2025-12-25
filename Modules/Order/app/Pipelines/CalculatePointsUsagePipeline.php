@@ -13,8 +13,10 @@ class CalculatePointsUsagePipeline
 
         $data = $payload['data'];
         $customerId = $data['selected_customer_id'] ?? null;
-        $usePoints = $data['use_point'] ? true : false;
-        $pointsToUse = $data['points_to_use'] ?? $data['point_amount'] ?? $data['points_amount'] ?? 0;
+        
+        // Properly evaluate use_point as boolean
+        $usePoints = filter_var($data['use_point'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $pointsToUse = (int) ($data['points_to_use'] ?? $data['point_amount'] ?? $data['points_amount'] ?? 0);
         
         // If user wants to use points but didn't specify amount, use available points up to order total
         if ($usePoints && $pointsToUse == 0 && $customerId) {

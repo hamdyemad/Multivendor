@@ -5,7 +5,6 @@ namespace Modules\CatalogManagement\app\Http\Requests\Product;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
 use App\Models\Language;
-use Modules\CatalogManagement\app\Models\Product;
 use App\Models\UserType;
 use Illuminate\Support\Facades\Auth;
 
@@ -24,13 +23,11 @@ class UpdateProductRequest extends FormRequest
      */
     public function rules(): array
     {
-        $product = $this->resolveProduct();
-        $productId = $product?->id;
         $configurationType = $this->input('configuration_type');
 
         $rules = [
             // Basic Product Information
-            'sku' => 'nullable|string|unique:vendor_products,sku,' . $productId,
+            'sku' => 'nullable|string|max:255',
             'is_active' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
             'max_per_order' => 'nullable|integer|min:1',
@@ -112,6 +109,38 @@ class UpdateProductRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
+            // Check main product SKU uniqueness
+            $sku = $this->input('sku');
+            Log::info('SKU Validation Check', [
+                'input_sku' => $sku,
+                'route_product_id' => $this->route('product')
+            ]);
+            
+            if (!empty($sku)) {
+                // The route parameter {product} is actually VendorProduct ID
+                $vendorProductId = $this->route('product');
+                
+                // Check if SKU exists in database (excluding current vendor product)
+                $query = \Modules\CatalogManagement\app\Models\VendorProduct::withoutGlobalScopes()
+                    ->where('sku', $sku);
+                
+                if ($vendorProductId) {
+                    $query->where('id', '!=', $vendorProductId);
+                }
+                
+                $exists = $query->exists();
+                Log::info('SKU Uniqueness Check', [
+                    'sku' => $sku,
+                    'vendor_product_id' => $vendorProductId,
+                    'exists_in_other_products' => $exists
+                ]);
+                
+                if ($exists) {
+                    $validator->errors()->add('sku', __('catalogmanagement::product.sku_unique'));
+                }
+            }
+            
+            // Check variant SKUs
             $variants = $this->input('variants', []);
             
             foreach ($variants as $index => $variant) {
@@ -119,7 +148,9 @@ class UpdateProductRequest extends FormRequest
                     $variantId = $variant['id'] ?? null;
                     
                     // Check if SKU exists in database (excluding current variant)
-                    $query = \Modules\CatalogManagement\app\Models\VendorProductVariant::where('sku', $variant['sku']);
+                    $query = \Modules\CatalogManagement\app\Models\VendorProductVariant::withoutGlobalScopes()
+                        ->where('sku', $variant['sku']);
+                    
                     if ($variantId) {
                         $query->where('id', '!=', $variantId);
                     }
@@ -184,19 +215,6 @@ class UpdateProductRequest extends FormRequest
 
             return $hasRegionAndQuantity;
         }));
-    }
-
-    /**
-     * Resolve product from route (supports model binding or ID)
-     */
-    protected function resolveProduct(): ?Product
-    {
-        $param = $this->route('product');
-        if ($param instanceof Product) {
-            return $param;
-        }
-
-        return is_numeric($param) ? Product::find($param) : null;
     }
 
     /**

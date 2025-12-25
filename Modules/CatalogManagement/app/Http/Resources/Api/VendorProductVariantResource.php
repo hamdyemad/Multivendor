@@ -19,6 +19,10 @@ class VendorProductVariantResource extends JsonResource
             'id' => $this->id,
             'show_end_offer_at_section' => (bool) $this->has_discount,
             'stock' => $this->total_stock ?? 0,
+            'booked_stock' => $this->booked_stock ?? 0,
+            'allocated_stock' => $this->allocated_stock ?? 0,
+            'fulfilled_stock' => $this->fulfilled_stock ?? 0,
+            'remaining_stock' => $this->remaining_stock ?? 0,
             'sku' => $this->sku,
             'variant_name' => $this->{"variant_path_{$locale}"} ?? '',
             'variant_key' => $this->variantConfiguration && $this->variantConfiguration->key ? 

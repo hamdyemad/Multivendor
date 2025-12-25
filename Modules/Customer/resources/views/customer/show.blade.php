@@ -335,45 +335,6 @@
                                                 </div>
                                             </div>
 
-                                            {{-- Delivered Orders --}}
-                                            <div class="col-md-4 mb-3">
-                                                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #28a74515 0%, #28a74505 100%);">
-                                                    <div class="card-body text-center py-4">
-                                                        <div class="mb-2">
-                                                            <i class="uil uil-check-circle fs-1" style="color: #28a745;"></i>
-                                                        </div>
-                                                        <h3 class="mb-1 fw-bold" style="color: #28a745;">{{ $orderStats['delivered_orders'] ?? 0 }}</h3>
-                                                        <p class="mb-0 text-muted small">{{ __('customer::customer.delivered_orders') }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {{-- Pending Orders --}}
-                                            <div class="col-md-4 mb-3">
-                                                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #ffc10715 0%, #ffc10705 100%);">
-                                                    <div class="card-body text-center py-4">
-                                                        <div class="mb-2">
-                                                            <i class="uil uil-clock fs-1" style="color: #ffc107;"></i>
-                                                        </div>
-                                                        <h3 class="mb-1 fw-bold" style="color: #ffc107;">{{ $orderStats['pending_orders'] ?? 0 }}</h3>
-                                                        <p class="mb-0 text-muted small">{{ __('customer::customer.pending_orders') }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {{-- Cancelled Orders --}}
-                                            <div class="col-md-4 mb-3">
-                                                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #dc354515 0%, #dc354505 100%);">
-                                                    <div class="card-body text-center py-4">
-                                                        <div class="mb-2">
-                                                            <i class="uil uil-times-circle fs-1" style="color: #dc3545;"></i>
-                                                        </div>
-                                                        <h3 class="mb-1 fw-bold" style="color: #dc3545;">{{ $orderStats['cancelled_orders'] ?? 0 }}</h3>
-                                                        <p class="mb-0 text-muted small">{{ __('customer::customer.cancelled_orders') }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
                                             {{-- Average Order Value --}}
                                             <div class="col-md-4 mb-3">
                                                 <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #6f42c115 0%, #6f42c105 100%);">
@@ -386,6 +347,23 @@
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            {{-- Dynamic Stage Stats --}}
+                                            @foreach($orderStats['stages'] ?? [] as $stage)
+                                            <div class="col-md-4 mb-3">
+                                                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, {{ $stage['color'] }}15 0%, {{ $stage['color'] }}05 100%);">
+                                                    <div class="card-body text-center py-4">
+                                                        <div class="mb-2">
+                                                            <span class="badge badge-round" style="background-color: {{ $stage['color'] }}; width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center;">
+                                                                <i class="uil uil-tag fs-4 text-white"></i>
+                                                            </span>
+                                                        </div>
+                                                        <h3 class="mb-1 fw-bold" style="color: {{ $stage['color'] }};">{{ $stage['count'] }}</h3>
+                                                        <p class="mb-0 text-muted small">{{ $stage['name'] }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @endforeach
                                         </div>
                                     </div>
                                 </div>

@@ -675,7 +675,7 @@
                                             const productName = product.name || product.title || 'N/A';
                                             const limitation = product.limitation || 0;
                                             const taxRate = product.tax && product.tax.tax_rate ? product.tax.tax_rate : 0;
-                                            const productStock = product.stock || 0;
+                                            const productStock = product.remaining_stock || 0;
                                             const productImage = product.image || '';
                                             const vendorId = product.vendor_id || null;
 
@@ -699,7 +699,7 @@
                                                             variantKey) :
                                                         (variant.variant_name || 'Default');
                                                     const variantSku = variant.sku || product.sku || 'N/A';
-                                                    const variantStock = variant.stock ?? 0;
+                                                    const variantStock = variant.remaining_stock ?? 0;
                                                     const vendorName = variant.vendor_name || 'N/A';
 
                                                     html += `

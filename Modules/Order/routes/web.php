@@ -21,6 +21,7 @@ Route::resource('order-stages', OrderStageController::class);
 // Custom routes (must be defined before resource routes)
 Route::get('orders/datatable', [OrderController::class, 'datatable'])->name('orders.datatable');
 Route::post('orders/{id}/change-stage', [OrderController::class, 'changeStage'])->name('orders.change-stage');
+Route::get('orders/{id}/payments', [OrderController::class, 'payments'])->name('orders.payments');
 
 // Resource routes
 Route::resource('orders', OrderController::class);

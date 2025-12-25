@@ -714,12 +714,11 @@
                                                         <tr class="userDatatable-header">
                                                             <th><span class="userDatatable-title">#</span></th>
                                                             <th><span class="userDatatable-title">{{ trans('vendor::vendor.order_number') }}</span></th>
-                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.product_image') }}</span></th>
-                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.product_name') }}</span></th>
+                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.product') }}</span></th>
                                                             <th><span class="userDatatable-title">{{ trans('vendor::vendor.sku') }}</span></th>
                                                             <th><span class="userDatatable-title">{{ trans('vendor::vendor.variant') }}</span></th>
-                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.quantity') }}</span></th>
                                                             <th><span class="userDatatable-title">{{ trans('vendor::vendor.unit_price') }}</span></th>
+                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.quantity') }}</span></th>
                                                             <th><span class="userDatatable-title">{{ trans('vendor::vendor.total_price') }}</span></th>
                                                             <th><span class="userDatatable-title">{{ trans('vendor::vendor.order_status') }}</span></th>
                                                             <th><span class="userDatatable-title">{{ trans('common.actions') }}</span></th>
@@ -731,25 +730,23 @@
                                                                 <td><div class="userDatatable-content">{{ ($orderProducts->currentPage() - 1) * $orderProducts->perPage() + $index + 1 }}</div></td>
                                                                 <td><div class="userDatatable-content fw-medium">#{{ $orderProduct->order->order_number ?? $orderProduct->order_id }}</div></td>
                                                                 <td>
-                                                                    <div class="userDatatable-content">
+                                                                    <div class="userDatatable-content d-flex align-items-center gap-2">
                                                                         @if($orderProduct->vendorProduct && $orderProduct->vendorProduct->product && $orderProduct->vendorProduct->product->mainImage)
                                                                             <img src="{{ asset('storage/' . $orderProduct->vendorProduct->product->mainImage->path) }}" 
                                                                                 alt="{{ $orderProduct->vendorProduct->product->getTranslation('name', app()->getLocale()) }}" 
-                                                                                class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                                                                class="rounded" style="width: 40px; height: 40px; object-fit: cover;">
                                                                         @else
-                                                                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
                                                                                 <i class="uil uil-image text-muted"></i>
                                                                             </div>
                                                                         @endif
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <div class="userDatatable-content">
-                                                                        @if($orderProduct->vendorProduct && $orderProduct->vendorProduct->product)
-                                                                            {{ $orderProduct->vendorProduct->product->getTranslation('name', app()->getLocale()) }}
-                                                                        @else
-                                                                            <span class="text-muted">-</span>
-                                                                        @endif
+                                                                        <span>
+                                                                            @if($orderProduct->vendorProduct && $orderProduct->vendorProduct->product)
+                                                                                {{ $orderProduct->vendorProduct->product->getTranslation('name', app()->getLocale()) }}
+                                                                            @else
+                                                                                <span class="text-muted">-</span>
+                                                                            @endif
+                                                                        </span>
                                                                     </div>
                                                                 </td>
                                                                 <td>
@@ -772,14 +769,17 @@
                                                                         @endif
                                                                     </div>
                                                                 </td>
-                                                                <td><div class="userDatatable-content fw-medium">{{ $orderProduct->quantity }}</div></td>
                                                                 <td><div class="userDatatable-content">{{ number_format($orderProduct->price ?? 0, 2) }} {{ currency() }}</div></td>
+                                                                <td><div class="userDatatable-content fw-medium">{{ $orderProduct->quantity }}</div></td>
                                                                 <td><div class="userDatatable-content fw-bold text-success">{{ number_format(($orderProduct->price ?? 0) * ($orderProduct->quantity ?? 1), 2) }} {{ currency() }}</div></td>
                                                                 <td>
                                                                     <div class="userDatatable-content">
-                                                                        @if($orderProduct->order && $orderProduct->order->stage)
-                                                                            <span class="badge badge-round badge-lg" style="background-color: {{ $orderProduct->order->stage->color ?? '#6c757d' }}">
-                                                                                {{ $orderProduct->order->stage->getTranslation('name', app()->getLocale()) }}
+                                                                        @php
+                                                                            $orderStage = $orderProduct->order ? \Modules\Order\app\Models\OrderStage::withoutGlobalScopes()->find($orderProduct->order->order_stage_id) : null;
+                                                                        @endphp
+                                                                        @if($orderStage)
+                                                                            <span class="badge badge-round badge-lg" style="background-color: {{ $orderStage->color ?? '#6c757d' }}; color: #fff;">
+                                                                                {{ $orderStage->getTranslation('name', app()->getLocale()) }}
                                                                             </span>
                                                                         @else
                                                                             <span class="badge bg-secondary">-</span>
@@ -796,7 +796,7 @@
                                                             </tr>
                                                         @empty
                                                             <tr>
-                                                                <td colspan="11" class="text-center text-muted py-4">{{ trans('vendor::vendor.no_order_products_found') }}</td>
+                                                                <td colspan="10" class="text-center text-muted py-4">{{ trans('vendor::vendor.no_order_products_found') }}</td>
                                                             </tr>
                                                         @endforelse
                                                     </tbody>

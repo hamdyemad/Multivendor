@@ -13,8 +13,40 @@ class SummaryController extends Controller
 
     public function index(AccountingSummaryRequest $request)
     {
-        $summary = $this->summaryService->getSummary($request->validated());
-        return view('accounting::summary', compact('summary'));
+        $filters = $request->validated();
+        $summary = $this->summaryService->getSummary($filters);
+        
+        // Generate month headers based on filters or current year
+        $monthHeaders = $this->generateMonthHeaders($filters);
+        
+        return view('accounting::summary', compact('summary', 'monthHeaders'));
+    }
+    
+    private function generateMonthHeaders($filters)
+    {
+        $currentYear = date('Y');
+        $currentMonth = date('n');
+        
+        if (!empty($filters['date_from']) && !empty($filters['date_to'])) {
+            $startDate = \Carbon\Carbon::parse($filters['date_from']);
+            $endDate = \Carbon\Carbon::parse($filters['date_to']);
+        } else {
+            $startDate = \Carbon\Carbon::create($currentYear, 1, 1);
+            $endDate = \Carbon\Carbon::create($currentYear, $currentMonth, 1);
+        }
+        
+        $months = [];
+        $current = $startDate->copy()->startOfMonth();
+        
+        while ($current <= $endDate) {
+            $months[] = [
+                'key' => $current->month,
+                'name' => $current->format('M Y')
+            ];
+            $current->addMonth();
+        }
+        
+        return $months;
     }
 }
 

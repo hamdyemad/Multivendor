@@ -110,6 +110,7 @@ return [
     // Latest Orders
     'latest_orders' => 'Latest Orders',
     'order_number' => 'Order Number',
+    'customer' => 'Customer',
     'user' => 'User',
 
     // Best Customers

@@ -42,8 +42,8 @@ class WithdrawRepository implements WithdrawRepositoryInterface
             ];
         }
 
-        // Get vendor's total balance from delivered orders
-        $vendor_order_prices = $vendor->total_balance;
+        // Get vendor's total balance from delivered orders (product price * quantity)
+        $delivered_orders_total = $vendor->total_balance;
 
         // Get total sent money (accepted withdrawals)
         $total_sent_money = Withdraw::where(function ($q) use ($vendor) {
@@ -59,24 +59,20 @@ class WithdrawRepository implements WithdrawRepositoryInterface
             ->where('status', 'new')
             ->sum('sent_amount');
 
-        // Commission from Bnaia
-        $commission = $vendor->bnaia_commission;
-        $bnaia_balance = $commission;
+        // Commission from Bnaia (calculated from delivered orders)
+        $bnaia_balance = $vendor->bnaia_commission;
         
-        // Total Vendor's Transactions = delivered orders total - sent money
-        $total_transactions = $vendor_order_prices - $total_sent_money;
+        // Total Vendor's Credit = delivered orders total - bnaia commission
+        $total_vendor_balance = $delivered_orders_total - $bnaia_balance;
         
-        // Remaining credit after commission
-        $remaining_credit = $vendor_order_prices - $bnaia_balance;
-        
-        // Remaining after sent money
-        $remaining = $remaining_credit - $total_sent_money;
+        // Remaining = Total Vendor's Credit - sent money
+        $remaining = $total_vendor_balance - $total_sent_money;
         
         return [
-            "orders_price" => number_format($total_transactions, 2),
-            "vendor_commission" => $commission,
+            "orders_price" => number_format($delivered_orders_total, 2),
+            "vendor_commission" => $bnaia_balance,
             "bnaia_balance" => number_format($bnaia_balance, 2),
-            "total_vendor_balance" => number_format($remaining_credit, 2),
+            "total_vendor_balance" => number_format($total_vendor_balance, 2),
             "total_sent_money" => number_format($total_sent_money, 2),
             "remaining" => number_format($remaining, 2),
             "waiting_approve_requests" => $waiting_approve_requests

@@ -20,22 +20,33 @@
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>
-                            @if($customer->image)
-                                <img class="rounded-circle" src="{{ asset('storage/' . $customer->image) }}" alt="user" style="width: 40px; height: 40px; object-fit: cover;">
-                            @else
-                                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                    <i class="uil uil-user text-muted"></i>
+                            <div class="d-flex align-items-center">
+                                @if($customer->image)
+                                    <img class="rounded-circle" src="{{ asset('storage/' . $customer->image) }}" alt="user" style="width: 40px; height: 40px; object-fit: cover;">
+                                @else
+                                    <div class="bg-{{ ($customer->customer_type ?? 'registered') == 'external' ? 'secondary' : 'primary' }} rounded-circle d-inline-flex align-items-center justify-content-center text-white" style="width: 40px; height: 40px;">
+                                        <span style="font-size: 14px;">{{ strtoupper(substr($customer->first_name ?? 'C', 0, 1)) }}</span>
+                                    </div>
+                                @endif
+                                <div class="ms-3">
+                                    <span class="d-block">{{ $customer->full_name ?? ($customer->first_name . ' ' . $customer->last_name) }}</span>
+                                    @if(($customer->customer_type ?? 'registered') == 'external')
+                                        <small class="text-muted">({{ trans('common.guest') }})</small>
+                                    @endif
                                 </div>
-                            @endif
-                            <span class="ms-3">{{ $customer->full_name ?? $customer->email }}</span>
+                            </div>
                         </td>
-                        <td>{{ $customer->orders_count ?? 0 }}</td>
-                        <td class="fw-bold text-success">{{ number_format($customer->orders_sum_total_price ?? 0, 2) }} {{ currency() }}</td>
-                        <td>{{ $customer->created_at ? $customer->created_at : '-' }}</td>
-                        <td class="actions">
-                            <a href="{{ route('admin.customers.show', $customer->id) }}" target="_blank" class="btn btn-sm btn-primary">
-                                <i class="uil uil-eye m-0"></i>
-                            </a>
+                        <td class="text-center">{{ $customer->orders_count ?? 0 }}</td>
+                        <td class="fw-bold text-success text-center">{{ number_format($customer->orders_sum_total_price ?? 0, 2) }} {{ currency() }}</td>
+                        <td class="text-center">{{ $customer->created_at ? \Carbon\Carbon::parse($customer->created_at)->format('d M, Y, h:i A') : '-' }}</td>
+                        <td class="actions text-center">
+                            @if($customer->id)
+                                <a href="{{ route('admin.customers.show', $customer->id) }}" target="_blank" class="btn btn-sm btn-primary">
+                                    <i class="uil uil-eye m-0"></i>
+                                </a>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
                         </td>
                     </tr>
                     @empty

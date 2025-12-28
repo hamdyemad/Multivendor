@@ -992,25 +992,106 @@ class DashboardService
     private function getBestCustomers($limit = 5)
     {
         if ($this->isVendor && $this->vendorId) {
-            // Get customers who bought from this vendor
-            return Customer::withoutCountryFilter()
-                ->select('customers.*')
+            // For vendors: Get all customers (registered + external) who bought from this vendor
+            // Registered customers
+            $registeredCustomers = \DB::table('orders')
+                ->select(
+                    'customers.id',
+                    'customers.first_name',
+                    'customers.last_name',
+                    'customers.email',
+                    'customers.image',
+                    'customers.created_at',
+                    \DB::raw("'registered' as customer_type")
+                )
                 ->selectRaw('COUNT(DISTINCT orders.id) as orders_count')
                 ->selectRaw('SUM(order_products.price * order_products.quantity) as orders_sum_total_price')
-                ->join('orders', 'customers.id', '=', 'orders.customer_id')
+                ->join('customers', 'orders.customer_id', '=', 'customers.id')
                 ->join('order_products', 'orders.id', '=', 'order_products.order_id')
                 ->where('order_products.vendor_id', $this->vendorId)
-                ->groupBy('customers.id')
+                ->whereNotNull('orders.customer_id')
+                ->groupBy('customers.id', 'customers.first_name', 'customers.last_name', 'customers.email', 'customers.image', 'customers.created_at');
+
+            // External customers
+            $externalCustomers = \DB::table('orders')
+                ->select(
+                    \DB::raw('NULL as id'),
+                    \DB::raw("SUBSTRING_INDEX(orders.customer_name, ' ', 1) as first_name"),
+                    \DB::raw("SUBSTRING_INDEX(orders.customer_name, ' ', -1) as last_name"),
+                    'orders.customer_email as email',
+                    \DB::raw('NULL as image'),
+                    \DB::raw('MIN(orders.created_at) as created_at'),
+                    \DB::raw("'external' as customer_type")
+                )
+                ->selectRaw('COUNT(DISTINCT orders.id) as orders_count')
+                ->selectRaw('SUM(order_products.price * order_products.quantity) as orders_sum_total_price')
+                ->join('order_products', 'orders.id', '=', 'order_products.order_id')
+                ->where('order_products.vendor_id', $this->vendorId)
+                ->whereNull('orders.customer_id')
+                ->whereNotNull('orders.customer_name')
+                ->groupBy('orders.customer_name', 'orders.customer_email');
+
+            // Union and order by total
+            $customers = $registeredCustomers
+                ->union($externalCustomers)
                 ->orderByDesc('orders_sum_total_price')
-                ->take($limit)
+                ->limit($limit)
                 ->get();
+
+            // Transform to collection with full_name attribute
+            return $customers->map(function ($customer) {
+                $customer->full_name = trim($customer->first_name . ' ' . $customer->last_name);
+                return $customer;
+            });
         }
         
-        return Customer::withCount('orders')
-            ->withSum('orders', 'total_price')
+        // For admin: Get all customers (registered + external) with highest total order amounts
+        // Registered customers
+        $registeredCustomers = \DB::table('orders')
+            ->select(
+                'customers.id',
+                'customers.first_name',
+                'customers.last_name',
+                'customers.email',
+                'customers.image',
+                'customers.created_at',
+                \DB::raw("'registered' as customer_type")
+            )
+            ->selectRaw('COUNT(orders.id) as orders_count')
+            ->selectRaw('SUM(orders.total_price) as orders_sum_total_price')
+            ->join('customers', 'orders.customer_id', '=', 'customers.id')
+            ->whereNotNull('orders.customer_id')
+            ->groupBy('customers.id', 'customers.first_name', 'customers.last_name', 'customers.email', 'customers.image', 'customers.created_at');
+
+        // External customers (grouped by name + email)
+        $externalCustomers = \DB::table('orders')
+            ->select(
+                \DB::raw('NULL as id'),
+                \DB::raw("SUBSTRING_INDEX(customer_name, ' ', 1) as first_name"),
+                \DB::raw("SUBSTRING_INDEX(customer_name, ' ', -1) as last_name"),
+                'customer_email as email',
+                \DB::raw('NULL as image'),
+                \DB::raw('MIN(created_at) as created_at'),
+                \DB::raw("'external' as customer_type")
+            )
+            ->selectRaw('COUNT(id) as orders_count')
+            ->selectRaw('SUM(total_price) as orders_sum_total_price')
+            ->whereNull('customer_id')
+            ->whereNotNull('customer_name')
+            ->groupBy('customer_name', 'customer_email');
+
+        // Union and order by total
+        $customers = $registeredCustomers
+            ->union($externalCustomers)
             ->orderByDesc('orders_sum_total_price')
-            ->take($limit)
+            ->limit($limit)
             ->get();
+
+        // Transform to collection with full_name attribute
+        return $customers->map(function ($customer) {
+            $customer->full_name = trim($customer->first_name . ' ' . $customer->last_name);
+            return $customer;
+        });
     }
 
     private function getRecentActivities($limit = 5)

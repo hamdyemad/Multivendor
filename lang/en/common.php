@@ -216,6 +216,7 @@ return [
     'trashed' => 'Trashed',
     'restore' => 'Restore',
     'no_data_available' => 'No Data Available',
+    'guest' => 'Guest',
     'drag_to_reorder' => 'Drag to reorder',
     'order_updated_successfully' => 'Order updated successfully',
     'error_updating_order' => 'Error updating order',

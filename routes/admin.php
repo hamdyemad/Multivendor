@@ -84,6 +84,15 @@ Route::prefix('vendor-users-management')->name('vendor-users-management.')->grou
 Route::get('seeder', function () {
         permessions_reset();
         roles_reset();
+        
+        // Delete orders and withdraws data
+        \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        \Modules\Order\app\Models\OrderProduct::query()->forceDelete();
+        \Modules\Order\app\Models\Order::query()->forceDelete();
+        \Modules\Withdraw\app\Models\Withdraw::query()->forceDelete();
+        \Modules\CatalogManagement\app\Models\StockBooking::query()->forceDelete();
+        \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        
         try {
         // Seeders in order of dependency
         $seeders = [

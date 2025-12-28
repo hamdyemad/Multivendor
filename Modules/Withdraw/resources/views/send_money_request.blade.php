@@ -80,12 +80,6 @@
                                                                     <p style="font-size: 11px !important;">{{ trans('withdraw::withdraw.bnaia_commission_from_transactions') }}
                                                                     </p>
                                                                 </div>
-                                                                {{-- <div class="ap-po-details__icon-area">
-                                                                    <div class="svg-icon order-bg-opacity-primary color-primary"
-                                                                        style="width: 50px; height: 50px;">
-                                                                        <i class="uil uil-export"></i>
-                                                                    </div>
-                                                                </div> --}}
                                                             </div>
                                                         </div>
                                                     </div>

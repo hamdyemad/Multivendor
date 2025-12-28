@@ -22,7 +22,7 @@
                         <td><span class="fw-medium">#{{ $order->order_number ?? $order->id }}</span></td>
                         <td>
                             @if($order->customer)
-                                <div class="d-flex align-items-center">
+                                <div class="d-flex align-items-center justify-content-center">
                                     <div class="me-2">
                                         @if($order->customer->image)
                                             <img src="{{ asset($order->customer->image) }}" alt="{{ $order->customer->full_name }}" class="rounded-circle" style="width: 35px; height: 35px; object-fit: cover;">
@@ -34,16 +34,27 @@
                                     </div>
                                     <span>{{ $order->customer->full_name ?? $order->customer->email }}</span>
                                 </div>
+                            @elseif($order->customer_name)
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <div class="me-2">
+                                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white" style="width: 35px; height: 35px; font-size: 14px;">
+                                            {{ strtoupper(substr($order->customer_name, 0, 1)) }}
+                                        </div>
+                                    </div>
+                                    <span>{{ $order->customer_name }}</span>
+                                </div>
                             @else
                                 <span class="text-muted">-</span>
                             @endif
                         </td>
                         <td class="fw-bold text-success">{{ number_format($order->vendor_product_total ?? $order->total_price ?? 0, 2) }} {{ currency() }}</td>
-                        <td>
+                        <td class="text-center">
                             @if($order->stage)
-                                <span class="badge badge-round badge-lg" style="background-color: {{ $order->stage->color ?? '#6c757d' }}">
-                                    {{ $order->stage->getTranslation('name', app()->getLocale()) }}
+                                <span class="badge badge-round badge-lg" style="background-color: {{ $order->stage->color ?? '#6c757d' }}; color: #fff;">
+                                    {{ $order->stage->name ?? $order->stage->getTranslation('name', app()->getLocale()) ?? '-' }}
                                 </span>
+                            @elseif($order->stage_id)
+                                <span class="badge bg-secondary badge-round badge-lg">ID: {{ $order->stage_id }}</span>
                             @else
                                 <span class="badge bg-secondary badge-round badge-lg">-</span>
                             @endif

@@ -221,6 +221,7 @@ return [
     'trashed' => 'محذوف',
     'restore' => 'استعادة',
     'no_data_available' => 'لا توجد بيانات متاحة',
+    'guest' => 'زائر',
     'drag_to_reorder' => 'اسحب لإعادة الترتيب',
     'order_updated_successfully' => 'تم تحديث الترتيب بنجاح',
     'error_updating_order' => 'خطأ في تحديث الترتيب',

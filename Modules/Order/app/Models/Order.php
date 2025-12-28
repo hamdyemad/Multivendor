@@ -115,7 +115,7 @@ class Order extends BaseModel
      */
     public function stage(): BelongsTo
     {
-        return $this->belongsTo(OrderStage::class);
+        return $this->belongsTo(OrderStage::class, 'stage_id')->withoutGlobalScope('country_filter');
     }
 
     /**

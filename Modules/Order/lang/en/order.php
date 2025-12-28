@@ -101,6 +101,8 @@ return [
     'customer_email_invalid' => 'Customer email must be a valid email address',
     'customer_phone_required' => 'Customer phone is required',
     'customer_address_required' => 'Customer address is required',
+    'city_required' => 'City is required',
+    'region_required' => 'Region is required',
     'address_required' => 'Please select an address',
     'products_required' => 'Please add at least 3 products to the order',
     'total_price_required' => 'Total price is required',

@@ -28,6 +28,8 @@ class StoreOrderRequest extends FormRequest
             'external_customer_email' => 'nullable|required_if:customer_type,external|email|max:255',
             'external_customer_phone' => 'nullable|required_if:customer_type,external|string|max:20',
             'external_customer_address' => 'nullable|required_if:customer_type,external|string',
+            'external_city_id' => 'nullable|required_if:customer_type,external|exists:cities,id',
+            'external_region_id' => 'nullable|required_if:customer_type,external|exists:regions,id',
             'customer_address_id' => 'nullable|required_if:customer_type,existing|exists:customer_addresses,id',
 
             // Order Details
@@ -56,6 +58,8 @@ class StoreOrderRequest extends FormRequest
             'external_customer_email.required_if' => trans('order::order.customer_email_required'),
             'external_customer_phone.required_if' => trans('order::order.customer_phone_required'),
             'external_customer_address.required_if' => trans('order::order.customer_address_required'),
+            'external_city_id.required_if' => trans('order::order.city_required'),
+            'external_region_id.required_if' => trans('order::order.region_required'),
             'customer_address_id.required_if' => trans('order::order.address_required'),
             'products.required' => trans('order::order.products_required'),
             'products.min' => trans('order::order.products_required'),

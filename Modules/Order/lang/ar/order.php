@@ -101,6 +101,8 @@ return [
     'customer_email_invalid' => 'يجب أن يكون بريد العميل الإلكتروني صحيحاً',
     'customer_phone_required' => 'هاتف العميل مطلوب',
     'customer_address_required' => 'عنوان العميل مطلوب',
+    'city_required' => 'المدينة مطلوبة',
+    'region_required' => 'المنطقة مطلوبة',
     'address_required' => 'يرجى اختيار عنوان',
     'products_required' => 'يرجى إضافة 3 منتجات على الأقل إلى الطلب',
     'total_price_required' => 'السعر الإجمالي مطلوب',

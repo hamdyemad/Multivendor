@@ -66,6 +66,19 @@
             #products-grid::-webkit-scrollbar-thumb:hover {
                 background: #a1a1a1;
             }
+
+            /* Disabled/Out of Stock Card */
+            .product-card.disabled-card {
+                cursor: not-allowed;
+                background-color: #f8f9fa;
+                border-color: #dee2e6;
+                opacity: 0.7;
+            }
+
+            .product-card.disabled-card:hover {
+                border-color: #dee2e6;
+                box-shadow: none;
+            }
         </style>
     @endpush
 
@@ -376,26 +389,37 @@
 
                     // Load existing bundle products from resource
                     const existingProducts = @json($bundleResource['bundle_products']);
+                    const currencySymbol = '{{ currency() }}';
+                    const defaultImage = '{{ asset('assets/img/default.png') }}';
+                    const defaultVendorLogo = '{{ asset('assets/img/default-vendor.png') }}';
 
                     existingProducts.forEach(function(bundleProduct) {
                         const variantId = bundleProduct.vendor_product_variant_id;
 
                         // Access clean data from BundleResource
                         const vpv = bundleProduct.vendor_product_variant;
-                        console.log(vpv)
-                        let productName = vpv.product?.name || '-';
-                        let variantName = vpv.variant_configuration?.name || '-';
-                        let sku = vpv.sku || '-';
-                        let productImage = '{{ asset('assets/img/default.png') }}';
+                        console.log('Bundle Product Variant:', vpv);
+                        
+                        let productName = vpv?.product?.name || '-';
+                        let variantName = vpv?.variant_configuration?.name || '-';
+                        let variantKey = vpv?.variant_configuration?.key?.name || '';
+                        let sku = vpv?.sku || '-';
+                        let productImage = vpv?.product?.image || defaultImage;
+                        let remainingStock = vpv?.remaining_stock ?? 0;
+                        let vendorName = vpv?.vendor?.name || 'N/A';
+                        let vendorLogo = vpv?.vendor?.logo || defaultVendorLogo;
 
                         selectedProducts.push(variantId);
                         selectedProductsDetails[variantId] = {
                             id: variantId,
                             name: productName + ' - ' + variantName,
+                            variantKey: variantKey,
                             image: productImage,
                             sku: sku,
-                            stock: 0,
+                            stock: remainingStock,
                             price: bundleProduct.price,
+                            vendorName: vendorName,
+                            vendorLogo: vendorLogo,
                             limit_quantity: bundleProduct.limitation_quantity,
                             min_quantity: bundleProduct.min_quantity
                         };
@@ -486,16 +510,24 @@
                                     '{{ asset('assets/img/logo.png') }}';
                                 const productName = vendorProduct.name || 'N/A';
                                 const variants = vendorProduct.variants || [];
+                                
+                                // Get vendor info
+                                const vendor = vendorProduct.vendor || {};
+                                const vendorName = vendor.name || 'N/A';
+                                const vendorLogo = vendor.logo || '{{ asset('assets/img/default-vendor.png') }}';
 
                                 if (variants.length > 0) {
                                     variants.forEach(function(variant) {
                                         const variantId = variant.id;
-                                        const variantName = variant.variant_name || variant.name ||
-                                            '';
+                                        const variantName = variant.variant_name || variant.name || '';
+                                        const variantKey = variant.variant_key || '';
+                                        const variantValue = variant.variant_value || variantName || '';
                                         const variantSku = variant.sku || 'N/A';
-                                        const stock = variant.stock || 0;
+                                        // Use remaining_stock instead of stock
+                                        const remainingStock = variant.remaining_stock ?? variant.stock ?? 0;
                                         const price = variant.real_price;
                                         const isSelected = selectedProducts.includes(variantId);
+                                        const isOutOfStock = remainingStock <= 0;
 
                                         // Only add to allProducts if not already there
                                         if (!allProducts.find(p => p.id == variantId)) {
@@ -503,25 +535,37 @@
                                                 id: variantId,
                                                 productName: productName,
                                                 variantName: variantName,
+                                                variantKey: variantKey,
+                                                variantValue: variantValue,
                                                 sku: variantSku,
-                                                stock: stock,
+                                                stock: remainingStock,
                                                 price: price,
-                                                image: productImage
+                                                image: productImage,
+                                                vendorName: vendorName,
+                                                vendorLogo: vendorLogo
                                             });
                                         }
 
                                         const selectedClass = isSelected ? 'selected' : '';
+                                        const disabledClass = isOutOfStock ? 'disabled-card' : '';
+                                        const disabledAttr = isOutOfStock ? 'data-disabled="true"' : '';
+                                        const currencySymbol = '{{ currency() }}';
+                                        
                                         productsHtml += `
                                             <div class="col-md-6 mb-3">
-                                                <div class="product-card ${selectedClass}" data-variant-id="${variantId}">
+                                                <div class="product-card ${selectedClass} ${disabledClass}" data-variant-id="${variantId}" ${disabledAttr}>
                                                     <div class="d-flex">
-                                                        <img src="${productImage}" alt="${productName}" class="product-image me-3">
+                                                        <img src="${productImage}" alt="${productName}" class="product-image me-3" style="${isOutOfStock ? 'opacity: 0.5;' : ''}">
                                                         <div class="flex-grow-1">
-                                                            <h6 class="mb-1">${productName}</h6>
-                                                            <small class="text-muted d-block">${variantName}</small>
+                                                            <h6 class="mb-1" style="${isOutOfStock ? 'opacity: 0.5;' : ''}">${productName}</h6>
+                                                            <small class="text-muted d-block"><strong>${variantKey}:</strong> ${variantValue}</small>
                                                             <small class="text-muted d-block">SKU: ${variantSku}</small>
-                                                            <small class="text-muted d-block">Stock: ${stock}</small>
-                                                            <small class="text-success d-block">Price: ${price}</small>
+                                                            <small class="text-muted d-block">{{ trans('catalogmanagement::bundle.remaining_stock') }}: <span class="${remainingStock > 0 ? 'text-success' : 'text-danger fw-bold'}">${remainingStock}${isOutOfStock ? ' ({{ trans("catalogmanagement::bundle.out_of_stock") }})' : ''}</span></small>
+                                                            <small class="text-success d-block">{{ trans('catalogmanagement::bundle.price') }}: ${price} ${currencySymbol}</small>
+                                                            <div class="d-flex align-items-center mt-2 pt-2 border-top">
+                                                                <img src="${vendorLogo}" alt="${vendorName}" class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;">
+                                                                <small class="text-primary fw-500">${vendorName}</small>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -538,10 +582,20 @@
                                 $('#products-grid').append(productsHtml);
                             }
 
-                            // Attach click handlers to product cards
-                            $('.product-card').on('click', function() {
-                                const variantId = $(this).data('variant-id');
-                                const product = allProducts.find(p => p.id == variantId);
+                            // Attach click handlers to product cards (use off() to prevent duplicate handlers)
+                            $('#products-grid').off('click', '.product-card').on('click', '.product-card', function() {
+                                // Ignore clicks on disabled (out of stock) cards
+                                if ($(this).data('disabled') === true) {
+                                    return;
+                                }
+                                
+                                const variantId = parseInt($(this).data('variant-id'));
+                                const product = allProducts.find(p => parseInt(p.id) === variantId);
+                                
+                                if (!product) {
+                                    console.error('Product not found for variant ID:', variantId);
+                                    return;
+                                }
 
                                 if (selectedProducts.includes(variantId)) {
                                     selectedProducts = selectedProducts.filter(id => id != variantId);
@@ -552,10 +606,13 @@
                                     selectedProductsDetails[variantId] = {
                                         id: variantId,
                                         name: product.productName + ' - ' + product.variantName,
+                                        variantKey: product.variantKey,
                                         image: product.image,
                                         sku: product.sku,
                                         stock: product.stock,
                                         price: product.price,
+                                        vendorName: product.vendorName,
+                                        vendorLogo: product.vendorLogo,
                                         limit_quantity: null,
                                         min_quantity: 1
                                     };
@@ -618,6 +675,10 @@
                 let html = '';
                 selectedProducts.forEach(function(variantId) {
                     const product = selectedProductsDetails[variantId];
+                    const vendorLogo = product.vendorLogo || '{{ asset('assets/img/default-vendor.png') }}';
+                    const vendorName = product.vendorName || 'N/A';
+                    const stockClass = product.stock > 0 ? 'text-success' : 'text-danger';
+                    
                     html += `
                         <div class="col-md-6 col-lg-4 mb-3">
                             <div class="card border-0 shadow-sm h-100 product-card">
@@ -626,10 +687,15 @@
                                 </div>
                                 <div class="card-body">
                                     <h6 class="card-title mb-2 fw-semibold">${product.name}</h6>
+                                    
+                                    <div class="d-flex align-items-center mb-2">
+                                        <img src="${vendorLogo}" alt="${vendorName}" class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;">
+                                        <small class="text-primary fw-500">${vendorName}</small>
+                                    </div>
 
                                     <div class="mb-3 pb-3 border-bottom">
                                         <small class="text-muted d-block"><strong>SKU:</strong> ${product.sku}</small>
-                                        <small class="text-muted d-block"><strong>Stock:</strong> ${product.stock}</small>
+                                        <small class="d-block"><strong>{{ trans('catalogmanagement::bundle.remaining_stock') }}:</strong> <span class="${stockClass}">${product.stock}</span></small>
                                     </div>
 
                                     <div class="mb-3">
@@ -718,11 +784,14 @@
                 // Add selected products to form data
                 selectedProducts.forEach(function(variantId, index) {
                     const product = selectedProductsDetails[variantId];
+                    if (!product) {
+                        console.error('Product details not found for variant ID:', variantId);
+                        return;
+                    }
                     formData.append(`bundle_products[${index}][vendor_product_variant_id]`, variantId);
-                    formData.append(`bundle_products[${index}][price]`, product.price);
-                    formData.append(`bundle_products[${index}][limitation_quantity]`, product.limit_quantity ||
-                        1);
-                    formData.append(`bundle_products[${index}][min_quantity]`, product.min_quantity);
+                    formData.append(`bundle_products[${index}][price]`, product.price || 0);
+                    formData.append(`bundle_products[${index}][limitation_quantity]`, product.limit_quantity || 1);
+                    formData.append(`bundle_products[${index}][min_quantity]`, product.min_quantity || 1);
                 });
 
                 $.ajax({

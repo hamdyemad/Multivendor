@@ -58,9 +58,9 @@ class FetchUserData
                 'phone' => $data['external_customer_phone'],
                 'address' => $data['external_customer_address'],
                 'address_id' => null,
-                'country_id' => null,
-                'city_id' => null,
-                'region_id' => null,
+                'country_id' => session('country_id'),
+                'city_id' => $data['external_city_id'] ?? null,
+                'region_id' => $data['external_region_id'] ?? null,
                 'is_existing' => false,
             ];
         }

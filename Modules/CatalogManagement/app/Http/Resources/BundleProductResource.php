@@ -12,6 +12,12 @@ class BundleProductResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $vendorProductVariant = $this->vendorProductVariant;
+        $vendorProduct = $vendorProductVariant?->vendorProduct;
+        $product = $vendorProduct?->product;
+        $vendor = $vendorProduct?->vendor;
+        $variantConfig = $vendorProductVariant?->variantConfiguration;
+        
         return [
             'id' => $this->id,
             'bundle_id' => $this->bundle_id,
@@ -24,20 +30,27 @@ class BundleProductResource extends JsonResource
             'updated_at' => $this->updated_at,
 
             // Vendor Product Variant Details
-            'vendor_product_variant' => $this->vendorProductVariant ? [
-                'id' => $this->vendorProductVariant->id,
-                'sku' => $this->vendorProductVariant->sku,
-                'price' => $this->vendorProductVariant->price,
-                'product' => $this->vendorProductVariant->vendorProduct ? [
-                    'id' => $this->vendorProductVariant->vendorProduct->product->id,
-                    'name' => $this->vendorProductVariant->vendorProduct->product->name
+            'vendor_product_variant' => $vendorProductVariant ? [
+                'id' => $vendorProductVariant->id,
+                'sku' => $vendorProductVariant->sku,
+                'price' => $vendorProductVariant->price,
+                'remaining_stock' => $vendorProductVariant->remaining_stock ?? 0,
+                'product' => $product ? [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'image' => $product->mainImage ? formatImage($product->mainImage) : null,
                 ] : null,
-                'variant_configuration' => $this->vendorProductVariant->variantConfiguration ? [
-                    'id' => $this->vendorProductVariant->variantConfiguration->id,
-                    'name' => $this->vendorProductVariant->variantConfiguration->name,
-                    'key' => $this->vendorProductVariant->variantConfiguration->key ? [
-                        'id' => $this->vendorProductVariant->variantConfiguration->key->id,
-                        'name' => $this->vendorProductVariant->variantConfiguration->key->name
+                'vendor' => $vendor ? [
+                    'id' => $vendor->id,
+                    'name' => $vendor->name,
+                    'logo' => formatImage($vendor->logo),
+                ] : null,
+                'variant_configuration' => $variantConfig ? [
+                    'id' => $variantConfig->id,
+                    'name' => $variantConfig->name,
+                    'key' => $variantConfig->key ? [
+                        'id' => $variantConfig->key->id,
+                        'name' => $variantConfig->key->name
                     ] : null
                 ] : null
             ] : null,

@@ -223,6 +223,42 @@
                                     <div class="col-md-6 mb-25">
                                         <div class="form-group">
                                             <label class="il-gray fs-14 fw-500 mb-10 d-block">
+                                                {{ trans('order.city') }}
+                                                <span class="text-danger">*</span>
+                                            </label>
+                                            <select
+                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                id="external_city_id" name="external_city_id">
+                                                <option value="">{{ __('common.select') }}</option>
+                                            </select>
+                                            @error('external_city_id')
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-25">
+                                        <div class="form-group">
+                                            <label class="il-gray fs-14 fw-500 mb-10 d-block">
+                                                {{ trans('order.region') }}
+                                                <span class="text-danger">*</span>
+                                            </label>
+                                            <select
+                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
+                                                id="external_region_id" name="external_region_id" disabled>
+                                                <option value="">{{ __('common.select') }}</option>
+                                            </select>
+                                            @error('external_region_id')
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 mb-25">
+                                        <div class="form-group">
+                                            <label class="il-gray fs-14 fw-500 mb-10 d-block">
                                                 {{ trans('order.customer_address') }}
                                                 <span class="text-danger">*</span>
                                             </label>
@@ -1122,6 +1158,76 @@
                         });
                     });
 
+                    // ========== External Customer Location Handlers ==========
+                    // Load cities for external customer
+                    function loadExternalCities() {
+                        const countryId = $("meta[name='current_country_id']").attr('content');
+                        
+                        if (!countryId) return;
+
+                        const citySelect = $('#external_city_id');
+                        citySelect.empty().append('<option value="">{{ __('common.select') }}</option>');
+
+                        $.ajax({
+                            url: `/api/area/countries/${countryId}/cities`,
+                            type: 'GET',
+                            dataType: 'json',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                                'Accept': 'application/json',
+                                'X-Country-Code': countryCode,
+                                'lang': "{{ app()->getLocale() }}",
+                            },
+                            success: function(response) {
+                                if (response.data && response.data.length > 0) {
+                                    response.data.forEach(city => {
+                                        citySelect.append(
+                                            `<option value="${city.id}">${city.name || city.title}</option>`
+                                        );
+                                    });
+                                }
+                            }
+                        });
+                    }
+
+                    // Load regions for external customer based on city
+                    $('#external_city_id').on('change', function() {
+                        const cityId = $(this).val();
+                        const regionSelect = $('#external_region_id');
+
+                        regionSelect.empty().append('<option value="">{{ __('common.select') }}</option>').prop('disabled', true);
+
+                        if (!cityId) return;
+
+                        $.ajax({
+                            url: `/api/area/cities/${cityId}/regions`,
+                            type: 'GET',
+                            dataType: 'json',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                                'Accept': 'application/json',
+                                'X-Country-Code': countryCode,
+                                'lang': "{{ app()->getLocale() }}",
+                            },
+                            success: function(response) {
+                                if (response.data && response.data.length > 0) {
+                                    response.data.forEach(region => {
+                                        regionSelect.append(
+                                            `<option value="${region.id}">${region.name || region.title}</option>`
+                                        );
+                                    });
+                                    regionSelect.prop('disabled', false);
+                                }
+                            }
+                        });
+                    });
+
+                    // Load external cities when switching to external customer
+                    $('input[name="customer_type"]').on('change', function() {
+                        if ($(this).val() === 'external') {
+                            loadExternalCities();
+                        }
+                    });
                     // Open add address modal
                     $('#addNewAddressBtn, #createAddressBtn').on('click', function() {
                         const customerId = $('#selected_customer_id').val();

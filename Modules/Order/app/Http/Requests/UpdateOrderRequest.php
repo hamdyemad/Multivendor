@@ -27,6 +27,8 @@ class UpdateOrderRequest extends FormRequest
             'external_customer_email' => 'required_if:customer_type,external|nullable|email|max:255',
             'external_customer_phone' => 'required_if:customer_type,external|nullable|string|max:20',
             'external_customer_address' => 'required_if:customer_type,external|nullable|string',
+            'external_city_id' => 'required_if:customer_type,external|nullable|exists:cities,id',
+            'external_region_id' => 'required_if:customer_type,external|nullable|exists:regions,id',
             'products' => 'required|json',
             'feesData' => 'nullable|json',
             'discountsData' => 'nullable|json',

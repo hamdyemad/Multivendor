@@ -54,6 +54,8 @@ return [
     'loading_products' => 'جاري تحميل المنتجات...',
     'error_loading_products' => 'خطأ في تحميل المنتجات',
     'price' => 'السعر',
+    'remaining_stock' => 'المخزون المتبقي',
+    'out_of_stock' => 'نفذ المخزون',
     'limit_quantity' => 'الحد الأقصى للكمية',
     'min_quantity' => 'الحد الأدنى للكمية',
     'select_vendor_first' => 'يرجى تحديد بائع أولاً',

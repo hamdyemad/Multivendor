@@ -54,6 +54,8 @@ return [
     'loading_products' => 'Loading products...',
     'error_loading_products' => 'Error loading products',
     'price' => 'Price',
+    'remaining_stock' => 'Remaining Stock',
+    'out_of_stock' => 'Out of Stock',
     'limit_quantity' => 'Limit Quantity',
     'min_quantity' => 'Min Quantity',
     'select_vendor_first' => 'Please select a vendor first',

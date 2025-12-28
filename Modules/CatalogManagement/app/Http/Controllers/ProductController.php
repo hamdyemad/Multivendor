@@ -5,6 +5,7 @@ namespace Modules\CatalogManagement\app\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Validation\ValidationException;
 use Modules\CatalogManagement\app\Models\Product;
@@ -777,11 +778,37 @@ class ProductController extends Controller
                 ], 403);
             }
 
+            DB::beginTransaction();
+
             $vendorProduct = VendorProduct::withTrashed()->findOrFail($id);
+            
+            // Restore the vendor product
             $vendorProduct->restore();
 
-            Log::info('Vendor product restored', [
+            // Restore variants and their stocks
+            $variants = \Modules\CatalogManagement\app\Models\VendorProductVariant::withTrashed()
+                ->where('vendor_product_id', $id)
+                ->get();
+
+            foreach ($variants as $variant) {
+                $variant->restore();
+                
+                // Restore stocks for this variant
+                \Modules\CatalogManagement\app\Models\VendorProductVariantStock::withTrashed()
+                    ->where('vendor_product_variant_id', $variant->id)
+                    ->restore();
+            }
+
+            // Also restore the product if it was soft-deleted
+            if ($vendorProduct->product && $vendorProduct->product->trashed()) {
+                $vendorProduct->product->restore();
+            }
+
+            DB::commit();
+
+            Log::info('Vendor product restored with variants and stocks', [
                 'vendor_product_id' => $id,
+                'variants_count' => $variants->count(),
                 'restored_by' => auth()->id()
             ]);
 
@@ -791,6 +818,8 @@ class ProductController extends Controller
             ]);
 
         } catch (Exception $e) {
+            DB::rollBack();
+            
             Log::error('Restore vendor product failed', [
                 'vendor_product_id' => $id,
                 'error' => $e->getMessage(),

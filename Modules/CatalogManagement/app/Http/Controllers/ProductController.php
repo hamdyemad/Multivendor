@@ -57,7 +57,7 @@ class ProductController extends Controller
         $this->middleware('can:products.index')->only(['index', 'datatable', 'pending', 'rejected', 'accepted']);
         $this->middleware('can:products.create')->only(['create', 'store']);
         $this->middleware('can:products.edit')->only(['edit', 'update', 'moveToBank']);
-        $this->middleware('can:products.stock-setup')->only(['stockManagement', 'updateStockPricing']);
+        $this->middleware('can:products.stock-management')->only(['stockManagement', 'updateStockPricing']);
         $this->middleware('can:products.delete')->only(['destroy']);
         $this->middleware('can:products.show')->only(['show']);
         $this->middleware('can:products.change-status')->only(['changeStatus']);

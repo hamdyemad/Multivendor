@@ -656,7 +656,7 @@
                                     <i class="uil uil-edit table_action_icon"></i>
                                 </a>`;
                             @endcan
-                            @can('products.stock-setup')
+                            @can('products.stock-management')
                                 actions += `<a href="${stockPricingUrl}" class="stock-management btn btn-info table_action_father" title="{{ trans('catalogmanagement::product.stock_management') }}">
                                         <i class="uil uil-box table_action_icon"></i>
                                     </a>`;

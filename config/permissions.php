@@ -141,6 +141,7 @@ return [
                     'show' => ['name' => ['en' => 'View', 'ar' => 'عرض'], 'key' => 'products.show', 'type' => 'all'],
                     'status' => ['name' => ['en' => 'Change Status', 'ar' => 'تغيير الحالة'], 'key' => 'products.change-status', 'type' => 'all'],
                     'activation' => ['name' => ['en' => 'Change Activation', 'ar' => 'تغيير التنشيط'], 'key' => 'products.change-activation', 'type' => 'all'],
+                    'stock-management' => ['name' => ['en' => 'Stock Management', 'ar' => 'إدارة المخزون'], 'key' => 'products.stock-management', 'type' => 'all'],
                     'stock-setup' => ['name' => ['en' => 'Stock Setup', 'ar' => 'إعداد المخزون'], 'key' => 'products.stock-setup', 'type' => 'admin'],
                 ]
             ],

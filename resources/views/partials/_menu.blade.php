@@ -530,14 +530,16 @@
                     <span class="toggle-icon"></span>
                 </a>
                 <ul class="px-0">
-                    @can('products.stock-setup')
-                        <li>
-                            <a class="fw-bold {{ isMenuActive('admin.products.stock-setup', $currentRoute) ? 'active' : '' }}"
-                                href="{{ route('admin.products.stock-setup') }}">
-                                {{ trans('menu.products.stock_setup') }}
-                            </a>
-                        </li>
-                    @endcan
+                    @if(isAdmin())
+                        @can('products.stock-setup')
+                            <li>
+                                <a class="fw-bold {{ isMenuActive('admin.products.stock-setup', $currentRoute) ? 'active' : '' }}"
+                                    href="{{ route('admin.products.stock-setup') }}">
+                                    {{ trans('menu.products.stock_setup') }}
+                                </a>
+                            </li>
+                        @endcan
+                    @endif
                     
                     @can('products.bank')
                         <li>

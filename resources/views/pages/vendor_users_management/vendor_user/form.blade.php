@@ -192,12 +192,14 @@
                                                 <span class="text-danger">*</span>
                                             @endif
                                         </label>
-                                        <div class="position-relative">
-                                            <input type="password" class="form-control" id="password" name="password"
+                                        <div style="position: relative;">
+                                            <input type="password" class="form-control pw-toggle-init" id="password" name="password"
+                                                style="padding-right: 45px;"
                                                 placeholder="{{ isset($user) ? __('admin.leave_empty_to_keep_password') : __('admin.enter_password') }}"
                                                 autocomplete="new-password">
-                                            <span toggle="#password"
-                                                class="uil uil-eye-slash text-lighten fs-15 field-icon toggle-password2"></span>
+                                            <span class="toggle-password" data-target="password" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9299b8; font-size: 18px; z-index: 5;">
+                                                <i class="uil uil-eye-slash"></i>
+                                            </span>
                                         </div>
                                         <div id="password-error-container">
                                             @error('password')
@@ -225,13 +227,15 @@
                                                 <span class="text-danger">*</span>
                                             @endif
                                         </label>
-                                        <div class="position-relative">
-                                            <input type="password" class="form-control" id="password_confirmation"
+                                        <div style="position: relative;">
+                                            <input type="password" class="form-control pw-toggle-init" id="password_confirmation"
                                                 name="password_confirmation"
+                                                style="padding-right: 45px;"
                                                 placeholder="{{ __('admin.confirm_password') }}"
                                                 autocomplete="new-password">
-                                            <span toggle="#password_confirmation"
-                                                class="uil uil-eye-slash text-lighten fs-15 field-icon toggle-password2"></span>
+                                            <span class="toggle-password" data-target="password_confirmation" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9299b8; font-size: 18px; z-index: 5;">
+                                                <i class="uil uil-eye-slash"></i>
+                                            </span>
                                         </div>
                                         <div id="password_confirmation-error-container">
                                             @error('password_confirmation')
@@ -597,6 +601,24 @@
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnHtml;
                 });
+            });
+
+            // Password toggle functionality
+            $(document).on('click', '.toggle-password', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var $toggle = $(this);
+                var $icon = $toggle.find('i');
+                var targetId = $toggle.data('target');
+                var $input = $('#' + targetId);
+                
+                if ($input.attr('type') === 'password') {
+                    $input.attr('type', 'text');
+                    $icon.removeClass('uil-eye-slash').addClass('uil-eye');
+                } else {
+                    $input.attr('type', 'password');
+                    $icon.removeClass('uil-eye').addClass('uil-eye-slash');
+                }
             });
         });
     </script>

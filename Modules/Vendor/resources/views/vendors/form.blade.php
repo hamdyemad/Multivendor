@@ -539,11 +539,17 @@
                                                             <span class="text-danger">*</span>
                                                         @endif
                                                     </label>
-                                                    <input type="password" name="password" id="password"
-                                                        class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                        placeholder="{{ app()->getLocale() == 'ar' ? 'أدخل كلمة المرور' : 'Enter password' }}"
-                                                        autocomplete="new-password"
-                                                        @if (app()->getLocale() == 'ar') dir="rtl" @else dir="ltr" @endif>
+                                                    <div style="position: relative;">
+                                                        <input type="password" name="password" id="password"
+                                                            class="form-control ih-medium ip-gray radius-xs b-light pw-toggle-init @error('password') is-invalid @enderror"
+                                                            style="padding-right: 45px;"
+                                                            placeholder="{{ app()->getLocale() == 'ar' ? 'أدخل كلمة المرور' : 'Enter password' }}"
+                                                            autocomplete="new-password"
+                                                            @if (app()->getLocale() == 'ar') dir="rtl" @else dir="ltr" @endif>
+                                                        <span class="toggle-password" data-target="password" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9299b8; font-size: 18px; z-index: 5;">
+                                                            <i class="uil uil-eye-slash"></i>
+                                                        </span>
+                                                    </div>
                                                     <small class="text-muted"
                                                         @if (app()->getLocale() == 'ar') dir="rtl" style="text-align: right;" @endif>
                                                         @if (isset($vendor))
@@ -580,12 +586,18 @@
                                                             <span class="text-danger">*</span>
                                                         @endif
                                                     </label>
-                                                    <input type="password" name="password_confirmation"
-                                                        id="password_confirmation"
-                                                        class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                        placeholder="{{ app()->getLocale() == 'ar' ? 'أعد إدخال كلمة المرور' : 'Confirm password' }}"
-                                                        autocomplete="new-password"
-                                                        @if (app()->getLocale() == 'ar') dir="rtl" @else dir="ltr" @endif>
+                                                    <div style="position: relative;">
+                                                        <input type="password" name="password_confirmation"
+                                                            id="password_confirmation"
+                                                            class="form-control ih-medium ip-gray radius-xs b-light pw-toggle-init @error('password_confirmation') is-invalid @enderror"
+                                                            style="padding-right: 45px;"
+                                                            placeholder="{{ app()->getLocale() == 'ar' ? 'أعد إدخال كلمة المرور' : 'Confirm password' }}"
+                                                            autocomplete="new-password"
+                                                            @if (app()->getLocale() == 'ar') dir="rtl" @else dir="ltr" @endif>
+                                                        <span class="toggle-password" data-target="password_confirmation" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9299b8; font-size: 18px; z-index: 5;">
+                                                            <i class="uil uil-eye-slash"></i>
+                                                        </span>
+                                                    </div>
                                                     @error('password_confirmation')
                                                         <div class="text-danger mt-1">{{ $message }}</div>
                                                     @enderror
@@ -754,6 +766,29 @@
                 @endforeach
             ]
         };
+    </script>
+
+    <!-- Password Toggle Script -->
+    <script>
+        $(document).ready(function() {
+            // Password toggle functionality
+            $(document).on('click', '.toggle-password', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var $toggle = $(this);
+                var $icon = $toggle.find('i');
+                var targetId = $toggle.data('target');
+                var $input = $('#' + targetId);
+                
+                if ($input.attr('type') === 'password') {
+                    $input.attr('type', 'text');
+                    $icon.removeClass('uil-eye-slash').addClass('uil-eye');
+                } else {
+                    $input.attr('type', 'password');
+                    $icon.removeClass('uil-eye').addClass('uil-eye-slash');
+                }
+            });
+        });
     </script>
 
     <!-- Vendor Form External JavaScript (All Logic) -->

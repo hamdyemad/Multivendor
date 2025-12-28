@@ -417,6 +417,10 @@
                         <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.system-settings.push-notifications.index', $currentRoute) ? 'active' : '' }}"
                             href="{{ route('admin.system-settings.push-notifications.index') }}">
                             {{ trans('menu.push_notifications.all_notifications') }}
+                            <span class="badge badge-round ms-1"
+                                style="{{ getBadgeStyle(isMenuActive('admin.system-settings.push-notifications.index', $currentRoute)) }}">
+                                {{ \Modules\SystemSetting\app\Models\PushNotification::count() }}
+                            </span>
                         </a>
                     </li>
                     @endcan

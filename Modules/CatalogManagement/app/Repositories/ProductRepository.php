@@ -54,7 +54,21 @@ class ProductRepository implements ProductInterface
 
         $query = Product::with($with)->filter($bankFilters);
         
-        // Filter by vendor's departments if vendor_id is provided (for exclude_vendor_id)
+        // Filter by vendor's departments if vendor_id is provided (without excluding existing products)
+        if (!empty($filters['vendor_id'])) {
+            $vendorId = $filters['vendor_id'];
+            $vendor = \Modules\Vendor\app\Models\Vendor::withoutGlobalScopes()->find($vendorId);
+            
+            if ($vendor) {
+                $departmentIds = $vendor->departments()->pluck('departments.id')->toArray();
+                
+                if (!empty($departmentIds)) {
+                    $query->whereIn('department_id', $departmentIds);
+                }
+            }
+        }
+        
+        // Filter by vendor's departments if exclude_vendor_id is provided (and exclude existing products)
         if (!empty($filters['exclude_vendor_id'])) {
             $vendorId = $filters['exclude_vendor_id'];
             $vendor = \Modules\Vendor\app\Models\Vendor::withoutGlobalScopes()->find($vendorId);

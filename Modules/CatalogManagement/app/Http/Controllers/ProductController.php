@@ -844,9 +844,11 @@ class ProductController extends Controller
             $vendorId = $request->get('vendor_id');
             $perPage = (int) $request->get('per_page', 20);
 
+            // Don't exclude vendor's existing products - let them select any bank product
+            // The exclude_vendor_id in the repository filters by vendor's departments
             $products = $this->productBankService->getAllBankProducts([
                 'search' => $search,
-                'exclude_vendor_id' => $vendorId,
+                'vendor_id' => $vendorId, // Use vendor_id to filter by departments only
             ], $perPage);
 
             return response()->json([

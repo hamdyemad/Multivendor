@@ -79,6 +79,14 @@ class Vendor extends BaseModel
         return $this->morphMany(Review::class, 'reviewable');
     }
 
+    /**
+     * Get the FCM tokens for the vendor
+     */
+    public function fcmTokens()
+    {
+        return $this->hasMany(VendorFcmToken::class);
+    }
+
     public function scopeActive(Builder $query)
     {
         return $query->where('active', true);

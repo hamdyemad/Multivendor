@@ -6,11 +6,15 @@ return [
     'all_notifications' => 'All Notifications',
     'send_notification' => 'Send Notification',
     'notification_details' => 'Notification Details',
+    'view_notification' => 'View Notification',
+    'notification' => 'Notification',
 
     // Types
     'notification_type' => 'Notification Type',
     'type_all' => 'All Customers',
     'type_specific' => 'Specific Customers',
+    'type_all_vendors' => 'All Vendors',
+    'type_specific_vendors' => 'Specific Vendors',
 
     // Status
     'status_pending' => 'Pending',
@@ -29,9 +33,15 @@ return [
     'image_size' => 'Recommended: 800x400',
     'select_customers' => 'Select Customers',
     'search_customers' => 'Search customers...',
+    'select_vendors' => 'Select Vendors',
+    'search_vendors' => 'Search vendors...',
+    'customers' => 'Customers',
+    'vendors' => 'Vendors',
     'created_by' => 'Created By',
     'sent_at' => 'Sent At',
     'recipients' => 'Recipients',
+    'views' => 'Views',
+    'viewed_at' => 'Viewed At',
 
     // Stats
     'stats' => 'Statistics',
@@ -60,6 +70,7 @@ return [
         'type_required' => 'Please select notification type',
         'type_invalid' => 'Invalid notification type',
         'customers_required' => 'Please select at least one customer',
+        'vendors_required' => 'Please select at least one vendor',
         'translations_required' => 'Title and description are required',
         'title_required' => 'Title is required',
         'description_required' => 'Description is required',

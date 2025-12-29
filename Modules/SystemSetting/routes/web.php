@@ -24,6 +24,9 @@ Route::group(['prefix' => 'system-settings', 'as' => 'system-settings.'], functi
     // Push Notifications
     Route::get('push-notifications/datatable', [PushNotificationController::class, 'datatable'])->name('push-notifications.datatable');
     Route::get('push-notifications/{id}/customers-datatable', [PushNotificationController::class, 'customersDatatable'])->name('push-notifications.customers-datatable');
+    Route::get('push-notifications/{id}/vendors-datatable', [PushNotificationController::class, 'vendorsDatatable'])->name('push-notifications.vendors-datatable');
+    Route::get('push-notifications/{id}/views-datatable', [PushNotificationController::class, 'viewsDatatable'])->name('push-notifications.views-datatable');
+    Route::get('push-notifications/{id}/view', [PushNotificationController::class, 'view'])->name('push-notifications.view');
     Route::resource('push-notifications', PushNotificationController::class)->except(['edit', 'update']);
 
     // Currencies

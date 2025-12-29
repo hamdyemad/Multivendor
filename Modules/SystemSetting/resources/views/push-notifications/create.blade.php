@@ -39,7 +39,7 @@
                                     {{ __('systemsetting::push-notification.notification_type') }}
                                     <span class="text-danger">*</span>
                                 </label>
-                                <div class="btn-group w-100" role="group">
+                                <div class="btn-group w-100 flex-wrap" role="group">
                                     <input type="radio" class="btn-check" name="type" id="type_all" value="all" checked>
                                     <label class="btn btn-outline-primary" for="type_all">
                                         <i class="uil uil-users-alt me-1"></i>{{ __('systemsetting::push-notification.type_all') }}
@@ -48,6 +48,16 @@
                                     <input type="radio" class="btn-check" name="type" id="type_specific" value="specific">
                                     <label class="btn btn-outline-primary" for="type_specific">
                                         <i class="uil uil-user-check me-1"></i>{{ __('systemsetting::push-notification.type_specific') }}
+                                    </label>
+
+                                    <input type="radio" class="btn-check" name="type" id="type_all_vendors" value="all_vendors">
+                                    <label class="btn btn-outline-success" for="type_all_vendors">
+                                        <i class="uil uil-store me-1"></i>{{ __('systemsetting::push-notification.type_all_vendors') }}
+                                    </label>
+
+                                    <input type="radio" class="btn-check" name="type" id="type_specific_vendors" value="specific_vendors">
+                                    <label class="btn btn-outline-success" for="type_specific_vendors">
+                                        <i class="uil uil-shop me-1"></i>{{ __('systemsetting::push-notification.type_specific_vendors') }}
                                     </label>
                                 </div>
                             </div>
@@ -60,6 +70,19 @@
                                     :options="$customers->toArray()"
                                     :selected="[]"
                                     :placeholder="__('systemsetting::push-notification.search_customers')"
+                                    :required="false"
+                                    :multiple="true"
+                                />
+                            </div>
+
+                            {{-- Vendor Selection (shown when specific_vendors is selected) --}}
+                            <div class="mb-25" id="vendorSection" style="display: none;">
+                                <x-searchable-tags
+                                    name="vendor_ids[]"
+                                    :label="__('systemsetting::push-notification.select_vendors')"
+                                    :options="$vendors->toArray()"
+                                    :selected="[]"
+                                    :placeholder="__('systemsetting::push-notification.search_vendors')"
                                     :required="false"
                                     :multiple="true"
                                 />
@@ -157,12 +180,18 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            // Toggle customer selection based on type
+            // Toggle customer/vendor selection based on type
             $('input[name="type"]').on('change', function() {
-                if ($(this).val() === 'specific') {
+                const type = $(this).val();
+                if (type === 'specific') {
                     $('#customerSection').slideDown();
+                    $('#vendorSection').slideUp();
+                } else if (type === 'specific_vendors') {
+                    $('#customerSection').slideUp();
+                    $('#vendorSection').slideDown();
                 } else {
                     $('#customerSection').slideUp();
+                    $('#vendorSection').slideUp();
                 }
             });
 

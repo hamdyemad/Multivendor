@@ -21,9 +21,11 @@ class PushNotificationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type' => 'required|in:all,specific',
+            'type' => 'required|in:all,specific,all_vendors,specific_vendors',
             'customer_ids' => 'required_if:type,specific|array',
             'customer_ids.*' => 'exists:customers,id',
+            'vendor_ids' => 'required_if:type,specific_vendors|array',
+            'vendor_ids.*' => 'exists:vendors,id',
             'translations' => 'required|array',
             'translations.*.title' => 'required|string|max:255',
             'translations.*.description' => 'required|string|max:5000',
@@ -39,6 +41,7 @@ class PushNotificationRequest extends FormRequest
         $attributes = [
             'type' => __('systemsetting::push-notification.notification_type'),
             'customer_ids' => __('systemsetting::push-notification.select_customers'),
+            'vendor_ids' => __('systemsetting::push-notification.select_vendors'),
             'image' => __('systemsetting::push-notification.image'),
         ];
 
@@ -62,6 +65,7 @@ class PushNotificationRequest extends FormRequest
             'type.required' => __('systemsetting::push-notification.validation.type_required'),
             'type.in' => __('systemsetting::push-notification.validation.type_invalid'),
             'customer_ids.required_if' => __('systemsetting::push-notification.validation.customers_required'),
+            'vendor_ids.required_if' => __('systemsetting::push-notification.validation.vendors_required'),
             'translations.required' => __('systemsetting::push-notification.validation.translations_required'),
             'translations.*.title.required' => __('systemsetting::push-notification.validation.title_required'),
             'translations.*.description.required' => __('systemsetting::push-notification.validation.description_required'),
@@ -75,10 +79,16 @@ class PushNotificationRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        // Clean up customer_ids if type is 'all'
-        if ($this->input('type') === 'all') {
+        // Clean up customer_ids if type is not 'specific'
+        if ($this->input('type') !== 'specific') {
             $this->merge([
                 'customer_ids' => [],
+            ]);
+        }
+        // Clean up vendor_ids if type is not 'specific_vendors'
+        if ($this->input('type') !== 'specific_vendors') {
+            $this->merge([
+                'vendor_ids' => [],
             ]);
         }
     }

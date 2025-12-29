@@ -6,11 +6,15 @@ return [
     'all_notifications' => 'جميع الإشعارات',
     'send_notification' => 'إرسال إشعار',
     'notification_details' => 'تفاصيل الإشعار',
+    'view_notification' => 'عرض الإشعار',
+    'notification' => 'إشعار',
 
     // Types
     'notification_type' => 'نوع الإشعار',
     'type_all' => 'جميع العملاء',
     'type_specific' => 'عملاء محددين',
+    'type_all_vendors' => 'جميع البائعين',
+    'type_specific_vendors' => 'بائعين محددين',
 
     // Status
     'status_pending' => 'قيد الانتظار',
@@ -29,9 +33,15 @@ return [
     'image_size' => 'الحجم الموصى به: 800x400',
     'select_customers' => 'اختر العملاء',
     'search_customers' => 'ابحث عن عملاء...',
+    'select_vendors' => 'اختر البائعين',
+    'search_vendors' => 'ابحث عن بائعين...',
+    'customers' => 'عملاء',
+    'vendors' => 'بائعين',
     'created_by' => 'أنشئ بواسطة',
     'sent_at' => 'تاريخ الإرسال',
     'recipients' => 'المستلمين',
+    'views' => 'المشاهدات',
+    'viewed_at' => 'تاريخ المشاهدة',
 
     // Stats
     'stats' => 'الإحصائيات',
@@ -60,6 +70,7 @@ return [
         'type_required' => 'يرجى اختيار نوع الإشعار',
         'type_invalid' => 'نوع الإشعار غير صالح',
         'customers_required' => 'يرجى اختيار عميل واحد على الأقل',
+        'vendors_required' => 'يرجى اختيار بائع واحد على الأقل',
         'translations_required' => 'العنوان والوصف مطلوبان',
         'title_required' => 'العنوان مطلوب',
         'description_required' => 'الوصف مطلوب',

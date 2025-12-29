@@ -19,6 +19,8 @@ class PushNotification extends BaseModel
 
     const TYPE_ALL = 'all';
     const TYPE_SPECIFIC = 'specific';
+    const TYPE_ALL_VENDORS = 'all_vendors';
+    const TYPE_SPECIFIC_VENDORS = 'specific_vendors';
 
     protected $fillable = [
         'type',
@@ -48,6 +50,40 @@ class PushNotification extends BaseModel
     {
         return $this->belongsToMany(Customer::class, 'push_notification_customers')
             ->withTimestamps();
+    }
+
+    public function vendors(): BelongsToMany
+    {
+        return $this->belongsToMany(\Modules\Vendor\app\Models\Vendor::class, 'push_notification_vendors')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get users who viewed this notification
+     */
+    public function views(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'push_notification_views')
+            ->withPivot('created_at', 'updated_at')
+            ->withTimestamps();
+    }
+
+    /**
+     * Check if a user has viewed this notification
+     */
+    public function isViewedBy(int $userId): bool
+    {
+        return $this->views()->where('user_id', $userId)->exists();
+    }
+
+    /**
+     * Mark notification as viewed by a user
+     */
+    public function markAsViewedBy(int $userId): void
+    {
+        if (!$this->isViewedBy($userId)) {
+            $this->views()->attach($userId);
+        }
     }
 
     /**

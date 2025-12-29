@@ -48,9 +48,12 @@
                             {{ trans('admin.edit_profile') ?? 'Edit Profile' }}</a>
                     </li>
                 </ul>
-                <a style="background-color: red; color: #fff;" href="" class="nav-author__signout"
-                    onclick="event.preventDefault();document.getElementById('logout').submit();">
-                    <img src="{{ asset('assets/img/svg/log-out.svg') }}" alt="log-out" class="svg">
+                <a href="" class="nav-author__signout"
+                    onclick="event.preventDefault();document.getElementById('logout').submit();"
+                    style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%); color: #fff; border-radius: 8px; padding: 10px 20px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 500; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(238, 90, 90, 0.3);"
+                    onmouseover="this.style.background='linear-gradient(135deg, #ee5a5a 0%, #dc4747 100%)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(238, 90, 90, 0.4)';"
+                    onmouseout="this.style.background='linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(238, 90, 90, 0.3)';">
+                    <i class="uil uil-sign-out-alt" style="font-size: 18px;"></i>
                     {{ __('admin.sign_out') ?? 'Sign Out' }}</a>
                 <form style="display:none;" id="logout" action="{{ route('logout') }}" method="POST">
                     @csrf

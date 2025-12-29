@@ -1,4 +1,4 @@
-@php
+<?php
     // Collect all notifications from different sources
     $notifications = collect();
     
@@ -105,43 +105,44 @@
     // Sort by created_at and take latest 5
     $notifications = $notifications->sortByDesc('created_at')->take(5);
     $notificationsCount = $notifications->count();
-@endphp
+?>
 
 <li class="nav-notification">
     <div class="dropdown-custom" style="position: relative;">
         <a href="javascript:;" class="nav-item-toggle icon-active">
-            <img class="svg" src="{{ asset('assets/img/svg/alarm.svg') }}" alt="img">
-            @if($notificationsCount > 0)
-                <span class="nav-item__badge" style="position: absolute; top: -8px; background-color: #fa8b0c; color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; line-height: 1; z-index: 10;">{{ $notificationsCount }}</span>
-            @endif
+            <img class="svg" src="<?php echo e(asset('assets/img/svg/alarm.svg')); ?>" alt="img">
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($notificationsCount > 0): ?>
+                <span class="nav-item__badge" style="position: absolute; top: -8px; background-color: #fa8b0c; color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; line-height: 1; z-index: 10;"><?php echo e($notificationsCount); ?></span>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         </a>
         <div class="dropdown-wrapper">
-            <h2 class="dropdown-wrapper__title">{{ trans('menu.notifications.title') }} <span class="badge-circle badge-warning ms-1">{{ $notificationsCount }}</span></h2>
-            @if($notificationsCount > 0)
+            <h2 class="dropdown-wrapper__title"><?php echo e(trans('menu.notifications.title')); ?> <span class="badge-circle badge-warning ms-1"><?php echo e($notificationsCount); ?></span></h2>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($notificationsCount > 0): ?>
                 <ul>
-                    @foreach($notifications as $notification)
-                        <li class="nav-notification__single {{ empty($notification['is_viewed']) ? 'nav-notification__single--unread' : '' }} d-flex flex-wrap">
-                            <div class="nav-notification__type nav-notification__type--{{ $notification['color'] }}">
-                                <i class="{{ $notification['icon'] }}"></i>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $notifications; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $notification): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <li class="nav-notification__single <?php echo e(empty($notification['is_viewed']) ? 'nav-notification__single--unread' : ''); ?> d-flex flex-wrap">
+                            <div class="nav-notification__type nav-notification__type--<?php echo e($notification['color']); ?>">
+                                <i class="<?php echo e($notification['icon']); ?>"></i>
                             </div>
                             <div class="nav-notification__details">
                                 <p>
-                                    <a href="{{ $notification['url'] }}" class="subject stretched-link text-truncate" style="max-width: 180px;">{{ $notification['title'] }}</a>
-                                    <span>{{ $notification['description'] }}</span>
+                                    <a href="<?php echo e($notification['url']); ?>" class="subject stretched-link text-truncate" style="max-width: 180px;"><?php echo e($notification['title']); ?></a>
+                                    <span><?php echo e($notification['description']); ?></span>
                                 </p>
                                 <p>
-                                    <span class="time-posted">{{ $notification['created_at'] }}</span>
+                                    <span class="time-posted"><?php echo e($notification['created_at']); ?></span>
                                 </p>
                             </div>
                         </li>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 </ul>
-            @else
+            <?php else: ?>
                 <div class="text-center py-4">
-                    <p class="text-muted">{{ trans('menu.no_notifications') }}</p>
+                    <p class="text-muted"><?php echo e(trans('menu.no_notifications')); ?></p>
                 </div>
-            @endif
-            <a href="{{ route('admin.dashboard') }}" class="dropdown-wrapper__more">{{ trans('menu.see_all_notifications') }}</a>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            <a href="<?php echo e(route('admin.dashboard')); ?>" class="dropdown-wrapper__more"><?php echo e(trans('menu.see_all_notifications')); ?></a>
         </div>
     </div>
 </li>
+<?php /**PATH C:\laragon\www\eramo-multi-vendor\resources\views/partials/top_nav/_notifications.blade.php ENDPATH**/ ?>

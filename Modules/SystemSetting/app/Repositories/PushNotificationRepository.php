@@ -22,7 +22,7 @@ class PushNotificationRepository implements PushNotificationRepositoryInterface
 
     public function all(array $filters = [])
     {
-        $query = PushNotification::with(['createdBy', 'customers'])
+        $query = PushNotification::with(['createdBy', 'customers', 'vendors'])
             ->latest();
 
         if (!empty($filters['search'])) {
@@ -42,7 +42,7 @@ class PushNotificationRepository implements PushNotificationRepositoryInterface
 
     public function find($id)
     {
-        return PushNotification::with(['createdBy', 'customers'])->findOrFail($id);
+        return PushNotification::with(['createdBy', 'customers', 'vendors'])->findOrFail($id);
     }
 
     public function createAndSend(array $data): PushNotification
@@ -65,16 +65,29 @@ class PushNotificationRepository implements PushNotificationRepositoryInterface
                 'created_by' => auth()->id(),
             ]);
 
-            // Get target customers
+            // Handle customer notifications
             if ($data['type'] === PushNotification::TYPE_ALL) {
                 $customerIds = Customer::active()->pluck('id')->toArray();
-            } else {
+                if (!empty($customerIds)) {
+                    $notification->customers()->attach($customerIds);
+                }
+            } elseif ($data['type'] === PushNotification::TYPE_SPECIFIC) {
                 $customerIds = $data['customer_ids'] ?? [];
+                if (!empty($customerIds)) {
+                    $notification->customers()->attach($customerIds);
+                }
             }
-
-            // Attach customers to notification
-            if (!empty($customerIds)) {
-                $notification->customers()->attach($customerIds);
+            // Handle vendor notifications
+            elseif ($data['type'] === PushNotification::TYPE_ALL_VENDORS) {
+                $vendorIds = \Modules\Vendor\app\Models\Vendor::where('active', 1)->pluck('id')->toArray();
+                if (!empty($vendorIds)) {
+                    $notification->vendors()->attach($vendorIds);
+                }
+            } elseif ($data['type'] === PushNotification::TYPE_SPECIFIC_VENDORS) {
+                $vendorIds = $data['vendor_ids'] ?? [];
+                if (!empty($vendorIds)) {
+                    $notification->vendors()->attach($vendorIds);
+                }
             }
 
             DB::commit();
@@ -103,47 +116,61 @@ class PushNotificationRepository implements PushNotificationRepositoryInterface
     }
 
     /**
-     * Send the push notification to all attached customers
+     * Send the push notification to all attached customers or vendors
      */
     protected function sendNotification(PushNotification $notification): void
     {
-        $customerIds = $notification->customers()->pluck('customers.id')->toArray();
-
-        if (empty($customerIds)) {
-            return;
-        }
-
-        // Get all FCM tokens for these customers
-        $fcmTokens = CustomerFcmToken::whereIn('customer_id', $customerIds)
-            ->pluck('fcm_token', 'customer_id')
-            ->toArray();
-
-        if (empty($fcmTokens)) {
-            return;
-        }
-
         // Get titles and descriptions using model method
         $titles = $notification->getTranslations('title');
         $descriptions = $notification->getTranslations('description');
-
         $imageUrl = $notification->image ? asset('storage/' . $notification->image) : null;
 
-        // Send to each customer's tokens
-        foreach ($fcmTokens as $customerId => $token) {
-            // Get customer's preferred language (default to 'en')
-            $customer = Customer::find($customerId);
-            $lang = $customer->language ?? 'en';
+        // Send to customers
+        $customerIds = $notification->customers()->pluck('customers.id')->toArray();
+        if (!empty($customerIds)) {
+            $fcmTokens = CustomerFcmToken::whereIn('customer_id', $customerIds)
+                ->pluck('fcm_token', 'customer_id')
+                ->toArray();
 
-            $title = $titles[$lang] ?? $titles['en'] ?? '';
-            $body = $descriptions[$lang] ?? $descriptions['en'] ?? '';
+            foreach ($fcmTokens as $customerId => $token) {
+                $customer = Customer::find($customerId);
+                $lang = $customer->language ?? 'en';
 
-            $this->firebaseService->sendToToken(
-                $token,
-                $title,
-                $body,
-                $imageUrl,
-                ['notification_id' => $notification->id]
-            );
+                $title = $titles[$lang] ?? $titles['en'] ?? '';
+                $body = $descriptions[$lang] ?? $descriptions['en'] ?? '';
+
+                $this->firebaseService->sendToToken(
+                    $token,
+                    $title,
+                    $body,
+                    $imageUrl,
+                    ['notification_id' => $notification->id]
+                );
+            }
+        }
+
+        // Send to vendors
+        $vendorIds = $notification->vendors()->pluck('vendors.id')->toArray();
+        if (!empty($vendorIds)) {
+            $vendorFcmTokens = \Modules\Vendor\app\Models\VendorFcmToken::whereIn('vendor_id', $vendorIds)
+                ->pluck('fcm_token', 'vendor_id')
+                ->toArray();
+
+            foreach ($vendorFcmTokens as $vendorId => $token) {
+                $vendor = \Modules\Vendor\app\Models\Vendor::find($vendorId);
+                $lang = $vendor->language ?? 'en';
+
+                $title = $titles[$lang] ?? $titles['en'] ?? '';
+                $body = $descriptions[$lang] ?? $descriptions['en'] ?? '';
+
+                $this->firebaseService->sendToToken(
+                    $token,
+                    $title,
+                    $body,
+                    $imageUrl,
+                    ['notification_id' => $notification->id]
+                );
+            }
         }
     }
 }

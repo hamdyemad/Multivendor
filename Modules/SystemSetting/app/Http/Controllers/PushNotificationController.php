@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\LanguageService;
 use Illuminate\Http\Request;
 use Modules\Customer\app\Services\CustomerService;
+use Modules\Vendor\app\Models\Vendor;
 use Modules\SystemSetting\app\Http\Requests\PushNotificationRequest;
 use Modules\SystemSetting\app\Services\PushNotificationService;
 use Yajra\DataTables\Facades\DataTables;
@@ -48,9 +49,18 @@ class PushNotificationController extends Controller
                 ];
             });
 
+        $vendors = Vendor::where('active', '1')
+            ->get()
+            ->map(function ($vendor) {
+                return [
+                    'id' => $vendor->id,
+                    'name' => $vendor->name . ' (' . $vendor->user?->email . ')',
+                ];
+            });
+
         $languages = $this->languageService->getAll();
 
-        return view('systemsetting::push-notifications.create', compact('customers', 'languages'));
+        return view('systemsetting::push-notifications.create', compact('customers', 'vendors', 'languages'));
     }
 
     /**
@@ -89,8 +99,24 @@ class PushNotificationController extends Controller
     {
         $notification = $this->pushNotificationService->getNotificationById($id);
         $languages = $this->languageService->getAll();
-        $recipientsCount = $notification->customers()->count();
-        return view('systemsetting::push-notifications.show', compact('notification', 'languages', 'recipientsCount'));
+        $customersCount = $notification->customers()->count();
+        $vendorsCount = $notification->vendors()->count();
+        $viewsCount = $notification->views()->count();
+        return view('systemsetting::push-notifications.show', compact('notification', 'languages', 'customersCount', 'vendorsCount', 'viewsCount'));
+    }
+
+    /**
+     * View notification (for vendors) - marks as viewed
+     */
+    public function view($lang, $countryCode, $id)
+    {
+        $notification = $this->pushNotificationService->getNotificationById($id);
+        
+        // Mark as viewed by current user
+        $notification->markAsViewedBy(auth()->id());
+        
+        $languages = $this->languageService->getAll();
+        return view('systemsetting::push-notifications.view', compact('notification', 'languages'));
     }
 
     /**
@@ -137,11 +163,18 @@ class PushNotificationController extends Controller
                 $badges = [
                     'all' => '<span class="badge badge-info badge-round">' . __('systemsetting::push-notification.type_all') . '</span>',
                     'specific' => '<span class="badge badge-primary badge-round">' . __('systemsetting::push-notification.type_specific') . '</span>',
+                    'all_vendors' => '<span class="badge badge-success badge-round">' . __('systemsetting::push-notification.type_all_vendors') . '</span>',
+                    'specific_vendors' => '<span class="badge badge-warning badge-round">' . __('systemsetting::push-notification.type_specific_vendors') . '</span>',
                 ];
                 return $badges[$notification->type] ?? '-';
             })
             ->addColumn('recipients_count', function ($notification) {
-                return $notification->customers->count();
+                $customerCount = $notification->customers->count();
+                $vendorCount = $notification->vendors->count();
+                if ($vendorCount > 0) {
+                    return $vendorCount . ' ' . __('systemsetting::push-notification.vendors');
+                }
+                return $customerCount . ' ' . __('systemsetting::push-notification.customers');
             })
             ->addColumn('created_by_name', function ($notification) {
                 return $notification->createdBy ? $notification->createdBy->name : '-';
@@ -186,6 +219,60 @@ class PushNotificationController extends Controller
             ->addIndexColumn()
             ->addColumn('full_name', function ($customer) {
                 return $customer->full_name;
+            })
+            ->make(true);
+    }
+
+    /**
+     * Vendors DataTable endpoint for notification show page
+     */
+    public function vendorsDatatable(Request $request, $lang, $countryCode, $id)
+    {
+        $notification = $this->pushNotificationService->getNotificationById($id);
+        
+        $query = $notification->vendors()
+            ->with('user');
+
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->addColumn('name', function ($vendor) {
+                return $vendor->name;
+            })
+            ->addColumn('email', function ($vendor) {
+                return $vendor->user?->email ?? '-';
+            })
+            ->make(true);
+    }
+
+    /**
+     * Views DataTable endpoint for notification show page
+     */
+    public function viewsDatatable(Request $request, $lang, $countryCode, $id)
+    {
+        $notification = $this->pushNotificationService->getNotificationById($id);
+        
+        // Get the views with pivot data
+        $views = $notification->views()->with(['vendorByUser', 'vendorById'])->get();
+
+        return DataTables::of($views)
+            ->addIndexColumn()
+            ->addColumn('name', function ($user) {
+                // Get vendor (either by user_id or vendor_id)
+                $vendor = $user->vendorByUser ?? $user->vendorById;
+                
+                // If user has vendor, get name from vendor translations
+                if ($vendor) {
+                    return $vendor->getTranslation('name', app()->getLocale()) ?? $vendor->getTranslation('name', 'en');
+                }
+                // Otherwise get name from user translations
+                return $user->getTranslation('name', app()->getLocale()) ?? $user->getTranslation('name', 'en') ?? $user->email;
+            })
+            ->addColumn('email', function ($user) {
+                return $user->email;
+            })
+            ->addColumn('viewed_at', function ($user) {
+                $viewedAt = $user->pivot->created_at ?? null;
+                return $viewedAt ? \Carbon\Carbon::parse($viewedAt)->format('d M, Y, h:i A') : '-';
             })
             ->make(true);
     }

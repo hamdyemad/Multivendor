@@ -298,7 +298,7 @@
                 <div class="col-md-6 col-lg-4 mb-3">
                     <div class="product-card" data-product-id="${product.id}">
                         <div class="d-flex align-items-start">
-                            <img src="${product.image || "{{ asset('/assets/img/default.png') }}"}" alt="${product.name}" class="product-image me-3" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                            <img src="${product.image || "{{ asset('/assets/img/default.png') }}"}" alt="${product.name}" class="product-image me-3" style="width: 60px; height: 60px; border-radius: 8px;">
                             <div class="product-info flex-grow-1">
                                 <h6 class="mb-1">${product.name}</h6>
                                 <div class="product-details">

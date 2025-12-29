@@ -153,20 +153,47 @@ class ProductAction {
                 $query->whereDate('created_at', '<=', $filters['created_date_to']);
             }
 
-            // Stock filter
+            // Stock filter - based on remaining stock (total - booked - allocated - fulfilled)
             if (!empty($filters['stock'])) {
                 if ($filters['stock'] === 'instock') {
-                    $query->whereHas('variants', function($q) {
-                        $q->whereHas('stocks', function($sq) {
-                            $sq->where('quantity', '>', 0);
+                    // Products with remaining stock > 0
+                    $query->where(function($q) {
+                        $q->whereHas('variants', function($vq) {
+                            $vq->whereHas('stocks', function($sq) {
+                                $sq->where('quantity', '>', 0);
+                            });
                         });
-                    });
+                    })->whereRaw('(
+                        SELECT COALESCE(SUM(vpvs.quantity), 0) 
+                        FROM vendor_product_variants vpv 
+                        LEFT JOIN vendor_product_variant_stocks vpvs ON vpv.id = vpvs.vendor_product_variant_id 
+                        WHERE vpv.vendor_product_id = vendor_products.id AND vpv.deleted_at IS NULL
+                    ) - (
+                        SELECT COALESCE(SUM(sb.booked_quantity), 0) 
+                        FROM stock_bookings sb 
+                        INNER JOIN vendor_product_variants vpv2 ON sb.vendor_product_variant_id = vpv2.id 
+                        WHERE vpv2.vendor_product_id = vendor_products.id 
+                        AND vpv2.deleted_at IS NULL
+                        AND sb.status IN ("booked", "allocated", "fulfilled")
+                    ) > 0');
                 } elseif ($filters['stock'] === 'outofstock') {
+                    // Products with remaining stock <= 0
                     $query->where(function($q) {
                         $q->whereDoesntHave('variants')
-                          ->orWhereDoesntHave('variants.stocks', function($sq) {
-                              $sq->where('quantity', '>', 0);
-                          });
+                          ->orWhereDoesntHave('variants.stocks')
+                          ->orWhereRaw('(
+                              SELECT COALESCE(SUM(vpvs.quantity), 0) 
+                              FROM vendor_product_variants vpv 
+                              LEFT JOIN vendor_product_variant_stocks vpvs ON vpv.id = vpvs.vendor_product_variant_id 
+                              WHERE vpv.vendor_product_id = vendor_products.id AND vpv.deleted_at IS NULL
+                          ) - (
+                              SELECT COALESCE(SUM(sb.booked_quantity), 0) 
+                              FROM stock_bookings sb 
+                              INNER JOIN vendor_product_variants vpv2 ON sb.vendor_product_variant_id = vpv2.id 
+                              WHERE vpv2.vendor_product_id = vendor_products.id 
+                              AND vpv2.deleted_at IS NULL
+                              AND sb.status IN ("booked", "allocated", "fulfilled")
+                          ) <= 0');
                     });
                 }
             }
@@ -200,6 +227,9 @@ class ProductAction {
                         return $variant->stocks->sum('quantity');
                     });
 
+                    // Calculate remaining stock (total - booked - allocated - fulfilled)
+                    $remainingStock = $item->remaining_stock;
+
                     $rowData = [
                         'id' => $product->id ?? '',
                         'vendor_product_id' => $item->id,
@@ -228,6 +258,7 @@ class ProductAction {
                         'configuration_type' => $product->configuration_type,
                         'created_at' => $item->created_at,
                         'total_stock' => $totalStock,
+                        'remaining_stock' => $remainingStock,
                         'taxes' => $item->taxes->map(function($tax) {
                             return [
                                 'id' => $tax->id,

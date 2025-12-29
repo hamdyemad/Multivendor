@@ -20,7 +20,7 @@
                         <td>
                             @if($activity->user)
                                 @if($activity->user->image)
-                                    <img class="rounded-circle" src="{{ asset('storage/' . $activity->user->image) }}" alt="employee" style="width: 40px; height: 40px; object-fit: cover;">
+                                    <img class="rounded-circle" src="{{ asset('storage/' . $activity->user->image) }}" alt="employee" style="width: 40px; height: 40px;">
                                 @else
                                     <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
                                         <i class="uil uil-user text-muted"></i>

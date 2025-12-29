@@ -331,6 +331,7 @@
                             <input type="hidden" id="selected_product_limitation" value="">
                             <input type="hidden" id="selected_product_tax_rate" value="">
                             <input type="hidden" id="selected_product_taxes_info" value="">
+                            <input type="hidden" id="selected_product_unit_price_before_tax" value="">
                             <input type="hidden" id="selected_product_category_id" value="">
                             <input type="hidden" id="selected_product_category_name" value="">
                             <input type="hidden" id="selected_product_sku" value="">
@@ -746,6 +747,8 @@
                                             if (product.variants && product.variants.length > 0) {
                                                 product.variants.forEach(variant => {
                                                     const price = parseFloat(variant.real_price) || 0;
+                                                    // Calculate unit price before tax for display
+                                                    const unitPriceBeforeTax = taxRate > 0 ? price / (1 + taxRate / 100) : price;
                                                     const variantKey = variant.variant_key;
                                                     const variantValue = variant.variant_value;
                                                     const variantName = variantKey ?
@@ -763,6 +766,7 @@
                                                      data-product-id="${product.id}"
                                                      data-name="${productName} - ${variantName}"
                                                      data-price="${price}"
+                                                     data-unit-price-before-tax="${unitPriceBeforeTax.toFixed(2)}"
                                                      data-limitation="${limitation}"
                                                      data-tax-rate="${taxRate}"
                                                      data-taxes-info='${JSON.stringify(taxesInfo)}'
@@ -845,6 +849,7 @@
                         const variantId = $(this).data('id');
                         const name = $(this).data('name');
                         const price = $(this).data('price');
+                        const unitPriceBeforeTax = $(this).data('unit-price-before-tax') || price;
                         const limitation = $(this).data('limitation') || 0;
                         const taxRate = $(this).data('tax-rate') || 0;
                         const taxesInfo = $(this).data('taxes-info') || [];
@@ -872,6 +877,7 @@
                             variantId,
                             name,
                             price,
+                            unitPriceBeforeTax,
                             limitation,
                             taxRate,
                             taxesInfo,
@@ -889,6 +895,7 @@
                         $('#selected_product_variant_id').val(variantId);
                         $('#selected_product_name').val(name);
                         $('#selected_product_price').val(price);
+                        $('#selected_product_unit_price_before_tax').val(unitPriceBeforeTax);
                         $('#selected_product_limitation').val(limitation);
                         $('#selected_product_tax_rate').val(taxRate);
                         $('#selected_product_taxes_info').val(JSON.stringify(taxesInfo));
@@ -1532,6 +1539,7 @@
                         const variantId = $('#selected_product_variant_id').val() || null;
                         const productName = $('#selected_product_name').val();
                         const productPrice = parseFloat($('#selected_product_price').val()) || 0;
+                        const unitPriceBeforeTax = parseFloat($('#selected_product_unit_price_before_tax').val()) || productPrice;
                         const quantity = parseInt($('#product_quantity').val()) || 1;
                         const limitation = parseInt($('#selected_product_limitation').val()) || 0;
                         const taxRate = parseFloat($('#selected_product_tax_rate').val()) || 0;
@@ -1553,6 +1561,7 @@
                             variantId,
                             productName,
                             productPrice,
+                            unitPriceBeforeTax,
                             quantity,
                             limitation,
                             taxRate,
@@ -1609,6 +1618,7 @@
                                 id: productId + (variantId ? '_' + variantId : ''), // Unique ID for UI
                                 name: productName,
                                 price: productPrice,
+                                unitPriceBeforeTax: unitPriceBeforeTax,
                                 total: productTotal,
                                 taxRate: taxRate,
                                 taxesInfo: taxesInfo,
@@ -1626,6 +1636,7 @@
                         $('#selected_product_variant_id').val('');
                         $('#selected_product_name').val('');
                         $('#selected_product_price').val('');
+                        $('#selected_product_unit_price_before_tax').val('');
                         $('#selected_product_limitation').val('');
                         $('#selected_product_tax_rate').val('');
                         $('#selected_product_taxes_info').val('');
@@ -1662,9 +1673,10 @@
                         products.forEach(product => {
                             const taxRate = product.taxRate || 0;
                             const taxesInfo = product.taxesInfo || [];
-                            // Price from API is already excluding tax
-                            const priceExcl = product.price;
-                            const lineTotal = priceExcl * product.quantity;
+                            // Unit price before tax for display in Price column
+                            const unitPriceBeforeTax = product.unitPriceBeforeTax || product.price;
+                            // Total is price (with tax) × quantity
+                            const lineTotal = product.price * product.quantity;
                             
                             // Build tax badges HTML
                             let taxBadgesHtml = '';
@@ -1697,7 +1709,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="text-center align-middle">${priceExcl.toFixed(2)} {{ currency() }}</td>
+                            <td class="text-center align-middle">${parseFloat(unitPriceBeforeTax).toFixed(2)} {{ currency() }}</td>
                             <td class="text-center align-middle">${product.quantity}</td>
                             <td class="text-center align-middle">${taxBadgesHtml}</td>
                             <td class="text-center align-middle">${lineTotal.toFixed(2)} {{ currency() }}</td>
@@ -1722,15 +1734,15 @@
                         let subtotal = 0;
                         let totalTax = 0;
 
-                        // Calculate subtotal and tax from products
-                        // Price from API is already excluding tax
+                        // Calculate subtotal (before tax) and tax from products
                         products.forEach(product => {
                             const taxRate = product.taxRate || 0;
-                            const priceExcl = product.price;
-                            const lineTotal = priceExcl * product.quantity;
-                            const lineTax = lineTotal * (taxRate / 100);
+                            // Use unit price before tax for subtotal
+                            const unitPriceBeforeTax = parseFloat(product.unitPriceBeforeTax) || product.price;
+                            const lineSubtotal = unitPriceBeforeTax * product.quantity;
+                            const lineTax = lineSubtotal * (taxRate / 100);
 
-                            subtotal += lineTotal;
+                            subtotal += lineSubtotal;
                             totalTax += lineTax;
                         });
 

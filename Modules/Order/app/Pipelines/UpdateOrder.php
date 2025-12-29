@@ -17,7 +17,7 @@ class UpdateOrder
     public function handle(array $payload, Closure $next)
     {
         $orderId = $payload['context']['order_id'];
-        $order = Order::findOrFail($orderId);
+        $order = Order::with('products')->findOrFail($orderId);
         $customer = $payload['context']['customer'];
 
         // Update order with new calculated values
@@ -39,6 +39,11 @@ class UpdateOrder
             'items_count' => $payload['context']['items_count'] ?? count($payload['context']['products'] ?? []),
         ]);
 
+        // Delete existing product taxes first (to avoid foreign key issues)
+        foreach ($order->products as $product) {
+            $product->taxes()->delete();
+        }
+        
         // Delete existing products and extras to re-sync them
         $order->products()->delete();
         $order->extraFeesDiscounts()->delete();

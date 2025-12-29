@@ -21,67 +21,6 @@
                 ]" />
             </div>
         </div>
-
-        {{-- Statistics Cards --}}
-        <div class="row mb-25">
-            <div class="col-lg-4 col-md-6 col-sm-6">
-                <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between h-100">
-                    <div class="overview-content w-100">
-                        <div class="ap-po-details-content h-100">
-                            <div class="ap-po-details__titlebar">
-                                <h1 class="ap-po-details__title">{{ $statistics['total_balance'] }} {{ currency() }}</h1>
-                                <p class="ap-po-details__text text-nowrap">{{ __('vendor::vendor.total_vendors_balance') }}
-                                </p>
-                            </div>
-                            <div class="ap-po-details__icon-area">
-                                <div class="ap-po-details__icon ap-po-details__icon--balance d-flex align-items-center justify-content-center rounded-circle"
-                                    style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                                    <i class="uil uil-wallet" style="font-size: 24px;"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 col-sm-6">
-                <div class="ap-po-details ap-po-details--3 p-25 radius-xl d-flex justify-content-between h-100">
-                    <div class="overview-content w-100">
-                        <div class="ap-po-details-content h-100">
-                            <div class="ap-po-details__titlebar">
-                                <h1 class="ap-po-details__title">{{ $statistics['total_sent'] }} {{ currency() }}</h1>
-                                <p class="ap-po-details__text text-nowrap">{{ __('vendor::vendor.total_sent_money') }}</p>
-                            </div>
-                            <div class="ap-po-details__icon-area">
-                                <div class="ap-po-details__icon ap-po-details__icon--sent d-flex align-items-center justify-content-center rounded-circle"
-                                    style="width: 60px; height: 60px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
-                                    <i class="uil uil-money-withdrawal" style="font-size: 24px;"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 col-sm-6">
-                <div class="ap-po-details ap-po-details--4 p-25 radius-xl d-flex justify-content-between h-100">
-                    <div class="overview-content w-100">
-                        <div class="ap-po-details-content h-100">
-                            <div class="ap-po-details__titlebar">
-                                <h1 class="ap-po-details__title">{{ $statistics['total_remaining'] }} {{ currency() }}
-                                </h1>
-                                <p class="ap-po-details__text text-nowrap">{{ __('vendor::vendor.total_remaining') }}</p>
-                            </div>
-                            <div class="ap-po-details__icon-area">
-                                <div class="ap-po-details__icon ap-po-details__icon--remaining d-flex align-items-center justify-content-center rounded-circle"
-                                    style="width: 60px; height: 60px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
-                                    <i class="uil uil-coins" style="font-size: 24px;"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="row">
             <div class="col-lg-12">
 
@@ -357,7 +296,7 @@
                             // Vendor Logo
                             let logoHtml = '';
                             if (row.logo_url) {
-                                logoHtml = `<img src="${row.logo_url}" alt="${$('<div>').text(nameEn).html()}" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">`;
+                                logoHtml = `<img src="${row.logo_url}" alt="${$('<div>').text(nameEn).html()}" class="rounded-circle me-3" style="width: 50px; height: 50px;">`;
                             } else {
                                 logoHtml = `<div class="rounded-circle me-3 d-flex align-items-center justify-content-center bg-primary text-white" style="width: 50px; height: 50px; font-size: 20px; font-weight: bold;">${nameEn.charAt(0).toUpperCase()}</div>`;
                             }

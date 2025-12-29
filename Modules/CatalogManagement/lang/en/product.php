@@ -253,6 +253,7 @@ return [
     'booked' => 'Booked',
     'remaining' => 'Remaining',
     'total_stock' => 'Total Stock',
+    'remaining_stock' => 'Remaining Stock',
     'fulfilled_orders' => 'Fulfilled Orders',
     'pending_orders' => 'Pending Orders (Booked)',
     'released_orders' => 'Released Orders (Canceled)',
@@ -504,4 +505,9 @@ return [
     // Variant Removal
     'cannot_remove_last_variant' => 'Cannot remove the last variant. Product must have at least one variant.',
     'save_after_remove_variant' => 'Please click "Update Stock & Pricing" button to save changes after removing the variant.',
+
+    // Tax Notice
+    'tax_notice' => 'Tax Information',
+    'tax_notice_description' => 'The following taxes will be automatically applied to this product when created or updated:',
+    'current_product_taxes' => 'Current product taxes',
 ];

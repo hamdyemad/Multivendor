@@ -39,7 +39,6 @@
             .product-card .product-image {
                 width: 60px;
                 height: 60px;
-                object-fit: cover;
                 border-radius: 8px;
             }
 
@@ -563,7 +562,7 @@
                                                             <small class="text-muted d-block">{{ trans('catalogmanagement::bundle.remaining_stock') }}: <span class="${remainingStock > 0 ? 'text-success' : 'text-danger fw-bold'}">${remainingStock}${isOutOfStock ? ' ({{ trans("catalogmanagement::bundle.out_of_stock") }})' : ''}</span></small>
                                                             <small class="text-success d-block">{{ trans('catalogmanagement::bundle.price') }}: ${price} ${currencySymbol}</small>
                                                             <div class="d-flex align-items-center mt-2 pt-2 border-top">
-                                                                <img src="${vendorLogo}" alt="${vendorName}" class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;">
+                                                                <img src="${vendorLogo}" alt="${vendorName}" class="rounded-circle me-2" style="width: 24px; height: 24px;">
                                                                 <small class="text-primary fw-500">${vendorName}</small>
                                                             </div>
                                                         </div>
@@ -683,13 +682,13 @@
                         <div class="col-md-6 col-lg-4 mb-3">
                             <div class="card border-0 shadow-sm h-100 product-card">
                                 <div style="width: 100%; height: 180px; overflow: hidden; border-radius: 8px 8px 0 0;">
-                                    <img src="${product.image}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;">
+                                    <img src="${product.image}" alt="${product.name}" style="width: 100%; height: 100%;">
                                 </div>
                                 <div class="card-body">
                                     <h6 class="card-title mb-2 fw-semibold">${product.name}</h6>
                                     
                                     <div class="d-flex align-items-center mb-2">
-                                        <img src="${vendorLogo}" alt="${vendorName}" class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;">
+                                        <img src="${vendorLogo}" alt="${vendorName}" class="rounded-circle me-2" style="width: 24px; height: 24px;">
                                         <small class="text-primary fw-500">${vendorName}</small>
                                     </div>
 

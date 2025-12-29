@@ -220,6 +220,14 @@ class ProductRepository implements ProductInterface
                 'status' => $newStatus,
             ]);
 
+            // Manually sync active taxes to ensure they are applied on update
+            $activeTaxIds = Tax::where('is_active', true)->pluck('id')->toArray();
+            $vendorProduct->taxes()->sync($activeTaxIds);
+            Log::info('ProductRepository: Synced active taxes on update', [
+                'vendor_product_id' => $vendorProduct->id,
+                'active_tax_ids' => $activeTaxIds
+            ]);
+
             // Update translations
             $this->storeTranslations($product, $data);
 

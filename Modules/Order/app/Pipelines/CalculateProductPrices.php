@@ -3,7 +3,6 @@
 namespace Modules\Order\app\Pipelines;
 
 use Closure;
-use Illuminate\Support\Facades\Log;
 use Modules\CatalogManagement\app\Services\Api\ProductApiService;
 
 class CalculateProductPrices
@@ -33,7 +32,6 @@ class CalculateProductPrices
         $productSalesData = [];
 
         foreach ($products as $formProduct) {
-            // Log::info('============================');
             // Fetch complete product data from service using vendor_product_id
             $vendorProductId = $formProduct['vendor_product_id'];
             $vendorProductVariantId = $formProduct['vendor_product_variant_id'] ?? null;
@@ -41,8 +39,6 @@ class CalculateProductPrices
 
             // Get product details from service with all relationships for order creation
             $vendorProduct = $this->productService->findProductForOrder($vendorProductId);
-
-            // Log::info('Product: '. print_r($vendorProduct, true));
 
             // Validate product data exists
             if (!$vendorProduct || !isset($vendorProduct['product'])) {
@@ -62,36 +58,64 @@ class CalculateProductPrices
                 throw new \Exception(trans('order::order.vendor_id_not_found', ['id' => $vendorProductId]));
             }
 
-            $price = (float) ($vendorProduct['variants'][0]['price'] ?? 0);
+            // Price from database includes tax - this is the unit price with tax
+            $priceWithTax = (float) ($vendorProduct['variants'][0]['price'] ?? 0);
             
-            // Calculate total tax rate from all taxes
+            // Calculate total tax rate from all taxes and collect tax data
             $taxes = $vendorProduct['taxes'] ?? [];
             $taxRate = 0;
             $taxNames = ['en' => [], 'ar' => []];
+            $taxesData = []; // Store individual tax data for order_product_taxes
+            $processedTaxIds = []; // Track processed tax IDs to avoid duplicates
+            
             foreach ($taxes as $tax) {
-                $taxRate += (float) ($tax['percentage'] ?? 0);
+                $taxId = $tax['id'] ?? null;
+                
+                // Skip if no tax_id or already processed (avoid duplicates)
+                if (!$taxId || in_array($taxId, $processedTaxIds)) {
+                    continue;
+                }
+                $processedTaxIds[] = $taxId;
+                
+                $taxPercentage = (float) ($tax['percentage'] ?? 0);
+                $taxRate += $taxPercentage;
                 $taxNames['en'][] = $tax['name_en'] ?? $tax['name'] ?? '';
                 $taxNames['ar'][] = $tax['name_ar'] ?? $tax['name'] ?? '';
+                
+                // Collect tax data for storing in order_product_taxes
+                $taxesData[] = [
+                    'tax_id' => $taxId,
+                    'percentage' => $taxPercentage,
+                    'name_en' => $tax['name_en'] ?? $tax['name'] ?? '',
+                    'name_ar' => $tax['name_ar'] ?? $tax['name'] ?? '',
+                ];
             }
             $taxNameEn = implode(', ', array_filter($taxNames['en']));
             $taxNameAr = implode(', ', array_filter($taxNames['ar']));
             
             $limitation = (int) ($vendorProduct['max_per_order'] ?? 0);
 
-            // Get commission from product's department
+            // Get commission rate from product's department
             $totalCommissionRate = (float) ($vendorProduct['product']['department']['commission'] ?? 0);
 
-            // Calculate totals
-            $productTotal = $price * $quantity;
-            $tax = ($productTotal * $taxRate) / 100;
-            $commissionAmount = ($productTotal * $totalCommissionRate) / 100;
+            // Calculate price before tax for subtotal calculation
+            // If price is 100 with 10% tax, price before tax = 100 / 1.10 = 90.91
+            $priceBeforeTax = $taxRate > 0 ? $priceWithTax / (1 + $taxRate / 100) : $priceWithTax;
+            
+            // Product total with tax (for storing in order_products.price)
+            $productTotalWithTax = round($priceWithTax * $quantity, 2);
+            
+            // Product total before tax (for subtotal calculation)
+            $productTotalBeforeTax = round($priceBeforeTax * $quantity, 2);
+            
+            // Tax amount
+            $taxAmount = round($productTotalWithTax - $productTotalBeforeTax, 2);
+            
+            // Commission is calculated from price WITH tax (15% of total including tax)
+            $commissionAmount = round(($productTotalWithTax * $totalCommissionRate) / 100, 2);
 
-            // Log::info('productTotal: '. $productId .' |' . $productTotal . '|');
-            // Log::info('productTax: '. $productId .' |' . $tax . '|');
-            // Log::info('productCommission: '. $productId .' |' . $commissionAmount . '|');
-
-            $totalProductPrice += $productTotal;
-            $totalTax += $tax;
+            $totalProductPrice += $productTotalBeforeTax;
+            $totalTax += $taxAmount;
             $totalCommission += $commissionAmount;
             $itemsCount += $quantity;
 
@@ -100,8 +124,8 @@ class CalculateProductPrices
                 'vendor_product_variant_id' => $vendorProductVariantId,
                 'vendor_id' => $vendorId,
                 'quantity' => $quantity,
-                'price' => $price,
-                'commission' => $commissionAmount,
+                'price' => $productTotalWithTax, // Store total price INCLUDING tax
+                'commission' => $commissionAmount, // Commission calculated from price with tax
                 'translations' => [
                     'en' => [
                         'name' => $productNameEn,
@@ -110,14 +134,14 @@ class CalculateProductPrices
                         'name' => $productNameAr,
                     ],
                 ],
-                'tax_id' => null, // Multiple taxes now handled via vendor_product_taxes
+                'taxes' => $taxesData, // Array of taxes with their IDs
                 'tax_rate' => $taxRate,
-                'tax_amount' => $tax,
+                'tax_amount' => $taxAmount,
                 'tax_translations' => [
                     'en' => $taxNameEn,
                     'ar' => $taxNameAr,
                 ],
-                'total' => $productTotal,
+                'total' => $productTotalWithTax, // Total includes tax
                 'limitation' => $limitation,
             ];
 
@@ -125,13 +149,12 @@ class CalculateProductPrices
         }
 
         $context['products_data'] = $productsData;
-        $context['total_product_price'] = $totalProductPrice;
+        $context['total_product_price'] = $totalProductPrice; // Subtotal before tax
         $context['total_tax'] = $totalTax;
         $context['total_commission'] = $totalCommission;
         $context['items_count'] = $itemsCount;
         $context['product_sales_to_update'] = $productSalesData;
-        // Log::info('context: '. print_r($context));
-        // throw new \Exception('test');
+
         return $next([
             'data' => $data,
             'context' => $context,

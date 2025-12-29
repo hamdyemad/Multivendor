@@ -300,11 +300,28 @@ return [
 
     // Order Products
     'vendor_order_products' => 'Vendor Order Products',
+    'order_product_information' => 'Order Product Information',
     'variant' => 'Variant',
     'quantity' => 'Quantity',
     'unit_price' => 'Unit Price',
+    'price_before_taxes' => 'Price Before Taxes',
+    'taxes' => 'Taxes',
     'total_price' => 'Total Price',
     'no_order_products_found' => 'No order products found for this vendor',
     'total_quantity_sold' => 'Total Quantity Sold',
     'total_order_products' => 'Total Order Products',
+
+    // Vendor Withdraws
+    'vendor_withdraws' => 'Vendor Withdraws',
+    'withdraw_information' => 'Withdraw Information',
+    'balance_before' => 'Balance Before',
+    'sent_amount' => 'Sent Amount',
+    'balance_after' => 'Balance After',
+    'withdraw_status' => 'Status',
+    'invoice' => 'Invoice',
+    'sent_by' => 'Sent By',
+    'no_withdraws_found' => 'No withdraws found for this vendor',
+    'accepted' => 'Accepted',
+    'rejected' => 'Rejected',
+    'new' => 'New',
 ];

@@ -75,7 +75,7 @@ class BlogCategoryController extends Controller
             ->addColumn('image_preview', function ($blogCategory) {
                 if ($blogCategory->mainImage && $blogCategory->mainImage->path) {
                     $imagePath = asset('storage/' . $blogCategory->mainImage->path);
-                    return '<img src="' . $imagePath . '" alt="Blog Category Image" class="img-thumbnail" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px;" onerror="this.src=\'' . asset('images/no-image.png') . '\'">';
+                    return '<img src="' . $imagePath . '" alt="Blog Category Image" class="img-thumbnail" style="width: 60px; height: 40px; border-radius: 4px;" onerror="this.src=\'' . asset('images/no-image.png') . '\'">';
                 }
                 return '<div class="text-center"><i class="uil uil-image-slash text-muted" style="font-size: 24px;"></i></div>';
             })

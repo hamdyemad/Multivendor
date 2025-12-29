@@ -77,7 +77,7 @@ class VendorReviewController extends Controller
                 $logoUrl = $vendor && $vendor->logo ? asset('storage/' . $vendor->logo->path) : asset('assets/img/default.png');
                 $vendorName = truncateString($vendor->name ?? '-');
                 return '<div class="d-flex align-items-center gap-2">
-                    <img src="' . $logoUrl . '" alt="' . ($vendor->name ?? 'Vendor') . '" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                    <img src="' . $logoUrl . '" alt="' . ($vendor->name ?? 'Vendor') . '" class="rounded-circle" style="width: 40px; height: 40px;">
                     <span>' . $vendorName . '</span>
                 </div>';
             })

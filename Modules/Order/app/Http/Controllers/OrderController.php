@@ -350,7 +350,11 @@ class OrderController extends Controller
                 }
             }
             
-            return view('order::orders.show', compact('order', 'isVendorUser', 'vendorProducts', 'vendorProductTotal'));
+            // Get order stages for the change stage modal
+            $orderStages = $this->orderStageService->getOrderStagesQuery()->get();
+            $orderStages = OrderStageResource::collection($orderStages)->resolve();
+            
+            return view('order::orders.show', compact('order', 'isVendorUser', 'vendorProducts', 'vendorProductTotal', 'orderStages'));
         } catch (\Exception $e) {
             return abort(500, trans('order::order.error_loading_order'));
         }
@@ -466,7 +470,7 @@ class OrderController extends Controller
     public function changeStage($lang, $countryCode, $id, ChangeOrderStageRequest $request)
     {
         try {
-            // Get the order with current stage
+            // Get the order
             $order = $this->orderService->getOrderById($id);
             if (!$order) {
                 return response()->json([
@@ -475,30 +479,7 @@ class OrderController extends Controller
                 ], 404);
             }
 
-            // Get current stage type
-            $currentStage = OrderStage::withoutGlobalScopes()->find($order->stage_id);
-            $currentStageType = $currentStage ? $currentStage->type : null;
-
-            // Get new stage type
-            $newStage = OrderStage::withoutGlobalScopes()->find($request->stage_id);
-            $newStageType = $newStage ? $newStage->type : null;
-
-            // Validation: Cannot change from final stages (deliver, cancel)
-            if (in_array($currentStageType, ['deliver', 'cancel'])) {
-                return response()->json([
-                    'status' => false,
-                    'message' => trans('order::order.cannot_change_final_stage'),
-                ], 422);
-            }
-
-            // Validation: Cannot go back from in_progress to new
-            if ($currentStageType === 'in_progress' && $newStageType === 'new') {
-                return response()->json([
-                    'status' => false,
-                    'message' => trans('order::order.cannot_go_back_to_new'),
-                ], 422);
-            }
-
+            // Change stage (validation is handled in repository)
             $order = $this->orderService->changeOrderStage($id, $request->stage_id);
 
             return response()->json([
@@ -509,8 +490,7 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => trans('order::order.error_updating_stage'),
-                'errors' => [$e->getMessage()]
+                'message' => $e->getMessage(),
             ], 422);
         }
     }

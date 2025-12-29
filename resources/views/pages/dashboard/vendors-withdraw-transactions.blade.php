@@ -97,7 +97,7 @@
                                 @if (in_array($user_type_id, \App\Models\UserType::adminIds()))
                                     <p>{{ trans('dashboard.Total Vendor\'s Remaining') }}</p>
                                 @else
-                                    <p>{{ $vendor->translations->first()->lang_value }}'s {{ trans('dashboard.credit_balance') }}</p>
+                                    <p>{{ trans('dashboard.Total Vendor\'s Remaining') }}</p>
                                 @endif
                             </div>
                             <div class="ap-po-details__icon-area">

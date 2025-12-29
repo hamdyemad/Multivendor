@@ -218,7 +218,7 @@
                                                 <img src="{{ asset('storage/' . $bundleCategory->image) }}"
                                                      alt="{{ $bundleCategory->getTranslation('name') }}"
                                                      class="img-fluid rounded border shadow-sm"
-                                                     style="max-height: 300px; object-fit: cover; width: 100%;">
+                                                     style="max-height: 300px; width: 100%;">
                                             </div>
                                         @else
                                             <div class="d-flex flex-column align-items-center justify-content-center" style="height: 200px;">

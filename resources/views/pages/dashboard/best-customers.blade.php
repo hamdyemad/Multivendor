@@ -22,7 +22,7 @@
                         <td>
                             <div class="d-flex align-items-center">
                                 @if($customer->image)
-                                    <img class="rounded-circle" src="{{ asset('storage/' . $customer->image) }}" alt="user" style="width: 40px; height: 40px; object-fit: cover;">
+                                    <img class="rounded-circle" src="{{ asset('storage/' . $customer->image) }}" alt="user" style="width: 40px; height: 40px;">
                                 @else
                                     <div class="bg-{{ ($customer->customer_type ?? 'registered') == 'external' ? 'secondary' : 'primary' }} rounded-circle d-inline-flex align-items-center justify-content-center text-white" style="width: 40px; height: 40px;">
                                         <span style="font-size: 14px;">{{ strtoupper(substr($customer->first_name ?? 'C', 0, 1)) }}</span>

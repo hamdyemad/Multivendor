@@ -103,7 +103,7 @@ class AdController extends Controller
             })
             ->addColumn('image_preview', function ($ad) {
                 if ($ad->image) {
-                    return '<img src="' . asset('storage/' . $ad->image) . '" alt="Ad Image" style="width: 60px; height: 40px; object-fit: cover; border-radius: 4px;">';
+                    return '<img src="' . asset('storage/' . $ad->image) . '" alt="Ad Image" style="width: 60px; height: 40px; border-radius: 4px;">';
                 }
                 return '<span class="text-muted">-</span>';
             })

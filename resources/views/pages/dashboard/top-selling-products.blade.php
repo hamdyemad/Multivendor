@@ -26,7 +26,7 @@
                                     @if($product->mainImage)
                                         <img class="rounded-circle"
                                             src="{{ asset('storage/' . $product->mainImage->path) }}"
-                                            alt="product" style="width: 40px; height: 40px; object-fit: cover;">
+                                            alt="product" style="width: 40px; height: 40px;">
                                     @else
                                         <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
                                             <i class="uil uil-box text-muted"></i>
@@ -44,7 +44,7 @@
                                     @if($item->vendorData->logo)
                                         <img class="rounded-circle"
                                             src="{{ asset('storage/' . $item->vendorData->logo->path) }}"
-                                            alt="vendor" style="width: 40px; height: 40px; object-fit: cover;">
+                                            alt="vendor" style="width: 40px; height: 40px;">
                                     @else
                                         <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
                                             <i class="uil uil-store text-muted"></i>

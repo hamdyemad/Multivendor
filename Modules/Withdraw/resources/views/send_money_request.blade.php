@@ -257,19 +257,56 @@
         </div>
     </div>
 
+    <!-- Amount Exceeded Alert Modal -->
+    <div class="modal fade" id="amountExceededModal" tabindex="-1" aria-labelledby="amountExceededLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header text-white" style="background-color: #dc3545;">
+                    <h5 class="modal-title d-flex align-items-center" id="amountExceededLabel" style="color: #fff">
+                        <i class="uil uil-exclamation-triangle me-2"></i> {{ trans('withdraw::withdraw.amount_exceeded_title') }}
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <div class="mb-3">
+                        <i class="uil uil-times-circle text-danger" style="font-size: 48px;"></i>
+                    </div>
+                    <p class="mb-2" style="font-size: 16px;">{{ trans('withdraw::withdraw.amount_exceeds_maximum') }}</p>
+                    <p class="mb-0 fw-bold text-danger" style="font-size: 18px;">
+                        {{ trans('withdraw::withdraw.max_amount') }}: <span id="maxAmountDisplay">0</span> {{ currency() }}
+                    </p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-danger px-4" data-bs-dismiss="modal">
+                        <i class="uil uil-check me-1"></i> {{ __('common.ok') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 
     @push('scripts')
         <script>
             let maxVal = {{ $final_remaining }};
+            const amountExceededModal = new bootstrap.Modal(document.getElementById('amountExceededModal'));
+
+            // Function to show amount exceeded modal
+            function showAmountExceededModal(maxAmount) {
+                document.getElementById('maxAmountDisplay').innerText = maxAmount.toLocaleString();
+                amountExceededModal.show();
+            }
 
             $('#sent_amount').on('input', function() {
-                // إزالة أي formatting
+                // Remove formatting
                 let val = parseFloat(this.value.replace(/,/g, ''));
 
                 if (!isNaN(val) && val > maxVal) {
-                    alert('{{ trans("withdraw::withdraw.amount_exceeds_maximum") }}' + ' (' + maxVal + ')');
-                    this.value = maxVal.toLocaleString(); // optional formatting
+                    showAmountExceededModal(maxVal);
+                    this.value = maxVal.toLocaleString();
                 }
             });
         </script>
@@ -294,10 +331,11 @@
 
                         $("#amount_max_which_will_be_sent").html(response.remaining);
 
-                        // تحويل الرقم اللي فيه commas لصافي رقم
+                        // Convert number with commas to plain number
                         let maxAmount = Number(response.remaining.replace(/,/g, ''));
+                        maxVal = maxAmount;
 
-                        // تعيين Max للـ input
+                        // Set Max for input
                         $("#sent_amount").attr("max", maxAmount);
                     },
                     error: function(xhr, status, error) {
@@ -308,7 +346,7 @@
         </script>
 
         <script>
-            document.getElementById('imageInput').addEventListener('change', function(event) {
+            document.getElementById('imageInput')?.addEventListener('change', function(event) {
                 let file = event.target.files[0];
 
                 if (file) {
@@ -329,20 +367,20 @@
             const input = document.getElementById('sent_amount');
 
             input.addEventListener('input', function(e) {
-                let value = this.value.replace(/,/g, ''); // إزالة الفواصل
+                let value = this.value.replace(/,/g, ''); // Remove commas
 
-                // السماح بالأرقام العشرية فقط
+                // Allow decimal numbers only
                 if (!isNaN(value) && value !== '') {
-                    // تحويل الرقم لعدد عشري والحفاظ على decimals
+                    // Convert to decimal and preserve decimals
                     let parts = value.split('.');
-                    parts[0] = Number(parts[0]).toLocaleString(); // جزء الألف
+                    parts[0] = Number(parts[0]).toLocaleString();
                     this.value = parts.join('.');
                 } else {
                     this.value = '';
                 }
             });
 
-            // إزالة الفواصل قبل إرسال الفورم
+            // Remove commas before form submit
             input.form?.addEventListener('submit', function() {
                 input.value = input.value.replace(/,/g, '');
             });
@@ -352,8 +390,8 @@
             const imageInput = document.getElementById('imageInput');
             const imagePreview = document.getElementById('imagePreview');
 
-            // لما المستخدم يغير الصورة
-            imageInput.addEventListener('change', function() {
+            // When user changes image
+            imageInput?.addEventListener('change', function() {
                 const file = this.files[0];
                 if (file) {
                     const reader = new FileReader();
@@ -364,26 +402,9 @@
                 }
             });
 
-            // لما المستخدم يضغط على الصورة، يفتح اختيار الصورة
-            imagePreview.addEventListener('click', function() {
+            // When user clicks on image, open file selector
+            imagePreview?.addEventListener('click', function() {
                 imageInput.click();
-            });
-        </script>
-
-        <script>
-            const form = document.getElementById('sendMoneyForm');
-            const sentAmountInput = document.getElementById('sent_amount');
-
-            form.addEventListener('submit', function(e) {
-                // الرقم اللي فيه commas نحوله لصافي رقم
-                let maxAmount = Number(sentAmountInput.attr('max') || 0);
-                let enteredAmount = Number(sentAmountInput.value.replace(/,/g, ''));
-
-                if (enteredAmount > maxAmount) {
-                    e.preventDefault(); // منع الفورم من الsubmit
-                    alert("{{ trans('withdraw::withdraw.amount_cannot_exceed_maximum') }}: " + maxAmount.toLocaleString());
-                    return false;
-                }
             });
         </script>
 
@@ -393,17 +414,28 @@
                 const submitBtn = document.getElementById('submitBtn');
                 const confirmModal = new bootstrap.Modal(document.getElementById('confirmSubmitModal'));
                 const confirmBtn = document.getElementById('confirmSubmitBtn');
+                const sentAmountInput = document.getElementById('sent_amount');
 
-                // منع الفورم من الsubmit مباشرة
+                // Validate amount before showing confirm modal
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
+                    
+                    const enteredAmount = Number(sentAmountInput.value.replace(/,/g, '')) || 0;
+                    
+                    if (enteredAmount > maxVal) {
+                        showAmountExceededModal(maxVal);
+                        return;
+                    }
+                    
                     confirmModal.show();
                 });
 
-                // لما يضغط على Yes, Send
+                // When user clicks Yes, Send
                 confirmBtn.addEventListener('click', function() {
+                    // Remove commas before submitting
+                    sentAmountInput.value = sentAmountInput.value.replace(/,/g, '');
                     confirmModal.hide();
-                    form.submit(); // الفورم يتبعت
+                    form.submit();
                 });
             });
         </script>

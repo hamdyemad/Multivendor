@@ -219,12 +219,19 @@ class VendorController extends Controller {
             'stages' => $stageStats,
         ];
 
+        // Get vendor withdraws with pagination
+        $withdraws = \Modules\Withdraw\app\Models\Withdraw::with(['admin'])
+            ->where('reciever_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10, ['*'], 'withdraws_page');
+
         $data = [
             'title' => __('vendor::vendor.vendor_details'),
             'vendor' => $vendor,
             'languages' => $languages,
             'orderProducts' => $orderProducts,
             'orderStats' => $orderStats,
+            'withdraws' => $withdraws,
         ];
         return view('vendor::vendors.show', $data);
     }

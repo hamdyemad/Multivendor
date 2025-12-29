@@ -44,7 +44,6 @@
             .variant-search-item .variant-image {
                 width: 50px;
                 height: 50px;
-                object-fit: cover;
                 border-radius: 6px;
                 margin-right: 12px;
                 flex-shrink: 0;
@@ -125,7 +124,6 @@
             .product-card .product-image {
                 width: 60px;
                 height: 60px;
-                object-fit: cover;
                 border-radius: 8px;
             }
 
@@ -738,7 +736,7 @@
                                                     <div class="card-body p-3">
                                                         <div class="d-flex gap-2 mb-2">
                                                             <img src="${productImage}" alt="${productName}"
-                                                                 class="rounded" style="width: 50px; height: 50px; object-fit: cover; flex-shrink: 0;">
+                                                                 class="rounded" style="width: 50px; height: 50px;  flex-shrink: 0;">
                                                             <div class="flex-grow-1">
                                                                 <h6 class="mb-1 fw-semibold text-truncate">${productName}</h6>
                                                                 ${variantKey ? `<small class="text-primary d-block"><strong>${variantKey}:</strong> ${variantValue}</small>` : ''}
@@ -751,7 +749,7 @@
                                                             ${priceBeforeDiscount ? `<small class="text-muted"><strong>{{ trans('common.before_discount') }}:</strong> ${priceBeforeDiscount} ${currencySymbol}</small>` : ''}
                                                         </div>
                                                         <div class="d-flex align-items-center mb-2 pt-2 border-top">
-                                                            <img src="${vendorLogo}" alt="${vendorName}" class="rounded-circle me-2" style="width: 20px; height: 20px; object-fit: cover;">
+                                                            <img src="${vendorLogo}" alt="${vendorName}" class="rounded-circle me-2" style="width: 20px; height: 20px;">
                                                             <small class="text-primary fw-500">${vendorName}</small>
                                                         </div>
                                                         <button type="button" class="btn btn-sm ${isSelected ? 'btn-success' : 'btn-primary'} w-100 add-product-btn"
@@ -835,14 +833,14 @@
                                         <div class="card-body p-3">
                                             <div class="d-flex gap-2 mb-2">
                                                 <img src="${variant.image}" alt="${variant.productName}"
-                                                     class="rounded" style="width: 50px; height: 50px; object-fit: cover; flex-shrink: 0;">
+                                                     class="rounded" style="width: 50px; height: 50px;  flex-shrink: 0;">
                                                 <div class="flex-grow-1">
                                                     <h6 class="mb-1 fw-semibold text-truncate">${variant.productName}</h6>
                                                     ${variant.variantKey ? `<small class="text-primary d-block"><strong>${variant.variantKey}:</strong> ${variant.variantValue || variant.variantName}</small>` : (variant.variantName ? `<small class="text-primary d-block">${variant.variantName}</small>` : '')}
                                                 </div>
                                             </div>
                                             <div class="d-flex align-items-center mb-2">
-                                                <img src="${vendorLogo}" alt="${vendorName}" class="rounded-circle me-2" style="width: 20px; height: 20px; object-fit: cover;">
+                                                <img src="${vendorLogo}" alt="${vendorName}" class="rounded-circle me-2" style="width: 20px; height: 20px; ">
                                                 <small class="text-primary fw-500">${vendorName}</small>
                                             </div>
                                             <div class="d-flex flex-column gap-1 mb-2">

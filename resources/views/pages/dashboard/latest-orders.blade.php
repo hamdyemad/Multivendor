@@ -25,7 +25,7 @@
                                 <div class="d-flex align-items-center justify-content-center">
                                     <div class="me-2">
                                         @if($order->customer->image)
-                                            <img src="{{ asset($order->customer->image) }}" alt="{{ $order->customer->full_name }}" class="rounded-circle" style="width: 35px; height: 35px; object-fit: cover;">
+                                            <img src="{{ asset($order->customer->image) }}" alt="{{ $order->customer->full_name }}" class="rounded-circle" style="width: 35px; height: 35px;">
                                         @else
                                             <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white" style="width: 35px; height: 35px; font-size: 14px;">
                                                 {{ strtoupper(substr($order->customer->first_name ?? 'C', 0, 1)) }}

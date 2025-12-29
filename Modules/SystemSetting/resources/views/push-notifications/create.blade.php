@@ -140,7 +140,7 @@
                                 </div>
                             </div>
                             <div class="mt-3" id="previewImageContainer" style="display: none;">
-                                <img id="previewImage" src="" alt="Preview" class="img-fluid rounded" style="max-height: 150px; width: 100%; object-fit: cover;">
+                                <img id="previewImage" src="" alt="Preview" class="img-fluid rounded" style="max-height: 150px; width: 100%;">
                             </div>
                         </div>
                         <small class="text-muted d-block mt-2">

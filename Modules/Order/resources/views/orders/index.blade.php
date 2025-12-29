@@ -41,7 +41,6 @@
             height: 50px;
             border-radius: 50%;
             border: 2px solid #fff;
-            object-fit: cover;
             background-color: #f0f0f0;
             transition: transform 0.2s ease-in-out;
         }

@@ -162,11 +162,11 @@
                                         @if ($ad->image)
                                             <img src="{{ asset('storage/' . $ad->image) }}" alt="Ad Image"
                                                 class="img-fluid round"
-                                                style="max-width: 100%; max-height: 300px; object-fit: cover;">
+                                                style="max-width: 100%; max-height: 300px;">
                                         @else
                                             <img src="{{ asset('assets/img/default.png') }}" alt="Ad Image"
                                                 class="img-fluid round"
-                                                style="max-width: 100%; max-height: 300px; object-fit: cover;">
+                                                style="max-width: 100%; max-height: 300px;">
                                         @endif
                                     </div>
                                 </div>

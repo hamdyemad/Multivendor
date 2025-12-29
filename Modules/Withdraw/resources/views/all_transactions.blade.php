@@ -157,25 +157,7 @@
 
                                     <th>
                                         <span class="userDatatable-title">
-                                            {{ __('withdraw::withdraw.balance_before_send_money') }}
-                                        </span>
-                                    </th>
-
-                                    <th>
-                                        <span class="userDatatable-title">
-                                            {{ __('withdraw::withdraw.total_sent_money') }}
-                                        </span>
-                                    </th>
-
-                                    <th>
-                                        <span class="userDatatable-title">
-                                            {{ __('withdraw::withdraw.balance_after_send_money') }}
-                                        </span>
-                                    </th>
-
-                                    <th>
-                                        <span class="userDatatable-title">
-                                            {{ __('withdraw::withdraw.status') }}
+                                            {{ __('withdraw::withdraw.withdraw_information') }}
                                         </span>
                                     </th>
 
@@ -403,40 +385,30 @@
                         </div>`;
                         }
                     },
-                    { // Before Money
-                        data: 'before_sending_money',
-                        name: 'before_sending_money',
-                        render: function(data) {
-                            return `<div class="userDatatable-content">${data || '-'}</div>`;
-                        }
-                    },
-                    { // Sent Amount
-                        data: 'sent_amount',
-                        name: 'sent_amount',
-                        render: function(data) {
-                            return `<div class="userDatatable-content">${data || '-'}</div>`;
-                        }
-                    },
-                    { // After Money
-                        data: 'after_sending_amount',
-                        name: 'after_sending_amount',
-                        render: function(data) {
-                            return `<div class="userDatatable-content">${data || '-'}</div>`;
-                        }
-                    },
-                    { // Status
-                        data: 'status',
-                        name: 'status',
+                    { // Withdraw Information (combined column)
+                        data: null,
+                        name: 'withdraw_info',
                         orderable: false,
                         searchable: false,
-                        render: function(data) {
-                            if (data == "accepted") {
-                                return '<p class="text-success" style="text-transform: capitalize; font-weight: bold;">{{ __('withdraw::withdraw.accepted') }}</p>';
-                            } else if( data == "rejected" ) {
-                                return '<p class="text-danger" style="text-transform: capitalize; font-weight: bold;">{{ __('withdraw::withdraw.rejected') }}</p>';
-                            } else if( data == "new" ) {
-                                return '<p class="text-primary" style="text-transform: capitalize; font-weight: bold;">{{ __('withdraw::withdraw.new') }}</p>';
+                        render: function(data, type, row) {
+                            let statusClass = 'text-primary';
+                            let statusText = '{{ __('withdraw::withdraw.new') }}';
+                            if (row.status === 'accepted') {
+                                statusClass = 'text-success';
+                                statusText = '{{ __('withdraw::withdraw.accepted') }}';
+                            } else if (row.status === 'rejected') {
+                                statusClass = 'text-danger';
+                                statusText = '{{ __('withdraw::withdraw.rejected') }}';
                             }
+                            
+                            return `<div class="userDatatable-content">
+                                <div class="d-flex flex-column gap-1">
+                                    <div><span class="text-muted fw-bold">{{ __('withdraw::withdraw.before_sending_money') }}:</span> <strong>${row.before_sending_money || '-'}</strong></div>
+                                    <div><span class="text-muted fw-bold">{{ __('withdraw::withdraw.sent_amount') }}:</span> <strong class="text-success">${row.sent_amount || '-'}</strong></div>
+                                    <div><span class="text-muted fw-bold">{{ __('withdraw::withdraw.after_sending_amount') }}:</span> <strong>${row.after_sending_amount || '-'}</strong></div>
+                                    <div><span class="text-muted fw-bold">{{ __('withdraw::withdraw.status') }}:</span> <strong class="${statusClass}">${statusText}</strong></div>
+                                </div>
+                            </div>`;
                         }
                     },
                     { // Invoice

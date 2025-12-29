@@ -136,11 +136,11 @@
                                         @if ($blogCategory->mainImage && $blogCategory->mainImage->path)
                                             <img src="{{ asset('storage/' . $blogCategory->mainImage->path) }}"
                                                 alt="{{ $blogCategory->title }}" class="img-fluid round"
-                                                style="max-width: 100%; max-height: 300px; object-fit: cover;">
+                                                style="max-width: 100%; max-height: 300px;">
                                         @else
                                             <img src="{{ asset('assets/img/default.png') }}"
                                                 alt="{{ $blogCategory->title }}" class="img-fluid round"
-                                                style="max-width: 100%; max-height: 300px; object-fit: cover;">
+                                                style="max-width: 100%; max-height: 300px;">
                                         @endif
                                     </div>
                                 </div>

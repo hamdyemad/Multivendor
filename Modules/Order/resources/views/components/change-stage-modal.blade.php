@@ -18,6 +18,7 @@
                         <select id="newStage" name="stage_id" class="form-select" required>
                             <option value="">{{ trans('order::order.select_stage') }}</option>
                         </select>
+                        <div id="stageWarning" class="text-warning mt-2" style="display: none;"></div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -35,48 +36,121 @@
         $(document).ready(function() {
             let orderStages = @json($orderStages);
 
-            // Populate stage select dropdown with restrictions
+            // Stage step mapping (must match OrderStage::STAGE_STEPS in PHP)
+            const STAGE_STEPS = {
+                'new': 1,
+                'in_progress': 2,
+                'deliver': 3,
+                'cancel': 3,
+                'refund': 4
+            };
+
+            // Final stages that cannot transition
+            const FINAL_STAGES = ['deliver', 'cancel'];
+
+            // Get step for a stage type (default to 0 if type is null/undefined)
+            function getStageStep(type) {
+                if (!type) return 0;
+                return STAGE_STEPS[type] || 0;
+            }
+
+            // Check if stage is final
+            function isFinalStage(type) {
+                if (!type) return false;
+                return FINAL_STAGES.includes(type);
+            }
+
+            // Check if transition is allowed
+            // Rules:
+            // - Cannot change from final stages
+            // - Cannot go backwards
+            // - Cannot skip steps (must go to next step only)
+            // - Exception: can cancel from any stage
+            function canTransitionTo(currentType, newType, currentId, newId) {
+                // Cannot transition to same stage
+                if (currentId == newId) {
+                    return false;
+                }
+
+                // Cannot change from final stages
+                if (isFinalStage(currentType)) {
+                    return false;
+                }
+
+                // If current type is null/undefined, allow only to step 1 or 2
+                if (!currentType) {
+                    const newStep = getStageStep(newType);
+                    return newStep <= 2; // Can go to new or in_progress
+                }
+
+                // If new type is null/undefined, allow transition
+                if (!newType) {
+                    return true;
+                }
+
+                const currentStep = getStageStep(currentType);
+                const newStep = getStageStep(newType);
+
+                // Cannot go backwards
+                if (newStep < currentStep) {
+                    return false;
+                }
+
+                // Can always cancel from any non-final stage
+                if (newType === 'cancel') {
+                    return true;
+                }
+
+                // Cannot skip steps - must go to next step only
+                if (newStep > currentStep + 1) {
+                    return false;
+                }
+
+                // Refund only after deliver
+                if (newType === 'refund' && currentType !== 'deliver') {
+                    return false;
+                }
+
+                return true;
+            }
+
+            // Populate stage select dropdown with step-based restrictions
             function populateStageSelect() {
                 const newStageSelect = $('#newStage');
                 const currentStageId = $('#currentStageId').val();
                 const currentStageType = $('#currentStageType').val();
+                const stageWarning = $('#stageWarning');
+                
                 newStageSelect.find('option:not(:first)').remove();
+                stageWarning.hide();
 
-                // Find current stage to get its type
+                // Find current stage
                 const currentStage = orderStages.find(s => s.id == currentStageId);
                 const currentType = currentStageType || (currentStage ? currentStage.type : null);
 
+                // Check if current stage is final
+                if (isFinalStage(currentType)) {
+                    stageWarning.text('{{ trans("order::order.cannot_change_final_stage") }}').show();
+                    return;
+                }
+
+                let hasOptions = false;
                 orderStages.forEach(stage => {
                     const stageName = stage.name;
                     const stageType = stage.type;
                     
-                    // Apply restrictions based on current stage type
-                    let isDisabled = false;
-                    let disabledReason = '';
-                    
-                    // If current stage is 'in_progress', cannot go back to 'new'
-                    if (currentType === 'in_progress' && stageType === 'new') {
-                        isDisabled = true;
-                        disabledReason = ' ({{ trans("order::order.cannot_go_back") }})';
-                    }
-                    
-                    // If current stage is 'deliver' or 'cancel', cannot change to anything
-                    if (currentType === 'deliver' || currentType === 'cancel') {
-                        isDisabled = true;
-                        disabledReason = ' ({{ trans("order::order.final_stage") }})';
-                    }
-                    
-                    // Skip current stage
-                    if (stage.id == currentStageId) {
-                        return;
-                    }
-                    
-                    if (!isDisabled) {
+                    // Check if transition is allowed
+                    if (canTransitionTo(currentType, stageType, currentStageId, stage.id)) {
                         newStageSelect.append(
                             `<option value="${stage.id}">${stageName}</option>`
                         );
+                        hasOptions = true;
                     }
                 });
+
+                if (!hasOptions) {
+                    stageWarning.text('{{ trans("order::order.no_available_stages") }}').show();
+                }
             }
 
             // Handle form submission
@@ -93,15 +167,6 @@
 
                 if (!orderId) {
                     toastr.error('{{ trans('order::order.order_id_required') }}');
-                    return;
-                }
-
-                // Check if selected stage requires fulfillment (in-progress)
-                if (selectedStage && selectedStage.slug === 'in-progress') {
-                    // Redirect to fulfillment page instead of changing stage directly
-                    window.location.href =
-                        "{{ route('admin.order-fulfillments.show', ['orderId' => '__id__']) }}".replace(
-                            '__id__', orderId);
                     return;
                 }
 
@@ -140,6 +205,14 @@
                         // Show success message
                         toastr.success(response.message ||
                             '{{ trans('order::order.stage_updated_successfully') }}');
+
+                        // If changed to in-progress, redirect to fulfillment/allocate page
+                        if (selectedStage && (selectedStage.slug === 'in-progress' || selectedStage.type === 'in_progress')) {
+                            setTimeout(() => {
+                                window.location.href = "{{ route('admin.order-fulfillments.show', ['orderId' => '__id__']) }}".replace('__id__', orderId);
+                            }, 500);
+                            return;
+                        }
 
                         // Reload table immediately if exists, otherwise reload page after delay
                         if (typeof table !== 'undefined' && table.ajax) {

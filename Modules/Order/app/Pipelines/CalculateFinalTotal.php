@@ -2,9 +2,8 @@
 
 namespace Modules\Order\app\Pipelines;
 
-use App\Exceptions\OrderException;
 use Closure;
-use Exception;
+use Illuminate\Support\Facades\Log;
 
 class CalculateFinalTotal
 {
@@ -26,9 +25,9 @@ class CalculateFinalTotal
         $tax = $context['total_tax'] ?? 0;
         $fees = $context['total_fees'] ?? 0;
         $discounts = $context['total_discounts'] ?? 0;
-        $pointsCost = $context['points_cost'] ?? 0; // Add points cost
+        $pointsCost = $context['points_cost'] ?? 0;
 
-        \Log::info('CalculateFinalTotal: Before calculation', [
+        Log::info('CalculateFinalTotal: Before calculation', [
             'subtotal' => $subtotal,
             'shipping' => $shipping,
             'tax' => $tax,
@@ -40,13 +39,13 @@ class CalculateFinalTotal
 
         $totalPrice = $subtotal + $shipping + $fees + $tax - $discounts - $promoDiscount - $pointsCost;
 
-        \Log::info('CalculateFinalTotal: After calculation', [
+        Log::info('CalculateFinalTotal: After calculation', [
             'total_price' => $totalPrice
         ]);
 
         $context['subtotal'] = $subtotal;
         $context['shipping'] = $shipping;
-        $context['total_price'] = max(0, $totalPrice); // Ensure total is not negative
+        $context['total_price'] = max(0, $totalPrice);
         $context['promo_code_discount'] = $promoDiscount;
 
         return $next([

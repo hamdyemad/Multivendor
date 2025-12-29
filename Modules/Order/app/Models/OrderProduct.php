@@ -68,9 +68,17 @@ class OrderProduct extends Model
     }
 
     /**
-     * Get the order product tax.
+     * Get the order product taxes.
      */
-    public function taxes(): HasOne
+    public function taxes(): HasMany
+    {
+        return $this->hasMany(OrderProductTax::class);
+    }
+
+    /**
+     * Get the first/primary order product tax (for backward compatibility).
+     */
+    public function tax(): HasOne
     {
         return $this->hasOne(OrderProductTax::class);
     }

@@ -67,7 +67,7 @@
                                                         <img src="{{ asset('storage/' . $productImage) }}" 
                                                              alt="{{ $data['order_product']->name ?? 'Product' }}"
                                                              class="rounded"
-                                                             style="width: 60px; height: 60px; object-fit: cover;">
+                                                             style="width: 60px; height: 60px; ">
                                                     @else
                                                         <div class="bg-light rounded d-flex align-items-center justify-content-center"
                                                              style="width: 60px; height: 60px;">

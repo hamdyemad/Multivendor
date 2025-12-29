@@ -17,7 +17,6 @@
     .product-preview-card .product-image {
         width: 80px;
         height: 80px;
-        object-fit: cover;
         border-radius: 8px;
     }
     .vendor-product-status {
@@ -79,7 +78,6 @@
     .product-card .product-image {
         width: 60px;
         height: 60px;
-        object-fit: cover;
         border-radius: 8px;
     }
     .product-card .product-checkbox {

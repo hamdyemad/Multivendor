@@ -128,7 +128,7 @@
                                         @if ($blog->mainImage && $blog->mainImage->path)
                                             <img src="{{ asset('storage/' . $blog->mainImage->path) }}"
                                                 alt="{{ $blog->title }}" class="img-fluid round"
-                                                style="max-width: 100%; max-height: 300px; object-fit: cover;">
+                                                style="max-width: 100%; max-height: 300px;">
                                         @else
                                             <div class="p-5 bg-light round">
                                                 <i class="uil uil-image-slash" style="font-size: 48px; color: #ccc;"></i>

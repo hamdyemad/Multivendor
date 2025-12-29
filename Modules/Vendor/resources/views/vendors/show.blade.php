@@ -267,27 +267,41 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
+                            @php
+                                // Calculate vendor order data for 6 cards
+                                $vendorOrderProducts = \Modules\Order\app\Models\OrderProduct::where('vendor_id', $vendor->id)->get();
+                                $ordersPrice = $vendorOrderProducts->sum(function($op) {
+                                    return $op->price * $op->quantity;
+                                });
+                                $bnaiaBalance = $vendorOrderProducts->sum(function($op) {
+                                    return ($op->price * $op->quantity) * ($op->commission / 100);
+                                });
+                                $totalVendorBalance = $ordersPrice - $bnaiaBalance;
+                                $totalSentMoney = $vendor->total_sent;
+                            @endphp
                             <div class="col-md-8 order-2 order-md-1">
                                 {{-- Money Transactions --}}
                                 <div class="card card-holder">
                                     <div class="card-header">
                                         <h3>
-                                            <i
-                                                class="uil uil-dollar-alt me-1"></i>{{ trans('vendor::vendor.money_transactions') }}
+                                            <i class="uil uil-dollar-alt me-1"></i>{{ trans('vendor::vendor.money_transactions') }}
                                         </h3>
                                     </div>
-                                    <div class="card-body p-20">
+                                        <div class="card-body p-20">
+                                        {{-- Section 1: Vendor General Orders Data --}}
+                                        <div class="mb-3">
+                                            <h6 class="fw-bold text-muted mb-3">{{ trans('withdraw::withdraw.vendor_general_orders_data') }}</h6>
+                                        </div>
                                         <div class="row">
-                                            <div class="col-md-4">
-                                                {{-- Total Vendors Balance --}}
-                                                <div class="d-flex align-items-center justify-content-between p-15 rounded mb-15 transaction-card"
+                                            <div class="col-md-4 d-flex">
+                                                {{-- Total Transactions --}}
+                                                <div class="d-flex align-items-center justify-content-between p-15 rounded mb-15 transaction-card flex-grow-1"
                                                     style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.95); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15), inset 0 0 20px rgba(255, 255, 255, 0.4);">
                                                     <div>
                                                         <p class="mb-0 fs-13 fw-bold" style="color: #667eea;">
-                                                            {{ trans('vendor::vendor.total_vendors_balance') }}</p>
+                                                            {{ trans('withdraw::withdraw.total_transactions') }}</p>
                                                         <p class="mb-0 fs-20 fw-bold mt-5" style="color: #272b41;">
-                                                            {{ number_format($vendor->total_balance, 2) }}
-                                                            {{ currency() }}</p>
+                                                            {{ number_format($ordersPrice, 2) }} {{ currency() }}</p>
                                                     </div>
                                                     <div class="p-12 rounded-circle d-flex align-items-center justify-content-center"
                                                         style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.1) 100%); width: 45px; height: 45px; border: 1px solid rgba(102, 126, 234, 0.2);">
@@ -295,16 +309,70 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4">
+                                            <div class="col-md-4 d-flex">
+                                                {{-- Bnaia Commission --}}
+                                                <div class="d-flex align-items-center justify-content-between p-15 rounded mb-15 transaction-card flex-grow-1"
+                                                    style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.95); box-shadow: 0 4px 15px rgba(255, 159, 67, 0.15), inset 0 0 20px rgba(255, 255, 255, 0.4);">
+                                                    <div>
+                                                        <p class="mb-0 fs-13 fw-bold" style="color: #ff9f43;">
+                                                            {{ trans('withdraw::withdraw.bnaia_commission_from_transactions') }}</p>
+                                                        <p class="mb-0 fs-20 fw-bold mt-5" style="color: #272b41;">
+                                                            {{ number_format($bnaiaBalance, 2) }} {{ currency() }}</p>
+                                                    </div>
+                                                    <div class="p-12 rounded-circle d-flex align-items-center justify-content-center"
+                                                        style="background: linear-gradient(135deg, rgba(255, 159, 67, 0.15) 0%, rgba(255, 159, 67, 0.1) 100%); width: 45px; height: 45px; border: 1px solid rgba(255, 159, 67, 0.2);">
+                                                        <i class="uil uil-percentage fs-20" style="color: #ff9f43;"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 d-flex">
+                                                {{-- Total Vendor Credit --}}
+                                                <div class="d-flex align-items-center justify-content-between p-15 rounded mb-15 transaction-card flex-grow-1"
+                                                    style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.95); box-shadow: 0 4px 15px rgba(0, 207, 232, 0.15), inset 0 0 20px rgba(255, 255, 255, 0.4);">
+                                                    <div>
+                                                        <p class="mb-0 fs-13 fw-bold" style="color: #00cfe8;">
+                                                            {{ trans('withdraw::withdraw.total_vendor_credit') }}</p>
+                                                        <p class="mb-0 fs-20 fw-bold mt-5" style="color: #272b41;">
+                                                            {{ number_format($totalVendorBalance, 2) }} {{ currency() }}</p>
+                                                    </div>
+                                                    <div class="p-12 rounded-circle d-flex align-items-center justify-content-center"
+                                                        style="background: linear-gradient(135deg, rgba(0, 207, 232, 0.15) 0%, rgba(0, 207, 232, 0.1) 100%); width: 45px; height: 45px; border: 1px solid rgba(0, 207, 232, 0.2);">
+                                                        <i class="uil uil-money-bill-stack fs-20" style="color: #00cfe8;"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {{-- Section 2: Vendor Withdraw Transactions --}}
+                                        <div class="mb-3 mt-4">
+                                            <h6 class="fw-bold text-muted mb-3">{{ trans('dashboard.vendors_withdraw_transactions') }}</h6>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4 d-flex">
+                                                {{-- Total Balance Needed --}}
+                                                <div class="d-flex align-items-center justify-content-between p-15 rounded mb-15 transaction-card flex-grow-1"
+                                                    style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.95); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15), inset 0 0 20px rgba(255, 255, 255, 0.4);">
+                                                    <div>
+                                                        <p class="mb-0 fs-13 fw-bold" style="color: #667eea;">
+                                                            {{ trans('withdraw::withdraw.total_balance_needed') }}</p>
+                                                        <p class="mb-0 fs-20 fw-bold mt-5" style="color: #272b41;">
+                                                            {{ number_format($totalVendorBalance, 2) }} {{ currency() }}</p>
+                                                    </div>
+                                                    <div class="p-12 rounded-circle d-flex align-items-center justify-content-center"
+                                                        style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.1) 100%); width: 45px; height: 45px; border: 1px solid rgba(102, 126, 234, 0.2);">
+                                                        <i class="uil uil-wallet fs-20" style="color: #667eea;"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 d-flex">
                                                 {{-- Total Sent Money --}}
-                                                <div class="d-flex align-items-center justify-content-between p-15 rounded mb-15 transaction-card"
+                                                <div class="d-flex align-items-center justify-content-between p-15 rounded mb-15 transaction-card flex-grow-1"
                                                     style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.95); box-shadow: 0 4px 15px rgba(40, 199, 111, 0.15), inset 0 0 20px rgba(255, 255, 255, 0.4);">
                                                     <div>
                                                         <p class="mb-0 fs-13 fw-bold" style="color: #28c76f;">
                                                             {{ trans('vendor::vendor.total_sent_money') }}</p>
                                                         <p class="mb-0 fs-20 fw-bold mt-5" style="color: #272b41;">
-                                                            {{ number_format($vendor->total_sent, 2) }}
-                                                            {{ currency() }}</p>
+                                                            {{ number_format($totalSentMoney, 2) }} {{ currency() }}</p>
                                                     </div>
                                                     <div class="p-12 rounded-circle d-flex align-items-center justify-content-center"
                                                         style="background: linear-gradient(135deg, rgba(40, 199, 111, 0.15) 0%, rgba(40, 199, 111, 0.1) 100%); width: 45px; height: 45px; border: 1px solid rgba(40, 199, 111, 0.2);">
@@ -312,16 +380,15 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4">
+                                            <div class="col-md-4 d-flex">
                                                 {{-- Total Remaining --}}
-                                                <div class="d-flex align-items-center justify-content-between p-15 rounded mb-15 transaction-card"
+                                                <div class="d-flex align-items-center justify-content-between p-15 rounded mb-15 transaction-card flex-grow-1"
                                                     style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.95); box-shadow: 0 4px 15px rgba(79, 172, 254, 0.15), inset 0 0 20px rgba(255, 255, 255, 0.4);">
                                                     <div>
                                                         <p class="mb-0 fs-13 fw-bold" style="color: #4facfe;">
                                                             {{ trans('vendor::vendor.total_remaining') }}</p>
                                                         <p class="mb-0 fs-20 fw-bold mt-5" style="color: #272b41;">
-                                                            {{ number_format($vendor->total_remaining, 2) }}
-                                                            {{ currency() }}</p>
+                                                            {{ number_format($totalVendorBalance - $totalSentMoney, 2) }} {{ currency() }}</p>
                                                     </div>
                                                     <div class="p-12 rounded-circle d-flex align-items-center justify-content-center"
                                                         style="background: linear-gradient(135deg, rgba(79, 172, 254, 0.15) 0%, rgba(0, 242, 254, 0.1) 100%); width: 45px; height: 45px; border: 1px solid rgba(79, 172, 254, 0.2);">
@@ -606,7 +673,7 @@
                                     <div class="card-body">
                                         <div class="row">
                                             {{-- Total Orders --}}
-                                            <div class="col-md-4 mb-3">
+                                            <div class="col-md-3 mb-3">
                                                 <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #5b69ff15 0%, #5b69ff05 100%);">
                                                     <div class="card-body text-center py-4">
                                                         <div class="mb-2">
@@ -614,32 +681,6 @@
                                                         </div>
                                                         <h3 class="mb-1 fw-bold" style="color: #5b69ff;">{{ $orderStats['total_order_products'] ?? 0 }}</h3>
                                                         <p class="mb-0 text-muted small">{{ trans('vendor::vendor.total_orders') }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {{-- Total Revenue --}}
-                                            <div class="col-md-4 mb-3">
-                                                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #20c99715 0%, #20c99705 100%);">
-                                                    <div class="card-body text-center py-4">
-                                                        <div class="mb-2">
-                                                            <i class="uil uil-money-bill fs-1" style="color: #20c997;"></i>
-                                                        </div>
-                                                        <h3 class="mb-1 fw-bold" style="color: #20c997;">{{ number_format($orderStats['total_revenue'] ?? 0, 2) }} {{ currency() }}</h3>
-                                                        <p class="mb-0 text-muted small">{{ trans('vendor::vendor.total_revenue') }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {{-- Total Products --}}
-                                            <div class="col-md-4 mb-3">
-                                                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #6f42c115 0%, #6f42c105 100%);">
-                                                    <div class="card-body text-center py-4">
-                                                        <div class="mb-2">
-                                                            <i class="uil uil-box fs-1" style="color: #6f42c1;"></i>
-                                                        </div>
-                                                        <h3 class="mb-1 fw-bold" style="color: #6f42c1;">{{ $orderStats['total_products'] ?? 0 }}</h3>
-                                                        <p class="mb-0 text-muted small">{{ trans('vendor::vendor.total_products') }}</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -678,79 +719,68 @@
                                                     <thead>
                                                         <tr class="userDatatable-header">
                                                             <th><span class="userDatatable-title">#</span></th>
-                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.order_number') }}</span></th>
-                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.product') }}</span></th>
-                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.sku') }}</span></th>
-                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.variant') }}</span></th>
+                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.order_product_information') }}</span></th>
+                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.price_before_taxes') }}</span></th>
+                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.taxes') }}</span></th>
                                                             <th><span class="userDatatable-title">{{ trans('vendor::vendor.unit_price') }}</span></th>
                                                             <th><span class="userDatatable-title">{{ trans('vendor::vendor.quantity') }}</span></th>
                                                             <th><span class="userDatatable-title">{{ trans('vendor::vendor.total_price') }}</span></th>
-                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.order_status') }}</span></th>
                                                             <th><span class="userDatatable-title">{{ trans('common.actions') }}</span></th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         @forelse ($orderProducts ?? [] as $index => $orderProduct)
+                                                            @php
+                                                                $unitPriceWithTax = $orderProduct->price ?? 0;
+                                                                // Get tax from the relationship
+                                                                $orderProductTax = $orderProduct->tax;
+                                                                $taxPercentage = $orderProductTax ? $orderProductTax->percentage : 0;
+                                                                $taxAmount = $orderProductTax ? $orderProductTax->amount : 0;
+                                                                $priceBeforeTax = $taxPercentage > 0 ? round($unitPriceWithTax / (1 + ($taxPercentage / 100)), 2) : $unitPriceWithTax;
+                                                                $productName = $orderProduct->name ?? ($orderProduct->vendorProduct && $orderProduct->vendorProduct->product ? $orderProduct->vendorProduct->product->getTranslation('name', app()->getLocale()) : '-');
+                                                                $sku = $orderProduct->vendorProductVariant ? ($orderProduct->vendorProductVariant->sku ?? '-') : ($orderProduct->vendorProduct ? ($orderProduct->vendorProduct->sku ?? '-') : '-');
+                                                                $variantName = ($orderProduct->vendorProductVariant && $orderProduct->vendorProductVariant->variantConfiguration) ? $orderProduct->vendorProductVariant->variant_name : null;
+                                                                $orderStage = $orderProduct->order ? \Modules\Order\app\Models\OrderStage::withoutGlobalScopes()->find($orderProduct->order->stage_id) : null;
+                                                            @endphp
                                                             <tr>
                                                                 <td><div class="userDatatable-content">{{ ($orderProducts->currentPage() - 1) * $orderProducts->perPage() + $index + 1 }}</div></td>
-                                                                <td><div class="userDatatable-content fw-medium">#{{ $orderProduct->order->order_number ?? $orderProduct->order_id }}</div></td>
                                                                 <td>
-                                                                    <div class="userDatatable-content d-flex align-items-center gap-2">
-                                                                        @if($orderProduct->vendorProduct && $orderProduct->vendorProduct->product && $orderProduct->vendorProduct->product->mainImage)
-                                                                            <img src="{{ asset('storage/' . $orderProduct->vendorProduct->product->mainImage->path) }}" 
-                                                                                alt="{{ $orderProduct->vendorProduct->product->getTranslation('name', app()->getLocale()) }}" 
-                                                                                class="rounded" style="width: 40px; height: 40px; object-fit: cover;">
-                                                                        @else
-                                                                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                                                                <i class="uil uil-image text-muted"></i>
-                                                                            </div>
-                                                                        @endif
-                                                                        <span>
-                                                                            @if($orderProduct->vendorProduct && $orderProduct->vendorProduct->product)
-                                                                                {{ $orderProduct->vendorProduct->product->getTranslation('name', app()->getLocale()) }}
+                                                                    <div class="userDatatable-content">
+                                                                        <div class="d-flex align-items-start gap-2">
+                                                                            @if($orderProduct->vendorProduct && $orderProduct->vendorProduct->product && $orderProduct->vendorProduct->product->mainImage)
+                                                                                <img src="{{ asset('storage/' . $orderProduct->vendorProduct->product->mainImage->path) }}" 
+                                                                                    alt="{{ $productName }}" 
+                                                                                    class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
                                                                             @else
-                                                                                <span class="text-muted">-</span>
+                                                                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                                                    <i class="uil uil-image text-muted"></i>
+                                                                                </div>
                                                                             @endif
-                                                                        </span>
+                                                                            <div class="d-flex flex-column gap-1">
+                                                                                <div><span class="text-muted fw-bold">{{ trans('vendor::vendor.order_number') }}:</span> <strong>#{{ $orderProduct->order->order_number ?? $orderProduct->order_id }}</strong></div>
+                                                                                <div><span class="text-muted fw-bold">{{ trans('vendor::vendor.product') }}:</span> <strong>{{ $productName }}</strong></div>
+                                                                                <div><span class="text-muted fw-bold">{{ trans('vendor::vendor.sku') }}:</span> <code>{{ $sku }}</code></div>
+                                                                                @if($variantName)
+                                                                                    <div><span class="text-muted fw-bold">{{ trans('vendor::vendor.variant') }}:</span> <span class="badge badge-primary badge-round badge-lg">{{ $variantName }}</span></div>
+                                                                                @endif
+                                                                                <div><span class="text-muted fw-bold">{{ trans('vendor::vendor.order_status') }}:</span> 
+                                                                                    @if($orderStage)
+                                                                                        <span class="badge badge-round badge-lg" style="background-color: {{ $orderStage->color ?? '#6c757d' }}; color: #fff;">
+                                                                                            {{ $orderStage->getTranslation('name', app()->getLocale()) }}
+                                                                                        </span>
+                                                                                    @else
+                                                                                        <span class="badge bg-secondary">-</span>
+                                                                                    @endif
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                 </td>
-                                                                <td>
-                                                                    <div class="userDatatable-content">
-                                                                        @if($orderProduct->vendorProductVariant)
-                                                                            <code>{{ $orderProduct->vendorProductVariant->sku ?? '-' }}</code>
-                                                                        @elseif($orderProduct->vendorProduct)
-                                                                            <code>{{ $orderProduct->vendorProduct->sku ?? '-' }}</code>
-                                                                        @else
-                                                                            <span class="text-muted">-</span>
-                                                                        @endif
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <div class="userDatatable-content">
-                                                                        @if($orderProduct->vendorProductVariant && $orderProduct->vendorProductVariant->variantConfiguration)
-                                                                            <span class="badge badge-primary badge-round badge-lg">{{ $orderProduct->vendorProductVariant->variant_name }}</span>
-                                                                        @else
-                                                                            <span class="text-muted">-</span>
-                                                                        @endif
-                                                                    </div>
-                                                                </td>
-                                                                <td><div class="userDatatable-content">{{ number_format($orderProduct->price ?? 0, 2) }} {{ currency() }}</div></td>
+                                                                <td><div class="userDatatable-content">{{ number_format($priceBeforeTax, 2) }} {{ currency() }}</div></td>
+                                                                <td><div class="userDatatable-content text-warning">{{ number_format($taxAmount, 2) }} {{ currency() }} <small class="text-muted">({{ $taxPercentage }}%)</small></div></td>
+                                                                <td><div class="userDatatable-content">{{ number_format($unitPriceWithTax, 2) }} {{ currency() }}</div></td>
                                                                 <td><div class="userDatatable-content fw-medium">{{ $orderProduct->quantity }}</div></td>
-                                                                <td><div class="userDatatable-content fw-bold text-success">{{ number_format(($orderProduct->price ?? 0) * ($orderProduct->quantity ?? 1), 2) }} {{ currency() }}</div></td>
-                                                                <td>
-                                                                    <div class="userDatatable-content">
-                                                                        @php
-                                                                            $orderStage = $orderProduct->order ? \Modules\Order\app\Models\OrderStage::withoutGlobalScopes()->find($orderProduct->order->stage_id) : null;
-                                                                        @endphp
-                                                                        @if($orderStage)
-                                                                            <span class="badge badge-round badge-lg" style="background-color: {{ $orderStage->color ?? '#6c757d' }}; color: #fff;">
-                                                                                {{ $orderStage->getTranslation('name', app()->getLocale()) }}
-                                                                            </span>
-                                                                        @else
-                                                                            <span class="badge bg-secondary">-</span>
-                                                                        @endif
-                                                                    </div>
-                                                                </td>
+                                                                <td><div class="userDatatable-content fw-bold text-success">{{ number_format($unitPriceWithTax * ($orderProduct->quantity ?? 1), 2) }} {{ currency() }}</div></td>
                                                                 <td>
                                                                     <div class="userDatatable-content">
                                                                         <a href="{{ route('admin.orders.show', $orderProduct->order_id) }}" target="_blank" class="btn btn-sm btn-primary">
@@ -761,7 +791,7 @@
                                                             </tr>
                                                         @empty
                                                             <tr>
-                                                                <td colspan="10" class="text-center text-muted py-4">{{ trans('vendor::vendor.no_order_products_found') }}</td>
+                                                                <td colspan="8" class="text-center text-muted py-4">{{ trans('vendor::vendor.no_order_products_found') }}</td>
                                                             </tr>
                                                         @endforelse
                                                     </tbody>
@@ -775,6 +805,84 @@
                                                     {{ $orderProducts->links('vendor.pagination.custom') }}
                                                 @endif
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Vendor Withdraws Table Section --}}
+                                <div class="card card-holder mt-3">
+                                    <div class="card-header">
+                                        <h3>
+                                            <i class="uil uil-money-withdraw me-1"></i>{{ trans('vendor::vendor.vendor_withdraws') }}
+                                        </h3>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <div class="userDatatable global-shadow border-light-0 bg-white w-100">
+                                            <div class="table-responsive">
+                                                <table class="table mb-0 table-bordered table-hover">
+                                                    <thead>
+                                                        <tr class="userDatatable-header">
+                                                            <th><span class="userDatatable-title">#</span></th>
+                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.withdraw_information') }}</span></th>
+                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.invoice') }}</span></th>
+                                                            <th><span class="userDatatable-title">{{ trans('vendor::vendor.sent_by') }}</span></th>
+                                                            <th><span class="userDatatable-title">{{ trans('common.created_at') }}</span></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @forelse ($withdraws ?? [] as $index => $withdraw)
+                                                            <tr>
+                                                                <td><div class="userDatatable-content">{{ ($withdraws->currentPage() - 1) * $withdraws->perPage() + $index + 1 }}</div></td>
+                                                                <td>
+                                                                    <div class="userDatatable-content">
+                                                                        <div class="d-flex flex-column gap-1">
+                                                                            <div><span class="text-muted fw-bold">{{ trans('vendor::vendor.balance_before') }}:</span> <strong>{{ number_format($withdraw->before_sending_money ?? 0, 2) }} {{ currency() }}</strong></div>
+                                                                            <div><span class="text-muted fw-bold">{{ trans('vendor::vendor.sent_amount') }}:</span> <strong class="text-success">{{ number_format($withdraw->sent_amount ?? 0, 2) }} {{ currency() }}</strong></div>
+                                                                            <div><span class="text-muted fw-bold">{{ trans('vendor::vendor.balance_after') }}:</span> <strong>{{ number_format($withdraw->after_sending_amount ?? 0, 2) }} {{ currency() }}</strong></div>
+                                                                            <div><span class="text-muted fw-bold">{{ trans('vendor::vendor.withdraw_status') }}:</span> 
+                                                                                @if($withdraw->status == 'accepted')
+                                                                                    <strong class="text-success">{{ trans('vendor::vendor.accepted') }}</strong>
+                                                                                @elseif($withdraw->status == 'rejected')
+                                                                                    <strong class="text-danger">{{ trans('vendor::vendor.rejected') }}</strong>
+                                                                                @else
+                                                                                    <strong class="text-primary">{{ trans('vendor::vendor.new') }}</strong>
+                                                                                @endif
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="userDatatable-content d-flex justify-content-center">
+                                                                        @if($withdraw->invoice)
+                                                                            <a href="{{ asset('storage/invoices/' . $withdraw->invoice) }}" target="_blank" class="btn btn-sm btn-primary">
+                                                                                <i class="uil uil-download-alt m-0"></i>
+                                                                            </a>
+                                                                        @else
+                                                                            <span class="text-muted">-</span>
+                                                                        @endif
+                                                                    </div>
+                                                                </td>
+                                                                <td><div class="userDatatable-content">{{ $withdraw->admin->name ?? '-' }}</div></td>
+                                                                <td><div class="userDatatable-content">{{ $withdraw->created_at }}</div></td>
+                                                            </tr>
+                                                        @empty
+                                                            <tr>
+                                                                <td colspan="5" class="text-center text-muted py-4">{{ trans('vendor::vendor.no_withdraws_found') }}</td>
+                                                            </tr>
+                                                        @endforelse
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            @if($withdraws && $withdraws->count() > 0)
+                                            <div class="d-flex justify-content-between align-items-center p-3 border-top">
+                                                <div class="text-muted small">
+                                                    {{ trans('common.showing') }} {{ $withdraws->firstItem() ?? 0 }} - {{ $withdraws->lastItem() ?? 0 }} {{ trans('common.of') }} {{ $withdraws->total() }} {{ trans('common.items') }}
+                                                </div>
+                                                @if($withdraws->hasPages())
+                                                    {{ $withdraws->links('vendor.pagination.custom') }}
+                                                @endif
+                                            </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>

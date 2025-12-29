@@ -95,11 +95,30 @@
                                             <span class="detail-value"><a
                                                     href="tel:{{ $order->customer_phone }}">{{ $order->customer_phone }}</a></span>
                                         </div>
-                                        <div class="detail-row">
+                                        <div class="detail-row mb-15">
                                             <span class="detail-label"><i
                                                     class="uil uil-map-pin me-1"></i>{{ trans('order::order.customer_address') }}:</span>
                                             <span class="detail-value">{{ $order->customer_address }}</span>
                                         </div>
+                                        @if ($order->country || $order->city || $order->region)
+                                            <hr class="my-15">
+                                            <h6 class="fw-bold mb-15 d-flex align-items-center">
+                                                <i class="uil uil-location-point me-2" style="color: #5f63f2; font-size: 18px;"></i>
+                                                {{ trans('order::order.location') }}
+                                            </h6>
+                                            <div class="detail-row mb-15">
+                                                <span class="detail-label">{{ trans('order::order.country') }}:</span>
+                                                <span class="detail-value">{{ $order->country?->name ?? 'N/A' }}</span>
+                                            </div>
+                                            <div class="detail-row mb-15">
+                                                <span class="detail-label">{{ trans('order::order.city') }}:</span>
+                                                <span class="detail-value">{{ $order->city?->name ?? 'N/A' }}</span>
+                                            </div>
+                                            <div class="detail-row">
+                                                <span class="detail-label">{{ trans('order::order.region') }}:</span>
+                                                <span class="detail-value">{{ $order->region?->name ?? 'N/A' }}</span>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -147,17 +166,19 @@
                             <table class="table mb-0 table-hover" style="border-color: #dee2e6;">
                                 <thead class="userDatatable-header" style="background-color: #003d82; color: white;">
                                     <tr>
-                                        <th class="text-white fw-bold">#</th>
-                                        <th class="text-white fw-bold">{{ trans('order::order.product') }}</th>
-                                        <th class="text-white fw-bold text-end">{{ trans('order::order.price_per_unit') }}
+                                        <th class="text-white fw-bold text-center">#</th>
+                                        <th class="text-white fw-bold text-center">{{ trans('order::order.product') }}</th>
+                                        <th class="text-white fw-bold text-center">{{ trans('order::order.price_before_tax') }}
+                                        </th>
+                                        <th class="text-white fw-bold text-center">{{ trans('order::order.price_per_unit') }}
                                         </th>
                                         <th class="text-white fw-bold text-center">{{ trans('order::order.quantity') }}
                                         </th>
-                                        <th class="text-white fw-bold text-end">{{ trans('order::order.total_price') }}
+                                        <th class="text-white fw-bold text-center">{{ trans('order::order.total_price') }}
                                         </th>
-                                        <th class="text-white fw-bold text-end">{{ trans('order::order.bnaia_commission') }}
+                                        <th class="text-white fw-bold text-center">{{ trans('order::order.bnaia_commission') }}
                                         </th>
-                                        <th class="text-white fw-bold text-end">{{ trans('order::order.remaining') }}
+                                        <th class="text-white fw-bold text-center">{{ trans('order::order.remaining') }}
                                         </th>
                                     </tr>
                                 </thead>
@@ -182,34 +203,44 @@
                                                 $variantPath = $variantValue;
                                             }
                                             
-                                            // Get tax amount
-                                            $taxAmount = $product->taxes?->amount ?? 0;
-                                            $priceWithTax = $product->price + $taxAmount;
+                                            // Price stored is total price INCLUDING tax
+                                            $productTotalWithTax = $product->price;
                                             
-                                            // Calculate commission and remaining
-                                            // Get commission from product's department
-                                            $productTotal = $priceWithTax * $product->quantity;
+                                            // Get tax amount (sum of all taxes)
+                                            $taxAmount = $product->taxes->sum('amount') ?? 0;
+                                            
+                                            // Calculate price before tax
+                                            $productTotalBeforeTax = $productTotalWithTax - $taxAmount;
+                                            
+                                            // Unit prices
+                                            $unitPriceWithTax = $product->quantity > 0 ? $productTotalWithTax / $product->quantity : 0;
+                                            $unitPriceBeforeTax = $product->quantity > 0 ? $productTotalBeforeTax / $product->quantity : 0;
+                                            $unitTaxAmount = $product->quantity > 0 ? $taxAmount / $product->quantity : 0;
+                                            
+                                            // Commission is stored directly (calculated from price with tax)
+                                            $bnaiaCommission = $product->commission;
                                             $departmentCommission = $product->vendorProduct?->product?->department?->commission ?? 0;
                                             $commissionPercent = $departmentCommission;
-                                            $bnaiaCommission = $productTotal * ($commissionPercent / 100);
-                                            $remaining = $productTotal - $bnaiaCommission;
+                                            
+                                            // Remaining = Total with tax - Commission
+                                            $remaining = $productTotalWithTax - $bnaiaCommission;
                                         @endphp
                                         <tr>
-                                            <td class="fw-bold">{{ $key + 1 }}</td>
-                                            <td>
-                                                <div class="d-flex align-items-center gap-3">
+                                            <td class="fw-bold text-center">{{ $key + 1 }}</td>
+                                            <td class="text-center">
+                                                <div class="d-flex align-items-center justify-content-center gap-3">
                                                     @if($productImage)
                                                         <img src="{{ asset('storage/' . $productImage) }}" 
                                                              alt="{{ $product->vendorProduct->product->name ?? 'Product' }}"
                                                              class="rounded"
-                                                             style="width: 60px; height: 60px; object-fit: cover; border: 1px solid #dee2e6;">
+                                                             style="width: 60px; height: 60px;  border: 1px solid #dee2e6;">
                                                     @else
                                                         <div class="bg-light rounded d-flex align-items-center justify-content-center" 
                                                              style="width: 60px; height: 60px; border: 1px solid #dee2e6;">
                                                             <i class="uil uil-image text-muted" style="font-size: 24px;"></i>
                                                         </div>
                                                     @endif
-                                                    <div>
+                                                    <div class="text-start">
                                                         <p class="fw-bold mb-2">
                                                             {{ $product->vendorProduct->product->name ?? 'N/A' }}</p>
                                                         <small class="text-muted d-block mb-1">
@@ -231,29 +262,33 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="text-end">
-                                                {{ number_format($priceWithTax, 2) }}
+                                            <td class="text-center">
+                                                {{ number_format($unitPriceBeforeTax, 2) }}
                                                 {{ currency() }}
-                                                @if($taxAmount > 0)
-                                                    <small class="d-block text-muted">({{ trans('order::order.tax') }}: {{ number_format($taxAmount, 2) }})</small>
+                                            </td>
+                                            <td class="text-center">
+                                                {{ number_format($unitPriceWithTax, 2) }}
+                                                {{ currency() }}
+                                                @if($unitTaxAmount > 0)
+                                                    <small class="d-block text-muted">({{ trans('order::order.tax') }}: {{ number_format($unitTaxAmount, 2) }} {{ currency() }})</small>
                                                 @endif
                                             </td>
                                             <td class="text-center">{{ $product->quantity }}</td>
-                                            <td class="text-end fw-bold">
-                                                {{ number_format($productTotal, 2) }}
+                                            <td class="text-center fw-bold">
+                                                {{ number_format($productTotalWithTax, 2) }}
                                                 {{ currency() }}</td>
-                                            <td class="text-end text-danger">
+                                            <td class="text-center text-danger">
                                                 {{ number_format($bnaiaCommission, 2) }}
                                                 {{ currency() }}
                                                 <small class="d-block text-muted">({{ $commissionPercent }}%)</small>
                                             </td>
-                                            <td class="text-end fw-bold text-success">
+                                            <td class="text-center fw-bold text-success">
                                                 {{ number_format($remaining, 2) }}
                                                 {{ currency() }}</td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="7" class="text-center text-muted py-20">
+                                            <td colspan="8" class="text-center text-muted py-20">
                                                 {{ trans('common.no_data') }}
                                             </td>
                                         </tr>
@@ -302,37 +337,9 @@
 
                     <!-- Summary Section -->
                     <div class="row mb-40">
-                        <!-- Location Card -->
-                        @if ($order->country || $order->city || $order->region)
-                            <div class="col-md-6 mb-3">
-                                <div class="card border-0 shadow-sm h-100">
-                                    <div class="card-body">
-                                        <h6 class="card-title fw-bold mb-20 d-flex align-items-center">
-                                            <i class="uil uil-map-pin me-2" style="color: #5f63f2; font-size: 20px;"></i>
-                                            {{ trans('order::order.location') }}
-                                        </h6>
-                                        <div class="location-details">
-                                            <div class="detail-row mb-15">
-                                                <span class="detail-label">{{ trans('order::order.country') }}:</span>
-                                                <span class="detail-value">{{ $order->country?->name ?? 'N/A' }}</span>
-                                            </div>
-                                            <div class="detail-row mb-15">
-                                                <span class="detail-label">{{ trans('order::order.city') }}:</span>
-                                                <span class="detail-value">{{ $order->city?->name ?? 'N/A' }}</span>
-                                            </div>
-                                            <div class="detail-row">
-                                                <span class="detail-label">{{ trans('order::order.region') }}:</span>
-                                                <span class="detail-value">{{ $order->region?->name ?? 'N/A' }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-
                         @php
                             // Calculate total commission and remaining for all displayed products
-                            $totalProductsPrice = 0;
+                            $totalProductsPriceBeforeTax = 0;
                             $totalCommission = 0;
                             $totalRemaining = 0;
                             $totalProductsTax = 0;
@@ -340,74 +347,122 @@
                             $productsToCalculate = isset($vendorProducts) && $vendorProducts !== null ? $vendorProducts : $order->products;
                             
                             foreach ($productsToCalculate as $prod) {
-                                $prodTax = $prod->taxes?->amount ?? 0;
-                                $prodPriceWithTax = $prod->price + $prodTax;
-                                $prodTotal = $prodPriceWithTax * $prod->quantity;
-                                $deptCommission = $prod->vendorProduct?->product?->department?->commission ?? 0;
-                                $commAmount = $prodTotal * ($deptCommission / 100);
+                                // Price stored is total price INCLUDING tax
+                                $prodTotalWithTax = $prod->price;
                                 
-                                $totalProductsPrice += $prodTotal;
-                                $totalProductsTax += ($prodTax * $prod->quantity);
+                                // Get tax amount (sum of all taxes)
+                                $prodTax = $prod->taxes->sum('amount') ?? 0;
+                                
+                                // Calculate price before tax
+                                $prodTotalBeforeTax = $prodTotalWithTax - $prodTax;
+                                
+                                // Commission is stored directly (calculated from price with tax)
+                                $commAmount = $prod->commission;
+                                
+                                $totalProductsPriceBeforeTax += $prodTotalBeforeTax;
+                                $totalProductsTax += $prodTax;
                                 $totalCommission += $commAmount;
-                                $totalRemaining += ($prodTotal - $commAmount);
+                                $totalRemaining += ($prodTotalWithTax - $commAmount);
                             }
+                            
+                            // Total with tax for vendor remaining calculation
+                            $totalProductsPriceWithTax = $totalProductsPriceBeforeTax + $totalProductsTax;
                         @endphp
 
-                        <!-- Order Summary Card -->
-                        <div class="col-md-6 mb-3">
-                            <div class="card border-0 shadow-sm h-100"
-                                style="background: linear-gradient(135deg, #5f63f2 0%, #8e92f7 100%); color: white;">
-                                <div class="card-body">
-                                    <h6 class="card-title fw-bold mb-20 d-flex align-items-center text-white">
-                                        <i class="uil uil-receipt me-2" style="font-size: 20px;"></i>
-                                        {{ trans('order::order.order_summary') }}
-                                    </h6>
-                                    <div class="summary-details">
-                                        @if(isset($isVendorUser) && $isVendorUser && isset($vendorProductTotal))
-                                            {{-- Vendor view: show only their product total --}}
+                        @if(isset($isVendorUser) && $isVendorUser && isset($vendorProductTotal))
+                            {{-- Vendor view: show Vendor Remaining Summary --}}
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-0 shadow-sm h-100"
+                                    style="background: linear-gradient(135deg, #28a745 0%, #5dd879 100%); color: white;">
+                                    <div class="card-body">
+                                        <h6 class="card-title fw-bold mb-20 d-flex align-items-center text-white">
+                                            <i class="uil uil-money-bill me-2" style="font-size: 20px;"></i>
+                                            {{ trans('order::order.vendor_remaining_summary') }}
+                                        </h6>
+                                        <div class="summary-details">
                                             <div class="summary-row mb-12">
-                                                <span class="fw-bold">{{ trans('order::order.your_products_total') }}</span>
-                                                <span class="fw-bold">{{ number_format($totalProductsPrice, 2) }}
+                                                <span class="fw-bold">{{ trans('order::order.your_products_total_including_tax') }}</span>
+                                                <span class="fw-bold">{{ number_format($totalProductsPriceWithTax, 2) }}
                                                     {{ currency() }}</span>
                                             </div>
                                             <div class="summary-row mb-12">
-                                                <span class="fw-bold">{{ trans('order::order.total_commission') }}</span>
+                                                <span class="fw-bold">{{ trans('order::order.total_commission_including_tax') }}</span>
                                                 <span class="fw-bold" style="color: #ffcccc;">-{{ number_format($totalCommission, 2) }}
                                                     {{ currency() }}</span>
                                             </div>
                                             <hr style="border-color: rgba(255,255,255,0.3); margin: 15px 0;">
                                             <div class="summary-row" style="font-size: 18px;">
                                                 <span class="fw-bold">{{ trans('order::order.final_remaining') }}</span>
-                                                <span class="fw-bold" style="color: #90EE90;">{{ number_format($totalRemaining, 2) }}
+                                                <span class="fw-bold" style="color: #ffffcc;">{{ number_format($totalRemaining, 2) }}
                                                     {{ currency() }}</span>
                                             </div>
-                                        @else
-                                            {{-- Admin view: show full order summary --}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            {{-- Admin view: show two boxes --}}
+                            
+                            {{-- Box 1: Vendor Remaining Summary (subtotal WITH tax) --}}
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-0 shadow-sm h-100"
+                                    style="background: linear-gradient(135deg, #28a745 0%, #5dd879 100%); color: white;">
+                                    <div class="card-body">
+                                        <h6 class="card-title fw-bold mb-20 d-flex align-items-center text-white">
+                                            <i class="uil uil-money-bill me-2" style="font-size: 20px;"></i>
+                                            {{ trans('order::order.vendor_remaining_summary') }}
+                                        </h6>
+                                        <div class="summary-details">
                                             <div class="summary-row mb-12">
-                                                <span class="fw-bold">{{ trans('order::order.subtotal') }}</span>
-                                                <span class="fw-bold">{{ number_format($totalProductsPrice, 2) }}
+                                                <span class="fw-bold">{{ trans('order::order.subtotal_including_tax') }}</span>
+                                                <span class="fw-bold">{{ number_format($totalProductsPriceWithTax, 2) }}
                                                     {{ currency() }}</span>
                                             </div>
                                             <div class="summary-row mb-12">
-                                                <span class="fw-bold">{{ trans('order::order.total_commission') }}</span>
+                                                <span class="fw-bold">{{ trans('order::order.total_commission_including_tax') }}</span>
                                                 <span class="fw-bold" style="color: #ffcccc;">-{{ number_format($totalCommission, 2) }}
                                                     {{ currency() }}</span>
                                             </div>
-                                            <div class="summary-row mb-12">
+                                            <hr style="border-color: rgba(255,255,255,0.3); margin: 15px 0;">
+                                            <div class="summary-row" style="font-size: 18px;">
                                                 <span class="fw-bold">{{ trans('order::order.vendors_remaining') }}</span>
-                                                <span class="fw-bold" style="color: #90EE90;">{{ number_format($totalRemaining, 2) }}
+                                                <span class="fw-bold" style="color: #ffffcc;">{{ number_format($totalRemaining, 2) }}
                                                     {{ currency() }}</span>
                                             </div>
-                                            <hr style="border-color: rgba(255,255,255,0.3); margin: 15px 0;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {{-- Box 2: Order Summary (subtotal WITHOUT tax) --}}
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-0 shadow-sm h-100"
+                                    style="background: linear-gradient(135deg, #5f63f2 0%, #8e92f7 100%); color: white;">
+                                    <div class="card-body">
+                                        <h6 class="card-title fw-bold mb-20 d-flex align-items-center text-white">
+                                            <i class="uil uil-receipt me-2" style="font-size: 20px;"></i>
+                                            {{ trans('order::order.order_summary') }}
+                                        </h6>
+                                        <div class="summary-details">
                                             <div class="summary-row mb-12">
                                                 <span class="fw-bold">{{ trans('order::order.subtotal') }}</span>
-                                                <span class="fw-bold">{{ number_format($totalProductsPrice, 2) }}
+                                                <span class="fw-bold">{{ number_format($totalProductsPriceBeforeTax, 2) }}
+                                                    {{ currency() }}</span>
+                                            </div>
+                                            <div class="summary-row mb-12">
+                                                <span class="fw-bold">{{ trans('order::order.tax') }}</span>
+                                                <span class="fw-bold">+{{ number_format($order->total_tax, 2) }}
+                                                    {{ currency() }}</span>
+                                            </div>
+                                            <div class="summary-row mb-12">
+                                                <span class="fw-bold">{{ trans('order::order.subtotal_including_tax') }}</span>
+                                                <span class="fw-bold">{{ number_format($totalProductsPriceWithTax, 2) }}
                                                     {{ currency() }}</span>
                                             </div>
                                             @if ($order->total_discounts > 0)
                                                 <div class="summary-row mb-12">
                                                     <span class="fw-bold">{{ trans('order::order.discounts') }}</span>
-                                                    <span class="fw-bold">-{{ number_format($order->total_discounts, 2) }}
+                                                    <span class="fw-bold" style="color: #ffcccc;">-{{ number_format($order->total_discounts, 2) }}
                                                         {{ currency() }}</span>
                                                 </div>
                                             @endif
@@ -423,22 +478,17 @@
                                                 <span class="fw-bold">+{{ number_format($order->shipping, 2) }}
                                                     {{ currency() }}</span>
                                             </div>
-                                            <div class="summary-row mb-12">
-                                                <span class="fw-bold">{{ trans('order::order.tax') }}</span>
-                                                <span class="fw-bold">+{{ number_format($order->total_tax, 2) }}
-                                                    {{ currency() }}</span>
-                                            </div>
                                             <hr style="border-color: rgba(255,255,255,0.3); margin: 15px 0;">
                                             <div class="summary-row" style="font-size: 18px;">
                                                 <span class="fw-bold">{{ trans('order::order.total') }}</span>
                                                 <span class="fw-bold">{{ number_format($order->total_price, 2) }}
                                                     {{ currency() }}</span>
                                             </div>
-                                        @endif
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        @endif
                     </div>
 
                     <style>
@@ -465,9 +515,12 @@
                                     $finalStages = ['deliver', 'cancel', 'refund'];
                                     $isFinalStage = in_array($order->stage?->slug, $finalStages);
                                 @endphp
-                                @if (!$isFinalStage)
+                                @if (!$isFinalStage && isAdmin())
                                     <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#changeStageModal">
+                                        data-bs-target="#changeStageModal"
+                                        data-id="{{ $order->id }}"
+                                        data-stage-id="{{ $order->stage_id }}"
+                                        data-stage-type="{{ $order->stage?->type }}">
                                         <i
                                             class="uil uil-check-circle me-2"></i>{{ trans('order::order.change_order_stage') }}
                                     </button>
@@ -483,8 +536,10 @@
         </div>
     </div>
 
-    <!-- Include Change Stage Modal Component -->
-    <x-order::change-stage-modal :order-id="$order->id" :current-stage-id="$order->stage_id" />
+    <!-- Include Change Stage Modal Component (Admin Only) -->
+    @if(isAdmin())
+        <x-order::change-stage-modal :order-id="$order->id" :current-stage-id="$order->stage_id" :order-stages="$orderStages ?? []" />
+    @endif
 
     <style>
         .no-print {

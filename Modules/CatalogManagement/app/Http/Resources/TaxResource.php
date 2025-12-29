@@ -17,7 +17,7 @@ class TaxResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->getTranslation('name', app()->getLocale()) ?? '',
-            'active' => $this->active,
+            'active' => $this->is_active,
             'percentage' => $this->percentage ?? "",
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

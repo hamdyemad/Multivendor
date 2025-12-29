@@ -76,7 +76,7 @@ class ReviewController extends Controller
                 $imageUrl = $mainImage ? asset('storage/' . $mainImage->path) : asset('assets/img/default.png');
                 $productName = truncateString($review->vendorProduct->product->name ?? '-');
                 return '<div class="d-flex align-items-center gap-2">
-                    <img src="' . $imageUrl . '" alt="' . ($review->vendorProduct?->product?->name ?? 'Product') . '" class="rounded" style="width: 40px; height: 40px; object-fit: cover;">
+                    <img src="' . $imageUrl . '" alt="' . ($review->vendorProduct?->product?->name ?? 'Product') . '" class="rounded" style="width: 40px; height: 40px;">
                     <span>' . $productName . '</span>
                 </div>';
             })

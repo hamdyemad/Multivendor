@@ -51,6 +51,30 @@
                         <!-- Validation Alerts Container -->
                         <div id="validation-alerts-container" class="mb-3"></div>
 
+                        <!-- Tax Information Alert -->
+                        @if(isset($taxes) && count($taxes) > 0)
+                        <div class="mb-4">
+                            <div class="p-3 rounded" style="background: rgba(255, 193, 7, 0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 193, 7, 0.3); box-shadow: 0 4px 15px rgba(255, 193, 7, 0.1);">
+                                <div class="d-flex align-items-start gap-3">
+                                    <div class="p-2 rounded-circle d-flex align-items-center justify-content-center" style="background: rgba(255, 193, 7, 0.2); min-width: 40px; height: 40px;">
+                                        <i class="uil uil-exclamation-triangle fs-5" style="color: #ffc107;"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-2 fw-bold" style="color: #856404;">{{ __('catalogmanagement::product.tax_notice') }}</h6>
+                                        <p class="mb-2 small" style="color: #856404;">{{ __('catalogmanagement::product.tax_notice_description') }}</p>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            @foreach($taxes as $tax)
+                                                <span class="badge badge-round badge-lg px-3 py-2" style="background: rgba(255, 193, 7, 0.2); color: #856404; font-size: 13px;">
+                                                    {{ $tax['name'] ?? __('catalogmanagement::product.tax') }} ({{ $tax['percentage'] }}%)
+                                                </span>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
                         <!-- Form -->
                         <form id="productForm" method="POST"
                             action="{{ isset($product) ? route('admin.products.update', $product->product ? $product->product->id : $product->id) : route('admin.products.store') }}"
@@ -2298,7 +2322,7 @@
                                 data-product='${JSON.stringify(product).replace(/'/g, "&apos;")}'>
                                 <div class="d-flex w-100 justify-content-between align-items-center">
                                     <div class="d-flex align-items-center">
-                                        <img src="${product.image || '/assets/img/default.png'}" class="me-2" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
+                                        <img src="${product.image || '/assets/img/default.png'}" class="me-2" style="width: 40px; height: 40px; border-radius: 4px;">
                                         <div>
                                             <h6 class="mb-0">${product.name}</h6>
                                             <small class="text-muted">${product.brand || ''} | ${product.category || ''}</small>
@@ -2622,7 +2646,7 @@
                     urls.forEach(url => {
                         $container.append(`
                             <div class="gallery-item" style="width: 100px; height: 100px; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; cursor: pointer;">
-                                <img src="${url}" class="lightbox-trigger" style="width: 100%; height: 100%; object-fit: cover;">
+                                <img src="${url}" class="lightbox-trigger" style="width: 100%; height: 100%;">
                             </div>
                         `);
                     });

@@ -608,6 +608,14 @@ class WithdrawController extends Controller
         if ($requestData["status"] == "accepted") {
             $data["sender_id"] = auth()->user()->id;
 
+            // Handle invoice file upload
+            if ($request->hasFile('invoice')) {
+                $file = $request->file('invoice');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('storage/invoices'), $filename);
+                $data['invoice'] = $filename;
+            }
+
             $withdraw->update($data);
         } elseif ($requestData["status"] == "rejected") {
             $withdraw->update($data);

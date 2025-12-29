@@ -478,10 +478,99 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
+                            {{-- Product Images --}}
+                            <div class="col-md-4 order-1 order-md-2">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="card card-holder">
+                                            <div class="card-header">
+                                                <h3>
+                                                    <i
+                                                        class="uil uil-image me-1"></i>{{ __('catalogmanagement::product.images') }}
+                                                </h3>
+                                            </div>
+                                            <div class="card-body">
+                                                {{-- Main Image --}}
+                                                @if ($product->product->mainImage)
+                                                    <div class="mb-3">
+                                                        <label
+                                                            class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.main_image') }}</label>
+                                                        <div class="image-wrapper text-center">
+                                                            <img src="{{ asset('storage/' . $product->product->mainImage->path) }}"
+                                                                alt="{{ $product->product->getTranslation('title') }}"
+                                                                class="product-image img-fluid rounded"
+                                                                style="max-height: 300px;">
+                                                        </div>
+                                                    </div>
+                                                @else
+                                                    <div class="mb-3">
+                                                        <label
+                                                            class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.main_image') }}</label>
+                                                        <div class="image-wrapper text-center">
+                                                            <img src="{{ asset('assets/img/default.png') }}"
+                                                                alt="{{ $product->product->getTranslation('title') }}"
+                                                                class="product-image img-fluid rounded"
+                                                                style="max-height: 300px;">
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        {{-- Additional Images Carousel --}}
+                                        @if ($product->product->additionalImages && $product->product->additionalImages->count() > 0)
+                                            <div class="card card-holder mt-3">
+                                                <div class="card-header">
+                                                    <h3>
+                                                        <i
+                                                            class="uil uil-images me-1"></i>{{ __('catalogmanagement::product.additional_images') }}
+                                                    </h3>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="slick-slider global-slider slick-dots-bottom"
+                                                        data-dots-slick='true' data-autoplay-slick='true'>
+                                                        @foreach ($product->product->additionalImages as $index => $image)
+                                                            <div class="slick-slider__single d-flex justify-content-center align-items-center"
+                                                                style="height: 400px; background: #f8f9fa; cursor: pointer;"
+                                                                ondblclick="openImageModal({{ $index }})">
+                                                                <img src="{{ asset('storage/' . $image->path) }}"
+                                                                    alt="{{ __('catalogmanagement::product.additional_image') ?? 'Additional Image' }}"
+                                                                    style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
 
+                                            {{-- Image Modals (Outside Loop) --}}
+                                            @foreach ($product->product->additionalImages as $index => $image)
+                                                <div class="modal fade" id="imageModal{{ $index }}"
+                                                    tabindex="-1" aria-labelledby="imageModalLabel{{ $index }}"
+                                                    aria-hidden="true">
+                                                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                                                        <div class="modal-content">
+                                                            <div class="modal-body p-0 d-flex justify-content-center align-items-center"
+                                                                style="min-height: 500px; background: #f8f9fa;">
+                                                                <img src="{{ asset('storage/' . $image->path) }}"
+                                                                    alt="{{ __('catalogmanagement::product.additional_image') ?? 'Additional Image' }}"
+                                                                    style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        @endif
 
-                                {{-- Product Variants & Regional Stock --}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                                                {{-- Product Variants & Regional Stock --}}
                                 <div class="card card-holder mt-3">
                                     <div class="card-header">
                                         <h3>
@@ -895,94 +984,6 @@
                                                 @endif
                                             </div>
                                         @endforeach
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Product Images --}}
-                            <div class="col-md-4 order-1 order-md-2">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="card card-holder">
-                                            <div class="card-header">
-                                                <h3>
-                                                    <i
-                                                        class="uil uil-image me-1"></i>{{ __('catalogmanagement::product.images') }}
-                                                </h3>
-                                            </div>
-                                            <div class="card-body">
-                                                {{-- Main Image --}}
-                                                @if ($product->product->mainImage)
-                                                    <div class="mb-3">
-                                                        <label
-                                                            class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.main_image') }}</label>
-                                                        <div class="image-wrapper text-center">
-                                                            <img src="{{ asset('storage/' . $product->product->mainImage->path) }}"
-                                                                alt="{{ $product->product->getTranslation('title') }}"
-                                                                class="product-image img-fluid rounded"
-                                                                style="max-height: 300px; object-fit: cover;">
-                                                        </div>
-                                                    </div>
-                                                @else
-                                                    <div class="mb-3">
-                                                        <label
-                                                            class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.main_image') }}</label>
-                                                        <div class="image-wrapper text-center">
-                                                            <img src="{{ asset('assets/img/default.png') }}"
-                                                                alt="{{ $product->product->getTranslation('title') }}"
-                                                                class="product-image img-fluid rounded"
-                                                                style="max-height: 300px; object-fit: cover;">
-                                                        </div>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        {{-- Additional Images Carousel --}}
-                                        @if ($product->product->additionalImages && $product->product->additionalImages->count() > 0)
-                                            <div class="card card-holder mt-3">
-                                                <div class="card-header">
-                                                    <h3>
-                                                        <i
-                                                            class="uil uil-images me-1"></i>{{ __('catalogmanagement::product.additional_images') }}
-                                                    </h3>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="slick-slider global-slider slick-dots-bottom"
-                                                        data-dots-slick='true' data-autoplay-slick='true'>
-                                                        @foreach ($product->product->additionalImages as $index => $image)
-                                                            <div class="slick-slider__single d-flex justify-content-center align-items-center"
-                                                                style="height: 400px; background: #f8f9fa; cursor: pointer;"
-                                                                ondblclick="openImageModal({{ $index }})">
-                                                                <img src="{{ asset('storage/' . $image->path) }}"
-                                                                    alt="{{ __('catalogmanagement::product.additional_image') ?? 'Additional Image' }}"
-                                                                    style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {{-- Image Modals (Outside Loop) --}}
-                                            @foreach ($product->product->additionalImages as $index => $image)
-                                                <div class="modal fade" id="imageModal{{ $index }}"
-                                                    tabindex="-1" aria-labelledby="imageModalLabel{{ $index }}"
-                                                    aria-hidden="true">
-                                                    <div class="modal-dialog modal-lg modal-dialog-centered">
-                                                        <div class="modal-content">
-                                                            <div class="modal-body p-0 d-flex justify-content-center align-items-center"
-                                                                style="min-height: 500px; background: #f8f9fa;">
-                                                                <img src="{{ asset('storage/' . $image->path) }}"
-                                                                    alt="{{ __('catalogmanagement::product.additional_image') ?? 'Additional Image' }}"
-                                                                    style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        @endif
-
                                     </div>
                                 </div>
                             </div>

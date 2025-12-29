@@ -210,7 +210,7 @@
                                 <label
                                     class="il-gray fs-14 fw-500 mb-10 d-block">{{ trans('common.company_logo') ?? 'Company Logo' }}</label>
                                 <img id="modalCompanyLogo" src="" alt="Company Logo"
-                                    style="max-width: 200px; max-height: 200px; object-fit: cover; border-radius: 8px; display: none;">
+                                    style="max-width: 200px; max-height: 200px; border-radius: 8px; display: none;">
                                 <div id="modalCompanyLogoPlaceholder"
                                     style="width: 200px; height: 200px; background-color: #e9ecef; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
                                     <i class="uil uil-image" style="font-size: 48px; color: #999;"></i>
@@ -405,7 +405,7 @@
                         render: function(data, type, row) {
                             let logoHtml = '';
                             if (row.company_logo) {
-                                logoHtml = `<img src="${row.company_logo}" alt="Company Logo" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">`;
+                                logoHtml = `<img src="${row.company_logo}" alt="Company Logo" class="rounded-circle" style="width: 50px; height: 50px;">`;
                             } else {
                                 logoHtml = `<div class="rounded-circle d-flex align-items-center justify-content-center bg-primary text-white" style="width: 50px; height: 50px; font-size: 20px; font-weight: bold;">${row.company_name ? row.company_name.charAt(0).toUpperCase() : 'V'}</div>`;
                             }

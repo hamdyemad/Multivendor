@@ -24,7 +24,7 @@
                                 @if($vendor->media && $vendor->media->first())
                                     <img class="rounded-circle"
                                         src="{{ asset('storage/' . $vendor->media->first()->path) }}"
-                                        alt="vendor" style="width: 40px; height: 40px; object-fit: cover;">
+                                        alt="vendor" style="width: 40px; height: 40px;">
                                 @else
                                     <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
                                         <i class="uil uil-store text-muted"></i>

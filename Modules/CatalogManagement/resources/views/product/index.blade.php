@@ -309,7 +309,6 @@
                                     @if(auth()->user() && in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
                                         <th><span class="userDatatable-title">{{ __('catalogmanagement::product.vendor') }}</span></th>
                                     @endif
-                                    <th><span class="userDatatable-title">{{ __('catalogmanagement::product.tax') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('catalogmanagement::product.approval_status') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('common.activation') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('common.created_at') }}</span></th>
@@ -541,13 +540,17 @@
                                     <span class="badge badge-secondary badge-round badge-lg ms-1">${$('<div/>').text(row.brand.name).html()}</span>
                                 </div>`;
                             }
-                            // Total Stock
+                            // Stock Information (Total Stock & Remaining Stock)
                             const totalStock = row.total_stock || 0;
-                            const stockBadgeClass = totalStock > 0 ? 'badge-success' : 'badge-danger';
-                            const stockText = totalStock > 0 ? totalStock : '{{ __('dashboard.out_of_stock') }}';
+                            const remainingStock = row.remaining_stock || 0;
+                            const stockBadgeClass = remainingStock > 0 ? 'badge-success' : 'badge-danger';
                             html += `<div class="mb-1">
                                 <small class="text-muted">{{ __('catalogmanagement::product.total_stock') }}:</small>
-                                <span class="badge ${stockBadgeClass} badge-round badge-lg ms-1">${stockText}</span>
+                                <span class="badge badge-secondary badge-round badge-lg ms-1">${totalStock}</span>
+                            </div>`;
+                            html += `<div class="mb-1">
+                                <small class="text-muted">{{ __('catalogmanagement::product.remaining_stock') }}:</small>
+                                <span class="badge ${stockBadgeClass} badge-round badge-lg ms-1">${remainingStock > 0 ? remainingStock : '{{ __('dashboard.out_of_stock') }}'}</span>
                             </div>`;
                             html += '</div>';
 
@@ -570,26 +573,6 @@
                         }
                     },
                     @endif
-                    {
-                        data: 'taxes',
-                        name: 'taxes',
-                        orderable: false,
-                        searchable: false,
-                        className: 'text-start',
-                        render: function(data, type, row) {
-                            if (!data || data.length === 0) {
-                                return '<span class="text-muted">—</span>';
-                            }
-                            let html = '<div class="taxes-list">';
-                            data.forEach(function(tax) {
-                                html += `<div class="mb-1">
-                                    <span class="badge badge-info badge-round badge-lg">${$('<div/>').text(tax.name).html()} (${tax.percentage}%)</span>
-                                </div>`;
-                            });
-                            html += '</div>';
-                            return html;
-                        }
-                    },
                     {
                         data: 'status',
                         name: 'status',

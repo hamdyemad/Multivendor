@@ -382,7 +382,7 @@
                         searchable: false,
                         render: function(data, type, row) {
                             let img = row.product_image 
-                                ? '<img src="' + row.product_image + '" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">' 
+                                ? '<img src="' + row.product_image + '" class="rounded me-2" style="width: 40px; height: 40px;">' 
                                 : '<div class="bg-light rounded me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;"><i class="uil uil-image text-muted"></i></div>';
                             return '<div class="d-flex align-items-center">' + img + '<strong>' + (data || '') + '</strong></div>';
                         }
@@ -412,7 +412,7 @@
                         searchable: false,
                         render: function(data, type, row) {
                             let img = row.vendor_image 
-                                ? '<img src="' + row.vendor_image + '" class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;">' 
+                                ? '<img src="' + row.vendor_image + '" class="rounded-circle me-2" style="width: 30px; height: 30px;">' 
                                 : '<div class="bg-light rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;"><i class="uil uil-store text-muted" style="font-size: 14px;"></i></div>';
                             return '<div class="d-flex align-items-center">' + img + '<span>' + (data || '--') + '</span></div>';
                         }

@@ -338,10 +338,10 @@
                                             $imageAttachment = $bundle->main_image;
                                         @endphp
                                         @if($imageAttachment)
-                                            <img src="{{ asset('storage/' . $imageAttachment->path) }}" alt="Bundle Image" class="img-fluid round" style="max-width: 100%; max-height: 300px; object-fit: cover;">
+                                            <img src="{{ asset('storage/' . $imageAttachment->path) }}" alt="Bundle Image" class="img-fluid round" style="max-width: 100%; max-height: 300px;">
                                         @else
                                             <div class="p-5 bg-light round">
-                                            <img src="{{ asset('assets/img/default.png') }}" alt="Bundle Image" class="img-fluid round" style="max-width: 100%; max-height: 300px; object-fit: cover;">
+                                            <img src="{{ asset('assets/img/default.png') }}" alt="Bundle Image" class="img-fluid round" style="max-width: 100%; max-height: 300px;">
                                             </div>
                                         @endif
                                     </div>

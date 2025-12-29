@@ -328,11 +328,11 @@
                             // Image
                             if (data.image) {
                                 html += `<div style="flex-shrink: 0;">
-                                    <img src="${data.image}" alt="Bundle Image" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                    <img src="${data.image}" alt="Bundle Image" style="width: 60px; height: 60px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                 </div>`;
                             } else {
                                 html +=
-                                    `<img src="{{ asset('assets/img/default.png') }}" alt="Bundle Image" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">`;
+                                    `<img src="{{ asset('assets/img/default.png') }}" alt="Bundle Image" style="width: 60px; height: 60px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">`;
                             }
 
                             // Names

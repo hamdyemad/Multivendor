@@ -51,6 +51,56 @@
                         <!-- Validation Alerts Container -->
                         <div id="validation-alerts-container" class="mb-3"></div>
 
+                        <!-- Tax Information Alert -->
+                        @php
+                            // Get current product taxes
+                            $productTaxIds = [];
+                            if (isset($product)) {
+                                $vendorProduct = $product->product ? $product : $product;
+                                if ($vendorProduct && method_exists($vendorProduct, 'taxes')) {
+                                    $productTaxIds = $vendorProduct->taxes->pluck('id')->toArray();
+                                }
+                            }
+                        @endphp
+                        @if(isset($taxes) && count($taxes) > 0)
+                        <div class="mb-4">
+                            <div class="p-3 rounded" style="background: rgba(255, 193, 7, 0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 193, 7, 0.3); box-shadow: 0 4px 15px rgba(255, 193, 7, 0.1);">
+                                <div class="d-flex align-items-start gap-3">
+                                    <div class="p-2 rounded-circle d-flex align-items-center justify-content-center" style="background: rgba(255, 193, 7, 0.2); min-width: 40px; height: 40px;">
+                                        <i class="uil uil-exclamation-triangle fs-5" style="color: #ffc107;"></i>
+                                    </div>
+                                    <div class="w-100">
+                                        <h6 class="mb-2 fw-bold" style="color: #856404;">{{ __('catalogmanagement::product.tax_notice') }}</h6>
+                                        
+                                        {{-- Current Product Taxes --}}
+                                        @if(count($productTaxIds) > 0)
+                                        <p class="mb-2 small" style="color: #856404;">{{ __('catalogmanagement::product.current_product_taxes') }}:</p>
+                                        <div class="d-flex flex-wrap gap-2 mb-3">
+                                            @foreach($taxes as $tax)
+                                                @if(in_array($tax['id'], $productTaxIds))
+                                                <span class="badge badge-round badge-lg px-3 py-2" style="background: rgba(40, 167, 69, 0.2); color: #155724; font-size: 13px;">
+                                                    <i class="uil uil-check-circle me-1"></i>{{ $tax['name'] ?? __('catalogmanagement::product.tax') }} ({{ $tax['percentage'] }}%)
+                                                </span>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                        @endif
+                                        
+                                        {{-- System Taxes that will be applied on update --}}
+                                        <p class="mb-2 small" style="color: #856404;">{{ __('catalogmanagement::product.tax_notice_description') }}</p>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            @foreach($taxes as $tax)
+                                                <span class="badge badge-round badge-lg px-3 py-2" style="background: rgba(255, 193, 7, 0.2); color: #856404; font-size: 13px;">
+                                                    {{ $tax['name'] ?? __('catalogmanagement::product.tax') }} ({{ $tax['percentage'] }}%)
+                                                </span>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
                         <!-- Form -->
                         <form id="productForm" method="POST"
                             action="{{ isset($product) ? route('admin.products.update', $product->product ? $product->product->id : $product->id) : route('admin.products.store') }}"

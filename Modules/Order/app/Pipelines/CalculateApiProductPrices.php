@@ -40,7 +40,7 @@ class CalculateApiProductPrices
             $occasionId = $formProduct['occasion_id'] ?? null;
 
             // Determine price based on type FIRST (using cart data which has occasion/bundle pricing)
-            $price = $this->getPriceFromCart($type, $formProduct);
+            $priceWithTax = $this->getPriceFromCart($type, $formProduct);
 
             // Get product details from service with all relationships for order creation
             $vendorProduct = $this->productService->findProductForOrder($vendorProductId);
@@ -64,34 +64,65 @@ class CalculateApiProductPrices
             }
 
             // If price wasn't determined from cart, use variant price as fallback
-            if (!$price) {
-                $price = (float) ($vendorProduct['variants'][0]['price'] ?? 0);
+            if (!$priceWithTax) {
+                $priceWithTax = (float) ($vendorProduct['variants'][0]['price'] ?? 0);
             }
 
-            // Calculate total tax rate from all taxes
+            // Calculate total tax rate from all taxes and collect tax data
             $taxes = $vendorProduct['taxes'] ?? [];
             $taxRate = 0;
             $taxNames = ['en' => [], 'ar' => []];
+            $taxesData = []; // Store individual tax data for order_product_taxes
+            $processedTaxIds = []; // Track processed tax IDs to avoid duplicates
+            
             foreach ($taxes as $tax) {
-                $taxRate += (float) ($tax['percentage'] ?? 0);
+                $taxId = $tax['id'] ?? null;
+                
+                // Skip if no tax_id or already processed (avoid duplicates)
+                if (!$taxId || in_array($taxId, $processedTaxIds)) {
+                    continue;
+                }
+                $processedTaxIds[] = $taxId;
+                
+                $taxPercentage = (float) ($tax['percentage'] ?? 0);
+                $taxRate += $taxPercentage;
                 $taxNames['en'][] = $tax['name_en'] ?? $tax['name'] ?? '';
                 $taxNames['ar'][] = $tax['name_ar'] ?? $tax['name'] ?? '';
+                
+                // Collect tax data for storing in order_product_taxes
+                $taxesData[] = [
+                    'tax_id' => $taxId,
+                    'percentage' => $taxPercentage,
+                    'name_en' => $tax['name_en'] ?? $tax['name'] ?? '',
+                    'name_ar' => $tax['name_ar'] ?? $tax['name'] ?? '',
+                ];
             }
             $taxNameEn = implode(', ', array_filter($taxNames['en']));
             $taxNameAr = implode(', ', array_filter($taxNames['ar']));
             
             $limitation = (int) ($vendorProduct['max_per_order'] ?? 0);
 
-            // Get commission from product's department
+            // Get commission rate from product's department
             $totalCommissionRate = (float) ($vendorProduct['product']['department']['commission'] ?? 0);
 
-            // Calculate totals
-            $productTotal = $price * $quantity;
-            $tax = ($productTotal * $taxRate) / 100;
-            $commissionAmount = ($productTotal * $totalCommissionRate) / 100;
+            // Calculate price before tax for subtotal calculation
+            // If price is 100 with 10% tax, price before tax = 100 / 1.10 = 90.91
+            $priceBeforeTax = $taxRate > 0 ? $priceWithTax / (1 + $taxRate / 100) : $priceWithTax;
 
-            $totalProductPrice += $productTotal;
-            $totalTax += $tax;
+            // Product total with tax (for storing in order_products.price)
+            $productTotalWithTax = round($priceWithTax * $quantity, 2);
+            
+            // Product total before tax (for subtotal calculation)
+            $productTotalBeforeTax = round($priceBeforeTax * $quantity, 2);
+            
+            // Tax amount
+            $taxAmount = round($productTotalWithTax - $productTotalBeforeTax, 2);
+            
+            // Commission is calculated from price WITH tax (15% of total including tax)
+            $commissionAmount = round(($productTotalWithTax * $totalCommissionRate) / 100, 2);
+
+            $totalProductPrice += $productTotalBeforeTax;
+            $totalTax += $taxAmount;
             $totalCommission += $commissionAmount;
             $itemsCount += $quantity;
 
@@ -100,8 +131,8 @@ class CalculateApiProductPrices
                 'vendor_product_variant_id' => $vendorProductVariantId,
                 'vendor_id' => $vendorId,
                 'quantity' => $quantity,
-                'price' => $price,
-                'commission' => $commissionAmount,
+                'price' => $productTotalWithTax, // Store total price INCLUDING tax
+                'commission' => $commissionAmount, // Commission calculated from price with tax
                 'type' => $type,
                 'bundle_id' => $bundleId,
                 'occasion_id' => $occasionId,
@@ -113,14 +144,14 @@ class CalculateApiProductPrices
                         'name' => $productNameAr,
                     ],
                 ],
-                'tax_id' => null, // Multiple taxes now handled via vendor_product_taxes
+                'taxes' => $taxesData, // Array of taxes with their IDs
                 'tax_rate' => $taxRate,
-                'tax_amount' => $tax,
+                'tax_amount' => $taxAmount,
                 'tax_translations' => [
                     'en' => $taxNameEn,
                     'ar' => $taxNameAr,
                 ],
-                'total' => $productTotal,
+                'total' => $productTotalWithTax, // Total includes tax
                 'limitation' => $limitation,
             ];
 
@@ -128,7 +159,7 @@ class CalculateApiProductPrices
         }
 
         $context['products_data'] = $productsData;
-        $context['total_product_price'] = $totalProductPrice;
+        $context['total_product_price'] = $totalProductPrice; // Subtotal before tax
         $context['total_tax'] = $totalTax;
         $context['total_commission'] = $totalCommission;
         $context['items_count'] = $itemsCount;
@@ -172,41 +203,5 @@ class CalculateApiProductPrices
 
         // Return 0 to indicate price not found in cart data
         return 0;
-    }
-
-    /**
-     * Get price based on product type (product, bundle, or occasion)
-     */
-    private function getPrice(string $type, array $formProduct, array $vendorProduct): float
-    {
-        // Default to variant price
-        $variantPrice = (float) ($vendorProduct['variants'][0]['price'] ?? 0);
-
-        if ($type === 'bundle' && isset($formProduct['bundle'])) {
-            $bundle = $formProduct['bundle'];
-            if ($bundle && isset($bundle['bundleProducts'])) {
-                $bundleProduct = collect($bundle['bundleProducts'])
-                    ->firstWhere('vendor_product_variant_id', $formProduct['vendor_product_variant_id']);
-
-                if ($bundleProduct && isset($bundleProduct['price'])) {
-                    return (float) $bundleProduct['price'];
-                }
-            }
-        }
-
-        if ($type === 'occasion' && isset($formProduct['occasion'])) {
-            $occasion = $formProduct['occasion'];
-            if ($occasion && isset($occasion['occasionProducts'])) {
-                $occasionProduct = collect($occasion['occasionProducts'])
-                    ->firstWhere('vendor_product_variant_id', $formProduct['vendor_product_variant_id']);
-
-                if ($occasionProduct && isset($occasionProduct['special_price'])) {
-                    return (float) $occasionProduct['special_price'];
-                }
-            }
-        }
-
-        // Fallback to variant price
-        return $variantPrice;
     }
 }

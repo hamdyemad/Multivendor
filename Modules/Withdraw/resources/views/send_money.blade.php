@@ -291,16 +291,134 @@
         </div>
     </div>
 
+    <!-- Amount Exceeded Alert Modal -->
+    <div class="modal fade" id="amountExceededModal" tabindex="-1" aria-labelledby="amountExceededLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header text-white" style="background-color: #dc3545;">
+                    <h5 class="modal-title d-flex align-items-center" id="amountExceededLabel" style="color: #fff">
+                        <i class="uil uil-exclamation-triangle me-2"></i> {{ __('withdraw::withdraw.amount_exceeded_title') }}
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <div class="mb-3">
+                        <i class="uil uil-times-circle text-danger" style="font-size: 48px;"></i>
+                    </div>
+                    <p class="mb-2" style="font-size: 16px;">{{ __('withdraw::withdraw.amount_exceeds_maximum') }}</p>
+                    <p class="mb-0 fw-bold text-danger" style="font-size: 18px;">
+                        {{ __('withdraw::withdraw.max_amount') }}: <span id="maxAmountDisplay">0</span> {{ currency() }}
+                    </p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-danger px-4" data-bs-dismiss="modal">
+                        <i class="uil uil-check me-1"></i> {{ __('common.ok') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @push('scripts')
         <script>
-            let sentAmountInput = document.getElementById('sent_amount');
-        </script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('sendMoneyForm');
+                const submitBtn = document.getElementById('submitBtn');
+                const confirmModal = new bootstrap.Modal(document.getElementById('confirmSubmitModal'));
+                const amountExceededModal = new bootstrap.Modal(document.getElementById('amountExceededModal'));
+                const confirmBtn = document.getElementById('confirmSubmitBtn');
+                const sentAmountInput = document.getElementById('sent_amount');
+                const imageInput = document.getElementById('imageInput');
+                const imagePreview = document.getElementById('imagePreview');
 
-        <script>
+                // Function to get max amount from the display
+                function getMaxAmount() {
+                    const maxAmountText = document.getElementById('amount_max_which_will_be_sent').innerText;
+                    return Number(maxAmountText.replace(/,/g, '')) || 0;
+                }
+
+                // Function to show amount exceeded modal
+                function showAmountExceededModal(maxAmount) {
+                    document.getElementById('maxAmountDisplay').innerText = maxAmount.toLocaleString();
+                    amountExceededModal.show();
+                }
+
+                // Format number input with commas and validate max amount
+                sentAmountInput.addEventListener('input', function() {
+                    let value = this.value.replace(/,/g, '');
+                    if (value === '') return;
+
+                    // Allow only numbers and decimal point
+                    if (!/^\d*\.?\d*$/.test(value)) {
+                        this.value = this.value.slice(0, -1);
+                        return;
+                    }
+
+                    let numVal = parseFloat(value);
+                    if (!isNaN(numVal)) {
+                        // Check if exceeds max amount
+                        const maxAmount = getMaxAmount();
+                        if (numVal > maxAmount) {
+                            showAmountExceededModal(maxAmount);
+                            this.value = maxAmount.toLocaleString('en-US');
+                            return;
+                        }
+                        
+                        let parts = numVal.toString().split('.');
+                        parts[0] = Number(parts[0]).toLocaleString('en-US');
+                        this.value = parts.join('.');
+                    }
+                });
+
+                // Image preview on change
+                imageInput.addEventListener('change', function(event) {
+                    let file = event.target.files[0];
+                    if (file) {
+                        let reader = new FileReader();
+                        reader.onload = function(e) {
+                            imagePreview.src = e.target.result;
+                            imagePreview.style.display = 'block';
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+
+                // Click on image to open file selector
+                imagePreview.addEventListener('click', function() {
+                    imageInput.click();
+                });
+
+                // Validate amount before showing confirm modal
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const enteredAmount = Number(sentAmountInput.value.replace(/,/g, '')) || 0;
+                    const maxAmount = getMaxAmount();
+                    
+                    if (enteredAmount > maxAmount) {
+                        showAmountExceededModal(maxAmount);
+                        return;
+                    }
+                    
+                    confirmModal.show();
+                });
+
+                // When user clicks Yes, Send
+                confirmBtn.addEventListener('click', function() {
+                    // Remove commas before submitting
+                    sentAmountInput.value = sentAmountInput.value.replace(/,/g, '');
+                    confirmModal.hide();
+                    form.submit();
+                });
+            });
+
+            // Get vendor balance function (called from select onchange)
             function getVendorBalance(vendor_id) {
                 let url = "{{ route('admin.getVendorBalance', ':vendor_id') }}";
                 url = url.replace(':vendor_id', vendor_id);
-                console.log(url)
+                
                 $.ajax({
                     url: url,
                     type: "GET",
@@ -316,124 +434,12 @@
 
                         $("#amount_max_which_will_be_sent").html(response.remaining);
                         $("#waiting_approve_requests").html(response.waiting_approve_requests);
-
-                        let remaining = Number(response.remaining.replace(/,/g, ''));
-                        let waiting = Number(response.waiting_approve_requests.replace(/,/g, ''));
                     },
                     error: function(xhr, status, error) {
                         console.log("Error:", error);
                     }
                 });
             }
-
-            // تنسيق الرقم + منع تجاوز max أثناء الكتابة
-            sentAmountInput.addEventListener('input', function() {
-                let value = this.value.replace(/,/g, ''); // إزالة الفواصل
-                if (value === '') return;
-
-                // السماح فقط بالأرقام والنقطة العشرية
-                if (!/^\d*\.?\d*$/.test(value)) {
-                    this.value = this.value.slice(0, -1);
-                    return;
-                }
-
-                let numVal = parseFloat(value);
-                if (!isNaN(numVal)) {
-                    // إعادة تنسيق الرقم مع commas
-                    let parts = numVal.toString().split('.');
-                    parts[0] = Number(parts[0]).toLocaleString('en-US');
-                    this.value = parts.join('.');
-                }
-            });
-        </script>
-
-        <script>
-            document.getElementById('imageInput').addEventListener('change', function(event) {
-                let file = event.target.files[0];
-
-                if (file) {
-                    let reader = new FileReader();
-
-                    reader.onload = function(e) {
-                        let img = document.getElementById('imagePreview');
-                        img.src = e.target.result;
-                        img.style.display = 'block';
-                    };
-
-                    reader.readAsDataURL(file);
-                }
-            });
-        </script>
-
-        <script>
-            const input = document.getElementById('sent_amount');
-
-            input.addEventListener('input', function(e) {
-                let value = this.value.replace(/,/g, ''); // إزالة الفواصل
-
-                // السماح بالأرقام العشرية فقط
-                if (!isNaN(value) && value !== '') {
-                    // تحويل الرقم لعدد عشري والحفاظ على decimals
-                    let parts = value.split('.');
-                    parts[0] = Number(parts[0]).toLocaleString(); // جزء الألف
-                    this.value = parts.join('.');
-                } else {
-                    this.value = '';
-                }
-            });
-
-            // إزالة الفواصل قبل إرسال الفورم
-            input.form?.addEventListener('submit', function() {
-                input.value = input.value.replace(/,/g, '');
-            });
-        </script>
-
-        <script>
-            const imageInput = document.getElementById('imageInput');
-            const imagePreview = document.getElementById('imagePreview');
-
-            // لما المستخدم يغير الصورة
-            imageInput.addEventListener('change', function() {
-                const file = this.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        imagePreview.src = e.target.result;
-                    }
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            // لما المستخدم يضغط على الصورة، يفتح اختيار الصورة
-            imagePreview.addEventListener('click', function() {
-                imageInput.click();
-            });
-        </script>
-
-        <script>
-            const form = document.getElementById('sendMoneyForm');
-            const sentAmountInput = document.getElementById('sent_amount');
-        </script>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const form = document.getElementById('sendMoneyForm');
-                const submitBtn = document.getElementById('submitBtn');
-                const confirmModal = new bootstrap.Modal(document.getElementById('confirmSubmitModal'));
-                const confirmBtn = document.getElementById('confirmSubmitBtn');
-
-                // منع الفورم من الsubmit مباشرة
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    confirmModal.show();
-                });
-
-                // لما يضغط على Yes, Send
-                confirmBtn.addEventListener('click', function() {
-                    confirmModal.hide();
-                    form.submit(); // الفورم يتبعت
-                });
-            });
         </script>
     @endpush
 @endsection

@@ -7,7 +7,7 @@
                     : asset('assets/img/author-nav.jpg');
             @endphp
             <img src="{{ $userImage }}" alt="" class="rounded-circle"
-                style="width: 32px; height: 32px; object-fit: cover;">
+                style="width: 32px; height: 32px;">
             @if (Auth::check())
                 <span class="nav-item__title"><i class="las la-angle-down nav-item__arrow"></i></span>
             @endif
@@ -16,7 +16,7 @@
             <div class="nav-author__info">
                 <div class="author-img">
                     <img src="{{ $userImage }}" alt="" class="rounded-circle"
-                        style="width: 46px; height: 46px; object-fit: cover;">
+                        style="width: 46px; height: 46px;">
                 </div>
                 <div>
                     @if (Auth::check())

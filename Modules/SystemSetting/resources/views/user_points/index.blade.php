@@ -13,7 +13,6 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            object-fit: cover;
             background-color: #f0f0f0;
         }
 

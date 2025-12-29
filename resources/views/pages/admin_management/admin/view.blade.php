@@ -207,7 +207,7 @@
                                                     <img src="{{ asset('storage/' . $admin->image) }}"
                                                         alt="{{ $admin->getTranslation('name', app()->getLocale()) }}"
                                                         class="img-fluid rounded shadow-sm"
-                                                        style="max-height: 300px; width: 100%; object-fit: cover; cursor: pointer;"
+                                                        style="max-height: 300px; width: 100%; cursor: pointer;"
                                                         onclick="openAdminImageModal()">
                                                 </div>
                                             </div>

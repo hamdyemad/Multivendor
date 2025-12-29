@@ -53,7 +53,7 @@
                                     <div class="d-flex align-items-start gap-3">
                                         {{-- Product Image --}}
                                         @if($productModel?->mainImage)
-                                            <img src="{{ formatImage($productModel->mainImage) }}" alt="{{ $productModel->name ?? '' }}" class="rounded" style="width: 60px; height: 60px; object-fit: cover; flex-shrink: 0;">
+                                            <img src="{{ formatImage($productModel->mainImage) }}" alt="{{ $productModel->name ?? '' }}" class="rounded" style="width: 60px; height: 60px; flex-shrink: 0;">
                                         @else
                                             <div class="rounded bg-light d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; flex-shrink: 0;">
                                                 <i class="uil uil-image text-muted fs-4"></i>
@@ -83,7 +83,7 @@
                                             @if($vendor)
                                                 <div class="d-flex align-items-center justify-content-center gap-2 mt-2 pt-2 border-top">
                                                     @if($vendor->logo)
-                                                        <img src="{{ formatImage($vendor->logo) }}" alt="{{ $vendor->name }}" class="rounded-circle" style="width: 24px; height: 24px; object-fit: cover;">
+                                                        <img src="{{ formatImage($vendor->logo) }}" alt="{{ $vendor->name }}" class="rounded-circle" style="width: 24px; height: 24px; ">
                                                     @else
                                                         <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
                                                             <i class="uil uil-store text-muted" style="font-size: 12px;"></i>

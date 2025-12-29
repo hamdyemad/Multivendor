@@ -119,7 +119,9 @@ class ProductController extends Controller
         $languages = $this->languageService->getAll();
         $brands = $this->brandService->getAllBrands([], 0);
         $brands = BrandResource::collection($brands)->resolve();
-        $taxes = $this->taxService->getAllTaxes(0, []);
+        $taxes = $this->taxService->getAllTaxes(0, [
+            'is_active' => true
+        ]);
         $taxes = TaxResource::collection($taxes)->resolve();
         // Get vendors for admin/super admin, or current vendor for vendor users
         $vendors = [];
@@ -241,7 +243,7 @@ class ProductController extends Controller
         $languages = $this->languageService->getAll();
         $brands = $this->brandService->getAllBrands([], 0);
         $brands = BrandResource::collection($brands)->resolve();
-        $taxes = $this->taxService->getAllTaxes(0, []);
+        $taxes = $this->taxService->getAllTaxes(0, ['is_active' => true]);
         $taxes = TaxResource::collection($taxes)->resolve();
         $regions = $this->regionService->getAllRegions([], 0);
         $regions = RegionResource::collection($regions)->resolve();
@@ -587,7 +589,7 @@ class ProductController extends Controller
         $regions = RegionResource::collection($regions)->resolve();
 
         // Get taxes for the global vendor product section
-        $taxes = $this->taxService->getAllTaxes(0, []);
+        $taxes = $this->taxService->getAllTaxes(0, ['is_active' => true]);
         $taxes = TaxResource::collection($taxes)->resolve();
 
         // Get variant configuration keys for the variant section

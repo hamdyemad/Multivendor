@@ -436,7 +436,7 @@
                                         @if ($product->mainImage)
                                             <img src="{{ asset('storage/' . $product->mainImage->path) }}"
                                                 alt="{{ $product->title }}" class="img-fluid rounded shadow-sm"
-                                                style="max-height: 300px; object-fit: cover; cursor: pointer;"
+                                                style="max-height: 300px; cursor: pointer;"
                                                 onclick="openMainImageModal()">
 
                                             {{-- Main Image Modal --}}
@@ -634,7 +634,7 @@
                                                             <img src="{{ asset('storage/' . $vendorProduct->vendor->logo->path) }}" 
                                                                 alt="{{ $vendorProduct->vendor->name }}" 
                                                                 class="rounded-circle" 
-                                                                style="width: 45px; height: 45px; object-fit: cover;">
+                                                                style="width: 45px; height: 45px;">
                                                         @else
                                                             <div class="rounded-circle d-flex align-items-center justify-content-center bg-primary text-white" 
                                                                 style="width: 45px; height: 45px; font-size: 18px; font-weight: bold;">

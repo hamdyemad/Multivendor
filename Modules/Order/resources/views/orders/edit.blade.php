@@ -340,6 +340,7 @@
                             <input type="hidden" id="selected_product_limitation" value="">
                             <input type="hidden" id="selected_product_tax_rate" value="">
                             <input type="hidden" id="selected_product_taxes_info" value="">
+                            <input type="hidden" id="selected_product_unit_price_before_tax" value="">
                             <input type="hidden" id="selected_product_category_id" value="">
                             <input type="hidden" id="selected_product_category_name" value="">
                             <input type="hidden" id="selected_product_sku" value="">
@@ -616,9 +617,17 @@
                                 $taxRate = $orderProduct->vendorProduct?->taxes?->sum('percentage') ?? 0;
                                 $categoryId = $orderProduct->vendorProduct?->product?->category_id ?? null;
                                 $categoryName = $orderProduct->vendorProduct?->product?->category?->getTranslation('name', app()->getLocale()) ?? '';
-                                $price = $orderProduct->price ?? 0;
+                                
+                                // Price stored is total price WITH tax for all quantities
+                                $totalPriceWithTax = $orderProduct->price ?? 0;
                                 $quantity = $orderProduct->quantity ?? 1;
-                                $total = $price * $quantity;
+                                
+                                // Calculate unit price with tax
+                                $unitPriceWithTax = $quantity > 0 ? $totalPriceWithTax / $quantity : 0;
+                                
+                                // Calculate unit price before tax
+                                $unitPriceBeforeTax = $taxRate > 0 ? $unitPriceWithTax / (1 + $taxRate / 100) : $unitPriceWithTax;
+                                
                                 $sku = $orderProduct->vendorProductVariant?->sku ?? $orderProduct->vendorProduct?->sku ?? 'N/A';
                                 $vendorName = $orderProduct->vendorProduct?->vendor?->getTranslation('name', app()->getLocale()) ?? 'N/A';
                                 $productImage = $orderProduct->vendorProduct?->product?->image ?? '';
@@ -628,10 +637,11 @@
                                 vendor_product_id: {{ $orderProduct->vendor_product_id ?? 'null' }},
                                 vendor_product_variant_id: {{ $orderProduct->vendor_product_variant_id ?? 'null' }},
                                 name: "{{ addslashes($fullName) }}",
-                                price: {{ $price }},
+                                price: {{ $unitPriceWithTax }},
+                                unitPriceBeforeTax: {{ $unitPriceBeforeTax }},
                                 quantity: {{ $quantity }},
                                 taxRate: {{ $taxRate }},
-                                total: {{ $total }},
+                                total: {{ $totalPriceWithTax }},
                                 category_id: {{ $categoryId ?? 'null' }},
                                 category_name: "{{ addslashes($categoryName) }}",
                                 sku: "{{ addslashes($sku) }}",
@@ -851,6 +861,8 @@
                                             if (product.variants && product.variants.length > 0) {
                                                 product.variants.forEach(variant => {
                                                     const price = parseFloat(variant.real_price) || 0;
+                                                    // Calculate unit price before tax for display
+                                                    const unitPriceBeforeTax = taxRate > 0 ? price / (1 + taxRate / 100) : price;
                                                     const variantKey = variant.variant_key;
                                                     const variantValue = variant.variant_value;
                                                     const variantName = variantKey ?
@@ -868,6 +880,7 @@
                                                      data-product-id="${product.id}"
                                                      data-name="${productName} - ${variantName}"
                                                      data-price="${price}"
+                                                     data-unit-price-before-tax="${unitPriceBeforeTax.toFixed(2)}"
                                                      data-limitation="${limitation}"
                                                      data-tax-rate="${taxRate}"
                                                      data-taxes-info='${JSON.stringify(taxesInfo)}'
@@ -949,6 +962,7 @@
                         const variantId = $(this).data('id');
                         const name = $(this).data('name');
                         const price = $(this).data('price');
+                        const unitPriceBeforeTax = $(this).data('unit-price-before-tax') || price;
                         const limitation = $(this).data('limitation') || 0;
                         const taxRate = $(this).data('tax-rate') || 0;
                         const taxesInfo = $(this).data('taxes-info') || [];
@@ -976,6 +990,7 @@
                             variantId,
                             name,
                             price,
+                            unitPriceBeforeTax,
                             limitation,
                             taxRate,
                             taxesInfo,
@@ -993,6 +1008,7 @@
                         $('#selected_product_variant_id').val(variantId);
                         $('#selected_product_name').val(name);
                         $('#selected_product_price').val(price);
+                        $('#selected_product_unit_price_before_tax').val(unitPriceBeforeTax);
                         $('#selected_product_limitation').val(limitation);
                         $('#selected_product_tax_rate').val(taxRate);
                         $('#selected_product_taxes_info').val(JSON.stringify(taxesInfo));
@@ -1699,6 +1715,7 @@
                         const variantId = $('#selected_product_variant_id').val() || null;
                         const productName = $('#selected_product_name').val();
                         const productPrice = parseFloat($('#selected_product_price').val()) || 0;
+                        const unitPriceBeforeTax = parseFloat($('#selected_product_unit_price_before_tax').val()) || productPrice;
                         const quantity = parseInt($('#product_quantity').val()) || 1;
                         const limitation = parseInt($('#selected_product_limitation').val()) || 0;
                         const taxRate = parseFloat($('#selected_product_tax_rate').val()) || 0;
@@ -1720,6 +1737,7 @@
                             variantId,
                             productName,
                             productPrice,
+                            unitPriceBeforeTax,
                             quantity,
                             limitation,
                             taxRate,
@@ -1776,6 +1794,7 @@
                                 id: productId + (variantId ? '_' + variantId : ''), // Unique ID for UI
                                 name: productName,
                                 price: productPrice,
+                                unitPriceBeforeTax: unitPriceBeforeTax,
                                 total: productTotal,
                                 taxRate: taxRate,
                                 taxesInfo: taxesInfo,
@@ -1793,6 +1812,7 @@
                         $('#selected_product_variant_id').val('');
                         $('#selected_product_name').val('');
                         $('#selected_product_price').val('');
+                        $('#selected_product_unit_price_before_tax').val('');
                         $('#selected_product_limitation').val('');
                         $('#selected_product_tax_rate').val('');
                         $('#selected_product_taxes_info').val('');
@@ -1835,23 +1855,23 @@
                         products.forEach(product => {
                             const taxRate = product.taxRate || 0;
                             const taxesInfo = product.taxesInfo || [];
-                            // Price is the price before taxes from vendor_product_variants
-                            const priceExcl = product.price;
-                            // Total is price × quantity (without adding tax)
-                            const lineTotal = priceExcl * product.quantity;
+                            // Unit price before tax for display in Price column
+                            const unitPriceBeforeTax = product.unitPriceBeforeTax || product.price;
+                            // Total is price (with tax) × quantity
+                            const lineTotal = product.price * product.quantity;
                             
                             // Build tax badges HTML
                             let taxBadgesHtml = '';
                             if (taxesInfo && taxesInfo.length > 0) {
                                 taxesInfo.forEach(tax => {
-                                    taxBadgesHtml += `<span class="badge bg-info text-white me-1 mb-1">${tax.name} (${tax.percentage}%)</span>`;
+                                    taxBadgesHtml += `<span class="badge badge-lg badge-round bg-info text-white me-1 mb-1">${tax.name} (${tax.percentage}%)</span>`;
                                 });
                                 // Add total tax rate badge
                                 if (taxesInfo.length > 1) {
-                                    taxBadgesHtml += `<br><span class="badge bg-primary text-white mt-1">{{ __('common.total') }}: ${taxRate.toFixed(2)}%</span>`;
+                                    taxBadgesHtml += `<br><span class="badge badge-lg badge-round bg-primary text-white mt-1">{{ __('common.total') }}: ${taxRate.toFixed(2)}%</span>`;
                                 }
                             } else if (taxRate > 0) {
-                                taxBadgesHtml = `<span class="badge bg-info text-white">${taxRate.toFixed(2)}%</span>`;
+                                taxBadgesHtml = `<span class="badge badge-lg badge-round bg-info text-white">${taxRate.toFixed(2)}%</span>`;
                             } else {
                                 taxBadgesHtml = '<span class="text-muted">-</span>';
                             }
@@ -1871,7 +1891,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="text-center align-middle">${priceExcl.toFixed(2)} {{ currency() }}</td>
+                            <td class="text-center align-middle">${parseFloat(unitPriceBeforeTax).toFixed(2)} {{ currency() }}</td>
                             <td class="text-center align-middle">${product.quantity}</td>
                             <td class="text-center align-middle">${taxBadgesHtml}</td>
                             <td class="text-center align-middle">${lineTotal.toFixed(2)} {{ currency() }}</td>
@@ -1896,23 +1916,23 @@
                         let subtotal = 0;
                         let totalTax = 0;
 
-                        // Calculate subtotal and tax from products
-                        // Price from API is already excluding tax
+                        // Calculate subtotal (before tax) and tax from products
                         products.forEach(product => {
                             const taxRate = product.taxRate || 0;
-                            const priceExcl = product.price;
-                            const lineTotal = priceExcl * product.quantity;
-                            const lineTax = lineTotal * (taxRate / 100);
+                            // Use unit price before tax for subtotal
+                            const unitPriceBeforeTax = parseFloat(product.unitPriceBeforeTax) || product.price;
+                            const lineSubtotal = unitPriceBeforeTax * product.quantity;
+                            const lineTax = lineSubtotal * (taxRate / 100);
 
                             console.log('Product tax calculation:', {
                                 name: product.name,
                                 taxRate: taxRate,
-                                priceExcl: priceExcl,
-                                lineTotal: lineTotal,
+                                unitPriceBeforeTax: unitPriceBeforeTax,
+                                lineSubtotal: lineSubtotal,
                                 lineTax: lineTax
                             });
 
-                            subtotal += lineTotal;
+                            subtotal += lineSubtotal;
                             totalTax += lineTax;
                         });
 

@@ -8,6 +8,7 @@ use Modules\Order\app\Interfaces\OrderRepositoryInterface;
 use Modules\Order\app\Models\Order;
 use Modules\Order\app\Models\OrderStage;
 use Modules\Order\app\Models\OrderProduct;
+use Modules\Order\app\Models\OrderProductTax;
 use Modules\Order\app\Models\OrderExtraFeeDiscount;
 use Modules\CatalogManagement\app\Models\StockBooking;
 
@@ -40,7 +41,7 @@ class OrderRepository implements OrderRepositoryInterface
             'products.vendorProduct.product.category',
             'products.vendorProduct.product.mainImage',
             'products.vendorProduct.vendor',
-            'products.vendorProduct.tax',
+            'products.vendorProduct.taxes',
             'products.vendorProductVariant.variantConfiguration.key', 
             'products.taxes',
             'extraFeesDiscounts'
@@ -63,13 +64,18 @@ class OrderRepository implements OrderRepositoryInterface
 
     /**
      * Change order stage and update fulfillments
+     * 
+     * @param int $id Order ID
+     * @param int $stageId New stage ID
+     * @return Order
+     * @throws \Exception If stage transition is not allowed
      */
     public function changeOrderStage($id, $stageId)
     {
         return DB::transaction(function () use ($id, $stageId) {
             $query = Order::with(['stage' => function($q) {
                 $q->withoutGlobalScopes();
-            }]);
+            }, 'products']);
             
             // If current user is a vendor, only allow access to orders that have products from their vendor
             if (auth()->check() && auth()->user()->isVendor()) {
@@ -83,17 +89,123 @@ class OrderRepository implements OrderRepositoryInterface
             
             $order = $query->findOrFail($id);
 
-            // Fetch the new stage (without global scopes to avoid country filtering)
+            // Fetch the current and new stages (without global scopes to avoid country filtering)
+            $currentStage = $order->stage ? OrderStage::withoutGlobalScopes()->find($order->stage_id) : null;
             $newStage = OrderStage::withoutGlobalScopes()->findOrFail($stageId);
+
+            // Validate stage transition if current stage exists
+            if ($currentStage) {
+                $blockReason = $currentStage->getTransitionBlockReason($newStage);
+                if ($blockReason) {
+                    throw new \Exception($blockReason);
+                }
+            }
 
             // Update order stage
             $order->update(['stage_id' => $stageId]);
+
+            // Create stock bookings when moving to 'in_progress' stage
+            // Check both type and slug for compatibility
+            if ($newStage->type === 'in_progress' || $newStage->slug === 'in-progress') {
+                Log::info('Creating stock bookings for order moving to in_progress', [
+                    'order_id' => $order->id,
+                    'stage_type' => $newStage->type,
+                    'stage_slug' => $newStage->slug,
+                    'products_count' => $order->products->count(),
+                ]);
+                $this->createStockBookingsForOrder($order);
+            }
+
+            // Release stock bookings when order is cancelled
+            if ($newStage->type === 'cancel' || $newStage->slug === 'cancel') {
+                $this->releaseStockBookingsForOrder($order);
+            }
 
             // Update fulfillment statuses based on stage slug
             $this->updateFulfillmentsByStage($order, $newStage);
 
             return $order->refresh();
         });
+    }
+
+    /**
+     * Create stock bookings for all products in an order
+     * Called when order moves to 'in_progress' stage
+     */
+    private function createStockBookingsForOrder(Order $order): void
+    {
+        Log::info('Starting stock booking creation', [
+            'order_id' => $order->id,
+            'products_count' => $order->products->count(),
+        ]);
+
+        foreach ($order->products as $orderProduct) {
+            Log::info('Processing order product for stock booking', [
+                'order_product_id' => $orderProduct->id,
+                'vendor_product_variant_id' => $orderProduct->vendor_product_variant_id,
+                'quantity' => $orderProduct->quantity,
+            ]);
+
+            // Create booking if variant exists and booking doesn't already exist
+            if ($orderProduct->vendor_product_variant_id) {
+                $existingBooking = StockBooking::where('order_id', $order->id)
+                    ->where('order_product_id', $orderProduct->id)
+                    ->first();
+
+                if (!$existingBooking) {
+                    $booking = StockBooking::create([
+                        'order_id' => $order->id,
+                        'order_product_id' => $orderProduct->id,
+                        'vendor_product_variant_id' => $orderProduct->vendor_product_variant_id,
+                        'region_id' => $order->region_id,
+                        'booked_quantity' => $orderProduct->quantity,
+                        'status' => StockBooking::STATUS_BOOKED,
+                        'booked_at' => now(),
+                    ]);
+
+                    Log::info('Stock booking created successfully', [
+                        'booking_id' => $booking->id,
+                        'order_id' => $order->id,
+                        'order_product_id' => $orderProduct->id,
+                        'variant_id' => $orderProduct->vendor_product_variant_id,
+                        'quantity' => $orderProduct->quantity,
+                    ]);
+                } else {
+                    Log::info('Stock booking already exists, skipping', [
+                        'existing_booking_id' => $existingBooking->id,
+                        'order_product_id' => $orderProduct->id,
+                    ]);
+                }
+            } else {
+                Log::info('Order product has no variant, skipping stock booking', [
+                    'order_product_id' => $orderProduct->id,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Release stock bookings for an order
+     * Called when order is cancelled
+     */
+    private function releaseStockBookingsForOrder(Order $order): void
+    {
+        $bookings = StockBooking::where('order_id', $order->id)
+            ->where('status', StockBooking::STATUS_BOOKED)
+            ->get();
+
+        foreach ($bookings as $booking) {
+            $booking->update([
+                'status' => StockBooking::STATUS_RELEASED,
+            ]);
+
+            Log::info('Stock booking released (order cancelled)', [
+                'order_id' => $order->id,
+                'booking_id' => $booking->id,
+                'variant_id' => $booking->vendor_product_variant_id,
+                'quantity' => $booking->booked_quantity,
+            ]);
+        }
     }
 
     /**
@@ -163,13 +275,96 @@ class OrderRepository implements OrderRepositoryInterface
                 $orderProduct->save();
             }
 
-            // Sync taxes with translations if present
-            if (!empty($product['tax_id'])) {
-                $orderProductTax = $orderProduct->taxes()->create([
-                    'tax_id' => $product['tax_id'],
-                    'percentage' => $product['tax_rate'] ?? 0,
-                    'amount' => $product["tax_amount"] ?? 0,
+            // Sync taxes - handle multiple taxes from the taxes array
+            if (!empty($product['taxes']) && is_array($product['taxes'])) {
+                // Calculate tax amount per tax based on proportion
+                $totalTaxRate = $product['tax_rate'] ?? 0;
+                $totalTaxAmount = $product['tax_amount'] ?? 0;
+                
+                // Track processed tax IDs to avoid duplicates
+                $processedTaxIds = [];
+                
+                \Log::info('Processing taxes for order product', [
+                    'order_product_id' => $orderProduct->id,
+                    'taxes_count' => count($product['taxes']),
+                    'taxes' => $product['taxes']
                 ]);
+                
+                foreach ($product['taxes'] as $taxData) {
+                    $taxId = $taxData['tax_id'] ?? null;
+                    
+                    \Log::info('Processing tax', [
+                        'tax_id' => $taxId,
+                        'already_processed' => in_array($taxId, $processedTaxIds),
+                        'processedTaxIds' => $processedTaxIds
+                    ]);
+                    
+                    // Skip if no tax_id or already processed
+                    if (!$taxId || in_array($taxId, $processedTaxIds)) {
+                        continue;
+                    }
+                    $processedTaxIds[] = $taxId;
+                    
+                    $taxPercentage = $taxData['percentage'] ?? 0;
+                    // Calculate proportional tax amount for this specific tax
+                    $taxAmount = $totalTaxRate > 0 
+                        ? ($taxPercentage / $totalTaxRate) * $totalTaxAmount 
+                        : 0;
+                    
+                    // Use updateOrCreate to avoid duplicate entry errors
+                    try {
+                        $orderProductTax = OrderProductTax::updateOrCreate(
+                            [
+                                'order_product_id' => $orderProduct->id,
+                                'tax_id' => $taxId,
+                            ],
+                            [
+                                'percentage' => $taxPercentage,
+                                'amount' => $taxAmount,
+                            ]
+                        );
+                        
+                        \Log::info('Tax saved successfully', [
+                            'order_product_tax_id' => $orderProductTax->id,
+                            'order_product_id' => $orderProduct->id,
+                            'tax_id' => $taxId
+                        ]);
+                    } catch (\Exception $e) {
+                        \Log::error('Error saving tax', [
+                            'order_product_id' => $orderProduct->id,
+                            'tax_id' => $taxId,
+                            'error' => $e->getMessage()
+                        ]);
+                        throw $e;
+                    }
+
+                    // Save tax translations (EN and AR)
+                    if (!empty($taxData['name_en']) || !empty($taxData['name_ar'])) {
+                        if (!empty($taxData['name_en'])) {
+                            $orderProductTax->setTranslation('tax_title', 'en', $taxData['name_en']);
+                        }
+                        if (!empty($taxData['name_ar'])) {
+                            $orderProductTax->setTranslation('tax_title', 'ar', $taxData['name_ar']);
+                        }
+                        $orderProductTax->save();
+                    }
+                }
+            }
+            // Fallback for legacy single tax handling
+            elseif (!empty($product['tax_rate']) && $product['tax_rate'] > 0) {
+                $taxId = $product['tax_id'] ?? null;
+                
+                // Use updateOrCreate to avoid duplicate entry errors
+                $orderProductTax = OrderProductTax::updateOrCreate(
+                    [
+                        'order_product_id' => $orderProduct->id,
+                        'tax_id' => $taxId,
+                    ],
+                    [
+                        'percentage' => $product['tax_rate'] ?? 0,
+                        'amount' => $product['tax_amount'] ?? 0,
+                    ]
+                );
 
                 // Save tax translations (EN and AR)
                 if (!empty($product['tax_translations'])) {
@@ -180,25 +375,7 @@ class OrderRepository implements OrderRepositoryInterface
                 }
             }
 
-            // Create stock booking for this order product
-            if (!empty($product['vendor_product_variant_id'])) {
-                StockBooking::create([
-                    'order_id' => $order->id,
-                    'order_product_id' => $orderProduct->id,
-                    'vendor_product_variant_id' => $product['vendor_product_variant_id'],
-                    'region_id' => $order->region_id,
-                    'booked_quantity' => $product['quantity'],
-                    'status' => StockBooking::STATUS_BOOKED,
-                    'booked_at' => now(),
-                ]);
-
-                Log::info('Stock booked for order product', [
-                    'order_id' => $order->id,
-                    'order_product_id' => $orderProduct->id,
-                    'variant_id' => $product['vendor_product_variant_id'],
-                    'quantity' => $product['quantity'],
-                ]);
-            }
+            // Note: Stock booking is NOT created here - it will be created when order moves to 'in_progress' stage
         }
     }
 

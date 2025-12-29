@@ -290,11 +290,28 @@ return [
 
     // Order Products
     'vendor_order_products' => 'منتجات طلبات المورد',
+    'order_product_information' => 'معلومات منتج الطلب',
     'variant' => 'المتغير',
     'quantity' => 'الكمية',
     'unit_price' => 'سعر الوحدة',
+    'price_before_taxes' => 'السعر قبل الضريبة',
+    'taxes' => 'الضرائب',
     'total_price' => 'السعر الإجمالي',
     'no_order_products_found' => 'لا توجد منتجات طلبات لهذا المورد',
     'total_quantity_sold' => 'إجمالي الكمية المباعة',
     'total_order_products' => 'إجمالي منتجات الطلبات',
+
+    // Vendor Withdraws
+    'vendor_withdraws' => 'سحوبات المورد',
+    'withdraw_information' => 'معلومات السحب',
+    'balance_before' => 'الرصيد قبل',
+    'sent_amount' => 'المبلغ المرسل',
+    'balance_after' => 'الرصيد بعد',
+    'withdraw_status' => 'الحالة',
+    'invoice' => 'الفاتورة',
+    'sent_by' => 'أرسل بواسطة',
+    'no_withdraws_found' => 'لا توجد سحوبات لهذا المورد',
+    'accepted' => 'مقبول',
+    'rejected' => 'مرفوض',
+    'new' => 'جديد',
 ];

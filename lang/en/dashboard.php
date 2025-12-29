@@ -32,15 +32,15 @@ return [
     'withdraw_transactions' => 'Withdraw Transactions',
     'Total Delivered Transactions' => 'Total Delivered Transactions',
     'Bnaia Commission' => 'Bnaia Commission',
-    'Bnaia Credit Balance' => 'Bnaia Credit Balance',
+    'Bnaia Credit Balance' => "Remaining of Bnaia's Credits",
     "Vendor's Credit Balance" => "Vendor's Credit Balance",
 
     // Vendors Withdraw Transactions
     'vendors_withdraw_transactions' => 'Vendors Withdraw Transactions',
     'vendors_transactions_overview' => 'Vendors Transactions Overview',
-    'Total Needed From Bnaia To Vendors' => 'Total Needed From Bnaia To Vendors',
+    'Total Needed From Bnaia To Vendors' => 'Total Transactions',
     'Total Sent Money To Vendors' => 'Total Sent Money To Vendors',
-    "Total Vendor's Remaining" => "Total Vendor's Remaining",
+    "Total Vendor's Remaining" => "Total Remaining",
     'total_received_money' => 'Total Received Money',
     'credit_balance' => 'Credit Balance',
 

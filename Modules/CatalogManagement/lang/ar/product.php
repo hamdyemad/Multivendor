@@ -251,6 +251,7 @@ return [
     'booked' => 'محجوز',
     'remaining' => 'المتبقي',
     'total_stock' => 'إجمالي المخزون',
+    'remaining_stock' => 'المخزون المتبقي',
     'fulfilled_orders' => 'الطلبات المنفذة',
     'pending_orders' => 'الطلبات المعلقة (محجوزة)',
     'released_orders' => 'الطلبات الملغاة',
@@ -511,4 +512,9 @@ return [
     // Variant Removal
     'cannot_remove_last_variant' => 'لا يمكن إزالة المتغير الأخير. يجب أن يحتوي المنتج على متغير واحد على الأقل.',
     'save_after_remove_variant' => 'يرجى النقر على زر "تحديث المخزون والتسعير" لحفظ التغييرات بعد إزالة المتغير.',
+
+    // Tax Notice
+    'tax_notice' => 'معلومات الضريبة',
+    'tax_notice_description' => 'سيتم تطبيق الضرائب التالية تلقائياً على هذا المنتج عند إنشائه أو تحديثه:',
+    'current_product_taxes' => 'الضرائب الحالية للمنتج',
 ];

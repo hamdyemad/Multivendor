@@ -32,15 +32,15 @@ return [
     'withdraw_transactions' => 'معاملات السحب',
     'Total Delivered Transactions' => 'معاملات التسليم',
     'Bnaia Commission' => 'عمولة بنايا',
-    'Bnaia Credit Balance' => 'رصيد بنايا',
+    'Bnaia Credit Balance' => 'المتبقي من رصيد بنايا',
     "Vendor's Credit Balance" => "رصيد التجار",
 
     // Vendors Withdraw Transactions
     'vendors_withdraw_transactions' => 'معاملات سحب التجار',
     'vendors_transactions_overview' => 'نظرة عامة على معاملات التجار',
-    'Total Needed From Bnaia To Vendors' => 'إجمالي المطلوب من بنايا للتجار',
+    'Total Needed From Bnaia To Vendors' => 'إجمالي المعاملات',
     'Total Sent Money To Vendors' => 'إجمالي المبلغ المرسل للتجار',
-    "Total Vendor's Remaining" => "إجمالي المتبقي للتجار",
+    "Total Vendor's Remaining" => "إجمالي المتبقي",
     'total_received_money' => 'إجمالي المبلغ المستلم',
     'credit_balance' => 'الرصيد الدائن',
     "Total Expenses" => "إجمالي المصروفات",

@@ -36,17 +36,16 @@ class AccountingService
             $vendorNameEn = $vendor?->getTranslation('name', 'en') ?? $vendor?->name ?? 'Unknown';
             $vendorNameAr = $vendor?->getTranslation('name', 'ar') ?? $vendor?->name ?? 'غير معروف';
 
-            foreach ($products as $product) {
-                $productTotal = $product->price * $product->quantity;
-                $vendorTotal += $productTotal;
-                
-                // Get commission rate from product's department
-                $commissionRate = $product->vendorProduct?->product?->department?->commission ?? 0;
-                $totalCommissionAmount += $productTotal * ($commissionRate / 100);
-            }
+            $vendorTotal = $products->sum(function($product) {
+                return $product->price * $product->quantity;
+            });
+
+            $totalCommissionAmount = $products->sum(function($product) {
+                return $product->commission * $product->quantity;
+            });
 
             $vendorAmount = $vendorTotal - $totalCommissionAmount;
-            
+
             // Calculate average commission rate for display
             $avgCommissionRate = $vendorTotal > 0 ? ($totalCommissionAmount / $vendorTotal) * 100 : 0;
 
@@ -127,13 +126,6 @@ class AccountingService
     {
         $balance = VendorBalance::firstOrCreate(['vendor_id' => $vendorId]);
         $balance->updateBalance($earnings, $commission);
-    }
-
-    private function getCommissionRate($vendorId)
-    {
-        // This method is kept for backward compatibility
-        // Commission is now calculated per product from department
-        return 0;
     }
 
     public function getAccountingSummary($filters = [])

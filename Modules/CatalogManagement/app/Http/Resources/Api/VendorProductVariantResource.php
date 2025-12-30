@@ -51,11 +51,8 @@ class VendorProductVariantResource extends JsonResource
             'variant_value' => $this->variantConfiguration ? 
                 ($this->variantConfiguration->getTranslation('name', $locale) ?? ($this->variantConfiguration->name ?? $this->variantConfiguration->value)) : '',
             'configuration' => $configuration,
-            'vendor_name' => $this->vendorProduct && $this->vendorProduct->vendor ? 
-                $this->vendorProduct->vendor->name : 'N/A',
-            'vendor_product' => $this->whenLoaded('vendorProduct', function() {
-                return new VendorProductResource($this->vendorProduct);
-            }),
+            'vendor_name' => $this->relationLoaded('vendorProduct') && $this->vendorProduct ? 
+                ($this->vendorProduct->relationLoaded('vendor') && $this->vendorProduct->vendor ? $this->vendorProduct->vendor->name : null) : null,
             'real_price' => $this->formatPrice((float) $this->price),
             'fake_price' => $this->price_before_discount ? $this->formatPrice((float) $this->price_before_discount) : null,
             'discount' => $this->discount,

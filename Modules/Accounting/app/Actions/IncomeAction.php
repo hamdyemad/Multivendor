@@ -25,6 +25,13 @@ class IncomeAction
         $dataPaginated = $this->incomeService->getAllIncomeEntries($filters, $perPage, $page, $orderDirection);
 
         $formattedData = $dataPaginated->map(function ($entry) {
+            $description = $entry->description ?? '';
+            // Check if description is JSON with translations
+            $decodedDesc = json_decode($description, true);
+            if (is_array($decodedDesc) && isset($decodedDesc[app()->getLocale()])) {
+                $description = $decodedDesc[app()->getLocale()];
+            }
+            
             return [
                 'id' => $entry->id,
                 'order_number' => $entry->order->order_number ?? 'N/A',
@@ -32,7 +39,7 @@ class IncomeAction
                 'amount' => number_format($entry->amount, 2) . ' ' . currency(),
                 'commission_amount' => number_format($entry->commission_amount ?? 0, 2) . ' ' . currency(),
                 'vendor_amount' => number_format($entry->vendor_amount ?? 0, 2) . ' ' . currency(),
-                'description' => $entry->description ?? '',
+                'description' => $description,
                 'created_at' => $entry->created_at,
             ];
         });

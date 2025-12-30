@@ -31,15 +31,33 @@ class SummaryRepository implements SummaryRepositoryInterface
         $monthlyData = $this->getMonthlyData($filters);
         $expenseCategories = $this->getExpenseCategories($filters);
         
+        // Get total withdraws (accepted)
+        $totalWithdraws = $this->getTotalWithdraws($filters);
+        
         return [
             'total_income' => (clone $query)->income()->sum('amount'),
             'total_expenses' => $expenseQuery->sum('amount'),
             'total_commissions' => (clone $query)->income()->sum('commission_amount'),
             'total_refunds' => abs((clone $query)->refund()->sum('amount')),
+            'total_withdraws' => $totalWithdraws,
             'net_profit' => (clone $query)->income()->sum('amount') - $expenseQuery->sum('amount'),
             'monthly_data' => $monthlyData,
             'expense_categories' => $expenseCategories
         ];
+    }
+    
+    private function getTotalWithdraws(array $filters = []): float
+    {
+        $query = \Modules\Withdraw\app\Models\Withdraw::where('status', 'accepted');
+        
+        if (!empty($filters['date_from'])) {
+            $query->whereDate('created_at', '>=', $filters['date_from']);
+        }
+        if (!empty($filters['date_to'])) {
+            $query->whereDate('created_at', '<=', $filters['date_to']);
+        }
+        
+        return $query->sum('sent_amount');
     }
     
     private function getMonthlyData(array $filters = []): array
@@ -58,6 +76,10 @@ class SummaryRepository implements SummaryRepositoryInterface
             // Expenses for this month  
             $expenseQuery = Expense::whereBetween('created_at', [$startDate, $endDate]);
             
+            // Withdraws for this month (accepted only)
+            $withdrawQuery = \Modules\Withdraw\app\Models\Withdraw::where('status', 'accepted')
+                ->whereBetween('created_at', [$startDate, $endDate]);
+            
             // Apply additional filters if provided
             if (!empty($filters['date_from']) && !empty($filters['date_to'])) {
                 $filterStart = Carbon::parse($filters['date_from']);
@@ -68,7 +90,8 @@ class SummaryRepository implements SummaryRepositoryInterface
                     $monthlyData[$month] = [
                         'income' => 0,
                         'expenses' => 0,
-                        'commissions' => 0
+                        'commissions' => 0,
+                        'withdraws' => 0
                     ];
                     continue;
                 }
@@ -79,12 +102,14 @@ class SummaryRepository implements SummaryRepositoryInterface
                 
                 $incomeQuery->whereBetween('created_at', [$startDate, $endDate]);
                 $expenseQuery->whereBetween('created_at', [$startDate, $endDate]);
+                $withdrawQuery->whereBetween('created_at', [$startDate, $endDate]);
             }
             
             $monthlyData[$month] = [
                 'income' => $incomeQuery->sum('amount'),
                 'expenses' => $expenseQuery->sum('amount'),
-                'commissions' => (clone $incomeQuery)->sum('commission_amount')
+                'commissions' => (clone $incomeQuery)->sum('commission_amount'),
+                'withdraws' => $withdrawQuery->sum('sent_amount')
             ];
         }
         

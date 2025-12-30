@@ -138,4 +138,7 @@ return [
     'total_commissions' => 'Total Commissions',
     'total_income' => 'Total Income',
     'total_expenses' => 'Total Expenses',
+    'order_delivered_description' => 'Order #:order_number delivered - Vendor: :vendor_name',
+    'order_refunded_description' => 'Order #:order_number refunded - Vendor: :vendor_name',
+    'withdraws' => 'Withdraws',
 ];

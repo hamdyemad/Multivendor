@@ -1,8 +1,8 @@
-@extends('layout.app')
 
-@section('title', __('accounting.accounting_summary'))
 
-@push('styles')
+<?php $__env->startSection('title', __('accounting.accounting_summary')); ?>
+
+<?php $__env->startPush('styles'); ?>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <style>
         .vendor-logos {
@@ -95,9 +95,9 @@
             box-shadow: 0 2px 8px rgba(0,123,255,0.3);
         }
     </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <style>
         .ap-po-details__titlebar h1 {
             font-weight: bold;
@@ -159,54 +159,58 @@
                         <div class="breadcrumb-action justify-content-center flex-wrap">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb">
-                                    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i
-                                                class="uil uil-estate"></i>{{ __('accounting.dashboard') }}</a></li>
-                                    <li class="breadcrumb-item active">{{ __('accounting.accounting_summary') }}</li>
+                                    <li class="breadcrumb-item"><a href="<?php echo e(route('admin.dashboard')); ?>"><i
+                                                class="uil uil-estate"></i><?php echo e(__('accounting.dashboard')); ?></a></li>
+                                    <li class="breadcrumb-item active"><?php echo e(__('accounting.accounting_summary')); ?></li>
                                 </ol>
                             </nav>
                         </div>
                     </div>
                 </div>
 
-                {{-- Main Stats Cards --}}
+                
                 <div class="col-12">
-                    {{-- Filters --}}
+                    
                     <div class="mb-25">
                         <div class="card border-0 shadow-sm">
                             <div class="card-body">
                                 <div class="row g-3 align-items-end">
-                                    {{-- From Date --}}
+                                    
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="date_from" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-calendar-alt me-1"></i> {{ __('accounting.date_from') }}
+                                                <i class="uil uil-calendar-alt me-1"></i> <?php echo e(__('accounting.date_from')); ?>
+
                                             </label>
                                             <input type="date"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                id="date_from" name="date_from" value="{{ request('date_from') }}">
+                                                id="date_from" name="date_from" value="<?php echo e(request('date_from')); ?>">
                                         </div>
                                     </div>
 
-                                    {{-- To Date --}}
+                                    
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="date_to" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-calendar-alt me-1"></i> {{ __('accounting.date_to') }}
+                                                <i class="uil uil-calendar-alt me-1"></i> <?php echo e(__('accounting.date_to')); ?>
+
                                             </label>
                                             <input type="date"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
-                                                id="date_to" name="date_to" value="{{ request('date_to') }}">
+                                                id="date_to" name="date_to" value="<?php echo e(request('date_to')); ?>">
                                         </div>
                                     </div>
 
                                     <div class="col-md-12 d-flex align-items-center">
                                         <button type="button" id="filterBtn"
                                             class="btn btn-success btn-default btn-squared me-1">
-                                            <i class="uil uil-filter me-1"></i> {{ __('accounting.filter') }}
+                                            <i class="uil uil-filter me-1"></i> <?php echo e(__('accounting.filter')); ?>
+
                                         </button>
                                         <button type="button" id="resetBtn"
                                             class="btn btn-warning btn-default btn-squared">
-                                            <i class="uil uil-redo me-1"></i> {{ __('accounting.reset') }}
+                                            <i class="uil uil-redo me-1"></i> <?php echo e(__('accounting.reset')); ?>
+
                                         </button>
                                     </div>
                                 </div>
@@ -215,15 +219,16 @@
                     </div>
 
                     <div class="row">
-                        {{-- Total Income --}}
+                        
                         <div class="col-12 col-md-3 mb-25">
                             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                                 <div class="overview-content w-100">
                                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                         <div class="ap-po-details__titlebar">
-                                            <h1 id="total-income">{{ number_format($summary['total_income'], 2) }}
-                                                {{ currency() }}</h1>
-                                            <p>{{ __('accounting.total_income') }}</p>
+                                            <h1 id="total-income"><?php echo e(number_format($summary['total_income'], 2)); ?>
+
+                                                <?php echo e(currency()); ?></h1>
+                                            <p><?php echo e(__('accounting.total_income')); ?></p>
                                         </div>
                                         <div class="ap-po-details__icon-area">
                                             <div class="svg-icon order-bg-opacity-primary color-primary">
@@ -235,15 +240,16 @@
                             </div>
                         </div>
 
-                        {{-- Total Expenses --}}
+                        
                         <div class="col-12 col-md-3 mb-25">
                             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                                 <div class="overview-content w-100">
                                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                         <div class="ap-po-details__titlebar">
-                                            <h1 id="total-expenses">{{ number_format($summary['total_expenses'], 2) }}
-                                                {{ currency() }}</h1>
-                                            <p>{{ __('accounting.total_expenses') }}</p>
+                                            <h1 id="total-expenses"><?php echo e(number_format($summary['total_expenses'], 2)); ?>
+
+                                                <?php echo e(currency()); ?></h1>
+                                            <p><?php echo e(__('accounting.total_expenses')); ?></p>
                                         </div>
                                         <div class="ap-po-details__icon-area">
                                             <div class="svg-icon order-bg-opacity-danger color-danger">
@@ -255,16 +261,17 @@
                             </div>
                         </div>
 
-                        {{-- Total Commissions --}}
+                        
                         <div class="col-12 col-md-3 mb-25">
                             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                                 <div class="overview-content w-100">
                                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                         <div class="ap-po-details__titlebar">
                                             <h1 id="total-commissions">
-                                                {{ number_format($summary['total_commissions'], 2) }} {{ currency() }}
+                                                <?php echo e(number_format($summary['total_commissions'], 2)); ?> <?php echo e(currency()); ?>
+
                                             </h1>
-                                            <p>{{ __('accounting.total_commissions') }}</p>
+                                            <p><?php echo e(__('accounting.total_commissions')); ?></p>
                                         </div>
                                         <div class="ap-po-details__icon-area">
                                             <div class="svg-icon order-bg-opacity-info color-info">
@@ -276,15 +283,16 @@
                             </div>
                         </div>
 
-                        {{-- Net Profit --}}
+                        
                         <div class="col-12 col-md-3 mb-25">
                             <div class="ap-po-details ap-po-details--2 p-25 radius-xl d-flex justify-content-between">
                                 <div class="overview-content w-100">
                                     <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                         <div class="ap-po-details__titlebar">
-                                            <h1 id="net-profit">{{ number_format($summary['net_profit'], 2) }}
-                                                {{ currency() }}</h1>
-                                            <p>{{ __('accounting.net_profit') }}</p>
+                                            <h1 id="net-profit"><?php echo e(number_format($summary['net_profit'], 2)); ?>
+
+                                                <?php echo e(currency()); ?></h1>
+                                            <p><?php echo e(__('accounting.net_profit')); ?></p>
                                         </div>
                                         <div class="ap-po-details__icon-area">
                                             <div class="svg-icon order-bg-opacity-success color-success">
@@ -298,22 +306,22 @@
                     </div>
                 </div>
 
-                {{-- Monthly Breakdown Chart - Last Section --}}
+                
                 <div class="col-lg-12">
                     <div class="chart-container">
-                        <h5 class="mb-4">{{ __('accounting.monthly_breakdown') }}</h5>
+                        <h5 class="mb-4"><?php echo e(__('accounting.monthly_breakdown')); ?></h5>
                         <canvas id="monthlyChart" style="max-height: 400px;"></canvas>
                     </div>
                 </div>
 
-                {{-- Detailed Analysis Tabs --}}
+                
                 <div class="col-lg-12">
                     <div class="chart-container">
                         <div class="custom-tab-headers">
-                            <a class="custom-tab-header active" data-bs-toggle="tab" href="#income_expense">{{ __('accounting.income_expense') }}</a>
-                            <a class="custom-tab-header" data-bs-toggle="tab" href="#cost_analysis">{{ __('accounting.cost_analysis') }}</a>
-                            <a class="custom-tab-header" data-bs-toggle="tab" href="#cash_flow">{{ __('accounting.cash_flow') }}</a>
-                            <a class="custom-tab-header" data-bs-toggle="tab" href="#orders">{{ __('accounting.orders') }}</a>
+                            <a class="custom-tab-header active" data-bs-toggle="tab" href="#income_expense"><?php echo e(__('accounting.income_expense')); ?></a>
+                            <a class="custom-tab-header" data-bs-toggle="tab" href="#cost_analysis"><?php echo e(__('accounting.cost_analysis')); ?></a>
+                            <a class="custom-tab-header" data-bs-toggle="tab" href="#cash_flow"><?php echo e(__('accounting.cash_flow')); ?></a>
+                            <a class="custom-tab-header" data-bs-toggle="tab" href="#orders"><?php echo e(__('accounting.orders')); ?></a>
                         </div>
 
                         <div class="tab-content p-0">
@@ -322,70 +330,80 @@
                                     <table class="table mb-0 table-bordered table-hover" style="width:100%">
                                         <thead>
                                             <tr class="userDatatable-header">
-                                                <th><span class="userDatatable-title">{{ __('accounting.category') }}</span></th>
-                                                @foreach($monthHeaders as $month)
-                                                    <th class="text-center"><span class="userDatatable-title">{{ $month['name'] }}</span></th>
-                                                @endforeach
-                                                <th class="text-center"><span class="userDatatable-title">{{ __('accounting.total') }}</span></th>
+                                                <th><span class="userDatatable-title"><?php echo e(__('accounting.category')); ?></span></th>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $monthHeaders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $month): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <th class="text-center"><span class="userDatatable-title"><?php echo e($month['name']); ?></span></th>
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                <th class="text-center"><span class="userDatatable-title"><?php echo e(__('accounting.total')); ?></span></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td class="fw-bold">{{ __('accounting.income') }}</td>
-                                                @foreach($monthHeaders as $month)
+                                                <td class="fw-bold"><?php echo e(__('accounting.income')); ?></td>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $monthHeaders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $month): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                     <td class="text-center text-success">
-                                                        {{ number_format($summary['monthly_data'][$month['key']]['income'] ?? 0, 2) }} {{ currency() }}
+                                                        <?php echo e(number_format($summary['monthly_data'][$month['key']]['income'] ?? 0, 2)); ?> <?php echo e(currency()); ?>
+
                                                     </td>
-                                                @endforeach
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                 <td class="text-center text-success fw-bold">
-                                                    {{ number_format($summary['total_income'], 2) }} {{ currency() }}
+                                                    <?php echo e(number_format($summary['total_income'], 2)); ?> <?php echo e(currency()); ?>
+
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold">{{ __('accounting.commissions') }}</td>
-                                                @foreach($monthHeaders as $month)
+                                                <td class="fw-bold"><?php echo e(__('accounting.commissions')); ?></td>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $monthHeaders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $month): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                     <td class="text-center text-info">
-                                                        {{ number_format($summary['monthly_data'][$month['key']]['commissions'] ?? 0, 2) }} {{ currency() }}
+                                                        <?php echo e(number_format($summary['monthly_data'][$month['key']]['commissions'] ?? 0, 2)); ?> <?php echo e(currency()); ?>
+
                                                     </td>
-                                                @endforeach
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                 <td class="text-center text-info fw-bold">
-                                                    {{ number_format($summary['total_commissions'], 2) }} {{ currency() }}
+                                                    <?php echo e(number_format($summary['total_commissions'], 2)); ?> <?php echo e(currency()); ?>
+
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold">{{ __('accounting.expenses') }}</td>
-                                                @foreach($monthHeaders as $month)
+                                                <td class="fw-bold"><?php echo e(__('accounting.expenses')); ?></td>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $monthHeaders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $month): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                     <td class="text-center text-danger">
-                                                        {{ number_format($summary['monthly_data'][$month['key']]['expenses'] ?? 0, 2) }} {{ currency() }}
+                                                        <?php echo e(number_format($summary['monthly_data'][$month['key']]['expenses'] ?? 0, 2)); ?> <?php echo e(currency()); ?>
+
                                                     </td>
-                                                @endforeach
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                 <td class="text-center text-danger fw-bold">
-                                                    {{ number_format($summary['total_expenses'], 2) }} {{ currency() }}
+                                                    <?php echo e(number_format($summary['total_expenses'], 2)); ?> <?php echo e(currency()); ?>
+
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold">{{ __('accounting.withdraws') }}</td>
-                                                @foreach($monthHeaders as $month)
+                                                <td class="fw-bold"><?php echo e(__('accounting.withdraws')); ?></td>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $monthHeaders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $month): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                     <td class="text-center text-warning">
-                                                        {{ number_format($summary['monthly_data'][$month['key']]['withdraws'] ?? 0, 2) }} {{ currency() }}
+                                                        <?php echo e(number_format($summary['monthly_data'][$month['key']]['withdraws'] ?? 0, 2)); ?> <?php echo e(currency()); ?>
+
                                                     </td>
-                                                @endforeach
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                 <td class="text-center text-warning fw-bold">
-                                                    {{ number_format($summary['total_withdraws'] ?? 0, 2) }} {{ currency() }}
+                                                    <?php echo e(number_format($summary['total_withdraws'] ?? 0, 2)); ?> <?php echo e(currency()); ?>
+
                                                 </td>
                                             </tr>
                                             <tr class="table-info">
-                                                <td class="fw-bold">{{ __('accounting.net_profit') }}</td>
-                                                @foreach($monthHeaders as $month)
-                                                    @php
+                                                <td class="fw-bold"><?php echo e(__('accounting.net_profit')); ?></td>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $monthHeaders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $month): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <?php
                                                         $monthProfit = ($summary['monthly_data'][$month['key']]['income'] ?? 0) + ($summary['monthly_data'][$month['key']]['commissions'] ?? 0) - ($summary['monthly_data'][$month['key']]['expenses'] ?? 0);
-                                                    @endphp
-                                                    <td class="text-center fw-bold {{ $monthProfit >= 0 ? 'text-success' : 'text-danger' }}">
-                                                        {{ number_format($monthProfit, 2) }} {{ currency() }}
+                                                    ?>
+                                                    <td class="text-center fw-bold <?php echo e($monthProfit >= 0 ? 'text-success' : 'text-danger'); ?>">
+                                                        <?php echo e(number_format($monthProfit, 2)); ?> <?php echo e(currency()); ?>
+
                                                     </td>
-                                                @endforeach
-                                                <td class="text-center fw-bold {{ ($summary['net_profit'] + $summary['total_commissions']) >= 0 ? 'text-success' : 'text-danger' }}">
-                                                    {{ number_format($summary['net_profit'] + $summary['total_commissions'], 2) }} {{ currency() }}
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                <td class="text-center fw-bold <?php echo e(($summary['net_profit'] + $summary['total_commissions']) >= 0 ? 'text-success' : 'text-danger'); ?>">
+                                                    <?php echo e(number_format($summary['net_profit'] + $summary['total_commissions'], 2)); ?> <?php echo e(currency()); ?>
+
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -398,33 +416,35 @@
                                     <table class="table mb-0 table-bordered table-hover" style="width:100%">
                                         <thead>
                                             <tr class="userDatatable-header">
-                                                <th><span class="userDatatable-title">{{ __('accounting.expense_category') }}</span></th>
-                                                @foreach($monthHeaders as $month)
-                                                    <th class="text-center"><span class="userDatatable-title">{{ $month['name'] }}</span></th>
-                                                @endforeach
-                                                <th class="text-center"><span class="userDatatable-title">{{ __('accounting.total') }}</span></th>
+                                                <th><span class="userDatatable-title"><?php echo e(__('accounting.expense_category')); ?></span></th>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $monthHeaders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $month): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <th class="text-center"><span class="userDatatable-title"><?php echo e($month['name']); ?></span></th>
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                <th class="text-center"><span class="userDatatable-title"><?php echo e(__('accounting.total')); ?></span></th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @if(isset($summary['expense_categories']))
-                                                @foreach($summary['expense_categories'] as $category)
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($summary['expense_categories'])): ?>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $summary['expense_categories']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                     <tr>
-                                                        <td class="fw-bold">{{ $category['name'] }}</td>
-                                                        @foreach($monthHeaders as $month)
+                                                        <td class="fw-bold"><?php echo e($category['name']); ?></td>
+                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $monthHeaders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $month): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                             <td class="text-center">
-                                                                {{ number_format($category['monthly'][$month['key']] ?? 0, 2) }} {{ currency() }}
+                                                                <?php echo e(number_format($category['monthly'][$month['key']] ?? 0, 2)); ?> <?php echo e(currency()); ?>
+
                                                             </td>
-                                                        @endforeach
+                                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                         <td class="text-center fw-bold">
-                                                            {{ number_format(array_sum($category['monthly']), 2) }} {{ currency() }}
+                                                            <?php echo e(number_format(array_sum($category['monthly']), 2)); ?> <?php echo e(currency()); ?>
+
                                                         </td>
                                                     </tr>
-                                                @endforeach
-                                            @else
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                            <?php else: ?>
                                                 <tr>
-                                                    <td colspan="{{ count($monthHeaders) + 2 }}" class="text-center">{{ __('accounting.no_expense_data') }}</td>
+                                                    <td colspan="<?php echo e(count($monthHeaders) + 2); ?>" class="text-center"><?php echo e(__('accounting.no_expense_data')); ?></td>
                                                 </tr>
-                                            @endif
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -435,48 +455,54 @@
                                     <table class="table mb-0 table-bordered table-hover" style="width:100%">
                                         <thead>
                                             <tr class="userDatatable-header">
-                                                <th><span class="userDatatable-title">{{ __('accounting.source') }}</span></th>
-                                                @foreach($monthHeaders as $month)
-                                                    <th class="text-center"><span class="userDatatable-title">{{ $month['name'] }}</span></th>
-                                                @endforeach
-                                                <th class="text-center"><span class="userDatatable-title">{{ __('accounting.total') }}</span></th>
+                                                <th><span class="userDatatable-title"><?php echo e(__('accounting.source')); ?></span></th>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $monthHeaders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $month): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <th class="text-center"><span class="userDatatable-title"><?php echo e($month['name']); ?></span></th>
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                <th class="text-center"><span class="userDatatable-title"><?php echo e(__('accounting.total')); ?></span></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td class="fw-bold text-success">{{ __('accounting.sales_revenue') }}</td>
-                                                @foreach($monthHeaders as $month)
+                                                <td class="fw-bold text-success"><?php echo e(__('accounting.sales_revenue')); ?></td>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $monthHeaders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $month): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                     <td class="text-center text-success">
-                                                        {{ number_format($summary['monthly_data'][$month['key']]['income'] ?? 0, 2) }} {{ currency() }}
+                                                        <?php echo e(number_format($summary['monthly_data'][$month['key']]['income'] ?? 0, 2)); ?> <?php echo e(currency()); ?>
+
                                                     </td>
-                                                @endforeach
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                 <td class="text-center text-success fw-bold">
-                                                    {{ number_format($summary['total_income'], 2) }} {{ currency() }}
+                                                    <?php echo e(number_format($summary['total_income'], 2)); ?> <?php echo e(currency()); ?>
+
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold text-danger">{{ __('accounting.operating_expenses') }}</td>
-                                                @foreach($monthHeaders as $month)
+                                                <td class="fw-bold text-danger"><?php echo e(__('accounting.operating_expenses')); ?></td>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $monthHeaders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $month): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                     <td class="text-center text-danger">
-                                                        -{{ number_format($summary['monthly_data'][$month['key']]['expenses'] ?? 0, 2) }} {{ currency() }}
+                                                        -<?php echo e(number_format($summary['monthly_data'][$month['key']]['expenses'] ?? 0, 2)); ?> <?php echo e(currency()); ?>
+
                                                     </td>
-                                                @endforeach
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                 <td class="text-center text-danger fw-bold">
-                                                    -{{ number_format($summary['total_expenses'], 2) }} {{ currency() }}
+                                                    -<?php echo e(number_format($summary['total_expenses'], 2)); ?> <?php echo e(currency()); ?>
+
                                                 </td>
                                             </tr>
                                             <tr class="table-info">
-                                                <td class="fw-bold">{{ __('accounting.net_flow') }}</td>
-                                                @foreach($monthHeaders as $month)
-                                                    @php
+                                                <td class="fw-bold"><?php echo e(__('accounting.net_flow')); ?></td>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $monthHeaders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $month): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <?php
                                                         $monthFlow = ($summary['monthly_data'][$month['key']]['income'] ?? 0) - ($summary['monthly_data'][$month['key']]['expenses'] ?? 0);
-                                                    @endphp
-                                                    <td class="text-center fw-bold {{ $monthFlow >= 0 ? 'text-success' : 'text-danger' }}">
-                                                        {{ number_format($monthFlow, 2) }} {{ currency() }}
+                                                    ?>
+                                                    <td class="text-center fw-bold <?php echo e($monthFlow >= 0 ? 'text-success' : 'text-danger'); ?>">
+                                                        <?php echo e(number_format($monthFlow, 2)); ?> <?php echo e(currency()); ?>
+
                                                     </td>
-                                                @endforeach
-                                                <td class="text-center fw-bold {{ $summary['net_profit'] >= 0 ? 'text-success' : 'text-danger' }}">
-                                                    {{ number_format($summary['net_profit'], 2) }} {{ currency() }}
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                                <td class="text-center fw-bold <?php echo e($summary['net_profit'] >= 0 ? 'text-success' : 'text-danger'); ?>">
+                                                    <?php echo e(number_format($summary['net_profit'], 2)); ?> <?php echo e(currency()); ?>
+
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -487,7 +513,7 @@
                             <div class="tab-pane fade" id="orders">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <div class="d-flex align-items-center">
-                                        <label class="me-2 mb-0">{{ __('common.show') }}</label>
+                                        <label class="me-2 mb-0"><?php echo e(__('common.show')); ?></label>
                                         <select id="ordersEntriesSelect" class="form-select form-select-sm"
                                             style="width: auto;">
                                             <option value="10">10</option>
@@ -495,7 +521,7 @@
                                             <option value="50">50</option>
                                             <option value="100">100</option>
                                         </select>
-                                        <label class="ms-2 mb-0">{{ __('common.entries') }}</label>
+                                        <label class="ms-2 mb-0"><?php echo e(__('common.entries')); ?></label>
                                     </div>
                                 </div>
 
@@ -506,23 +532,23 @@
                                             <tr class="userDatatable-header">
                                                 <th class="text-center"><span class="userDatatable-title">#</span></th>
                                                 <th><span
-                                                        class="userDatatable-title">{{ trans('order::order.order_information') }}</span>
+                                                        class="userDatatable-title"><?php echo e(trans('order::order.order_information')); ?></span>
                                                 </th>
-                                                @if (isAdmin())
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isAdmin()): ?>
                                                     <th><span
-                                                            class="userDatatable-title">{{ trans('order::order.vendor') }}</span>
+                                                            class="userDatatable-title"><?php echo e(trans('order::order.vendor')); ?></span>
                                                     </th>
-                                                @endif
+                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                 <th><span
-                                                        class="userDatatable-title">{{ trans('order::order.total_price') }}</span>
+                                                        class="userDatatable-title"><?php echo e(trans('order::order.total_price')); ?></span>
                                                 </th>
                                                 <th><span
-                                                        class="userDatatable-title">{{ trans('order::order.stage') }}</span>
+                                                        class="userDatatable-title"><?php echo e(trans('order::order.stage')); ?></span>
                                                 </th>
                                                 <th><span
-                                                        class="userDatatable-title">{{ trans('order::order.created_at') }}</span>
+                                                        class="userDatatable-title"><?php echo e(trans('order::order.created_at')); ?></span>
                                                 </th>
-                                                <th><span class="userDatatable-title">{{ __('common.actions') }}</span>
+                                                <th><span class="userDatatable-title"><?php echo e(__('common.actions')); ?></span>
                                                 </th>
                                             </tr>
                                         </thead>
@@ -534,77 +560,82 @@
                     </div>
                 </div>
 
-                {{-- Existing Detailed Metrics Section --}}
+                
                 <div class="col-lg-8">
                     <div class="chart-container">
-                        <h5 class="mb-4">{{ __('accounting.financial_breakdown') }}</h5>
+                        <h5 class="mb-4"><?php echo e(__('accounting.financial_breakdown')); ?></h5>
 
                         <div class="metric-item">
-                            <span class="metric-label">{{ __('accounting.gross_revenue') }}</span>
+                            <span class="metric-label"><?php echo e(__('accounting.gross_revenue')); ?></span>
                             <span class="metric-value positive"
-                                id="gross-revenue">{{ number_format($summary['total_income'], 2) }}
-                                {{ currency() }}</span>
+                                id="gross-revenue"><?php echo e(number_format($summary['total_income'], 2)); ?>
+
+                                <?php echo e(currency()); ?></span>
                         </div>
 
                         <div class="metric-item">
-                            <span class="metric-label">{{ __('accounting.operating_expenses') }}</span>
+                            <span class="metric-label"><?php echo e(__('accounting.operating_expenses')); ?></span>
                             <span class="metric-value negative"
-                                id="operating-expenses">{{ number_format($summary['total_expenses'], 2) }}
-                                {{ currency() }}</span>
+                                id="operating-expenses"><?php echo e(number_format($summary['total_expenses'], 2)); ?>
+
+                                <?php echo e(currency()); ?></span>
                         </div>
 
                         <div class="metric-item">
-                            <span class="metric-label">{{ __('accounting.commission_earned') }}</span>
+                            <span class="metric-label"><?php echo e(__('accounting.commission_earned')); ?></span>
                             <span class="metric-value positive"
-                                id="commission-earned">{{ number_format($summary['total_commissions'], 2) }}
-                                {{ currency() }}</span>
+                                id="commission-earned"><?php echo e(number_format($summary['total_commissions'], 2)); ?>
+
+                                <?php echo e(currency()); ?></span>
                         </div>
 
                         <div class="metric-item">
-                            <span class="metric-label">{{ __('accounting.vendor_payouts') }}</span>
+                            <span class="metric-label"><?php echo e(__('accounting.vendor_payouts')); ?></span>
                             <span class="metric-value neutral"
-                                id="vendor-payouts">{{ number_format($summary['total_income'] - $summary['total_commissions'], 2) }}
-                                {{ currency() }}</span>
+                                id="vendor-payouts"><?php echo e(number_format($summary['total_income'] - $summary['total_commissions'], 2)); ?>
+
+                                <?php echo e(currency()); ?></span>
                         </div>
 
                         <div class="metric-item">
-                            <span class="metric-label">{{ __('accounting.profit_margin') }}</span>
+                            <span class="metric-label"><?php echo e(__('accounting.profit_margin')); ?></span>
                             <span
-                                class="metric-value {{ $summary['total_income'] > 0 ? ($summary['net_profit'] > 0 ? 'positive' : 'negative') : 'neutral' }}"
+                                class="metric-value <?php echo e($summary['total_income'] > 0 ? ($summary['net_profit'] > 0 ? 'positive' : 'negative') : 'neutral'); ?>"
                                 id="profit-margin">
-                                {{ $summary['total_income'] > 0 ? number_format(($summary['net_profit'] / $summary['total_income']) * 100, 1) : '0.0' }}%
+                                <?php echo e($summary['total_income'] > 0 ? number_format(($summary['net_profit'] / $summary['total_income']) * 100, 1) : '0.0'); ?>%
                             </span>
                         </div>
                     </div>
                 </div>
 
-                {{-- Quick Stats --}}
+                
                 <div class="col-lg-4">
                     <div class="chart-container">
-                        <h5 class="mb-4">{{ __('accounting.quick_insights') }}</h5>
+                        <h5 class="mb-4"><?php echo e(__('accounting.quick_insights')); ?></h5>
 
                         <div class="text-center mb-4">
                             <div
-                                class="display-6 fw-bold {{ $summary['total_refunds'] > 0 ? 'text-warning' : 'text-success' }}">
-                                {{ number_format($summary['total_refunds'], 2) }} {{ currency() }}
+                                class="display-6 fw-bold <?php echo e($summary['total_refunds'] > 0 ? 'text-warning' : 'text-success'); ?>">
+                                <?php echo e(number_format($summary['total_refunds'], 2)); ?> <?php echo e(currency()); ?>
+
                             </div>
-                            <small class="text-muted">{{ __('accounting.total_refunds') }}</small>
+                            <small class="text-muted"><?php echo e(__('accounting.total_refunds')); ?></small>
                         </div>
 
                         <div class="row text-center">
                             <div class="col-6">
                                 <div class="border-end">
                                     <div class="h4 mb-1 text-primary">
-                                        {{ $summary['total_income'] > 0 ? number_format(($summary['total_commissions'] / $summary['total_income']) * 100, 1) : '0.0' }}%
+                                        <?php echo e($summary['total_income'] > 0 ? number_format(($summary['total_commissions'] / $summary['total_income']) * 100, 1) : '0.0'); ?>%
                                     </div>
-                                    <small class="text-muted">{{ __('accounting.avg_commission_rate') }}</small>
+                                    <small class="text-muted"><?php echo e(__('accounting.avg_commission_rate')); ?></small>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="h4 mb-1 text-info">
-                                    {{ $summary['total_expenses'] > 0 ? number_format(($summary['total_expenses'] / ($summary['total_income'] ?: 1)) * 100, 1) : '0.0' }}%
+                                    <?php echo e($summary['total_expenses'] > 0 ? number_format(($summary['total_expenses'] / ($summary['total_income'] ?: 1)) * 100, 1) : '0.0'); ?>%
                                 </div>
-                                <small class="text-muted">{{ __('accounting.expense_ratio') }}</small>
+                                <small class="text-muted"><?php echo e(__('accounting.expense_ratio')); ?></small>
                             </div>
                         </div>
                     </div>
@@ -669,7 +700,7 @@
 
             // Monthly Breakdown Chart
             const ctx = document.getElementById('monthlyChart').getContext('2d');
-            const monthlyData = @json($summary['monthly_data'] ?? []);
+            const monthlyData = <?php echo json_encode($summary['monthly_data'] ?? [], 15, 512) ?>;
 
             const months = [];
             const incomeData = [];
@@ -692,25 +723,25 @@
                 data: {
                     labels: months,
                     datasets: [{
-                        label: '{{ __('accounting.income') }}',
+                        label: '<?php echo e(__('accounting.income')); ?>',
                         data: incomeData,
                         borderColor: '#28a745',
                         backgroundColor: 'rgba(40, 167, 69, 0.1)',
                         tension: 0.4
                     }, {
-                        label: '{{ __('accounting.expenses') }}',
+                        label: '<?php echo e(__('accounting.expenses')); ?>',
                         data: expenseData,
                         borderColor: '#dc3545',
                         backgroundColor: 'rgba(220, 53, 69, 0.1)',
                         tension: 0.4
                     }, {
-                        label: '{{ __('accounting.profit_loss') }}',
+                        label: '<?php echo e(__('accounting.profit_loss')); ?>',
                         data: profitData,
                         borderColor: '#007bff',
                         backgroundColor: 'rgba(0, 123, 255, 0.1)',
                         tension: 0.4
                     }, {
-                        label: '{{ __('accounting.commissions') }}',
+                        label: '<?php echo e(__('accounting.commissions')); ?>',
                         data: commissionData,
                         borderColor: '#ffc107',
                         backgroundColor: 'rgba(255, 193, 7, 0.1)',
@@ -729,7 +760,7 @@
                             beginAtZero: true,
                             ticks: {
                                 callback: function(value) {
-                                    return value.toLocaleString() + ' {{ currency() }}';
+                                    return value.toLocaleString() + ' <?php echo e(currency()); ?>';
                                 }
                             }
                         }
@@ -743,10 +774,10 @@
             let ordersTableInitialized = false;
 
             // Get deliver stage ID
-            const deliverStageId = @json(\Modules\Order\app\Models\OrderStage::withoutGlobalScopes()->where('type', 'deliver')->value('id'));
+            const deliverStageId = <?php echo json_encode(\Modules\Order\app\Models\OrderStage::withoutGlobalScopes()->where('type', 'deliver')->value('id'), 512) ?>;
 
             // Server-side processing with pagination
-            const isVendorUser = {{ !isAdmin() ? 'true' : 'false' }};
+            const isVendorUser = <?php echo e(!isAdmin() ? 'true' : 'false'); ?>;
 
             function initializeOrdersTable() {
                 // Define columns based on user type (same as orders index)
@@ -824,7 +855,7 @@
                     orderable: true,
                     searchable: false,
                     render: function(data, type, row) {
-                        return `<span class="fw-bold">${data} {{ currency() }}</span>`;
+                        return `<span class="fw-bold">${data} <?php echo e(currency()); ?></span>`;
                     }
                 }, {
                     data: 'stage',
@@ -849,7 +880,7 @@
                     orderable: false,
                     searchable: false,
                     render: function(data, type, row) {
-                        return `<a href="{{ route('admin.orders.show', ':id') }}" class="btn btn-sm btn-outline-primary">{{ __('common.show') }}</a>`
+                        return `<a href="<?php echo e(route('admin.orders.show', ':id')); ?>" class="btn btn-sm btn-outline-primary"><?php echo e(__('common.show')); ?></a>`
                             .replace(':id', row.id);
                     }
                 });
@@ -859,7 +890,7 @@
                     processing: true,
                     serverSide: true,
                     ajax: {
-                        url: '{{ route('admin.orders.datatable') }}',
+                        url: '<?php echo e(route('admin.orders.datatable')); ?>',
                         type: 'GET',
                         data: function(d) {
                             // Map DataTables search format to expected format
@@ -883,20 +914,20 @@
                     autoWidth: false,
                     responsive: true,
                     language: {
-                        processing: "{{ __('common.processing') }}",
-                        search: "{{ __('common.search') }}:",
-                        lengthMenu: "{{ __('common.show') }} _MENU_ {{ __('common.entries') }}",
-                        info: "{{ __('common.showing') }} _START_ {{ __('common.to') }} _END_ {{ __('common.of') }} _TOTAL_ {{ __('common.entries') }}",
-                        infoEmpty: "{{ __('common.showing') }} 0 {{ __('common.to') }} 0 {{ __('common.of') }} 0 {{ __('common.entries') }}",
-                        infoFiltered: "({{ __('common.filtered_from') }} _MAX_ {{ __('common.total_entries') }})",
+                        processing: "<?php echo e(__('common.processing')); ?>",
+                        search: "<?php echo e(__('common.search')); ?>:",
+                        lengthMenu: "<?php echo e(__('common.show')); ?> _MENU_ <?php echo e(__('common.entries')); ?>",
+                        info: "<?php echo e(__('common.showing')); ?> _START_ <?php echo e(__('common.to')); ?> _END_ <?php echo e(__('common.of')); ?> _TOTAL_ <?php echo e(__('common.entries')); ?>",
+                        infoEmpty: "<?php echo e(__('common.showing')); ?> 0 <?php echo e(__('common.to')); ?> 0 <?php echo e(__('common.of')); ?> 0 <?php echo e(__('common.entries')); ?>",
+                        infoFiltered: "(<?php echo e(__('common.filtered_from')); ?> _MAX_ <?php echo e(__('common.total_entries')); ?>)",
                         paginate: {
-                            first: "{{ __('common.first') }}",
-                            last: "{{ __('common.last') }}",
-                            next: "{{ __('common.next') }}",
-                            previous: "{{ __('common.previous') }}"
+                            first: "<?php echo e(__('common.first')); ?>",
+                            last: "<?php echo e(__('common.last')); ?>",
+                            next: "<?php echo e(__('common.next')); ?>",
+                            previous: "<?php echo e(__('common.previous')); ?>"
                         },
-                        emptyTable: "{{ __('accounting.no_delivered_orders') }}",
-                        zeroRecords: "{{ __('accounting.no_delivered_orders') }}"
+                        emptyTable: "<?php echo e(__('accounting.no_delivered_orders')); ?>",
+                        zeroRecords: "<?php echo e(__('accounting.no_delivered_orders')); ?>"
                     },
                     drawCallback: function(settings) {
                         // Re-initialize tooltips after table redraw
@@ -912,4 +943,6 @@
             }
         });
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layout.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\eramo-multi-vendor\Modules/Accounting\resources/views/summary.blade.php ENDPATH**/ ?>

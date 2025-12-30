@@ -25,17 +25,30 @@ class AccountingService
     private function processDeliveredOrder(Order $order)
     {
         // Group order products by vendor
-        $vendorGroups = $order->products()->with('vendorProduct.vendor')->get()->groupBy('vendor_id');
+        $vendorGroups = $order->products()->with(['vendorProduct.vendor.translations', 'vendorProduct.product.department'])->get()->groupBy('vendor_id');
 
         foreach ($vendorGroups as $vendorId => $products) {
             if (!$vendorId) continue;
 
-            $commissionRate = $this->getCommissionRate($vendorId);
-            $vendorTotal = $products->sum(function($product) {
-                return $product->price * $product->quantity;
-            });
-            $commissionAmount = $vendorTotal * ($commissionRate / 100);
-            $vendorAmount = $vendorTotal - $commissionAmount;
+            $vendorTotal = 0;
+            $totalCommissionAmount = 0;
+            $vendor = $products->first()->vendorProduct?->vendor;
+            $vendorNameEn = $vendor?->getTranslation('name', 'en') ?? $vendor?->name ?? 'Unknown';
+            $vendorNameAr = $vendor?->getTranslation('name', 'ar') ?? $vendor?->name ?? 'غير معروف';
+
+            foreach ($products as $product) {
+                $productTotal = $product->price * $product->quantity;
+                $vendorTotal += $productTotal;
+                
+                // Get commission rate from product's department
+                $commissionRate = $product->vendorProduct?->product?->department?->commission ?? 0;
+                $totalCommissionAmount += $productTotal * ($commissionRate / 100);
+            }
+
+            $vendorAmount = $vendorTotal - $totalCommissionAmount;
+            
+            // Calculate average commission rate for display
+            $avgCommissionRate = $vendorTotal > 0 ? ($totalCommissionAmount / $vendorTotal) * 100 : 0;
 
             // Create income entry for each vendor
             AccountingEntry::create([
@@ -43,10 +56,13 @@ class AccountingService
                 'vendor_id' => $vendorId,
                 'type' => 'income',
                 'amount' => $vendorTotal,
-                'commission_rate' => $commissionRate,
-                'commission_amount' => $commissionAmount,
+                'commission_rate' => $avgCommissionRate,
+                'commission_amount' => $totalCommissionAmount,
                 'vendor_amount' => $vendorAmount,
-                'description' => "Order #{$order->id} delivered - Vendor #{$vendorId}",
+                'description' => json_encode([
+                    'en' => __('accounting.order_delivered_description', ['order_number' => $order->order_number, 'vendor_name' => $vendorNameEn], 'en'),
+                    'ar' => __('accounting.order_delivered_description', ['order_number' => $order->order_number, 'vendor_name' => $vendorNameAr], 'ar'),
+                ]),
                 'metadata' => [
                     'order_number' => $order->order_number,
                     'stage_changed_at' => now(),
@@ -55,18 +71,21 @@ class AccountingService
             ]);
 
             // Update vendor balance
-            $this->updateVendorBalance($vendorId, $vendorAmount, $commissionAmount);
+            $this->updateVendorBalance($vendorId, $vendorAmount, $totalCommissionAmount);
         }
     }
 
     private function processRefundedOrder(Order $order)
     {
         // Group order products by vendor
-        $vendorGroups = $order->products()->with('vendor')->get()->groupBy('vendor_id');
+        $vendorGroups = $order->products()->with(['vendorProduct.vendor.translations'])->get()->groupBy('vendor_id');
 
         foreach ($vendorGroups as $vendorId => $products) {
             if (!$vendorId) continue;
 
+            $vendor = $products->first()->vendorProduct?->vendor;
+            $vendorNameEn = $vendor?->getTranslation('name', 'en') ?? $vendor?->name ?? 'Unknown';
+            $vendorNameAr = $vendor?->getTranslation('name', 'ar') ?? $vendor?->name ?? 'غير معروف';
             $vendorTotal = $products->sum(function($product) {
                 return $product->price * $product->quantity;
             });
@@ -77,7 +96,10 @@ class AccountingService
                 'vendor_id' => $vendorId,
                 'type' => 'refund',
                 'amount' => -$vendorTotal,
-                'description' => "Order #{$order->id} refunded - Vendor #{$vendorId}",
+                'description' => json_encode([
+                    'en' => __('accounting.order_refunded_description', ['order_number' => $order->order_number, 'vendor_name' => $vendorNameEn], 'en'),
+                    'ar' => __('accounting.order_refunded_description', ['order_number' => $order->order_number, 'vendor_name' => $vendorNameAr], 'ar'),
+                ]),
                 'metadata' => [
                     'order_number' => $order->order_number,
                     'refunded_at' => now(),
@@ -109,8 +131,9 @@ class AccountingService
 
     private function getCommissionRate($vendorId)
     {
-        // Default commission rate - can be made configurable per vendor
-        return 10.0; // 10%
+        // This method is kept for backward compatibility
+        // Commission is now calculated per product from department
+        return 0;
     }
 
     public function getAccountingSummary($filters = [])

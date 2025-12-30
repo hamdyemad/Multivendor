@@ -138,4 +138,7 @@ return [
     'total_commissions' => 'إجمالي العمولات',
     'total_income' => 'إجمالي الدخل',
     'total_expenses' => 'إجمالي المصروفات',
+    'order_delivered_description' => 'طلب #:order_number تم التسليم - البائع: :vendor_name',
+    'order_refunded_description' => 'طلب #:order_number تم الاسترداد - البائع: :vendor_name',
+    'withdraws' => 'السحوبات',
 ];

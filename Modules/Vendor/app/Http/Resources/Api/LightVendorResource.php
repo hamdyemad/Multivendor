@@ -18,6 +18,8 @@ class LightVendorResource extends JsonResource
             'name' => $this->name,
             'logo' => formatImage($this->logo),
             'active' => (bool) $this->active,
+            'star' => round($this->reviews_avg_star ?? $this->average_rating ?? 0, 1),
+            'num_of_user_review' => $this->reviews_count ?? 0,
         ];
     }
 }

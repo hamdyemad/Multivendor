@@ -302,16 +302,16 @@ return [
     'Occasions' => [
         'name' => ['en' => 'Occasions', 'ar' => 'المناسبات'],
         'icon' => 'uil-calender',
-        'type' => 'all',
+        'type' => 'admin',
         'sub_modules' => [
             'Occasions' => [
                 'name' => ['en' => 'Occasions', 'ar' => 'المناسبات'],
                 'permissions' => [
-                    'read' => ['name' => ['en' => 'Read', 'ar' => 'قراءة'], 'key' => 'occasions.index', 'type' => 'all'],
-                    'create' => ['name' => ['en' => 'Create', 'ar' => 'إنشاء'], 'key' => 'occasions.create', 'type' => 'all'],
-                    'edit' => ['name' => ['en' => 'Edit', 'ar' => 'تعديل'], 'key' => 'occasions.edit', 'type' => 'all'],
-                    'delete' => ['name' => ['en' => 'Delete', 'ar' => 'حذف'], 'key' => 'occasions.delete', 'type' => 'all'],
-                    'status' => ['name' => ['en' => 'Toggle Status', 'ar' => 'تبديل الحالة'], 'key' => 'occasions.toggle-status', 'type' => 'all'],
+                    'read' => ['name' => ['en' => 'Read', 'ar' => 'قراءة'], 'key' => 'occasions.index', 'type' => 'admin'],
+                    'create' => ['name' => ['en' => 'Create', 'ar' => 'إنشاء'], 'key' => 'occasions.create', 'type' => 'admin'],
+                    'edit' => ['name' => ['en' => 'Edit', 'ar' => 'تعديل'], 'key' => 'occasions.edit', 'type' => 'admin'],
+                    'delete' => ['name' => ['en' => 'Delete', 'ar' => 'حذف'], 'key' => 'occasions.delete', 'type' => 'admin'],
+                    'status' => ['name' => ['en' => 'Toggle Status', 'ar' => 'تبديل الحالة'], 'key' => 'occasions.toggle-status', 'type' => 'admin'],
                 ]
             ],
         ]

@@ -32,11 +32,10 @@ class OccasionRequest extends FormRequest
 
         return [
             // Basic fields
-            'vendor_id' => 'required|exists:vendors,id',
             'is_active' => 'boolean',
             'image' => $imageRule . '|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
 
             'variants' => $variantsRule,
             'variants.*.vendor_product_variant_id' => 'required|exists:vendor_product_variants,id',
@@ -64,7 +63,9 @@ class OccasionRequest extends FormRequest
             'image.mimes' => trans('catalogmanagement::occasion.image_invalid_format'),
             'image.max' => trans('catalogmanagement::occasion.image_max_size'),
             'is_active.boolean' => trans('catalogmanagement::occasion.active_must_be_boolean'),
+            'start_date.required' => trans('catalogmanagement::occasion.start_date_required'),
             'start_date.date' => trans('catalogmanagement::occasion.start_date_must_be_date'),
+            'end_date.required' => trans('catalogmanagement::occasion.end_date_required'),
             'end_date.date' => trans('catalogmanagement::occasion.end_date_must_be_date'),
             'end_date.after_or_equal' => trans('catalogmanagement::occasion.end_date_after_start'),
 

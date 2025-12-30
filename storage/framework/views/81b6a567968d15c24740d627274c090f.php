@@ -749,6 +749,7 @@
         <?php endif; ?>
 
         
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isAdmin()): ?>
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('occasions.index')): ?>
             <li
                 class="<?php echo e(isMenuActive(['admin.occasions.index', 'admin.occasions.create', 'admin.occasions.show', 'admin.occasions.edit'], $currentRoute) ? 'active' : ''); ?>">
@@ -761,15 +762,7 @@
                     <span class="badge badge-round ms-1"
                         style="<?php echo e(getBadgeStyle(isMenuActive(['admin.occasions.index', 'admin.occasions.create', 'admin.occasions.show', 'admin.occasions.edit'], $currentRoute))); ?>">
                         <?php
-                            $occasions_count = 0;
-                            if (isAdmin()) {
-                                $occasions_count = \Modules\CatalogManagement\app\Models\Occasion::count();
-                            } else {
-                                $occasionVendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
-                                if ($occasionVendor) {
-                                    $occasions_count = \Modules\CatalogManagement\app\Models\Occasion::where('vendor_id', $occasionVendor->id)->count();
-                                }
-                            }
+                            $occasions_count = \Modules\CatalogManagement\app\Models\Occasion::count();
                         ?>
                         <?php echo e($occasions_count); ?>
 
@@ -777,6 +770,7 @@
                 </a>
             </li>
         <?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('product-reviews.index')): ?>
             <?php
                 try {

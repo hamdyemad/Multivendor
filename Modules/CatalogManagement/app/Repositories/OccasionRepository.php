@@ -20,7 +20,6 @@ class OccasionRepository implements OccasionRepositoryInterface
     {
         $query = Occasion::with([
             'translations', 
-            'vendor', 
             'occasionProducts.vendorProductVariant.vendorProduct.product'
         ])
             ->filter($filters)
@@ -36,7 +35,6 @@ class OccasionRepository implements OccasionRepositoryInterface
     {
         $query = Occasion::with([
             'translations',
-            'vendor',
             'occasionProducts.vendorProductVariant.vendorProduct.product.mainImage',
             'occasionProducts.vendorProductVariant.vendorProduct.product.translations',
             'occasionProducts.vendorProductVariant.vendorProduct.vendor.logo',
@@ -45,14 +43,6 @@ class OccasionRepository implements OccasionRepositoryInterface
         ->where(function($q) use ($id) {
             $q->where('id', $id)->orWhere('slug', $id);
         });
-        
-        // If current user is a vendor, only allow access to occasions in their vendor
-        if (auth()->check() && auth()->user()->isVendor()) {
-            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
-            if ($vendor) {
-                $query->where('vendor_id', $vendor->id);
-            }
-        }
         
         return $query->firstOrFail();
     }
@@ -65,7 +55,6 @@ class OccasionRepository implements OccasionRepositoryInterface
         return DB::transaction(function () use ($data) {
             $occasion = Occasion::create([
                 'slug' => uniqid(),
-                'vendor_id' => $data['vendor_id'],
                 'start_date' => $data['start_date'] ?? null,
                 'end_date' => $data['end_date'] ?? null,
                 'is_active' => $data['is_active'] ?? true,
@@ -74,7 +63,7 @@ class OccasionRepository implements OccasionRepositoryInterface
             // Handle image upload via attachments
             if (isset($data['image']) && $data['image'] instanceof \Illuminate\Http\UploadedFile) {
                 $image = $data['image'];
-                $filePath = $image->store("{$data['vendor_id']}/occasions", 'public');
+                $filePath = $image->store("occasions", 'public');
 
                 $occasion->attachments()->create([
                     'type' => 'image',
@@ -101,7 +90,6 @@ class OccasionRepository implements OccasionRepositoryInterface
             $occasion = $this->getOccasionById($id);
 
             $updateData = [
-                'vendor_id' => $data['vendor_id'] ?? $occasion->vendor_id,
                 'start_date' => $data['start_date'] ?? $occasion->start_date,
                 'end_date' => $data['end_date'] ?? $occasion->end_date,
                 'is_active' => $data['is_active'] ?? $occasion->is_active,
@@ -116,7 +104,7 @@ class OccasionRepository implements OccasionRepositoryInterface
 
                 // Store new image
                 $image = $data['image'];
-                $filePath = $image->store("{$occasion->vendor_id}/occasions", 'public');
+                $filePath = $image->store("occasions", 'public');
 
                 $occasion->attachments()->create([
                     'path' => $filePath,
@@ -140,15 +128,6 @@ class OccasionRepository implements OccasionRepositoryInterface
     public function deleteOccasion($id)
     {
         $occasion = $this->getOccasionById($id);
-        
-        // If current user is a vendor, verify they have access to this occasion
-        if (auth()->check() && auth()->user()->isVendor()) {
-            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
-            if ($vendor && $occasion->vendor_id !== $vendor->id) {
-                abort(404);
-            }
-        }
-        
         return $occasion->delete();
     }
 
@@ -157,7 +136,7 @@ class OccasionRepository implements OccasionRepositoryInterface
      */
     public function getActiveOccasions()
     {
-        return Occasion::active()->with(['translations', 'vendor'])->get();
+        return Occasion::active()->with(['translations'])->get();
     }
 
     /**
@@ -166,17 +145,16 @@ class OccasionRepository implements OccasionRepositoryInterface
     public function toggleOccasionStatus($id)
     {
         $occasion = $this->getOccasionById($id);
-        
-        // If current user is a vendor, verify they have access to this occasion
-        if (auth()->check() && auth()->user()->isVendor()) {
-            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
-            if ($vendor && $occasion->vendor_id !== $vendor->id) {
-                abort(404);
-            }
-        }
-        
         $occasion->update(['is_active' => !$occasion->is_active]);
         return $occasion->fresh();
+    }
+
+    /**
+     * Count total occasions
+     */
+    public function count(): int
+    {
+        return Occasion::count();
     }
 
     /**
@@ -190,25 +168,36 @@ class OccasionRepository implements OccasionRepositoryInterface
 
         // Get all languages
         $languages = \App\Models\Language::all();
+        $slugUpdated = false;
 
         foreach ($languages as $language) {
             $translationData = $data['translations'][$language->id] ?? [];
 
             if (!empty($translationData['name'])) {
-                // Generate slug from name
-                $model = Occasion::where('slug', Str::slug($translationData['name']))
-                ->withoutCountryFilter()
-                ->where('id', '!=', $occasion->id)->first();
-
-                if($model) {
-                    $newSlug = $model->slug . '-' . rand(1, 1000);
-                    $occasion->update([
-                        'slug' => $newSlug
-                    ]);
-                } else {
-                    $occasion->update([
-                        'slug' => Str::slug($translationData['name'])
-                    ]);
+                // Generate slug from name only once (from first language with name)
+                if (!$slugUpdated) {
+                    $baseSlug = Str::slug($translationData['name']);
+                    
+                    // If slug is empty (e.g., Arabic only name), use uniqid
+                    if (empty($baseSlug)) {
+                        $baseSlug = uniqid('occasion-');
+                    }
+                    
+                    $slug = $baseSlug;
+                    $counter = 1;
+                    
+                    // Keep checking until we find a unique slug (including soft-deleted records)
+                    while (Occasion::withTrashed()
+                        ->withoutGlobalScopes()
+                        ->where('slug', $slug)
+                        ->where('id', '!=', $occasion->id)
+                        ->exists()) {
+                        $slug = $baseSlug . '-' . $counter;
+                        $counter++;
+                    }
+                    
+                    $occasion->update(['slug' => $slug]);
+                    $slugUpdated = true;
                 }
 
                 // Store translation fields - including empty values

@@ -70,6 +70,7 @@ return [
     'occasion_created' => 'Occasion created successfully',
     'occasion_updated' => 'Occasion updated successfully',
     'occasion_deleted' => 'Occasion deleted successfully',
+    'only_one_occasion_allowed' => 'Only one occasion is allowed. Please edit or delete the existing occasion.',
     'products_added' => 'products added',
     'error_creating_occasion' => 'Error creating occasion',
     'error_updating_occasion' => 'Error updating occasion',
@@ -86,7 +87,9 @@ return [
     'image_invalid_format' => 'Invalid image format. Allowed formats: jpeg, png, jpg, gif, webp',
     'image_max_size' => 'Image size must not exceed 2MB',
     'active_must_be_boolean' => 'Active field must be boolean',
+    'start_date_required' => 'Start date is required',
     'start_date_must_be_date' => 'Start date must be a valid date',
+    'end_date_required' => 'End date is required',
     'end_date_must_be_date' => 'End date must be a valid date',
     'end_date_after_start' => 'End date must be after or equal to start date',
 

@@ -1,8 +1,8 @@
-@extends('layout.app')
-@section('title', isset($occasion) ? trans('catalogmanagement::occasion.edit_occasion') :
-    trans('catalogmanagement::occasion.add_occasion'))
 
-    @push('styles')
+<?php $__env->startSection('title', isset($occasion) ? trans('catalogmanagement::occasion.edit_occasion') :
+    trans('catalogmanagement::occasion.add_occasion')); ?>
+
+    <?php $__env->startPush('styles'); ?>
         <style>
             /* Search Results Dropdown */
             .variant-search-container {
@@ -298,13 +298,15 @@
                 background: #a1a1a1;
             }
         </style>
-    @endpush
+    <?php $__env->stopPush(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="container-fluid mb-4">
         <div class="row">
             <div class="col-lg-12">
-                <x-breadcrumb :items="[
+                <?php if (isset($component)) { $__componentOriginale19f62b34dfe0bfdf95075badcb45bc2 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.breadcrumb','data' => ['items' => [
                     [
                         'title' => trans('dashboard.title'),
                         'url' => route('admin.dashboard'),
@@ -319,7 +321,39 @@
                             ? trans('catalogmanagement::occasion.edit_occasion')
                             : trans('catalogmanagement::occasion.add_occasion'),
                     ],
-                ]" />
+                ]]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('breadcrumb'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['items' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute([
+                    [
+                        'title' => trans('dashboard.title'),
+                        'url' => route('admin.dashboard'),
+                        'icon' => 'uil uil-estate',
+                    ],
+                    [
+                        'title' => trans('catalogmanagement::occasion.occasions_management'),
+                        'url' => route('admin.occasions.index'),
+                    ],
+                    [
+                        'title' => isset($occasion)
+                            ? trans('catalogmanagement::occasion.edit_occasion')
+                            : trans('catalogmanagement::occasion.add_occasion'),
+                    ],
+                ])]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2)): ?>
+<?php $attributes = $__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2; ?>
+<?php unset($__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginale19f62b34dfe0bfdf95075badcb45bc2)): ?>
+<?php $component = $__componentOriginale19f62b34dfe0bfdf95075badcb45bc2; ?>
+<?php unset($__componentOriginale19f62b34dfe0bfdf95075badcb45bc2); ?>
+<?php endif; ?>
             </div>
         </div>
 
@@ -328,7 +362,8 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white border-bottom py-20">
                         <h5 class="mb-0 fw-500">
-                            {{ isset($occasion) ? trans('catalogmanagement::occasion.edit_occasion') : trans('catalogmanagement::occasion.add_occasion') }}
+                            <?php echo e(isset($occasion) ? trans('catalogmanagement::occasion.edit_occasion') : trans('catalogmanagement::occasion.add_occasion')); ?>
+
                         </h5>
                     </div>
                     <div class="card-body">
@@ -336,187 +371,374 @@
                         <div id="alertContainer" class="mb-2"></div>
 
                         <form id="occasionForm"
-                            action="{{ isset($occasion) ? route('admin.occasions.update', $occasion->id) : route('admin.occasions.store') }}"
+                            action="<?php echo e(isset($occasion) ? route('admin.occasions.update', $occasion->id) : route('admin.occasions.store')); ?>"
                             method="POST" enctype="multipart/form-data">
-                            @csrf
-                            @if (isset($occasion))
-                                @method('PUT')
-                            @endif
-                            {{-- Occasion Name Fields --}}
-                            <x-multilingual-input name="name" :label="trans('catalogmanagement::occasion.name')" :labelAr="'اسم العرض'" :placeholder="trans('catalogmanagement::occasion.enter_occasion_name')"
-                                :placeholderAr="'اسم العرض'" :languages="$languages" :model="$occasion ?? null" :required="true" />
+                            <?php echo csrf_field(); ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($occasion)): ?>
+                                <?php echo method_field('PUT'); ?>
+                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            
+                            <?php if (isset($component)) { $__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.multilingual-input','data' => ['name' => 'name','label' => trans('catalogmanagement::occasion.name'),'labelAr' => 'اسم العرض','placeholder' => trans('catalogmanagement::occasion.enter_occasion_name'),'placeholderAr' => 'اسم العرض','languages' => $languages,'model' => $occasion ?? null,'required' => true]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('multilingual-input'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['name' => 'name','label' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(trans('catalogmanagement::occasion.name')),'labelAr' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute('اسم العرض'),'placeholder' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(trans('catalogmanagement::occasion.enter_occasion_name')),'placeholderAr' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute('اسم العرض'),'languages' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($languages),'model' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($occasion ?? null),'required' => true]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb)): ?>
+<?php $attributes = $__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb; ?>
+<?php unset($__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb)): ?>
+<?php $component = $__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb; ?>
+<?php unset($__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb); ?>
+<?php endif; ?>
 
-                            {{-- Occasion Title Fields --}}
-                            <x-multilingual-input name="title" :label="trans('catalogmanagement::occasion.title')" :labelAr="'العنوان'" :placeholder="trans('catalogmanagement::occasion.enter_occasion_title')"
-                                :placeholderAr="'العنوان'" :languages="$languages" :model="$occasion ?? null" />
+                            
+                            <?php if (isset($component)) { $__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.multilingual-input','data' => ['name' => 'title','label' => trans('catalogmanagement::occasion.title'),'labelAr' => 'العنوان','placeholder' => trans('catalogmanagement::occasion.enter_occasion_title'),'placeholderAr' => 'العنوان','languages' => $languages,'model' => $occasion ?? null]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('multilingual-input'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['name' => 'title','label' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(trans('catalogmanagement::occasion.title')),'labelAr' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute('العنوان'),'placeholder' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(trans('catalogmanagement::occasion.enter_occasion_title')),'placeholderAr' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute('العنوان'),'languages' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($languages),'model' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($occasion ?? null)]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb)): ?>
+<?php $attributes = $__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb; ?>
+<?php unset($__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb)): ?>
+<?php $component = $__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb; ?>
+<?php unset($__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb); ?>
+<?php endif; ?>
 
-                            {{-- Occasion Sub Title Fields --}}
-                            <x-multilingual-input name="sub_title" :label="trans('catalogmanagement::occasion.sub_title')" :labelAr="'العنوان الفرعى'" :placeholder="trans('catalogmanagement::occasion.enter_occasion_sub_title')"
-                                :placeholderAr="'العنوان الفرعى'" :languages="$languages" :model="$occasion ?? null" />
-                            {{-- Date Fields --}}
+                            
+                            <?php if (isset($component)) { $__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.multilingual-input','data' => ['name' => 'sub_title','label' => trans('catalogmanagement::occasion.sub_title'),'labelAr' => 'العنوان الفرعى','placeholder' => trans('catalogmanagement::occasion.enter_occasion_sub_title'),'placeholderAr' => 'العنوان الفرعى','languages' => $languages,'model' => $occasion ?? null]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('multilingual-input'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['name' => 'sub_title','label' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(trans('catalogmanagement::occasion.sub_title')),'labelAr' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute('العنوان الفرعى'),'placeholder' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(trans('catalogmanagement::occasion.enter_occasion_sub_title')),'placeholderAr' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute('العنوان الفرعى'),'languages' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($languages),'model' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($occasion ?? null)]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb)): ?>
+<?php $attributes = $__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb; ?>
+<?php unset($__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb)): ?>
+<?php $component = $__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb; ?>
+<?php unset($__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb); ?>
+<?php endif; ?>
+                            
                             <div class="row">
                                 <div class="col-md-6 mb-25">
                                     <div class="form-group">
                                         <label for="start_date" class="il-gray fs-14 fw-500 mb-10">
-                                            {{ trans('catalogmanagement::occasion.start_date') }} <span class="text-danger">*</span>
+                                            <?php echo e(trans('catalogmanagement::occasion.start_date')); ?> <span class="text-danger">*</span>
                                         </label>
-                                        <input type="date" class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('start_date') is-invalid @enderror"
+                                        <input type="date" class="form-control ih-medium ip-gray radius-xs b-light px-15 <?php $__errorArgs = ['start_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
                                             id="start_date" name="start_date" required
-                                            value="{{ old('start_date', isset($occasion) ? $occasion->start_date?->format('Y-m-d') : '') }}">
-                                        @error('start_date')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+                                            value="<?php echo e(old('start_date', isset($occasion) ? $occasion->start_date?->format('Y-m-d') : '')); ?>">
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['start_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                            <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </div>
                                 </div>
 
                                 <div class="col-md-6 mb-25">
                                     <div class="form-group">
                                         <label for="end_date" class="il-gray fs-14 fw-500 mb-10">
-                                            {{ trans('catalogmanagement::occasion.end_date') }} <span class="text-danger">*</span>
+                                            <?php echo e(trans('catalogmanagement::occasion.end_date')); ?> <span class="text-danger">*</span>
                                         </label>
-                                        <input type="date" class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('end_date') is-invalid @enderror"
+                                        <input type="date" class="form-control ih-medium ip-gray radius-xs b-light px-15 <?php $__errorArgs = ['end_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
                                             id="end_date" name="end_date" required
-                                            value="{{ old('end_date', isset($occasion) ? $occasion->end_date?->format('Y-m-d') : '') }}">
-                                        @error('end_date')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+                                            value="<?php echo e(old('end_date', isset($occasion) ? $occasion->end_date?->format('Y-m-d') : '')); ?>">
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['end_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                            <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
-                                {{-- Occasion Image --}}
+                                
                                 <div class="col-md-6 mb-25">
                                     <div class="form-group">
-                                        <x-image-upload id="occasion_image" name="image" :placeholder="trans('catalogmanagement::occasion.image')"
-                                            :recommendedSize="trans('catalogmanagement::occasion.recommended_size')" :existingImage="isset($occasion) && $occasion->image
+                                        <?php if (isset($component)) { $__componentOriginaldbebdfa49a0907927fe266159631a348 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginaldbebdfa49a0907927fe266159631a348 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.image-upload','data' => ['id' => 'occasion_image','name' => 'image','placeholder' => trans('catalogmanagement::occasion.image'),'recommendedSize' => trans('catalogmanagement::occasion.recommended_size'),'existingImage' => isset($occasion) && $occasion->image
                                                 ? asset('storage/' . $occasion->image)
-                                                : null" aspectRatio="16:9" :required="true" :hasError="$errors->has('image')" />
-                                        @error('image')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                                        @enderror
+                                                : null,'aspectRatio' => '16:9','required' => true,'hasError' => $errors->has('image')]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('image-upload'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['id' => 'occasion_image','name' => 'image','placeholder' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(trans('catalogmanagement::occasion.image')),'recommendedSize' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(trans('catalogmanagement::occasion.recommended_size')),'existingImage' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(isset($occasion) && $occasion->image
+                                                ? asset('storage/' . $occasion->image)
+                                                : null),'aspectRatio' => '16:9','required' => true,'hasError' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($errors->has('image'))]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginaldbebdfa49a0907927fe266159631a348)): ?>
+<?php $attributes = $__attributesOriginaldbebdfa49a0907927fe266159631a348; ?>
+<?php unset($__attributesOriginaldbebdfa49a0907927fe266159631a348); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginaldbebdfa49a0907927fe266159631a348)): ?>
+<?php $component = $__componentOriginaldbebdfa49a0907927fe266159631a348; ?>
+<?php unset($__componentOriginaldbebdfa49a0907927fe266159631a348); ?>
+<?php endif; ?>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['image'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                            <div class="invalid-feedback d-block"><?php echo e($message); ?></div>
+                                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </div>
                                 </div>
-                                {{-- Activation Switcher --}}
+                                
                                 <div class="col-md-6 mb-25">
                                     <div class="form-group">
                                         <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                                            {{ trans('catalogmanagement::occasion.activation') }}
+                                            <?php echo e(trans('catalogmanagement::occasion.activation')); ?>
+
                                         </label>
                                         <div class="dm-switch-wrap d-flex align-items-center">
                                             <div class="form-check form-switch form-switch-primary form-switch-md">
                                                 <input type="hidden" name="is_active" value="0">
-                                                <input type="checkbox" class="form-check-input @error('is_active') is-invalid @enderror" id="is_active"
+                                                <input type="checkbox" class="form-check-input <?php $__errorArgs = ['is_active'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" id="is_active"
                                                     name="is_active" value="1"
-                                                    {{ old('is_active', $occasion->is_active ?? 1) == 1 ? 'checked' : '' }}>
+                                                    <?php echo e(old('is_active', $occasion->is_active ?? 1) == 1 ? 'checked' : ''); ?>>
                                             </div>
                                         </div>
-                                        @error('is_active')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                                        @enderror
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['is_active'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                            <div class="invalid-feedback d-block"><?php echo e($message); ?></div>
+                                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </div>
                                 </div>
                             </div>
-                            {{-- Product Variants Section --}}
+                            
                             <div class="row" id="variantsSection">
                                 <div class="col-12">
-                                    <h6 class="mb-20 fw-500">{{ trans('catalogmanagement::occasion.product_variants') }}
+                                    <h6 class="mb-20 fw-500"><?php echo e(trans('catalogmanagement::occasion.product_variants')); ?>
+
                                     </h6>
                                 </div>
-                                {{-- Search Input --}}
+                                
                                 <div class="col-12 mb-25">
                                     <div class="form-group">
                                         <label for="product_search" class="il-gray fs-14 fw-500 mb-10">
-                                            {{ trans('catalogmanagement::occasion.search_products') }}
+                                            <?php echo e(trans('catalogmanagement::occasion.search_products')); ?>
+
                                         </label>
                                         <input type="text" id="product_search" class="form-control"
-                                               placeholder="{{ trans('catalogmanagement::occasion.type_to_search_products') }}"
+                                               placeholder="<?php echo e(trans('catalogmanagement::occasion.type_to_search_products')); ?>"
                                                style="width: 100%;">
-                                        <small class="text-muted">{{ trans('catalogmanagement::occasion.search_products_help') }}</small>
+                                        <small class="text-muted"><?php echo e(trans('catalogmanagement::occasion.search_products_help')); ?></small>
                                     </div>
                                 </div>
 
-                                {{-- Products Grid Container --}}
+                                
                                 <div class="col-12 mb-25">
                                     <div id="products-grid" class="row" style="max-height: 500px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 0.375rem; padding: 15px;">
                                         <div class="col-12 text-center text-muted py-5">
                                             <i class="uil uil-search fs-1 mb-2"></i>
-                                            <p>{{ trans('catalogmanagement::occasion.search_products_help') }}</p>
+                                            <p><?php echo e(trans('catalogmanagement::occasion.search_products_help')); ?></p>
                                         </div>
                                     </div>
 
-                                    {{-- Loading Spinner --}}
+                                    
                                     <div id="products-loader" style="display: none; text-align: center; padding: 20px;">
                                         <div class="spinner-border text-primary" role="status">
-                                            <span class="visually-hidden">{{ __('common.loading') }}</span>
+                                            <span class="visually-hidden"><?php echo e(__('common.loading')); ?></span>
                                         </div>
-                                        <p class="text-muted mt-2">{{ trans('catalogmanagement::occasion.loading_products') }}</p>
+                                        <p class="text-muted mt-2"><?php echo e(trans('catalogmanagement::occasion.loading_products')); ?></p>
                                     </div>
                                 </div>
 
 
-                                {{-- Selected Products Container --}}
+                                
                                 <div class="col-12 mb-25">
-                                    <h6 class="mb-3 fw-500">{{ trans('catalogmanagement::occasion.selected_products') }}</h6>
+                                    <h6 class="mb-3 fw-500"><?php echo e(trans('catalogmanagement::occasion.selected_products')); ?></h6>
                                     <div id="selected-products" class="row" style="min-height: 100px;">
                                         <div class="col-12 text-center text-muted py-3">
-                                            <p>{{ trans('catalogmanagement::occasion.no_products_selected') }}</p>
+                                            <p><?php echo e(trans('catalogmanagement::occasion.no_products_selected')); ?></p>
                                         </div>
                                     </div>
                                 </div>
 
-                                {{-- Variants Validation Errors --}}
-                                @if ($errors->has('variants') || $errors->has('variants.*'))
+                                
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($errors->has('variants') || $errors->has('variants.*')): ?>
                                     <div class="col-12">
                                         <div class="invalid-feedback d-block">
-                                            @error('variants')
-                                                {{ $message }}
-                                            @enderror
-                                            @foreach ($errors->get('variants.*') as $variantErrors)
-                                                @foreach ($variantErrors as $error)
-                                                    {{ $error }}<br>
-                                                @endforeach
-                                            @endforeach
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['variants'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                                <?php echo e($message); ?>
+
+                                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $errors->get('variants.*'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $variantErrors): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $variantErrors; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <?php echo e($error); ?><br>
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </div>
                                     </div>
-                                @endif
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                             </div>
 
-                            {{-- SEO Information Section --}}
+                            
                             <div class="card">
                                 <div class="card-header">
                                     <h6 class="p-0 fw-500 fw-bold">
-                                        {{ trans('catalogmanagement::occasion.seo_information') }}</h6>
+                                        <?php echo e(trans('catalogmanagement::occasion.seo_information')); ?></h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
-                                        {{-- SEO Title Fields --}}
-                                        <x-multilingual-input name="seo_title" :label="trans('catalogmanagement::occasion.seo_title')" :labelAr="'عنوان ال SEO'"
-                                            :placeholder="trans('catalogmanagement::occasion.enter_seo_title')" :placeholderAr="'عنوان ال SEO'" :languages="$languages" :model="$occasion ?? null" />
+                                        
+                                        <?php if (isset($component)) { $__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.multilingual-input','data' => ['name' => 'seo_title','label' => trans('catalogmanagement::occasion.seo_title'),'labelAr' => 'عنوان ال SEO','placeholder' => trans('catalogmanagement::occasion.enter_seo_title'),'placeholderAr' => 'عنوان ال SEO','languages' => $languages,'model' => $occasion ?? null]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('multilingual-input'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['name' => 'seo_title','label' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(trans('catalogmanagement::occasion.seo_title')),'labelAr' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute('عنوان ال SEO'),'placeholder' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(trans('catalogmanagement::occasion.enter_seo_title')),'placeholderAr' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute('عنوان ال SEO'),'languages' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($languages),'model' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($occasion ?? null)]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb)): ?>
+<?php $attributes = $__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb; ?>
+<?php unset($__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb)): ?>
+<?php $component = $__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb; ?>
+<?php unset($__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb); ?>
+<?php endif; ?>
 
-                                        {{-- SEO Description Fields --}}
-                                        <x-multilingual-input name="seo_description" :label="trans('catalogmanagement::occasion.seo_description')" :labelAr="'وصف SEO'"
-                                            :placeholder="trans('catalogmanagement::occasion.enter_seo_description')" :placeholderAr="'وصف SEO'" type="textarea" rows="3"
-                                            :languages="$languages" :model="$occasion ?? null" />
+                                        
+                                        <?php if (isset($component)) { $__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.multilingual-input','data' => ['name' => 'seo_description','label' => trans('catalogmanagement::occasion.seo_description'),'labelAr' => 'وصف SEO','placeholder' => trans('catalogmanagement::occasion.enter_seo_description'),'placeholderAr' => 'وصف SEO','type' => 'textarea','rows' => '3','languages' => $languages,'model' => $occasion ?? null]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('multilingual-input'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['name' => 'seo_description','label' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(trans('catalogmanagement::occasion.seo_description')),'labelAr' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute('وصف SEO'),'placeholder' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(trans('catalogmanagement::occasion.enter_seo_description')),'placeholderAr' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute('وصف SEO'),'type' => 'textarea','rows' => '3','languages' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($languages),'model' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($occasion ?? null)]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb)): ?>
+<?php $attributes = $__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb; ?>
+<?php unset($__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb)): ?>
+<?php $component = $__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb; ?>
+<?php unset($__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb); ?>
+<?php endif; ?>
 
-                                        {{-- SEO Keywords Fields --}}
-                                        <x-multilingual-input name="seo_keywords" :label="trans('catalogmanagement::occasion.seo_keywords')" :labelAr="'الكلمات المفتاحية'"
-                                            :placeholder="trans('catalogmanagement::occasion.type_keyword_press_enter')" :placeholderAr="'الكلمات المفتاحية'" :tags="true" :languages="$languages"
-                                            :model="$occasion ?? null" />
+                                        
+                                        <?php if (isset($component)) { $__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.multilingual-input','data' => ['name' => 'seo_keywords','label' => trans('catalogmanagement::occasion.seo_keywords'),'labelAr' => 'الكلمات المفتاحية','placeholder' => trans('catalogmanagement::occasion.type_keyword_press_enter'),'placeholderAr' => 'الكلمات المفتاحية','tags' => true,'languages' => $languages,'model' => $occasion ?? null]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('multilingual-input'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['name' => 'seo_keywords','label' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(trans('catalogmanagement::occasion.seo_keywords')),'labelAr' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute('الكلمات المفتاحية'),'placeholder' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(trans('catalogmanagement::occasion.type_keyword_press_enter')),'placeholderAr' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute('الكلمات المفتاحية'),'tags' => true,'languages' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($languages),'model' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($occasion ?? null)]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb)): ?>
+<?php $attributes = $__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb; ?>
+<?php unset($__attributesOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb)): ?>
+<?php $component = $__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb; ?>
+<?php unset($__componentOriginal36fb2a0d5a2d77000f95bef7ddc5a9bb); ?>
+<?php endif; ?>
                                     </div>
                                 </div>
                             </div>
 
 
                             <div class="d-flex justify-content-end gap-15 mt-30">
-                                <a href="{{ route('admin.occasions.index') }}"
+                                <a href="<?php echo e(route('admin.occasions.index')); ?>"
                                     class="btn btn-light btn-default btn-squared fw-400 text-capitalize">
-                                    <i class="uil uil-angle-left"></i> {{ trans('common.cancel') }}
+                                    <i class="uil uil-angle-left"></i> <?php echo e(trans('common.cancel')); ?>
+
                                 </a>
                                 <button type="submit" id="submitBtn" class="btn btn-primary btn-default btn-squared text-capitalize"
                                     style="display: inline-flex; align-items: center; justify-content: center;">
                                     <i class="uil uil-check"></i>
-                                    <span>{{ isset($occasion) ? trans('common.update') : trans('common.save') }}</span>
+                                    <span><?php echo e(isset($occasion) ? trans('common.update') : trans('common.save')); ?></span>
                                     <span class="spinner-border spinner-border-sm d-none" role="status"
                                         aria-hidden="true"></span>
                                 </button>
@@ -528,7 +750,7 @@
         </div>
     </div>
 
-    @push('scripts')
+    <?php $__env->startPush('scripts'); ?>
         <script>
             // Global variables for product selection
             let selectedProducts = [];
@@ -545,7 +767,7 @@
                     url: '/api/products',
                     type: 'GET',
                     headers: {
-                        'lang': "{{ app()->getLocale() }}",
+                        'lang': "<?php echo e(app()->getLocale()); ?>",
                         'X-Country-Code': $('meta[name="currency_country_code"]').attr("content"),
                     },
                     data: {
@@ -565,17 +787,17 @@
                         if (response.status && response.data && response.data.length > 0) {
                             allProducts = [];
                             let productsHtml = '';
-                            const currencySymbol = '{{ currency() }}';
+                            const currencySymbol = '<?php echo e(currency()); ?>';
 
                             response.data.forEach(function(vendorProduct) {
-                                const productImage = vendorProduct.image || '{{ asset('assets/img/logo.png') }}';
+                                const productImage = vendorProduct.image || '<?php echo e(asset('assets/img/logo.png')); ?>';
                                 const productName = vendorProduct.name || 'N/A';
                                 const variants = vendorProduct.variants || [];
                                 
                                 // Get vendor info
                                 const vendor = vendorProduct.vendor || {};
                                 const vendorName = vendor.name || 'N/A';
-                                const vendorLogo = vendor.logo || "{{ asset('assets/img/default-vendor.png') }}";
+                                const vendorLogo = vendor.logo || "<?php echo e(asset('assets/img/default-vendor.png')); ?>";
 
                                 if (variants.length > 0) {
                                     variants.forEach(function(variant) {
@@ -608,7 +830,7 @@
 
                                         const disabledClass = isOutOfStock ? 'opacity-50' : '';
                                         const stockClass = remainingStock > 0 ? 'text-success' : 'text-danger fw-bold';
-                                        const stockText = isOutOfStock ? `${remainingStock} ({{ trans('catalogmanagement::occasion.out_of_stock') }})` : remainingStock;
+                                        const stockText = isOutOfStock ? `${remainingStock} (<?php echo e(trans('catalogmanagement::occasion.out_of_stock')); ?>)` : remainingStock;
 
                                         productsHtml += `
                                             <div class="col-md-6 col-lg-4 mb-3">
@@ -623,10 +845,10 @@
                                                             </div>
                                                         </div>
                                                         <div class="d-flex flex-column gap-1 mb-2">
-                                                            <small class="text-muted"><strong>{{ trans('catalogmanagement::occasion.sku') }}:</strong> ${variantSku}</small>
-                                                            <small><strong>{{ trans('catalogmanagement::occasion.remaining_stock') }}:</strong> <span class="${stockClass}">${stockText}</span></small>
-                                                            <small class="text-muted"><strong>{{ trans('catalogmanagement::occasion.original_price') }}:</strong> ${price} ${currencySymbol}</small>
-                                                            ${priceBeforeDiscount ? `<small class="text-muted"><strong>{{ trans('common.before_discount') }}:</strong> ${priceBeforeDiscount} ${currencySymbol}</small>` : ''}
+                                                            <small class="text-muted"><strong><?php echo e(trans('catalogmanagement::occasion.sku')); ?>:</strong> ${variantSku}</small>
+                                                            <small><strong><?php echo e(trans('catalogmanagement::occasion.remaining_stock')); ?>:</strong> <span class="${stockClass}">${stockText}</span></small>
+                                                            <small class="text-muted"><strong><?php echo e(trans('catalogmanagement::occasion.original_price')); ?>:</strong> ${price} ${currencySymbol}</small>
+                                                            ${priceBeforeDiscount ? `<small class="text-muted"><strong><?php echo e(trans('common.before_discount')); ?>:</strong> ${priceBeforeDiscount} ${currencySymbol}</small>` : ''}
                                                         </div>
                                                         <div class="d-flex align-items-center mb-2 pt-2 border-top">
                                                             <img src="${vendorLogo}" alt="${vendorName}" class="rounded-circle me-2" style="width: 20px; height: 20px;">
@@ -634,7 +856,7 @@
                                                         </div>
                                                         <button type="button" class="btn btn-sm ${isSelected ? 'btn-success' : 'btn-primary'} w-100 add-product-btn"
                                                                 data-product-id="${variantId}" ${isSelected || isOutOfStock ? 'disabled' : ''}>
-                                                            <i class="uil ${isSelected ? 'uil-check' : 'uil-plus'} me-1"></i>${isSelected ? '{{ trans('common.added') }}' : (isOutOfStock ? '{{ trans('catalogmanagement::occasion.out_of_stock') }}' : '{{ trans('common.add') }}')}
+                                                            <i class="uil ${isSelected ? 'uil-check' : 'uil-plus'} me-1"></i>${isSelected ? '<?php echo e(trans('common.added')); ?>' : (isOutOfStock ? '<?php echo e(trans('catalogmanagement::occasion.out_of_stock')); ?>' : '<?php echo e(trans('common.add')); ?>')}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -651,7 +873,7 @@
                             $('#products-grid').html(`
                                 <div class="col-12 text-center text-muted py-5">
                                     <i class="uil uil-inbox fs-1 mb-2"></i>
-                                    <p>{{ trans('catalogmanagement::occasion.no_products_found') }}</p>
+                                    <p><?php echo e(trans('catalogmanagement::occasion.no_products_found')); ?></p>
                                 </div>
                             `);
                         }
@@ -663,7 +885,7 @@
                         $('#products-grid').html(`
                             <div class="col-12 text-center text-danger py-5">
                                 <i class="uil uil-exclamation-triangle fs-1 mb-2"></i>
-                                <p>{{ trans('catalogmanagement::occasion.error_loading_data') }}</p>
+                                <p><?php echo e(trans('catalogmanagement::occasion.error_loading_data')); ?></p>
                             </div>
                         `);
                     }
@@ -696,14 +918,14 @@
             // Update selected products display
             function updateSelectedProductsDisplay() {
                 const count = selectedProducts.length;
-                const currencySymbol = '{{ currency() }}';
+                const currencySymbol = '<?php echo e(currency()); ?>';
 
                 if (count > 0) {
                     let selectedHtml = '';
                     selectedProducts.forEach(function(variantId, index) {
                         const variant = selectedProductsDetails[variantId];
                         if (variant) {
-                            const vendorLogo = variant.vendorLogo || '{{ asset('assets/img/default-vendor.png') }}';
+                            const vendorLogo = variant.vendorLogo || '<?php echo e(asset('assets/img/default-vendor.png')); ?>';
                             const vendorName = variant.vendorName || 'N/A';
                             const stockClass = variant.stock > 0 ? 'text-success' : 'text-danger';
                             
@@ -724,20 +946,21 @@
                                                 <small class="text-primary fw-500">${vendorName}</small>
                                             </div>
                                             <div class="d-flex flex-column gap-1 mb-2">
-                                                <small class="text-muted"><strong>{{ trans('catalogmanagement::occasion.sku') }}:</strong> ${variant.sku}</small>
-                                                <small><strong>{{ trans('catalogmanagement::occasion.remaining_stock') }}:</strong> <span class="${stockClass}">${variant.stock}</span></small>
-                                                <small class="text-muted"><strong>{{ trans('catalogmanagement::occasion.original_price') }}:</strong> ${variant.price} ${currencySymbol}</small>
-                                                ${variant.priceBeforeDiscount ? `<small class="text-muted"><strong>{{ trans('common.before_discount') }}:</strong> ${variant.priceBeforeDiscount} ${currencySymbol}</small>` : ''}
+                                                <small class="text-muted"><strong><?php echo e(trans('catalogmanagement::occasion.sku')); ?>:</strong> ${variant.sku}</small>
+                                                <small><strong><?php echo e(trans('catalogmanagement::occasion.remaining_stock')); ?>:</strong> <span class="${stockClass}">${variant.stock}</span></small>
+                                                <small class="text-muted"><strong><?php echo e(trans('catalogmanagement::occasion.original_price')); ?>:</strong> ${variant.price} ${currencySymbol}</small>
+                                                ${variant.priceBeforeDiscount ? `<small class="text-muted"><strong><?php echo e(trans('common.before_discount')); ?>:</strong> ${variant.priceBeforeDiscount} ${currencySymbol}</small>` : ''}
                                             </div>
                                             <div class="mb-2">
-                                                <label class="form-label fs-13 fw-500">{{ trans('catalogmanagement::occasion.special_price') }}</label>
+                                                <label class="form-label fs-13 fw-500"><?php echo e(trans('catalogmanagement::occasion.special_price')); ?></label>
                                                 <input type="number" step="0.01" min="0" class="form-control form-control-sm special-price-input"
-                                                       placeholder="{{ trans('catalogmanagement::occasion.special_price') }}" data-product-id="${variantId}"
+                                                       placeholder="<?php echo e(trans('catalogmanagement::occasion.special_price')); ?>" data-product-id="${variantId}"
                                                        value="${variant.specialPrice || ''}">
                                             </div>
                                             <button type="button" class="btn btn-sm btn-danger w-100 remove-selected-btn"
                                                     data-product-id="${variantId}">
-                                                <i class="uil uil-trash-alt me-1"></i>{{ trans('common.remove') }}
+                                                <i class="uil uil-trash-alt me-1"></i><?php echo e(trans('common.remove')); ?>
+
                                             </button>
                                             <input type="hidden" name="variants[${index}][vendor_product_variant_id]" value="${variantId}">
                                             <input type="hidden" name="variants[${index}][special_price]" class="special-price-hidden-${variantId}" value="">
@@ -752,7 +975,7 @@
                 } else {
                     $('#selected-products').html(`
                         <div class="col-12 text-center text-muted py-3">
-                            <p>{{ trans('catalogmanagement::occasion.no_products_selected') }}</p>
+                            <p><?php echo e(trans('catalogmanagement::occasion.no_products_selected')); ?></p>
                         </div>
                     `);
                 }
@@ -803,10 +1026,10 @@
                     $('#variantsSection').show();
                 }
 
-                @if (isset($occasion) && $occasion->occasionProducts->count() > 0)
+                <?php if(isset($occasion) && $occasion->occasionProducts->count() > 0): ?>
                     // Load existing occasion products for edit mode
                     $(document).ready(function() {
-                        @php
+                        <?php
                             $existingVariantsData = $occasion->occasionProducts->map(function ($item) {
                                 $vpv = $item->vendorProductVariant;
                                 $vendorProduct = $vpv?->vendorProduct;
@@ -844,10 +1067,10 @@
                                         : null,
                                 ];
                             });
-                        @endphp
-                        const existingVariants = @json($existingVariantsData);
-                        const defaultImage = '{{ asset('assets/img/default.png') }}';
-                        const defaultVendorLogo = '{{ asset('assets/img/default-vendor.png') }}';
+                        ?>
+                        const existingVariants = <?php echo json_encode($existingVariantsData, 15, 512) ?>;
+                        const defaultImage = '<?php echo e(asset('assets/img/default.png')); ?>';
+                        const defaultVendorLogo = '<?php echo e(asset('assets/img/default-vendor.png')); ?>';
 
                         // Add existing variants to selected products
                         existingVariants.forEach(function(item) {
@@ -890,7 +1113,7 @@
                             }
                         });
                     });
-                @endif
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
 
                 $("#submitBtn").on("click", function(e) {
@@ -1031,10 +1254,31 @@
                     $('#selected-products').next('.error-feedback').remove();
                 });
         </script>
-    @endpush
-@endsection
+    <?php $__env->stopPush(); ?>
+<?php $__env->stopSection(); ?>
 
-{{-- Include Loading Overlay Component outside content section --}}
-@push('after-body')
-    <x-loading-overlay :loadingText="trans('loading.processing')" :loadingSubtext="trans('loading.please_wait')" />
-@endpush
+
+<?php $__env->startPush('after-body'); ?>
+    <?php if (isset($component)) { $__componentOriginal115e82920da0ed7c897ee494af74b9d8 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal115e82920da0ed7c897ee494af74b9d8 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.loading-overlay','data' => ['loadingText' => trans('loading.processing'),'loadingSubtext' => trans('loading.please_wait')]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('loading-overlay'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['loadingText' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(trans('loading.processing')),'loadingSubtext' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(trans('loading.please_wait'))]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal115e82920da0ed7c897ee494af74b9d8)): ?>
+<?php $attributes = $__attributesOriginal115e82920da0ed7c897ee494af74b9d8; ?>
+<?php unset($__attributesOriginal115e82920da0ed7c897ee494af74b9d8); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal115e82920da0ed7c897ee494af74b9d8)): ?>
+<?php $component = $__componentOriginal115e82920da0ed7c897ee494af74b9d8; ?>
+<?php unset($__componentOriginal115e82920da0ed7c897ee494af74b9d8); ?>
+<?php endif; ?>
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layout.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\eramo-multi-vendor\Modules/CatalogManagement\resources/views/occasions/form.blade.php ENDPATH**/ ?>

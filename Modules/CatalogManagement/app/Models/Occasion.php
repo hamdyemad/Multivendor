@@ -11,7 +11,6 @@ use App\Traits\Translation;
 use App\Models\Traits\CountryCheckIdTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Modules\Vendor\app\Models\Vendor;
 
 class Occasion extends BaseModel
 {
@@ -27,14 +26,6 @@ class Occasion extends BaseModel
     public function attachments()
     {
         return $this->morphMany(Attachment::class, 'attachable');
-    }
-
-    /**
-     * Get the vendor that owns this occasion
-     */
-    public function vendor()
-    {
-        return $this->belongsTo(Vendor::class);
     }
 
     /**
@@ -61,14 +52,6 @@ class Occasion extends BaseModel
      */
     public function scopeFilter($query, array $filters)
     {
-        // Filter by vendor if user is a vendor
-        if (auth()->check() && auth()->user()->isVendor()) {
-            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
-            if ($vendor) {
-                $query->where('vendor_id', $vendor->id);
-            }
-        }
-
         // Search by name
         if (!empty($filters['search'])) {
             $search = $filters['search'];
@@ -83,11 +66,6 @@ class Occasion extends BaseModel
                 $query->where('id', $filters['occasion_id'])
                 ->orWhere('slug', $filters['occasion_id']);
             });
-        }
-
-        // Filter by vendor_id (for admin filtering)
-        if (!empty($filters['vendor_id'])) {
-            $query->where('vendor_id', $filters['vendor_id']);
         }
 
         // Filter by active status

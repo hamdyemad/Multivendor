@@ -38,4 +38,9 @@ interface OccasionRepositoryInterface
      * Toggle occasion status
      */
     public function toggleOccasionStatus($id);
+
+    /**
+     * Count total occasions
+     */
+    public function count(): int;
 }

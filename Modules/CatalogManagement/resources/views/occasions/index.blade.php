@@ -29,10 +29,12 @@
                         <h4 class="mb-0 fw-500 fw-bold">{{ trans('catalogmanagement::occasion.occasions_management') }}</h4>
                         <div class="d-flex gap-2">
                             @can('occasions.create')
+                                @if(!$occasionExists)
                                 <a href="{{ route('admin.occasions.create') }}"
                                     class="btn btn-primary btn-default btn-squared text-capitalize">
                                     <i class="uil uil-plus"></i> {{ trans('catalogmanagement::occasion.add_occasion') }}
                                 </a>
+                                @endif
                             @endcan
                         </div>
                     </div>
@@ -127,24 +129,6 @@
                                                 id="end_date_filter">
                                         </div>
                                     </div>
-
-                                    {{-- Vendor Filter (Admin Only) --}}
-                                    @if(isAdmin())
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="vendor_filter" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-store me-1"></i>
-                                                {{ __('vendor::vendor.vendor') }}
-                                            </label>
-                                            <select class="form-control select2" id="vendor_filter" style="width: 100%;">
-                                                <option value="">{{ __('common.all') }}</option>
-                                                @foreach($vendors as $vendor)
-                                                    <option value="{{ $vendor->id }}">{{ $vendor->getTranslation('name', app()->getLocale()) }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                    @endif
 
                                     <div class="col-md-12 d-flex align-items-center mt-3">
                                         <button type="button" id="searchBtn"
@@ -263,7 +247,6 @@
                         d.created_until = $('#created_until_filter').val();
                         d.start_date = $('#start_date_filter').val();
                         d.end_date = $('#end_date_filter').val();
-                        d.vendor_id = $('#vendor_filter').val();
                         return d;
                     }
                 },
@@ -297,7 +280,7 @@
                                     `<img src="{{ asset('assets/img/default.png') }}" alt="Occasion Image" style="width: 60px; height: 60px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">`;
                             }
 
-                            // Names and Vendor
+                            // Names
                             html += '<div style="flex: 1; min-width: 0;">';
 
                             // EN Name
@@ -313,13 +296,6 @@
                                 html += `<div style="margin-bottom: 4px;">
                                     <span class="badge bg-success text-white px-2 py-1 me-2 rounded-pill fw-bold" style="font-size: 10px;">AR</span>
                                     <span class="text-dark fw-semibold" dir="rtl" style="font-size: 14px; font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${$('<div/>').text(data.name_ar).html()}</span>
-                                </div>`;
-                            }
-
-                            // Vendor
-                            if (data.vendor && data.vendor !== '-') {
-                                html += `<div style="margin-top: 6px;">
-                                    <span class="badge badge-primary badge-round badge-lg" style="background-color: #5f63f2; font-size: 11px;">${$('<div/>').text(data.vendor).html()}</span>
                                 </div>`;
                             }
 
@@ -475,9 +451,6 @@
                 $('#created_until_filter').val('');
                 $('#start_date_filter').val('');
                 $('#end_date_filter').val('');
-                @if(isAdmin())
-                $('#vendor_filter').val(null).trigger('change');
-                @endif
                 table.ajax.reload();
                 // Clear URL params
                 window.history.replaceState({}, '', window.location.pathname);
@@ -531,14 +504,6 @@
                     table.ajax.reload();
                     updateUrlParams();
                 });
-
-            // Vendor filter - live search on change
-            @if(isAdmin())
-            $('#vendor_filter').on('change', function() {
-                table.ajax.reload();
-                updateUrlParams();
-            });
-            @endif
 
             // Enter key to search immediately
             $('#search').on('keypress', function(e) {

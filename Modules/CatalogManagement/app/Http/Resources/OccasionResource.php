@@ -16,15 +16,6 @@ class OccasionResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'vendor_id' => $this->vendor_id,
-            'vendor' => [
-                'id' => $this->vendor?->id,
-                'name' => $this->vendor?->name,
-                'slug' => $this->vendor?->slug,
-                'logo' => formatImage($this->vendor?->logo),
-                'star' => round($this->vendor?->reviews_avg_star ?? $this->vendor?->average_rating ?? 0, 1),
-                'num_of_user_review' => $this->vendor?->reviews_count ?? 0,
-            ],
             'name' => $this->getTranslation('name', app()->getLocale()) ?? '',
             'title' => $this->getTranslation('title', app()->getLocale()) ?? '',
             'sub_title' => $this->getTranslation('sub_title', app()->getLocale()) ?? '',

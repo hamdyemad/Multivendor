@@ -18,6 +18,13 @@ class OccasionController extends Controller
         protected OccasionRepositoryInterface $occasionRepository,
         protected LanguageService $languageService
     ) {
+        // Occasions are admin-only
+        $this->middleware(function ($request, $next) {
+            if (!isAdmin()) {
+                abort(403, 'Unauthorized');
+            }
+            return $next($request);
+        });
         $this->middleware('can:occasions.index')->only(['index', 'datatable', 'show']);
         $this->middleware('can:occasions.create')->only(['create', 'store']);
         $this->middleware('can:occasions.edit')->only(['edit', 'update', 'updatePositions', 'updateSpecialPrice']);
@@ -31,11 +38,11 @@ class OccasionController extends Controller
     public function index()
     {
         $languages = $this->languageService->getAll();
-        $vendors = \Modules\Vendor\app\Models\Vendor::all();
+        $occasionExists = $this->occasionRepository->count() > 0;
         $data = [
             'title' => trans('catalogmanagement::occasion.occasions_management'),
             'languages' => $languages,
-            'vendors' => $vendors,
+            'occasionExists' => $occasionExists,
         ];
         return view('catalogmanagement::occasions.index', $data);
     }
@@ -54,7 +61,6 @@ class OccasionController extends Controller
                 'created_until' => $request->get('created_until'),
                 'start_date' => $request->get('start_date'),
                 'end_date' => $request->get('end_date'),
-                'vendor_id' => $request->get('vendor_id'),
             ];
 
             // Get occasions query with filters (use 0 for no pagination in DataTables)
@@ -66,9 +72,6 @@ class OccasionController extends Controller
                     $nameEn = $occasion->getTranslation('name', 'en') ?? '-';
                     $nameAr = $occasion->getTranslation('name', 'ar') ?? '-';
 
-                    // Get vendor name
-                    $vendorName = $occasion->vendor->name ?? '-';
-
                     // Get image
                     $imageAttachment = $occasion->attachments()->where('type', 'image')->first();
                     $image = $imageAttachment ? asset('storage/' . $imageAttachment->path) : null;
@@ -76,7 +79,6 @@ class OccasionController extends Controller
                     return [
                         'name_en' => $nameEn,
                         'name_ar' => $nameAr,
-                        'vendor' => $vendorName,
                         'image' => $image
                     ];
                 })
@@ -107,13 +109,17 @@ class OccasionController extends Controller
      */
     public function create()
     {
+        // Only allow one occasion to be created
+        if ($this->occasionRepository->count() > 0) {
+            return redirect()->route('admin.occasions.index')
+                ->with('error', trans('catalogmanagement::occasion.only_one_occasion_allowed'));
+        }
+
         $languages = $this->languageService->getAll();
-        $vendors = \Modules\Vendor\app\Models\Vendor::all();
 
         $data = [
             'title' => trans('catalogmanagement::occasion.add_occasion'),
             'languages' => $languages,
-            'vendors' => $vendors,
         ];
         return view('catalogmanagement::occasions.form', $data);
     }
@@ -184,12 +190,10 @@ class OccasionController extends Controller
     {
         $occasion = $this->occasionService->getOccasionById($id);
         $languages = $this->languageService->getAll();
-        $vendors = \Modules\Vendor\app\Models\Vendor::all();
         $data = [
             'title' => trans('catalogmanagement::occasion.edit_occasion'),
             'occasion' => $occasion,
             'languages' => $languages,
-            'vendors' => $vendors,
         ];
         return view('catalogmanagement::occasions.form', $data);
     }

@@ -702,7 +702,8 @@
             </li>
         @endcan
 
-        {{-- Occasions Menu --}}
+        {{-- Occasions Menu (Admin Only) --}}
+        @if(isAdmin())
         @can('occasions.index')
             <li
                 class="{{ isMenuActive(['admin.occasions.index', 'admin.occasions.create', 'admin.occasions.show', 'admin.occasions.edit'], $currentRoute) ? 'active' : '' }}">
@@ -715,21 +716,14 @@
                     <span class="badge badge-round ms-1"
                         style="{{ getBadgeStyle(isMenuActive(['admin.occasions.index', 'admin.occasions.create', 'admin.occasions.show', 'admin.occasions.edit'], $currentRoute)) }}">
                         @php
-                            $occasions_count = 0;
-                            if (isAdmin()) {
-                                $occasions_count = \Modules\CatalogManagement\app\Models\Occasion::count();
-                            } else {
-                                $occasionVendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
-                                if ($occasionVendor) {
-                                    $occasions_count = \Modules\CatalogManagement\app\Models\Occasion::where('vendor_id', $occasionVendor->id)->count();
-                                }
-                            }
+                            $occasions_count = \Modules\CatalogManagement\app\Models\Occasion::count();
                         @endphp
                         {{ $occasions_count }}
                     </span>
                 </a>
             </li>
         @endcan
+        @endif
         @can('product-reviews.index')
             @php
                 try {

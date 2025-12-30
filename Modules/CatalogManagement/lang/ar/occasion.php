@@ -70,6 +70,7 @@ return [
     'occasion_created' => 'تم إنشاء المناسبة بنجاح',
     'occasion_updated' => 'تم تحديث المناسبة بنجاح',
     'occasion_deleted' => 'تم حذف المناسبة بنجاح',
+    'only_one_occasion_allowed' => 'مسموح بمناسبة واحدة فقط. يرجى تعديل أو حذف المناسبة الموجودة.',
     'products_added' => 'منتجات مضافة',
     'error_creating_occasion' => 'خطأ في إنشاء المناسبة',
     'error_updating_occasion' => 'خطأ في تحديث المناسبة',
@@ -86,7 +87,9 @@ return [
     'image_invalid_format' => 'صيغة الصورة غير صالحة. الصيغ المسموحة: jpeg, png, jpg, gif, webp',
     'image_max_size' => 'يجب ألا يتجاوز حجم الصورة 2 ميجابايت',
     'active_must_be_boolean' => 'يجب أن يكون حقل التفعيل منطقياً',
+    'start_date_required' => 'تاريخ البداية مطلوب',
     'start_date_must_be_date' => 'يجب أن يكون تاريخ البداية تاريخاً صالحاً',
+    'end_date_required' => 'تاريخ النهاية مطلوب',
     'end_date_must_be_date' => 'يجب أن يكون تاريخ النهاية تاريخاً صالحاً',
     'end_date_after_start' => 'يجب أن يكون تاريخ النهاية بعد أو يساوي تاريخ البداية',
 

@@ -1,12 +1,15 @@
-@extends('layout.app')
-@section('title')
-    {{ trans('order::order.order_details') }}
-@endsection
-@section('content')
+
+<?php $__env->startSection('title'); ?>
+    <?php echo e(trans('order::order.order_details')); ?>
+
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('content'); ?>
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
-                <x-breadcrumb :items="[
+                <?php if (isset($component)) { $__componentOriginale19f62b34dfe0bfdf95075badcb45bc2 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.breadcrumb','data' => ['items' => [
                     [
                         'title' => trans('dashboard.title'),
                         'url' => route('admin.dashboard'),
@@ -14,7 +17,32 @@
                     ],
                     ['title' => trans('order::order.order_management'), 'url' => route('admin.orders.index')],
                     ['title' => trans('order::order.order_details')],
-                ]" />
+                ]]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('breadcrumb'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['items' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute([
+                    [
+                        'title' => trans('dashboard.title'),
+                        'url' => route('admin.dashboard'),
+                        'icon' => 'uil uil-estate',
+                    ],
+                    ['title' => trans('order::order.order_management'), 'url' => route('admin.orders.index')],
+                    ['title' => trans('order::order.order_details')],
+                ])]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2)): ?>
+<?php $attributes = $__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2; ?>
+<?php unset($__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginale19f62b34dfe0bfdf95075badcb45bc2)): ?>
+<?php $component = $__componentOriginale19f62b34dfe0bfdf95075badcb45bc2; ?>
+<?php unset($__componentOriginale19f62b34dfe0bfdf95075badcb45bc2); ?>
+<?php endif; ?>
             </div>
         </div>
 
@@ -29,39 +57,40 @@
                                 <div class="card-body">
                                     <h6 class="card-title fw-bold mb-20 d-flex align-items-center">
                                         <i class="uil uil-receipt me-2" style="color: #5f63f2; font-size: 20px;"></i>
-                                        {{ trans('order::order.order_information') }}
+                                        <?php echo e(trans('order::order.order_information')); ?>
+
                                     </h6>
                                     <div class="order-details">
                                         <div class="detail-row mb-15">
-                                            <span class="detail-label">{{ trans('order::order.order_id') }}:</span>
+                                            <span class="detail-label"><?php echo e(trans('order::order.order_id')); ?>:</span>
                                             <span
-                                                class="detail-value fw-bold text-primary">{{ $order->order_number }}</span>
+                                                class="detail-value fw-bold text-primary"><?php echo e($order->order_number); ?></span>
                                         </div>
                                         <div class="detail-row mb-15">
-                                            <span class="detail-label">{{ trans('order::order.created_at') }}:</span>
-                                            <span class="detail-value">{{ $order->created_at }}</span>
+                                            <span class="detail-label"><?php echo e(trans('order::order.created_at')); ?>:</span>
+                                            <span class="detail-value"><?php echo e($order->created_at); ?></span>
                                         </div>
                                         <div class="detail-row mb-15 justify-content-between">
-                                            <span class="detail-label">{{ trans('order::order.stage') }}:</span>
+                                            <span class="detail-label"><?php echo e(trans('order::order.stage')); ?>:</span>
                                             <span class="badge badge-lg badge-round"
-                                                style="background: {{ $order->stage?->color ?? '#6c757d' }}; color: white">{{ $order->stage?->name ?? 'N/A' }}</span>
+                                                style="background: <?php echo e($order->stage?->color ?? '#6c757d'); ?>; color: white"><?php echo e($order->stage?->name ?? 'N/A'); ?></span>
                                         </div>
                                         <div class="detail-row">
-                                            <span class="detail-label">{{ trans('order::order.order_from') }}:</span>
+                                            <span class="detail-label"><?php echo e(trans('order::order.order_from')); ?>:</span>
                                             <span class="detail-value">
-                                                @if ($order->order_from === 'web')
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($order->order_from === 'web'): ?>
                                                     <span class="badge badge-lg badge-round bg-info"><i
-                                                            class="uil uil-globe me-1"></i>{{ trans('order::order.web') }}</span>
-                                                @elseif($order->order_from === 'ios')
+                                                            class="uil uil-globe me-1"></i><?php echo e(trans('order::order.web')); ?></span>
+                                                <?php elseif($order->order_from === 'ios'): ?>
                                                     <span class="badge badge-lg badge-round bg-dark"><i
-                                                            class="uil uil-apple me-1"></i>{{ trans('order::order.ios') }}</span>
-                                                @elseif($order->order_from === 'android')
+                                                            class="uil uil-apple me-1"></i><?php echo e(trans('order::order.ios')); ?></span>
+                                                <?php elseif($order->order_from === 'android'): ?>
                                                     <span class="badge badge-lg badge-round bg-success"><i
-                                                            class="uil uil-android me-1"></i>{{ trans('order::order.android') }}</span>
-                                                @else
+                                                            class="uil uil-android me-1"></i><?php echo e(trans('order::order.android')); ?></span>
+                                                <?php else: ?>
                                                     <span
-                                                        class="badge badge-lg badge-round bg-secondary">{{ $order->order_from }}</span>
-                                                @endif
+                                                        class="badge badge-lg badge-round bg-secondary"><?php echo e($order->order_from); ?></span>
+                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                             </span>
                                         </div>
                                     </div>
@@ -75,50 +104,52 @@
                                 <div class="card-body">
                                     <h6 class="card-title fw-bold mb-20 d-flex align-items-center">
                                         <i class="uil uil-user me-2" style="color: #5f63f2; font-size: 20px;"></i>
-                                        {{ trans('order::order.customer_information') }}
+                                        <?php echo e(trans('order::order.customer_information')); ?>
+
                                     </h6>
                                     <div class="customer-details">
                                         <div class="detail-row mb-15">
                                             <span class="detail-label"><i
-                                                    class="uil uil-user-circle me-1"></i>{{ trans('order::order.customer_name') }}:</span>
-                                            <span class="detail-value fw-bold">{{ $order->customer_name }}</span>
+                                                    class="uil uil-user-circle me-1"></i><?php echo e(trans('order::order.customer_name')); ?>:</span>
+                                            <span class="detail-value fw-bold"><?php echo e($order->customer_name); ?></span>
                                         </div>
                                         <div class="detail-row mb-15">
                                             <span class="detail-label"><i
-                                                    class="uil uil-envelope me-1"></i>{{ trans('order::order.customer_email') }}:</span>
+                                                    class="uil uil-envelope me-1"></i><?php echo e(trans('order::order.customer_email')); ?>:</span>
                                             <span class="detail-value"><a
-                                                    href="mailto:{{ $order->customer_email }}">{{ $order->customer_email }}</a></span>
+                                                    href="mailto:<?php echo e($order->customer_email); ?>"><?php echo e($order->customer_email); ?></a></span>
                                         </div>
                                         <div class="detail-row mb-15">
                                             <span class="detail-label"><i
-                                                    class="uil uil-phone me-1"></i>{{ trans('order::order.customer_phone') }}:</span>
+                                                    class="uil uil-phone me-1"></i><?php echo e(trans('order::order.customer_phone')); ?>:</span>
                                             <span class="detail-value"><a
-                                                    href="tel:{{ $order->customer_phone }}">{{ $order->customer_phone }}</a></span>
+                                                    href="tel:<?php echo e($order->customer_phone); ?>"><?php echo e($order->customer_phone); ?></a></span>
                                         </div>
                                         <div class="detail-row mb-15">
                                             <span class="detail-label"><i
-                                                    class="uil uil-map-pin me-1"></i>{{ trans('order::order.customer_address') }}:</span>
-                                            <span class="detail-value">{{ $order->customer_address }}</span>
+                                                    class="uil uil-map-pin me-1"></i><?php echo e(trans('order::order.customer_address')); ?>:</span>
+                                            <span class="detail-value"><?php echo e($order->customer_address); ?></span>
                                         </div>
-                                        @if ($order->country || $order->city || $order->region)
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($order->country || $order->city || $order->region): ?>
                                             <hr class="my-15">
                                             <h6 class="fw-bold mb-15 d-flex align-items-center">
                                                 <i class="uil uil-location-point me-2" style="color: #5f63f2; font-size: 18px;"></i>
-                                                {{ trans('order::order.location') }}
+                                                <?php echo e(trans('order::order.location')); ?>
+
                                             </h6>
                                             <div class="detail-row mb-15">
-                                                <span class="detail-label">{{ trans('order::order.country') }}:</span>
-                                                <span class="detail-value">{{ $order->country?->name ?? 'N/A' }}</span>
+                                                <span class="detail-label"><?php echo e(trans('order::order.country')); ?>:</span>
+                                                <span class="detail-value"><?php echo e($order->country?->name ?? 'N/A'); ?></span>
                                             </div>
                                             <div class="detail-row mb-15">
-                                                <span class="detail-label">{{ trans('order::order.city') }}:</span>
-                                                <span class="detail-value">{{ $order->city?->name ?? 'N/A' }}</span>
+                                                <span class="detail-label"><?php echo e(trans('order::order.city')); ?>:</span>
+                                                <span class="detail-value"><?php echo e($order->city?->name ?? 'N/A'); ?></span>
                                             </div>
                                             <div class="detail-row">
-                                                <span class="detail-label">{{ trans('order::order.region') }}:</span>
-                                                <span class="detail-value">{{ $order->region?->name ?? 'N/A' }}</span>
+                                                <span class="detail-label"><?php echo e(trans('order::order.region')); ?>:</span>
+                                                <span class="detail-value"><?php echo e($order->region?->name ?? 'N/A'); ?></span>
                                             </div>
-                                        @endif
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -167,28 +198,34 @@
                                 <thead class="userDatatable-header" style="background-color: #003d82; color: white;">
                                     <tr>
                                         <th class="text-white fw-bold text-center">#</th>
-                                        <th class="text-white fw-bold text-center">{{ trans('order::order.product') }}</th>
-                                        <th class="text-white fw-bold text-center">{{ trans('order::order.price_before_tax') }}
+                                        <th class="text-white fw-bold text-center"><?php echo e(trans('order::order.product')); ?></th>
+                                        <th class="text-white fw-bold text-center"><?php echo e(trans('order::order.price_before_tax')); ?>
+
                                         </th>
-                                        <th class="text-white fw-bold text-center">{{ trans('order::order.price_per_unit') }}
+                                        <th class="text-white fw-bold text-center"><?php echo e(trans('order::order.price_per_unit')); ?>
+
                                         </th>
-                                        <th class="text-white fw-bold text-center">{{ trans('order::order.quantity') }}
+                                        <th class="text-white fw-bold text-center"><?php echo e(trans('order::order.quantity')); ?>
+
                                         </th>
-                                        <th class="text-white fw-bold text-center">{{ trans('order::order.total_price') }}
+                                        <th class="text-white fw-bold text-center"><?php echo e(trans('order::order.total_price')); ?>
+
                                         </th>
-                                        <th class="text-white fw-bold text-center">{{ trans('order::order.bnaia_commission') }}
+                                        <th class="text-white fw-bold text-center"><?php echo e(trans('order::order.bnaia_commission')); ?>
+
                                         </th>
-                                        <th class="text-white fw-bold text-center">{{ trans('order::order.remaining') }}
+                                        <th class="text-white fw-bold text-center"><?php echo e(trans('order::order.remaining')); ?>
+
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @php
+                                    <?php
                                         // Use vendor-filtered products if available, otherwise use all products
                                         $displayProducts = isset($vendorProducts) && $vendorProducts !== null ? $vendorProducts : $order->products;
-                                    @endphp
-                                    @forelse($displayProducts as $key => $product)
-                                        @php
+                                    ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $displayProducts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                        <?php
                                             $productImage = $product->vendorProduct?->product?->mainImage?->path;
                                             $vendorName = $product->vendorProduct?->vendor?->getTranslation('name', app()->getLocale()) ?? 'N/A';
                                             
@@ -224,120 +261,134 @@
                                             
                                             // Remaining = Total with tax - Commission
                                             $remaining = $productTotalWithTax - $bnaiaCommission;
-                                        @endphp
+                                        ?>
                                         <tr>
-                                            <td class="fw-bold text-center">{{ $key + 1 }}</td>
+                                            <td class="fw-bold text-center"><?php echo e($key + 1); ?></td>
                                             <td class="text-center">
                                                 <div class="d-flex align-items-center justify-content-center gap-3">
-                                                    @if($productImage)
-                                                        <img src="{{ asset('storage/' . $productImage) }}" 
-                                                             alt="{{ $product->vendorProduct->product->name ?? 'Product' }}"
+                                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($productImage): ?>
+                                                        <img src="<?php echo e(asset('storage/' . $productImage)); ?>" 
+                                                             alt="<?php echo e($product->vendorProduct->product->name ?? 'Product'); ?>"
                                                              class="rounded"
                                                              style="width: 60px; height: 60px;  border: 1px solid #dee2e6;">
-                                                    @else
-                                                        <img src="{{ asset('assets/img/default.png') }}" 
-                                                             alt="{{ $product->vendorProduct->product->name ?? 'Product' }}"
+                                                    <?php else: ?>
+                                                        <img src="<?php echo e(asset('assets/img/default.png')); ?>" 
+                                                             alt="<?php echo e($product->vendorProduct->product->name ?? 'Product'); ?>"
                                                              class="rounded"
                                                              style="width: 60px; height: 60px;  border: 1px solid #dee2e6;">
-                                                    @endif
+                                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                     <div class="text-start">
                                                         <p class="fw-bold mb-2">
-                                                            {{ $product->vendorProduct->product->name ?? 'N/A' }}</p>
+                                                            <?php echo e($product->vendorProduct->product->name ?? 'N/A'); ?></p>
                                                         <small class="text-muted d-block mb-1">
-                                                            <strong>{{ trans('order::order.sku') }}:</strong>
-                                                            {{ $product->vendorProductVariant?->sku ?? $product->vendorProduct?->sku ?? 'N/A' }}
+                                                            <strong><?php echo e(trans('order::order.sku')); ?>:</strong>
+                                                            <?php echo e($product->vendorProductVariant?->sku ?? $product->vendorProduct?->sku ?? 'N/A'); ?>
+
                                                         </small>
-                                                        @if ($variantPath)
+                                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($variantPath): ?>
                                                             <small class="text-muted d-block mb-1">
                                                                 <i class="uil uil-tag me-1"></i>
-                                                                <strong>{{ trans('order::order.variant') }}:</strong>
-                                                                {{ $variantPath }}
+                                                                <strong><?php echo e(trans('order::order.variant')); ?>:</strong>
+                                                                <?php echo e($variantPath); ?>
+
                                                             </small>
-                                                        @endif
+                                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                         <small class="text-muted d-block">
                                                             <i class="uil uil-store me-1"></i>
-                                                            <strong>{{ trans('order::order.vendor') }}:</strong>
-                                                            {{ $vendorName }}
+                                                            <strong><?php echo e(trans('order::order.vendor')); ?>:</strong>
+                                                            <?php echo e($vendorName); ?>
+
                                                         </small>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td class="text-center">
-                                                {{ number_format($unitPriceBeforeTax, 2) }}
-                                                {{ currency() }}
+                                                <?php echo e(number_format($unitPriceBeforeTax, 2)); ?>
+
+                                                <?php echo e(currency()); ?>
+
                                             </td>
                                             <td class="text-center">
-                                                {{ number_format($unitPriceWithTax, 2) }}
-                                                {{ currency() }}
-                                                @if($unitTaxAmount > 0)
-                                                    <small class="d-block text-muted">({{ trans('order::order.tax') }}: {{ number_format($unitTaxAmount, 2) }} {{ currency() }})</small>
-                                                @endif
+                                                <?php echo e(number_format($unitPriceWithTax, 2)); ?>
+
+                                                <?php echo e(currency()); ?>
+
+                                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($unitTaxAmount > 0): ?>
+                                                    <small class="d-block text-muted">(<?php echo e(trans('order::order.tax')); ?>: <?php echo e(number_format($unitTaxAmount, 2)); ?> <?php echo e(currency()); ?>)</small>
+                                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                             </td>
-                                            <td class="text-center">{{ $product->quantity }}</td>
+                                            <td class="text-center"><?php echo e($product->quantity); ?></td>
                                             <td class="text-center fw-bold">
-                                                {{ number_format($productTotalWithTax, 2) }}
-                                                {{ currency() }}</td>
+                                                <?php echo e(number_format($productTotalWithTax, 2)); ?>
+
+                                                <?php echo e(currency()); ?></td>
                                             <td class="text-center text-danger">
-                                                {{ number_format($bnaiaCommission, 2) }}
-                                                {{ currency() }}
-                                                <small class="d-block text-muted">({{ $commissionPercent }}%)</small>
+                                                <?php echo e(number_format($bnaiaCommission, 2)); ?>
+
+                                                <?php echo e(currency()); ?>
+
+                                                <small class="d-block text-muted">(<?php echo e($commissionPercent); ?>%)</small>
                                             </td>
                                             <td class="text-center fw-bold text-success">
-                                                {{ number_format($remaining, 2) }}
-                                                {{ currency() }}</td>
+                                                <?php echo e(number_format($remaining, 2)); ?>
+
+                                                <?php echo e(currency()); ?></td>
                                         </tr>
-                                    @empty
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                         <tr>
                                             <td colspan="8" class="text-center text-muted py-20">
-                                                {{ trans('common.no_data') }}
+                                                <?php echo e(trans('common.no_data')); ?>
+
                                             </td>
                                         </tr>
-                                    @endforelse
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
                     <!-- Fees & Discounts Details -->
-                    @if ($order->extraFeesDiscounts->count() > 0)
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($order->extraFeesDiscounts->count() > 0): ?>
                         <div class="mb-40">
                             <div class="table-responsive">
                                 <table class="table mb-0 table-hover" style="border-color: #dee2e6;">
                                     <thead class="userDatatable-header" style="background-color: #003d82; color: white;">
                                         <tr>
-                                            <th class="text-white fw-bold">{{ trans('order::order.type') }}</th>
-                                            <th class="text-white fw-bold">{{ trans('order::order.reason') }}</th>
-                                            <th class="text-white fw-bold text-end">{{ trans('order::order.amount') }}</th>
+                                            <th class="text-white fw-bold"><?php echo e(trans('order::order.type')); ?></th>
+                                            <th class="text-white fw-bold"><?php echo e(trans('order::order.reason')); ?></th>
+                                            <th class="text-white fw-bold text-end"><?php echo e(trans('order::order.amount')); ?></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($order->extraFeesDiscounts as $extra)
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $order->extraFeesDiscounts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $extra): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <tr>
                                                 <td>
-                                                    @if ($extra->type === 'fee')
+                                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($extra->type === 'fee'): ?>
                                                         <span
-                                                            class="badge badge-lg badge-round bg-danger">{{ trans('order::order.fee') }}</span>
-                                                    @else
+                                                            class="badge badge-lg badge-round bg-danger"><?php echo e(trans('order::order.fee')); ?></span>
+                                                    <?php else: ?>
                                                         <span
-                                                            class="badge badge-lg badge-round bg-success">{{ trans('order::order.discount') }}</span>
-                                                    @endif
+                                                            class="badge badge-lg badge-round bg-success"><?php echo e(trans('order::order.discount')); ?></span>
+                                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                                 </td>
-                                                <td>{{ $extra->reason }}</td>
+                                                <td><?php echo e($extra->reason); ?></td>
                                                 <td class="text-end fw-bold">
-                                                    {{ $extra->type === 'fee' ? '+' : '-' }}{{ number_format($extra->cost, 2) }}
-                                                    {{ currency() }}
+                                                    <?php echo e($extra->type === 'fee' ? '+' : '-'); ?><?php echo e(number_format($extra->cost, 2)); ?>
+
+                                                    <?php echo e(currency()); ?>
+
                                                 </td>
                                             </tr>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-                    @endif
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                     <!-- Summary Section -->
                     <div class="row mb-40">
-                        @php
+                        <?php
                             // Calculate total commission and remaining for all displayed products
                             $totalProductsPriceBeforeTax = 0;
                             $totalCommission = 0;
@@ -367,128 +418,144 @@
                             
                             // Total with tax for vendor remaining calculation
                             $totalProductsPriceWithTax = $totalProductsPriceBeforeTax + $totalProductsTax;
-                        @endphp
+                        ?>
 
-                        @if(isset($isVendorUser) && $isVendorUser && isset($vendorProductTotal))
-                            {{-- Vendor view: show Vendor Remaining Summary --}}
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isset($isVendorUser) && $isVendorUser && isset($vendorProductTotal)): ?>
+                            
                             <div class="col-md-6 mb-3">
                                 <div class="card border-0 shadow-sm h-100"
                                     style="background: linear-gradient(135deg, #28a745 0%, #5dd879 100%); color: white;">
                                     <div class="card-body">
                                         <h6 class="card-title fw-bold mb-20 d-flex align-items-center text-white">
                                             <i class="uil uil-money-bill me-2" style="font-size: 20px;"></i>
-                                            {{ trans('order::order.vendor_remaining_summary') }}
+                                            <?php echo e(trans('order::order.vendor_remaining_summary')); ?>
+
                                         </h6>
                                         <div class="summary-details">
                                             <div class="summary-row mb-12">
-                                                <span class="fw-bold">{{ trans('order::order.your_products_total_including_tax') }}</span>
-                                                <span class="fw-bold">{{ number_format($totalProductsPriceWithTax, 2) }}
-                                                    {{ currency() }}</span>
+                                                <span class="fw-bold"><?php echo e(trans('order::order.your_products_total_including_tax')); ?></span>
+                                                <span class="fw-bold"><?php echo e(number_format($totalProductsPriceWithTax, 2)); ?>
+
+                                                    <?php echo e(currency()); ?></span>
                                             </div>
                                             <div class="summary-row mb-12">
-                                                <span class="fw-bold">{{ trans('order::order.total_commission_including_tax') }}</span>
-                                                <span class="fw-bold" style="color: #ffcccc;">-{{ number_format($totalCommission, 2) }}
-                                                    {{ currency() }}</span>
+                                                <span class="fw-bold"><?php echo e(trans('order::order.total_commission_including_tax')); ?></span>
+                                                <span class="fw-bold" style="color: #ffcccc;">-<?php echo e(number_format($totalCommission, 2)); ?>
+
+                                                    <?php echo e(currency()); ?></span>
                                             </div>
                                             <hr style="border-color: rgba(255,255,255,0.3); margin: 15px 0;">
                                             <div class="summary-row" style="font-size: 18px;">
-                                                <span class="fw-bold">{{ trans('order::order.final_remaining') }}</span>
-                                                <span class="fw-bold" style="color: #ffffcc;">{{ number_format($totalRemaining, 2) }}
-                                                    {{ currency() }}</span>
+                                                <span class="fw-bold"><?php echo e(trans('order::order.final_remaining')); ?></span>
+                                                <span class="fw-bold" style="color: #ffffcc;"><?php echo e(number_format($totalRemaining, 2)); ?>
+
+                                                    <?php echo e(currency()); ?></span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        @else
-                            {{-- Admin view: show two boxes --}}
+                        <?php else: ?>
                             
-                            {{-- Box 1: Vendor Remaining Summary (subtotal WITH tax) --}}
+                            
+                            
                             <div class="col-md-6 mb-3">
                                 <div class="card border-0 shadow-sm h-100"
                                     style="background: linear-gradient(135deg, #28a745 0%, #5dd879 100%); color: white;">
                                     <div class="card-body">
                                         <h6 class="card-title fw-bold mb-20 d-flex align-items-center text-white">
                                             <i class="uil uil-money-bill me-2" style="font-size: 20px;"></i>
-                                            {{ trans('order::order.vendor_remaining_summary') }}
+                                            <?php echo e(trans('order::order.vendor_remaining_summary')); ?>
+
                                         </h6>
                                         <div class="summary-details">
                                             <div class="summary-row mb-12">
-                                                <span class="fw-bold">{{ trans('order::order.subtotal_including_tax') }}</span>
-                                                <span class="fw-bold">{{ number_format($totalProductsPriceWithTax, 2) }}
-                                                    {{ currency() }}</span>
+                                                <span class="fw-bold"><?php echo e(trans('order::order.subtotal_including_tax')); ?></span>
+                                                <span class="fw-bold"><?php echo e(number_format($totalProductsPriceWithTax, 2)); ?>
+
+                                                    <?php echo e(currency()); ?></span>
                                             </div>
                                             <div class="summary-row mb-12">
-                                                <span class="fw-bold">{{ trans('order::order.total_commission_including_tax') }}</span>
-                                                <span class="fw-bold" style="color: #ffcccc;">-{{ number_format($totalCommission, 2) }}
-                                                    {{ currency() }}</span>
+                                                <span class="fw-bold"><?php echo e(trans('order::order.total_commission_including_tax')); ?></span>
+                                                <span class="fw-bold" style="color: #ffcccc;">-<?php echo e(number_format($totalCommission, 2)); ?>
+
+                                                    <?php echo e(currency()); ?></span>
                                             </div>
                                             <hr style="border-color: rgba(255,255,255,0.3); margin: 15px 0;">
                                             <div class="summary-row" style="font-size: 18px;">
-                                                <span class="fw-bold">{{ trans('order::order.vendors_remaining') }}</span>
-                                                <span class="fw-bold" style="color: #ffffcc;">{{ number_format($totalRemaining, 2) }}
-                                                    {{ currency() }}</span>
+                                                <span class="fw-bold"><?php echo e(trans('order::order.vendors_remaining')); ?></span>
+                                                <span class="fw-bold" style="color: #ffffcc;"><?php echo e(number_format($totalRemaining, 2)); ?>
+
+                                                    <?php echo e(currency()); ?></span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             
-                            {{-- Box 2: Order Summary (subtotal WITHOUT tax) --}}
+                            
                             <div class="col-md-6 mb-3">
                                 <div class="card border-0 shadow-sm h-100"
                                     style="background: linear-gradient(135deg, #5f63f2 0%, #8e92f7 100%); color: white;">
                                     <div class="card-body">
                                         <h6 class="card-title fw-bold mb-20 d-flex align-items-center text-white">
                                             <i class="uil uil-receipt me-2" style="font-size: 20px;"></i>
-                                            {{ trans('order::order.order_summary') }}
+                                            <?php echo e(trans('order::order.order_summary')); ?>
+
                                         </h6>
                                         <div class="summary-details">
                                             <div class="summary-row mb-12">
-                                                <span class="fw-bold">{{ trans('order::order.subtotal') }}</span>
-                                                <span class="fw-bold">{{ number_format($totalProductsPriceBeforeTax, 2) }}
-                                                    {{ currency() }}</span>
+                                                <span class="fw-bold"><?php echo e(trans('order::order.subtotal')); ?></span>
+                                                <span class="fw-bold"><?php echo e(number_format($totalProductsPriceBeforeTax, 2)); ?>
+
+                                                    <?php echo e(currency()); ?></span>
                                             </div>
                                             <div class="summary-row mb-12">
-                                                <span class="fw-bold">{{ trans('order::order.tax') }}</span>
-                                                <span class="fw-bold">+{{ number_format($order->total_tax, 2) }}
-                                                    {{ currency() }}</span>
+                                                <span class="fw-bold"><?php echo e(trans('order::order.tax')); ?></span>
+                                                <span class="fw-bold">+<?php echo e(number_format($order->total_tax, 2)); ?>
+
+                                                    <?php echo e(currency()); ?></span>
                                             </div>
                                             <div class="summary-row mb-12">
-                                                <span class="fw-bold">{{ trans('order::order.subtotal_including_tax') }}</span>
-                                                <span class="fw-bold">{{ number_format($totalProductsPriceWithTax, 2) }}
-                                                    {{ currency() }}</span>
+                                                <span class="fw-bold"><?php echo e(trans('order::order.subtotal_including_tax')); ?></span>
+                                                <span class="fw-bold"><?php echo e(number_format($totalProductsPriceWithTax, 2)); ?>
+
+                                                    <?php echo e(currency()); ?></span>
                                             </div>
-                                            @if ($order->total_discounts > 0)
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($order->total_discounts > 0): ?>
                                                 <div class="summary-row mb-12">
-                                                    <span class="fw-bold">{{ trans('order::order.discounts') }}</span>
-                                                    <span class="fw-bold" style="color: #ffcccc;">-{{ number_format($order->total_discounts, 2) }}
-                                                        {{ currency() }}</span>
+                                                    <span class="fw-bold"><?php echo e(trans('order::order.discounts')); ?></span>
+                                                    <span class="fw-bold" style="color: #ffcccc;">-<?php echo e(number_format($order->total_discounts, 2)); ?>
+
+                                                        <?php echo e(currency()); ?></span>
                                                 </div>
-                                            @endif
-                                            @if ($order->total_fees > 0)
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($order->total_fees > 0): ?>
                                                 <div class="summary-row mb-12">
-                                                    <span class="fw-bold">{{ trans('order::order.fees') }}</span>
-                                                    <span class="fw-bold">+{{ number_format($order->total_fees, 2) }}
-                                                        {{ currency() }}</span>
+                                                    <span class="fw-bold"><?php echo e(trans('order::order.fees')); ?></span>
+                                                    <span class="fw-bold">+<?php echo e(number_format($order->total_fees, 2)); ?>
+
+                                                        <?php echo e(currency()); ?></span>
                                                 </div>
-                                            @endif
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                             <div class="summary-row mb-12">
-                                                <span class="fw-bold">{{ trans('order::order.shipping') }}</span>
-                                                <span class="fw-bold">+{{ number_format($order->shipping, 2) }}
-                                                    {{ currency() }}</span>
+                                                <span class="fw-bold"><?php echo e(trans('order::order.shipping')); ?></span>
+                                                <span class="fw-bold">+<?php echo e(number_format($order->shipping, 2)); ?>
+
+                                                    <?php echo e(currency()); ?></span>
                                             </div>
                                             <hr style="border-color: rgba(255,255,255,0.3); margin: 15px 0;">
                                             <div class="summary-row" style="font-size: 18px;">
-                                                <span class="fw-bold">{{ trans('order::order.total') }}</span>
-                                                <span class="fw-bold">{{ number_format($order->total_price, 2) }}
-                                                    {{ currency() }}</span>
+                                                <span class="fw-bold"><?php echo e(trans('order::order.total')); ?></span>
+                                                <span class="fw-bold"><?php echo e(number_format($order->total_price, 2)); ?>
+
+                                                    <?php echo e(currency()); ?></span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        @endif
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
 
                     <style>
@@ -506,27 +573,30 @@
                 <div class="mt-30 mb-40 no-print">
                     <div class="bg-white p-20 radius-xl global-shadow border-light-0">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0 fw-500">{{ trans('order::order.actions') }}</h6>
+                            <h6 class="mb-0 fw-500"><?php echo e(trans('order::order.actions')); ?></h6>
                             <div class="d-flex gap-2">
-                                <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-secondary btn-sm">
-                                    <i class="uil uil-arrow-left me-2"></i>{{ trans('common.back') }}
+                                <a href="<?php echo e(route('admin.orders.index')); ?>" class="btn btn-outline-secondary btn-sm">
+                                    <i class="uil uil-arrow-left me-2"></i><?php echo e(trans('common.back')); ?>
+
                                 </a>
-                                @php
+                                <?php
                                     $finalStages = ['deliver', 'cancel', 'refund'];
                                     $isFinalStage = in_array($order->stage?->slug, $finalStages);
-                                @endphp
-                                @if (!$isFinalStage && isAdmin())
+                                ?>
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!$isFinalStage && isAdmin()): ?>
                                     <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                         data-bs-target="#changeStageModal"
-                                        data-id="{{ $order->id }}"
-                                        data-stage-id="{{ $order->stage_id }}"
-                                        data-stage-type="{{ $order->stage?->type }}">
+                                        data-id="<?php echo e($order->id); ?>"
+                                        data-stage-id="<?php echo e($order->stage_id); ?>"
+                                        data-stage-type="<?php echo e($order->stage?->type); ?>">
                                         <i
-                                            class="uil uil-check-circle me-2"></i>{{ trans('order::order.change_order_stage') }}
+                                            class="uil uil-check-circle me-2"></i><?php echo e(trans('order::order.change_order_stage')); ?>
+
                                     </button>
-                                @endif
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 <button class="btn btn-info btn-sm" onclick="printInvoice()">
-                                    <i class="uil uil-print me-2"></i>{{ trans('order::order.print_invoice') }}
+                                    <i class="uil uil-print me-2"></i><?php echo e(trans('order::order.print_invoice')); ?>
+
                                 </button>
                             </div>
                         </div>
@@ -537,9 +607,28 @@
     </div>
 
     <!-- Include Change Stage Modal Component (Admin Only) -->
-    @if(isAdmin())
-        <x-order::change-stage-modal :order-id="$order->id" :current-stage-id="$order->stage_id" :order-stages="$orderStages ?? []" />
-    @endif
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isAdmin()): ?>
+        <?php if (isset($component)) { $__componentOriginale890c050104d0aaf208369cc0a43e7e6 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginale890c050104d0aaf208369cc0a43e7e6 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'order::components.change-stage-modal','data' => ['orderId' => $order->id,'currentStageId' => $order->stage_id,'orderStages' => $orderStages ?? []]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('order::change-stage-modal'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['order-id' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($order->id),'current-stage-id' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($order->stage_id),'order-stages' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($orderStages ?? [])]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginale890c050104d0aaf208369cc0a43e7e6)): ?>
+<?php $attributes = $__attributesOriginale890c050104d0aaf208369cc0a43e7e6; ?>
+<?php unset($__attributesOriginale890c050104d0aaf208369cc0a43e7e6); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginale890c050104d0aaf208369cc0a43e7e6)): ?>
+<?php $component = $__componentOriginale890c050104d0aaf208369cc0a43e7e6; ?>
+<?php unset($__componentOriginale890c050104d0aaf208369cc0a43e7e6); ?>
+<?php endif; ?>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <style>
         .no-print {
@@ -941,7 +1030,7 @@
     <script>
         function printInvoice() {
             // Get order number for filename
-            const orderNumber = '{{ $order->order_number }}';
+            const orderNumber = '<?php echo e($order->order_number); ?>';
 
             // Set document title for print dialog
             const originalTitle = document.title;
@@ -956,4 +1045,6 @@
             }, 100);
         }
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layout.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\eramo-multi-vendor\Modules/Order\resources/views/orders/show.blade.php ENDPATH**/ ?>

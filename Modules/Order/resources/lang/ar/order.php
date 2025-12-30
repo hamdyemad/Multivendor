@@ -61,6 +61,8 @@ return [
     'invalid_quantity' => 'كمية غير صالحة',
     'invalid_price' => 'سعر غير صالح',
     'invalid_product_data' => 'بيانات المنتج غير صالحة',
+    'occasion_expired_or_inactive' => 'هذه المناسبة انتهت أو لم تعد نشطة',
+    'bundle_not_active' => 'هذه الحزمة لم تعد نشطة',
     'product_added' => 'تمت إضافة المنتج للطلب',
     'product_removed' => 'تمت إزالة المنتج من الطلب',
     'order_created' => 'تم إنشاء الطلب بنجاح',

@@ -39,9 +39,6 @@ class CalculateApiProductPrices
             $bundleId = $formProduct['bundle_id'] ?? null;
             $occasionId = $formProduct['occasion_id'] ?? null;
 
-            // Determine price based on type FIRST (using cart data which has occasion/bundle pricing)
-            $priceWithTax = $this->getPriceFromCart($type, $formProduct);
-
             // Get product details from service with all relationships for order creation
             $vendorProduct = $this->productService->findProductForOrder($vendorProductId);
 
@@ -63,9 +60,28 @@ class CalculateApiProductPrices
                 throw new OrderException(trans('order::order.vendor_id_not_found', ['id' => $vendorProductId]));
             }
 
-            // If price wasn't determined from cart, use variant price as fallback
-            if (!$priceWithTax) {
-                $priceWithTax = (float) ($vendorProduct['variants'][0]['price'] ?? 0);
+            // Determine price based on type (bundle/occasion have special pricing)
+            // Returns null if not found, or the actual price (which could be 0)
+            $bundleOccasionPrice = $this->getPriceFromCart($type, $formProduct, $vendorProductVariantId);
+
+            // Use bundle/occasion price if found, otherwise use variant price
+            if ($bundleOccasionPrice !== null) {
+                $priceWithTax = $bundleOccasionPrice;
+            } else {
+                // Find the specific variant price, not just the first one
+                $priceWithTax = 0;
+                if (!empty($vendorProduct['variants'])) {
+                    foreach ($vendorProduct['variants'] as $variant) {
+                        if (($variant['id'] ?? null) == $vendorProductVariantId) {
+                            $priceWithTax = (float) ($variant['price'] ?? 0);
+                            break;
+                        }
+                    }
+                    // Fallback to first variant if specific variant not found
+                    if (!$priceWithTax) {
+                        $priceWithTax = (float) ($vendorProduct['variants'][0]['price'] ?? 0);
+                    }
+                }
             }
 
             // Calculate total tax rate from all taxes and collect tax data
@@ -173,35 +189,65 @@ class CalculateApiProductPrices
 
     /**
      * Get price from cart data (occasion/bundle pricing)
-     * Returns 0 if not found, allowing fallback to variant price
+     * Falls back to database query if cart data doesn't have the products
+     * Returns null if not found, or the actual price (which could be 0)
      */
-    private function getPriceFromCart(string $type, array $formProduct): float
+    private function getPriceFromCart(string $type, array $formProduct, $vendorProductVariantId): ?float
     {
-        if ($type === 'bundle' && isset($formProduct['bundle'])) {
-            $bundle = $formProduct['bundle'];
-            if ($bundle && isset($bundle['bundleProducts'])) {
-                $bundleProduct = collect($bundle['bundleProducts'])
-                    ->firstWhere('vendor_product_variant_id', $formProduct['vendor_product_variant_id']);
-
-                if ($bundleProduct && isset($bundleProduct['price'])) {
-                    return (float) $bundleProduct['price'];
+        $variantId = (int) $vendorProductVariantId;
+        
+        if ($type === 'bundle' && !empty($formProduct['bundle_id'])) {
+            $bundleId = (int) $formProduct['bundle_id'];
+            
+            // First try to get from cart data
+            if (!empty($formProduct['bundle']['bundleProducts'])) {
+                foreach ($formProduct['bundle']['bundleProducts'] as $bundleProduct) {
+                    if ((int) ($bundleProduct['vendor_product_variant_id'] ?? 0) === $variantId) {
+                        if (array_key_exists('price', $bundleProduct)) {
+                            return (float) $bundleProduct['price'];
+                        }
+                    }
                 }
+            }
+
+            // Fallback: query database directly (without global scopes to ensure we get the data)
+            $bundleProduct = \Modules\CatalogManagement\app\Models\BundleProduct::withoutGlobalScopes()
+                ->where('bundle_id', $bundleId)
+                ->where('vendor_product_variant_id', $variantId)
+                ->whereNull('deleted_at')
+                ->first();
+
+            if ($bundleProduct) {
+                return (float) $bundleProduct->price;
             }
         }
 
-        if ($type === 'occasion' && isset($formProduct['occasion'])) {
-            $occasion = $formProduct['occasion'];
-            if ($occasion && isset($occasion['occasionProducts'])) {
-                $occasionProduct = collect($occasion['occasionProducts'])
-                    ->firstWhere('vendor_product_variant_id', $formProduct['vendor_product_variant_id']);
-
-                if ($occasionProduct && isset($occasionProduct['special_price'])) {
-                    return (float) $occasionProduct['special_price'];
+        if ($type === 'occasion' && !empty($formProduct['occasion_id'])) {
+            $occasionId = (int) $formProduct['occasion_id'];
+            
+            // First try to get from cart data
+            if (!empty($formProduct['occasion']['occasionProducts'])) {
+                foreach ($formProduct['occasion']['occasionProducts'] as $occasionProduct) {
+                    if ((int) ($occasionProduct['vendor_product_variant_id'] ?? 0) === $variantId) {
+                        if (array_key_exists('special_price', $occasionProduct)) {
+                            return (float) $occasionProduct['special_price'];
+                        }
+                    }
                 }
+            }
+
+            // Fallback: query database directly
+            $occasionProduct = \Modules\CatalogManagement\app\Models\OccasionProduct::query()
+                ->where('occasion_id', $occasionId)
+                ->where('vendor_product_variant_id', $variantId)
+                ->first();
+
+            if ($occasionProduct) {
+                return (float) $occasionProduct->special_price;
             }
         }
 
-        // Return 0 to indicate price not found in cart data
-        return 0;
+        // Return null to indicate price not found - will use regular product price
+        return null;
     }
 }

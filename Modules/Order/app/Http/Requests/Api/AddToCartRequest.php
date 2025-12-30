@@ -100,6 +100,16 @@ class AddToCartRequest extends FormRequest
 
             // Validate product belongs to bundle
             if ($type === 'bundle' && $bundleId) {
+                // Check if bundle is active and approved
+                $bundle = \Modules\CatalogManagement\app\Models\Bundle::active()->find($bundleId);
+                if (!$bundle) {
+                    $validator->errors()->add(
+                        'bundle_id',
+                        __('validation.bundle_not_active')
+                    );
+                    return;
+                }
+
                 $bundleProduct = BundleProduct::where('bundle_id', $bundleId)
                     ->where('vendor_product_variant_id', $vendorProductVariantId)
                     ->first();
@@ -114,6 +124,16 @@ class AddToCartRequest extends FormRequest
 
             // Validate product belongs to occasion
             if ($type === 'occasion' && $occasionId) {
+                // Check if occasion is active and not expired
+                $occasion = \Modules\CatalogManagement\app\Models\Occasion::active()->find($occasionId);
+                if (!$occasion) {
+                    $validator->errors()->add(
+                        'occasion_id',
+                        __('validation.occasion_not_active')
+                    );
+                    return;
+                }
+
                 $occasionProduct = OccasionProduct::where('occasion_id', $occasionId)
                     ->where('vendor_product_variant_id', $vendorProductVariantId)
                     ->first();

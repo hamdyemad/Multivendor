@@ -25,6 +25,7 @@ class BundleProductResource extends JsonResource
         return [
             'id' => $this->id,
             'bundle_id' => $this->bundle_id,
+            'vendor_product_id' => $vendorProduct->id,
             'vendor_product_variant_id' => $this->vendor_product_variant_id,
             'price' => round($this->price, 2),
             'min_quantity' => $this->min_quantity,

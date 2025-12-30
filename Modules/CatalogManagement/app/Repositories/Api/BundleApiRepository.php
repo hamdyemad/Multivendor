@@ -26,10 +26,8 @@ class BundleApiRepository implements BundleRepositoryApiInterface
         $query = Bundle::with('country', 'vendor', 'bundleCategory',
          'bundleProducts.vendorProductVariant.vendorProduct'
         )->filter($filters)
-        ->active()
-        ->approved()
+        ->active() // active() now includes is_active = 1 AND admin_approval = 1
         ->withCount('bundleProducts')
-        ->filter($filters)
         ->latest();
         return ($perPage == 0) ? $query->get() : $query->paginate($perPage);
     }
@@ -47,10 +45,10 @@ class BundleApiRepository implements BundleRepositoryApiInterface
             'bundleProducts.vendorProductVariant.vendorProduct',
         ])
         ->withCount('bundleProducts')
-        ->where('id', $id)
-        ->orwhere('slug', $id)
-        ->approved()
-        ->active()
+        ->where(function($q) use ($id) {
+            $q->where('id', $id)->orWhere('slug', $id);
+        })
+        ->active() // active() now includes is_active = 1 AND admin_approval = 1
         ->firstOrFail();
     }
 

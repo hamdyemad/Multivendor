@@ -18,8 +18,8 @@ class CartQueryAction
                 'vendorProduct.vendor',
                 'vendorProduct.taxes',
                 'vendorProductVariant',
-                // 'bundle',
-                // 'occasion'
+                'bundle.bundleProducts',
+                'occasion.occasionProducts'
             ])
             ->orderBy('created_at', 'desc')
             ->filter($filters);

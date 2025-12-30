@@ -210,8 +210,8 @@ return [
     'use_point_boolean' => 'use point must be true or false',
     'customer_address_id_not_exist' => 'customer address does not exist',
     'customer_id_not_exist' => 'Customer not defined',
-    'bundle_not_active' => "bundle is not active",
-    'occasion_not_active' => "occasion is not active",
+    'bundle_not_active' => "Bundle is not active or has expired",
+    'occasion_not_active' => "Occasion is not active or has expired",
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Attributes

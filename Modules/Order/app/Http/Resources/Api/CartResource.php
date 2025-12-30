@@ -55,13 +55,19 @@ class CartResource extends JsonResource
 
     private function price()
     {
-        if ($this->type === 'bundle') {
-            $bundleProduct = $this->bundle->bundleProducts->where('vendor_product_variant_id', $this->vendor_product_variant_id)->first();
+        if ($this->type === 'bundle' && $this->bundle_id) {
+            // Query database directly to get bundle product price
+            $bundleProduct = BundleProduct::where('bundle_id', $this->bundle_id)
+                ->where('vendor_product_variant_id', $this->vendor_product_variant_id)
+                ->first();
             return $bundleProduct?->price ?? $this->vendorProductVariant->price ?? 0;
         }
 
-        if ($this->type === 'occasion') {
-            $occasionProduct = $this->occasion->occasionProducts->where('vendor_product_variant_id', $this->vendor_product_variant_id)->first();
+        if ($this->type === 'occasion' && $this->occasion_id) {
+            // Query database directly to get occasion product price
+            $occasionProduct = \Modules\CatalogManagement\app\Models\OccasionProduct::where('occasion_id', $this->occasion_id)
+                ->where('vendor_product_variant_id', $this->vendor_product_variant_id)
+                ->first();
             return $occasionProduct?->special_price ?? $this->vendorProductVariant->price ?? 0;
         }
         return $this->vendorProductVariant->price ?? 0;

@@ -61,6 +61,8 @@ return [
     'invalid_quantity' => 'Invalid quantity',
     'invalid_price' => 'Invalid price',
     'invalid_product_data' => 'Invalid product data',
+    'occasion_expired_or_inactive' => 'This occasion has expired or is no longer active',
+    'bundle_not_active' => 'This bundle is no longer active',
     'product_added' => 'Product added to order',
     'product_removed' => 'Product removed from order',
     'order_created' => 'Order created successfully',

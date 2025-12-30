@@ -92,9 +92,17 @@ class Bundle extends Model
 
 
     /**
-     * Scope for active bundles
+     * Scope for active bundles (is_active = true AND admin_approval = 1)
      */
     public function scopeActive(Builder $query)
+    {
+        return $query->where('is_active', 1)->where('admin_approval', 1);
+    }
+
+    /**
+     * Scope for only is_active check (without approval)
+     */
+    public function scopeIsActive(Builder $query)
     {
         return $query->where('is_active', 1);
     }

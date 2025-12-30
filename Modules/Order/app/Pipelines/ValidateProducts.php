@@ -4,6 +4,8 @@ namespace Modules\Order\app\Pipelines;
 
 use App\Exceptions\OrderException;
 use Closure;
+use Modules\CatalogManagement\app\Models\Occasion;
+use Modules\CatalogManagement\app\Models\Bundle;
 
 class ValidateProducts
 {
@@ -29,6 +31,22 @@ class ValidateProducts
 
             if ($product['quantity'] <= 0) {
                 throw new OrderException(trans('order.invalid_quantity'));
+            }
+
+            // Validate occasion is active and not expired
+            if (isset($product['type']) && $product['type'] === 'occasion' && isset($product['occasion_id'])) {
+                $occasion = Occasion::active()->find($product['occasion_id']);
+                if (!$occasion) {
+                    throw new OrderException(trans('order.occasion_expired_or_inactive'));
+                }
+            }
+
+            // Validate bundle is active
+            if (isset($product['type']) && $product['type'] === 'bundle' && isset($product['bundle_id'])) {
+                $bundle = Bundle::active()->find($product['bundle_id']);
+                if (!$bundle) {
+                    throw new OrderException(trans('order.bundle_not_active'));
+                }
             }
 
             // Preserve bundle/occasion data from cart, only pass minimal data for new products

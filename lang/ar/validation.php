@@ -211,8 +211,8 @@ return [
     'use_point_boolean' => 'يجب أن تكون قيمة استخدام النقاط صحيحة أو خاطئة',
     'customer_address_id_not_exist' => 'عنوان العميل غير موجود',
     'customer_id_not_exist' => 'العميل غير موجود                    ',
-    "bundle_not_active" => 'الباقة غير مفعلة',
-    'occasion_not_active' => 'المناسبة غير مفعلة',
+    "bundle_not_active" => 'الباقة غير مفعلة أو منتهية الصلاحية',
+    'occasion_not_active' => 'المناسبة غير مفعلة أو منتهية الصلاحية',
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Attributes

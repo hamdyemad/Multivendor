@@ -107,8 +107,9 @@ class GlobalModelObserver
             }
         }
 
-        // Skip if no authenticated user
-        if (!auth()->check()) {
+        // Skip if no authenticated user (check both web and admin guards)
+        $user = auth()->user() ?? auth('web')->user();
+        if (!$user) {
             return false;
         }
 
@@ -148,32 +149,45 @@ class GlobalModelObserver
         string $action,
         array $properties = []
     ): void {
-        $modelName = class_basename($model);
-        $identifier = $model->id;
+        try {
+            $modelName = class_basename($model);
+            $identifier = $model->id;
+            
+            // Get user from any available guard
+            $user = auth()->user() ?? auth('web')->user();
+            $userId = $user?->id;
 
+            // Map actions to translation keys
+            $descriptionKeys = [
+                'created' => 'activity_log.created_model',
+                'updated' => 'activity_log.updated_model',
+                'deleted' => 'activity_log.deleted_model',
+                'restored' => 'activity_log.restored_model',
+                'force_deleted' => 'activity_log.force_deleted_model',
+            ];
 
-        // Map actions to translation keys
-        $descriptionKeys = [
-            'created' => 'activity_log.created_model',
-            'updated' => 'activity_log.updated_model',
-            'deleted' => 'activity_log.deleted_model',
-            'restored' => 'activity_log.restored_model',
-            'force_deleted' => 'activity_log.force_deleted_model',
-        ];
-
-        ActivityLog::create([
-            'user_id' => auth()->id(),
-            'action' => $action,
-            'model' => get_class($model),
-            'model_id' => $model->id,
-            'description_key' => $descriptionKeys[$action] ?? null,
-            'description_params' => [
-                'model' => __("activity_log.models.{$modelName}"),
-                'identifier' => $identifier,
-            ],
-            'properties' => $properties,
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-        ]);
+            ActivityLog::create([
+                'user_id' => $userId,
+                'action' => $action,
+                'model' => get_class($model),
+                'model_id' => $model->id,
+                'description_key' => $descriptionKeys[$action] ?? null,
+                'description_params' => [
+                    'model' => __("activity_log.models.{$modelName}"),
+                    'identifier' => $identifier,
+                ],
+                'properties' => $properties,
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'country_id' => session('country_id'),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('GlobalModelObserver logActivity error: ' . $e->getMessage(), [
+                'model' => get_class($model),
+                'model_id' => $model->id ?? null,
+                'action' => $action,
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
     }
 }

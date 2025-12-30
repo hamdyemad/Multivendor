@@ -21,6 +21,7 @@ return [
     'properties' => 'الخصائص',
     'created_at' => 'تم الإنشاء في',
     'updated_at' => 'تم التحديث في',
+    'details' => 'التفاصيل',
 
     // Filters
     'all_actions' => 'جميع الإجراءات',
@@ -28,6 +29,16 @@ return [
 
     // Actions
     'back_to_list' => 'العودة إلى القائمة',
+    'actions' => [
+        'login' => 'تسجيل الدخول',
+        'logout' => 'تسجيل الخروج',
+        'login_failed' => 'فشل تسجيل الدخول',
+        'created' => 'تم الإنشاء',
+        'updated' => 'تم التحديث',
+        'deleted' => 'تم الحذف',
+        'restored' => 'تم الاستعادة',
+        'force_deleted' => 'تم الحذف نهائياً',
+    ],
 
     // Sections
     'basic_information' => 'المعلومات الأساسية',

@@ -21,6 +21,7 @@ return [
     'properties' => 'Properties',
     'created_at' => 'Created At',
     'updated_at' => 'Updated At',
+    'details' => 'Details',
 
     // Filters
     'all_actions' => 'All Actions',
@@ -28,6 +29,16 @@ return [
 
     // Actions
     'back_to_list' => 'Back to List',
+    'actions' => [
+        'login' => 'Login',
+        'logout' => 'Logout',
+        'login_failed' => 'Login Failed',
+        'created' => 'Created',
+        'updated' => 'Updated',
+        'deleted' => 'Deleted',
+        'restored' => 'Restored',
+        'force_deleted' => 'Force Deleted',
+    ],
 
     // Sections
     'basic_information' => 'Basic Information',

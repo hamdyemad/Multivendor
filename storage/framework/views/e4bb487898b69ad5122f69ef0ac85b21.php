@@ -1,23 +1,49 @@
-@extends('layout.app')
-@section('title')
-    {{ __('systemsetting::activity_log.activity_logs') }} | E-RAMO
-@endsection
-@push('styles')
-    <!-- Select2 CSS loaded via Vite -->
-@endpush
 
-@section('content')
+<?php $__env->startSection('title'); ?>
+    <?php echo e(__('systemsetting::activity_log.activity_logs')); ?> | E-RAMO
+<?php $__env->stopSection(); ?>
+<?php $__env->startPush('styles'); ?>
+    <!-- Select2 CSS loaded via Vite -->
+<?php $__env->stopPush(); ?>
+
+<?php $__env->startSection('content'); ?>
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
-                <x-breadcrumb :items="[
+                <?php if (isset($component)) { $__componentOriginale19f62b34dfe0bfdf95075badcb45bc2 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.breadcrumb','data' => ['items' => [
                     [
                         'title' => trans('dashboard.title'),
                         'url' => route('admin.dashboard'),
                         'icon' => 'uil uil-estate',
                     ],
                     ['title' => __('systemsetting::activity_log.activity_logs_management')],
-                ]" />
+                ]]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('breadcrumb'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['items' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute([
+                    [
+                        'title' => trans('dashboard.title'),
+                        'url' => route('admin.dashboard'),
+                        'icon' => 'uil uil-estate',
+                    ],
+                    ['title' => __('systemsetting::activity_log.activity_logs_management')],
+                ])]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2)): ?>
+<?php $attributes = $__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2; ?>
+<?php unset($__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginale19f62b34dfe0bfdf95075badcb45bc2)): ?>
+<?php $component = $__componentOriginale19f62b34dfe0bfdf95075badcb45bc2; ?>
+<?php unset($__componentOriginale19f62b34dfe0bfdf95075badcb45bc2); ?>
+<?php endif; ?>
             </div>
         </div>
 
@@ -26,63 +52,67 @@
 
                 <div class="userDatatable global-shadow border-light-0 p-30 bg-white radius-xl w-100 mb-30">
                     <div class="d-flex justify-content-between align-items-center mb-25">
-                        <h4 class="mb-0 fw-500">{{ __('systemsetting::activity_log.activity_logs_management') }}</h4>
+                        <h4 class="mb-0 fw-500"><?php echo e(__('systemsetting::activity_log.activity_logs_management')); ?></h4>
                     </div>
 
                     <!-- Info Alert -->
                     <div class="alert alert-info glowing-alert" role="alert">
                         <i class="uil uil-lightbulb-alt me-1"></i>
-                        {{ __('common.live_search_info') }}
+                        <?php echo e(__('common.live_search_info')); ?>
+
                     </div>
 
-                    {{-- Search & Filters --}}
+                    
                     <div class="mb-25">
                         <div class="card border-0 shadow-sm">
                             <div class="card-body">
                                 <div class="row g-3 align-items-end">
 
-                                    {{-- Search --}}
+                                    
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="search" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-search me-1"></i> {{ __('common.search') }}
+                                                <i class="uil uil-search me-1"></i> <?php echo e(__('common.search')); ?>
+
                                             </label>
                                             <input type="text"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
                                                 id="search"
-                                                placeholder="{{ __('systemsetting::activity_log.search_placeholder') }}"
+                                                placeholder="<?php echo e(__('systemsetting::activity_log.search_placeholder')); ?>"
                                                 autocomplete="off">
                                         </div>
                                     </div>
 
-                                    {{-- Action Filter --}}
+                                    
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="action" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-bolt me-1"></i>
-                                                {{ __('systemsetting::activity_log.action') }}
+                                                <?php echo e(__('systemsetting::activity_log.action')); ?>
+
                                             </label>
                                             <select
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
                                                 id="action">
-                                                <option value="">{{ __('systemsetting::activity_log.all_actions') }}</option>
-                                                <option value="created">{{ __('systemsetting::activity_log.actions.created') }}</option>
-                                                <option value="updated">{{ __('systemsetting::activity_log.actions.updated') }}</option>
-                                                <option value="deleted">{{ __('systemsetting::activity_log.actions.deleted') }}</option>
-                                                <option value="login">{{ __('systemsetting::activity_log.actions.login') }}</option>
-                                                <option value="logout">{{ __('systemsetting::activity_log.actions.logout') }}</option>
-                                                <option value="restored">{{ __('systemsetting::activity_log.actions.restored') }}</option>
-                                                <option value="force_deleted">{{ __('systemsetting::activity_log.actions.force_deleted') }}</option>
+                                                <option value=""><?php echo e(__('systemsetting::activity_log.all_actions')); ?></option>
+                                                <option value="created"><?php echo e(__('systemsetting::activity_log.actions.created')); ?></option>
+                                                <option value="updated"><?php echo e(__('systemsetting::activity_log.actions.updated')); ?></option>
+                                                <option value="deleted"><?php echo e(__('systemsetting::activity_log.actions.deleted')); ?></option>
+                                                <option value="login"><?php echo e(__('systemsetting::activity_log.actions.login')); ?></option>
+                                                <option value="logout"><?php echo e(__('systemsetting::activity_log.actions.logout')); ?></option>
+                                                <option value="restored"><?php echo e(__('systemsetting::activity_log.actions.restored')); ?></option>
+                                                <option value="force_deleted"><?php echo e(__('systemsetting::activity_log.actions.force_deleted')); ?></option>
                                             </select>
                                         </div>
                                     </div>
 
-                                    {{-- Created Date From --}}
+                                    
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="created_date_from" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-calendar-alt me-1"></i>
-                                                {{ __('common.created_date_from') }}
+                                                <?php echo e(__('common.created_date_from')); ?>
+
                                             </label>
                                             <input type="date"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
@@ -90,12 +120,13 @@
                                         </div>
                                     </div>
 
-                                    {{-- Created Date To --}}
+                                    
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="created_date_to" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-calendar-alt me-1"></i>
-                                                {{ __('common.created_date_to') }}
+                                                <?php echo e(__('common.created_date_to')); ?>
+
                                             </label>
                                             <input type="date"
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15"
@@ -105,9 +136,10 @@
 
                                     <div class="col-md-12 d-flex align-items-center">                                        <button type="button" id="resetFilters"
                                             class="btn btn-warning btn-default btn-squared"
-                                            title="{{ __('common.reset') }}">
+                                            title="<?php echo e(__('common.reset')); ?>">
                                             <i class="uil uil-redo me-1"></i>
-                                            {{ __('common.reset_filters') }}
+                                            <?php echo e(__('common.reset_filters')); ?>
+
                                         </button>
                                     </div>
 
@@ -116,30 +148,30 @@
                         </div>
                     </div>
 
-                    {{-- Entries Per Page --}}
+                    
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="d-flex align-items-center">
-                            <label class="me-2 mb-0">{{ __('common.show') }}</label>
+                            <label class="me-2 mb-0"><?php echo e(__('common.show')); ?></label>
                             <select id="entriesSelect" class="form-select form-select-sm" style="width: auto;">
                                 <option value="10">10</option>
                                 <option value="25">25</option>
                                 <option value="50">50</option>
                                 <option value="100">100</option>
                             </select>
-                            <label class="ms-2 mb-0">{{ __('common.entries') }}</label>
+                            <label class="ms-2 mb-0"><?php echo e(__('common.entries')); ?></label>
                         </div>
                     </div>
 
-                    {{-- DataTable --}}
+                    
                     <div class="table-responsive">
                         <table id="activityLogsDataTable" class="table mb-0 table-bordered table-hover" style="width:100%">
                             <thead>
                                 <tr class="userDatatable-header">
                                     <th class="text-center" style="width: 50px;"><span class="userDatatable-title">#</span></th>
-                                    <th style="width: 40%;"><span class="userDatatable-title">{{ __('systemsetting::activity_log.details') }}</span></th>
-                                    <th style="width: 120px;"><span class="userDatatable-title">{{ __('systemsetting::activity_log.ip_address') }}</span></th>
-                                    <th style="width: 150px;"><span class="userDatatable-title">{{ __('common.created_at') }}</span></th>
-                                    <th style="width: 80px;"><span class="userDatatable-title">{{ __('common.actions') }}</span></th>
+                                    <th style="width: 40%;"><span class="userDatatable-title"><?php echo e(__('systemsetting::activity_log.details')); ?></span></th>
+                                    <th style="width: 120px;"><span class="userDatatable-title"><?php echo e(__('systemsetting::activity_log.ip_address')); ?></span></th>
+                                    <th style="width: 150px;"><span class="userDatatable-title"><?php echo e(__('common.created_at')); ?></span></th>
+                                    <th style="width: 80px;"><span class="userDatatable-title"><?php echo e(__('common.actions')); ?></span></th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -150,13 +182,32 @@
             </div>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('after-body')
-    <x-loading-overlay />
-@endpush
+<?php $__env->startPush('after-body'); ?>
+    <?php if (isset($component)) { $__componentOriginal115e82920da0ed7c897ee494af74b9d8 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal115e82920da0ed7c897ee494af74b9d8 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.loading-overlay','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('loading-overlay'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal115e82920da0ed7c897ee494af74b9d8)): ?>
+<?php $attributes = $__attributesOriginal115e82920da0ed7c897ee494af74b9d8; ?>
+<?php unset($__attributesOriginal115e82920da0ed7c897ee494af74b9d8); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal115e82920da0ed7c897ee494af74b9d8)): ?>
+<?php $component = $__componentOriginal115e82920da0ed7c897ee494af74b9d8; ?>
+<?php unset($__componentOriginal115e82920da0ed7c897ee494af74b9d8); ?>
+<?php endif; ?>
+<?php $__env->stopPush(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
     <script>
         $(document).ready(function() {
             console.log('Activity logs page loaded, initializing DataTable...');
@@ -169,7 +220,7 @@
                 serverSide: true,
                 order: [[3, 'desc']], // Default order by created_at column (index 3) descending
                 ajax: {
-                    url: '{{ route('admin.system-settings.activity-logs.datatable') }}',
+                    url: '<?php echo e(route('admin.system-settings.activity-logs.datatable')); ?>',
                     type: 'GET',
                     data: function(d) {
                         // Map DataTables parameters to backend parameters
@@ -276,13 +327,13 @@
                         render: function(data, type, row) {
                             return `
                                 <div class="orderDatatable_actions d-inline-flex gap-1">
-                                    @can('settings.logs.view')
-                                    <a href="{{ url('admin/system-settings/activity-logs') }}/${row.id}"
+                                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('settings.logs.view')): ?>
+                                    <a href="<?php echo e(url('admin/system-settings/activity-logs')); ?>/${row.id}"
                                     class="view btn btn-primary btn-sm table_action_father"
-                                    title="{{ trans('common.view') }}">
+                                    title="<?php echo e(trans('common.view')); ?>">
                                         <i class="uil uil-eye table_action_icon"></i>
                                     </a>
-                                    @endcan
+                                    <?php endif; ?>
                                 </div>
                             `;
                         }
@@ -295,11 +346,11 @@
                 ],
                 dom: 'rt<"bottom"<"row"<"col-sm-6"i><"col-sm-6"p>>>',
                 language: {
-                    "lengthMenu": "{{ trans('common.show') }} _MENU_ {{ trans('common.entries') }}",
-                    "info": "{{ trans('common.showing') }} _START_ {{ trans('common.to') }} _END_ {{ trans('common.of') }} _TOTAL_",
-                    "search": "{{ trans('common.search') }}:",
-                    "emptyTable": "{{ trans('systemsetting::activity_log.no_logs_found') }}",
-                    "zeroRecords": "{{ trans('systemsetting::activity_log.no_logs_found') }}"
+                    "lengthMenu": "<?php echo e(trans('common.show')); ?> _MENU_ <?php echo e(trans('common.entries')); ?>",
+                    "info": "<?php echo e(trans('common.showing')); ?> _START_ <?php echo e(trans('common.to')); ?> _END_ <?php echo e(trans('common.of')); ?> _TOTAL_",
+                    "search": "<?php echo e(trans('common.search')); ?>:",
+                    "emptyTable": "<?php echo e(trans('systemsetting::activity_log.no_logs_found')); ?>",
+                    "zeroRecords": "<?php echo e(trans('systemsetting::activity_log.no_logs_found')); ?>"
                 }
             });
 
@@ -325,8 +376,10 @@
 
             // Export Excel
             $('#exportExcel').click(function() {
-                alert('{{ trans('common.export_coming_soon') }}');
+                alert('<?php echo e(trans('common.export_coming_soon')); ?>');
             });
         });
     </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layout.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\eramo-multi-vendor\Modules/SystemSetting\resources/views/activity-log/index.blade.php ENDPATH**/ ?>

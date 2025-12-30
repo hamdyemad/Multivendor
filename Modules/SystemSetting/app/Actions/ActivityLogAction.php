@@ -115,6 +115,8 @@ class ActivityLogAction
         $data = [];
 
         foreach ($activityLogs as $log) {
+            $createdAt = $log->created_at;
+            
             $data[] = [
                 'id' => $log->id,
                 'user_name' => $log->user ? $log->user->email : __('System'),
@@ -122,8 +124,8 @@ class ActivityLogAction
                 'model' => __("activity_log.models." . class_basename($log->model ?? 'Unknown')),
                 'description' => $log->translated_description,
                 'ip_address' => $log->ip_address,
-                'created_at' => $log->created_at,
-                'created_at_formatted' => $log->created_at->diffForHumans(),
+                'created_at' => $createdAt,
+                'created_at_formatted' => $createdAt,
             ];
         }
 

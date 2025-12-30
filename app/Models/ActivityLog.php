@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HumanDates;
 use Illuminate\Database\Eloquent\Model;
 
 class ActivityLog extends Model
 {
+    use HumanDates;
     protected $fillable = [
         'user_id',
         'action',
@@ -16,6 +18,7 @@ class ActivityLog extends Model
         'properties',
         'ip_address',
         'user_agent',
+        'country_id',
     ];
 
     protected $casts = [

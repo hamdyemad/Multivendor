@@ -25,35 +25,9 @@ class DepartmentRepository implements DepartmentRepositoryInterface
      */
     public function getDepartmentsQuery(array $filters = [], $orderBy = null, $orderDirection = 'asc')
     {
-        // Ensure we exclude soft-deleted records
-        $query = Department::with('translations')->filter($filters);
-
-        // Apply sorting
-        if ($orderBy) {
-            if (is_array($orderBy) && isset($orderBy['lang_id'])) {
-                // Sort by translation using polymorphic relationship
-                Log::info('Department Repository - Applying translation sort', [
-                    'lang_id' => $orderBy['lang_id'],
-                    'direction' => $orderDirection
-                ]);
-
-                $query->join('translations as t', function($join) use ($orderBy) {
-                    $join->on('departments.id', '=', 't.translatable_id')
-                         ->where('t.translatable_type', '=', 'Modules\CategoryManagment\app\Models\Department')
-                         ->where('t.lang_id', '=', $orderBy['lang_id'])
-                         ->where('t.lang_key', '=', 'name');
-                })
-                ->orderBy('t.lang_value', $orderDirection)
-                ->select('departments.*');
-            } else {
-                // Sort by regular column
-                $query->orderBy($orderBy, $orderDirection);
-            }
-        } else {
-            $query->orderBy('sort_number', 'asc');
-        }
-
-        return $query;
+        return Department::with('translations')
+            ->filter($filters)
+            ->sorted($orderBy, $orderDirection, 'sort_number', 'asc');
     }
 
     /**

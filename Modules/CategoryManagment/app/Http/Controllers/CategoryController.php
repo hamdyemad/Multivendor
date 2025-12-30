@@ -23,7 +23,7 @@ class CategoryController extends Controller
     {
         $this->middleware('can:categories.index')->only(['index', 'show']);
         $this->middleware('can:categories.create')->only(['create', 'store']);
-        $this->middleware('can:categories.edit')->only(['edit', 'update']);
+        $this->middleware('can:categories.edit')->only(['edit', 'update', 'reorder']);
         $this->middleware('can:categories.change-status')->only(['changeStatus']);
         $this->middleware('can:categories.delete')->only(['destroy']);
     }
@@ -309,6 +309,96 @@ class CategoryController extends Controller
 
             return redirect()->route('admin.category-management.categories.index')
                 ->with('error', __('categorymanagment::category.error_changing_status') . ': ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Reorder categories by updating sort_number
+     */
+    public function reorder($lang, $countryCode, Request $request)
+    {
+        try {
+            $request->validate([
+                'items' => 'required|array',
+                'items.*.id' => 'required|integer|exists:categories,id',
+                'items.*.sort_number' => 'required|integer|min:0'
+            ]);
+
+            \Log::info('Categories reorder request', [
+                'items' => $request->items,
+                'changed_by' => auth()->id()
+            ]);
+
+            $items = $request->items;
+            $itemIds = array_column($items, 'id');
+
+            // Get all categories ordered by sort_number
+            $allCategories = \Modules\CategoryManagment\app\Models\Category::orderBy('sort_number', 'asc')->get();
+            
+            // Remove the dragged items from the list
+            $remainingCategories = $allCategories->filter(function($cat) use ($itemIds) {
+                return !in_array($cat->id, $itemIds);
+            })->values();
+
+            // Build new order: insert dragged items at their new positions
+            $newOrder = [];
+            $sortNumber = 1;
+
+            // Sort the dragged items by their new sort_number
+            usort($items, function($a, $b) {
+                return $a['sort_number'] - $b['sort_number'];
+            });
+
+            // Merge: go through positions and assign
+            $draggedIndex = 0;
+            $remainingIndex = 0;
+            $totalCount = count($allCategories);
+
+            for ($pos = 1; $pos <= $totalCount; $pos++) {
+                // Check if any dragged item should be at this position
+                if ($draggedIndex < count($items) && $items[$draggedIndex]['sort_number'] == $pos) {
+                    $newOrder[] = ['id' => $items[$draggedIndex]['id'], 'sort_number' => $sortNumber++];
+                    $draggedIndex++;
+                } elseif ($remainingIndex < count($remainingCategories)) {
+                    $newOrder[] = ['id' => $remainingCategories[$remainingIndex]->id, 'sort_number' => $sortNumber++];
+                    $remainingIndex++;
+                }
+            }
+
+            // Add any remaining dragged items
+            while ($draggedIndex < count($items)) {
+                $newOrder[] = ['id' => $items[$draggedIndex]['id'], 'sort_number' => $sortNumber++];
+                $draggedIndex++;
+            }
+
+            // Add any remaining categories
+            while ($remainingIndex < count($remainingCategories)) {
+                $newOrder[] = ['id' => $remainingCategories[$remainingIndex]->id, 'sort_number' => $sortNumber++];
+                $remainingIndex++;
+            }
+
+            // Update all sort numbers
+            foreach ($newOrder as $item) {
+                \Modules\CategoryManagment\app\Models\Category::where('id', $item['id'])
+                    ->update(['sort_number' => $item['sort_number']]);
+            }
+
+            \Log::info('Categories reordered successfully', ['new_order' => $newOrder]);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('common.reorder_success')
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error reordering categories: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => __('common.reorder_error')
+            ], 500);
         }
     }
 }

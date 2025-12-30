@@ -67,71 +67,12 @@ class SubCategoryRepository implements SubCategoryRepositoryInterface
      */
     public function getSubCategoriesQuery(array $filters = [])
     {
-        $query = SubCategory::with(['translations', 'category']);
+        $orderBy = $filters['orderBy'] ?? null;
+        $sortBy = $filters['sortBy'] ?? 'asc';
 
-        \Log::info('SubCategory Repository - Query Start', ['filters' => $filters]);
-
-        // Search filter
-        if (!empty($filters['search'])) {
-            $search = $filters['search'];
-            \Log::info('SubCategory Repository - Applying search filter', ['search' => $search]);
-            $query->where(function($q) use ($search) {
-                $q->whereHas('translations', function($query) use ($search) {
-                    $query->where('lang_key', 'name')
-                          ->where('lang_value', 'like', "%{$search}%");
-                });
-            });
-        }
-
-        // Active filter
-        if (isset($filters['active']) && $filters['active'] !== '') {
-            $query->where('active', $filters['active']);
-        }
-
-        // View status filter
-        if (isset($filters['view_status']) && $filters['view_status'] !== '') {
-            $query->where('view_status', $filters['view_status']);
-        }
-
-        // Category filter
-        if (!empty($filters['category_id'])) {
-            $query->where('category_id', $filters['category_id']);
-        }
-
-        // Date from filter
-        if (!empty($filters['created_date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['created_date_from']);
-        }
-
-        // Date to filter
-        if (!empty($filters['created_date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['created_date_to']);
-        }
-
-        // Apply sorting
-        if(!empty($filters['orderBy'])) {
-            $sortBy = $filters['sortBy'] ?? 'desc';
-            if (is_array($filters['orderBy']) && isset($filters['orderBy']['lang_id'])) {
-                // Sort by translation using subquery to avoid duplicates
-                $langId = $filters['orderBy']['lang_id'];
-                $query->orderByRaw("(
-                    SELECT lang_value
-                    FROM translations
-                    WHERE translations.translatable_id = sub_categories.id
-                    AND translations.translatable_type = 'Modules\\\\CategoryManagment\\\\app\\\\Models\\\\SubCategory'
-                    AND translations.lang_id = {$langId}
-                    AND translations.lang_key = 'name'
-                    LIMIT 1
-                ) {$sortBy}");
-            } else {
-                // Sort by regular column
-                $query->orderBy($filters['orderBy'], $sortBy);
-            }
-        } else {
-            $query->orderBy('created_at', 'desc');
-        }
-
-        return $query;
+        return SubCategory::with(['translations', 'category'])
+            ->filter($filters)
+            ->sorted($orderBy, $sortBy, 'sort_number', 'asc');
     }
 
     /**

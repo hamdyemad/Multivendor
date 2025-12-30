@@ -222,7 +222,7 @@
                                     `<img src="{{ asset('storage') }}/${data}" class="rounded-circle" style="width: 40px; height: 40px;">`;
                             } else {
                                 img =
-                                    `<div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;"><i class="uil uil-user text-muted"></i></div>`;
+                                    `<img src="{{ asset('assets/img/default.png') }}" class="rounded-circle" style="width: 40px; height: 40px;">`;
                             }
 
                             let names = '';

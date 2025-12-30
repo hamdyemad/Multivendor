@@ -100,4 +100,8 @@ return [
     'at_least_one_translation_required' => 'يجب توفير ترجمة واحدة على الأقل.',
     'name_required' => 'اسم القسم مطلوب.',
     'name_max_255' => 'اسم القسم قد لا يتجاوز 255 حرفاً.',
+
+    // Reorder
+    'reorder_success' => 'تم إعادة ترتيب الأقسام بنجاح',
+    'error_reordering' => 'خطأ في إعادة ترتيب الأقسام',
 ];

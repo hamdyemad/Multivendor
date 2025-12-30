@@ -55,6 +55,48 @@ trait HasFilterScopes
     }
 
     /**
+     * Scope: Apply sorting
+     * Supports regular columns and translation-based sorting
+     * 
+     * @param Builder $query
+     * @param string|array|null $orderBy - Column name or array with 'lang_id' for translation sorting
+     * @param string $direction - 'asc' or 'desc'
+     * @param string $defaultColumn - Default column to sort by if $orderBy is null
+     * @param string $defaultDirection - Default direction if not specified
+     */
+    public function scopeSorted(Builder $query, $orderBy = null, $direction = 'asc', $defaultColumn = 'sort_number', $defaultDirection = 'asc')
+    {
+        $direction = strtolower($direction) === 'desc' ? 'desc' : 'asc';
+        
+        if ($orderBy) {
+            if (is_array($orderBy) && isset($orderBy['lang_id'])) {
+                // Sort by translation using subquery
+                $langId = $orderBy['lang_id'];
+                $table = $this->getTable();
+                $modelClass = get_class($this);
+                
+                $query->orderByRaw("(
+                    SELECT lang_value
+                    FROM translations
+                    WHERE translations.translatable_id = {$table}.id
+                    AND translations.translatable_type = ?
+                    AND translations.lang_id = ?
+                    AND translations.lang_key = 'name'
+                    LIMIT 1
+                ) {$direction}", [$modelClass, $langId]);
+            } else {
+                // Sort by regular column
+                $query->orderBy($orderBy, $direction);
+            }
+        } else {
+            // Default sorting
+            $query->orderBy($defaultColumn, $defaultDirection);
+        }
+
+        return $query;
+    }
+
+    /**
      * Scope: Filter by vendor ID or slug
      */
     public function scopeByVendor(Builder $query, $vendorIdentifier)

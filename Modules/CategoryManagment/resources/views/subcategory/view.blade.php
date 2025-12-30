@@ -112,7 +112,11 @@
                                                 class="category-image img-fluid">
                                             </div>
                                         @else
-                                            <p class="fs-15 color-light fst-italic">{{ trans('common.no_image') ?? 'No image uploaded' }}</p>
+                                            <div class="image-wrapper">
+                                                <img src="{{ asset('assets/img/default.png')}}"
+                                                alt="{{ $subCategory->getTranslation('name', app()->getLocale()) }}"
+                                                class="category-image img-fluid">
+                                            </div>
                                         @endif
                                     </div>
                                 </div>

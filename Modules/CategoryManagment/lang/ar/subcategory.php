@@ -91,4 +91,8 @@ return [
     'status_changed_successfully' => 'تم تغيير حالة الفئة الفرعية بنجاح',
     'error_changing_status' => 'خطأ في تغيير حالة الفئة الفرعية',
     'status_already_set' => 'الفئة الفرعية مضبوطة بالفعل على هذه الحالة',
+
+    // Reorder
+    'reorder_success' => 'تم إعادة ترتيب الفئات الفرعية بنجاح',
+    'error_reordering' => 'خطأ في إعادة ترتيب الفئات الفرعية',
 ];

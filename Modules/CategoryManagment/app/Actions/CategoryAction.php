@@ -30,14 +30,13 @@ class CategoryAction {
             // Calculate page number from start offset
             $page = $perPage > 0 ? floor($start / $perPage) + 1 : 1;
 
-            // Get sorting parameters
-            $orderColumnIndex = $data['orderColumnIndex'] ?? 0;
-            $orderDirection = $data['orderDirection'] ?? 'desc';
+            // Get custom sorting parameters
+            $sortColumn = $data['sort_column'] ?? 'sort_number';
+            $sortDirection = $data['sort_direction'] ?? 'asc';
 
             Log::info('CategoryAction - Sorting Parameters', [
-                'orderColumnIndex' => $orderColumnIndex,
-                'orderDirection' => $orderDirection,
-                'all_data' => $data
+                'sortColumn' => $sortColumn,
+                'sortDirection' => $sortDirection,
             ]);
 
             // Get filter parameters
@@ -58,35 +57,12 @@ class CategoryAction {
             $filteredRecords = $this->categoryRepositoryInterface->getCategoriesQuery($filters)->count();
 
             // Determine sort column
-            // Column 0 is 'index' (row number) - not sortable
-            // Columns 1 to count($languages) are name translations
-            // Then: department, active, created_at
-            $orderBy = null;
-            if ($orderColumnIndex >= 1 && $orderColumnIndex <= count($languages)) {
-                // Sorting by translated name column
-                $languageIndex = $orderColumnIndex - 1;
-                $selectedLanguage = $languages->values()->get($languageIndex);
-                if ($selectedLanguage) {
-                    $orderBy = [
-                        'lang_id' => $selectedLanguage->id,
-                        'key' => 'name'
-                    ];
-                }
-            } elseif ($orderColumnIndex == count($languages) + 1) {
-                $orderBy = 'department';
-            } elseif ($orderColumnIndex == count($languages) + 2) {
-                $orderBy = 'active';
-            } elseif ($orderColumnIndex == count($languages) + 3) {
-                $orderBy = 'created_at';
-            } else {
-                // Default sorting
-                $orderBy = 'id';
-            }
+            $orderBy = $sortColumn;
+            $orderDirection = $sortDirection;
 
             Log::info('CategoryAction - Determined Sort', [
                 'orderBy' => $orderBy,
                 'orderDirection' => $orderDirection,
-                'languagesCount' => count($languages)
             ]);
 
             // Get categories with pagination and sorting

@@ -3,7 +3,47 @@
 
 @push('styles')
 <style>
+    /* Drag and Drop Styles */
+    #categoriesDataTable tbody tr {
+        cursor: default;
+    }
+    #categoriesDataTable tbody tr.ui-sortable-helper {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        cursor: grabbing;
+    }
+    #categoriesDataTable tbody tr.ui-sortable-placeholder {
+        border: 2px dashed #2196f3 !important;
+        visibility: visible !important;
+        height: 50px;
+    }
+    .drag-handle {
+        cursor: grab;
+        color: #6c757d;
+        padding: 10px 15px;
+        font-size: 18px;
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+    .drag-handle:hover {
+        color: #495057;
+    }
+    .drag-handle:active {
+        cursor: grabbing;
+    }
+    .reorder-info {
+        border: 1px solid #ffc107;
+        border-radius: 5px;
+        padding: 10px 15px;
+        margin-bottom: 15px;
+        display: none;
+    }
+    .reorder-info.show {
+        display: block;
+    }
 </style>
+<!-- jQuery UI for Sortable -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 @endpush
 
 @section('content')
@@ -129,6 +169,36 @@
                                         </div>
                                     </div>
 
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="sort_column" class="il-gray fs-14 fw-500 mb-10">
+                                                <i class="uil uil-sort me-1"></i>
+                                                {{ __('common.sort_by') ?? 'Sort By' }}
+                                            </label>
+                                            <select
+                                                class="form-control form-select ih-medium ip-gray radius-xs b-light"
+                                                id="sort_column">
+                                                <option value="sort_number" selected>{{ __('common.sort_number') ?? 'Sort Number' }}</option>
+                                                <option value="created_at">{{ __('common.created_at') ?? 'Created At' }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="sort_direction" class="il-gray fs-14 fw-500 mb-10">
+                                                <i class="uil uil-sort-amount-down me-1"></i>
+                                                {{ __('common.sort_direction') ?? 'Sort Direction' }}
+                                            </label>
+                                            <select
+                                                class="form-control form-select ih-medium ip-gray radius-xs b-light"
+                                                id="sort_direction">
+                                                <option value="asc" selected>{{ __('common.ascending') ?? 'Ascending' }}</option>
+                                                <option value="desc">{{ __('common.descending') ?? 'Descending' }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
                                     <div class="col-md-3 d-flex align-items-center">
                                         <div class="form-group">
                                             <button type="button" id="resetFilters"
@@ -160,9 +230,14 @@
 
                     {{-- DataTable --}}
                     <div class="table-responsive">
+                        <div class="reorder-info" id="reorderInfo">
+                            <i class="uil uil-info-circle me-2"></i>
+                            {{ __('common.drag_drop_info') ?? 'Drag and drop rows to reorder. Changes will be saved automatically.' }}
+                        </div>
                         <table id="categoriesDataTable" class="table mb-0 table-bordered table-hover" style="width:100%">
                             <thead>
                                 <tr class="userDatatable-header">
+                                    <th style="width: 40px;"><span class="userDatatable-title"><i class="uil uil-sort"></i></span></th>
                                     <th class="text-center"><span class="userDatatable-title">#</span></th>
                                     <th><span class="userDatatable-title">{{ __('categorymanagment::category.category_information') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('activity.department') }}</span></th>
@@ -195,6 +270,8 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
+            let dragDropEnabled = true; // Will be controlled by sort filters
+
             let table = $('#categoriesDataTable').DataTable({
                 processing: true,
                 serverSide: true,
@@ -208,9 +285,21 @@
                         d.created_date_from = $('#created_date_from').val();
                         d.created_date_to = $('#created_date_to').val();
                         d.per_page = $('#entriesSelect').val() || 10;
+                        d.sort_column = $('#sort_column').val();
+                        d.sort_direction = $('#sort_direction').val();
                     }
                 },
                 columns: [{
+                        data: null,
+                        name: 'drag',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            return `<span class="drag-handle" title="{{ __('common.drag_to_reorder') ?? 'Drag to reorder' }}"><i class="uil uil-draggabledots"></i></span>`;
+                        }
+                    },
+                    {
                         data: 'index',
                         name: 'index',
                         orderable: false,
@@ -424,6 +513,30 @@
             // Filters
             $('#active, #view_status, #created_date_from, #created_date_to').on('change', () => table.ajax.reload());
 
+            // Sort filter change handlers
+            $('#sort_column, #sort_direction').on('change', function() {
+                console.log('Sort changed:', $('#sort_column').val(), $('#sort_direction').val());
+                table.ajax.reload();
+                updateDragDropState();
+            });
+
+            // Function to update drag and drop state based on sort filters
+            function updateDragDropState() {
+                var sortColumn = $('#sort_column').val();
+                var sortDirection = $('#sort_direction').val();
+                dragDropEnabled = (sortColumn === 'sort_number' && sortDirection === 'asc');
+                
+                if (dragDropEnabled) {
+                    $('#categoriesDataTable tbody').removeClass('drag-disabled');
+                    $('.drag-handle').css('opacity', '1').css('cursor', 'grab');
+                    $('#reorderInfo').removeClass('show').html('<i class="uil uil-info-circle me-2"></i>{{ __('common.drag_drop_info') ?? 'Drag and drop rows to reorder. Changes will be saved automatically.' }}');
+                } else {
+                    $('#categoriesDataTable tbody').addClass('drag-disabled');
+                    $('.drag-handle').css('opacity', '0.3').css('cursor', 'not-allowed');
+                    $('#reorderInfo').addClass('show').html('<i class="uil uil-exclamation-triangle me-2"></i>{{ __('common.drag_drop_disabled_info') ?? 'Drag and drop is only available when sorting by Sort Number (Ascending).' }}');
+                }
+            }
+
             // Department filter change handler - listen for custom event
             $('#department_filter-wrapper').on('searchable-tags:change', function() {
                 table.ajax.reload();
@@ -435,6 +548,8 @@
             // Reset
             $('#resetFilters').on('click', function() {
                 $('#search, #active, #view_status, #created_date_from, #created_date_to').val('');
+                $('#sort_column').val('sort_number');
+                $('#sort_direction').val('asc');
                 
                 // Reset department filter (single select)
                 const deptDisplay = $('#department_filter-single-display');
@@ -444,6 +559,7 @@
                 
                 $('#entriesSelect').val(10);
                 table.search('').page.len(10).ajax.reload();
+                updateDragDropState();
             });
 
             // Status switcher handler
@@ -616,6 +732,155 @@
             if ($('html').attr('dir') === 'rtl') {
                 $('.dataTables_wrapper').addClass('text-end');
             }
+
+            // Initialize drag and drop sortable
+            @can('categories.edit')
+            // Load jQuery UI if not already loaded
+            if (typeof $.ui === 'undefined' || typeof $.ui.sortable === 'undefined') {
+                $.getScript('https://code.jquery.com/ui/1.13.2/jquery-ui.min.js', function() {
+                    console.log('jQuery UI loaded');
+                    initSortable();
+                    updateDragDropState();
+                });
+            } else {
+                initSortable();
+                updateDragDropState();
+            }
+
+            function initSortable() {
+                var $tbody = $('#categoriesDataTable tbody');
+                
+                // Destroy existing sortable if any
+                if ($tbody.hasClass('ui-sortable')) {
+                    $tbody.sortable('destroy');
+                }
+                
+                $tbody.sortable({
+                    handle: '.drag-handle',
+                    axis: 'y',
+                    cursor: 'grabbing',
+                    opacity: 0.8,
+                    disabled: !dragDropEnabled,
+                    helper: function(e, tr) {
+                        var $originals = tr.children();
+                        var $helper = tr.clone();
+                        $helper.children().each(function(index) {
+                            $(this).width($originals.eq(index).outerWidth());
+                        });
+                        return $helper;
+                    },
+                    placeholder: 'ui-sortable-placeholder',
+                    start: function(event, ui) {
+                        if (!dragDropEnabled) {
+                            return false;
+                        }
+                        ui.placeholder.height(ui.item.outerHeight());
+                        var colCount = ui.item.children('td').length;
+                        ui.placeholder.html('<td colspan="' + colCount + '" style="background-color: #e3f2fd; border: 2px dashed #2196f3;">&nbsp;</td>');
+                    },
+                    stop: function(event, ui) {
+                        // Optional: hide info after drop
+                    },
+                    update: function(event, ui) {
+                        if (!dragDropEnabled) {
+                            return false;
+                        }
+                        var items = [];
+                        $('#categoriesDataTable tbody tr').each(function(index) {
+                            var rowData = table.row(this).data();
+                            if (rowData && rowData.id) {
+                                items.push({
+                                    id: rowData.id,
+                                    sort_number: index + 1
+                                });
+                            }
+                        });
+
+                        console.log('Reorder items:', items);
+
+                        if (items.length > 0) {
+                            // Show loading
+                            if (typeof LoadingOverlay !== 'undefined') {
+                                LoadingOverlay.show({
+                                    text: '{{ __('common.saving') ?? 'Saving' }}...',
+                                    subtext: '{{ __('common.please_wait') ?? 'Please wait' }}...'
+                                });
+                            }
+
+                            $.ajax({
+                                url: '{{ route('admin.category-management.categories.reorder') }}',
+                                type: 'POST',
+                                data: {
+                                    _token: '{{ csrf_token() }}',
+                                    items: items
+                                },
+                                success: function(response) {
+                                    if (typeof LoadingOverlay !== 'undefined') {
+                                        LoadingOverlay.hide();
+                                    }
+                                    
+                                    if (response.success) {
+                                        if (typeof Swal !== 'undefined') {
+                                            Swal.fire({
+                                                icon: 'success',
+                                                title: '{{ __('common.success') ?? 'Success' }}',
+                                                text: response.message || '{{ __('common.reorder_success') ?? 'Order updated successfully' }}',
+                                                timer: 2000,
+                                                showConfirmButton: false,
+                                                toast: true,
+                                                position: 'top-end'
+                                            });
+                                        }
+                                        // Reload table to get updated sort numbers
+                                        table.ajax.reload(null, false);
+                                    } else {
+                                        if (typeof Swal !== 'undefined') {
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: '{{ __('common.error') ?? 'Error' }}',
+                                                text: response.message || '{{ __('common.reorder_error') ?? 'Failed to update order' }}'
+                                            });
+                                        }
+                                        table.ajax.reload(null, false);
+                                    }
+                                },
+                                error: function(xhr) {
+                                    if (typeof LoadingOverlay !== 'undefined') {
+                                        LoadingOverlay.hide();
+                                    }
+                                    
+                                    let errorMessage = '{{ __('common.reorder_error') ?? 'Failed to update order' }}';
+                                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                                        errorMessage = xhr.responseJSON.message;
+                                    }
+                                    
+                                    if (typeof Swal !== 'undefined') {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: '{{ __('common.error') ?? 'Error' }}',
+                                            text: errorMessage
+                                        });
+                                    }
+                                    table.ajax.reload(null, false);
+                                }
+                            });
+                        }
+                    }
+                });
+                
+                console.log('Sortable initialized for categories');
+            }
+
+            // Re-initialize sortable after table draw
+            table.on('draw', function() {
+                setTimeout(function() {
+                    if (typeof $.ui !== 'undefined' && typeof $.ui.sortable !== 'undefined') {
+                        initSortable();
+                        updateDragDropState();
+                    }
+                }, 100);
+            });
+            @endcan
         });
     </script>
 @endpush

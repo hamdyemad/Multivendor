@@ -6,8 +6,47 @@
 
 @push('styles')
 <style>
-
+    /* Drag and Drop Styles */
+    #departmentsDataTable tbody tr {
+        cursor: default;
+    }
+    #departmentsDataTable tbody tr.ui-sortable-helper {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        cursor: grabbing;
+    }
+    #departmentsDataTable tbody tr.ui-sortable-placeholder {
+        border: 2px dashed #2196f3 !important;
+        visibility: visible !important;
+        height: 50px;
+    }
+    .drag-handle {
+        cursor: grab;
+        color: #6c757d;
+        padding: 10px 15px;
+        font-size: 18px;
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+    .drag-handle:hover {
+        color: #495057;
+    }
+    .drag-handle:active {
+        cursor: grabbing;
+    }
+    .reorder-info {
+        border: 1px solid #ffc107;
+        border-radius: 5px;
+        padding: 10px 15px;
+        margin-bottom: 15px;
+        display: none;
+    }
+    .reorder-info.show {
+        display: block;
+    }
 </style>
+<!-- jQuery UI for Sortable -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 @endpush
 
 @section('content')
@@ -109,6 +148,30 @@
                                                 id="created_date_to">
                                         </div>
                                     </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="sort_column"
+                                                class="il-gray fs-14 fw-500 mb-10">{{ __('common.sort_by') ?? 'Sort By' }}</label>
+                                            <select
+                                                class="form-control form-select ih-medium ip-gray radius-xs b-light"
+                                                id="sort_column">
+                                                <option value="sort_number" selected>{{ __('common.sort_number') ?? 'Sort Number' }}</option>
+                                                <option value="created_at">{{ __('common.created_at') ?? 'Created At' }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="sort_direction"
+                                                class="il-gray fs-14 fw-500 mb-10">{{ __('common.sort_direction') ?? 'Sort Direction' }}</label>
+                                            <select
+                                                class="form-control form-select ih-medium ip-gray radius-xs b-light"
+                                                id="sort_direction">
+                                                <option value="asc" selected>{{ __('common.ascending') ?? 'Ascending' }}</option>
+                                                <option value="desc">{{ __('common.descending') ?? 'Descending' }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                     <div class="col-md-3 d-flex">
                                         <div class="form-group">
                                             <button type="button" id="resetFilters"
@@ -138,9 +201,16 @@
                     </div>
 
                     <div class="table-responsive">
+                        <div class="reorder-info" id="reorderInfo">
+                            <i class="uil uil-info-circle me-2"></i>
+                            {{ __('common.drag_drop_info') ?? 'Drag and drop rows to reorder. Changes will be saved automatically.' }}
+                        </div>
                         <table id="departmentsDataTable" class="table mb-0 table-bordered table-hover" style="width:100%">
                             <thead>
                                 <tr class="userDatatable-header">
+                                    <th style="width: 40px;">
+                                        <span class="userDatatable-title"><i class="uil uil-sort"></i></span>
+                                    </th>
                                     <th>
                                         <span class="userDatatable-title">#</span>
                                     </th>
@@ -187,6 +257,7 @@
     <script>
         $(document).ready(function() {
             let per_page = 10;
+            let dragDropEnabled = true; // Will be controlled by sort filters
 
             // Server-side processing with pagination
             var table = $('#departmentsDataTable').DataTable({
@@ -211,11 +282,9 @@
                         d.created_date_from = $('#created_date_from').val();
                         d.created_date_to = $('#created_date_to').val();
 
-                        // Add sorting parameters
-                        if (d.order && d.order.length > 0) {
-                            d.orderColumnIndex = d.order[0].column;
-                            d.orderDirection = d.order[0].dir;
-                        }
+                        // Add custom sorting parameters
+                        d.sort_column = $('#sort_column').val();
+                        d.sort_direction = $('#sort_direction').val();
 
                         console.log('📤 Sending to server:', {
                             search: d.search,
@@ -225,8 +294,8 @@
                             commission_to: d.commission_to,
                             created_date_from: d.created_date_from,
                             created_date_to: d.created_date_to,
-                            orderColumnIndex: d.orderColumnIndex,
-                            orderDirection: d.orderDirection
+                            sort_column: d.sort_column,
+                            sort_direction: d.sort_direction
                         });
 
                         return d;
@@ -244,6 +313,17 @@
                     }
                 },
                 columns: [
+                    // Drag handle column
+                    {
+                        data: null,
+                        name: 'drag',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center',
+                        render: function(data, type, row) {
+                            return `<span class="drag-handle" title="{{ __('common.drag_to_reorder') ?? 'Drag to reorder' }}"><i class="uil uil-draggabledots"></i></span>`;
+                        }
+                    },
                     // ID column
                     {
                         data: 'id',
@@ -575,6 +655,30 @@
                     table.ajax.reload();
                 });
 
+            // Sort filter change handlers
+            $('#sort_column, #sort_direction').on('change', function() {
+                console.log('Sort changed:', $('#sort_column').val(), $('#sort_direction').val());
+                table.ajax.reload();
+                updateDragDropState();
+            });
+
+            // Function to update drag and drop state based on sort filters
+            function updateDragDropState() {
+                var sortColumn = $('#sort_column').val();
+                var sortDirection = $('#sort_direction').val();
+                dragDropEnabled = (sortColumn === 'sort_number' && sortDirection === 'asc');
+                
+                if (dragDropEnabled) {
+                    $('#departmentsDataTable tbody').removeClass('drag-disabled');
+                    $('.drag-handle').css('opacity', '1').css('cursor', 'grab');
+                    $('#reorderInfo').removeClass('show').html('<i class="uil uil-info-circle me-2"></i>{{ __('common.drag_drop_info') ?? 'Drag and drop rows to reorder. Changes will be saved automatically.' }}');
+                } else {
+                    $('#departmentsDataTable tbody').addClass('drag-disabled');
+                    $('.drag-handle').css('opacity', '0.3').css('cursor', 'not-allowed');
+                    $('#reorderInfo').addClass('show').html('<i class="uil uil-exclamation-triangle me-2"></i>{{ __('common.drag_drop_disabled_info') ?? 'Drag and drop is only available when sorting by Sort Number (Ascending).' }}');
+                }
+            }
+
             // Reset filters button
             $('#resetFilters').on('click', function() {
                 console.log('Resetting all filters...');
@@ -586,8 +690,11 @@
                 $('#commission_to').val('');
                 $('#created_date_from').val('');
                 $('#created_date_to').val('');
+                $('#sort_column').val('sort_number');
+                $('#sort_direction').val('asc');
                 // Reload table with cleared filters
                 table.ajax.reload();
+                updateDragDropState();
             });
 
             // Status switcher handler
@@ -757,6 +864,155 @@
             });
 
             // Delete functionality is now handled by the delete-with-loading component
+
+            // Initialize drag and drop sortable
+            @can('departments.edit')
+            // Load jQuery UI if not already loaded
+            if (typeof $.ui === 'undefined' || typeof $.ui.sortable === 'undefined') {
+                $.getScript('https://code.jquery.com/ui/1.13.2/jquery-ui.min.js', function() {
+                    console.log('jQuery UI loaded');
+                    initSortable();
+                    updateDragDropState();
+                });
+            } else {
+                initSortable();
+                updateDragDropState();
+            }
+
+            function initSortable() {
+                var $tbody = $('#departmentsDataTable tbody');
+                
+                // Destroy existing sortable if any
+                if ($tbody.hasClass('ui-sortable')) {
+                    $tbody.sortable('destroy');
+                }
+                
+                $tbody.sortable({
+                    handle: '.drag-handle',
+                    axis: 'y',
+                    cursor: 'grabbing',
+                    opacity: 0.8,
+                    disabled: !dragDropEnabled,
+                    helper: function(e, tr) {
+                        var $originals = tr.children();
+                        var $helper = tr.clone();
+                        $helper.children().each(function(index) {
+                            $(this).width($originals.eq(index).outerWidth());
+                        });
+                        return $helper;
+                    },
+                    placeholder: 'ui-sortable-placeholder',
+                    start: function(event, ui) {
+                        if (!dragDropEnabled) {
+                            return false;
+                        }
+                        ui.placeholder.height(ui.item.outerHeight());
+                        var colCount = ui.item.children('td').length;
+                        ui.placeholder.html('<td colspan="' + colCount + '" style="background-color: #e3f2fd; border: 2px dashed #2196f3;">&nbsp;</td>');
+                    },
+                    stop: function(event, ui) {
+                        // Optional: hide info after drop
+                    },
+                    update: function(event, ui) {
+                        if (!dragDropEnabled) {
+                            return false;
+                        }
+                        var items = [];
+                        $('#departmentsDataTable tbody tr').each(function(index) {
+                            var rowData = table.row(this).data();
+                            if (rowData && rowData.department_id) {
+                                items.push({
+                                    id: rowData.department_id,
+                                    sort_number: index + 1
+                                });
+                            }
+                        });
+
+                        console.log('Reorder items:', items);
+
+                        if (items.length > 0) {
+                            // Show loading
+                            if (typeof LoadingOverlay !== 'undefined') {
+                                LoadingOverlay.show({
+                                    text: '{{ __('common.saving') ?? 'Saving' }}...',
+                                    subtext: '{{ __('common.please_wait') ?? 'Please wait' }}...'
+                                });
+                            }
+
+                            $.ajax({
+                                url: '{{ route('admin.category-management.departments.reorder') }}',
+                                type: 'POST',
+                                data: {
+                                    _token: '{{ csrf_token() }}',
+                                    items: items
+                                },
+                                success: function(response) {
+                                    if (typeof LoadingOverlay !== 'undefined') {
+                                        LoadingOverlay.hide();
+                                    }
+                                    
+                                    if (response.success) {
+                                        if (typeof Swal !== 'undefined') {
+                                            Swal.fire({
+                                                icon: 'success',
+                                                title: '{{ __('common.success') ?? 'Success' }}',
+                                                text: response.message || '{{ __('common.reorder_success') ?? 'Order updated successfully' }}',
+                                                timer: 2000,
+                                                showConfirmButton: false,
+                                                toast: true,
+                                                position: 'top-end'
+                                            });
+                                        }
+                                        // Reload table to get updated sort numbers
+                                        table.ajax.reload(null, false);
+                                    } else {
+                                        if (typeof Swal !== 'undefined') {
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: '{{ __('common.error') ?? 'Error' }}',
+                                                text: response.message || '{{ __('common.reorder_error') ?? 'Failed to update order' }}'
+                                            });
+                                        }
+                                        table.ajax.reload(null, false);
+                                    }
+                                },
+                                error: function(xhr) {
+                                    if (typeof LoadingOverlay !== 'undefined') {
+                                        LoadingOverlay.hide();
+                                    }
+                                    
+                                    let errorMessage = '{{ __('common.reorder_error') ?? 'Failed to update order' }}';
+                                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                                        errorMessage = xhr.responseJSON.message;
+                                    }
+                                    
+                                    if (typeof Swal !== 'undefined') {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: '{{ __('common.error') ?? 'Error' }}',
+                                            text: errorMessage
+                                        });
+                                    }
+                                    table.ajax.reload(null, false);
+                                }
+                            });
+                        }
+                    }
+                });
+                
+                console.log('Sortable initialized for departments');
+            }
+
+            // Re-initialize sortable after table draw
+            table.on('draw', function() {
+                setTimeout(function() {
+                    if (typeof $.ui !== 'undefined' && typeof $.ui.sortable !== 'undefined') {
+                        initSortable();
+                        updateDragDropState();
+                    }
+                }, 100);
+            });
+            @endcan
         });
     </script>
 @endpush

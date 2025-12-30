@@ -242,4 +242,18 @@ return [
     'vendor_country_restriction' => 'يمكنك الوصول فقط إلى الدولة المخصصة لك.',
     'visible' => 'مرئي',
     'hidden' => 'مخفي',
+    
+    // Drag and Drop
+    'drag_drop_info' => 'اسحب وأفلت الصفوف لإعادة الترتيب. سيتم حفظ التغييرات تلقائياً.',
+    'drag_drop_disabled_info' => 'السحب والإفلات متاح فقط عند الترتيب حسب رقم الترتيب (تصاعدي).',
+    'drag_to_reorder' => 'اسحب لإعادة الترتيب',
+    'reorder_success' => 'تم تحديث الترتيب بنجاح',
+    'reorder_error' => 'فشل في تحديث الترتيب',
+    
+    // Sorting
+    'sort_by' => 'ترتيب حسب',
+    'sort_direction' => 'اتجاه الترتيب',
+    'sort_number' => 'رقم الترتيب',
+    'ascending' => 'تصاعدي',
+    'descending' => 'تنازلي',
 ];

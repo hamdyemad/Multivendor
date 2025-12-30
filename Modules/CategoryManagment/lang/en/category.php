@@ -95,4 +95,8 @@ return [
     'status_changed_successfully' => 'Category status changed successfully',
     'error_changing_status' => 'Error changing category status',
     'status_already_set' => 'Category is already set to this status',
+
+    // Reorder
+    'reorder_success' => 'Categories reordered successfully',
+    'error_reordering' => 'Error reordering categories',
 ];

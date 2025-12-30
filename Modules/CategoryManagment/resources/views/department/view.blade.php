@@ -126,8 +126,9 @@
                                                     class="department-image img-fluid">
                                             </div>
                                         @else
-                                            <p class="fs-15 color-light fst-italic">
-                                                {{ trans('common.no_image') ?? 'No image uploaded' }}</p>
+                                            <img src="{{ asset('assets/img/default.png') }}"
+                                                    alt="{{ $department->getTranslation('name', app()->getLocale()) }}"
+                                                    class="department-image img-fluid">
                                         @endif
                                     </div>
                                 </div>

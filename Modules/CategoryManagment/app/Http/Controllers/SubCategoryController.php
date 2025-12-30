@@ -23,7 +23,7 @@ class SubCategoryController extends Controller
     {
         $this->middleware('can:sub-categories.index')->only(['index', 'datatable', 'show']);
         $this->middleware('can:sub-categories.create')->only(['create', 'store']);
-        $this->middleware('can:sub-categories.edit')->only(['edit', 'update']);
+        $this->middleware('can:sub-categories.edit')->only(['edit', 'update', 'reorder']);
         $this->middleware('can:sub-categories.delete')->only(['destroy']);
         $this->middleware('can:sub-categories.change-status')->only(['changeStatus']);
     }
@@ -322,6 +322,98 @@ class SubCategoryController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => __('categorymanagment::subcategory.error_changing_status')
+            ], 500);
+        }
+    }
+
+    /**
+     * Reorder subcategories by updating sort_number
+    /**
+     * Reorder subcategories by updating sort_number
+     */
+    public function reorder($lang, $countryCode, Request $request)
+    {
+        try {
+            $request->validate([
+                'items' => 'required|array',
+                'items.*.id' => 'required|integer|exists:sub_categories,id',
+                'items.*.sort_number' => 'required|integer|min:0'
+            ]);
+
+            Log::info('SubCategories reorder request', [
+                'items' => $request->items,
+                'changed_by' => auth()->id()
+            ]);
+
+            $items = $request->items;
+            $itemIds = array_column($items, 'id');
+
+            // Get all subcategories ordered by sort_number
+            $allSubCategories = \Modules\CategoryManagment\app\Models\SubCategory::orderBy('sort_number', 'asc')->get();
+            
+            // Remove the dragged items from the list
+            $remainingSubCategories = $allSubCategories->filter(function($subcat) use ($itemIds) {
+                return !in_array($subcat->id, $itemIds);
+            })->values();
+
+            // Build new order: insert dragged items at their new positions
+            $newOrder = [];
+            $sortNumber = 1;
+
+            // Sort the dragged items by their new sort_number
+            usort($items, function($a, $b) {
+                return $a['sort_number'] - $b['sort_number'];
+            });
+
+            // Merge: go through positions and assign
+            $draggedIndex = 0;
+            $remainingIndex = 0;
+            $totalCount = count($allSubCategories);
+
+            for ($pos = 1; $pos <= $totalCount; $pos++) {
+                // Check if any dragged item should be at this position
+                if ($draggedIndex < count($items) && $items[$draggedIndex]['sort_number'] == $pos) {
+                    $newOrder[] = ['id' => $items[$draggedIndex]['id'], 'sort_number' => $sortNumber++];
+                    $draggedIndex++;
+                } elseif ($remainingIndex < count($remainingSubCategories)) {
+                    $newOrder[] = ['id' => $remainingSubCategories[$remainingIndex]->id, 'sort_number' => $sortNumber++];
+                    $remainingIndex++;
+                }
+            }
+
+            // Add any remaining dragged items
+            while ($draggedIndex < count($items)) {
+                $newOrder[] = ['id' => $items[$draggedIndex]['id'], 'sort_number' => $sortNumber++];
+                $draggedIndex++;
+            }
+
+            // Add any remaining subcategories
+            while ($remainingIndex < count($remainingSubCategories)) {
+                $newOrder[] = ['id' => $remainingSubCategories[$remainingIndex]->id, 'sort_number' => $sortNumber++];
+                $remainingIndex++;
+            }
+
+            // Update all sort numbers
+            foreach ($newOrder as $item) {
+                \Modules\CategoryManagment\app\Models\SubCategory::where('id', $item['id'])
+                    ->update(['sort_number' => $item['sort_number']]);
+            }
+
+            Log::info('SubCategories reordered successfully', ['new_order' => $newOrder]);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('common.reorder_success')
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error reordering subcategories: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => __('common.reorder_error')
             ], 500);
         }
     }

@@ -25,48 +25,9 @@ class CategoryRepository implements CategoryRepositoryInterface
      */
     public function getCategoriesQuery(array $filters = [], $orderBy = null, $orderDirection = 'asc')
     {
-        $query = Category::query()->filter($filters);
-        // Apply sorting
-        if ($orderBy) {
-            if (is_array($orderBy) && isset($orderBy['lang_id'])) {
-                // Sort by translation using subquery
-                $langId = $orderBy['lang_id'];
-                $query->orderByRaw("(
-                    SELECT lang_value
-                    FROM translations
-                    WHERE translations.translatable_id = categories.id
-                    AND translations.translatable_type = 'Modules\\\\CategoryManagment\\\\app\\\\Models\\\\Category'
-                    AND translations.lang_id = ?
-                    AND translations.lang_key = 'name'
-                    LIMIT 1
-                ) {$orderDirection}", [$langId]);
-            } elseif ($orderBy === 'department') {
-                // Sort by department name using subquery
-                $currentLocale = app()->getLocale();
-                $langId = $currentLocale === 'ar' ? 1 : 2;
-
-                $query->orderByRaw("(
-                    SELECT dt.lang_value
-                    FROM departments d
-                    LEFT JOIN translations dt ON d.id = dt.translatable_id
-                        AND dt.translatable_type = 'Modules\\\\CategoryManagment\\\\app\\\\Models\\\\Department'
-                        AND dt.lang_key = 'name'
-                        AND dt.lang_id = ?
-                    WHERE d.id = categories.department_id
-                    LIMIT 1
-                ) {$orderDirection}", [$langId]);
-            } else {
-                // Sort by regular column
-                $query->orderBy($orderBy, $orderDirection);
-            }
-        } else {
-            $query->orderBy('sort_number', 'asc');
-        }
-
-        // Load relationships after sorting is applied
-        $query->with(['translations', 'department']);
-
-        return $query;
+        return Category::with(['translations', 'department'])
+            ->filter($filters)
+            ->sorted($orderBy, $orderDirection, 'sort_number', 'asc');
     }
 
 

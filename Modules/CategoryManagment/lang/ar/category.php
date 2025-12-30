@@ -93,4 +93,8 @@ return [
     'status_changed_successfully' => 'تم تغيير حالة الفئة بنجاح',
     'error_changing_status' => 'خطأ في تغيير حالة الفئة',
     'status_already_set' => 'الفئة مضبوطة بالفعل على هذه الحالة',
+
+    // Reorder
+    'reorder_success' => 'تم إعادة ترتيب الفئات بنجاح',
+    'error_reordering' => 'خطأ في إعادة ترتيب الفئات',
 ];

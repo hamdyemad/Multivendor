@@ -131,6 +131,7 @@ class PushNotificationRepository implements PushNotificationRepositoryInterface
             $fcmTokens = CustomerFcmToken::whereIn('customer_id', $customerIds)
                 ->pluck('fcm_token', 'customer_id')
                 ->toArray();
+            \Log::info('FCM Tokens of the push notification', $fcmTokens);
 
             foreach ($fcmTokens as $customerId => $token) {
                 $customer = Customer::find($customerId);
@@ -146,6 +147,10 @@ class PushNotificationRepository implements PushNotificationRepositoryInterface
                     $imageUrl,
                     ['notification_id' => $notification->id]
                 );
+
+                \Log::info("result firebase down");
+                \Log::info($result);
+
 
                 // Delete invalid token if send failed
                 if (!$result) {

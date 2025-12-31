@@ -292,8 +292,7 @@ class WithdrawController extends Controller
     public function getVendorBalance($lang, $codeContry, $vendor_id)
     {
         // Maybe authorize?
-        return $this->withdrawService->getVendorBalance($vendor_id);
-        // return response()->json($this->withdrawService->getVendorBalance($vendor_id));
+        return response()->json($this->withdrawService->getVendorBalance($vendor_id));
     }
 
     public function sendMoneyToVendorAction(Request $request)

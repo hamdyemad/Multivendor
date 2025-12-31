@@ -71,7 +71,7 @@
                                             <?php echo e(__('withdraw::withdraw.select_vendor')); ?> <span class="text-danger">*</span>
                                         </label>
                                         <select required name="vendor_id" class="form-control form-select select2"
-                                            onchange="getVendorBalance(this.value)">
+                                            id="vendor_select">
                                             <option value=""><?php echo e(__('withdraw::withdraw.select_vendor')); ?></option>
                                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $vendors; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $vendor): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                 <option value="<?php echo e($vendor->id); ?>">
@@ -99,7 +99,7 @@
                                                                 class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
-                                                                            id="total_orders">0.00</span> <?php echo e(currency()); ?></h1>
+                                                                            id="total_orders" class="protected-value">0.00</span> <?php echo e(currency()); ?></h1>
                                                                     <p style="font-size:11px"><?php echo e(__('withdraw::withdraw.total_vendor_transactions')); ?></p>
                                                                 </div>
                                                                 <div class="ap-po-details__icon-area">
@@ -119,7 +119,7 @@
                                                                 class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
-                                                                            id="bnaia_balance">0.00</span> <?php echo e(currency()); ?></h1>
+                                                                            id="bnaia_balance" class="protected-value">0.00</span> <?php echo e(currency()); ?></h1>
                                                                     <p style="font-size:11px"><?php echo e(__('withdraw::withdraw.bnaia_commission_from_transactions')); ?>
 
                                                                     </p>
@@ -137,7 +137,7 @@
                                                                 class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
-                                                                            id="vendor_balance_money">0.00</span> <?php echo e(currency()); ?></h1>
+                                                                            id="vendor_balance_money" class="protected-value">0.00</span> <?php echo e(currency()); ?></h1>
                                                                     <p style="font-size:11px"><?php echo e(__('withdraw::withdraw.total_vendor_credit')); ?></p>
                                                                 </div>
                                                                 <div class="ap-po-details__icon-area">
@@ -171,7 +171,7 @@
                                                                 class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
-                                                                            id="vendor_balance_after_sent_money">0.00</span>
+                                                                            id="vendor_balance_after_sent_money" class="protected-value">0.00</span>
                                                                         <?php echo e(currency()); ?></h1>
                                                                     <p><?php echo e(__('withdraw::withdraw.total_balance_needed')); ?></p>
                                                                 </div>
@@ -192,7 +192,7 @@
                                                                 class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
-                                                                            id="total_sent_money">0.00</span> <?php echo e(currency()); ?></h1>
+                                                                            id="total_sent_money" class="protected-value">0.00</span> <?php echo e(currency()); ?></h1>
                                                                     <p><?php echo e(__('withdraw::withdraw.total_sent_money')); ?></p>
                                                                 </div>
                                                                 <div class="ap-po-details__icon-area">
@@ -213,7 +213,7 @@
                                                                 class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
-                                                                            id="remaining_after_sent_money">0.00</span> <?php echo e(currency()); ?>
+                                                                            id="remaining_after_sent_money" class="protected-value">0.00</span> <?php echo e(currency()); ?>
 
                                                                     </h1>
                                                                     <p><?php echo e(__('withdraw::withdraw.total_remaining')); ?></p>
@@ -357,123 +357,194 @@
 
     <?php $__env->startPush('scripts'); ?>
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const form = document.getElementById('sendMoneyForm');
-                const submitBtn = document.getElementById('submitBtn');
-                const confirmModal = new bootstrap.Modal(document.getElementById('confirmSubmitModal'));
-                const amountExceededModal = new bootstrap.Modal(document.getElementById('amountExceededModal'));
-                const confirmBtn = document.getElementById('confirmSubmitBtn');
-                const sentAmountInput = document.getElementById('sent_amount');
-                const imageInput = document.getElementById('imageInput');
-                const imagePreview = document.getElementById('imagePreview');
-
-                // Function to get max amount from the display
-                function getMaxAmount() {
-                    const maxAmountText = document.getElementById('amount_max_which_will_be_sent').innerText;
-                    return Number(maxAmountText.replace(/,/g, '')) || 0;
+            // Global function to get max amount from the display - defined outside DOMContentLoaded
+            function getMaxAmount() {
+                var element = document.getElementById('amount_max_which_will_be_sent');
+                if (!element) {
+                    console.warn('amount_max_which_will_be_sent element not found');
+                    return 0;
                 }
+                var maxAmountText = element.innerText || element.textContent || '0';
+                return Number(maxAmountText.replace(/,/g, '')) || 0;
+            }
 
-                // Function to show amount exceeded modal
-                function showAmountExceededModal(maxAmount) {
-                    document.getElementById('maxAmountDisplay').innerText = maxAmount.toLocaleString();
+            // Global variable to store modals
+            var confirmModal = null;
+            var amountExceededModal = null;
+
+            // Function to show amount exceeded modal
+            function showAmountExceededModal(maxAmount) {
+                var maxDisplay = document.getElementById('maxAmountDisplay');
+                if (maxDisplay) {
+                    maxDisplay.innerText = maxAmount.toLocaleString();
+                }
+                if (amountExceededModal) {
                     amountExceededModal.show();
+                }
+            }
+
+                var form = document.getElementById('sendMoneyForm');
+                var submitBtn = document.getElementById('submitBtn');
+                var confirmBtn = document.getElementById('confirmSubmitBtn');
+                var sentAmountInput = document.getElementById('sent_amount');
+                var imageInput = document.getElementById('imageInput');
+                var imagePreview = document.getElementById('imagePreview');
+
+                // Initialize modals
+                var confirmModalEl = document.getElementById('confirmSubmitModal');
+                var amountExceededModalEl = document.getElementById('amountExceededModal');
+                
+                if (confirmModalEl) {
+                    confirmModal = new bootstrap.Modal(confirmModalEl);
+                }
+                if (amountExceededModalEl) {
+                    amountExceededModal = new bootstrap.Modal(amountExceededModalEl);
                 }
 
                 // Format number input with commas and validate max amount
-                sentAmountInput.addEventListener('input', function() {
-                    let value = this.value.replace(/,/g, '');
-                    if (value === '') return;
+                if (sentAmountInput) {
+                    sentAmountInput.addEventListener('input', function() {
+                        var value = this.value.replace(/,/g, '');
+                        if (value === '') return;
 
-                    // Allow only numbers and decimal point
-                    if (!/^\d*\.?\d*$/.test(value)) {
-                        this.value = this.value.slice(0, -1);
-                        return;
-                    }
+                        // Allow only numbers and decimal point
+                        if (!/^\d*\.?\d*$/.test(value)) {
+                            this.value = this.value.slice(0, -1);
+                            return;
+                        }
 
-                    let numVal = parseFloat(value);
-                    if (!isNaN(numVal)) {
-                        // Check if exceeds max amount
-                        const maxAmount = getMaxAmount();
-                        if (numVal > maxAmount) {
+                        var numVal = parseFloat(value);
+                        if (!isNaN(numVal)) {
+                            // Check if exceeds max amount
+                            var maxAmount = getMaxAmount();
+                            if (maxAmount > 0 && numVal > maxAmount) {
+                                showAmountExceededModal(maxAmount);
+                                this.value = maxAmount.toLocaleString('en-US');
+                                return;
+                            }
+                            
+                            var parts = numVal.toString().split('.');
+                            parts[0] = Number(parts[0]).toLocaleString('en-US');
+                            this.value = parts.join('.');
+                        }
+                    });
+                }
+
+                // Image preview on change
+                if (imageInput) {
+                    imageInput.addEventListener('change', function(event) {
+                        var file = event.target.files[0];
+                        if (file) {
+                            var reader = new FileReader();
+                            reader.onload = function(e) {
+                                if (imagePreview) {
+                                    imagePreview.src = e.target.result;
+                                    imagePreview.style.display = 'block';
+                                }
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                }
+
+                // Click on image to open file selector
+                if (imagePreview) {
+                    imagePreview.addEventListener('click', function() {
+                        if (imageInput) {
+                            imageInput.click();
+                        }
+                    });
+                }
+
+                // Validate amount before showing confirm modal
+                if (form) {
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        
+                        var enteredAmount = sentAmountInput ? Number(sentAmountInput.value.replace(/,/g, '')) || 0 : 0;
+                        var maxAmount = getMaxAmount();
+                        
+                        // Only validate if max amount is set (vendor selected)
+                        if (maxAmount > 0 && enteredAmount > maxAmount) {
                             showAmountExceededModal(maxAmount);
-                            this.value = maxAmount.toLocaleString('en-US');
                             return;
                         }
                         
-                        let parts = numVal.toString().split('.');
-                        parts[0] = Number(parts[0]).toLocaleString('en-US');
-                        this.value = parts.join('.');
-                    }
-                });
-
-                // Image preview on change
-                imageInput.addEventListener('change', function(event) {
-                    let file = event.target.files[0];
-                    if (file) {
-                        let reader = new FileReader();
-                        reader.onload = function(e) {
-                            imagePreview.src = e.target.result;
-                            imagePreview.style.display = 'block';
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                });
-
-                // Click on image to open file selector
-                imagePreview.addEventListener('click', function() {
-                    imageInput.click();
-                });
-
-                // Validate amount before showing confirm modal
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    
-                    const enteredAmount = Number(sentAmountInput.value.replace(/,/g, '')) || 0;
-                    const maxAmount = getMaxAmount();
-                    
-                    if (enteredAmount > maxAmount) {
-                        showAmountExceededModal(maxAmount);
-                        return;
-                    }
-                    
-                    confirmModal.show();
-                });
+                        if (confirmModal) {
+                            confirmModal.show();
+                        } else {
+                            // Fallback: submit directly if modal not available
+                            form.submit();
+                        }
+                    });
+                }
 
                 // When user clicks Yes, Send
-                confirmBtn.addEventListener('click', function() {
-                    // Remove commas before submitting
-                    sentAmountInput.value = sentAmountInput.value.replace(/,/g, '');
-                    confirmModal.hide();
-                    form.submit();
-                });
-            });
+                if (confirmBtn) {
+                    confirmBtn.addEventListener('click', function() {
+                        // Remove commas before submitting
+                        if (sentAmountInput) {
+                            sentAmountInput.value = sentAmountInput.value.replace(/,/g, '');
+                        }
+                        if (confirmModal) {
+                            confirmModal.hide();
+                        }
+                        if (form) {
+                            form.submit();
+                        }
+                    });
+                }
 
-            // Get vendor balance function (called from select onchange)
+            // Get vendor balance function
             function getVendorBalance(vendor_id) {
-                let url = "<?php echo e(route('admin.getVendorBalance', ':vendor_id')); ?>";
+                if (!vendor_id) return;
+                
+                var url = "<?php echo e(route('admin.getVendorBalance', ':vendor_id')); ?>";
                 url = url.replace(':vendor_id', vendor_id);
+                
+                console.log('Fetching vendor balance from:', url);
                 
                 $.ajax({
                     url: url,
                     type: "GET",
+                    dataType: "json",
                     success: function(response) {
-                        $("#total_orders").html(response.orders_price);
-                        $("#bnaia_balance").html(response.bnaia_balance);
-                        $("#vendor_commission_percentage").html(response.vendor_commission + "%");
-                        $("#vendor_balance_money").html(response.total_vendor_balance);
+                        console.log('Vendor balance response:', response);
+                        
+                        $("#total_orders").html(response.orders_price || '0.00');
+                        $("#bnaia_balance").html(response.bnaia_balance || '0.00');
+                        $("#vendor_commission_percentage").html((response.vendor_commission || 0) + "%");
+                        $("#vendor_balance_money").html(response.total_vendor_balance || '0.00');
 
-                        $("#vendor_balance_after_sent_money").html(response.total_vendor_balance);
-                        $("#total_sent_money").html(response.total_sent_money);
-                        $("#remaining_after_sent_money").html(response.remaining);
+                        $("#vendor_balance_after_sent_money").html(response.total_vendor_balance || '0.00');
+                        $("#total_sent_money").html(response.total_sent_money || '0.00');
+                        $("#remaining_after_sent_money").html(response.remaining || '0.00');
 
-                        $("#amount_max_which_will_be_sent").html(response.remaining);
-                        $("#waiting_approve_requests").html(response.waiting_approve_requests);
+                        $("#amount_max_which_will_be_sent").html(response.remaining || '0.00');
+                        $("#waiting_approve_requests").html(response.waiting_approve_requests || '0.00');
+                        
+                        // Store the new values in protected badges
+                        if (window.storeProtectedValue) {
+                            window.storeProtectedValue('total_orders', response.orders_price);
+                            window.storeProtectedValue('bnaia_balance', response.bnaia_balance);
+                            window.storeProtectedValue('vendor_balance_money', response.total_vendor_balance);
+                            window.storeProtectedValue('vendor_balance_after_sent_money', response.total_vendor_balance);
+                            window.storeProtectedValue('total_sent_money', response.total_sent_money);
+                            window.storeProtectedValue('remaining_after_sent_money', response.remaining);
+                            window.storeProtectedValue('amount_max_which_will_be_sent', response.remaining);
+                        }
                     },
                     error: function(xhr, status, error) {
-                        console.log("Error:", error);
+                        console.error("Error fetching vendor balance:", error);
+                        console.error("Status:", status);
+                        console.error("Response:", xhr.responseText);
                     }
                 });
             }
+
+            $('#vendor_select').on('change', function() {
+                getVendorBalance($(this).val());
+            });
         </script>
     <?php $__env->stopPush(); ?>
 <?php $__env->stopSection(); ?>

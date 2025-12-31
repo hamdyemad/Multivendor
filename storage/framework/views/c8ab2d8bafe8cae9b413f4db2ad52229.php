@@ -298,50 +298,64 @@
 
     
     <script>
-        $(document).ready(function() {
-            // Store original badge values before any potential reset
-            var protectedBadges = {};
+        (function() {
+            // Store protected badge values globally
+            window.protectedBadgeValues = window.protectedBadgeValues || {};
             
-            // Elements that should be protected from reset (add class 'protected-value' to protect)
-            function storeProtectedValues() {
-                $('.protected-value, [data-protected="true"]').each(function() {
-                    var id = $(this).attr('id');
-                    if (id && $(this).text().trim() !== '0' && $(this).text().trim() !== '0.00') {
-                        protectedBadges[id] = $(this).text();
-                    }
-                });
-            }
-            
-            // Restore protected values if they were reset
-            function restoreProtectedValues() {
-                $.each(protectedBadges, function(id, value) {
-                    var element = $('#' + id);
-                    if (element.length && (element.text().trim() === '0' || element.text().trim() === '0.00')) {
-                        element.text(value);
-                    }
-                });
-            }
-            
-            // Override jQuery's html() and text() methods to protect certain elements
-            var originalHtml = $.fn.html;
-            var originalText = $.fn.text;
-            
-            $.fn.html = function(value) {
-                if (value !== undefined && this.hasClass('protected-value')) {
-                    // Store current value before change
-                    var id = this.attr('id');
-                    if (id && this.text().trim() !== '0' && this.text().trim() !== '0.00') {
-                        protectedBadges[id] = this.text();
-                    }
+            // Function to store a protected value
+            window.storeProtectedValue = function(id, value) {
+                if (id && value && value !== '0' && value !== '0.00' && value !== '0.000') {
+                    window.protectedBadgeValues[id] = value;
                 }
-                return originalHtml.apply(this, arguments);
             };
             
-            // Periodically check and restore (fallback protection)
-            setInterval(function() {
-                restoreProtectedValues();
-            }, 2000);
-        });
+            // Function to get stored protected value
+            window.getProtectedValue = function(id) {
+                return window.protectedBadgeValues[id] || null;
+            };
+            
+            $(document).ready(function() {
+                // Store initial values of protected elements
+                function storeAllProtectedValues() {
+                    $('.protected-value, [data-protected="true"]').each(function() {
+                        var id = $(this).attr('id');
+                        var value = $(this).text().trim();
+                        if (id && value && value !== '0' && value !== '0.00' && value !== '0.000') {
+                            window.protectedBadgeValues[id] = value;
+                        }
+                    });
+                }
+                
+                // Restore protected values if they were reset to 0
+                function restoreProtectedValues() {
+                    $.each(window.protectedBadgeValues, function(id, value) {
+                        var element = $('#' + id);
+                        if (element.length) {
+                            var currentValue = element.text().trim();
+                            // Only restore if current value is 0 and we have a stored non-zero value
+                            if ((currentValue === '0' || currentValue === '0.00' || currentValue === '0.000') && 
+                                value && value !== '0' && value !== '0.00' && value !== '0.000') {
+                                element.text(value);
+                            }
+                        }
+                    });
+                }
+                
+                // Initial store
+                storeAllProtectedValues();
+                
+                // Watch for AJAX updates that might set new values
+                $(document).ajaxComplete(function(event, xhr, settings) {
+                    // After AJAX completes, store any new non-zero values
+                    setTimeout(storeAllProtectedValues, 100);
+                });
+                
+                // Periodically check and restore (fallback protection against global resets)
+                setInterval(function() {
+                    restoreProtectedValues();
+                }, 1500);
+            });
+        })();
     </script>
 
     

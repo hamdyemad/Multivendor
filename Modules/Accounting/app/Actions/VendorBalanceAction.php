@@ -18,6 +18,11 @@ class VendorBalanceAction
             'date_to' => $data['date_to'] ?? null,
         ];
 
+        // Add vendor filter if user is vendor
+        if (isVendor()) {
+            $filters['vendor_id'] = auth()->user()->vendor->id ?? null;
+        }
+
         $perPage = $data['per_page'] ?? 10;
         $page = $data['page'] ?? 1;
         $orderDirection = $data['orderDirection'] ?? 'desc';

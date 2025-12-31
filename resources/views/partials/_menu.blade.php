@@ -428,7 +428,7 @@
             </li>
         @endcanany
 
-        @canany(['accounting.overview.view', 'accounting.balance.view', 'accounting.expenses_keys.view', 'accounting.expenses.view'])
+        @if(isVendor())
             <li class="menu-title mt-30">
                 <span>{{ trans('menu.sections.financials') }}</span>
             </li>
@@ -441,31 +441,65 @@
                     <span class="toggle-icon"></span>
                 </a>
                 <ul class="px-0">
-                    @can('accounting.overview.view')
-                        <li><a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.accounting.summary', $currentRoute) ? 'active' : '' }}"
-                                href="{{ route('admin.accounting.summary') }}">{{ trans('menu.accounting module.overview') }}</a>
-                        </li>
-                    @endcan
-                    @can('accounting.balance.view')
-                        <li><a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.accounting.balances', $currentRoute) ? 'active' : '' }}"
-                                href="{{ route('admin.accounting.balances') }}">{{ trans('menu.accounting module.vendor_balances') }}</a>
-                        </li>
-                    @endcan
-                    @can('accounting.expenses_keys.view')
-                        <li><a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.accounting.expense-items', $currentRoute) ? 'active' : '' }}"
-                                href="{{ route('admin.accounting.expense-items') }}">{{ trans('menu.accounting module.expense_categories') }}</a>
-                        </li>
-                    @endcan
-                    @can('accounting.expenses.view')
-                        <li><a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.accounting.expenses', $currentRoute) ? 'active' : '' }}"
-                                href="{{ route('admin.accounting.expenses') }}">{{ trans('menu.accounting module.expense_records') }}</a>
-                        </li>
-                    @endcan
+                    <li><a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.accounting.summary', $currentRoute) ? 'active' : '' }}"
+                            href="{{ route('admin.accounting.summary') }}">{{ trans('menu.accounting module.overview') }}</a>
+                    </li>
+                    <li><a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.accounting.balances', $currentRoute) ? 'active' : '' }}"
+                            href="{{ route('admin.accounting.balances') }}">{{ trans('menu.accounting module.vendor_balances') }}</a>
+                    </li>
+                    <li><a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.accounting.expense-items', $currentRoute) ? 'active' : '' }}"
+                            href="{{ route('admin.accounting.expense-items') }}">{{ trans('menu.accounting module.expense_categories') }}</a>
+                    </li>
+                    <li><a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.accounting.expenses', $currentRoute) ? 'active' : '' }}"
+                            href="{{ route('admin.accounting.expenses') }}">{{ trans('menu.accounting module.expense_records') }}</a>
+                    </li>
                     <li><a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.accounting.income', $currentRoute) ? 'active' : '' }}"
                             href="{{ route('admin.accounting.income') }}">{{ trans('menu.accounting module.income_entries') }}</a>
                     </li>
                 </ul>
             </li>
+        @endif
+
+        @canany(['accounting.overview.view', 'accounting.balance.view', 'accounting.expenses_keys.view', 'accounting.expenses.view'])
+            @if(!isVendor())
+                <li class="menu-title mt-30">
+                    <span>{{ trans('menu.sections.financials') }}</span>
+                </li>
+                <li
+                    class="has-child {{ isParentMenuOpen(['admin.accounting.summary', 'admin.accounting.income', 'admin.accounting.balances', 'admin.accounting.expenses', 'admin.accounting.expense-items'], ['admin/accounting*']) ? 'open' : '' }}">
+                    <a href="#"
+                        class="{{ isParentMenuOpen(['admin.accounting.summary', 'admin.accounting.income', 'admin.accounting.balances', 'admin.accounting.expenses', 'admin.accounting.expense-items'], ['admin/accounting*']) ? 'active' : '' }}">
+                        <span class="nav-icon uil uil-invoice"></span>
+                        <span class="menu-text">{{ trans('menu.accounting module.title') }}</span>
+                        <span class="toggle-icon"></span>
+                    </a>
+                    <ul class="px-0">
+                        @can('accounting.overview.view')
+                            <li><a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.accounting.summary', $currentRoute) ? 'active' : '' }}"
+                                    href="{{ route('admin.accounting.summary') }}">{{ trans('menu.accounting module.overview') }}</a>
+                            </li>
+                        @endcan
+                        @can('accounting.balance.view')
+                            <li><a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.accounting.balances', $currentRoute) ? 'active' : '' }}"
+                                    href="{{ route('admin.accounting.balances') }}">{{ trans('menu.accounting module.vendor_balances') }}</a>
+                            </li>
+                        @endcan
+                        @can('accounting.expenses_keys.view')
+                            <li><a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.accounting.expense-items', $currentRoute) ? 'active' : '' }}"
+                                    href="{{ route('admin.accounting.expense-items') }}">{{ trans('menu.accounting module.expense_categories') }}</a>
+                            </li>
+                        @endcan
+                        @can('accounting.expenses.view')
+                            <li><a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.accounting.expenses', $currentRoute) ? 'active' : '' }}"
+                                    href="{{ route('admin.accounting.expenses') }}">{{ trans('menu.accounting module.expense_records') }}</a>
+                            </li>
+                        @endcan
+                        <li><a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.accounting.income', $currentRoute) ? 'active' : '' }}"
+                                href="{{ route('admin.accounting.income') }}">{{ trans('menu.accounting module.income_entries') }}</a>
+                        </li>
+                    </ul>
+                </li>
+            @endif
         @endcanany
         @canany(['departments.index', 'categories.index', 'sub-categories.index'])
             <li class="menu-title mt-30">

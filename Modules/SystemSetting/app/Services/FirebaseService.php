@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
+use Kreait\Firebase\Messaging\AndroidConfig;
+use Kreait\Firebase\Messaging\ApnsConfig;
 use Kreait\Firebase\Exception\MessagingException;
 
 class FirebaseService
@@ -54,12 +56,33 @@ class FirebaseService
             $data['image'] = $image;
         }
 
+        // Android config with sound
+        $androidConfig = AndroidConfig::fromArray([
+            'priority' => 'high',
+            'notification' => [
+                'sound' => 'default',
+                'channel_id' => 'high_importance_channel',
+            ],
+        ]);
+
+        // iOS (APNs) config with sound
+        $apnsConfig = ApnsConfig::fromArray([
+            'payload' => [
+                'aps' => [
+                    'sound' => 'default',
+                    'badge' => 1,
+                ],
+            ],
+        ]);
+
         // Send to each token individually to track success/failure
         foreach ($tokens as $token) {
             try {
                 $message = CloudMessage::withTarget('token', $token)
                     ->withNotification($notification)
-                    ->withData($data);
+                    ->withData($data)
+                    ->withAndroidConfig($androidConfig)
+                    ->withApnsConfig($apnsConfig);
 
                 $this->messaging->send($message);
                 $results['success']++;
@@ -114,9 +137,30 @@ class FirebaseService
             $data['image'] = $image;
         }
 
+        // Android config with sound
+        $androidConfig = AndroidConfig::fromArray([
+            'priority' => 'high',
+            'notification' => [
+                'sound' => 'default',
+                'channel_id' => 'high_importance_channel',
+            ],
+        ]);
+
+        // iOS (APNs) config with sound
+        $apnsConfig = ApnsConfig::fromArray([
+            'payload' => [
+                'aps' => [
+                    'sound' => 'default',
+                    'badge' => 1,
+                ],
+            ],
+        ]);
+
         $message = CloudMessage::new()
             ->withNotification($notification)
-            ->withData($data);
+            ->withData($data)
+            ->withAndroidConfig($androidConfig)
+            ->withApnsConfig($apnsConfig);
 
         try {
             $sendReport = $this->messaging->sendMulticast($message, $tokens);

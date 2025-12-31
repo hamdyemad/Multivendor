@@ -8,7 +8,7 @@ use Modules\Accounting\app\Http\Controllers\ExpenseController;
 use Modules\Accounting\app\Http\Controllers\BalanceController;
 use Modules\Accounting\app\Http\Controllers\VendorBalanceController;
 
-Route::middleware(['auth', 'verified', 'admin.only'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('accounting/summary', [SummaryController::class, 'index'])->name('accounting.summary');
     Route::get('accounting/income', [IncomeController::class, 'index'])->name('accounting.income');
     Route::get('accounting/income/datatable', [IncomeController::class, 'datatable'])->name('accounting.income.datatable');

@@ -298,6 +298,54 @@
 
     
     <script>
+        $(document).ready(function() {
+            // Store original badge values before any potential reset
+            var protectedBadges = {};
+            
+            // Elements that should be protected from reset (add class 'protected-value' to protect)
+            function storeProtectedValues() {
+                $('.protected-value, [data-protected="true"]').each(function() {
+                    var id = $(this).attr('id');
+                    if (id && $(this).text().trim() !== '0' && $(this).text().trim() !== '0.00') {
+                        protectedBadges[id] = $(this).text();
+                    }
+                });
+            }
+            
+            // Restore protected values if they were reset
+            function restoreProtectedValues() {
+                $.each(protectedBadges, function(id, value) {
+                    var element = $('#' + id);
+                    if (element.length && (element.text().trim() === '0' || element.text().trim() === '0.00')) {
+                        element.text(value);
+                    }
+                });
+            }
+            
+            // Override jQuery's html() and text() methods to protect certain elements
+            var originalHtml = $.fn.html;
+            var originalText = $.fn.text;
+            
+            $.fn.html = function(value) {
+                if (value !== undefined && this.hasClass('protected-value')) {
+                    // Store current value before change
+                    var id = this.attr('id');
+                    if (id && this.text().trim() !== '0' && this.text().trim() !== '0.00') {
+                        protectedBadges[id] = this.text();
+                    }
+                }
+                return originalHtml.apply(this, arguments);
+            };
+            
+            // Periodically check and restore (fallback protection)
+            setInterval(function() {
+                restoreProtectedValues();
+            }, 2000);
+        });
+    </script>
+
+    
+    <script>
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::check()): ?>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(Auth::user()->user_type_id == \App\Models\UserType::ADMIN_TYPE ||
                     Auth::user()->user_type_id == \App\Models\UserType::SUPER_ADMIN_TYPE): ?>

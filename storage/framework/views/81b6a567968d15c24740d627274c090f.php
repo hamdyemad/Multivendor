@@ -445,7 +445,7 @@
             </li>
         <?php endif; ?>
 
-        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['accounting.overview.view', 'accounting.balance.view', 'accounting.expenses_keys.view', 'accounting.expenses.view'])): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isVendor()): ?>
             <li class="menu-title mt-30">
                 <span><?php echo e(trans('menu.sections.financials')); ?></span>
             </li>
@@ -458,31 +458,65 @@
                     <span class="toggle-icon"></span>
                 </a>
                 <ul class="px-0">
-                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('accounting.overview.view')): ?>
-                        <li><a class="d-flex align-items-center justify-content-between fw-bold <?php echo e(isMenuActive('admin.accounting.summary', $currentRoute) ? 'active' : ''); ?>"
-                                href="<?php echo e(route('admin.accounting.summary')); ?>"><?php echo e(trans('menu.accounting module.overview')); ?></a>
-                        </li>
-                    <?php endif; ?>
-                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('accounting.balance.view')): ?>
-                        <li><a class="d-flex align-items-center justify-content-between fw-bold <?php echo e(isMenuActive('admin.accounting.balances', $currentRoute) ? 'active' : ''); ?>"
-                                href="<?php echo e(route('admin.accounting.balances')); ?>"><?php echo e(trans('menu.accounting module.vendor_balances')); ?></a>
-                        </li>
-                    <?php endif; ?>
-                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('accounting.expenses_keys.view')): ?>
-                        <li><a class="d-flex align-items-center justify-content-between fw-bold <?php echo e(isMenuActive('admin.accounting.expense-items', $currentRoute) ? 'active' : ''); ?>"
-                                href="<?php echo e(route('admin.accounting.expense-items')); ?>"><?php echo e(trans('menu.accounting module.expense_categories')); ?></a>
-                        </li>
-                    <?php endif; ?>
-                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('accounting.expenses.view')): ?>
-                        <li><a class="d-flex align-items-center justify-content-between fw-bold <?php echo e(isMenuActive('admin.accounting.expenses', $currentRoute) ? 'active' : ''); ?>"
-                                href="<?php echo e(route('admin.accounting.expenses')); ?>"><?php echo e(trans('menu.accounting module.expense_records')); ?></a>
-                        </li>
-                    <?php endif; ?>
+                    <li><a class="d-flex align-items-center justify-content-between fw-bold <?php echo e(isMenuActive('admin.accounting.summary', $currentRoute) ? 'active' : ''); ?>"
+                            href="<?php echo e(route('admin.accounting.summary')); ?>"><?php echo e(trans('menu.accounting module.overview')); ?></a>
+                    </li>
+                    <li><a class="d-flex align-items-center justify-content-between fw-bold <?php echo e(isMenuActive('admin.accounting.balances', $currentRoute) ? 'active' : ''); ?>"
+                            href="<?php echo e(route('admin.accounting.balances')); ?>"><?php echo e(trans('menu.accounting module.vendor_balances')); ?></a>
+                    </li>
+                    <li><a class="d-flex align-items-center justify-content-between fw-bold <?php echo e(isMenuActive('admin.accounting.expense-items', $currentRoute) ? 'active' : ''); ?>"
+                            href="<?php echo e(route('admin.accounting.expense-items')); ?>"><?php echo e(trans('menu.accounting module.expense_categories')); ?></a>
+                    </li>
+                    <li><a class="d-flex align-items-center justify-content-between fw-bold <?php echo e(isMenuActive('admin.accounting.expenses', $currentRoute) ? 'active' : ''); ?>"
+                            href="<?php echo e(route('admin.accounting.expenses')); ?>"><?php echo e(trans('menu.accounting module.expense_records')); ?></a>
+                    </li>
                     <li><a class="d-flex align-items-center justify-content-between fw-bold <?php echo e(isMenuActive('admin.accounting.income', $currentRoute) ? 'active' : ''); ?>"
                             href="<?php echo e(route('admin.accounting.income')); ?>"><?php echo e(trans('menu.accounting module.income_entries')); ?></a>
                     </li>
                 </ul>
             </li>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['accounting.overview.view', 'accounting.balance.view', 'accounting.expenses_keys.view', 'accounting.expenses.view'])): ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!isVendor()): ?>
+                <li class="menu-title mt-30">
+                    <span><?php echo e(trans('menu.sections.financials')); ?></span>
+                </li>
+                <li
+                    class="has-child <?php echo e(isParentMenuOpen(['admin.accounting.summary', 'admin.accounting.income', 'admin.accounting.balances', 'admin.accounting.expenses', 'admin.accounting.expense-items'], ['admin/accounting*']) ? 'open' : ''); ?>">
+                    <a href="#"
+                        class="<?php echo e(isParentMenuOpen(['admin.accounting.summary', 'admin.accounting.income', 'admin.accounting.balances', 'admin.accounting.expenses', 'admin.accounting.expense-items'], ['admin/accounting*']) ? 'active' : ''); ?>">
+                        <span class="nav-icon uil uil-invoice"></span>
+                        <span class="menu-text"><?php echo e(trans('menu.accounting module.title')); ?></span>
+                        <span class="toggle-icon"></span>
+                    </a>
+                    <ul class="px-0">
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('accounting.overview.view')): ?>
+                            <li><a class="d-flex align-items-center justify-content-between fw-bold <?php echo e(isMenuActive('admin.accounting.summary', $currentRoute) ? 'active' : ''); ?>"
+                                    href="<?php echo e(route('admin.accounting.summary')); ?>"><?php echo e(trans('menu.accounting module.overview')); ?></a>
+                            </li>
+                        <?php endif; ?>
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('accounting.balance.view')): ?>
+                            <li><a class="d-flex align-items-center justify-content-between fw-bold <?php echo e(isMenuActive('admin.accounting.balances', $currentRoute) ? 'active' : ''); ?>"
+                                    href="<?php echo e(route('admin.accounting.balances')); ?>"><?php echo e(trans('menu.accounting module.vendor_balances')); ?></a>
+                            </li>
+                        <?php endif; ?>
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('accounting.expenses_keys.view')): ?>
+                            <li><a class="d-flex align-items-center justify-content-between fw-bold <?php echo e(isMenuActive('admin.accounting.expense-items', $currentRoute) ? 'active' : ''); ?>"
+                                    href="<?php echo e(route('admin.accounting.expense-items')); ?>"><?php echo e(trans('menu.accounting module.expense_categories')); ?></a>
+                            </li>
+                        <?php endif; ?>
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('accounting.expenses.view')): ?>
+                            <li><a class="d-flex align-items-center justify-content-between fw-bold <?php echo e(isMenuActive('admin.accounting.expenses', $currentRoute) ? 'active' : ''); ?>"
+                                    href="<?php echo e(route('admin.accounting.expenses')); ?>"><?php echo e(trans('menu.accounting module.expense_records')); ?></a>
+                            </li>
+                        <?php endif; ?>
+                        <li><a class="d-flex align-items-center justify-content-between fw-bold <?php echo e(isMenuActive('admin.accounting.income', $currentRoute) ? 'active' : ''); ?>"
+                                href="<?php echo e(route('admin.accounting.income')); ?>"><?php echo e(trans('menu.accounting module.income_entries')); ?></a>
+                        </li>
+                    </ul>
+                </li>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         <?php endif; ?>
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['departments.index', 'categories.index', 'sub-categories.index'])): ?>
             <li class="menu-title mt-30">

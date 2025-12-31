@@ -43,7 +43,7 @@
                                             {{ __('withdraw::withdraw.select_vendor') }} <span class="text-danger">*</span>
                                         </label>
                                         <select required name="vendor_id" class="form-control form-select select2"
-                                            onchange="getVendorBalance(this.value)">
+                                            id="vendor_select">
                                             <option value="">{{ __('withdraw::withdraw.select_vendor') }}</option>
                                             @foreach ($vendors as $vendor)
                                                 <option value="{{ $vendor->id }}">
@@ -70,7 +70,7 @@
                                                                 class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
-                                                                            id="total_orders">0.00</span> {{ currency() }}</h1>
+                                                                            id="total_orders" class="protected-value">0.00</span> {{ currency() }}</h1>
                                                                     <p style="font-size:11px">{{ __('withdraw::withdraw.total_vendor_transactions') }}</p>
                                                                 </div>
                                                                 <div class="ap-po-details__icon-area">
@@ -90,7 +90,7 @@
                                                                 class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
-                                                                            id="bnaia_balance">0.00</span> {{ currency() }}</h1>
+                                                                            id="bnaia_balance" class="protected-value">0.00</span> {{ currency() }}</h1>
                                                                     <p style="font-size:11px">{{ __('withdraw::withdraw.bnaia_commission_from_transactions') }}
                                                                     </p>
                                                                 </div>
@@ -112,7 +112,7 @@
                                                                 class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
-                                                                            id="vendor_balance_money">0.00</span> {{ currency() }}</h1>
+                                                                            id="vendor_balance_money" class="protected-value">0.00</span> {{ currency() }}</h1>
                                                                     <p style="font-size:11px">{{ __('withdraw::withdraw.total_vendor_credit') }}</p>
                                                                 </div>
                                                                 <div class="ap-po-details__icon-area">
@@ -145,7 +145,7 @@
                                                                 class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
-                                                                            id="vendor_balance_after_sent_money">0.00</span>
+                                                                            id="vendor_balance_after_sent_money" class="protected-value">0.00</span>
                                                                         {{ currency() }}</h1>
                                                                     <p>{{ __('withdraw::withdraw.total_balance_needed') }}</p>
                                                                 </div>
@@ -166,7 +166,7 @@
                                                                 class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
-                                                                            id="total_sent_money">0.00</span> {{ currency() }}</h1>
+                                                                            id="total_sent_money" class="protected-value">0.00</span> {{ currency() }}</h1>
                                                                     <p>{{ __('withdraw::withdraw.total_sent_money') }}</p>
                                                                 </div>
                                                                 <div class="ap-po-details__icon-area">
@@ -187,7 +187,7 @@
                                                                 class="ap-po-details-content d-flex flex-wrap justify-content-between">
                                                                 <div class="ap-po-details__titlebar">
                                                                     <h1 style="font-size: 20px;"><span
-                                                                            id="remaining_after_sent_money">0.00</span> {{ currency() }}
+                                                                            id="remaining_after_sent_money" class="protected-value">0.00</span> {{ currency() }}
                                                                     </h1>
                                                                     <p>{{ __('withdraw::withdraw.total_remaining') }}</p>
                                                                 </div>
@@ -335,7 +335,9 @@
 
                 // Function to get max amount from the display
                 function getMaxAmount() {
-                    const maxAmountText = document.getElementById('amount_max_which_will_be_sent').innerText;
+                    const element = document.getElementById('amount_max_which_will_be_sent');
+                    if (!element) return 0;
+                    const maxAmountText = element.innerText;
                     return Number(maxAmountText.replace(/,/g, '')) || 0;
                 }
 
@@ -414,8 +416,10 @@
                 });
             });
 
-            // Get vendor balance function (called from select onchange)
+            // Get vendor balance function
             function getVendorBalance(vendor_id) {
+                if (!vendor_id) return;
+                
                 let url = "{{ route('admin.getVendorBalance', ':vendor_id') }}";
                 url = url.replace(':vendor_id', vendor_id);
                 
@@ -440,6 +444,13 @@
                     }
                 });
             }
+
+            // Use jQuery change event for Select2 compatibility
+            $(document).ready(function() {
+                $('#vendor_select').on('change', function() {
+                    getVendorBalance($(this).val());
+                });
+            });
         </script>
     @endpush
 @endsection

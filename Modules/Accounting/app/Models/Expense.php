@@ -9,6 +9,7 @@ use App\Models\Traits\AutoStoreCountryId;
 use App\Models\Traits\CountryCheckIdTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Accounting\app\Models\Scopes\VendorScope;
 
 class Expense extends BaseModel
 {
@@ -19,7 +20,8 @@ class Expense extends BaseModel
         'amount',
         'description',
         'expense_date',
-        'country_id'
+        'country_id',
+        'vendor_id'
     ];
 
     protected $casts = [
@@ -27,9 +29,27 @@ class Expense extends BaseModel
         'expense_date' => 'date'
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::addGlobalScope(new VendorScope);
+        
+        static::creating(function ($model) {
+            if (isVendor()) {
+                $model->vendor_id = auth()->user()->vendor->id ?? null;
+            }
+        });
+    }
+
     public function expenseItem()
     {
         return $this->belongsTo(\Modules\Accounting\app\Models\ExpenseItem::class)->withTrashed();
+    }
+
+    public function vendor()
+    {
+        return $this->belongsTo(\Modules\Vendor\app\Models\Vendor::class);
     }
 
     public function attachments()
@@ -47,13 +67,11 @@ class Expense extends BaseModel
     {
         if (!empty($filters['search'])) {
             $this->applyCustomSearch($query, $filters['search']);
-            // Remove search from filters to prevent parent from processing it
             unset($filters['search']);
         }
         
         parent::scopeFilter($query, $filters);
         
-        // Custom expense date filter
         if (!empty($filters['date_from'])) {
             $query->whereDate('expense_date', '>=', $filters['date_from']);
         }

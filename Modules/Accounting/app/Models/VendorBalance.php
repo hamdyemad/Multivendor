@@ -6,6 +6,7 @@ use App\Models\Traits\HumanDates;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Accounting\app\Models\Scopes\VendorScope;
 
 class VendorBalance extends Model
 {
@@ -26,6 +27,13 @@ class VendorBalance extends Model
         'available_balance' => 'decimal:2',
         'withdrawn_amount' => 'decimal:2'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::addGlobalScope(new VendorScope);
+    }
 
     public function vendor()
     {
@@ -65,5 +73,13 @@ class VendorBalance extends Model
         $this->commission_deducted += $commission;
         $this->available_balance = $this->total_earnings - $this->commission_deducted - $this->withdrawn_amount;
         $this->save();
+    }
+
+    public function scopeForVendor($query, $vendorId = null)
+    {
+        if ($vendorId) {
+            return $query->where('vendor_id', $vendorId);
+        }
+        return $query;
     }
 }

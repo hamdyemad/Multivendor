@@ -9,6 +9,7 @@ use App\Models\Traits\CountryCheckIdTrait;
 use App\Traits\Translation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Accounting\app\Models\Scopes\VendorScope;
 
 class ExpenseItem extends BaseModel
 {
@@ -16,16 +17,35 @@ class ExpenseItem extends BaseModel
 
     protected $fillable = [
         'active',
-        'country_id'
+        'country_id',
+        'vendor_id'
     ];
 
     protected $casts = [
         'active' => 'boolean'
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::addGlobalScope(new VendorScope);
+        
+        static::creating(function ($model) {
+            if (isVendor()) {
+                $model->vendor_id = auth()->user()->vendor->id ?? null;
+            }
+        });
+    }
+
     public function expenses()
     {
         return $this->hasMany(Expense::class);
+    }
+
+    public function vendor()
+    {
+        return $this->belongsTo(\Modules\Vendor\app\Models\Vendor::class);
     }
 
     public function scopeActive($query)

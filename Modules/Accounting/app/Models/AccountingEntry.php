@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Order\app\Models\Order;
 use Modules\Vendor\app\Models\Vendor;
+use Modules\Accounting\app\Models\Scopes\VendorScope;
 
 class AccountingEntry extends BaseModel
 {
@@ -35,6 +36,13 @@ class AccountingEntry extends BaseModel
         'vendor_amount' => 'decimal:2',
         'metadata' => 'array'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::addGlobalScope(new VendorScope);
+    }
 
     public function order()
     {
@@ -64,6 +72,14 @@ class AccountingEntry extends BaseModel
     public function scopeRefund($query)
     {
         return $query->where('type', 'refund');
+    }
+
+    public function scopeForVendor($query, $vendorId = null)
+    {
+        if ($vendorId) {
+            return $query->where('vendor_id', $vendorId);
+        }
+        return $query;
     }
 
     protected function applyCustomSearch(\Illuminate\Database\Eloquent\Builder $query, string $search): \Illuminate\Database\Eloquent\Builder

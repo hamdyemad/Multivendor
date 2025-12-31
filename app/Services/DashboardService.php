@@ -8,6 +8,8 @@ use App\Models\UserType;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Modules\Accounting\app\Models\AccountingEntry;
+use Modules\Accounting\app\Models\Expense;
 use Modules\AreaSettings\app\Models\Country;
 use Modules\AreaSettings\app\Models\City;
 use Modules\AreaSettings\app\Models\Region;
@@ -241,34 +243,18 @@ class DashboardService
     private function getSalesOverview()
     {
         $startOfYear = Carbon::now()->startOfYear();
-        $deliveredStage = OrderStage::withoutCountryFilter()->where('type', 'deliver')->first();
         $newStage = OrderStage::withoutCountryFilter()->where('type', 'new')->first();
         $inProgressStage = OrderStage::withoutCountryFilter()->where('type', 'in_progress')->first();
 
-        // Total expenses (you may need to adjust based on your expense tracking)
-        $totalExpenses = 0; // Placeholder - implement based on your expense model
+        $totalExpenses = Expense::sum('amount');
 
+        $totalIncome = AccountingEntry::where('type', 'income')->sum('amount');
+        $ytdIncome = AccountingEntry::where('type', 'income')->whereDate('created_at', '>=', $startOfYear)->sum('amount');
         if ($this->isVendor && $this->vendorId) {
-            // Vendor-specific sales overview
-            $totalIncome = $deliveredStage
-                ? \Modules\Order\app\Models\OrderProduct::where('vendor_id', $this->vendorId)
-                    ->whereHas('order', function($q) use ($deliveredStage) {
-                        $q->where('stage_id', $deliveredStage->id);
-                    })->sum(\DB::raw('price * quantity'))
-                : 0;
-
-            $ytdIncome = $deliveredStage
-                ? \Modules\Order\app\Models\OrderProduct::where('vendor_id', $this->vendorId)
-                    ->whereHas('order', function($q) use ($startOfYear, $deliveredStage) {
-                        $q->whereDate('created_at', '>=', $startOfYear)
-                          ->where('stage_id', $deliveredStage->id);
-                    })->sum(\DB::raw('price * quantity'))
-                : 0;
-
             $revenueYtd = \Modules\Order\app\Models\OrderProduct::where('vendor_id', $this->vendorId)
                 ->whereHas('order', function($q) use ($startOfYear) {
                     $q->whereDate('created_at', '>=', $startOfYear);
-                })->sum(\DB::raw('price * quantity'));
+                })->sum((DB::raw('price * quantity')));
 
             $newOrdersCount = $newStage
                 ? \Modules\Order\app\Models\OrderProduct::where('vendor_id', $this->vendorId)
@@ -284,17 +270,6 @@ class DashboardService
                     })->distinct('order_id')->count('order_id')
                 : 0;
         } else {
-            // Admin sales overview
-            $totalIncome = $deliveredStage
-                ? Order::where('stage_id', $deliveredStage->id)->sum('total_price')
-                : 0;
-
-            $ytdIncome = $deliveredStage
-                ? Order::where('stage_id', $deliveredStage->id)
-                    ->whereDate('created_at', '>=', $startOfYear)
-                    ->sum('total_price')
-                : 0;
-
             $revenueYtd = Order::whereDate('created_at', '>=', $startOfYear)->sum('total_price');
 
             $newOrdersCount = $newStage ? Order::where('stage_id', $newStage->id)->count() : 0;
@@ -346,37 +321,26 @@ class DashboardService
 
     private function getIncomeExpenseData()
     {
-        $deliveredStage = OrderStage::withoutCountryFilter()->where('type', 'deliver')->first();
         $now = Carbon::now();
-
-        if ($this->isVendor && $this->vendorId) {
-            return $this->getVendorIncomeExpenseData($now);
-        }
-
         // This Month data
         $startOfMonth = $now->copy()->startOfMonth();
         $endOfMonth = $now->copy()->endOfMonth();
+        $AccountingQuery = AccountingEntry::query()->where('type', 'income');
 
-        $monthlyIncome = $deliveredStage
-            ? Order::where('stage_id', $deliveredStage->id)
-                ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
-                ->sum('total_price')
-            : 0;
+        $monthlyIncome = (clone $AccountingQuery)->whereBetween('created_at', [$startOfMonth, $endOfMonth])->sum('amount');
 
-        $monthlyExpenses = 0; // Placeholder - implement based on your expense model
+        $monthlyExpenses = Expense::whereBetween('expense_date', [$startOfMonth, $endOfMonth])->sum('amount');
+        $monthlyCommission = (clone $AccountingQuery)->whereBetween('created_at', [$startOfMonth, $endOfMonth])->sum('commission_amount');
         $monthlyProfit = $monthlyIncome - $monthlyExpenses;
 
         // This Year data
         $startOfYear = $now->copy()->startOfYear();
         $endOfYear = $now->copy()->endOfYear();
 
-        $yearlyIncome = $deliveredStage
-            ? Order::where('stage_id', $deliveredStage->id)
-                ->whereBetween('created_at', [$startOfYear, $endOfYear])
-                ->sum('total_price')
-            : 0;
+        $yearlyIncome = (clone $AccountingQuery)->whereBetween('created_at', [$startOfYear, $endOfYear])->sum('amount');
 
-        $yearlyExpenses = 0; // Placeholder - implement based on your expense model
+        $yearlyExpenses = Expense::whereBetween('expense_date', [$startOfYear, $endOfYear])->sum('amount');
+        $yearlyCommission = (clone $AccountingQuery)->whereBetween('created_at', [$startOfYear, $endOfYear])->sum('commission_amount');
         $yearlyProfit = $yearlyIncome - $yearlyExpenses;
 
         // Monthly breakdown for chart (current year)
@@ -385,16 +349,14 @@ class DashboardService
             $monthStart = Carbon::create($now->year, $month, 1)->startOfMonth();
             $monthEnd = Carbon::create($now->year, $month, 1)->endOfMonth();
 
-            $income = $deliveredStage
-                ? Order::where('stage_id', $deliveredStage->id)
-                    ->whereBetween('created_at', [$monthStart, $monthEnd])
-                    ->sum('total_price')
-                : 0;
+            $income = (clone $AccountingQuery)->whereBetween('created_at', [$monthStart, $monthEnd])->sum('amount');
+
+            $expenses = Expense::whereBetween('expense_date', [$monthStart, $monthEnd])->sum('amount');
 
             $monthlyData[] = [
                 'month' => $month,
                 'income' => $income,
-                'expenses' => 0, // Placeholder
+                'expenses' => $expenses,
             ];
         }
 
@@ -404,16 +366,14 @@ class DashboardService
         for ($day = 1; $day <= $daysInMonth; $day++) {
             $dayDate = Carbon::create($now->year, $now->month, $day);
 
-            $income = $deliveredStage
-                ? Order::where('stage_id', $deliveredStage->id)
-                    ->whereDate('created_at', $dayDate)
-                    ->sum('total_price')
-                : 0;
+            $income = (clone $AccountingQuery)->whereDate('created_at', $dayDate)->sum('amount');
+
+            $expenses = Expense::whereDate('expense_date', $dayDate)->sum('amount');
 
             $dailyData[] = [
                 'day' => $day,
                 'income' => $income,
-                'expenses' => 0, // Placeholder
+                'expenses' => $expenses,
             ];
         }
 
@@ -421,6 +381,7 @@ class DashboardService
             'month' => [
                 'income' => $monthlyIncome,
                 'expenses' => $monthlyExpenses,
+                'commission' => $monthlyCommission,
                 'profit' => $monthlyProfit,
                 'period' => $now->format('m-Y'),
                 'daily_data' => $dailyData,
@@ -428,101 +389,7 @@ class DashboardService
             'year' => [
                 'income' => $yearlyIncome,
                 'expenses' => $yearlyExpenses,
-                'profit' => $yearlyProfit,
-                'period' => $now->year,
-                'monthly_data' => $monthlyData,
-            ],
-        ];
-    }
-
-    private function getVendorIncomeExpenseData($now)
-    {
-        $vendorId = $this->vendorId;
-        $deliveredStage = OrderStage::withoutCountryFilter()->where('type', 'deliver')->first();
-
-        // This Month data
-        $startOfMonth = $now->copy()->startOfMonth();
-        $endOfMonth = $now->copy()->endOfMonth();
-
-        $monthlyIncome = $deliveredStage
-            ? \Modules\Order\app\Models\OrderProduct::where('vendor_id', $vendorId)
-                ->whereHas('order', function($q) use ($deliveredStage, $startOfMonth, $endOfMonth) {
-                    $q->where('stage_id', $deliveredStage->id)
-                      ->whereBetween('created_at', [$startOfMonth, $endOfMonth]);
-                })->sum(\DB::raw('price * quantity'))
-            : 0;
-
-        $monthlyExpenses = 0;
-        $monthlyProfit = $monthlyIncome - $monthlyExpenses;
-
-        // This Year data
-        $startOfYear = $now->copy()->startOfYear();
-        $endOfYear = $now->copy()->endOfYear();
-
-        $yearlyIncome = $deliveredStage
-            ? \Modules\Order\app\Models\OrderProduct::where('vendor_id', $vendorId)
-                ->whereHas('order', function($q) use ($deliveredStage, $startOfYear, $endOfYear) {
-                    $q->where('stage_id', $deliveredStage->id)
-                      ->whereBetween('created_at', [$startOfYear, $endOfYear]);
-                })->sum(\DB::raw('price * quantity'))
-            : 0;
-
-        $yearlyExpenses = 0;
-        $yearlyProfit = $yearlyIncome - $yearlyExpenses;
-
-        // Monthly breakdown for chart (current year)
-        $monthlyData = [];
-        for ($month = 1; $month <= 12; $month++) {
-            $monthStart = Carbon::create($now->year, $month, 1)->startOfMonth();
-            $monthEnd = Carbon::create($now->year, $month, 1)->endOfMonth();
-
-            $income = $deliveredStage
-                ? \Modules\Order\app\Models\OrderProduct::where('vendor_id', $vendorId)
-                    ->whereHas('order', function($q) use ($deliveredStage, $monthStart, $monthEnd) {
-                        $q->where('stage_id', $deliveredStage->id)
-                          ->whereBetween('created_at', [$monthStart, $monthEnd]);
-                    })->sum(\DB::raw('price * quantity'))
-                : 0;
-
-            $monthlyData[] = [
-                'month' => $month,
-                'income' => $income,
-                'expenses' => 0,
-            ];
-        }
-
-        // Daily breakdown for current month chart
-        $dailyData = [];
-        $daysInMonth = $now->daysInMonth;
-        for ($day = 1; $day <= $daysInMonth; $day++) {
-            $dayDate = Carbon::create($now->year, $now->month, $day);
-
-            $income = $deliveredStage
-                ? \Modules\Order\app\Models\OrderProduct::where('vendor_id', $vendorId)
-                    ->whereHas('order', function($q) use ($deliveredStage, $dayDate) {
-                        $q->where('stage_id', $deliveredStage->id)
-                          ->whereDate('created_at', $dayDate);
-                    })->sum(\DB::raw('price * quantity'))
-                : 0;
-
-            $dailyData[] = [
-                'day' => $day,
-                'income' => $income,
-                'expenses' => 0,
-            ];
-        }
-
-        return [
-            'month' => [
-                'income' => $monthlyIncome,
-                'expenses' => $monthlyExpenses,
-                'profit' => $monthlyProfit,
-                'period' => $now->format('m-Y'),
-                'daily_data' => $dailyData,
-            ],
-            'year' => [
-                'income' => $yearlyIncome,
-                'expenses' => $yearlyExpenses,
+                'commission' => $yearlyCommission,
                 'profit' => $yearlyProfit,
                 'period' => $now->year,
                 'monthly_data' => $monthlyData,

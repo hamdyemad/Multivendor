@@ -28,6 +28,7 @@ use Database\Seeders\SyncVendorUsersSeeder;
 use Database\Seeders\TaxSeeder;
 use Database\Seeders\VariantConfigurationSeeder;
 use Database\Seeders\VendorSeeder;
+use Database\Seeders\VendorProductTaxSeeder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Modules\AreaSettings\app\Models\Country;
@@ -169,6 +170,11 @@ Route::get('seeder', function () {
                 'class' => SyncVendorUsersSeeder::class,
                 'name' => 'SyncVendorUsersSeeder',
                 'description' => 'Update Vendor Users',
+            ],
+            [
+                'class' => VendorProductTaxSeeder::class,
+                'name' => 'VendorProductTaxSeeder',
+                'description' => 'Assign all active taxes to every vendor product',
             ],
         ];
 

@@ -127,12 +127,18 @@ class OrderController extends Controller
                 
                 $vendorProductSum = $vendorProductQuery->sum('order_products.price');
                 
+                // Get shipping total for vendor's orders
+                $shippingSum = \DB::table('orders')
+                    ->whereIn('id', $orderIds)
+                    ->sum('shipping');
+                
                 // Subtract promo discounts from vendor's total
                 $promoDiscountSum = \DB::table('orders')
                     ->whereIn('id', $orderIds)
                     ->sum('customer_promo_code_amount');
                 
-                $total_price = number_format($vendorProductSum - $promoDiscountSum, 2);
+                // Vendor total = products + shipping - promo discount
+                $total_price = number_format($vendorProductSum + $shippingSum - $promoDiscountSum, 2);
                 $orders_count = $orderIds->count();
                 
                 // Calculate vendor order product stats by stage (filtered by country)
@@ -654,6 +660,7 @@ class OrderController extends Controller
         $vendorOrders = $query->select(
                 'orders.id as order_id',
                 'orders.total_price',
+                'orders.shipping',
                 'orders.customer_promo_code_amount',
                 'orders.stage_id',
                 'order_products.quantity',
@@ -662,18 +669,23 @@ class OrderController extends Controller
             ->get();
         
         // Group by order to avoid counting same order multiple times
-        // For vendors: calculate product total minus promo discount, for admin: use order total
+        // For vendors: calculate product total + shipping - promo discount, for admin: use order total
         $uniqueOrders = $vendorOrders->groupBy('order_id')->map(function($group) use ($vendorId) {
             // product_price already includes total (price * quantity)
             $vendorProductTotal = $group->sum('product_price');
             
+            // Add shipping
+            $shipping = $group->first()->shipping ?? 0;
+            
             // Subtract promo discount
             $promoDiscount = $group->first()->customer_promo_code_amount ?? 0;
-            $vendorProductTotal = $vendorProductTotal - $promoDiscount;
+            
+            // Vendor total = products + shipping - promo discount
+            $vendorTotal = $vendorProductTotal + $shipping - $promoDiscount;
             
             return [
                 'order_id' => $group->first()->order_id,
-                'total_price' => $vendorId ? $vendorProductTotal : $group->first()->total_price,
+                'total_price' => $vendorId ? $vendorTotal : $group->first()->total_price,
                 'stage_id' => $group->first()->stage_id,
                 'products_count' => $group->sum('quantity'),
             ];

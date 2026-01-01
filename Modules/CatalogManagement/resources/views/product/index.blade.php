@@ -680,6 +680,19 @@
                                             <i class="uil uil-check-circle table_action_icon"></i>
                                         </a>`;
                                 @endcan
+
+                                // Move to bank button - only show for regular products (not already bank products)
+                                @can('products.edit')
+                                if (data.product_type !== 'bank') {
+                                    actions += `
+                                        <a href="javascript:void(0);" class="move-to-bank btn btn-secondary table_action_father"
+                                        data-item-id="${data.vendor_product_id}"
+                                        data-item-name="${data.product_information?.name_en || 'Product'}"
+                                        title="{{ trans('catalogmanagement::product.move_to_bank') }}">
+                                            <i class="uil uil-database table_action_icon"></i>
+                                        </a>`;
+                                }
+                                @endcan
                             @endif
 
                             @can('products.delete')
@@ -919,6 +932,7 @@
             $('#confirmChangeStatusBtn').on('click', function() {
                 const newStatus = $('#product-status').val();
                 const selectedBankProduct = $('#bank-product-select').val();
+                const bankToggleOn = $('#bank-product-switch').is(':checked');
 
                 // Get rejection reason - check if CKEditor is initialized
                 let rejectionReason = '';
@@ -937,6 +951,7 @@
                 console.log('Status:', newStatus);
                 console.log('Rejection Reason:', rejectionReason);
                 console.log('Selected Bank Product:', selectedBankProduct);
+                console.log('Bank Toggle On:', bankToggleOn);
 
                 if (!newStatus) {
                     toastr.error('{{ __("catalogmanagement::product.please_select_status") }}');
@@ -958,9 +973,12 @@
                     rejection_reason: rejectionReason
                 };
 
-                // Add bank product ID if selected
+                // Add bank product ID if selected, or empty string if toggle is on (to convert to bank)
                 if (selectedBankProduct) {
                     requestData.bank_product_id = selectedBankProduct;
+                } else if (bankToggleOn) {
+                    // Toggle is on but no bank product selected - convert current product to bank
+                    requestData.bank_product_id = '';
                 }
 
                 $.ajax({

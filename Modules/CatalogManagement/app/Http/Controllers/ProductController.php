@@ -333,14 +333,39 @@ class ProductController extends Controller
             $request->validate([
                 'status' => 'required|in:pending,approved,rejected',
                 'rejection_reason' => 'required_if:status,rejected|nullable|string|max:500',
-                'bank_product_id' => 'nullable|exists:products,id'
+                'bank_product_id' => 'nullable'
             ]);
 
-            $result = $this->productService->changeVendorProductStatus($id, [
+            // Prepare data
+            $data = [
                 'status' => $request->status,
                 'rejection_reason' => $request->rejection_reason,
-                'bank_product_id' => $request->bank_product_id
+            ];
+            
+            // Only add bank_product_id if it's present in the request (even if empty)
+            if ($request->has('bank_product_id')) {
+                $bankProductId = $request->bank_product_id;
+                // If it's a valid ID, validate it exists
+                if (!empty($bankProductId) && $bankProductId !== '') {
+                    $exists = \Modules\CatalogManagement\app\Models\Product::withoutGlobalScopes()
+                        ->where('id', $bankProductId)
+                        ->exists();
+                    if (!$exists) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => __('catalogmanagement::product.bank_product_not_found')
+                        ], 422);
+                    }
+                }
+                $data['bank_product_id'] = $bankProductId;
+            }
+
+            Log::info('Change status request', [
+                'vendor_product_id' => $id,
+                'data' => $data
             ]);
+
+            $result = $this->productService->changeVendorProductStatus($id, $data);
 
             return response()->json([
                 'success' => true,

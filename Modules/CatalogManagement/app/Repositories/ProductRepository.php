@@ -964,13 +964,39 @@ class ProductRepository implements ProductInterface
     public function changeVendorProductStatus(int $vendorProductId, array $data)
     {
         return DB::transaction(function () use ($vendorProductId, $data) {
-            // $product = Product::findOrFail($productId);
-            $vendorProduct = VendorProduct::findOrFail($vendorProductId);
+            $vendorProduct = VendorProduct::withoutGlobalScopes()->findOrFail($vendorProductId);
 
-            // Handle bank product assignment on approval
-            if ($data['status'] == 'approved' && isset($data['bank_product_id'])) {
+            // Handle bank product assignment/conversion on approval
+            // Check if bank_product_id key exists (toggle was on)
+            if ($data['status'] == 'approved' && array_key_exists('bank_product_id', $data)) {
+                $bankProductId = $data['bank_product_id'];
+                
+                // If bank_product_id is null or empty, convert current product to bank
+                if (empty($bankProductId)) {
+                    // Convert current product to bank type
+                    $product = Product::withoutGlobalScopes()->find($vendorProduct->product_id);
+                    if ($product && $product->type !== Product::TYPE_BANK) {
+                        DB::table('products')
+                            ->where('id', $product->id)
+                            ->update(['type' => 'bank']);
+                        
+                        Log::info('Product converted to bank via status change', [
+                            'product_id' => $product->id,
+                            'vendor_product_id' => $vendorProductId,
+                        ]);
+                    }
+                    
+                    // Update vendor product status
+                    $vendorProduct->update([
+                        'status' => $data['status'],
+                        'rejection_reason' => null
+                    ]);
+                    
+                    return ['message' => __('catalogmanagement::product.product_moved_to_bank_successfully')];
+                }
+                
                 // Verify the bank product exists and is of type bank
-                $bankProduct = Product::findOrFail($data['bank_product_id']);
+                $bankProduct = Product::withoutGlobalScopes()->findOrFail($bankProductId);
 
                 if ($bankProduct->type !== Product::TYPE_BANK) {
                     throw new \Exception(__('catalogmanagement::product.selected_product_is_not_bank_product'));
@@ -980,8 +1006,9 @@ class ProductRepository implements ProductInterface
                 $vendorId = $vendorProduct->vendor_id;
 
                 // Check if vendor already has this bank product
-                $existingVendorProduct = VendorProduct::where('vendor_id', $vendorId)
-                    ->where('product_id', $data['bank_product_id'])
+                $existingVendorProduct = VendorProduct::withoutGlobalScopes()
+                    ->where('vendor_id', $vendorId)
+                    ->where('product_id', $bankProductId)
                     ->first();
 
                 if ($existingVendorProduct) {
@@ -1000,7 +1027,7 @@ class ProductRepository implements ProductInterface
                 $vendorProduct->delete();
 
                 // Optionally delete the original product if it's not a bank product
-                if ($vendorProduct->product->type !== Product::TYPE_BANK) {
+                if ($vendorProduct->product && $vendorProduct->product->type !== Product::TYPE_BANK) {
                     $vendorProduct->product->delete();
                 }
 
@@ -1057,28 +1084,39 @@ class ProductRepository implements ProductInterface
     public function moveProductToBank(int $vendorProductId)
     {
         return DB::transaction(function () use ($vendorProductId) {
-            $vendorProduct = VendorProduct::findOrFail($vendorProductId);
-            $product = $vendorProduct->product;
+            $vendorProduct = VendorProduct::withoutGlobalScopes()->findOrFail($vendorProductId);
+            $product = Product::withoutGlobalScopes()->find($vendorProduct->product_id);
 
             if (!$product) {
                 throw new \Exception(__('catalogmanagement::product.product_not_found'));
             }
+
+            Log::info('Move to bank - before update', [
+                'product_id' => $product->id,
+                'current_type' => $product->type,
+                'vendor_product_id' => $vendorProductId,
+            ]);
 
             // Check if product is already a bank product
             if ($product->type === Product::TYPE_BANK) {
                 throw new \Exception(__('catalogmanagement::product.product_already_in_bank'));
             }
 
-            // Change product type to bank
-            $product->update([
-                'type' => Product::TYPE_BANK
-            ]);
+            // Change product type to bank using raw DB update
+            $updated = DB::table('products')
+                ->where('id', $product->id)
+                ->update(['type' => 'bank']);
 
             Log::info('Product moved to bank', [
                 'product_id' => $product->id,
                 'vendor_product_id' => $vendorProductId,
-                'moved_by' => auth()->id()
+                'moved_by' => auth()->id(),
+                'rows_updated' => $updated,
             ]);
+
+            if ($updated === 0) {
+                throw new \Exception('Failed to update product type');
+            }
 
             return ['message' => __('catalogmanagement::product.product_moved_to_bank_successfully')];
         });

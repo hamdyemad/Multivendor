@@ -337,6 +337,8 @@ return [
     'bank_products_description' => 'Manage shared products available for all vendors',
     'move_to_bank' => 'Move to Bank',
     'moved_to_bank_successfully' => 'Product moved to bank successfully',
+    'product_moved_to_bank_successfully' => 'Product moved to bank successfully',
+    'product_already_in_bank' => 'Product is already in the bank',
     'error_moving_to_bank' => 'Error moving product to bank',
     'already_bank_product' => 'Product is already in the bank',
     'product_type' => 'Product Type',

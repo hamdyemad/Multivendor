@@ -63,12 +63,19 @@ class ProductQueryAction
             case 'name':
                 // Sort by product name using join to avoid country_id ambiguity
                 // Get language ID from Language model based on current locale
-                $langId = Language::where('code', app()->getLocale())->value('id') ?? 1;
+                $currentLocale = app()->getLocale();
+                $langId = Language::where('code', $currentLocale)->value('id');
+                
+                // If no language found, try to get by common codes
+                if (!$langId) {
+                    $langId = $currentLocale === 'ar' ? 1 : 2;
+                }
                 
                 // Validate sort type
-                $sortDirection = strtolower($sortType) === 'asc' ? 'asc' : 'desc';
+                $sortDirection = strtolower($sortType) === 'asc' ? 'ASC' : 'DESC';
                 
                 // Join products and translations tables with LEFT JOIN to not filter out products
+                // Use a subquery approach to get the translation value
                 $query->leftJoin('products', 'vendor_products.product_id', '=', 'products.id')
                     ->leftJoin('translations', function($join) use ($langId) {
                         $join->on('products.id', '=', 'translations.translatable_id')
@@ -78,7 +85,7 @@ class ProductQueryAction
                     })
                     ->select('vendor_products.*')
                     ->groupBy('vendor_products.id')
-                    ->orderBy('translations.lang_value', $sortDirection);
+                    ->orderByRaw("COALESCE(MAX(translations.lang_value), vendor_products.id) COLLATE utf8mb4_unicode_ci {$sortDirection}");
                 break;
                 
             case 'price':

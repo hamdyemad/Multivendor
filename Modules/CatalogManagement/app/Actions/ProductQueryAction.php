@@ -64,11 +64,7 @@ class ProductQueryAction
                 ->select('products.*')->distinct('products.id');
                 break;
             case 'price':
-                $query->with(['variants' => function ($q) {
-                    $q->where('has_discount', true)->whereNotNull('discount_end_date')
-                      ->where('discount_end_date', '>', now());
-                }])
-                ->orderByRaw("(
+                $query->orderByRaw("(
                     SELECT COALESCE(MIN(price), 0)
                     FROM vendor_product_variants
                     WHERE vendor_product_id = vendor_products.id

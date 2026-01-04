@@ -629,4 +629,71 @@ class OrderRepository implements OrderRepositoryInterface
             $orderProduct->fulfillments()->update(['status' => $fulfillmentStatus]);
         }
     }
+
+    /**
+     * Change stage for all products of a specific vendor in an order
+     * 
+     * @param int $orderId Order ID
+     * @param int $vendorId Vendor ID
+     * @param int $stageId New stage ID
+     * @return \Modules\Order\app\Models\VendorOrderStage
+     * @throws \Exception If stage transition is not allowed
+     */
+    public function changeVendorOrderStage($orderId, $vendorId, $stageId)
+    {
+        return DB::transaction(function () use ($orderId, $vendorId, $stageId) {
+            // Get the vendor order stage
+            $vendorOrderStage = \Modules\Order\app\Models\VendorOrderStage::where('order_id', $orderId)
+                ->where('vendor_id', $vendorId)
+                ->with(['stage' => function($q) {
+                    $q->withoutGlobalScopes();
+                }])
+                ->firstOrFail();
+            
+            $previousStage = $vendorOrderStage->stage;
+            
+            // Fetch the current and new stages
+            $currentStage = $previousStage ? OrderStage::withoutGlobalScopes()->find($vendorOrderStage->stage_id) : null;
+            $newStage = OrderStage::withoutGlobalScopes()->findOrFail($stageId);
+            
+            // Validate stage transition if current stage exists
+            if ($currentStage) {
+                $blockReason = $currentStage->getTransitionBlockReason($newStage);
+                if ($blockReason) {
+                    throw new \Exception($blockReason);
+                }
+            }
+            
+            // Update vendor order stage
+            $vendorOrderStage->update(['stage_id' => $stageId]);
+            
+            // Get all order products for this vendor
+            $orderProducts = OrderProduct::where('order_id', $orderId)
+                ->where('vendor_id', $vendorId)
+                ->get();
+            
+            // Update stage for all products of this vendor
+            foreach ($orderProducts as $orderProduct) {
+                $orderProduct->update(['stage_id' => $stageId]);
+                
+                // Handle stock booking based on stage type
+                $order = $orderProduct->order;
+                
+                // Create stock booking when moving to 'in_progress' stage
+                if ($newStage->type === 'in_progress' || $newStage->slug === 'in-progress') {
+                    $this->createStockBookingForOrderProduct($order, $orderProduct);
+                }
+                
+                // Release stock booking when product is cancelled
+                if ($newStage->type === 'cancel' || $newStage->slug === 'cancel') {
+                    $this->releaseStockBookingForOrderProduct($order, $orderProduct);
+                }
+                
+                // Update fulfillment status for this product
+                $this->updateFulfillmentByStageForProduct($orderProduct, $newStage);
+            }
+            
+            return $vendorOrderStage->refresh();
+        });
+    }
 }

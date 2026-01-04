@@ -161,10 +161,14 @@ class Customer extends Authenticatable
             $query->where('status', $filters['active']);
         }
 
-         if (isset($filters['vendor_id'])) {
-            $query->where('vendor_id', $filters['vendor_id']);
+        // Vendor filter - get customers who have ordered from this vendor
+        if (isset($filters['vendor_id']) && !empty($filters['vendor_id'])) {
+            $query->whereHas('orders', function($q) use ($filters) {
+                $q->whereHas('products', function($productQuery) use ($filters) {
+                    $productQuery->where('vendor_id', $filters['vendor_id']);
+                });
+            });
         }
-
 
         // Date range filters
         if (!empty($filters['created_date_from'])) {

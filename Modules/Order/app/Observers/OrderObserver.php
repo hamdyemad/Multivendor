@@ -14,6 +14,41 @@ use Modules\SystemSetting\app\Models\UserPointsTransaction;
 class OrderObserver
 {
     /**
+     * Handle the Order "created" event.
+     * Create vendor order stages for each vendor in the order
+     */
+    public function created(Order $order): void
+    {
+        // Get unique vendor IDs from order products
+        $vendorIds = $order->products()->distinct()->pluck('vendor_id');
+        
+        // Get the default "new" stage
+        $defaultStage = OrderStage::withoutGlobalScopes()
+            ->where('type', 'new')
+            ->first();
+        
+        if (!$defaultStage) {
+            Log::warning('No default "new" stage found for vendor order stages', ['order_id' => $order->id]);
+            return;
+        }
+        
+        // Create vendor order stage for each vendor
+        foreach ($vendorIds as $vendorId) {
+            \Modules\Order\app\Models\VendorOrderStage::create([
+                'order_id' => $order->id,
+                'vendor_id' => $vendorId,
+                'stage_id' => $defaultStage->id,
+            ]);
+            
+            Log::info('Vendor order stage created', [
+                'order_id' => $order->id,
+                'vendor_id' => $vendorId,
+                'stage_id' => $defaultStage->id,
+            ]);
+        }
+    }
+
+    /**
      * Handle the Order "updated" event.
      * Check if stage changed and update stock bookings accordingly
      */

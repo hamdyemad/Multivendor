@@ -33,24 +33,9 @@ class ProductBySlugResource extends JsonResource
             'sub_category' => new LightSubCategoryApiResource($product->subCategory),
             'reviews' => $reviews,
             'vendors' => $vendorProducts->map(function($vendorProduct) {
-                $variants = $vendorProduct->variants->map(function($variant) {
-                    $totalStock = $variant->stocks->sum('quantity');
-
-                    return [
-                        'id' => $variant->id,
-                        'sku' => $variant->sku,
-                        'fake_price' => (float) $variant->price_before_discount,
-                        'real_price' => (float) $variant->price,
-                        'has_discount' => (bool) $variant->has_discount,
-                        'discount_end_date' => $variant->discount_end_date,
-                        'total_stock' => $totalStock,
-                    ];
-                })->values();
-
                 return [
                     'vendor' => new LightVendorResource($vendorProduct->vendor),
                     'vendor_product' => new VendorProductResource($vendorProduct),
-                    'variants' => $variants
                 ];
             })->values()
         ];

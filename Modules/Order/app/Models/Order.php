@@ -159,6 +159,14 @@ class Order extends BaseModel
     }
 
     /**
+     * Get the vendor order stages.
+     */
+    public function vendorStages(): HasMany
+    {
+        return $this->hasMany(VendorOrderStage::class);
+    }
+
+    /**
      * Get the order extra fees and discounts.
      */
     public function extraFeesDiscounts(): HasMany

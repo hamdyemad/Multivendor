@@ -683,14 +683,9 @@
                                     return $product->vendorProduct?->vendor_id;
                                 });
                                 
-                                // Array of gradient colors for different vendors
+                                // Use single green color for all vendors
                                 $vendorColors = [
                                     ['#28a745', '#5dd879'], // Green
-                                    ['#17a2b8', '#4fc3dc'], // Cyan
-                                    ['#6f42c1', '#9b6dd6'], // Purple
-                                    ['#fd7e14', '#ffa94d'], // Orange
-                                    ['#20c997', '#63e6be'], // Teal
-                                    ['#e83e8c', '#f06595'], // Pink
                                 ];
                                 $colorIndex = 0;
                             @endphp

@@ -139,7 +139,7 @@
             </div>
             <div class="summary-row mb-12">
                 <span class="fw-bold">{{ trans('order::order.bnaia_commission') }}</span>
-                <span class="fw-bold" style="color: #ffcccc;">({{ number_format($commissionPercentage, 2) }}%) -{{ number_format($commissionAmount, 2) }} {{ currency() }}</span>
+                <span class="fw-bold" style="color: #ffcccc;">-{{ number_format($commissionAmount, 2) }} {{ currency() }}</span>
             </div>
             <hr style="border-color: rgba(255,255,255,0.3); margin: 15px 0;">
             <div class="summary-row" style="font-size: 18px;">

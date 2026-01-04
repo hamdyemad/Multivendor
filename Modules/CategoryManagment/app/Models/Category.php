@@ -80,7 +80,8 @@ class Category extends BaseModel
     public function activeProducts()
     {
         return $this->products()->whereHas('vendorProducts', function($q){
-            $q->where('is_active', true);
+            $q->where('is_active', true)
+              ->where('status', 'approved');
         });
     }
 

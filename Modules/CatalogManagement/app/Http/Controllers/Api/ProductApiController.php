@@ -399,19 +399,27 @@ class ProductApiController extends Controller
     {
         $returnedData = [];
         
+        // Resolve brand_id from slug if slug is provided instead of ID
+        $brandId = $request->brand_id;
+        if ($brandId && !is_numeric($brandId)) {
+            // If brand_id is not numeric, treat it as a slug
+            $brand = \Modules\CatalogManagement\app\Models\Brand::where('slug', $brandId)->first();
+            $brandId = $brand ? $brand->id : null;
+        }
+        
         if ($request->type == 'bundle') {
             // Get bundle categories filtered by brand if provided
             $bundleCategoryFilters = $request->all();
             $bundleCategories = $this->bundleCategoryApiService->getAll($bundleCategoryFilters, 0);
             
             // If brand_id is provided, filter bundle categories to only show those with products from that brand
-            if (!empty($request->brand_id)) {
-                $bundleCategories = $bundleCategories->filter(function ($category) use ($request) {
+            if (!empty($brandId)) {
+                $bundleCategories = $bundleCategories->filter(function ($category) use ($brandId) {
                     // Check if this category has any bundles with products from the specified brand
                     return $category->bundles()->where('is_active', true)
                         ->where('admin_approval', 1)
-                        ->whereHas('bundleProducts.vendorProductVariant.vendorProduct.product', function ($q) use ($request) {
-                            $q->where('brand_id', $request->brand_id);
+                        ->whereHas('bundleProducts.vendorProductVariant.vendorProduct.product', function ($q) use ($brandId) {
+                            $q->where('brand_id', $brandId);
                         })->exists();
                 });
             }
@@ -420,7 +428,12 @@ class ProductApiController extends Controller
             $returnedData['bundle_categories'] = $bundleCategories;
             
             // Get trees and brands filtered by bundle products
-            $filterData = $this->productService->getFiltersByBundle($request->all());
+            // Pass the resolved brand_id to the service
+            $filters = $request->all();
+            if ($brandId) {
+                $filters['brand_id'] = $brandId;
+            }
+            $filterData = $this->productService->getFiltersByBundle($filters);
         } else {
             // Get occasions (not expired and active) filtered by brand if provided
             $filters = array_merge($request->all(), [
@@ -428,15 +441,20 @@ class ProductApiController extends Controller
                 'active' => true,
             ]);
             
+            // Update brand_id in filters if resolved from slug
+            if ($brandId) {
+                $filters['brand_id'] = $brandId;
+            }
+            
             $occasions = $this->occasionService->getAllOccasions($filters, 0);
             
             // If brand_id is provided, filter occasions to only show those with products from that brand
-            if (!empty($request->brand_id)) {
-                $occasions = $occasions->filter(function ($occasion) use ($request) {
+            if (!empty($brandId)) {
+                $occasions = $occasions->filter(function ($occasion) use ($brandId) {
                     // Check if this occasion has any products from the specified brand
                     return $occasion->occasionProducts()
-                        ->whereHas('vendorProductVariant.vendorProduct.product', function ($q) use ($request) {
-                            $q->where('brand_id', $request->brand_id);
+                        ->whereHas('vendorProductVariant.vendorProduct.product', function ($q) use ($brandId) {
+                            $q->where('brand_id', $brandId);
                         })->exists();
                 });
             }
@@ -444,7 +462,7 @@ class ProductApiController extends Controller
             $returnedData['occasions'] = \Modules\CatalogManagement\app\Http\Resources\OccasionResource::collection($occasions)->resolve();
             
             // Get trees and brands filtered by occasion products
-            $filterData = $this->productService->getFiltersByOccasion($request->all());
+            $filterData = $this->productService->getFiltersByOccasion($filters);
         }
         
         $returnedData['trees'] = $filterData['trees'] ?? [];

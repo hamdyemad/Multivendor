@@ -18,6 +18,8 @@ class CategoryFilterDTO extends FilterDTO
         public ?string $category_id = null,
         public ?int $per_page = null,
         public ?string $paginated = null,
+        public ?string $sort = null,
+        public ?string $sort_type = null,
     ) {}
 
     /**
@@ -33,7 +35,9 @@ class CategoryFilterDTO extends FilterDTO
             main_category_id: $request->input('main_category_id'),
             category_id: $request->input('category_id'),
             per_page: $request->integer('per_page', 15),
-            paginated: $request->input('paginated', null)
+            paginated: $request->input('paginated', null),
+            sort: $request->input('sort'),
+            sort_type: $request->input('sort_type', 'desc'),
         );
     }
 
@@ -48,6 +52,8 @@ class CategoryFilterDTO extends FilterDTO
             'category_id' => $this->category_id,
             'per_page' => $this->per_page,
             'paginated' => $this->paginated,
+            'sort' => $this->sort,
+            'sort_type' => $this->sort_type,
         ], fn($value) => $value !== null);
     }
 
@@ -73,6 +79,14 @@ class CategoryFilterDTO extends FilterDTO
 
         if ($this->category_id && !$this->categoryExists($this->category_id)) {
             $this->errors['category_id'][] = __('validation.category_id_not_exist');
+        }
+
+        if ($this->sort && !in_array($this->sort, ['products', 'sort_number', 'created_at'])) {
+            $this->errors['sort'][] = __('validation.invalid_sort_field');
+        }
+
+        if ($this->sort_type && !in_array(strtolower($this->sort_type), ['asc', 'desc'])) {
+            $this->errors['sort_type'][] = __('validation.invalid_sort_type');
         }
 
         return count($this->errors) === 0;

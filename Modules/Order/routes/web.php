@@ -23,6 +23,7 @@ Route::get('orders/datatable', [OrderController::class, 'datatable'])->name('ord
 Route::post('orders/{id}/change-stage', [OrderController::class, 'changeStage'])->name('orders.change-stage');
 Route::post('orders/{id}/bulk-change-product-stages', [OrderController::class, 'bulkChangeProductStages'])->name('orders.bulk-change-product-stages');
 Route::post('orders/products/{orderProductId}/change-stage', [OrderController::class, 'changeProductStage'])->name('orders.products.change-stage');
+Route::post('orders/{orderId}/vendor/{vendorId}/change-stage', [OrderController::class, 'changeVendorStage'])->name('orders.vendor-stage.change');
 Route::get('orders/{id}/payments', [OrderController::class, 'payments'])->name('orders.payments');
 Route::get('orders/{id}/print', [OrderController::class, 'print'])->name('orders.print');
 

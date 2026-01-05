@@ -18,6 +18,15 @@ class OrderProduct extends Model
 {
     use HasFactory, Translation;
 
+    /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+        static::observe(\Modules\Order\app\Observers\OrderProductObserver::class);
+    }
+
     public static function newFactory()
     {
         return OrderProductFactory::new();

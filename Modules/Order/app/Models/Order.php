@@ -151,6 +151,14 @@ class Order extends BaseModel
     }
 
     /**
+     * Get the vendor order stages.
+     */
+    public function vendorOrderStages(): HasMany
+    {
+        return $this->hasMany(VendorOrderStage::class);
+    }
+
+    /**
      * Get the order fulfillments.
      */
     public function fulfillments(): HasMany
@@ -238,7 +246,7 @@ class Order extends BaseModel
     {
         return $query->where(function ($q) use ($search) {
                 $q->where('id', 'like', "%{$search}%")
-                    ->orWhere('order_number', $search)
+                    ->orWhere('order_number', 'like', "%{$search}%")
                     ->orWhere('customer_name', 'like', "%{$search}%")
                     ->orWhere('customer_email', 'like', "%{$search}%")
                     ->orWhere('customer_phone', 'like', "%{$search}%");
@@ -263,9 +271,28 @@ class Order extends BaseModel
             unset($filters['search']);
         }
 
-        // Stage filter
+        // Stage filter - for vendors, filter by vendor_order_stages table
         if (!empty($filters['stage_id'])) {
-            $query->where('stage_id', $filters['stage_id']);
+            // Check if current user is a vendor
+            $isVendorUser = auth()->check() && auth()->user()->isVendor();
+            $currentVendorId = $isVendorUser ? (auth()->user()->vendor?->id ?? null) : null;
+            
+            if ($isVendorUser && $currentVendorId) {
+                // For vendors: filter by vendor_order_stages
+                $query->whereHas('vendorOrderStages', function($q) use ($filters, $currentVendorId) {
+                    $q->where('vendor_id', $currentVendorId)
+                      ->where('stage_id', $filters['stage_id']);
+                });
+            } else {
+                // For admin: filter by order stage OR vendor_order_stages
+                $stageId = $filters['stage_id'];
+                $query->where(function($q) use ($stageId) {
+                    $q->where('stage_id', $stageId)
+                      ->orWhereHas('vendorOrderStages', function($subQ) use ($stageId) {
+                          $subQ->where('stage_id', $stageId);
+                      });
+                });
+            }
         }
 
         // Payment type filter (online / cash_on_delivery)

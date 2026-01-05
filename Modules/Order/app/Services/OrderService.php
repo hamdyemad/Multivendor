@@ -113,6 +113,14 @@ class OrderService
     }
 
     /**
+     * Change vendor order stage
+     */
+    public function changeVendorOrderStage($orderId, $vendorId, $stageId)
+    {
+        return $this->orderRepository->changeVendorOrderStage($orderId, $vendorId, $stageId);
+    }
+
+    /**
      * Delete an order
      */
     public function deleteOrder($id)

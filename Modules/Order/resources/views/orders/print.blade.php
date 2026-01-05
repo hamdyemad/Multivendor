@@ -265,7 +265,6 @@
         }
         
         .summary-card {
-            width: 250px;
             background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
             border-radius: 10px;
             padding: 15px;
@@ -284,11 +283,13 @@
         }
         
         .summary-label {
+            padding: 2px;
             font-size: 11px;
             color: #666;
         }
         
         .summary-value {
+            padding: 2px;
             font-size: 11px;
             font-weight: 600;
             color: #1a1a2e;
@@ -535,17 +536,19 @@
                             <span class="info-label">Status</span>
                             <span class="status-badge">{{ $order->stage?->name ?? 'N/A' }}</span>
                         </div>
-                        @if($order->customer_promo_code_title)
-                            <div class="info-row">
-                                <span class="info-label">Promo Code</span>
-                                <span class="info-value" style="color: #667eea;">{{ $order->customer_promo_code_title }}</span>
-                            </div>
-                        @endif
-                        @if($order->points_used > 0)
-                            <div class="info-row">
-                                <span class="info-label">Points Used</span>
-                                <span class="info-value" style="color: #667eea;">{{ number_format($order->points_used, 0) }} pts</span>
-                            </div>
+                        @if(!isset($isVendorUser) || !$isVendorUser)
+                            @if($order->customer_promo_code_title)
+                                <div class="info-row">
+                                    <span class="info-label">Promo Code</span>
+                                    <span class="info-value" style="color: #667eea;">{{ $order->customer_promo_code_title }}</span>
+                                </div>
+                            @endif
+                            @if($order->points_used > 0)
+                                <div class="info-row">
+                                    <span class="info-label">Points Used</span>
+                                    <span class="info-value" style="color: #667eea;">{{ number_format($order->points_used, 0) }} pts</span>
+                                </div>
+                            @endif
                         @endif
                     </div>
 
@@ -668,10 +671,13 @@
                                         <div style="font-size: 10px;">{{ number_format($unitTaxAmount, 2) }} {{ currency() }}</div>
                                         <div style="margin-top: 2px;">
                                             @foreach($product->taxes as $tax)
-                                                <span style="display: inline-block; background: #e8e8e8; padding: 1px 4px; border-radius: 3px; font-size: 8px; color: #666; margin: 1px;">{{ $tax->percentage }}%</span>
+                                                @php
+                                                    $taxName = $tax->tax?->getTranslation('name', app()->getLocale()) ?? $tax->tax_title ?? '';
+                                                @endphp
+                                                <span style="display: inline-block; background: #e8e8e8; padding: 1px 4px; border-radius: 3px; font-size: 8px; color: #666; margin: 1px;">{{ $taxName }} {{ $tax->percentage }}%</span>
                                             @endforeach
                                         </div>
-                                        <span style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1px 6px; border-radius: 3px; font-size: 8px; color: #fff; margin-top: 2px;">{{ $totalTaxPercentage }}%</span>
+                                        <span style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1px 6px; border-radius: 3px; font-size: 8px; color: #fff; margin-top: 2px;">Total: {{ $totalTaxPercentage }}%</span>
                                     @else
                                         <span style="color: #ccc;">0.00 {{ currency() }}</span>
                                     @endif
@@ -701,12 +707,44 @@
                         // Calculate shipping based on selected products only
                         $shippingCost = $productsForSummary->sum('shipping_cost');
                         
-                        // Calculate total for vendor or admin
-                        if (isset($isVendorUser) && $isVendorUser && isset($vendorProductTotal)) {
-                            $finalTotal = $vendorProductTotal + $shippingCost;
+                        // Get promo_code_share and points_share from vendor_order_stages
+                        $promoDiscount = 0;
+                        $pointsDiscount = 0;
+                        $vendorPromoShare = 0;
+                        $vendorPointsShare = 0;
+                        
+                        if (isset($isVendorUser) && $isVendorUser) {
+                            // For vendor: get their specific share from vendor_order_stages
+                            $currentVendorId = auth()->user()->vendor?->id;
+                            if ($currentVendorId) {
+                                $vendorStage = \Modules\Order\app\Models\VendorOrderStage::where('order_id', $order->id)
+                                    ->where('vendor_id', $currentVendorId)
+                                    ->first();
+                                $vendorPromoShare = $vendorStage->promo_code_share ?? 0;
+                                $vendorPointsShare = $vendorStage->points_share ?? 0;
+                            }
+                            
+                            // For vendor: products total + shipping - shares (deducted from total)
+                            $finalTotal = ($vendorProductTotal ?? $totalWithTax) + $shippingCost - $vendorPromoShare - $vendorPointsShare;
+                            $showPromoDiscount = true;
+                            $showPointsDiscount = true;
                         } else {
-                            // For admin: products total + shipping - discounts
-                            $finalTotal = $totalWithTax + $shippingCost - ($order->customer_promo_code_amount ?? 0) - ($order->points_cost ?? 0);
+                            // For admin: get total shares from all vendors
+                            $vendorStages = \Modules\Order\app\Models\VendorOrderStage::where('order_id', $order->id)->get();
+                            $totalPromoCodeShare = $vendorStages->sum('promo_code_share') ?? 0;
+                            $totalPointsShare = $vendorStages->sum('points_share') ?? 0;
+                            
+                            // Use order fields if available, otherwise use vendor_order_stages shares
+                            $promoDiscount = ($order->customer_promo_code_amount ?? 0) > 0 
+                                ? $order->customer_promo_code_amount 
+                                : $totalPromoCodeShare;
+                            $pointsDiscount = ($order->points_cost ?? 0) > 0 
+                                ? $order->points_cost 
+                                : $totalPointsShare;
+                            
+                            $finalTotal = $totalWithTax + $shippingCost - $promoDiscount - $pointsDiscount;
+                            $showPromoDiscount = true;
+                            $showPointsDiscount = true;
                         }
                     @endphp
                     <div class="summary-row">
@@ -721,31 +759,54 @@
                         <span class="summary-label">Prices Inc. Tax</span>
                         <span class="summary-value">{{ number_format($totalWithTax, 2) }} {{ currency() }}</span>
                     </div>
-                    @if($order->customer_promo_code_amount > 0)
-                        <div class="summary-row">
-                            <span class="summary-label">
-                                Promo Code
-                                @if($order->customer_promo_code_title)
-                                    <span style="font-size: 9px; color: #667eea;">({{ $order->customer_promo_code_title }})</span>
-                                @endif
-                            </span>
-                            <span class="summary-value discount-value">-{{ number_format($order->customer_promo_code_amount, 2) }} {{ currency() }}</span>
-                        </div>
-                    @endif
-                    @if($order->points_used > 0)
-                        <div class="summary-row">
-                            <span class="summary-label">
-                                Points Used
-                                <span style="font-size: 9px; color: #667eea;">({{ number_format($order->points_used, 0) }} pts)</span>
-                            </span>
-                            <span class="summary-value discount-value">-{{ number_format($order->points_cost, 2) }} {{ currency() }}</span>
-                        </div>
-                    @endif
                     @if($shippingCost > 0)
                         <div class="summary-row">
                             <span class="summary-label">Shipping</span>
                             <span class="summary-value">{{ number_format($shippingCost, 2) }} {{ currency() }}</span>
                         </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Total with Shipping</span>
+                            <span class="summary-value">{{ number_format($totalWithTax + $shippingCost, 2) }} {{ currency() }}</span>
+                        </div>
+                    @endif
+                    @if(isset($isVendorUser) && $isVendorUser)
+                        {{-- Vendor view: show their promo_code_share and points_share as deductions --}}
+                        @if($vendorPromoShare > 0)
+                            <div class="summary-row">
+                                <span class="summary-label">Promo Code Share</span>
+                                <span class="summary-value discount-value">-{{ number_format($vendorPromoShare, 2) }} {{ currency() }}</span>
+                            </div>
+                        @endif
+                        @if($vendorPointsShare > 0)
+                            <div class="summary-row">
+                                <span class="summary-label">Points Share</span>
+                                <span class="summary-value discount-value">-{{ number_format($vendorPointsShare, 2) }} {{ currency() }}</span>
+                            </div>
+                        @endif
+                    @else
+                        {{-- Admin view: show discounts as subtractions --}}
+                        @if($showPromoDiscount && $promoDiscount > 0)
+                            <div class="summary-row">
+                                <span class="summary-label">
+                                    Promo Code
+                                    @if($order->customer_promo_code_title)
+                                        <span style="font-size: 9px; color: #667eea;">({{ $order->customer_promo_code_title }})</span>
+                                    @endif
+                                </span>
+                                <span class="summary-value discount-value">-{{ number_format($promoDiscount, 2) }} {{ currency() }}</span>
+                            </div>
+                        @endif
+                        @if($showPointsDiscount && $pointsDiscount > 0)
+                            <div class="summary-row">
+                                <span class="summary-label">
+                                    Points Used
+                                    @if($order->points_used > 0)
+                                        <span style="font-size: 9px; color: #667eea;">({{ number_format($order->points_used, 0) }} pts)</span>
+                                    @endif
+                                </span>
+                                <span class="summary-value discount-value">-{{ number_format($pointsDiscount, 2) }} {{ currency() }}</span>
+                            </div>
+                        @endif
                     @endif
                     <div class="summary-row total">
                         <span class="summary-label">Total</span>

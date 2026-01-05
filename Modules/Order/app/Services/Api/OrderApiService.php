@@ -19,6 +19,7 @@ use Modules\Order\app\Pipelines\SyncOrderProducts;
 use Modules\Order\app\Pipelines\UpdateProductSales;
 use Modules\Order\app\Pipelines\EmptyCart;
 use Modules\Order\app\Pipelines\CalculatePointsUsagePipeline;
+use Modules\Order\app\Pipelines\ValidateDiscountAgainstRemaining;
 
 class OrderApiService
 {
@@ -50,12 +51,13 @@ class OrderApiService
                     CalculateApiProductPrices::class,
                     CalculateShipping::class,
                     CalculateExtras::class,
+                    ValidateDiscountAgainstRemaining::class,
                     CalculatePointsUsagePipeline::class,
                     CalculateFinalTotal::class,
                     CreateOrder::class,
                     SyncOrderProducts::class,
                     UpdateProductSales::class,
-                    EmptyCart::class,
+                    // EmptyCart::class,
                 ])
                 ->thenReturn();
 

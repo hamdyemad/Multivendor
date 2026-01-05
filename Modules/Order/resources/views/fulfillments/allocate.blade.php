@@ -92,14 +92,6 @@
                                                         <h5 class="text-primary fw-bold mb-0">
                                                             {{ $data['order_product']->name ?? 'Product' }}
                                                         </h5>
-                                                        @if($orderProduct->stage)
-                                                            <x-protected-badge 
-                                                                :color="$orderProduct->stage->color ?? '#6c757d'"
-                                                                :text="$orderProduct->stage->getTranslation('name', app()->getLocale()) ?? 'N/A'"
-                                                                size="md"
-                                                                :id="'allocate-stage-' . $orderProduct->id"
-                                                            />
-                                                        @endif
                                                     </div>
                                                     <div class="d-flex flex-wrap gap-3 text-muted" style="font-size: 0.9em;">
                                                         <span><strong>{{ trans('order::order.sku') }}:</strong> {{ $sku }}</span>

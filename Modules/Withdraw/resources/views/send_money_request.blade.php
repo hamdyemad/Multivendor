@@ -26,7 +26,31 @@
                     </div>
                     <div class="card-body">
                         <!-- Alert Container -->
-                        <div id="alertContainer"></div>
+                        <div id="alertContainer">
+                            @if(session('success'))
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <i class="uil uil-check-circle me-2"></i>{{ session('success') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            @endif
+                            @if(session('error'))
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <i class="uil uil-exclamation-triangle me-2"></i>{{ session('error') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            @endif
+                            @if($errors->any())
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <i class="uil uil-exclamation-triangle me-2"></i>
+                                    <ul class="mb-0">
+                                        @foreach($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            @endif
+                        </div>
 
                         <form id="sendMoneyForm" action="{{ route('admin.sendMoneyRequestAction') }}" method="POST"
                             enctype="multipart/form-data">
@@ -192,20 +216,25 @@
                                 <div class="col-md-12 mb-10">
                                     <div class="form-group">
                                         <label class="mb-3">
-                                            {{ trans('withdraw::withdraw.enter_amount') }} <span class="text-danger">*</span> <span
-                                                class="badge text-bg-secondary"
-                                                style="background-color: #0056b7; border-radius: 5px"><span
-                                                    id="amount_max_which_will_be_sent">{{ $general_info['remaining'] }}</span>
-                                                <span style="margin: 0px 4px">{{ currency() }}</span></span>
-
-                                            <span class="badge text-bg-secondary"
-                                                style="background-color: #fa0000; border-radius: 5px"> <span
-                                                    style="margin: 0px 3px">{{ trans('withdraw::withdraw.waiting_approve') }}:</span> <span
-                                                    id="amount_max_which_will_be_sent">{{ $general_info['waiting_approve_requests'] }}</span>
-                                                <span style="margin: 0px 4px">{{ currency() }}</span></span>
+                                            {{ trans('withdraw::withdraw.enter_amount') }} <span class="text-danger">*</span>
+                                            <x-protected-badge 
+                                                color="#0056b7"
+                                                :text="$general_info['remaining'] . ' ' . currency()"
+                                                size="md"
+                                                id="amount-max-badge"
+                                            />
+                                            <x-protected-badge 
+                                                color="#fa0000"
+                                                :text="trans('withdraw::withdraw.waiting_approve') . ': ' . $general_info['waiting_approve_requests'] . ' ' . currency()"
+                                                size="md"
+                                                id="waiting-approve-badge"
+                                            />
                                         </label>
-                                        <input type="text" class="form-control" placeholder="{{ trans('withdraw::withdraw.amount_placeholder') }}"
+                                        <input type="text" class="form-control @error('sent_amount') is-invalid @enderror" placeholder="{{ trans('withdraw::withdraw.amount_placeholder') }}"
                                             name="sent_amount" id="sent_amount" value="{{ old('sent_amount') }}">
+                                        @error('sent_amount')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>

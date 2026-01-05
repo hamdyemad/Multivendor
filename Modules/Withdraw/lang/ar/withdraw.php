@@ -103,6 +103,11 @@ return [
     'amount_placeholder' => 'مثال: 4,000.50',
     'example_amount' => 'مثال: 4,000.50',
     'withdraw_information' => 'معلومات السحب',
+    
+    // Validation messages
+    'amount_required' => 'يرجى إدخال المبلغ',
+    'amount_must_be_numeric' => 'يجب أن يكون المبلغ رقماً صحيحاً',
+    'amount_min' => 'يجب أن يكون المبلغ أكبر من 0',
 
     // Transaction Requests Page
     'withdraw_transactions' => 'معاملات السحب',

@@ -1153,7 +1153,11 @@
                                     } else {
                                         $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
                                         if ($vendor) {
-                                            $customerCount = \Modules\Customer\app\Models\Customer::where('vendor_id', $vendor->id)->count();
+                                            // Vendors see: system customers (vendor_id = NULL) + their own customers (vendor_id = their vendor ID)
+                                            $customerCount = \Modules\Customer\app\Models\Customer::where(function($q) use ($vendor) {
+                                                $q->whereNull('vendor_id')
+                                                  ->orWhere('vendor_id', $vendor->id);
+                                            })->count();
                                         }
                                     }
                                 ?>

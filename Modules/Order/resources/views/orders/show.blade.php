@@ -41,41 +41,69 @@
                                             <span class="detail-label">{{ trans('order::order.created_at') }}:</span>
                                             <span class="detail-value">{{ $order->created_at }}</span>
                                         </div>
-                                        <div class="detail-row mb-15">
-                                            <span class="detail-label mb-2">{{ trans('order::order.product_stages') }}:</span>
-                                            <div class="d-flex flex-wrap gap-2">
+                                        <div class="detail-row mb-15 flex-column">
+                                            <span class="detail-label mb-2">{{ trans('order::order.vendor_stages') }}:</span>
+                                            <div class="w-100">
                                                 @php
-                                                    // For vendors: get stages from their products only
-                                                    if ($isVendorUser && isset($vendorProducts)) {
-                                                        $productStagesData = $vendorProducts->groupBy('stage_id')->map(function($group) {
-                                                            $stage = $group->first()->stage;
-                                                            return [
-                                                                'id' => $stage?->id,
-                                                                'name' => $stage?->getTranslation('name', app()->getLocale()) ?? 'N/A',
-                                                                'color' => $stage?->color ?? '#6c757d',
-                                                                'count' => $group->count()
-                                                            ];
-                                                        })->values();
-                                                    } else {
-                                                        // For admins: use the order's product_stages getter
-                                                        $productStagesData = collect($order->product_stages);
-                                                    }
+                                                    $hasVendorStages = isset($order->vendorStages) && $order->vendorStages->count() > 0;
                                                 @endphp
-                                                @forelse($productStagesData as $productStage)
-                                                    <x-protected-badge 
-                                                        :color="$productStage['color']"
-                                                        :text="$productStage['name'] . ' (' . $productStage['count'] . ')'"
-                                                        size="lg"
-                                                        :id="'order-info-stage-' . $productStage['id']"
-                                                    />
-                                                @empty
-                                                    <x-protected-badge 
-                                                        color="#6c757d"
-                                                        text="N/A"
-                                                        size="lg"
-                                                        id="order-info-stage-empty"
-                                                    />
-                                                @endforelse
+                                                
+                                                @if($hasVendorStages)
+                                                    @foreach($order->vendorStages as $vendorStage)
+                                                        @php
+                                                            $vendor = $vendorStage->vendor;
+                                                            $stage = $vendorStage->stage;
+                                                            
+                                                            if (!$vendor || !$stage) {
+                                                                continue;
+                                                            }
+                                                            
+                                                            $isCurrentVendor = $isVendorUser && isset($currentVendorId) && $vendor->id == $currentVendorId;
+                                                            
+                                                            // If viewing as vendor, only show their own stage
+                                                            if ($isVendorUser && !$isCurrentVendor) {
+                                                                continue;
+                                                            }
+                                                        @endphp
+                                                        <div class="d-flex align-items-center justify-content-between p-2 mb-2 border rounded" style="background: #f8f9fa;">
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                @if($vendor->logo)
+                                                                    <img src="{{ asset('storage/' . $vendor->logo->path) }}" 
+                                                                         alt="{{ $vendor->name }}"
+                                                                         class="rounded"
+                                                                         style="width: 30px; height: 30px; object-fit: cover;">
+                                                                @else
+                                                                    <div class="rounded d-flex align-items-center justify-content-center" 
+                                                                         style="width: 30px; height: 30px; background: #fff;">
+                                                                        <i class="uil uil-store text-muted"></i>
+                                                                    </div>
+                                                                @endif
+                                                                <span class="fw-500">{{ $vendor->getTranslation('name', app()->getLocale()) }}</span>
+                                                            </div>
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                <x-protected-badge 
+                                                                    :color="$stage->color ?? '#6c757d'"
+                                                                    :text="$stage->getTranslation('name', app()->getLocale()) ?? 'N/A'"
+                                                                    size="md"
+                                                                    :id="'vendor-stage-badge-' . $vendor->id"
+                                                                />
+                                                                @if($isCurrentVendor && isset($orderStages) && count($orderStages) > 0)
+                                                                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                                            data-bs-toggle="modal" 
+                                                                            data-bs-target="#changeVendorStageModal"
+                                                                            style="padding: 2px 8px; font-size: 12px;">
+                                                                        <i class="uil uil-exchange m-0" style="font-size: 14px;"></i>
+                                                                    </button>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                @else
+                                                    <div class="alert alert-warning mb-0">
+                                                        <i class="uil uil-exclamation-triangle me-2"></i>
+                                                        No vendor stages found for this order. Vendor stages are created automatically when the order is placed.
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                         <div class="detail-row">
@@ -223,6 +251,8 @@
                         }
                     </style>
 
+                    <!-- Vendors and Their Stages -->
+
                     <!-- Products Table -->
                     <div class="mb-40">
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -231,6 +261,9 @@
                                 <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-secondary btn-sm">
                                     <i class="uil uil-arrow-left me-1"></i>{{ trans('common.back') }}
                                 </a>
+                                <button type="button" class="btn btn-primary btn-sm" id="printAllBtn">
+                                    <i class="uil uil-print me-1"></i>{{ trans('order::order.print_invoice') }}
+                                </button>
                                 <button type="button" class="btn btn-info btn-sm" id="printSelectedBtn" disabled>
                                     <i class="uil uil-print me-1"></i>{{ trans('order::order.print_selected') }} (<span id="selectedCount">0</span>)
                                 </button>
@@ -255,9 +288,9 @@
                                         </th>
                                         <th class="text-white fw-bold text-center">{{ trans('order::order.total_price') }}
                                         </th>
-                                        <th class="text-white fw-bold text-center">{{ trans('order::order.stage') }}
-                                        </th>
                                         <th class="text-white fw-bold text-center">{{ trans('order::order.shipping') }}
+                                        </th>
+                                        <th class="text-white fw-bold text-center">{{ trans('order::order.total_with_shipping') }}
                                         </th>
                                         <th class="text-white fw-bold text-center">{{ trans('order::order.bnaia_commission') }}
                                         </th>
@@ -298,21 +331,22 @@
                                             $unitPriceBeforeTax = $product->quantity > 0 ? $productTotalBeforeTax / $product->quantity : 0;
                                             $unitTaxAmount = $product->quantity > 0 ? $taxAmount / $product->quantity : 0;
                                             
-                                            // Commission is stored as percentage
-                                            $bnaiaCommission = $product->commission;
-                                            $commissionPercent = $bnaiaCommission;
-                                            
-                                            // Calculate commission amount from percentage
-                                            $commissionAmount = ($productTotalWithTax * $commissionPercent) / 100;
-                                            
-                                            // Remaining = Total with tax - Commission amount
-                                            $remaining = $productTotalWithTax - $commissionAmount;
+                                            // Shipping cost per product (must be defined before commission calculation)
+                                            $productShippingCost = $product->shipping_cost ?? 0;
                                             
                                             // Total tax percentage
                                             $totalTaxPercentage = $product->taxes->sum('percentage') ?? 0;
                                             
-                                            // Shipping cost per product
-                                            $productShippingCost = $product->shipping_cost ?? 0;
+                                            // Commission is stored as percentage
+                                            $bnaiaCommission = $product->commission;
+                                            $commissionPercent = $bnaiaCommission;
+                                            
+                                            // Calculate commission amount from percentage (on total with shipping)
+                                            $productTotalWithShipping = $productTotalWithTax + $productShippingCost;
+                                            $commissionAmount = ($productTotalWithShipping * $commissionPercent) / 100;
+                                            
+                                            // Remaining = Total with shipping - Commission amount
+                                            $remaining = $productTotalWithShipping - $commissionAmount;
                                         @endphp
                                         <tr>
                                             <td class="text-center">
@@ -371,9 +405,12 @@
                                                     />
                                                     <div>
                                                         @foreach($product->taxes as $tax)
+                                                            @php
+                                                                $taxName = $tax->tax?->getTranslation('name', app()->getLocale()) ?? $tax->tax_title ?? '';
+                                                            @endphp
                                                             <x-protected-badge 
                                                                 color="#6c757d"
-                                                                :text="$tax->name . ' ' . $tax->percentage . '%'"
+                                                                :text="$taxName . ' ' . $tax->percentage . '%'"
                                                                 size="md"
                                                                 :id="'tax-' . $tax->id . '-' . $product->id"
                                                                 class="me-1 mb-1"
@@ -393,45 +430,11 @@
                                                 {{ number_format($productTotalWithTax, 2) }}
                                                 {{ currency() }}</td>
                                             <td class="text-center">
-                                                @if($product->stage)
-                                                    <div class="d-flex flex-column align-items-center gap-2">
-                                                        <x-protected-badge 
-                                                            :color="$product->stage->color ?? '#6c757d'"
-                                                            :text="$product->stage->getTranslation('name', app()->getLocale()) ?? 'N/A'"
-                                                            size="lg"
-                                                            :id="'stage-badge-' . $product->id"
-                                                        />
-                                                        @if(!isAdmin() && isset($orderStages) && count($orderStages) > 0)
-                                                            <div class="d-flex gap-1">
-                                                                <button type="button" class="btn btn-sm btn-outline-primary change-product-stage-btn" 
-                                                                        data-product-id="{{ $product->id }}"
-                                                                        data-current-stage="{{ $product->stage_id }}"
-                                                                        data-bs-toggle="modal" 
-                                                                        data-bs-target="#changeProductStageModal"
-                                                                        title="{{ trans('order::order.change_product_stage') }}">
-                                                                    <i class="uil uil-exchange m-0"></i>
-                                                                </button>
-                                                                @if($product->stage->type === 'in_progress')
-                                                                    <a href="{{ route('admin.order-fulfillments.show', $order->id) }}" 
-                                                                       class="btn btn-sm btn-outline-success"
-                                                                       title="{{ trans('order::order.allocate') }}">
-                                                                        <i class="uil uil-box m-0"></i>
-                                                                    </a>
-                                                                @endif
-                                                            </div>
-                                                        @endif
-                                                    </div>
-                                                @else
-                                                    <x-protected-badge 
-                                                        color="#6c757d"
-                                                        :text="trans('order::order.pending')"
-                                                        size="lg"
-                                                        :id="'stage-badge-' . $product->id"
-                                                    />
-                                                @endif
-                                            </td>
-                                            <td class="text-center">
                                                 {{ number_format($productShippingCost, 2) }}
+                                                {{ currency() }}
+                                            </td>
+                                            <td class="text-center fw-bold" style="color: #28a745;">
+                                                {{ number_format($productTotalWithTax + $productShippingCost, 2) }}
                                                 {{ currency() }}
                                             </td>
                                             <td class="text-center text-danger">
@@ -441,7 +444,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="10" class="text-center text-muted py-20">
+                                            <td colspan="11" class="text-center text-muted py-20">
                                                 {{ trans('common.no_data') }}
                                             </td>
                                         </tr>
@@ -528,13 +531,16 @@
                             
                             // Total with tax for vendor remaining calculation
                             $totalProductsPriceWithTax = $totalProductsPriceBeforeTax + $totalProductsTax;
+                            
+                            // Calculate total with shipping
+                            $totalWithShippingOrder = $totalProductsPriceWithTax - $order->customer_promo_code_amount + $order->shipping;
                         @endphp
                         <div class="row mb-40">
                             <div class="col-12">
-                                <div class="card border-0 shadow-sm"
-                                    style="background: linear-gradient(135deg, #5f63f2 0%, #8e92f7 100%); color: white;">
+                                <div class="card border-0"
+                                    style="background: white; color: #333; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);">
                                     <div class="card-body">
-                                        <h6 class="card-title fw-bold mb-20 d-flex align-items-center text-white">
+                                        <h6 class="card-title fw-bold mb-20 d-flex align-items-center" style="color: #5f63f2;">
                                             <i class="uil uil-receipt me-2" style="font-size: 20px;"></i>
                                             {{ trans('order::order.order_summary') }}
                                         </h6>
@@ -549,15 +555,15 @@
                                                     <span class="fw-bold">
                                                         {{ trans('order::order.promo_discount') }}
                                                         @if($order->customer_promo_code_title)
-                                                            <small class="text-white-50">({{ $order->customer_promo_code_title }})</small>
+                                                            <small style="color: #999;">({{ $order->customer_promo_code_title }})</small>
                                                         @endif
                                                     </span>
-                                                    <span class="fw-bold" style="color: #ffcccc;">-{{ number_format($order->customer_promo_code_amount, 2) }}
+                                                    <span class="fw-bold" style="color: #dc3545;">-{{ number_format($order->customer_promo_code_amount, 2) }}
                                                         {{ currency() }}</span>
                                                 </div>
                                             @endif
                                             <div class="summary-row mb-12">
-                                                <span class="fw-bold">{{ trans('order::order.tax') }}</span>
+                                                <span class="fw-bold">{{ trans('order::order.taxes_price') }}</span>
                                                 <span class="fw-bold">+{{ number_format($order->total_tax, 2) }}
                                                     {{ currency() }}</span>
                                             </div>
@@ -569,7 +575,7 @@
                                             @if ($order->total_discounts > 0)
                                                 <div class="summary-row mb-12">
                                                     <span class="fw-bold">{{ trans('order::order.discounts') }}</span>
-                                                    <span class="fw-bold" style="color: #ffcccc;">-{{ number_format($order->total_discounts, 2) }}
+                                                    <span class="fw-bold" style="color: #dc3545;">-{{ number_format($order->total_discounts, 2) }}
                                                         {{ currency() }}</span>
                                                 </div>
                                             @endif
@@ -585,17 +591,22 @@
                                                 <span class="fw-bold">+{{ number_format($order->shipping, 2) }}
                                                     {{ currency() }}</span>
                                             </div>
+                                            <div class="summary-row mb-12">
+                                                <span class="fw-bold">{{ trans('order::order.total_with_shipping') }}</span>
+                                                <span class="fw-bold">{{ number_format($totalWithShippingOrder, 2) }}
+                                                    {{ currency() }}</span>
+                                            </div>
                                             @if ($order->points_used > 0)
                                                 <div class="summary-row mb-12">
                                                     <span class="fw-bold">{{ trans('order::order.points_used') }}</span>
-                                                    <span class="fw-bold" style="color: #ffcccc;">-{{ number_format($order->points_cost, 2) }}
+                                                    <span class="fw-bold" style="color: #dc3545;">-{{ number_format($order->points_cost, 2) }}
                                                         {{ currency() }} ({{ number_format($order->points_used, 0) }} {{ trans('order::order.points') }})</span>
                                                 </div>
                                             @endif
-                                            <hr style="border-color: rgba(255,255,255,0.3); margin: 15px 0;">
+                                            <hr style="border-color: rgba(0,0,0,0.1); margin: 15px 0;">
                                             <div class="summary-row" style="font-size: 18px;">
                                                 <span class="fw-bold">{{ trans('order::order.total') }}</span>
-                                                <span class="fw-bold">{{ number_format($order->total_price, 2) }}
+                                                <span class="fw-bold" style="color: #5f63f2;">{{ number_format($order->total_price, 2) }}
                                                     {{ currency() }}</span>
                                             </div>
                                         </div>
@@ -622,14 +633,16 @@
                                 $prodTotalWithTax = $prod->price;
                                 $prodTax = $prod->taxes->sum('amount') ?? 0;
                                 $prodTotalBeforeTax = $prodTotalWithTax - $prodTax;
+                                $prodShippingCost = $prod->shipping_cost ?? 0;
                                 
                                 $totalProductsPriceBeforeTax += $prodTotalBeforeTax;
                                 $totalProductsTax += $prodTax;
-                                $vendorShippingCost += $prod->shipping_cost ?? 0;
+                                $vendorShippingCost += $prodShippingCost;
                                 
-                                // Calculate commission from each product
+                                // Calculate commission from each product (on total with shipping)
                                 $commPercent = $prod->commission > 0 ? $prod->commission : ($prod->vendorProduct?->product?->department?->commission ?? 0);
-                                $prodCommissionAmount = ($prodTotalWithTax * $commPercent) / 100;
+                                $prodTotalWithShipping = $prodTotalWithTax + $prodShippingCost;
+                                $prodCommissionAmount = ($prodTotalWithShipping * $commPercent) / 100;
                                 $totalCommission += $prodCommissionAmount;
                                 $totalCommissionPercentage += $commPercent;
                             }
@@ -645,15 +658,30 @@
                             // Use vendor-specific shipping if vendor user, otherwise use total order shipping
                             $shippingToUse = (isset($isVendorUser) && $isVendorUser) ? $vendorShippingCost : $order->shipping;
                             
-                            $totalRemaining = $totalProductsPriceWithTax + $shippingToUse - $totalCommission - $order->customer_promo_code_amount;
-                            $totalWithShipping = $totalProductsPriceWithTax + $shippingToUse - $order->customer_promo_code_amount;
-                            
                             // Get vendor name for display
                             if (isset($isVendorUser) && $isVendorUser && isset($vendorProducts) && $vendorProducts->count() > 0) {
                                 $currentVendorName = $vendorProducts->first()->vendorProduct?->vendor?->getTranslation('name', app()->getLocale()) ?? 'Vendor';
+                                $currentVendorId = $vendorProducts->first()->vendorProduct?->vendor_id;
                             } else {
                                 $currentVendorName = 'Vendor';
+                                $currentVendorId = null;
                             }
+                            
+                            // Get vendor_order_stage for discount shares (vendor view)
+                            $vendorOrderStageForVendor = null;
+                            $vendorPromoCodeShare = 0;
+                            $vendorPointsShare = 0;
+                            if ($currentVendorId) {
+                                $vendorOrderStageForVendor = \Modules\Order\app\Models\VendorOrderStage::where('order_id', $order->id)
+                                    ->where('vendor_id', $currentVendorId)
+                                    ->first();
+                                $vendorPromoCodeShare = $vendorOrderStageForVendor?->promo_code_share ?? 0;
+                                $vendorPointsShare = $vendorOrderStageForVendor?->points_share ?? 0;
+                            }
+                            
+                            // Recalculate remaining: Total with Shipping - Commission
+                            $totalRemaining = $totalProductsPriceWithTax + $shippingToUse - $totalCommission;
+                            $totalWithShipping = $totalProductsPriceWithTax + $shippingToUse;
                         @endphp
 
                         @if(isset($isVendorUser) && $isVendorUser && isset($vendorProductTotal))
@@ -670,7 +698,8 @@
                                     :commissionPercentage="$totalCommissionPercentage"
                                     :commissionAmount="$totalCommission"
                                     :remaining="$totalRemaining"
-                                    :promoDiscount="$order->customer_promo_code_amount"
+                                    :promoCodeShare="$vendorPromoCodeShare"
+                                    :pointsShare="$vendorPointsShare"
                                     :colors="['#28a745', '#5dd879']"
                                 />
                             </div>
@@ -688,12 +717,64 @@
                                     ['#28a745', '#5dd879'], // Green
                                 ];
                                 $colorIndex = 0;
+                                
+                                // Check if order has promo code or points discount
+                                $hasPromoCode = $order->customer_promo_code_amount > 0;
+                                $hasPointsDiscount = $order->points_cost > 0;
                             @endphp
+                            
+                            {{-- Explanation box for promo code and points share --}}
+                            @if($hasPromoCode || $hasPointsDiscount)
+                                <div class="col-12 mb-4">
+                                    <div class="card border-0 shadow-sm" style="background: #f8f9fa; border-radius: 12px;">
+                                        <div class="card-body p-4">
+                                            <h6 class="fw-bold mb-3 d-flex align-items-center" style="color: #1565c0;">
+                                                <i class="uil uil-info-circle me-2" style="font-size: 22px;"></i>
+                                                {{ trans('order::order.discount_share_explanation_title') }}
+                                            </h6>
+                                            <p class="mb-3" style="color: #555; font-size: 14px; line-height: 1.6;">
+                                                {{ trans('order::order.discount_share_explanation_text') }}
+                                            </p>
+                                            <div class="row">
+                                                @if($hasPromoCode)
+                                                    <div class="col-md-6 mb-2">
+                                                        <div class="d-flex align-items-start p-3" style="background: #e8f5e9; border-radius: 8px;">
+                                                            <i class="uil uil-tag-alt me-2" style="color: #28a745; font-size: 18px; margin-top: 2px;"></i>
+                                                            <div>
+                                                                <strong style="color: #28a745;">{{ trans('order::order.promo_code_share') }}</strong>
+                                                                <p class="mb-0 mt-1" style="color: #555; font-size: 13px;">{{ trans('order::order.promo_code_share_explanation') }}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                                @if($hasPointsDiscount)
+                                                    <div class="col-md-6 mb-2">
+                                                        <div class="d-flex align-items-start p-3" style="background: #e8f5e9; border-radius: 8px;">
+                                                            <i class="uil uil-star me-2" style="color: #28a745; font-size: 18px; margin-top: 2px;"></i>
+                                                            <div>
+                                                                <strong style="color: #28a745;">{{ trans('order::order.points_share') }}</strong>
+                                                                <p class="mb-0 mt-1" style="color: #555; font-size: 13px;">{{ trans('order::order.points_share_explanation') }}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                             
                             @foreach($productsByVendor as $vendorId => $vendorProducts)
                                 @php
                                     // Get vendor name
                                     $vendorName = $vendorProducts->first()->vendorProduct?->vendor?->getTranslation('name', app()->getLocale()) ?? 'N/A';
+                                    
+                                    // Get vendor_order_stage for discount shares
+                                    $vendorOrderStage = \Modules\Order\app\Models\VendorOrderStage::where('order_id', $order->id)
+                                        ->where('vendor_id', $vendorId)
+                                        ->first();
+                                    $promoCodeShare = $vendorOrderStage?->promo_code_share ?? 0;
+                                    $pointsShare = $vendorOrderStage?->points_share ?? 0;
                                     
                                     // Calculate totals for this vendor
                                     $vendorSubtotalBeforeTax = 0;
@@ -706,14 +787,16 @@
                                         $prodTotalWithTax = $prod->price;
                                         $prodTax = $prod->taxes->sum('amount') ?? 0;
                                         $prodTotalBeforeTax = $prodTotalWithTax - $prodTax;
+                                        $prodShippingCost = $prod->shipping_cost ?? 0;
                                         
                                         $vendorSubtotalBeforeTax += $prodTotalBeforeTax;
                                         $vendorTotalTax += $prodTax;
-                                        $vendorShipping += $prod->shipping_cost ?? 0;
+                                        $vendorShipping += $prodShippingCost;
                                         
-                                        // Calculate commission from each product
+                                        // Calculate commission from each product (on total with shipping)
                                         $commPercent = $prod->commission > 0 ? $prod->commission : ($prod->vendorProduct?->product?->department?->commission ?? 0);
-                                        $prodCommissionAmount = ($prodTotalWithTax * $commPercent) / 100;
+                                        $prodTotalWithShipping = $prodTotalWithTax + $prodShippingCost;
+                                        $prodCommissionAmount = ($prodTotalWithShipping * $commPercent) / 100;
                                         $vendorTotalCommission += $prodCommissionAmount;
                                         $totalCommissionPercentage += $commPercent;
                                     }
@@ -723,6 +806,8 @@
                                     
                                     $vendorSubtotalWithTax = $vendorSubtotalBeforeTax + $vendorTotalTax;
                                     $vendorTotalWithShipping = $vendorSubtotalWithTax + $vendorShipping;
+                                    
+                                    // Calculate remaining: Total with Shipping - Commission
                                     $vendorTotalRemaining = $vendorTotalWithShipping - $vendorTotalCommission;
                                     
                                     // Get color for this vendor
@@ -743,7 +828,8 @@
                                         :commissionPercentage="$avgCommissionPercentage"
                                         :commissionAmount="$vendorTotalCommission"
                                         :remaining="$vendorTotalRemaining"
-                                        :promoDiscount="0"
+                                        :promoCodeShare="$promoCodeShare"
+                                        :pointsShare="$pointsShare"
                                         :colors="$colors"
                                     />
                                 </div>
@@ -1176,22 +1262,61 @@
         }
     </script>
 
-    <!-- Change Product Stage Modal -->
-    @if(isset($orderStages) && count($orderStages) > 0)
-    <div class="modal fade" id="changeProductStageModal" tabindex="-1" aria-labelledby="changeProductStageModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+    <!-- Change Vendor Stage Modal (Vendor Only) -->
+    @if($isVendorUser && isset($currentVendorId) && isset($orderStages) && count($orderStages) > 0)
+    <div class="modal fade" id="changeVendorStageModal" tabindex="-1" aria-labelledby="changeVendorStageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="changeProductStageModalLabel">{{ trans('order::order.change_product_stage') }}</h5>
+                    <h5 class="modal-title" id="changeVendorStageModalLabel">
+                        <i class="uil uil-exchange me-2"></i>{{ trans('order::order.change_vendor_stage') }}
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="changeProductStageForm">
+                <form id="changeVendorStageForm">
                     <div class="modal-body">
-                        <div id="productStageSelectContainer"></div>
+                        <!-- Current Stage Info -->
+                        @if(isset($currentVendorStage) && $currentVendorStage->stage)
+                        <div class="alert alert-light border mb-3">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <small class="text-muted d-block mb-1">{{ trans('order::order.current_stage') }}</small>
+                                    <x-protected-badge 
+                                        :color="$currentVendorStage->stage->color ?? '#6c757d'"
+                                        :text="$currentVendorStage->stage->getTranslation('name', app()->getLocale())"
+                                        size="lg"
+                                        id="current-stage-badge"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                        <!-- Stage Selection -->
+                        <div class="mb-3">
+                            <label for="vendorStageSelect" class="form-label fw-bold">
+                                {{ trans('order::order.select_new_stage') }}
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select name="stage_id" id="vendorStageSelect" class="form-control form-control-lg" required>
+                                <option value="">{{ trans('order::order.select_stage') }}</option>
+                            </select>
+                            <div id="vendorStageWarning" class="alert alert-warning mt-2" style="display: none;"></div>
+                        </div>
+
+                        <!-- Info Alert -->
+                        <div class="alert alert-info mb-0">
+                            <i class="uil uil-info-circle me-2"></i>
+                            <strong>{{ trans('common.note') }}:</strong> {{ trans('order::order.vendor_stage_change_info') }}
+                        </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ trans('common.cancel') }}</button>
-                        <button type="submit" class="btn btn-primary">{{ trans('order::order.update_stage') }}</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="uil uil-times me-1"></i>{{ trans('common.cancel') }}
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="uil uil-check me-1"></i>{{ trans('order::order.update_stage') }}
+                        </button>
                     </div>
                 </form>
             </div>
@@ -1200,7 +1325,6 @@
     @endif
     
     @push('scripts')
-    @if(isset($orderStages) && count($orderStages) > 0)
     <script>
         $(document).ready(function() {
             // ===== PRINT FUNCTIONALITY =====
@@ -1235,6 +1359,13 @@
                 $('#printSelectedBtn').prop('disabled', selectedProductsForPrint.length === 0);
             }
             
+            // Handle print all button
+            $('#printAllBtn').on('click', function() {
+                // Print all products without filtering
+                const printUrl = '{{ route("admin.orders.print", $order->id) }}';
+                window.open(printUrl, '_blank');
+            });
+            
             // Handle print selected button
             $('#printSelectedBtn').on('click', function() {
                 if (selectedProductsForPrint.length === 0) {
@@ -1249,15 +1380,15 @@
                 // Open in new window
                 window.open(printUrl, '_blank');
             });
+        });
+    </script>
+    
+    @if($isVendorUser && isset($currentVendorId) && isset($orderStages) && count($orderStages) > 0)
+    <script>
+        $(document).ready(function() {
+            let orderStages = @json($orderStages);
             
-            // ===== STAGE MANAGEMENT FUNCTIONALITY =====
-            console.log('Initializing stage management...');
-            
-            // Store all stages data with step values
-            const allStages = @json($orderStages);
-            console.log('All stages:', allStages);
-            
-            // Add step values to stages if not present
+            // Stage step mapping (must match OrderStage::STAGE_STEPS in PHP)
             const STAGE_STEPS = {
                 'new': 1,
                 'in_progress': 2,
@@ -1265,120 +1396,127 @@
                 'cancel': 3,
                 'refund': 4
             };
-            
-            allStages.forEach(stage => {
-                if (!stage.step) {
-                    stage.step = STAGE_STEPS[stage.type] || 0;
-                }
-            });
-            
+
+            // Final stages that cannot transition
             const FINAL_STAGES = ['deliver', 'cancel'];
-            
-            let currentProductId = null;
-            
-            // Handle click on change stage button
-            $('.change-product-stage-btn').on('click', function() {
-                currentProductId = $(this).data('product-id');
-                const currentStageId = $(this).data('current-stage');
-                console.log('Button clicked - Product ID:', currentProductId, 'Current Stage ID:', currentStageId);
-            });
-            
-            // Filter stages based on current stage
-            function getAvailableStages(currentStageId) {
-                const currentStage = allStages.find(s => s.id == currentStageId);
-                const currentType = currentStage ? currentStage.type : null;
-                const currentStep = currentStage ? (currentStage.step || 0) : 0;
-                
-                console.log('Current stage:', currentStage, 'Type:', currentType, 'Step:', currentStep);
-                
-                // If current stage is final, no transitions allowed
-                if (currentType && FINAL_STAGES.includes(currentType)) {
-                    console.log('Current stage is final, no transitions allowed');
-                    return [];
+
+            // Get step for a stage type (default to 0 if type is null/undefined)
+            function getStageStep(type) {
+                if (!type) return 0;
+                return STAGE_STEPS[type] || 0;
+            }
+
+            // Check if stage is final
+            function isFinalStage(type) {
+                if (!type) return false;
+                return FINAL_STAGES.includes(type);
+            }
+
+            // Check if transition is allowed
+            function canTransitionTo(currentType, newType, currentId, newId) {
+                // Cannot transition to same stage
+                if (currentId == newId) {
+                    return false;
                 }
-                
-                const filtered = allStages.filter(stage => {
-                    // Can't transition to same stage
-                    if (stage.id == currentStageId) return false;
-                    
-                    const newType = stage.type;
-                    const newStep = stage.step || 0;
-                    
-                    // Can always cancel from any non-final stage
-                    if (newType === 'cancel') return true;
-                    
-                    // Can't go backwards
-                    if (newStep < currentStep) return false;
-                    
-                    // Can't skip steps (must go to next step only)
-                    if (newStep > currentStep + 1) return false;
-                    
-                    // Refund only after deliver
-                    if (newType === 'refund' && currentType !== 'deliver') return false;
-                    
+
+                // Cannot change from final stages
+                if (isFinalStage(currentType)) {
+                    return false;
+                }
+
+                // If current type is null/undefined, allow only to step 1 or 2
+                if (!currentType) {
+                    const newStep = getStageStep(newType);
+                    return newStep <= 2; // Can go to new or in_progress
+                }
+
+                // If new type is null/undefined, allow transition
+                if (!newType) {
                     return true;
-                });
+                }
+
+                const currentStep = getStageStep(currentType);
+                const newStep = getStageStep(newType);
+
+                // Cannot go backwards
+                if (newStep < currentStep) {
+                    return false;
+                }
+
+                // Can always cancel from any non-final stage
+                if (newType === 'cancel') {
+                    return true;
+                }
+
+                // Cannot skip steps - must go to next step only
+                if (newStep > currentStep + 1) {
+                    return false;
+                }
+
+                // Refund only after deliver
+                if (newType === 'refund' && currentType !== 'deliver') {
+                    return false;
+                }
+
+                return true;
+            }
+
+            // Populate vendor stage select dropdown with step-based restrictions
+            function populateVendorStageSelect() {
+                const vendorStageSelect = $('#vendorStageSelect');
+                const stageWarning = $('#vendorStageWarning');
                 
-                console.log('Available stages after filtering:', filtered);
-                return filtered;
+                @if(isset($currentVendorStage) && $currentVendorStage->stage)
+                const currentStageId = {{ $currentVendorStage->stage_id }};
+                const currentStageType = '{{ $currentVendorStage->stage->type }}';
+                @else
+                const currentStageId = null;
+                const currentStageType = null;
+                @endif
+                
+                vendorStageSelect.find('option:not(:first)').remove();
+                stageWarning.hide();
+
+                // Check if current stage is final
+                if (isFinalStage(currentStageType)) {
+                    stageWarning.text('{{ trans("order::order.cannot_change_final_stage") }}').show();
+                    vendorStageSelect.prop('disabled', true);
+                    return;
+                }
+
+                let hasOptions = false;
+                orderStages.forEach(stage => {
+                    const stageName = stage.name;
+                    const stageType = stage.type;
+                    
+                    // Check if transition is allowed
+                    if (canTransitionTo(currentStageType, stageType, currentStageId, stage.id)) {
+                        vendorStageSelect.append(
+                            `<option value="${stage.id}" data-type="${stageType}">${stageName}</option>`
+                        );
+                        hasOptions = true;
+                    }
+                });
+
+                if (!hasOptions) {
+                    stageWarning.text('{{ trans("order::order.no_available_stages") }}').show();
+                    vendorStageSelect.prop('disabled', true);
+                }
             }
             
-            // When modal opens, filter and render available stages
-            $('#changeProductStageModal').on('show.bs.modal', function(e) {
-                console.log('Modal opening...');
-                const button = $(e.relatedTarget);
-                const currentStageId = button.data('current-stage');
-                console.log('Current stage ID from button:', currentStageId);
-                
-                const availableStages = getAvailableStages(currentStageId);
-                
-                if (availableStages.length === 0) {
-                    console.log('No available stages');
-                    $('#productStageSelectContainer').html(`
-                        <div class="alert alert-warning">
-                            <i class="uil uil-exclamation-triangle me-2"></i>
-                            {{ trans('order::order.no_available_stages') }}
-                        </div>
-                    `);
-                    $('#changeProductStageForm button[type="submit"]').prop('disabled', true);
-                    return;
-                }
-                
-                // Render simple select dropdown
-                let selectHtml = `
-                    <div class="form-group">
-                        <label class="il-gray fs-14 fw-500 mb-10 d-block">
-                            {{ trans('order::order.select_new_stage') }}
-                            <span class="text-danger">*</span>
-                        </label>
-                        <select name="stage_id" id="productStageSelect" class="form-control" required>
-                            <option value="">{{ trans('order::order.select_stage') }}</option>
-                `;
-                
-                availableStages.forEach(stage => {
-                    selectHtml += `<option value="${stage.id}">${stage.name}</option>`;
-                });
-                
-                selectHtml += `
-                        </select>
-                    </div>
-                `;
-                
-                console.log('Rendering select HTML');
-                $('#productStageSelectContainer').html(selectHtml);
-                $('#changeProductStageForm button[type="submit"]').prop('disabled', false);
+            // Populate stages when modal is shown
+            $('#changeVendorStageModal').on('shown.bs.modal', function() {
+                populateVendorStageSelect();
             });
             
-            // Handle stage change submission
-            $('#changeProductStageForm').on('submit', function(e) {
+            // Handle vendor stage change submission
+            $('#changeVendorStageForm').on('submit', function(e) {
                 e.preventDefault();
                 
-                if (!currentProductId) {
-                    toastr.error('{{ trans("order::order.error_updating_stage") }}');
-                    return;
-                }
+                const stageId = $('#vendorStageSelect').val();
+                const selectedOption = $('#vendorStageSelect option:selected');
+                const stageType = selectedOption.data('type');
                 
-                const stageId = $('#productStageSelect').val();
                 if (!stageId) {
                     toastr.error('{{ trans("order::order.please_select_stage") }}');
                     return;
@@ -1389,7 +1527,7 @@
                 submitBtn.prop('disabled', true).html('<i class="uil uil-spinner-alt spin me-1"></i>{{ trans("order::order.updating_stage") }}');
                 
                 $.ajax({
-                    url: '{{ route("admin.orders.products.change-stage", ["orderProductId" => "__PRODUCT_ID__"]) }}'.replace('__PRODUCT_ID__', currentProductId),
+                    url: '{{ route("admin.orders.vendor-stage.change", ["orderId" => $order->id, "vendorId" => $currentVendorId ?? 0]) }}',
                     method: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',
@@ -1399,15 +1537,13 @@
                         if (response.status) {
                             toastr.success(response.message);
                             
-                            // Check if the new stage is "in_progress"
-                            const newStageType = response.data?.stage?.type;
-                            if (newStageType === 'in_progress') {
-                                // Redirect to allocate page
+                            // If stage changed to in_progress, redirect to allocate page
+                            if (stageType === 'in_progress') {
                                 setTimeout(() => {
                                     window.location.href = '{{ route("admin.order-fulfillments.show", $order->id) }}';
                                 }, 1000);
                             } else {
-                                // Reload page to show updated stage
+                                // Otherwise reload page to show updated stage
                                 setTimeout(() => {
                                     window.location.reload();
                                 }, 1000);
@@ -1422,7 +1558,7 @@
                     },
                     complete: function() {
                         submitBtn.prop('disabled', false).html(originalText);
-                        $('#changeProductStageModal').modal('hide');
+                        $('#changeVendorStageModal').modal('hide');
                     }
                 });
             });

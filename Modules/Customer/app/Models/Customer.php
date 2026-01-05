@@ -161,9 +161,15 @@ class Customer extends Authenticatable
             $query->where('status', $filters['active']);
         }
 
-        // Vendor filter - For order creation, don't filter by vendor
-        // Vendors can create orders for any customer in the system
-        // The vendor_id filter is intentionally not applied here
+        // Vendor filter - For order creation, vendors should see:
+        // 1. All system customers (vendor_id is NULL)
+        // 2. Customers they created (vendor_id matches their vendor ID)
+        if (!empty($filters['vendor_id'])) {
+            $query->where(function ($q) use ($filters) {
+                $q->whereNull('vendor_id') // System customers
+                  ->orWhere('vendor_id', $filters['vendor_id']); // Vendor's own customers
+            });
+        }
 
         // Date range filters
         if (!empty($filters['created_date_from'])) {

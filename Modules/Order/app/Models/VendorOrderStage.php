@@ -11,7 +11,25 @@ class VendorOrderStage extends BaseModel
         'order_id',
         'vendor_id',
         'stage_id',
+        'promo_code_share',
+        'points_share',
     ];
+
+    /**
+     * The attributes that should be cast.
+     */
+    protected $casts = [
+        'promo_code_share' => 'decimal:2',
+        'points_share' => 'decimal:2',
+    ];
+
+    /**
+     * Get total discount share (promo + points)
+     */
+    public function getTotalDiscountShareAttribute(): float
+    {
+        return ($this->promo_code_share ?? 0) + ($this->points_share ?? 0);
+    }
 
     /**
      * Get the order

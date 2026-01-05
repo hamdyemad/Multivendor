@@ -391,8 +391,26 @@
                     render: function(data, type, row) {
                         let html = '';
                         
-                        // Product Stages - group by stage and show count
-                        if (data && data.length > 0) {
+                        // For admin: show vendors with their stages
+                        if (!isVendorUser && row.vendors_with_stages && row.vendors_with_stages.length > 0) {
+                            row.vendors_with_stages.forEach(function(vendor) {
+                                const stageName = vendor.stage?.name || '-';
+                                const stageColor = vendor.stage?.color || '#6c757d';
+                                html += `<div class="mb-1 d-flex align-items-center">
+                                    <img src="${vendor.logo_url}" alt="${vendor.name}" style="width: 24px; height: 24px; border-radius: 50%; margin-right: 6px; object-fit: cover;">
+                                    <span class="me-1" style="font-size: 12px; font-weight: 500;">${vendor.name}:</span>
+                                    <span class="badge badge-round" style="background-color: ${stageColor}; color: white; font-size: 11px;">${stageName}</span>
+                                </div>`;
+                            });
+                        } 
+                        // For vendor: show their own stage
+                        else if (isVendorUser && row.vendor_stage) {
+                            const stageName = row.vendor_stage.name || '-';
+                            const stageColor = row.vendor_stage.color || '#6c757d';
+                            html += `<div class="mb-1"><span class="badge badge-round badge-lg" style="background-color: ${stageColor}; color: white;">${stageName}</span></div>`;
+                        }
+                        // Fallback to product stages
+                        else if (data && data.length > 0) {
                             // Group stages by stage name
                             const stageGroups = {};
                             data.forEach(function(productStage) {

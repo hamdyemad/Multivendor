@@ -37,13 +37,6 @@ class OrderProductResource extends JsonResource
             'price' => (float) $this->price,
             'commission' => (float) $this->commission,
             'shipping_cost' => (float) $this->shipping_cost,
-            'stage' => $this->stage ? [
-                'id' => $this->stage->id,
-                'name' => $this->stage->getTranslation('name', app()->getLocale()),
-                'slug' => $this->stage->slug,
-                'type' => $this->stage->type,
-                'color' => $this->stage->color,
-            ] : null,
             'taxes' => OrderProductTaxResource::collection($this->whenLoaded('taxes')),
             'total' => (float) ($this->price * $this->quantity),
         ];

@@ -28,30 +28,7 @@ class CalculatePointsUsagePipeline
             return $next($payload);
         }
 
-        // Get customer's available points
-        $userPoints = UserPoints::where('user_id', $customerId)->first();
-        
-        if (!$userPoints) {
-            \Log::warning('CalculatePointsUsagePipeline: No user points record found', [
-                'customer_id' => $customerId
-            ]);
-            throw new \App\Exceptions\OrderException(trans('order::order.no_points_available'));
-        }
-
-        // Get available points (total_points is the available balance)
-        $availablePoints = (float) $userPoints->total_points;
-        
-        \Log::info('CalculatePointsUsagePipeline: User points found', [
-            'total_points' => $userPoints->total_points,
-            'available_points' => $availablePoints
-        ]);
-
-        if ($availablePoints <= 0) {
-            \Log::info('CalculatePointsUsagePipeline: No available points');
-            throw new \App\Exceptions\OrderException(trans('order::order.no_points_available'));
-        }
-
-        // Get customer to find their currency
+        // Get customer to find their currency first (needed for points calculation)
         $customer = \Modules\Customer\app\Models\Customer::find($customerId);
         if (!$customer || !$customer->country || !$customer->country->currency) {
             \Log::warning('CalculatePointsUsagePipeline: No currency found for customer');
@@ -59,6 +36,7 @@ class CalculatePointsUsagePipeline
         }
 
         $currencyId = $customer->country->currency->id;
+        $currencyCode = $customer->country->currency->code ?? 'EGP';
 
         // Get points setting for this currency to get conversion rate
         $pointsSetting = PointsSetting::where('currency_id', $currencyId)
@@ -96,16 +74,52 @@ class CalculatePointsUsagePipeline
         // Full order total
         $orderTotal = $subtotal + $totalTax + $totalFees + $shipping - $totalDiscounts - $promoDiscount;
         
+        // Calculate how many points needed to cover the order
+        $pointsNeededForOrder = $orderTotal * $pointsPerCurrency;
+
+        // Get customer's available points
+        $userPoints = UserPoints::where('user_id', $customerId)->first();
+        
+        if (!$userPoints) {
+            \Log::warning('CalculatePointsUsagePipeline: No user points record found', [
+                'customer_id' => $customerId
+            ]);
+            throw new \App\Exceptions\OrderException(
+                trans('order::order.no_points_available_with_info', [
+                    'available' => 0,
+                    'needed' => number_format($pointsNeededForOrder, 0),
+                    'order_total' => number_format($orderTotal, 2),
+                    'currency' => $currencyCode
+                ])
+            );
+        }
+
+        // Get available points (total_points is the available balance)
+        $availablePoints = (float) $userPoints->total_points;
+        
+        \Log::info('CalculatePointsUsagePipeline: User points found', [
+            'total_points' => $userPoints->total_points,
+            'available_points' => $availablePoints
+        ]);
+
+        if ($availablePoints <= 0) {
+            \Log::info('CalculatePointsUsagePipeline: No available points');
+            throw new \App\Exceptions\OrderException(
+                trans('order::order.no_points_available_with_info', [
+                    'available' => 0,
+                    'needed' => number_format($pointsNeededForOrder, 0),
+                    'order_total' => number_format($orderTotal, 2),
+                    'currency' => $currencyCode
+                ])
+            );
+        }
+
         \Log::info('CalculatePointsUsagePipeline: Order total calculated', [
             'subtotal' => $subtotal,
             'tax' => $totalTax,
             'order_total' => $orderTotal,
             'points_per_currency' => $pointsPerCurrency
         ]);
-
-        // Calculate how many points needed to cover the order
-        // If 2 points = 1 EGP, then to cover 100 EGP we need 200 points
-        $pointsNeededForOrder = $orderTotal * $pointsPerCurrency;
         
         // Check if customer has enough points to cover the full order
         if ($availablePoints >= $pointsNeededForOrder) {
@@ -120,7 +134,14 @@ class CalculatePointsUsagePipeline
         
         if ($pointsToUse <= 0) {
             \Log::info('CalculatePointsUsagePipeline: No points to use');
-            throw new \App\Exceptions\OrderException(trans('order::order.no_points_available'));
+            throw new \App\Exceptions\OrderException(
+                trans('order::order.no_points_available_with_info', [
+                    'available' => number_format($availablePoints, 0),
+                    'needed' => number_format($pointsNeededForOrder, 0),
+                    'order_total' => number_format($orderTotal, 2),
+                    'currency' => $currencyCode
+                ])
+            );
         }
 
         \Log::info('CalculatePointsUsagePipeline: Processing points', [

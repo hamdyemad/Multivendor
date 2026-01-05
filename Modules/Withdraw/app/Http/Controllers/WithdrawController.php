@@ -383,7 +383,26 @@ class WithdrawController extends Controller
             abort(404);
         }
 
+        // Clean the sent_amount (remove commas) before validation
+        if ($request->has('sent_amount')) {
+            $request->merge([
+                'sent_amount' => str_replace(',', '', $request->sent_amount)
+            ]);
+        }
+
+        // Validate the request
+        $request->validate([
+            'sent_amount' => 'required|numeric|min:0.01',
+        ], [
+            'sent_amount.required' => trans('withdraw::withdraw.amount_required'),
+            'sent_amount.numeric' => trans('withdraw::withdraw.amount_must_be_numeric'),
+            'sent_amount.min' => trans('withdraw::withdraw.amount_min'),
+        ]);
+
         $data = $request->all();
+        
+        // Convert to float
+        $data['sent_amount'] = floatval($data['sent_amount']);
 
         $vendor = auth()->user()->vendor;
         // If user doesn't have a vendor directly, try to find by vendor_id
@@ -518,10 +537,6 @@ class WithdrawController extends Controller
 
         // Prepare data for DataTable
         $data = $query->get()->map(function ($item) {
-            // Get current vendor balance from model
-            $currentBalance = $item->vendor ? $item->vendor->total_balance : 0;
-            $remaining = $item->vendor ? $item->vendor->total_remaining : 0;
-
             return [
                 'id' => $item->id,
                 'vendor_logo' => '',
@@ -530,9 +545,9 @@ class WithdrawController extends Controller
                     : '-',
                 'status' => $item->status,
                 'invoice' => $item->invoice_url,
-                'before_sending_money' => number_format($currentBalance, 2) . ' ' . __("common.currency"),
+                'before_sending_money' => number_format($item->before_sending_money, 2) . ' ' . __("common.currency"),
                 'sent_amount' => number_format($item->sent_amount, 2) . ' ' . __("common.currency"),
-                'after_sending_amount' => number_format($remaining, 2) . ' ' . __("common.currency"),
+                'after_sending_amount' => number_format($item->after_sending_amount, 2) . ' ' . __("common.currency"),
                 'created_at' => $item->created_at,
             ];
         });

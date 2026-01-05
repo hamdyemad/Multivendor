@@ -59,7 +59,21 @@ class CalculateProductPrices
             }
 
             // Price from database includes tax - this is the unit price with tax
-            $priceWithTax = (float) ($vendorProduct['variants'][0]['price'] ?? 0);
+            // Find the correct variant price based on vendor_product_variant_id
+            $priceWithTax = 0;
+            if ($vendorProductVariantId && isset($vendorProduct['variants'])) {
+                // Find the specific variant by ID
+                foreach ($vendorProduct['variants'] as $variant) {
+                    if (isset($variant['id']) && $variant['id'] == $vendorProductVariantId) {
+                        $priceWithTax = (float) ($variant['price'] ?? 0);
+                        break;
+                    }
+                }
+            }
+            // Fallback to first variant if no specific variant found
+            if ($priceWithTax == 0 && isset($vendorProduct['variants'][0])) {
+                $priceWithTax = (float) ($vendorProduct['variants'][0]['price'] ?? 0);
+            }
             
             // Calculate total tax rate from all taxes and collect tax data
             $taxes = $vendorProduct['taxes'] ?? [];

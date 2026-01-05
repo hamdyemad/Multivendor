@@ -103,6 +103,11 @@ return [
     'amount_placeholder' => 'Example: 4,000.50',
     'example_amount' => 'Example: 4,000.50',
     'withdraw_information' => 'Withdraw Information',
+    
+    // Validation messages
+    'amount_required' => 'Please enter the amount',
+    'amount_must_be_numeric' => 'Amount must be a valid number',
+    'amount_min' => 'Amount must be greater than 0',
 
     // Transaction Requests Page
     'withdraw_transactions' => 'Withdraw Transactions',

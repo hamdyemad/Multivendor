@@ -151,6 +151,28 @@ class OrderController extends Controller
                     return $orderProduct->vendorProduct->vendor ?? null;
                 })->filter()->unique('id');
 
+                // Get vendors with their stages from vendor_order_stages
+                $vendorsWithStages = $vendors->map(function ($vendor) use ($order) {
+                    $vendorOrderStage = \Modules\Order\app\Models\VendorOrderStage::where('order_id', $order->id)
+                        ->where('vendor_id', $vendor->id)
+                        ->with(['stage' => function($q) {
+                            $q->withoutGlobalScopes();
+                        }])
+                        ->first();
+                    
+                    return [
+                        'id' => $vendor->id,
+                        'name' => $vendor->name,
+                        'logo_url' => $vendor->logo ? asset('storage/' . $vendor->logo->path) : asset('assets/img/default.png'),
+                        'stage' => $vendorOrderStage && $vendorOrderStage->stage ? [
+                            'id' => $vendorOrderStage->stage->id,
+                            'name' => $vendorOrderStage->stage->name ?? '-',
+                            'color' => $vendorOrderStage->stage->color ?? '#6c757d',
+                            'type' => $vendorOrderStage->stage->type,
+                        ] : null,
+                    ];
+                })->values();
+
                 $vendorsData = $vendors->map(function ($vendor) {
                     return [
                         'name' => $vendor->name,
@@ -178,15 +200,39 @@ class OrderController extends Controller
                         ->where('vendor_id', $currentVendorId)
                         ->sum('shipping_cost');
                     
-                    // Subtract promo discount from vendor's total
-                    $promoDiscount = $order->customer_promo_code_amount ?? 0;
-                    $displayTotalPrice = $vendorProductTotal + $vendorShipping - $promoDiscount;
+                    // Get vendor's discount shares from vendor_order_stages
+                    $vendorOrderStage = \Modules\Order\app\Models\VendorOrderStage::where('order_id', $order->id)
+                        ->where('vendor_id', $currentVendorId)
+                        ->first();
+                    $promoCodeShare = $vendorOrderStage?->promo_code_share ?? 0;
+                    $pointsShare = $vendorOrderStage?->points_share ?? 0;
+                    
+                    // Vendor total = products + shipping - promo_code_share - points_share (discounts subtracted)
+                    $displayTotalPrice = $vendorProductTotal + $vendorShipping - $promoCodeShare - $pointsShare;
                 }
 
                 // Get product stages - filter by vendor if vendor user
                 $products = $isVendorUser && $currentVendorId 
                     ? $order->products->where('vendor_id', $currentVendorId)
                     : $order->products;
+
+                // For vendor users, get stage from vendor_order_stages table
+                $vendorStage = null;
+                if ($isVendorUser && $currentVendorId) {
+                    $vendorOrderStage = \Modules\Order\app\Models\VendorOrderStage::where('order_id', $order->id)
+                        ->where('vendor_id', $currentVendorId)
+                        ->with('stage')
+                        ->first();
+                    if ($vendorOrderStage && $vendorOrderStage->stage) {
+                        $vendorStage = [
+                            'id' => $vendorOrderStage->stage->id,
+                            'slug' => $vendorOrderStage->stage->slug,
+                            'type' => $vendorOrderStage->stage->type,
+                            'name' => $vendorOrderStage->stage->name ?? '-',
+                            'color' => $vendorOrderStage->stage->color ?? '#6c757d',
+                        ];
+                    }
+                }
 
                 $productStages = $products->map(function ($orderProduct) {
                     return [
@@ -208,10 +254,12 @@ class OrderController extends Controller
                     'customer_email' => $order->customer_email,
                     'customer_phone' => $order->customer_phone ?? '-',
                     'vendor' => $isVendorUser ? [] : $vendorsData, // Hide vendors for vendor users
+                    'vendors_with_stages' => $isVendorUser ? [] : $vendorsWithStages, // Vendors with their stages
                     'total_price' => $displayTotalPrice,
                     'total_product_price' => $order->total_product_price . ' ' . currency(),
                     'items_count' => $itemsCount,
                     'product_stages' => $productStages, // Array of product stages
+                    'vendor_stage' => $vendorStage, // Vendor's specific stage from vendor_order_stages
                     'payment_type' => $order->payment_type ?? 'cash_on_delivery',
                     'payment_visa_status' => $order->payment_visa_status,
                     'created_at' => $order->created_at,
@@ -346,7 +394,32 @@ class OrderController extends Controller
             }
             
             // Load vendor stages with stage and vendor relationships
-            $order->load(['vendorStages.stage', 'vendorStages.vendor']);
+            $order->load(['vendorStages.stage', 'vendorStages.vendor', 'products']);
+            
+            // Ensure vendor stages exist (for old orders created before this feature)
+            if ($order->products->count() > 0 && $order->vendorStages->count() == 0) {
+                // Get unique vendor IDs from order products
+                $vendorIds = $order->products()->distinct()->pluck('vendor_id')->filter();
+                
+                if ($vendorIds->isNotEmpty()) {
+                    // Get the default "new" stage
+                    $defaultStage = OrderStage::withoutGlobalScopes()->where('type', 'new')->first();
+                    
+                    if ($defaultStage) {
+                        // Create vendor order stages
+                        foreach ($vendorIds as $vendorId) {
+                            \Modules\Order\app\Models\VendorOrderStage::create([
+                                'order_id' => $order->id,
+                                'vendor_id' => $vendorId,
+                                'stage_id' => $defaultStage->id,
+                            ]);
+                        }
+                        
+                        // Reload vendor stages
+                        $order->load(['vendorStages.stage', 'vendorStages.vendor']);
+                    }
+                }
+            }
             
             $isVendorUser = !isAdmin();
             $currentVendorId = null;
@@ -374,7 +447,7 @@ class OrderController extends Controller
             // Get order stages for the change stage modal
             $orderStages = $this->orderStageService->getOrderStagesQuery()->get();
             $orderStages = OrderStageResource::collection($orderStages)->resolve();
-            return view('order::orders.show', compact('order', 'isVendorUser', 'vendorProducts', 'vendorProductTotal', 'orderStages', 'currentVendorStage'));
+            return view('order::orders.show', compact('order', 'isVendorUser', 'vendorProducts', 'vendorProductTotal', 'orderStages', 'currentVendorStage', 'currentVendorId'));
         } catch (\Exception $e) {
             return abort(500, trans('order::order.error_loading_order'));
         }
@@ -438,8 +511,7 @@ class OrderController extends Controller
                     });
                     // price already includes total (price * quantity), so just sum it
                     $vendorProductTotal = $vendorProducts->sum('price');
-                    // Subtract promo discount from vendor's total
-                    $vendorProductTotal = $vendorProductTotal - ($order->customer_promo_code_amount ?? 0);
+                    // Vendor invoice shows products total only (no promo/points discount)
                 }
             } else {
                 // For admins: if specific products selected, filter by those IDs
@@ -612,6 +684,50 @@ class OrderController extends Controller
     }
 
     /**
+     * Change vendor order stage
+     * Vendors can only change their own stage
+     */
+    public function changeVendorStage($lang, $countryCode, $orderId, $vendorId, Request $request)
+    {
+        try {
+            $request->validate([
+                'stage_id' => 'required|exists:order_stages,id',
+            ]);
+
+            // Verify vendor can change this stage
+            $currentVendorId = auth()->user()->vendor?->id;
+            if (!$currentVendorId || $currentVendorId != $vendorId) {
+                return response()->json([
+                    'status' => false,
+                    'message' => trans('order::order.unauthorized'),
+                ], 403);
+            }
+
+            // Change vendor order stage using repository
+            $vendorOrderStage = $this->orderService->changeVendorOrderStage($orderId, $vendorId, $request->stage_id);
+
+            return response()->json([
+                'status' => true,
+                'message' => trans('order::order.vendor_stage_updated_successfully'),
+                'data' => [
+                    'id' => $vendorOrderStage->id,
+                    'stage' => [
+                        'id' => $vendorOrderStage->stage?->id,
+                        'name' => $vendorOrderStage->stage?->getTranslation('name', app()->getLocale()),
+                        'color' => $vendorOrderStage->stage?->color,
+                        'type' => $vendorOrderStage->stage?->type,
+                    ],
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        }
+    }
+
+    /**
      * Bulk change stage for all products in an order
      * Only admins can use this
      */
@@ -755,14 +871,28 @@ class OrderController extends Controller
                 ? $group->sum('shipping_cost') 
                 : ($group->first()->shipping ?? 0);
             
-            // Subtract promo discount
-            $promoDiscount = $group->first()->customer_promo_code_amount ?? 0;
+            $orderId = $group->first()->order_id;
             
-            // Calculate total: products + shipping - promo discount
-            $total = $vendorProductTotal + $shipping - $promoDiscount;
+            // For vendors: get promo_code_share and points_share from vendor_order_stages
+            // These should be SUBTRACTED from vendor total
+            $promoCodeShare = 0;
+            $pointsShare = 0;
+            if ($vendorId) {
+                $vendorStage = \Modules\Order\app\Models\VendorOrderStage::where('order_id', $orderId)
+                    ->where('vendor_id', $vendorId)
+                    ->first();
+                $promoCodeShare = $vendorStage->promo_code_share ?? 0;
+                $pointsShare = $vendorStage->points_share ?? 0;
+            }
+            
+            // For admin: use order's promo discount
+            $promoDiscount = $vendorId ? 0 : ($group->first()->customer_promo_code_amount ?? 0);
+            
+            // Calculate total: products + shipping - promo discount - shares (for vendor)
+            $total = $vendorProductTotal + $shipping - $promoDiscount - $promoCodeShare - $pointsShare;
             
             return [
-                'order_id' => $group->first()->order_id,
+                'order_id' => $orderId,
                 'total_price' => $vendorId ? $total : $group->first()->total_price,
                 'stage_id' => $group->first()->stage_id,
                 'products_count' => $group->sum('quantity'),

@@ -17,7 +17,8 @@ class ProductQueryAction
             ->active()
             ->status(VendorProduct::STATUS_APPROVED)
             ->with([
-                'product',
+                'product.category',
+                'product.subCategory',
                 'product.brand',
                 'product.brand.translations',
                 'product.translations',

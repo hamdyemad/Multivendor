@@ -186,7 +186,7 @@ class Product extends BaseModel
      */
     public function subCategory()
     {
-        return $this->belongsTo(SubCategory::class);
+        return $this->belongsTo(SubCategory::class, 'sub_category_id');
     }
 
     /**

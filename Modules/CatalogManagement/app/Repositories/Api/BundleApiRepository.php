@@ -23,13 +23,39 @@ class BundleApiRepository implements BundleRepositoryApiInterface
      */
     public function getAllBundles($filters = [], $perPage = 15)
     {
-        $query = Bundle::with('country', 'vendor', 'bundleCategory',
-         'bundleProducts.vendorProductVariant.vendorProduct',
-         'bundleProducts.vendorProductVariant.variantConfiguration.parent_data.key',
-         'bundleProducts.vendorProductVariant.variantConfiguration.key'
-        )->filter($filters)
+        $query = Bundle::with([
+            'country', 
+            'vendor', 
+            'bundleCategory',
+            'bundleProducts' => function ($q) {
+                // Only include products where vendor product is active and product is approved
+                $q->whereHas('vendorProductVariant', function ($vpvQuery) {
+                    $vpvQuery->whereHas('vendorProduct', function ($vpQuery) {
+                        $vpQuery->where('vendor_products.status', 'active');
+                    })->whereHas('vendorProduct.product', function ($pQuery) {
+                        $pQuery
+                        ->where('vendor_products.status', 'approved')
+                        ->where('is_active', '1');
+                    });
+                });
+                $q->with([
+                    'vendorProductVariant.vendorProduct',
+                    'vendorProductVariant.variantConfiguration.parent_data.key',
+                    'vendorProductVariant.variantConfiguration.key'
+                ]);
+            }
+        ])->filter($filters)
         ->active() // active() now includes is_active = 1 AND admin_approval = 1
-        ->withCount('bundleProducts')
+        ->withCount(['bundleProducts' => function ($q) {
+            // Only count products where vendor product is active and product is approved
+            $q->whereHas('vendorProductVariant', function ($vpvQuery) {
+                $vpvQuery->whereHas('vendorProduct', function ($vpQuery) {
+                    $vpQuery
+                    ->where('vendor_products.status', 'approved')
+                    ->where('is_active', '1');
+                });
+            });
+        }])
         ->latest();
         return ($perPage == 0) ? $query->get() : $query->paginate($perPage);
     }
@@ -45,6 +71,15 @@ class BundleApiRepository implements BundleRepositoryApiInterface
             'vendor',
             'bundleCategory',
             'bundleProducts' => function ($q) use ($filters) {
+                // Only include products where vendor product is active and product is approved
+                $q->whereHas('vendorProductVariant', function ($vpvQuery) {
+                    $vpvQuery->whereHas('vendorProduct', function ($vpQuery) {
+                        $vpQuery
+                        ->where('vendor_products.status', 'approved')
+                        ->where('is_active', '1');
+                    });
+                });
+                
                 // Apply search filter on bundle products via VendorProduct filter scope
                 if (!empty($filters['search'])) {
                     $q->whereHas('vendorProductVariant.vendorProduct', function ($vpQuery) use ($filters) {
@@ -60,7 +95,16 @@ class BundleApiRepository implements BundleRepositoryApiInterface
                 ]);
             },
         ])
-        ->withCount('bundleProducts')
+        ->withCount(['bundleProducts' => function ($q) {
+            // Only count products where vendor product is active and product is approved
+            $q->whereHas('vendorProductVariant', function ($vpvQuery) {
+                $vpvQuery->whereHas('vendorProduct', function ($vpQuery) {
+                    $vpQuery
+                        ->where('vendor_products.status', 'approved')
+                        ->where('is_active', '1');
+                });
+            });
+        }])
         ->where(function($q) use ($id) {
             $q->where('id', $id)->orWhere('slug', $id);
         })

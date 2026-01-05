@@ -7,7 +7,7 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'api_key' => env('PAYMOB_API_KEY', 'ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2libUZ0WlNJNklqRTJORGN4TWpJeE1qa3VOekk0TURVeUlpd2ljSEp2Wm1sc1pWOXdheUk2TlRZNE9EbDkuc0xLVXNXSUtjbkoxQXExcVB0V3g0UHpyMmtyY0pmMlc1N1Z6WER5R3ZxN3plT19UdUlIYUh6M0hydEMzYmdQOEw3TFQ3M2ZmdjhOVzdMVHRtV3lURnc='),
+    'api_key' => env('PAYMOB_API_KEY', 'ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2ljSEp2Wm1sc1pWOXdheUk2TVRFd01qSXhOU3dpYm1GdFpTSTZJbWx1YVhScFlXd2lmUS5vc3BaRWkxNWs2NEpsUUVEdkJvTmUyMHRuRzFpZ0R1cG9FNTAxYlh4c1ByN2FGXzJCQUI5S2w5eDYxMlBDWUJxVmowU0ZYVldHYVJLeHZjaGJ1ZWg5QQ=='),
     'secret_key' => env('PAYMOB_SECRET_KEY', 'egy_sk_test_64721a21425d144f356f05f917df27bc524217e021fb1150615ccdc4a7b8f0e7'),
     'public_key' => env('PAYMOB_PUBLIC_KEY', 'egy_pk_test_YZR28Abg2rcUupfGapRPPMST8IFUMwrU'),
     'hmac_secret' => env('PAYMOB_HMAC_SECRET'),
@@ -18,7 +18,7 @@ return [
     |--------------------------------------------------------------------------
     */
     'integrations' => [
-        'card' => env('PAYMOB_CARD_INTEGRATION_ID'),
+        'card' => env('PAYMOB_CARD_INTEGRATION_ID', 5384662),
         'wallet' => env('PAYMOB_WALLET_INTEGRATION_ID'),
         'valu' => env('PAYMOB_VALU_INTEGRATION_ID'),
         'souhola' => env('PAYMOB_SOUHOLA_INTEGRATION_ID'),
@@ -39,6 +39,6 @@ return [
     | Callback URLs
     |--------------------------------------------------------------------------
     */
-    'callback_url' => env('PAYMOB_CALLBACK_URL'),
-    'webhook_url' => env('PAYMOB_WEBHOOK_URL'),
+    'callback_url' => env('PAYMOB_CALLBACK_URL', 'https://663d66566a1d.ngrok-free.app/api/paymob/webhook'),
+    'webhook_url' => env('PAYMOB_WEBHOOK_URL', 'http://127.0.0.1:3001/paymob/call_back'),
 ];

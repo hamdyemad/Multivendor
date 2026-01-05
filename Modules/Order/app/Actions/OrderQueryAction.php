@@ -19,7 +19,8 @@ class OrderQueryAction
                 'products.vendorProductVariant',
                 'products.stage' => function($q) {
                     $q->withoutGlobalScopes();
-                }
+                },
+                'payments'
             ])
             ->orderBy('created_at', 'desc')
             ->filter($filters);

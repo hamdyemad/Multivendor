@@ -10,6 +10,9 @@ return [
     'edit_order' => 'Edit Order',
     'view_order' => 'View Order',
     'delete_order' => 'Delete Order',
+    'order_number' => 'Order Number',
+    'order_information' => 'Order Information',
+    'customer_information' => 'Customer Information',
 
     // Table Columns
     'order_id' => 'Order ID',
@@ -96,6 +99,9 @@ return [
     'payment_failed' => 'Payment Failed',
     'payment_refunded' => 'Refunded',
     'payment_status' => 'Payment Status',
+    'all_payment_statuses' => 'All Payment Statuses',
+    'paid' => 'Paid',
+    'unpaid' => 'Unpaid',
     'payment_transactions' => 'Payment Transactions',
     'view_payments' => 'View Payments',
     'back_to_order' => 'Back to Order',
@@ -104,6 +110,7 @@ return [
     'transaction_id' => 'Transaction ID',
     'payment_method' => 'Payment Method',
     'no_transactions_found' => 'No payment transactions found for this order',
+    'no_payment_transactions_message' => 'No payment transactions have been recorded for this order yet.',
     'status' => 'Status',
 
     // Order From

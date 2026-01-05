@@ -10,6 +10,9 @@ return [
     'edit_order' => 'تعديل الطلب',
     'view_order' => 'عرض الطلب',
     'delete_order' => 'حذف الطلب',
+    'order_number' => 'رقم الطلب',
+    'order_information' => 'معلومات الطلب',
+    'customer_information' => 'معلومات العميل',
 
     // Table Columns
     'order_id' => 'رقم الطلب',
@@ -96,6 +99,9 @@ return [
     'payment_failed' => 'فشل الدفع',
     'payment_refunded' => 'تم الاسترداد',
     'payment_status' => 'حالة الدفع',
+    'all_payment_statuses' => 'جميع حالات الدفع',
+    'paid' => 'مدفوع',
+    'unpaid' => 'غير مدفوع',
     'payment_transactions' => 'معاملات الدفع',
     'view_payments' => 'عرض المدفوعات',
     'back_to_order' => 'العودة للطلب',
@@ -104,6 +110,7 @@ return [
     'transaction_id' => 'رقم المعاملة',
     'payment_method' => 'طريقة الدفع',
     'no_transactions_found' => 'لا توجد معاملات دفع لهذا الطلب',
+    'no_payment_transactions_message' => 'لم يتم تسجيل أي معاملات دفع لهذا الطلب بعد.',
     'status' => 'الحالة',
 
     // Order From

@@ -49,7 +49,8 @@ class OrderApiRepository implements OrderApiRepositoryInterface
                 'extraFeesDiscounts',
                 'country',
                 'city',
-                'region'
+                'region',
+                'payments'
             ])
             ->firstOrFail();
     }

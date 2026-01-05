@@ -24,8 +24,11 @@ class PaymobService
     /**
      * Create a payment intent for an order
      */
-    public function createPaymentIntent(array $data): array
+    public function createPaymentIntent(array $data)
     {
+        // Generate unique reference: order_id + timestamp to avoid duplicates
+        $uniqueReference = ($data['order_id'] ?? 'ORD') . '_' . time() . '_' . uniqid();
+        
         $response = Http::withHeaders([
             'Authorization' => 'Token ' . $this->secretKey,
             'Content-Type' => 'application/json',
@@ -48,17 +51,30 @@ class PaymobService
                 'country' => 'EG',
                 'state' => 'N/A',
             ],
-            'special_reference' => $data['order_id'] ?? null,
+            'special_reference' => $uniqueReference,
             'notification_url' => config('paymob.webhook_url'),
             'redirection_url' => config('paymob.callback_url'),
         ]);
 
         if ($response->failed()) {
+            $responseData = $response->json();
             Log::error('Paymob create payment intent failed', [
-                'response' => $response->json(),
+                'response' => $responseData,
                 'status' => $response->status(),
             ]);
-            throw new Exception('Failed to create payment intent: ' . ($response->json()['message'] ?? 'Unknown error'));
+            
+            // Extract error details
+            $errorMessage = $responseData['message'] ?? null;
+            $errorDetails = $responseData['detail'] ?? null;
+            $merchantOrderError = $responseData['merchant_order_id'] ?? null;
+            
+            throw new Exception(json_encode([
+                'error' => 'Failed to create payment intent',
+                'message' => $errorMessage,
+                'detail' => $errorDetails,
+                'merchant_order_id' => $merchantOrderError,
+                'status' => $response->status(),
+            ]));
         }
 
         return $response->json();
@@ -114,7 +130,7 @@ class PaymobService
     /**
      * Create payment record and return checkout URL
      */
-    public function initiatePayment(Order $order, array $billingData, string $method): array
+    public function initiatePayment(Order $order, array $billingData, string $method)
     {
         $amountCents = (int) ($order->total_price * 100);
 
@@ -128,11 +144,12 @@ class PaymobService
         // Create payment record
         $payment = Payment::create([
             'order_id' => $order->id,
-            'paymob_payment_id' => $paymentIntent['id'],
-            'paymob_order_id' => $paymentIntent['intention_order_id'],
+            'paymob_payment_id' => $paymentIntent['id'] ?? null,
+            'paymob_order_id' => $paymentIntent['intention_order_id'] ?? null,
             'payment_method' => $method,
             'amount_cents' => $amountCents,
             'status' => Payment::STATUS_PENDING,
+            'payment_data' => $paymentIntent,
         ]);
 
         $checkoutUrl = $this->getCheckoutUrl($paymentIntent['client_secret']);
@@ -140,7 +157,8 @@ class PaymobService
         return [
             'payment' => $payment,
             'checkout_url' => $checkoutUrl,
-            'paymob_order_id' => $paymentIntent['intention_order_id'],
+            'paymob_order_id' => $paymentIntent['intention_order_id'] ?? null,
+            'client_secret' => $paymentIntent['client_secret'] ?? null,
         ];
     }
 
@@ -154,11 +172,29 @@ class PaymobService
             'transaction_id' => $transactionId,
         ]);
 
-        // Update order payment status
-        $payment->order->update([
-            'payment_reference' => $transactionId,
-            'payment_visa_status' => 'success',
+        // Update order payment status - load order if not loaded
+        $order = $payment->order ?? Order::find($payment->order_id);
+        
+        Log::info('Updating order payment status', [
+            'order_id' => $payment->order_id,
+            'order_found' => $order ? true : false,
+            'current_status' => $order?->payment_visa_status,
         ]);
+        
+        if ($order) {
+            // Use withoutGlobalScopes to bypass any country filtering
+            $updated = Order::withoutGlobalScopes()
+                ->where('id', $payment->order_id)
+                ->update([
+                    'payment_reference' => $transactionId,
+                    'payment_visa_status' => 'success',
+                ]);
+            
+            Log::info('Order update result', [
+                'order_id' => $payment->order_id,
+                'rows_updated' => $updated,
+            ]);
+        }
 
         Log::info('Payment successful', [
             'payment_id' => $payment->id,
@@ -176,10 +212,14 @@ class PaymobService
             'status' => Payment::STATUS_FAILED,
         ]);
 
-        // Update order payment status
-        $payment->order->update([
-            'payment_visa_status' => 'fail',
-        ]);
+        // Update order payment status - use withoutGlobalScopes
+        if ($payment->order_id) {
+            Order::withoutGlobalScopes()
+                ->where('id', $payment->order_id)
+                ->update([
+                    'payment_visa_status' => 'fail',
+                ]);
+        }
 
         Log::info('Payment failed', [
             'payment_id' => $payment->id,

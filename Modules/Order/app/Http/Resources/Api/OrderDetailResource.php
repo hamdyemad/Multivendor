@@ -30,7 +30,10 @@ class OrderDetailResource extends JsonResource
             ],
             'order_from' => $this->order_from,
             'payment_type' => $this->payment_type,
+            'payment_visa_status' => $this->payment_visa_status ?? '',
+            'payment_reference' => $this->payment_reference ?? '',
             'products' => OrderProductResource::collection($this->whenLoaded('products')),
+            'payments' => PaymentResource::collection($this->whenLoaded('payments')),
             'promo' => [
                 'code' => $this->customer_promo_code_title,
                 'discount_value' => $this->customer_promo_code_value ? (float) $this->customer_promo_code_value : null,

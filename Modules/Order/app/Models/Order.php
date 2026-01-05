@@ -300,6 +300,28 @@ class Order extends BaseModel
             $query->where('payment_type', $filters['payment_type']);
         }
 
+        // Payment visa status filter (success/paid, pending, unpaid, fail/failed)
+        if (!empty($filters['payment_visa_status'])) {
+            $status = $filters['payment_visa_status'];
+            if ($status === 'success') {
+                $query->where('payment_visa_status', 'success');
+            } elseif ($status === 'pending') {
+                // Pending = explicitly set to 'pending'
+                $query->where('payment_visa_status', 'pending');
+            } elseif ($status === 'unpaid') {
+                // Unpaid = null or empty (never attempted payment)
+                $query->where(function($q) {
+                    $q->whereNull('payment_visa_status')
+                      ->orWhere('payment_visa_status', '');
+                });
+            } elseif ($status === 'fail') {
+                $query->where(function($q) {
+                    $q->where('payment_visa_status', 'fail')
+                      ->orWhere('payment_visa_status', 'failed');
+                });
+            }
+        }
+
         if (!empty($filters['created_date_from'])) {
             $query->whereDate('created_at', '>=', $filters['created_date_from']);
         }

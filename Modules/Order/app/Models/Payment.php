@@ -3,12 +3,13 @@
 namespace Modules\Order\app\Models;
 
 use App\Models\BaseModel;
+use App\Models\Traits\HumanDates;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Payment extends BaseModel
 {
-    use HasFactory;
+    use HasFactory, HumanDates;
 
     protected $fillable = [
         'order_id',

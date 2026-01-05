@@ -113,7 +113,7 @@
                                 <div class="row g-3 align-items-end">
 
                                     {{-- Search --}}
-                                    <div class="col-md-2">
+                                    <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="search" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-search me-1"></i> {{ __('common.search') }}
@@ -126,7 +126,7 @@
                                     </div>
 
                                     {{-- Stage --}}
-                                    <div class="col-md-2">
+                                    <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="stage" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-check-circle me-1"></i>
@@ -142,7 +142,7 @@
                                     </div>
 
                                     {{-- Order Type --}}
-                                    <div class="col-md-2">
+                                    <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="payment_type" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-credit-card me-1"></i>
@@ -156,9 +156,26 @@
                                         </div>
                                     </div>
 
+                                    {{-- Payment Status --}}
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="payment_visa_status" class="il-gray fs-14 fw-500 mb-10">
+                                                <i class="uil uil-money-bill me-1"></i>
+                                                {{ trans('order::order.payment_status') }}
+                                            </label>
+                                            <select class="form-control form-select ih-medium ip-gray radius-xs b-light" id="payment_visa_status">
+                                                <option value="">{{ trans('order::order.all_payment_statuses') }}</option>
+                                                <option value="success">{{ trans('order::order.paid') }}</option>
+                                                <option value="pending">{{ trans('order::order.payment_pending') }}</option>
+                                                <option value="unpaid">{{ trans('order::order.unpaid') }}</option>
+                                                <option value="fail">{{ trans('order::order.payment_failed') }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
                                     @if(isAdmin())
                                         {{-- Vendor --}}
-                                        <div class="col-md-2">
+                                        <div class="col-md-3">
                                             <div class="form-group">
                                                 <x-multi-select 
                                                     name="vendor[]" 
@@ -174,7 +191,7 @@
                                     @endif
 
                                     {{-- Created From --}}
-                                    <div class="col-md-2">
+                                    <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="created_from_filter" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-calendar-alt me-1"></i>
@@ -187,7 +204,7 @@
                                     </div>
 
                                     {{-- Created Until --}}
-                                    <div class="col-md-2">
+                                    <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="created_until_filter" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-calendar-alt me-1"></i>
@@ -199,19 +216,27 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-12 d-flex align-items-center">
-                                        <button type="button" id="searchBtn"
-                                            class="btn btn-success btn-default btn-squared me-1"
-                                            title="{{ __('common.search') }}">
-                                            <i class="uil uil-search me-1"></i>
-                                            {{ __('common.search') }}
-                                        </button>
-                                        <button type="button" id="resetFilters"
-                                            class="btn btn-warning btn-default btn-squared me-1"
-                                            title="{{ __('common.reset') }}">
-                                            <i class="uil uil-redo me-1"></i>
-                                            {{ __('common.reset_filters') }}
-                                        </button>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="il-gray fs-14 fw-500 mb-10">
+                                                <i class="uil uil-setting me-1"></i>
+                                                {{ __('common.actions') }}
+                                            </label>
+                                            <div class="d-flex align-items-center">
+                                                <button type="button" id="searchBtn"
+                                                    class="btn btn-success btn-default btn-squared me-1"
+                                                    title="{{ __('common.search') }}">
+                                                    <i class="uil uil-search me-1"></i>
+                                                    {{ __('common.search') }}
+                                                </button>
+                                                <button type="button" id="resetFilters"
+                                                    class="btn btn-warning btn-default btn-squared me-1"
+                                                    title="{{ __('common.reset') }}">
+                                                    <i class="uil uil-redo me-1"></i>
+                                                    {{ __('common.reset') }}
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
 
                                 </div>
@@ -292,6 +317,7 @@
             if (urlParams.has('search')) $('#search').val(urlParams.get('search'));
             if (urlParams.has('stage')) $('#stage').val(urlParams.get('stage'));
             if (urlParams.has('payment_type')) $('#payment_type').val(urlParams.get('payment_type'));
+            if (urlParams.has('payment_visa_status')) $('#payment_visa_status').val(urlParams.get('payment_visa_status'));
             if (urlParams.has('vendor') && document.getElementById('vendor')) {
                 const vendorValues = urlParams.get('vendor').split(',');
                 MultiSelect.setValues('vendor', vendorValues);
@@ -561,6 +587,7 @@
                         }
                         d.created_date_from = $('#created_from_filter').val();
                         d.created_date_to = $('#created_until_filter').val();
+                        d.payment_visa_status = $('#payment_visa_status').val();
                         return d;
                     }
                 },
@@ -599,7 +626,7 @@
             });
 
             // Filter change handlers for select and date inputs
-            $('#stage, #payment_type, #created_from_filter, #created_until_filter').on('change', function() {
+            $('#stage, #payment_type, #payment_visa_status, #created_from_filter, #created_until_filter').on('change', function() {
                 table.ajax.reload();
                 updateUrlParams();
             });
@@ -609,6 +636,7 @@
                 $('#search').val('');
                 $('#stage').val('');
                 $('#payment_type').val('');
+                $('#payment_visa_status').val('');
                 if (document.getElementById('vendor')) {
                     MultiSelect.clear('vendor');
                 }
@@ -626,6 +654,7 @@
                 if ($('#search').val()) params.set('search', $('#search').val());
                 if ($('#stage').val()) params.set('stage', $('#stage').val());
                 if ($('#payment_type').val()) params.set('payment_type', $('#payment_type').val());
+                if ($('#payment_visa_status').val()) params.set('payment_visa_status', $('#payment_visa_status').val());
                 // Handle multiple vendor selection from multi-select component
                 if (document.getElementById('vendor')) {
                     const vendorValues = MultiSelect.getValues('vendor');

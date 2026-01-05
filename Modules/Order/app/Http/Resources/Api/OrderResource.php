@@ -29,6 +29,11 @@ class OrderResource extends JsonResource
             'payment_type' => $this->payment_type ?? '',
             'payment_reference' => $this->payment_reference ?? '',
             'payment_visa_status' => $this->payment_visa_status ?? '',
+            'paymob_order_id' => $this->whenLoaded('payments', function() {
+                // Get the paid payment first, otherwise get the latest one
+                $paidPayment = $this->payments->firstWhere('status', 'paid');
+                return $paidPayment?->paymob_order_id ?? $this->payments->first()?->paymob_order_id;
+            }),
             'items_count' => $this->items_count,
             'total_product_price' => (float) $this->total_product_price,
             'total_tax' => (float) $this->total_tax,
@@ -44,6 +49,7 @@ class OrderResource extends JsonResource
             'refunded' => (float) ($this->refunded_amount ?? 0),
             'vendors_stages' => $vendorsWithStages,
             'products' => OrderProductResource::collection($this->whenLoaded('products')),
+            'payments' => PaymentResource::collection($this->whenLoaded('payments')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

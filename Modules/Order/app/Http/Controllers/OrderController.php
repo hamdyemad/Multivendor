@@ -123,6 +123,7 @@ class OrderController extends Controller
                 'stage_id' => $request->stage ?? null,
                 'vendor_id' => $request->vendor ?? null,
                 'payment_type' => $request->payment_type ?? null,
+                'payment_visa_status' => $request->payment_visa_status ?? null,
             ];
 
             // Get total records count
@@ -467,6 +468,19 @@ class OrderController extends Controller
             $payments = \Modules\Order\app\Models\Payment::where('order_id', $id)
                 ->orderBy('created_at', 'desc')
                 ->get();
+            
+            // Sync order payment status if there's a paid payment but order shows pending
+            $hasPaidPayment = $payments->where('status', 'paid')->first();
+            if ($hasPaidPayment && $order->payment_visa_status !== 'success') {
+                \Modules\Order\app\Models\Order::withoutGlobalScopes()
+                    ->where('id', $id)
+                    ->update([
+                        'payment_visa_status' => 'success',
+                        'payment_reference' => $hasPaidPayment->transaction_id,
+                    ]);
+                $order->payment_visa_status = 'success';
+                $order->payment_reference = $hasPaidPayment->transaction_id;
+            }
             
             return view('order::orders.payments', compact('order', 'payments'));
         } catch (\Exception $e) {

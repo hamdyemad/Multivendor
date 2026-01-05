@@ -39,6 +39,7 @@ class ProductFilterDTO extends FilterDTO
         public ?string $paginated = null,
         public ?int $limit = null,
         public ?int $rate = null,
+        public ?string $variant = null,
     ) {}
 
     /**
@@ -67,7 +68,8 @@ class ProductFilterDTO extends FilterDTO
             per_page: $request->integer('per_page', 15),
             paginated: $request->input('paginated', null),
             limit: $request->integer('limit', null),
-            rate: $request->integer('rate', null)
+            rate: $request->integer('rate', null),
+            variant: $request->input('variant'),
         );
     }
 
@@ -94,6 +96,7 @@ class ProductFilterDTO extends FilterDTO
             'rate' => $this->rate,
             'limit' => $this->limit,
             'paginated' => $this->paginated,
+            'variant' => $this->variant,
         ], fn($value) => $value !== null);
     }
 

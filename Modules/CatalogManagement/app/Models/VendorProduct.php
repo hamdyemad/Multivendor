@@ -323,6 +323,25 @@ class VendorProduct extends BaseModel
             }
         }
 
+        // Variant filter - filter by variant configuration IDs (e.g., variant=1,2,3)
+        // Only returns products that have variants with the specified configuration IDs
+        if (!empty($filters['variant'])) {
+            $variantIds = is_array($filters['variant']) 
+                ? $filters['variant'] 
+                : explode(',', $filters['variant']);
+            
+            // Filter to only numeric IDs
+            $variantIds = array_filter(array_map('intval', $variantIds));
+            
+            if (!empty($variantIds)) {
+                $query->whereHas('variants', function ($q) use ($variantIds) {
+                    // Only match variants that have a configuration (not simple products)
+                    $q->whereNotNull('variant_configuration_id')
+                      ->whereIn('variant_configuration_id', $variantIds);
+                });
+            }
+        }
+
         if (!empty($filters['rate'])) {
             // Filter products where the average rating equals the requested rate
             $query->whereRaw(

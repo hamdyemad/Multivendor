@@ -31,6 +31,7 @@ return [
     'confirm' => 'Confirm',
     'yes' => 'Yes',
     'no' => 'No',
+    'digits' => 'digits',
     'ok' => 'Ok',
     'all' => 'All',
     'none' => 'None',

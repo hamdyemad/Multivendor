@@ -22,6 +22,7 @@ class CountryResource extends JsonResource
             'slug' => $this->slug,
             'default' => $this->default,
             'phone_code' => $this->phone_code,
+            'phone_length' => $this->phone_length,
             'image' => ($this->image) ? asset('storage/' . $this->image->path) : '',
             'currency' => CurrencyResource::make($this->whenLoaded('currency')),
             'active' => $this->active,

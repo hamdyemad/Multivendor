@@ -54,6 +54,7 @@ class CountryRepository implements CountryRepositoryInterface
             $country = Country::create([
                 'code' => $data['code'],
                 'phone_code' => $data['phone_code'] ?? null,
+                'phone_length' => $data['phone_length'] ?? null,
                 'currency_id' => $data['currency_id'],
                 'active' => $data['active'] ?? 0,
                 'default' => $data['default'] ?? 0,
@@ -101,6 +102,7 @@ class CountryRepository implements CountryRepositoryInterface
             $updatedData = [];
             (isset($data['code'])) ? $updatedData['code'] = $data['code'] : null;
             (isset($data['phone_code'])) ? $updatedData['phone_code'] = $data['phone_code'] : null;
+            (isset($data['phone_length'])) ? $updatedData['phone_length'] = $data['phone_length'] : null;
             (isset($data['currency_id'])) ? $updatedData['currency_id'] = $data['currency_id'] : null;
             if(isset($data['active'])) {
                 if($data['active'] == 1) {

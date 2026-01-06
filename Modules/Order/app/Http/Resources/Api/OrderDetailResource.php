@@ -55,7 +55,7 @@ class OrderDetailResource extends JsonResource
                 'total_tax' => (float) $this->total_tax,
                 'shipping' => (float) $this->shipping,
                 'extra_fees_discounts' => ExtraFeeDiscountResource::collection($this->whenLoaded('extraFeesDiscounts')),
-                'total_price' => (float) $this->total_price,
+                'total_price' => $this->calculateTotalPrice(),
             ],
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
@@ -112,5 +112,23 @@ class OrderDetailResource extends JsonResource
         }
         
         return round($total, 2);
+    }
+    
+    /**
+     * Calculate total price (products with tax + shipping - discounts)
+     */
+    private function calculateTotalPrice(): float
+    {
+        $totalProductsWithTax = 0;
+        
+        foreach ($this->products as $product) {
+            $totalProductsWithTax += (float) $product->price * $product->quantity;
+        }
+        
+        $shipping = (float) $this->shipping;
+        $promoDiscount = (float) ($this->customer_promo_code_amount ?? 0);
+        $pointsDiscount = (float) ($this->points_cost ?? 0);
+        
+        return round($totalProductsWithTax + $shipping - $promoDiscount - $pointsDiscount, 2);
     }
 }

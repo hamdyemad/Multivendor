@@ -5,6 +5,7 @@ namespace Modules\CatalogManagement\app\Http\Resources\Api;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Modules\Vendor\app\Http\Resources\Api\LightVendorResource;
+use App\Helpers\PointsHelper;
 
 class OccasionProductResource extends JsonResource
 {
@@ -30,6 +31,10 @@ class OccasionProductResource extends JsonResource
         $totalReviews = $vendorProduct->reviews_count ?? $vendorProduct->reviews()->count();
         $avgStar = $vendorProduct->reviews_avg_star ?? $vendorProduct->reviews()->avg('star') ?? 0;
 
+        // Calculate points based on price
+        $price = $this->special_price ?? $variant?->price ?? 0;
+        $points = PointsHelper::calculatePoints((float) $price);
+
         // Build variants array with the product nested inside
         $variants = [];
         if ($variant) {
@@ -43,7 +48,7 @@ class OccasionProductResource extends JsonResource
             'image' => formatImage($product->mainImage),
             'name' => $product->getTranslation('title', $locale) ?? $product->title,
             'slug' => $product->slug,
-            'points' => $vendorProduct->points ?? 0,
+            'points' => $points,
             'sku' => $vendorProduct->sku ?? $variant?->sku,
             'details' => $product->getTranslation('details', $locale) ?? '',
             'summary' => $product->getTranslation('summary', $locale) ?? '',

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Modules\SystemSetting\app\Resources\CurrencyResource;
 use Modules\CatalogManagement\app\Http\Resources\Api\TaxResource;
+use App\Helpers\PointsHelper;
 
 class SimpleProductResource extends JsonResource
 {
@@ -16,12 +17,16 @@ class SimpleProductResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        // Calculate points based on minimum variant price
+        $price = $this->variants?->min('price') ?? 0;
+        $points = PointsHelper::calculatePoints((float) $price);
+
         return [
             'id' => $this->id,
             'vendor_id' => $this->vendor_id,
             'product_id' => $this->product_id,
             'slug' => $this->product->slug,
-            'points' => $this->points ?? 0,
+            'points' => $points,
             'sku' => $this->sku,
             'star' => $this->average_rating ?? 0,
             'num_of_user_review' => $this->reviews_count ?? 0,

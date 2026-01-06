@@ -10,6 +10,7 @@ use Modules\CategoryManagment\app\Http\Resources\Api\LightDepartmentApiResource;
 use Modules\CategoryManagment\app\Http\Resources\Api\LightSubCategoryApiResource;
 use Modules\Vendor\app\Http\Resources\Api\LightVendorResource;
 use Modules\CatalogManagement\app\Http\Resources\Api\VendorProductVariantResource;
+use App\Helpers\PointsHelper;
 
 class VendorProductResource extends JsonResource
 {
@@ -24,12 +25,16 @@ class VendorProductResource extends JsonResource
         $totalReviews = $this->reviews_count ?? 0;
         $avgStar = $this->reviews_avg_star ?? 0;
 
+        // Calculate points based on minimum variant price
+        $price = $this->variants?->min('price') ?? 0;
+        $points = PointsHelper::calculatePoints((float) $price);
+
         return [
             'id' => $this->id,
             'vendor_id' => $this->vendor_id,
             'product_id' => $this->product_id,
             'slug' => $this->product?->slug,
-            'points' => $this->points ?? 0,
+            'points' => $points,
             'sku' => $this->sku,
             'reviews_count' => $totalReviews,
             'review_avg_star' => round($avgStar, 2),

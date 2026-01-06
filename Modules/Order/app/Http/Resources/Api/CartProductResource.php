@@ -4,6 +4,7 @@ namespace Modules\Order\app\Http\Resources\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Helpers\PointsHelper;
 
 class CartProductResource extends JsonResource
 {
@@ -23,12 +24,16 @@ class CartProductResource extends JsonResource
 
         $product = $this->vendorProduct->product;
 
+        // Calculate points based on price
+        $price = (float) ($this->price ?? 0);
+        $points = PointsHelper::calculatePoints($price);
+
         return [
             'id' => $product->id,
             'image' => formatImage($product->mainImage),
             'name' => $product->title,
             'slug' => $product->slug,
-            'points' => $this->vendorProduct->points ?? 0,
+            'points' => $points,
             'status' => $this->vendorProduct->is_featured ? __('catalogmanagement::product.featured') : __('catalogmanagement::product.active'),
             'is_fav' => false,
             'star' => $this->vendorProduct->average_rating ?? 0,

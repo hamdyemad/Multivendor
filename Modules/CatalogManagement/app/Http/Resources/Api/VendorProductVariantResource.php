@@ -18,10 +18,8 @@ class VendorProductVariantResource extends JsonResource
         
         // Build configuration object with tree structure
         $configuration = null;
-        $configurationTree = null;
         if ($this->variantConfiguration) {
             $configuration = $this->buildConfigurationTree($this->variantConfiguration, $locale);
-            $configurationTree = $this->buildFullKeyTree($this->variantConfiguration, $locale);
         }
 
         // Calculate price after taxes
@@ -62,7 +60,6 @@ class VendorProductVariantResource extends JsonResource
             'variant_value' => $this->variantConfiguration ? 
                 ($this->variantConfiguration->getTranslation('name', $locale) ?? ($this->variantConfiguration->name ?? $this->variantConfiguration->value)) : '',
             'configuration' => $configuration,
-            'configuration_tree' => $configurationTree,
             'vendor_name' => $vendorProduct ? 
                 ($vendorProduct->relationLoaded('vendor') && $vendorProduct->vendor ? $vendorProduct->vendor->name : null) : null,
             'price_before_taxes' => $this->formatPrice($priceBeforeTaxes),
@@ -123,7 +120,7 @@ class VendorProductVariantResource extends JsonResource
     }
     
     /**
-     * Build full key tree with all variants and mark selected
+     * Build full key tree with only product-related variants and mark selected
      */
     private function buildFullKeyTree($configuration, $locale): ?array
     {
@@ -135,9 +132,21 @@ class VendorProductVariantResource extends JsonResource
         $selectedId = $configuration->id;
         $selectedPath = $this->getSelectedPath($configuration);
         
-        // Load all variants under this key
+        // Get variant IDs that belong to this product
+        $vendorProduct = $this->vendorProduct;
+        $productVariantConfigIds = [];
+        
+        if ($vendorProduct && $vendorProduct->relationLoaded('variants')) {
+            $productVariantConfigIds = $vendorProduct->variants
+                ->pluck('variant_configuration_id')
+                ->filter()
+                ->toArray();
+        }
+        
+        // Load only variants under this key that are used by this product
         $variants = \Modules\CatalogManagement\app\Models\VariantsConfiguration::where('key_id', $key->id)
             ->whereNull('parent_id')
+            ->whereIn('id', $productVariantConfigIds)
             ->with(['childrenRecursive', 'childrenRecursive.key'])
             ->get();
         

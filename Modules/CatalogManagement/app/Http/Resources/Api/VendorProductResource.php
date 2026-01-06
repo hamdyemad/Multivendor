@@ -81,6 +81,9 @@ class VendorProductResource extends JsonResource
                 }
                 return VendorProductVariantResource::collection($variants);
             }),
+            'configuration_tree' => $this->when($this->relationLoaded('variants'), function() {
+                return $this->buildConfigurationTree();
+            }),
             'department' => $this->when($this->relationLoaded('product') && $this->product?->relationLoaded('department'), function() {
                 return LightDepartmentApiResource::make($this->product->department);
             }),
@@ -93,5 +96,90 @@ class VendorProductResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
+    }
+    
+    /**
+     * Build configuration tree with all keys and their variants for this product
+     */
+    private function buildConfigurationTree(): array
+    {
+        $locale = app()->getLocale();
+        $variants = $this->variants;
+        
+        if ($variants->isEmpty()) {
+            return [];
+        }
+        
+        // Build a map of configuration_id => variant data
+        $variantMap = [];
+        foreach ($variants as $variant) {
+            if ($variant->variant_configuration_id) {
+                $variantMap[$variant->variant_configuration_id] = $variant;
+            }
+        }
+        
+        if (empty($variantMap)) {
+            return [];
+        }
+        
+        // Get all unique configuration IDs from variants
+        $configIds = array_keys($variantMap);
+        
+        // Load configurations with their keys
+        $configurations = \Modules\CatalogManagement\app\Models\VariantsConfiguration::whereIn('id', $configIds)
+            ->with(['key', 'parent_data.key'])
+            ->get();
+        
+        // Get taxes for price calculation
+        $taxes = $this->taxes ?? collect();
+        $totalTaxPercentage = $taxes->sum('percentage');
+        $taxMultiplier = 1 + ($totalTaxPercentage / 100);
+        
+        // Group by key
+        $keyGroups = [];
+        foreach ($configurations as $config) {
+            $key = $config->key;
+            if (!$key) continue;
+            
+            if (!isset($keyGroups[$key->id])) {
+                $keyGroups[$key->id] = [
+                    'id' => $key->id,
+                    'name' => $key->getTranslation('name', $locale) ?? $key->name,
+                    'type' => 'key',
+                    'children' => [],
+                ];
+            }
+            
+            // Get variant data for this configuration
+            $variant = $variantMap[$config->id] ?? null;
+            $priceBeforeTax = $variant ? (float) $variant->price : 0;
+            $priceAfterTax = $priceBeforeTax * $taxMultiplier;
+            $fakePriceBeforeTax = $variant && $variant->price_before_discount ? (float) $variant->price_before_discount : null;
+            $fakePriceAfterTax = $fakePriceBeforeTax ? $fakePriceBeforeTax * $taxMultiplier : null;
+            
+            $keyGroups[$key->id]['children'][] = [
+                'id' => $config->id,
+                'name' => $config->getTranslation('name', $locale) ?? $config->name ?? $config->value,
+                'value' => $config->value,
+                'type' => $config->type,
+                'color' => $config->type === 'color' ? $config->value : null,
+                'key_id' => $config->key_id,
+                'parent_id' => $config->parent_id,
+                'variant' => $variant ? [
+                    'id' => $variant->id,
+                    'sku' => $variant->sku,
+                    'stock' => $variant->total_stock ?? 0,
+                    'remaining_stock' => $variant->remaining_stock ?? 0,
+                    'price_before_taxes' => number_format($priceBeforeTax, 2, '.', ''),
+                    'real_price' => number_format($priceAfterTax, 2, '.', ''),
+                    'fake_price' => $fakePriceAfterTax ? number_format($fakePriceAfterTax, 2, '.', '') : null,
+                    'discount' => $variant->discount,
+                    'quantity_in_cart' => $variant->quantity_in_cart,
+                    'cart_id' => $variant->cart_id,
+                ] : null,
+            ];
+        }
+        
+        return array_values($keyGroups);
     }
 }

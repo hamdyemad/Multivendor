@@ -26,6 +26,17 @@ class CreateOrder
 
         // Prepare order data
         $promoCode = $context['promo_code'] ?? null;
+        
+        // Map promo code type from promocodes table (percent/amount) to orders table (percentage/fixed)
+        $promoCodeType = null;
+        if ($promoCode?->type) {
+            $promoCodeType = match ($promoCode->type) {
+                'percent' => 'percentage',
+                'amount' => 'fixed',
+                default => $promoCode->type,
+            };
+        }
+        
         $orderData = [
             'customer_id' => $customer['id'],
             'customer_name' => $customer['name'],
@@ -46,8 +57,8 @@ class CreateOrder
             'city_id' => $customer['city_id'],
             'region_id' => $customer['region_id'],
             'customer_promo_code_title' => $promoCode?->code,
-            'customer_promo_code_value' => $promoCode?->discount_value,
-            'customer_promo_code_type' => $promoCode?->discount_type,
+            'customer_promo_code_value' => $promoCode?->value,
+            'customer_promo_code_type' => $promoCodeType,
             'customer_promo_code_amount' => $context['promo_code_discount'],
             'points_used' => $context['points_used'] ?? 0,
             'points_cost' => $context['points_cost'] ?? 0,

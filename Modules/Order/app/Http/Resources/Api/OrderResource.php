@@ -35,7 +35,7 @@ class OrderResource extends JsonResource
                 return $paidPayment?->paymob_order_id ?? $this->payments->first()?->paymob_order_id;
             }),
             'items_count' => $this->items_count,
-            'total_product_price' => (float) $this->total_product_price,
+            'total_product_price' => $this->calculateTotalProductPrice(),
             'total_tax' => (float) $this->total_tax,
             'total_fees' => (float) $this->total_fees,
             'total_discounts' => (float) $this->total_discounts,
@@ -43,7 +43,7 @@ class OrderResource extends JsonResource
             'points_used' => (float) ($this->points_used ?? 0),
             'points_cost' => (float) ($this->points_cost ?? 0),
             'points_discount_amount' => (float) ($this->points_cost ?? 0),
-            'total_price' => (float) $this->total_price,
+            'total_price' => $this->calculateTotalPrice(),
             'promo_code' => $this->customer_promo_code_title,
             'promo_discount' => $this->customer_promo_code_amount ? (float) $this->customer_promo_code_amount : 0,
             'refunded' => (float) ($this->refunded_amount ?? 0),
@@ -85,5 +85,43 @@ class OrderResource extends JsonResource
                 'points_share' => (float) ($vendorOrderStage?->points_share ?? 0),
             ];
         })->values()->toArray();
+    }
+    
+    /**
+     * Calculate total product price (price before tax - already includes quantity)
+     */
+    private function calculateTotalProductPrice(): float
+    {
+        $total = 0;
+        
+        foreach ($this->products as $product) {
+            $priceAfterTax = (float) $product->price;
+            $taxPercentage = $product->taxes->sum('percentage');
+            $priceBeforeTax = $taxPercentage > 0 
+                ? $priceAfterTax / (1 + ($taxPercentage / 100))
+                : $priceAfterTax;
+            
+            $total += $priceBeforeTax;
+        }
+        
+        return round($total, 2);
+    }
+    
+    /**
+     * Calculate total price (products with tax + shipping - discounts)
+     */
+    private function calculateTotalPrice(): float
+    {
+        $totalProductsWithTax = 0;
+        
+        foreach ($this->products as $product) {
+            $totalProductsWithTax += (float) $product->price;
+        }
+        
+        $shipping = (float) $this->shipping;
+        $promoDiscount = (float) ($this->customer_promo_code_amount ?? 0);
+        $pointsDiscount = (float) ($this->points_cost ?? 0);
+        
+        return round($totalProductsWithTax + $shipping - $promoDiscount - $pointsDiscount, 2);
     }
 }

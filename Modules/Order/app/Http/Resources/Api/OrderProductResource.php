@@ -44,7 +44,7 @@ class OrderProductResource extends JsonResource
             'commission' => (float) $this->commission,
             'shipping_cost' => (float) $this->shipping_cost,
             'taxes' => OrderProductTaxResource::collection($this->whenLoaded('taxes')),
-            'total' => round($price * $this->quantity, 2),
+            'total' => $price,
         ];
     }
 }

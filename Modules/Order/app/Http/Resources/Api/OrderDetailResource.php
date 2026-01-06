@@ -95,7 +95,7 @@ class OrderDetailResource extends JsonResource
     }
     
     /**
-     * Calculate total product price (price before tax × quantity)
+     * Calculate total product price (price before tax - already includes quantity)
      */
     private function calculateTotalProductPrice(): float
     {
@@ -108,7 +108,7 @@ class OrderDetailResource extends JsonResource
                 ? $priceAfterTax / (1 + ($taxPercentage / 100))
                 : $priceAfterTax;
             
-            $total += $priceBeforeTax * $product->quantity;
+            $total += $priceBeforeTax;
         }
         
         return round($total, 2);
@@ -122,7 +122,7 @@ class OrderDetailResource extends JsonResource
         $totalProductsWithTax = 0;
         
         foreach ($this->products as $product) {
-            $totalProductsWithTax += (float) $product->price * $product->quantity;
+            $totalProductsWithTax += (float) $product->price;
         }
         
         $shipping = (float) $this->shipping;

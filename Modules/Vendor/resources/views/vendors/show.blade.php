@@ -745,7 +745,7 @@
                                                                             @if($orderProduct->vendorProduct && $orderProduct->vendorProduct->product && $orderProduct->vendorProduct->product->mainImage)
                                                                                 <img src="{{ asset('storage/' . $orderProduct->vendorProduct->product->mainImage->path) }}" 
                                                                                     alt="{{ $productName }}" 
-                                                                                    class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                                                                    class="rounded" style="width: 50px; height: 50px;">
                                                                             @else
                                                                                 <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
                                                                                     <i class="uil uil-image text-muted"></i>

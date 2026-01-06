@@ -39,6 +39,6 @@ return [
     | Callback URLs
     |--------------------------------------------------------------------------
     */
-    'callback_url' => env('PAYMOB_CALLBACK_URL', 'https://663d66566a1d.ngrok-free.app/api/paymob/webhook'),
-    'webhook_url' => env('PAYMOB_WEBHOOK_URL', 'http://127.0.0.1:3001/paymob/call_back'),
+    'callback_url' => env('FRONT_END_URL') . '/paymob/call_back',
+    'webhook_url' => env('APP_URL') . '/api/paymob/webhook',
 ];

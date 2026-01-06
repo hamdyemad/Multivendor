@@ -71,7 +71,7 @@
                                                                     <img src="{{ asset('storage/' . $vendor->logo->path) }}" 
                                                                          alt="{{ $vendor->name }}"
                                                                          class="rounded"
-                                                                         style="width: 30px; height: 30px; object-fit: cover;">
+                                                                         style="width: 30px; height: 30px;">
                                                                 @else
                                                                     <div class="rounded d-flex align-items-center justify-content-center" 
                                                                          style="width: 30px; height: 30px; background: #fff;">
@@ -106,7 +106,7 @@
                                                 @endif
                                             </div>
                                         </div>
-                                        <div class="detail-row">
+                                        <div class="detail-row ">
                                             <span class="detail-label">{{ trans('order::order.order_from') }}:</span>
                                             <span class="detail-value">
                                                 @if ($order->order_from === 'web')
@@ -149,6 +149,96 @@
                                                 </a>
                                             </span>
                                         </div>
+                                        @endif
+                                        <hr class="my-15">
+                                        <h6 class="fw-bold mb-15 d-flex align-items-center justify-content-between">
+                                            <span>
+                                                <i class="uil uil-credit-card me-2" style="color: #5f63f2; font-size: 18px;"></i>
+                                                {{ trans('order::order.payment_information') }}
+                                            </span>
+                                        </h6>
+                                        <div class="detail-row mb-15">
+                                            <span class="detail-label">{{ trans('order::order.payment_type') }}:</span>
+                                            <span class="detail-value">
+                                                @if ($order->payment_type === 'cash_on_delivery')
+                                                    <x-protected-badge 
+                                                        color="#28a745"
+                                                        text="💵 {{ trans('order::order.cash_on_delivery') }}"
+                                                        size="md"
+                                                        id="payment-type-badge"
+                                                    />
+                                                @elseif($order->payment_type === 'visa')
+                                                    <x-protected-badge 
+                                                        color="#5f63f2"
+                                                        text="💳 {{ trans('order::order.visa') }}"
+                                                        size="md"
+                                                        id="payment-type-badge"
+                                                    />
+                                                @elseif($order->payment_type === 'online')
+                                                    <x-protected-badge 
+                                                        color="#17a2b8"
+                                                        text="🌐 {{ trans('order::order.online') }}"
+                                                        size="md"
+                                                        id="payment-type-badge"
+                                                    />
+                                                @else
+                                                    <x-protected-badge 
+                                                        color="#6c757d"
+                                                        :text="$order->payment_type ?? 'N/A'"
+                                                        size="md"
+                                                        id="payment-type-badge"
+                                                    />
+                                                @endif
+                                            </span>
+                                        </div>
+                                        @if($order->payment_type !== 'cash_on_delivery')
+                                        <div class="detail-row mb-15">
+                                            <span class="detail-label">{{ trans('order::order.payment_status') }}:</span>
+                                            <span class="detail-value">
+                                                @if ($order->payment_visa_status === 'paid' || $order->payment_visa_status === 'success')
+                                                    <x-protected-badge 
+                                                        color="#28a745"
+                                                        text="✓ {{ trans('order::order.paid') }}"
+                                                        size="md"
+                                                        id="payment-status-badge"
+                                                    />
+                                                @elseif($order->payment_visa_status === 'pending' || empty($order->payment_visa_status))
+                                                    <x-protected-badge 
+                                                        color="#ffc107"
+                                                        text="⏳ {{ trans('order::order.pending') }}"
+                                                        size="md"
+                                                        id="payment-status-badge"
+                                                    />
+                                                @elseif($order->payment_visa_status === 'failed')
+                                                    <x-protected-badge 
+                                                        color="#dc3545"
+                                                        text="✗ {{ trans('order::order.failed') }}"
+                                                        size="md"
+                                                        id="payment-status-badge"
+                                                    />
+                                                @else
+                                                    <x-protected-badge 
+                                                        color="#6c757d"
+                                                        :text="$order->payment_visa_status"
+                                                        size="md"
+                                                        id="payment-status-badge"
+                                                    />
+                                                @endif
+                                            </span>
+                                        </div>
+                                        @if($order->payment_reference)
+                                        <div class="detail-row">
+                                            <span class="detail-label">{{ trans('order::order.payment_reference') }}:</span>
+                                            <span class="detail-value">
+                                                <x-protected-badge 
+                                                    color="#5f63f2"
+                                                    :text="$order->payment_reference"
+                                                    size="md"
+                                                    id="payment-reference-badge"
+                                                />
+                                            </span>
+                                        </div>
+                                        @endif
                                         @endif
                                     </div>
                                 </div>
@@ -237,7 +327,7 @@
 
                         .detail-value {
                             color: #333;
-                            text-align: right;
+                            text-align: end;
                             flex: 1;
                         }
 

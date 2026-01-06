@@ -423,7 +423,7 @@
                                 const stageName = vendor.stage?.name || '-';
                                 const stageColor = vendor.stage?.color || '#6c757d';
                                 html += `<div class="mb-1 d-flex align-items-center">
-                                    <img src="${vendor.logo_url}" alt="${vendor.name}" style="width: 24px; height: 24px; border-radius: 50%; margin-right: 6px; object-fit: cover;">
+                                    <img src="${vendor.logo_url}" alt="${vendor.name}" style="width: 24px; height: 24px; border-radius: 50%; margin-right: 6px;">
                                     <span class="me-1" style="font-size: 12px; font-weight: 500;">${vendor.name}:</span>
                                     <span class="badge badge-round" style="background-color: ${stageColor}; color: white; font-size: 11px;">${stageName}</span>
                                 </div>`;

@@ -28,11 +28,7 @@ class PaymobService
     {
         // Generate unique reference: order_id + timestamp to avoid duplicates
         $uniqueReference = ($data['order_id'] ?? 'ORD') . '_' . time() . '_' . uniqid();
-        
-        $response = Http::withHeaders([
-            'Authorization' => 'Token ' . $this->secretKey,
-            'Content-Type' => 'application/json',
-        ])->post($this->baseUrl . '/intention/', [
+        $postData = [
             'amount' => $data['amount'],
             'currency' => 'EGP',
             'payment_methods' => [$this->getIntegrationId($data['method'])],
@@ -54,8 +50,12 @@ class PaymobService
             'special_reference' => $uniqueReference,
             'notification_url' => config('paymob.webhook_url'),
             'redirection_url' => config('paymob.callback_url'),
-        ]);
-
+        ];
+        $response = Http::withHeaders([
+            'Authorization' => 'Token ' . $this->secretKey,
+            'Content-Type' => 'application/json',
+        ])->post($this->baseUrl . '/intention/', $postData);
+        \Log::info($postData);
         if ($response->failed()) {
             $responseData = $response->json();
             Log::error('Paymob create payment intent failed', [

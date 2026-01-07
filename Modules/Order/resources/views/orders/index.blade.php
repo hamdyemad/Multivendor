@@ -925,7 +925,7 @@
                         if (typeof LoadingOverlay !== 'undefined') LoadingOverlay.hide();
                         bootstrap.Modal.getInstance(document.getElementById('vendorQuickStageModal')).hide();
                         toastr.success(response.message || '{{ trans("order::order.stage_updated_successfully") }}');
-                        
+                         
                         // Redirect to allocate page if stage is in_progress
                         if (targetType === 'in_progress') {
                             setTimeout(function() {

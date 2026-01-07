@@ -94,6 +94,7 @@
 <body>
     <div class="container">
         <div class="header">
+            <img src="{{ asset('assets/img/logo_en.png') }}" alt="{{ trans('customer.app_name') }}" style="max-width: 150px; height: auto; margin-bottom: 10px;">
             <h1>{{ trans('customer.app_name') }}</h1>
         </div>
 

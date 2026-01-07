@@ -78,6 +78,7 @@
 <body>
     <div class="container">
         <div class="header">
+            <img src="{{ asset('assets/img/logo_en.png') }}" alt="{{ trans('customer.app_name') }}" style="max-width: 150px; height: auto; margin-bottom: 10px;">
             <h1>{{ __('customer.welcome_email.greeting', ['name' => $customer->first_name]) }}</h1>
         </div>
 
@@ -85,7 +86,7 @@
             <p>{{ __('customer.welcome_email.thank_you', ['app_name' => trans('customer.app_name')]) }} {{ __('customer.welcome_email.account_created') }}</p>
 
             <center>
-                <a href="{{ url('/landing') }}" class="button">{{ __('customer.welcome_email.start_exploring') }}</a>
+                <a href="{{ env('FRONT_END_URL') }}" class="button">{{ __('customer.welcome_email.start_exploring') }}</a>
             </center>
 
             <h2>{{ __('customer.welcome_email.what_next') }}</h2>

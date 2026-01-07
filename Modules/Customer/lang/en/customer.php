@@ -111,7 +111,7 @@ return [
     // Validation messages
     'city_must_belong_to_country' => 'The selected city must belong to the selected country.',
     'region_must_belong_to_city' => 'The selected region must belong to the selected city.',
-    'phone_length_invalid' => 'Phone number must be exactly :length digits.',
+    'phone_length_invalid' => 'The Phone Number Should be related to the country',
 
     // OTP Email translations
     'otp_email' => [

@@ -136,3 +136,23 @@ Route::get('/switch-country/{countryCode}', function($countryCode) {
 
 
 
+
+// Preview email templates
+Route::get('/preview-email/welcome', function() {
+    $customer = new \Modules\Customer\app\Models\Customer([
+        'first_name' => 'John',
+        'last_name' => 'Doe',
+        'email' => 'john@example.com'
+    ]);
+    
+    return view('customer::emails.welcome', compact('customer'));
+});
+
+Route::get('/preview-email/otp', function() {
+    $otp = '123456';
+    $type = request('type', 'email_verification');
+    $expiresInMinutes = 10;
+    $verificationToken = 'sample-token-123456';
+    
+    return view('customer::emails.otp', compact('otp', 'type', 'expiresInMinutes', 'verificationToken'));
+});

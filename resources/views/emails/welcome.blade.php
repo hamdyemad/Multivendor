@@ -215,6 +215,7 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
+            <img src="{{ asset('assets/img/logo_en.png') }}" alt="{{ $appName }}" style="max-width: 180px; height: auto; margin-bottom: 15px;">
             <h1>{{ $appName }}</h1>
             <p>{{ __('customer.welcome_email.thank_you', ['app_name' => $appName]) }}</p>
         </div>

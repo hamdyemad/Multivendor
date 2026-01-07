@@ -25,8 +25,7 @@
         }
 
         header {
-            background: linear-gradient(135deg, #0056b7 0%, #cb1037 100%);
-            color: white;
+            color: #0056b7;
             padding: 40px 20px;
             text-align: center;
             border-radius: 8px;
@@ -182,6 +181,7 @@
     <div class="container">
         <!-- Header -->
         <header>
+            <img src="{{ asset('assets/img/logo_en.png') }}" alt="Bnaia" style="max-width: 200px; height: auto; margin-bottom: 15px;">
             <h1>Bnaia</h1>
             <p>{{ __('Welcome to our platform') }}</p>
         </header>
@@ -231,10 +231,10 @@
 
             <!-- Call to Action -->
             <div class="cta-buttons">
-                <a href="https://frontmultivendor.bnaia.com/" class="btn btn-primary">
+                <a href="{{ env('FRONT_END_URL') }}/ar/auth/sign-in" class="btn btn-primary">
                     {{ __('Log In to Your Account') }}
                 </a>
-                <a href="https://frontmultivendor.bnaia.com/" class="btn btn-secondary">
+                <a href="{{ env('FRONT_END_URL') }}" class="btn btn-secondary">
                     {{ __('Continue Browsing') }}
                 </a>
             </div>

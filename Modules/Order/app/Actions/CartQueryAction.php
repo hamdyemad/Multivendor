@@ -19,7 +19,9 @@ class CartQueryAction
                 'vendorProduct.product.subCategory',
                 'vendorProduct.vendor',
                 'vendorProduct.taxes',
-                'vendorProductVariant',
+                'vendorProduct.variants',
+                'vendorProductVariant.variantConfiguration.key',
+                'vendorProductVariant.variantConfiguration.parent_data.key',
                 'bundle.bundleProducts',
                 'occasion.occasionProducts'
             ])

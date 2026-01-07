@@ -16,7 +16,8 @@ class OrderQueryAction
             ->with([
                 'products', 
                 'products.vendorProduct', 
-                'products.vendorProductVariant',
+                'products.vendorProductVariant.variantConfiguration.key',
+                'products.vendorProductVariant.variantConfiguration.parent_data.key',
                 'products.stage' => function($q) {
                     $q->withoutGlobalScopes();
                 },

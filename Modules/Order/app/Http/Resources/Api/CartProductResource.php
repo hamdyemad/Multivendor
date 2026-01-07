@@ -5,9 +5,12 @@ namespace Modules\Order\app\Http\Resources\Api;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Helpers\PointsHelper;
+use Modules\Order\app\Traits\HasVariantConfigurationTree;
 
 class CartProductResource extends JsonResource
 {
+    use HasVariantConfigurationTree;
+    
     /**
      * Transform the resource into an array.
      *
@@ -64,6 +67,16 @@ class CartProductResource extends JsonResource
             'sku' => $this->sku ?? null,
             'variant_id' => $this->id,
             'variant_name' => $this->{"variant_path_{$locale}"} ?? '',
+            'variant_sku' => $this->sku ?? null,
+            'variant_stock' => $this->total_stock ?? 0,
+            'variant_remaining_stock' => $this->remaining_stock ?? 0,
+            'variant_price_before_taxes' => round($priceBeforeTaxes, 2),
+            'variant_real_price' => round($priceAfterTaxes, 2),
+            'variant_fake_price' => $fakePriceAfterTaxes ? round($fakePriceAfterTaxes, 2) : null,
+            'variant_discount' => $this->discount ?? 0,
+            'configuration_tree' => $this->when($this->relationLoaded('variantConfiguration') && $this->variantConfiguration, function() use ($locale) {
+                return $this->buildVariantConfigurationTree($this->variantConfiguration, $this->id, $locale);
+            }),
             'price_before_taxes' => round($priceBeforeTaxes, 2),
             'real_price' => round($priceAfterTaxes, 2),
             'fake_price' => $fakePriceAfterTaxes ? round($fakePriceAfterTaxes, 2) : null,

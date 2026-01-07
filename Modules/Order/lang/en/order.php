@@ -87,6 +87,15 @@ return [
     'no_available_stages' => 'No available stages to transition to',
     'no_products_with_stages' => 'No products with stages found',
     'cannot_skip_steps' => 'Cannot skip steps. Please follow the order workflow sequence.',
+    'stage_not_found' => 'Stage not found',
+    'confirm_stage_change' => 'Are you sure you want to change the order stage?',
+    'confirm_in_progress' => 'Are you sure you want to mark this order as In Progress?',
+    'confirm_deliver' => 'Are you sure you want to mark this order as Delivered?',
+    'confirm_cancel' => 'Are you sure you want to cancel this order?',
+    'mark_in_progress' => 'Mark In Progress',
+    'mark_delivered' => 'Mark Delivered',
+    'cancel_order' => 'Cancel Order',
+    'change_stage' => 'Change Stage',
 
     // Payment Types
     'cash_on_delivery' => 'Cash on Delivery',

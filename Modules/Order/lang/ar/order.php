@@ -87,6 +87,15 @@ return [
     'no_available_stages' => 'لا توجد مراحل متاحة للانتقال إليها',
     'no_products_with_stages' => 'لم يتم العثور على منتجات بمراحل',
     'cannot_skip_steps' => 'لا يمكن تخطي المراحل. يرجى اتباع تسلسل سير العمل.',
+    'stage_not_found' => 'المرحلة غير موجودة',
+    'confirm_stage_change' => 'هل أنت متأكد من تغيير مرحلة الطلب؟',
+    'confirm_in_progress' => 'هل أنت متأكد من تحويل هذا الطلب إلى قيد التنفيذ؟',
+    'confirm_deliver' => 'هل أنت متأكد من تسليم هذا الطلب؟',
+    'confirm_cancel' => 'هل أنت متأكد من إلغاء هذا الطلب؟',
+    'mark_in_progress' => 'تحويل لقيد التنفيذ',
+    'mark_delivered' => 'تسليم الطلب',
+    'cancel_order' => 'إلغاء الطلب',
+    'change_stage' => 'تغيير المرحلة',
 
     // Payment Types
     'cash_on_delivery' => 'الدفع عند الاستلام',

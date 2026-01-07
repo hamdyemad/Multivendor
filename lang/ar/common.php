@@ -19,6 +19,8 @@ return [
     'please_wait' => 'يرجى الانتظار',
     'redirecting' => 'جاري التوجيه',
     'cancel' => 'إلغاء',
+    'confirm' => 'تأكيد',
+    'confirm_action' => 'تأكيد الإجراء',
     'back' => 'رجوع',
     'search' => 'بحث',
     'filter' => 'تصفية',

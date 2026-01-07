@@ -16,6 +16,8 @@ return [
     'redirecting' => 'Redirecting',
     'stock' => 'Stock',
     'cancel' => 'Cancel',
+    'confirm' => 'Confirm',
+    'confirm_action' => 'Confirm Action',
     'back' => 'Back',
     'search' => 'Search',
     'filter' => 'Filter',

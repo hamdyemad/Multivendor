@@ -610,13 +610,18 @@
                                 // Calculate price before tax
                                 $prodTotalBeforeTax = $prodTotalWithTax - $prodTax;
                                 
-                                // Commission is stored directly (calculated from price with tax)
-                                $commAmount = $prod->commission;
+                                // Get shipping cost for this product
+                                $prodShippingCost = $prod->shipping_cost ?? 0;
+                                
+                                // Commission is stored as percentage, calculate the amount
+                                $commPercent = $prod->commission > 0 ? $prod->commission : ($prod->vendorProduct?->product?->department?->commission ?? 0);
+                                $prodTotalWithShipping = $prodTotalWithTax + $prodShippingCost;
+                                $commAmount = ($prodTotalWithShipping * $commPercent) / 100;
                                 
                                 $totalProductsPriceBeforeTax += $prodTotalBeforeTax;
                                 $totalProductsTax += $prodTax;
                                 $totalCommission += $commAmount;
-                                $totalRemaining += ($prodTotalWithTax - $commAmount);
+                                $totalRemaining += ($prodTotalWithShipping - $commAmount);
                             }
                             
                             // Total with tax for vendor remaining calculation
@@ -697,6 +702,17 @@
                                             <div class="summary-row" style="font-size: 18px;">
                                                 <span class="fw-bold">{{ trans('order::order.total') }}</span>
                                                 <span class="fw-bold" style="color: #5f63f2;">{{ number_format($order->total_price, 2) }}
+                                                    {{ currency() }}</span>
+                                            </div>
+                                            <hr style="border-color: rgba(0,0,0,0.1); margin: 15px 0;">
+                                            <div class="summary-row mb-12" style="font-size: 16px;">
+                                                <span class="fw-bold">{{ trans('order::order.bnaia_commission') }}</span>
+                                                <span class="fw-bold" style="color: #dc3545;">{{ number_format($totalCommission, 2) }}
+                                                    {{ currency() }}</span>
+                                            </div>
+                                            <div class="summary-row" style="font-size: 16px;">
+                                                <span class="fw-bold">{{ trans('order::order.remaining') }}</span>
+                                                <span class="fw-bold" style="color: #28a745;">{{ number_format($totalRemaining, 2) }}
                                                     {{ currency() }}</span>
                                             </div>
                                         </div>

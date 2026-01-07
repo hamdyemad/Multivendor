@@ -220,6 +220,13 @@ class ReportRepository implements ReportRepositoryInterface
      */
     public function getOrdersReport(ReportFilterDTO $filter): array
     {
+        $isVendor = isVendor();
+        $vendorId = null;
+        if ($isVendor) {
+            $vendor = auth()->user()->vendor;
+            $vendorId = $vendor ? $vendor->id : null;
+        }
+
         $query = Order::withoutCountryFilter();
 
         // Apply country filter manually with qualified table name
@@ -232,29 +239,33 @@ class ReportRepository implements ReportRepositoryInterface
         }
 
         // If user is vendor, filter to show only their orders
-        if (isVendor()) {
-            $vendor = auth()->user()->vendor;
-            if ($vendor) {
-                $query->whereHas('products', function ($q) use ($vendor) {
-                    $q->where('vendor_id', $vendor->id);
-                });
-            } else {
-                // If vendor user but no vendor record, return empty results
-                $query->whereRaw('1 = 0');
-            }
+        if ($isVendor && $vendorId) {
+            $query->whereHas('products', function ($q) use ($vendorId) {
+                $q->where('vendor_id', $vendorId);
+            });
+        } elseif ($isVendor) {
+            // If vendor user but no vendor record, return empty results
+            $query->whereRaw('1 = 0');
         }
 
         // Date range filter
         if ($filter->from) {
-            $query->whereDate('created_at', '>=', $filter->from);
+            $query->whereDate('orders.created_at', '>=', $filter->from);
         }
         if ($filter->to) {
-            $query->whereDate('created_at', '<=', $filter->to);
+            $query->whereDate('orders.created_at', '<=', $filter->to);
         }
 
-        // Stage filter - use stage_id instead of status
+        // Stage filter - for vendors, filter by vendor_order_stages
         if ($filter->type) {
-            $query->where('stage_id', $filter->type);
+            if ($isVendor && $vendorId) {
+                $query->whereHas('vendorStages', function ($q) use ($filter, $vendorId) {
+                    $q->where('vendor_id', $vendorId)
+                      ->where('stage_id', $filter->type);
+                });
+            } else {
+                $query->where('stage_id', $filter->type);
+            }
         }
 
         // Search filter (by order number or customer name)
@@ -272,36 +283,35 @@ class ReportRepository implements ReportRepositoryInterface
 
         $total = $query->count();
 
-        // Get all data for charts before pagination
+        // Get all data for charts before pagination (without ordering to avoid GROUP BY issues)
         $allData = clone $query;
 
-        // Calculate stage distribution
-        $stageDistribution = $allData->clone()
-            ->join('order_stages', 'orders.stage_id', '=', 'order_stages.id')
-            ->leftJoin('translations as stage_trans', function($join) {
-                $join->on('order_stages.id', '=', 'stage_trans.translatable_id')
-                     ->where('stage_trans.translatable_type', '=', 'Modules\\Order\\app\\Models\\OrderStage')
-                     ->where('stage_trans.lang_key', '=', 'name');
-            })
-            ->leftJoin('languages', function($join) {
-                $join->on('stage_trans.lang_id', '=', 'languages.id')
-                     ->where('languages.code', '=', app()->getLocale());
-            })
-            ->select(
-                'order_stages.type',
-                \DB::raw('COALESCE(stage_trans.lang_value, order_stages.slug) as stage_name'),
-                \DB::raw('COUNT(orders.id) as count')
-            )
-            ->groupBy('order_stages.type', 'order_stages.id', 'stage_trans.lang_value', 'order_stages.slug')
-            ->get()
-            ->groupBy('type')
-            ->map(function($stages) {
-                return $stages->sum('count');
-            })
-            ->toArray();
+        // Calculate stage distribution based on user type
+        if ($isVendor && $vendorId) {
+            // For vendors, use vendor_order_stages
+            $stageDistribution = \DB::table('vendor_order_stages')
+                ->join('order_stages', 'vendor_order_stages.stage_id', '=', 'order_stages.id')
+                ->whereIn('vendor_order_stages.order_id', $allData->clone()->pluck('orders.id'))
+                ->where('vendor_order_stages.vendor_id', $vendorId)
+                ->select('order_stages.type', \DB::raw('COUNT(*) as count'))
+                ->groupBy('order_stages.type')
+                ->get()
+                ->pluck('count', 'type')
+                ->toArray();
+        } else {
+            $stageDistribution = $allData->clone()
+                ->join('order_stages', 'orders.stage_id', '=', 'order_stages.id')
+                ->select('order_stages.type', \DB::raw('COUNT(orders.id) as count'))
+                ->groupBy('order_stages.type')
+                ->get()
+                ->pluck('count', 'type')
+                ->toArray();
+        }
 
-        // Calculate orders trend (by date)
-        $ordersTrend = $allData->clone()
+        // Calculate orders trend (by date) - use raw query to avoid GROUP BY issues
+        $orderIds = $allData->clone()->pluck('orders.id');
+        $ordersTrend = \DB::table('orders')
+            ->whereIn('id', $orderIds)
             ->selectRaw('DATE(created_at) as date, COUNT(id) as count')
             ->groupByRaw('DATE(created_at)')
             ->orderBy('date')
@@ -309,25 +319,45 @@ class ReportRepository implements ReportRepositoryInterface
             ->pluck('count', 'date')
             ->toArray();
 
-        // Calculate completed and pending counts
-        $completedCount = $allData->clone()
-            ->join('order_stages', 'orders.stage_id', '=', 'order_stages.id')
-            ->where('order_stages.type', 'deliver')
-            ->count();
+        // Calculate completed and pending counts based on user type
+        if ($isVendor && $vendorId) {
+            $completedCount = \DB::table('vendor_order_stages')
+                ->join('order_stages', 'vendor_order_stages.stage_id', '=', 'order_stages.id')
+                ->whereIn('vendor_order_stages.order_id', $orderIds)
+                ->where('vendor_order_stages.vendor_id', $vendorId)
+                ->where('order_stages.type', 'deliver')
+                ->count();
 
-        $pendingCount = $allData->clone()
-            ->join('order_stages', 'orders.stage_id', '=', 'order_stages.id')
-            ->whereIn('order_stages.type', ['new', 'in_progress'])
-            ->count();
+            $pendingCount = \DB::table('vendor_order_stages')
+                ->join('order_stages', 'vendor_order_stages.stage_id', '=', 'order_stages.id')
+                ->whereIn('vendor_order_stages.order_id', $orderIds)
+                ->where('vendor_order_stages.vendor_id', $vendorId)
+                ->whereIn('order_stages.type', ['new', 'in_progress'])
+                ->count();
+        } else {
+            $completedCount = \DB::table('orders')
+                ->join('order_stages', 'orders.stage_id', '=', 'order_stages.id')
+                ->whereIn('orders.id', $orderIds)
+                ->where('order_stages.type', 'deliver')
+                ->count();
 
-        $isVendor = isVendor();
-        $vendorId = null;
-        if ($isVendor) {
-            $vendor = auth()->user()->vendor;
-            $vendorId = $vendor ? $vendor->id : null;
+            $pendingCount = \DB::table('orders')
+                ->join('order_stages', 'orders.stage_id', '=', 'order_stages.id')
+                ->whereIn('orders.id', $orderIds)
+                ->whereIn('order_stages.type', ['new', 'in_progress'])
+                ->count();
         }
 
-        $data = $query->with(['customer', 'stage', 'products'])
+        // Now add ordering for pagination
+        $query->orderBy('orders.created_at', 'desc');
+
+        // Load relationships based on user type
+        $relationships = ['customer', 'stage', 'products'];
+        if ($isVendor && $vendorId) {
+            $relationships[] = 'vendorStages.stage';
+        }
+
+        $data = $query->with($relationships)
             ->paginate(
                 perPage: $filter->per_page,
                 page: $filter->page
@@ -342,23 +372,33 @@ class ReportRepository implements ReportRepositoryInterface
                 $customerName = trim(($order->customer->first_name ?? '') . ' ' . ($order->customer->last_name ?? '')) ?: 'N/A';
             }
             
-            // Calculate total based on user type
+            // Calculate total and get stage based on user type
             $orderTotal = $order->total_price;
+            $stageName = $order->stage ? $order->stage->name : 'N/A';
+            $stageType = $order->stage ? $order->stage->type : null;
+            
             if ($isVendor && $vendorId) {
-                // For vendors, show only their products total (price * quantity)
-                $orderTotal = $order->products
-                    ->where('vendor_id', $vendorId)
-                    ->sum(function ($product) {
-                        return $product->price * $product->quantity;
-                    });
+                // For vendors, show only their products total + shipping
+                $vendorProducts = $order->products->where('vendor_id', $vendorId);
+                // Note: price field already contains total (unit_price * quantity)
+                $productsTotal = $vendorProducts->sum('price');
+                $shippingTotal = $vendorProducts->sum('shipping_cost');
+                $orderTotal = $productsTotal + $shippingTotal;
+                
+                // Get vendor's stage from vendor_order_stages
+                $vendorStage = $order->vendorStages->where('vendor_id', $vendorId)->first();
+                if ($vendorStage && $vendorStage->stage) {
+                    $stageName = $vendorStage->stage->name;
+                    $stageType = $vendorStage->stage->type;
+                }
             }
             
             $transformedItems[] = [
                 'index' => ($filter->page - 1) * $filter->per_page + $index + 1,
                 'order_number' => $order->order_number,
                 'customer_name' => $customerName,
-                'stage' => $order->stage ? $order->stage->name : 'N/A',
-                'stage_type' => $order->stage ? $order->stage->type : null,
+                'stage' => $stageName,
+                'stage_type' => $stageType,
                 'total' => $orderTotal,
                 'created_at' => $order->created_at,
             ];

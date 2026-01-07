@@ -23,7 +23,6 @@ class CartResource extends JsonResource
         
         return [
             'id' => $this->id,
-            'quantity' => $this->quantity,
             'product' => CartProductResource::make($this->vendorProductVariant),
             'type' => $this->type,
             'bundle' => ($this->bundle && $this->type === "bundle") ? new SimpleBundleResource($this->bundle) : null,
@@ -31,8 +30,10 @@ class CartResource extends JsonResource
             'limitation' => $limit[0],
             'min' => $limit[1],
             'price_before_taxes' => round($prices['before_tax'], 2),
-            'price' => round($prices['after_tax'], 2),
             'taxes' => TaxResource::collection($this->vendorProduct->taxes),
+            'price_after_taxes' => round($prices['after_tax'], 2),
+            'quantity' => $this->quantity,
+            'total' => $this->quantity * round($prices['after_tax'], 2),
         ];
     }
 

@@ -38,13 +38,22 @@ class OrderProductResource extends JsonResource
                 'sku' => $this->vendorProductVariant?->sku,
                 'name' => $this->vendorProductVariant?->{"variant_path_" . app()->getLocale()},
             ],
+            'unit_price_without_taxes' => round($priceBeforeTax / $this->quantity, 2),
+            'taxes' => $this->taxes ? $this->taxes->map(function ($tax) {
+                return [
+                    'id' => $tax->id,
+                    'tax_id' => $tax->tax_id,
+                    'tax_name' => $tax->tax?->name,
+                    'percentage' => (float) $tax->percentage,
+                    'amount' => round((float) $tax->amount / $this->quantity, 2),
+                ];
+            }) : [],
+            'unit_price_after_taxes' => round($price / $this->quantity, 2),
             'quantity' => $this->quantity,
-            'price_before_taxes' => round($priceBeforeTax, 2),
-            'price' => $price,
-            'commission' => (float) $this->commission,
-            'shipping_cost' => (float) $this->shipping_cost,
-            'taxes' => OrderProductTaxResource::collection($this->whenLoaded('taxes')),
+            // 'price_before_taxes' => round($priceBeforeTax, 2),
             'total' => $price,
+            // 'shipping_cost' => (float) $this->shipping_cost,
+            // 'commission' => (float) $this->commission,
         ];
     }
 }

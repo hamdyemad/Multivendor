@@ -75,7 +75,8 @@ class VendorProductResource extends JsonResource
             'taxes' => TaxResource::collection($this->whenLoaded('taxes')),
             'variants' => $this->when($this->relationLoaded('variants'), function() {
                 // Set vendorProduct relation on each variant so it can access taxes
-                $variants = $this->variants;
+                // Sort by price descending (highest price first)
+                $variants = $this->variants->sortByDesc('price')->values();
                 foreach ($variants as $variant) {
                     $variant->setRelation('vendorProduct', $this->resource);
                 }
@@ -177,7 +178,20 @@ class VendorProductResource extends JsonResource
                     'quantity_in_cart' => $variant->quantity_in_cart,
                     'cart_id' => $variant->cart_id,
                 ] : null,
+                '_price' => $priceBeforeTax, // for sorting
             ];
+        }
+        
+        // Sort children by price descending (highest first)
+        foreach ($keyGroups as &$group) {
+            usort($group['children'], function ($a, $b) {
+                return ($b['_price'] ?? 0) <=> ($a['_price'] ?? 0);
+            });
+            // Remove _price helper field
+            $group['children'] = array_map(function ($child) {
+                unset($child['_price']);
+                return $child;
+            }, $group['children']);
         }
         
         return array_values($keyGroups);

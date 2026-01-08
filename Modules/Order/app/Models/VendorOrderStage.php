@@ -7,6 +7,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class VendorOrderStage extends BaseModel
 {
+    /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+        static::observe(\Modules\Order\app\Observers\VendorOrderStageObserver::class);
+    }
+
     protected $fillable = [
         'order_id',
         'vendor_id',

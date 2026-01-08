@@ -33,6 +33,22 @@ class PointsHelper
             return 0;
         }
 
+        return self::calculatePointsByCurrency($price, $currencyId);
+    }
+
+    /**
+     * Calculate points based on price and currency ID
+     * 
+     * @param float $price The price to calculate points for
+     * @param int $currencyId The currency ID
+     * @return int The calculated points
+     */
+    public static function calculatePointsByCurrency(float $price, int $currencyId): int
+    {
+        if ($price <= 0 || !$currencyId) {
+            return 0;
+        }
+
         // Get points setting for this currency
         $pointsSetting = PointsSetting::where('currency_id', $currencyId)
             ->where('is_active', true)

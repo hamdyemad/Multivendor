@@ -23,7 +23,7 @@ class OrderRepository implements OrderRepositoryInterface
 
         $query->with(['customer', 'products.stage' => function($q) {
                 $q->withoutGlobalScopes();
-            }, 'products.vendorProduct.vendor'])
+            }, 'products.vendorProduct.vendor', 'requestQuotation'])
             ->with(['stage' => function($q) {
                 $q->withoutGlobalScopes();
             }])
@@ -403,15 +403,17 @@ class OrderRepository implements OrderRepositoryInterface
      *
      * @param Order $order
      * @param array $fees Array of fee data
-     * @param array $discounts Array of discount data
+     * @param string $type Type: 'fee' or 'discount'
+     * @param int|null $vendorId If set, assign to specific vendor. If null, shared among all vendors.
      * @return void
      */
-    public function syncOrderExtras(Order $order, array $fees, string $type): void
+    public function syncOrderExtras(Order $order, array $fees, string $type, ?int $vendorId = null): void
     {
-        // Create fee records
+        // Create fee/discount records
         foreach ($fees as $fee) {
             OrderExtraFeeDiscount::create([
                 'order_id' => $order->id,
+                'vendor_id' => $vendorId, // null if admin created (shared), vendor_id if vendor created
                 'cost' => $fee['amount'],
                 'reason' => $fee['reason'],
                 'type' => $type,

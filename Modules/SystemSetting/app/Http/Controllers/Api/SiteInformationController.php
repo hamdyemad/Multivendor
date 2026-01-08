@@ -29,6 +29,31 @@ class SiteInformationController extends Controller
     public function index()
     {
         $siteInformation = SiteInformation::first();
+        
+        if (!$siteInformation) {
+            return $this->sendRes(__('main.success'), true, [
+                'id' => null,
+                'address' => '',
+                'facebook_url' => '',
+                'linkedin_url' => '',
+                'twitter_url' => '',
+                'instagram_url' => '',
+                'phone_1' => '',
+                'phone_2' => '',
+                'email' => '',
+                'google_maps_url' => '',
+                'return_policy' => '',
+                'service_terms' => '',
+                'privacy_and_policy' => '',
+                'terms_and_conditions' => [
+                    'title' => '',
+                    'description' => '',
+                ],
+                'created_at' => null,
+                'updated_at' => null,
+            ]);
+        }
+        
         return $this->sendRes(__('main.success'), true, new SiteInformationResource($siteInformation));
     }
 

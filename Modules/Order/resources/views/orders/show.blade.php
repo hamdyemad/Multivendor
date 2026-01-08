@@ -552,28 +552,57 @@
                                     <thead class="userDatatable-header" style="background-color: #003d82; color: white;">
                                         <tr>
                                             <th class="text-white fw-bold">{{ trans('order::order.type') }}</th>
+                                            <th class="text-white fw-bold">{{ trans('order::order.vendor') }}</th>
                                             <th class="text-white fw-bold">{{ trans('order::order.reason') }}</th>
                                             <th class="text-white fw-bold text-end">{{ trans('order::order.amount') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($order->extraFeesDiscounts as $extra)
+                                        @php
+                                            // Filter extras based on user type
+                                            $extrasToDisplay = $order->extraFeesDiscounts;
+                                            if (isset($isVendorUser) && $isVendorUser && isset($currentVendorId)) {
+                                                // Vendor: show only their extras
+                                                $extrasToDisplay = $extrasToDisplay->where('vendor_id', $currentVendorId);
+                                            }
+                                        @endphp
+                                        @foreach ($extrasToDisplay as $extra)
                                             <tr>
                                                 <td>
                                                     @if ($extra->type === 'fee')
                                                         <x-protected-badge 
-                                                            color="#dc3545"
+                                                            color="#28a745"
                                                             :text="trans('order::order.fee')"
                                                             size="lg"
                                                             :id="'extra-' . $extra->id"
                                                         />
                                                     @else
                                                         <x-protected-badge 
-                                                            color="#28a745"
+                                                            color="#dc3545"
                                                             :text="trans('order::order.discount')"
                                                             size="lg"
                                                             :id="'extra-' . $extra->id"
                                                         />
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if($extra->vendor)
+                                                        <div class="d-flex align-items-center gap-2 justify-content-center">
+                                                            @if($extra->vendor->logo)
+                                                                <img src="{{ asset('storage/' . $extra->vendor->logo->path) }}" 
+                                                                     alt="{{ $extra->vendor->name }}"
+                                                                     class="rounded"
+                                                                     style="width: 24px; height: 24px;">
+                                                            @else
+                                                                <div class="rounded d-flex align-items-center justify-content-center" 
+                                                                     style="width: 24px; height: 24px; background: #f0f0f0;">
+                                                                    <i class="uil uil-store text-muted" style="font-size: 14px;"></i>
+                                                                </div>
+                                                            @endif
+                                                            <span>{{ $extra->vendor->getTranslation('name', app()->getLocale()) }}</span>
+                                                        </div>
+                                                    @else
+                                                        <span class="text-muted">-</span>
                                                     @endif
                                                 </td>
                                                 <td>{{ $extra->reason }}</td>
@@ -792,6 +821,24 @@
 
                         @if(isset($isVendorUser) && $isVendorUser && isset($vendorProductTotal))
                             {{-- Vendor view: show Vendor Remaining Summary with products inside --}}
+                            @php
+                                // Get vendor-specific fees and discounts (already distributed and stored with vendor_id)
+                                $vendorFees = \Modules\Order\app\Models\OrderExtraFeeDiscount::where('order_id', $order->id)
+                                    ->where('vendor_id', $currentVendorId)
+                                    ->where('type', 'fee')
+                                    ->sum('cost');
+                                
+                                $vendorDiscounts = \Modules\Order\app\Models\OrderExtraFeeDiscount::where('order_id', $order->id)
+                                    ->where('vendor_id', $currentVendorId)
+                                    ->where('type', 'discount')
+                                    ->sum('cost');
+                                
+                                // Update total with fees and discounts
+                                $totalWithShippingAndExtras = $totalWithShipping + $vendorFees - $vendorDiscounts;
+                                
+                                // Update remaining: Total - Commission
+                                $totalRemainingWithExtras = $totalWithShippingAndExtras - $totalCommission;
+                            @endphp
                             <div class="col-12 mb-3">
                                 <x-order::vendor-remaining-with-products
                                     :vendorName="$currentVendorName"
@@ -800,12 +847,14 @@
                                     :taxAmount="$totalProductsTax"
                                     :subtotalWithTax="$totalProductsPriceWithTax"
                                     :shipping="$vendorShippingCost"
-                                    :total="$totalWithShipping"
+                                    :total="$totalWithShippingAndExtras"
                                     :commissionPercentage="$totalCommissionPercentage"
                                     :commissionAmount="$totalCommission"
-                                    :remaining="$totalRemaining"
+                                    :remaining="$totalRemainingWithExtras"
                                     :promoCodeShare="$vendorPromoCodeShare"
                                     :pointsShare="$vendorPointsShare"
+                                    :fees="$vendorFees"
+                                    :discounts="$vendorDiscounts"
                                     :colors="['#28a745', '#5dd879']"
                                 />
                             </div>
@@ -913,8 +962,22 @@
                                     $vendorSubtotalWithTax = $vendorSubtotalBeforeTax + $vendorTotalTax;
                                     $vendorTotalWithShipping = $vendorSubtotalWithTax + $vendorShipping;
                                     
-                                    // Calculate remaining: Total with Shipping - Commission
-                                    $vendorTotalRemaining = $vendorTotalWithShipping - $vendorTotalCommission;
+                                    // Get vendor-specific fees and discounts (already distributed and stored with vendor_id)
+                                    $vendorFees = \Modules\Order\app\Models\OrderExtraFeeDiscount::where('order_id', $order->id)
+                                        ->where('vendor_id', $vendorId)
+                                        ->where('type', 'fee')
+                                        ->sum('cost');
+                                    
+                                    $vendorDiscounts = \Modules\Order\app\Models\OrderExtraFeeDiscount::where('order_id', $order->id)
+                                        ->where('vendor_id', $vendorId)
+                                        ->where('type', 'discount')
+                                        ->sum('cost');
+                                    
+                                    // Update total with fees and discounts
+                                    $vendorTotalWithShippingAndExtras = $vendorTotalWithShipping + $vendorFees - $vendorDiscounts;
+                                    
+                                    // Calculate remaining: Total with Shipping and Extras - Commission
+                                    $vendorTotalRemaining = $vendorTotalWithShippingAndExtras - $vendorTotalCommission;
                                     
                                     // Get color for this vendor
                                     $colors = $vendorColors[$colorIndex % count($vendorColors)];
@@ -930,12 +993,14 @@
                                         :taxAmount="$vendorTotalTax"
                                         :subtotalWithTax="$vendorSubtotalWithTax"
                                         :shipping="$vendorShipping"
-                                        :total="$vendorTotalWithShipping"
+                                        :total="$vendorTotalWithShippingAndExtras"
                                         :commissionPercentage="$avgCommissionPercentage"
                                         :commissionAmount="$vendorTotalCommission"
                                         :remaining="$vendorTotalRemaining"
                                         :promoCodeShare="$promoCodeShare"
                                         :pointsShare="$pointsShare"
+                                        :fees="$vendorFees"
+                                        :discounts="$vendorDiscounts"
                                         :colors="$colors"
                                     />
                                 </div>

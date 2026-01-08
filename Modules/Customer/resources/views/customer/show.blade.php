@@ -403,11 +403,21 @@
                                                                     <div class="userDatatable-content fw-medium">#{{ $order->order_number ?? $order->id }}</div>
                                                                 </td>
                                                                 <td>
-                                                                    <div class="userDatatable-content fw-bold text-success">{{ number_format($order->total_price ?? 0, 2) }} {{ currency() }}</div>
+                                                                    <div class="userDatatable-content fw-bold text-success">
+                                                                        @if(isset($isVendor) && $isVendor && isset($order->vendor_total))
+                                                                            {{ number_format($order->vendor_total, 2) }} {{ currency() }}
+                                                                        @else
+                                                                            {{ number_format($order->total_price ?? 0, 2) }} {{ currency() }}
+                                                                        @endif
+                                                                    </div>
                                                                 </td>
                                                                 <td>
                                                                     <div class="userDatatable-content">
-                                                                        @if($order->stage)
+                                                                        @if(isset($isVendor) && $isVendor && isset($order->vendor_stage))
+                                                                            <span class="badge badge-round badge-lg" style="background-color: {{ $order->vendor_stage->color ?? '#6c757d' }}">
+                                                                                {{ $order->vendor_stage->getTranslation('name', app()->getLocale()) }}
+                                                                            </span>
+                                                                        @elseif($order->stage)
                                                                             <span class="badge badge-round badge-lg" style="background-color: {{ $order->stage->color ?? '#6c757d' }}">
                                                                                 {{ $order->stage->getTranslation('name', app()->getLocale()) }}
                                                                             </span>

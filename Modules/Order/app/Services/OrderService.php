@@ -28,10 +28,18 @@ class OrderService
     public function createOrder(array $data)
     {
         return DB::transaction(function () use ($data) {
+            // Get current user's vendor ID if they are a vendor
+            $currentVendorId = null;
+            if (auth()->check() && !isAdmin()) {
+                $currentVendorId = auth()->user()->vendor?->id;
+            }
+            
             $result = app(Pipeline::class)
                 ->send([
                     'data' => $data,
-                    'context' => [],
+                    'context' => [
+                        'created_by_vendor_id' => $currentVendorId, // Track who created the order
+                    ],
                 ])
                 ->through([
                     ValidateProducts::class,

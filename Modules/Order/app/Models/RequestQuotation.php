@@ -27,8 +27,6 @@ class RequestQuotation extends BaseModel
     protected $fillable = [
         'notes',
         'file',
-        'offer_price',
-        'offer_notes',
         'offer_sent_at',
         'offer_responded_at',
         'status',
@@ -39,7 +37,6 @@ class RequestQuotation extends BaseModel
     ];
 
     protected $casts = [
-        'offer_price' => 'decimal:2',
         'offer_sent_at' => 'datetime',
         'offer_responded_at' => 'datetime',
     ];

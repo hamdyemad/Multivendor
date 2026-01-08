@@ -184,7 +184,7 @@ class OrderApiRepository implements OrderApiRepositoryInterface
                         ->where('customer_promo_code_title', $code)
                         ->exists();
             if ($hasUsed) {
-                throw new OrderException('order.promo_code_already_used');
+                throw new OrderException('order.promo_code_already_used', trans('order::order.promo_code_already_used'));
             }
         }
 
@@ -192,7 +192,7 @@ class OrderApiRepository implements OrderApiRepositoryInterface
         // Check if promo code has reached maximum usage
         $usageCount = Order::where('customer_promo_code_title', $code)->count();
         if ($usageCount >= $promoCode->maximum_of_use) {
-            throw new OrderException('order.promo_code_limit_reached');
+            throw new OrderException('order.promo_code_limit_reached', trans('order::order.promo_code_limit_reached'));
         }
 
         return $promoCode;

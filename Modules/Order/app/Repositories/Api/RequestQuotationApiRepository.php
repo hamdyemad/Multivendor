@@ -57,7 +57,7 @@ class RequestQuotationApiRepository implements RequestQuotationApiRepositoryInte
         $quotation = RequestQuotation::findOrFail($id);
         
         $quotation->update([
-            'status' => RequestQuotation::STATUS_ACCEPTED_OFFER,
+            'status' => RequestQuotation::STATUS_ORDER_CREATED,
             'offer_responded_at' => now(),
             'customer_id' => $customerId,
         ]);

@@ -58,6 +58,7 @@ return [
     'change_vendor_stage' => 'Change Vendor Stage',
     'vendor_stage_updated_successfully' => 'Vendor stage updated successfully',
     'vendor_stage_change_info' => 'This will update the stage for all your products in this order.',
+    'quotation_not_accepted_yet' => 'Cannot change order stage. The customer has not accepted the quotation yet.',
     'current_stage' => 'Current Stage',
     'your_store' => 'Your Store',
     'no_vendors' => 'No vendors found',
@@ -231,6 +232,8 @@ return [
     'location' => 'Location',
     'commission' => 'Commission',
     'bnaia_commission' => 'Bnaia Commission',
+    'extra_fees' => 'Extra Fees',
+    'extra_discounts' => 'Extra Discounts',
     'promo_code_share' => 'Promo Code Share',
     'points_share' => 'Points Share',
     'promo_code_discount' => 'Promo Code Discount',
@@ -344,4 +347,8 @@ return [
     'cannot_cancel_order_not_all_new' => 'Cannot cancel order. All vendors must be in "New" stage to cancel.',
     'no_delivered_vendors_to_refund' => 'No delivered vendors found to refund. Only delivered orders can be refunded.',
     'cannot_change_stage' => 'Cannot change order stage',
+    
+    // Promo Code Validation
+    'promo_code_already_used' => 'You have already used this promo code',
+    'promo_code_limit_reached' => 'This promo code has reached its maximum usage limit',
 ];

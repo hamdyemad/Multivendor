@@ -14,6 +14,7 @@ class OrderExtraFeeDiscount extends Model
 
     protected $fillable = [
         'order_id',
+        'vendor_id',
         'cost',
         'reason',
         'type',
@@ -29,6 +30,14 @@ class OrderExtraFeeDiscount extends Model
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
+    }
+
+    /**
+     * Get the vendor.
+     */
+    public function vendor(): BelongsTo
+    {
+        return $this->belongsTo(\Modules\Vendor\app\Models\Vendor::class);
     }
 
     /**

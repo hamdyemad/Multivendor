@@ -153,24 +153,41 @@ class CustomerController extends Controller
             abort(404);
         }
 
+        // Check if user is vendor
+        $isVendor = !isAdmin() && auth()->check() && auth()->user()->isVendor();
+        $vendor = null;
+        if ($isVendor) {
+            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+        }
+
         // Build orders query - filter by vendor if user is vendor
         // Use withoutGlobalScopes for stage to avoid country filtering
         $ordersQuery = $customer->orders()->with(['stage' => function($q) {
             $q->withoutGlobalScopes();
         }]);
         
-        if (!isAdmin() && auth()->check() && auth()->user()->isVendor()) {
-            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
-            if ($vendor) {
-                // Filter orders that have products from this vendor
-                $ordersQuery->whereHas('products', function ($q) use ($vendor) {
-                    $q->where('vendor_id', $vendor->id);
-                });
-            }
+        if ($isVendor && $vendor) {
+            // Filter orders that have products from this vendor
+            $ordersQuery->whereHas('products', function ($q) use ($vendor) {
+                $q->where('vendor_id', $vendor->id);
+            });
         }
 
         // Get all filtered orders for statistics
         $filteredOrders = $ordersQuery->get();
+
+        // Calculate total spent based on vendor portion if vendor user
+        $totalSpent = 0;
+        if ($isVendor && $vendor) {
+            foreach ($filteredOrders as $order) {
+                // Calculate vendor's portion of this order
+                $vendorProducts = $order->products->where('vendor_id', $vendor->id);
+                $vendorTotal = $this->calculateVendorOrderTotal($order, $vendor->id, $vendorProducts);
+                $totalSpent += $vendorTotal;
+            }
+        } else {
+            $totalSpent = $filteredOrders->sum('total_price');
+        }
 
         // Get all order stages
         $allStages = \Modules\Order\app\Models\OrderStage::withoutGlobalScopes()
@@ -180,44 +197,83 @@ class CustomerController extends Controller
 
         // Calculate order counts per stage
         $stageStats = [];
-        foreach ($allStages as $stage) {
-            $stageStats[] = [
-                'id' => $stage->id,
-                'name' => $stage->getTranslation('name', app()->getLocale()),
-                'color' => $stage->color ?? '#6c757d',
-                'type' => $stage->type,
-                'count' => $filteredOrders->where('stage_id', $stage->id)->count(),
-            ];
+        if ($isVendor && $vendor) {
+            // For vendors: count based on vendor_order_stages
+            foreach ($allStages as $stage) {
+                $count = 0;
+                foreach ($filteredOrders as $order) {
+                    $vendorStage = \Modules\Order\app\Models\VendorOrderStage::where('order_id', $order->id)
+                        ->where('vendor_id', $vendor->id)
+                        ->where('stage_id', $stage->id)
+                        ->exists();
+                    if ($vendorStage) {
+                        $count++;
+                    }
+                }
+                $stageStats[] = [
+                    'id' => $stage->id,
+                    'name' => $stage->getTranslation('name', app()->getLocale()),
+                    'color' => $stage->color ?? '#6c757d',
+                    'type' => $stage->type,
+                    'count' => $count,
+                ];
+            }
+        } else {
+            // For admin: count based on order stage_id
+            foreach ($allStages as $stage) {
+                $stageStats[] = [
+                    'id' => $stage->id,
+                    'name' => $stage->getTranslation('name', app()->getLocale()),
+                    'color' => $stage->color ?? '#6c757d',
+                    'type' => $stage->type,
+                    'count' => $filteredOrders->where('stage_id', $stage->id)->count(),
+                ];
+            }
         }
 
         // Calculate customer order statistics based on filtered orders
         $orderStats = [
             'total_orders' => $filteredOrders->count(),
-            'total_spent' => $filteredOrders->sum('total_price'),
-            'average_order_value' => $filteredOrders->count() > 0 ? $filteredOrders->sum('total_price') / $filteredOrders->count() : 0,
+            'total_spent' => $totalSpent,
+            'average_order_value' => $filteredOrders->count() > 0 ? $totalSpent / $filteredOrders->count() : 0,
             'stages' => $stageStats,
         ];
 
         // Get orders for the table (latest first) with pagination - rebuild query for pagination
         $ordersQuery = $customer->orders()->with(['stage' => function($q) {
             $q->withoutGlobalScopes();
-        }]);
+        }, 'products']);
         
-        if (!isAdmin() && auth()->check() && auth()->user()->isVendor()) {
-            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
-            if ($vendor) {
-                $ordersQuery->whereHas('products', function ($q) use ($vendor) {
-                    $q->where('vendor_id', $vendor->id);
-                });
-            }
+        if ($isVendor && $vendor) {
+            $ordersQuery->whereHas('products', function ($q) use ($vendor) {
+                $q->where('vendor_id', $vendor->id);
+            });
+            // Load vendor stages for each order
+            $ordersQuery->with(['vendorStages' => function($q) use ($vendor) {
+                $q->where('vendor_id', $vendor->id)->with('stage');
+            }]);
         }
         
         $orders = $ordersQuery->orderBy('created_at', 'desc')->paginate(10);
 
+        // Calculate vendor portion and get vendor stage for each order if vendor user
+        if ($isVendor && $vendor) {
+            foreach ($orders as $order) {
+                $vendorProducts = $order->products->where('vendor_id', $vendor->id);
+                $order->vendor_total = $this->calculateVendorOrderTotal($order, $vendor->id, $vendorProducts);
+                
+                // Get vendor's stage for this order
+                $vendorStage = $order->vendorStages->first();
+                if ($vendorStage && $vendorStage->stage) {
+                    $order->vendor_stage = $vendorStage->stage;
+                }
+            }
+        }
+
         // Check if vendor can manage this customer (for showing/hiding edit, delete, status buttons)
         $canManage = $this->canVendorManageCustomer($customer);
 
-        return view('customer::customer.show', compact('customer', 'orderStats', 'orders', 'canManage'));
+        return view('customer::customer.show', compact('customer', 'orderStats', 'orders', 'canManage', 'isVendor'));
     }
 
     public function edit($lang, $countryCode, $id)
@@ -379,5 +435,39 @@ class CustomerController extends Controller
                 'message' => __('customer::customer.error_changing_verification')
             ], 500);
         }
+    }
+
+    /**
+     * Calculate vendor's total for a specific order
+     * Includes: products + shipping + fees - discounts - promo_code - points
+     */
+    private function calculateVendorOrderTotal($order, $vendorId, $vendorProducts)
+    {
+        // Sum vendor products (price already includes tax and quantity)
+        $vendorProductTotal = $vendorProducts->sum('price');
+        
+        // Sum vendor shipping
+        $vendorShipping = $vendorProducts->sum('shipping_cost');
+        
+        // Get vendor-specific fees and discounts
+        $vendorFees = \Modules\Order\app\Models\OrderExtraFeeDiscount::where('order_id', $order->id)
+            ->where('vendor_id', $vendorId)
+            ->where('type', 'fee')
+            ->sum('cost');
+        
+        $vendorDiscounts = \Modules\Order\app\Models\OrderExtraFeeDiscount::where('order_id', $order->id)
+            ->where('vendor_id', $vendorId)
+            ->where('type', 'discount')
+            ->sum('cost');
+        
+        // Get vendor's promo code and points shares
+        $vendorOrderStage = \Modules\Order\app\Models\VendorOrderStage::where('order_id', $order->id)
+            ->where('vendor_id', $vendorId)
+            ->first();
+        $promoCodeShare = $vendorOrderStage?->promo_code_share ?? 0;
+        $pointsShare = $vendorOrderStage?->points_share ?? 0;
+        
+        // Vendor total = products + shipping + fees - discounts - promo_code - points
+        return $vendorProductTotal + $vendorShipping + $vendorFees - $vendorDiscounts - $promoCodeShare - $pointsShare;
     }
 }

@@ -201,15 +201,49 @@ class OrderController extends Controller
                         ->where('vendor_id', $currentVendorId)
                         ->sum('shipping_cost');
                     
-                    // Get vendor's discount shares from vendor_order_stages
+                    // Get vendor-specific fees and discounts (where vendor_id = current vendor)
+                    $vendorSpecificFees = \Modules\Order\app\Models\OrderExtraFeeDiscount::where('order_id', $order->id)
+                        ->where('vendor_id', $currentVendorId)
+                        ->where('type', 'fee')
+                        ->sum('cost');
+                    
+                    $vendorSpecificDiscounts = \Modules\Order\app\Models\OrderExtraFeeDiscount::where('order_id', $order->id)
+                        ->where('vendor_id', $currentVendorId)
+                        ->where('type', 'discount')
+                        ->sum('cost');
+                    
+                    // Get shared fees and discounts (where vendor_id is NULL) - distribute proportionally
+                    $sharedFees = \Modules\Order\app\Models\OrderExtraFeeDiscount::where('order_id', $order->id)
+                        ->whereNull('vendor_id')
+                        ->where('type', 'fee')
+                        ->sum('cost');
+                    
+                    $sharedDiscounts = \Modules\Order\app\Models\OrderExtraFeeDiscount::where('order_id', $order->id)
+                        ->whereNull('vendor_id')
+                        ->where('type', 'discount')
+                        ->sum('cost');
+                    
+                    // Calculate vendor's share of total order (for proportional distribution)
+                    $orderProductTotal = $order->products->sum('price');
+                    $vendorShareRatio = $orderProductTotal > 0 ? $vendorProductTotal / $orderProductTotal : 0;
+                    
+                    // Distribute shared fees/discounts proportionally
+                    $vendorSharedFees = $sharedFees * $vendorShareRatio;
+                    $vendorSharedDiscounts = $sharedDiscounts * $vendorShareRatio;
+                    
+                    // Total fees and discounts for this vendor
+                    $vendorFees = $vendorSpecificFees + $vendorSharedFees;
+                    $vendorDiscounts = $vendorSpecificDiscounts + $vendorSharedDiscounts;
+                    
+                    // Get vendor's promo code and points shares from vendor_order_stages
                     $vendorOrderStage = \Modules\Order\app\Models\VendorOrderStage::where('order_id', $order->id)
                         ->where('vendor_id', $currentVendorId)
                         ->first();
                     $promoCodeShare = $vendorOrderStage?->promo_code_share ?? 0;
                     $pointsShare = $vendorOrderStage?->points_share ?? 0;
                     
-                    // Vendor total = products + shipping - promo_code_share - points_share (discounts subtracted)
-                    $displayTotalPrice = $vendorProductTotal + $vendorShipping - $promoCodeShare - $pointsShare;
+                    // Vendor total = products + shipping + fees - discounts - promo_code - points
+                    $displayTotalPrice = $vendorProductTotal + $vendorShipping + $vendorFees - $vendorDiscounts - $promoCodeShare - $pointsShare;
                 }
 
                 // Get product stages - filter by vendor if vendor user
@@ -267,6 +301,9 @@ class OrderController extends Controller
                     'customer_name' => $order->customer_name,
                     'customer_email' => $order->customer_email,
                     'customer_phone' => $order->customer_phone ?? '-',
+                    'has_quotation' => $order->requestQuotation ? true : false,
+                    'quotation_number' => $order->requestQuotation ? $order->requestQuotation->quotation_number : null,
+                    'quotation_status' => $order->requestQuotation ? $order->requestQuotation->status : null,
                     'vendor' => $isVendorUser ? [] : $vendorsData, // Hide vendors for vendor users
                     'vendors_with_stages' => $isVendorUser ? [] : $vendorsWithStages, // Vendors with their stages
                     'total_price' => $displayTotalPrice,
@@ -367,13 +404,14 @@ class OrderController extends Controller
                 $quotation = \Modules\Order\app\Models\RequestQuotation::with('customer')->find($request->input('quotation_id'));
                 if ($quotation) {
                     $quotation->update([
-                        'status' => \Modules\Order\app\Models\RequestQuotation::STATUS_ORDER_CREATED,
+                        'status' => \Modules\Order\app\Models\RequestQuotation::STATUS_SENT_OFFER,
                         'order_id' => $order->id,
+                        'offer_sent_at' => now(),
                     ]);
 
                     // Send Firebase notification to customer
                     if ($quotation->customer) {
-                        $this->sendOrderCreatedNotification($quotation->customer, $quotation, $order);
+                        $this->sendQuotationOfferNotification($quotation->customer, $quotation, $order);
                     }
                 }
             }
@@ -449,10 +487,9 @@ class OrderController extends Controller
                     $vendorProducts = $order->products->filter(function($product) use ($currentVendorId) {
                         return $product->vendor_id == $currentVendorId;
                     });
-                    // price already includes total (price * quantity), so just sum it
-                    $vendorProductTotal = $vendorProducts->sum('price');
-                    // Subtract promo discount from vendor's total
-                    $vendorProductTotal = $vendorProductTotal - ($order->customer_promo_code_amount ?? 0);
+                    
+                    // Calculate vendor total using the same logic as datatable
+                    $vendorProductTotal = $this->calculateVendorTotal($order, $currentVendorId, $vendorProducts);
                     
                     // Get current vendor's stage
                     $currentVendorStage = $order->vendorStages->firstWhere('vendor_id', $currentVendorId);
@@ -539,7 +576,21 @@ class OrderController extends Controller
                     });
                     // price already includes total (price * quantity), so just sum it
                     $vendorProductTotal = $vendorProducts->sum('price');
-                    // Vendor invoice shows products total only (no promo/points discount)
+                    
+                    // Calculate vendor-specific shipping
+                    $vendorShipping = $vendorProducts->sum('shipping_cost');
+                    
+                    // Get vendor's discount and fee shares from vendor_order_stages
+                    $vendorOrderStage = \Modules\Order\app\Models\VendorOrderStage::where('order_id', $order->id)
+                        ->where('vendor_id', $currentVendorId)
+                        ->first();
+                    $promoCodeShare = $vendorOrderStage?->promo_code_share ?? 0;
+                    $pointsShare = $vendorOrderStage?->points_share ?? 0;
+                    $feesShare = $vendorOrderStage?->fees_share ?? 0;
+                    $discountsShare = $vendorOrderStage?->discounts_share ?? 0;
+                    
+                    // Vendor total = products + shipping + fees - discounts
+                    $vendorProductTotal = $vendorProductTotal + $vendorShipping + $feesShare - $promoCodeShare - $pointsShare - $discountsShare;
                 }
             } else {
                 // For admins: if specific products selected, filter by those IDs
@@ -729,6 +780,18 @@ class OrderController extends Controller
                     'status' => false,
                     'message' => trans('order::order.unauthorized'),
                 ], 403);
+            }
+
+            // Check if order is from a quotation and if it's accepted
+            $order = \Modules\Order\app\Models\Order::with('requestQuotation')->findOrFail($orderId);
+            if ($order->requestQuotation) {
+                // Only allow stage change if quotation is accepted
+                if ($order->requestQuotation->status !== 'accepted_offer') {
+                    return response()->json([
+                        'status' => false,
+                        'message' => trans('order::order.quotation_not_accepted_yet'),
+                    ], 422);
+                }
             }
 
             // Change vendor order stage using repository
@@ -1001,5 +1064,72 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             \Log::error('Failed to send order created notification: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Send Firebase notification to customer when quotation offer is sent with order
+     */
+    protected function sendQuotationOfferNotification(Customer $customer, RequestQuotation $quotation, Order $order)
+    {
+        try {
+            $fcmTokens = $customer->fcmTokens()->pluck('fcm_token')->toArray();
+            
+            if (empty($fcmTokens)) {
+                return;
+            }
+
+            $firebaseService = app(FirebaseService::class);
+            
+            $title = __('order::request-quotation.quotation_offer_notification_title');
+            $body = __('order::request-quotation.quotation_offer_notification_body', [
+                'price' => number_format($order->total_price, 2),
+            ]);
+
+            $data = [
+                'type' => 'quotation_offer_with_order',
+                'quotation_id' => (string) $quotation->id,
+                'order_id' => (string) $order->id,
+                'order_number' => $order->order_number,
+                'total_price' => (string) $order->total_price,
+            ];
+
+            $firebaseService->sendToTokens($fcmTokens, $title, $body, null, $data);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send quotation offer notification: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Calculate vendor total including products, shipping, fees, and discounts
+     * Fees and discounts are already distributed and stored with vendor_id
+     */
+    private function calculateVendorTotal($order, $vendorId, $vendorProducts)
+    {
+        // Sum vendor products (price already includes tax and quantity)
+        $vendorProductTotal = $vendorProducts->sum('price');
+        
+        // Sum vendor shipping
+        $vendorShipping = $vendorProducts->sum('shipping_cost');
+        
+        // Get vendor-specific fees and discounts (already distributed and stored with vendor_id)
+        $vendorFees = \Modules\Order\app\Models\OrderExtraFeeDiscount::where('order_id', $order->id)
+            ->where('vendor_id', $vendorId)
+            ->where('type', 'fee')
+            ->sum('cost');
+        
+        $vendorDiscounts = \Modules\Order\app\Models\OrderExtraFeeDiscount::where('order_id', $order->id)
+            ->where('vendor_id', $vendorId)
+            ->where('type', 'discount')
+            ->sum('cost');
+        
+        // Get vendor's promo code and points shares from vendor_order_stages
+        $vendorOrderStage = \Modules\Order\app\Models\VendorOrderStage::where('order_id', $order->id)
+            ->where('vendor_id', $vendorId)
+            ->first();
+        $promoCodeShare = $vendorOrderStage?->promo_code_share ?? 0;
+        $pointsShare = $vendorOrderStage?->points_share ?? 0;
+        
+        // Vendor total = products + shipping + fees - discounts - promo_code - points
+        return $vendorProductTotal + $vendorShipping + $vendorFees - $vendorDiscounts - $promoCodeShare - $pointsShare;
     }
 }

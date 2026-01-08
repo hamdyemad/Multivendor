@@ -12,7 +12,7 @@ interface OrderRepositoryInterface
     public function changeOrderProductStage($orderProductId, $stageId);
     public function storeOrder(array $orderData);
     public function syncOrderProducts(Order $order, array $productsData): void;
-    public function syncOrderExtras(Order $order, array $fees, string $type): void;
+    public function syncOrderExtras(Order $order, array $fees, string $type, ?int $vendorId = null): void;
     public function updateProductSales(array $productSalesData);
     public function updatePricingStatus(int $priceId);
     public function deleteOrder($id): bool;

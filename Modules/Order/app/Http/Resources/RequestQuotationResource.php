@@ -17,8 +17,6 @@ class RequestQuotationResource extends JsonResource
             'file' => $this->file ? asset('storage/' . $this->file) : null,
             'status' => $this->status,
             'status_label' => $this->getStatusLabel(),
-            'offer_price' => round($this->offer_price, 2),
-            'offer_notes' => $this->offer_notes,
             'offer_sent_at' => $this->offer_sent_at,
             'offer_responded_at' => $this->offer_responded_at,
             'can_respond' => $this->canRespondToOffer(),

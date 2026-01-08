@@ -21,13 +21,14 @@ return [
     // Status
     'status_pending' => 'قيد الانتظار',
     'status_sent_offer' => 'تم إرسال العرض',
-    'status_accepted_offer' => 'تم قبول العرض',
-    'status_rejected_offer' => 'تم رفض العرض',
+    'status_accepted_offer' => 'مقبول',
+    'status_rejected_offer' => 'مرفوض',
     'status_order_created' => 'تم إنشاء الطلب',
     'status_archived' => 'مؤرشف',
 
     // Offer
     'send_offer' => 'إرسال عرض',
+    'send_quotation_offer' => 'إرسال عرض السعر',
     'offer_details' => 'تفاصيل العرض',
     'offer_price' => 'سعر العرض',
     'offer_notes' => 'ملاحظات العرض',
@@ -39,6 +40,8 @@ return [
 
     // Actions
     'create_order' => 'إنشاء طلب',
+    'view_order' => 'عرض الطلب',
+    'from_quotation' => 'من عرض سعر',
     'creating_order_from_quotation' => 'إنشاء طلب من طلب عرض السعر',
     'download_file' => 'تحميل الملف',
     'archive' => 'أرشفة',
@@ -59,6 +62,8 @@ return [
     'notification_new_request' => 'تم تقديم طلب عرض سعر جديد',
     'order_created_notification_title' => 'تم إنشاء الطلب',
     'order_created_notification_body' => 'تم إنشاء طلبك رقم #:order_number من طلب عرض السعر الخاص بك',
+    'quotation_offer_notification_title' => 'عرض سعر جديد',
+    'quotation_offer_notification_body' => 'لقد تلقيت عرض سعر بإجمالي: :price. يرجى المراجعة والموافقة أو الرفض.',
 
     // API responses
     'cannot_respond_to_offer' => 'لا يمكن الرد على هذا العرض',

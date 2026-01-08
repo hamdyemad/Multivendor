@@ -5,8 +5,6 @@ namespace Modules\Order\app\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Modules\Order\app\Models\RequestQuotation;
-use Modules\Customer\app\Models\Customer;
-use Modules\SystemSetting\app\Services\FirebaseService;
 use Yajra\DataTables\Facades\DataTables;
 
 class RequestQuotationController extends Controller
@@ -15,7 +13,6 @@ class RequestQuotationController extends Controller
     {
         $this->middleware('can:request-quotations.index')->only(['index', 'archived', 'datatable']);
         $this->middleware('can:request-quotations.archive')->only(['archive']);
-        $this->middleware('can:request-quotations.send-offer')->only(['sendOffer']);
     }
 
     public function index()
@@ -126,20 +123,21 @@ class RequestQuotationController extends Controller
                 ->addColumn('actions', function ($quotation) use ($isArchived) {
                     $html = '<div class="d-flex gap-2 justify-content-center">';
                     
-                    // Send Offer button - only for pending status
+                    // Create Order button - for pending status (new workflow: admin creates order as offer)
                     if (!$isArchived && $quotation->status === 'pending') {
                         if(auth()->user()->can('request-quotations.send-offer')) {
-                            $html .= '<button type="button" class="btn btn-sm btn-info btn-send-offer" data-id="' . $quotation->id . '" title="' . __('order::request-quotation.send_offer') . '">
-                                <i class="uil uil-envelope-send m-0"></i>
-                            </button>';
+                            $orderUrl = route('admin.orders.create') . '?quotation_id=' . $quotation->id;
+                            $html .= '<a href="' . $orderUrl . '" class="btn btn-sm btn-success" title="' . __('order::request-quotation.send_quotation_offer') . '">
+                                <i class="uil uil-file-plus m-0"></i>
+                            </a>';
                         }
                     }
                     
-                    // Create Order button (+ icon) - only for accepted_offer status without order
-                    if (!$isArchived && $quotation->status === 'accepted_offer' && !$quotation->order_id) {
-                        $orderUrl = route('admin.orders.create') . '?quotation_id=' . $quotation->id;
-                        $html .= '<a href="' . $orderUrl . '" class="btn btn-sm btn-success" title="' . __('order::request-quotation.create_order') . '">
-                            <i class="uil uil-plus m-0"></i>
+                    // View Order button - for sent_offer, accepted_offer, rejected_offer, order_created status with order
+                    if (!$isArchived && $quotation->order_id && in_array($quotation->status, ['sent_offer', 'accepted_offer', 'rejected_offer', 'order_created'])) {
+                        $orderUrl = route('admin.orders.show', ['order' => $quotation->order_id]);
+                        $html .= '<a href="' . $orderUrl . '" class="btn btn-sm btn-info" title="' . __('order::request-quotation.view_order') . '">
+                            <i class="uil uil-file-alt m-0"></i>
                         </a>';
                     }
                     
@@ -173,8 +171,9 @@ class RequestQuotationController extends Controller
                         'country' => $quotation->customerAddress?->country?->name,
                         'notes' => $quotation->notes,
                         'status' => $quotation->status,
-                        'offer_price' => $quotation->offer_price,
-                        'offer_notes' => $quotation->offer_notes,
+                        'order_id' => $quotation->order_id,
+                        'order_number' => $quotation->order?->order_number,
+                        'order_total' => $quotation->order?->total_price,
                         'offer_sent_at' => $quotation->offer_sent_at,
                         'offer_responded_at' => $quotation->offer_responded_at,
                         'created_at' => $quotation->created_at ? $quotation->created_at : '-',
@@ -195,70 +194,6 @@ class RequestQuotationController extends Controller
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ], 500);
-        }
-    }
-
-    public function sendOffer(Request $request, $lang, $countryCode, $id)
-    {
-        $request->validate([
-            'offer_price' => 'required|numeric|min:0',
-            'offer_notes' => 'nullable|string|max:1000',
-        ]);
-
-        $quotation = RequestQuotation::with('customer')->findOrFail($id);
-
-        if (!$quotation->canSendOffer()) {
-            return response()->json([
-                'status' => false,
-                'message' => __('order::request-quotation.cannot_send_offer'),
-            ], 400);
-        }
-
-        $quotation->update([
-            'offer_price' => $request->offer_price,
-            'offer_notes' => $request->offer_notes,
-            'offer_sent_at' => now(),
-            'status' => RequestQuotation::STATUS_SENT_OFFER,
-        ]);
-
-        // Send Firebase notification to customer if exists
-        if ($quotation->customer) {
-            $this->sendFirebaseNotification($quotation->customer, $quotation);
-        }
-
-        return response()->json([
-            'status' => true,
-            'message' => __('order::request-quotation.offer_sent_successfully'),
-        ]);
-    }
-
-    protected function sendFirebaseNotification(Customer $customer, RequestQuotation $quotation)
-    {
-        try {
-            $fcmTokens = $customer->fcmTokens()->pluck('fcm_token')->toArray();
-            
-            if (empty($fcmTokens)) {
-                return;
-            }
-
-            $firebaseService = app(FirebaseService::class);
-            
-            $title = __('order::request-quotation.notification_title');
-            $body = __('order::request-quotation.notification_body', [
-                'price' => number_format($quotation->offer_price, 2),
-            ]);
-
-            $data = [
-                'type' => 'quotation_offer',
-                'quotation_id' => (string) $quotation->id,
-                'offer_price' => (string) $quotation->offer_price,
-            ];
-            \Log::info($fcmTokens);
-            $result = $firebaseService->sendToTokens($fcmTokens, $title, $body, null, $data);
-            \Log::info($result);
-
-        } catch (\Exception $e) {
-            \Log::error('Failed to send quotation notification: ' . $e->getMessage());
         }
     }
 

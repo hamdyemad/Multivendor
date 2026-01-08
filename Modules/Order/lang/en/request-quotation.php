@@ -20,14 +20,15 @@ return [
 
     // Status
     'status_pending' => 'Pending',
-    'status_sent_offer' => 'Sent Offer',
-    'status_accepted_offer' => 'Accepted Offer',
-    'status_rejected_offer' => 'Rejected Offer',
+    'status_sent_offer' => 'Offer Sent',
+    'status_accepted_offer' => 'Accepted',
+    'status_rejected_offer' => 'Rejected',
     'status_order_created' => 'Order Created',
     'status_archived' => 'Archived',
 
     // Offer
     'send_offer' => 'Send Offer',
+    'send_quotation_offer' => 'Send Quotation Offer',
     'offer_details' => 'Offer Details',
     'offer_price' => 'Offer Price',
     'offer_notes' => 'Offer Notes',
@@ -39,6 +40,8 @@ return [
 
     // Actions
     'create_order' => 'Create Order',
+    'view_order' => 'View Order',
+    'from_quotation' => 'From Quotation',
     'creating_order_from_quotation' => 'Creating Order from Quotation Request',
     'download_file' => 'Download File',
     'archive' => 'Archive',
@@ -59,6 +62,8 @@ return [
     'notification_new_request' => 'New quotation request submitted',
     'order_created_notification_title' => 'Order Created',
     'order_created_notification_body' => 'Your order #:order_number has been created from your quotation request',
+    'quotation_offer_notification_title' => 'New Quotation Offer',
+    'quotation_offer_notification_body' => 'You have received a quotation offer with total price: :price. Please review and approve or reject.',
 
     // API responses
     'cannot_respond_to_offer' => 'Cannot respond to this offer',

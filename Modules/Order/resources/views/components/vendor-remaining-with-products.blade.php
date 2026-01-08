@@ -11,6 +11,8 @@
     'remaining' => 0,
     'promoCodeShare' => 0,
     'pointsShare' => 0,
+    'fees' => 0,
+    'discounts' => 0,
     'colors' => ['#28a745', '#5dd879']
 ])
 
@@ -135,6 +137,18 @@
                 <div class="summary-row mb-12">
                     <span class="fw-bold">{{ trans('order::order.shipping') }}</span>
                     <span class="fw-bold">+{{ number_format($shipping, 2) }} {{ currency() }}</span>
+                </div>
+            @endif
+            @if ($fees > 0)
+                <div class="summary-row mb-12">
+                    <span class="fw-bold">{{ trans('order::order.extra_fees') }}</span>
+                    <span class="fw-bold" style="color: #28a745;">+{{ number_format($fees, 2) }} {{ currency() }}</span>
+                </div>
+            @endif
+            @if ($discounts > 0)
+                <div class="summary-row mb-12">
+                    <span class="fw-bold">{{ trans('order::order.extra_discounts') }}</span>
+                    <span class="fw-bold" style="color: #dc3545;">-{{ number_format($discounts, 2) }} {{ currency() }}</span>
                 </div>
             @endif
             <div class="summary-row mb-12">

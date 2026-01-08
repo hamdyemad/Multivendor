@@ -27,7 +27,7 @@
                             <h6 class="mb-0 text-primary fw-600">{{ __('order::request-quotation.creating_order_from_quotation') }}</h6>
                         </div>
                         <div class="row g-3">
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="d-flex align-items-center">
                                     <i class="uil uil-user text-muted me-2"></i>
                                     <div>
@@ -36,16 +36,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="d-flex align-items-center">
-                                    <i class="uil uil-dollar-sign text-success me-2"></i>
-                                    <div>
-                                        <small class="text-muted d-block">{{ __('order::request-quotation.offer_price') }}</small>
-                                        <span class="fw-600 text-success">{{ number_format($quotation->offer_price, 2) }} {{ currency() }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="d-flex align-items-center">
                                     <i class="uil uil-map-marker text-muted me-2"></i>
                                     <div>
@@ -54,7 +45,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="d-flex align-items-center">
                                     <i class="uil uil-notes text-muted me-2"></i>
                                     <div>
@@ -96,7 +87,8 @@
                                 <i class="uil uil-user me-2"></i>{{ trans('order.customer_information') }}
                             </h6>
 
-                            {{-- Customer Type Selection --}}
+                            {{-- Customer Type Selection - Hidden when quotation exists --}}
+                            @if(!isset($quotation) || !$quotation)
                             <div class="row mb-20">
                                 <div class="col-12">
                                     <div class="form-group">
@@ -120,6 +112,9 @@
                                     </div>
                                 </div>
                             </div>
+                            @else
+                            <input type="hidden" name="customer_type" value="existing">
+                            @endif
 
                             {{-- Existing Customer Section --}}
                             <div id="existing_customer_section">
@@ -132,23 +127,25 @@
                                             </label>
                                             <div class="position-relative">
                                                 <input type="text"
-                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15 {{ isset($quotation) && $quotation ? '' : '' }}"
                                                     id="customer_search"
                                                     placeholder="{{ __('common.search') }} {{ trans('order.customer_name') }}..."
-                                                    autocomplete="off">
+                                                    autocomplete="off"
+                                                    {{ isset($quotation) && $quotation ? 'readonly' : '' }}
+                                                    value="{{ isset($quotation) && $quotation ? $quotation->customer?->full_name : '' }}">
                                                 <div class="position-absolute w-100 bg-white border rounded-bottom shadow-sm"
                                                     id="customer_suggestions"
                                                     style="display: none; top: 100%; left: 0; z-index: 1000; max-height: 300px; overflow-y: auto;">
                                                 </div>
                                             </div>
                                             <input type="hidden" id="selected_customer_id" name="selected_customer_id"
-                                                value="">
+                                                value="{{ isset($quotation) && $quotation ? $quotation->customer_id : '' }}">
                                         </div>
                                     </div>
                                 </div>
 
                                 {{-- Customer Address Selection --}}
-                                <div class="row" id="customer_address_section" style="display: none;">
+                                <div class="row" id="customer_address_section" style="{{ isset($quotation) && $quotation ? '' : 'display: none;' }}">
                                     <div class="col-md-12 mb-25">
                                         <div class="form-group">
                                             <label class="il-gray fs-14 fw-500 mb-10 d-block">
@@ -157,15 +154,25 @@
                                             </label>
                                             <div class="d-flex gap-2">
                                                 <select
-                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                    id="customer_address_select" name="customer_address_id">
-                                                    <option value="">{{ trans('order.select_address') }}
+                                                    class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select {{ isset($quotation) && $quotation ? '' : '' }}"
+                                                    id="customer_address_select" name="customer_address_id"
+                                                    {{ isset($quotation) && $quotation ? 'disabled' : '' }}>
+                                                    <option value="">{{ trans('order.select_address') }}</option>
+                                                    @if(isset($quotation) && $quotation && $quotation->customerAddress)
+                                                    <option value="{{ $quotation->customer_address_id }}" selected>
+                                                        {{ $quotation->customerAddress->title }} - {{ $quotation->customerAddress->city?->name }}
                                                     </option>
+                                                    @endif
                                                 </select>
+                                                @if(isset($quotation) && $quotation)
+                                                <input type="hidden" name="customer_address_id" value="{{ $quotation->customer_address_id }}">
+                                                @endif
+                                                @if(!isset($quotation) || !$quotation)
                                                 <button type="button" class="btn btn-primary" id="addNewAddressBtn"
                                                     title="Add new address">
                                                     <i class="uil uil-plus m-0"></i>
                                                 </button>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -193,9 +200,10 @@
                                                 {{ trans('order.customer_email') }}
                                             </label>
                                             <input type="email"
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 "
                                                 id="customer_email" name="customer_email"
-                                                placeholder="{{ trans('order.customer_email') }}" readonly>
+                                                placeholder="{{ trans('order.customer_email') }}" readonly
+                                                value="{{ isset($quotation) && $quotation ? $quotation->customer?->email : '' }}">
                                         </div>
                                     </div>
 
@@ -205,9 +213,10 @@
                                                 {{ trans('order.customer_phone') }}
                                             </label>
                                             <input type="tel"
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 "
                                                 id="customer_phone" name="customer_phone"
-                                                placeholder="{{ trans('order.customer_phone') }}" readonly>
+                                                placeholder="{{ trans('order.customer_phone') }}" readonly
+                                                value="{{ isset($quotation) && $quotation ? $quotation->customer?->phone : '' }}">
                                         </div>
                                     </div>
                                 </div>
@@ -219,9 +228,10 @@
                                                 {{ trans('order.customer_address') }}
                                             </label>
                                             <input type="text"
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 "
                                                 id="customer_address" name="customer_address"
-                                                placeholder="{{ trans('order.customer_address') }}" readonly>
+                                                placeholder="{{ trans('order.customer_address') }}" readonly
+                                                value="{{ isset($quotation) && $quotation ? $quotation->full_address : '' }}">
                                         </div>
                                     </div>
                                 </div>
@@ -400,6 +410,7 @@
                             <input type="hidden" id="selected_product_sub_category_name" value="">
                             <input type="hidden" id="selected_product_sku" value="">
                             <input type="hidden" id="selected_product_variant_name" value="">
+                            <input type="hidden" id="selected_product_vendor_id" value="">
                             <input type="hidden" id="selected_product_vendor_name" value="">
                             <input type="hidden" id="selected_product_image" value="">
                             <input type="hidden" id="selected_product_stock" value="">
@@ -518,8 +529,13 @@
                         </a>
                         <button type="submit" form="createOrderForm" class="btn btn-primary btn-squared"
                             id="submitBtn">
-                            <i class="uil uil-check me-1"></i>
-                            {{ trans('order.create_order') }}
+                            @if(isset($quotation) && $quotation)
+                                <i class="uil uil-envelope-send me-1"></i>
+                                {{ trans('order::request-quotation.send_quotation_offer') }}
+                            @else
+                                <i class="uil uil-check me-1"></i>
+                                {{ trans('order.create_order') }}
+                            @endif
                         </button>
                     </div>
                 </div>
@@ -861,6 +877,7 @@
                                                      data-sub-category-name="${subCategoryName}"
                                                      data-sku="${variantSku}"
                                                      data-variant-name="${variantName}"
+                                                     data-vendor-id="${vendorId}"
                                                      data-vendor-name="${vendorName}"
                                                      data-image="${productImage || ''}"
                                                      data-stock="${variantStock}"
@@ -952,6 +969,7 @@
                         const subCategoryName = $(this).data('sub-category-name');
                         const sku = $(this).data('sku') || 'N/A';
                         const variantName = $(this).data('variant-name') || '';
+                        const vendorId = $(this).data('vendor-id') || null;
                         const vendorName = $(this).data('vendor-name') || 'N/A';
                         const image = $(this).data('image') || '';
                         const stock = parseInt($(this).data('stock')) || 0;
@@ -984,6 +1002,7 @@
                             subCategoryName,
                             sku,
                             variantName,
+                            vendorId,
                             vendorName,
                             image,
                             stock
@@ -1006,6 +1025,7 @@
                         $('#selected_product_sub_category_name').val(subCategoryName);
                         $('#selected_product_sku').val(sku);
                         $('#selected_product_variant_name').val(variantName);
+                        $('#selected_product_vendor_id').val(vendorId);
                         $('#selected_product_vendor_name').val(vendorName);
                         $('#selected_product_image').val(image);
                         $('#selected_product_stock').val(stock);
@@ -1049,9 +1069,26 @@
                         }
                     });
 
+                    // Prevent customer search interaction when quotation exists
+                    $('#customer_search').on('click focus', function(e) {
+                        const quotationId = $('#quotation_id').val();
+                        if (quotationId) {
+                            e.preventDefault();
+                            $('#customer_suggestions').hide();
+                            return false;
+                        }
+                    });
+
                     // Live customer search
                     let customerSearchTimeout;
                     $('#customer_search').on('keyup', function() {
+                        // Don't show suggestions if quotation exists (customer is locked)
+                        const quotationId = $('#quotation_id').val();
+                        if (quotationId) {
+                            $('#customer_suggestions').hide();
+                            return;
+                        }
+                        
                         clearTimeout(customerSearchTimeout);
                         const searchTerm = $(this).val().toLowerCase();
                         const suggestions = $('#customer_suggestions');
@@ -1704,6 +1741,7 @@
                         const subCategoryName = $('#selected_product_sub_category_name').val();
                         const sku = $('#selected_product_sku').val() || 'N/A';
                         const variantName = $('#selected_product_variant_name').val() || '';
+                        const vendorId = $('#selected_product_vendor_id').val() || null;
                         const vendorName = $('#selected_product_vendor_name').val() || 'N/A';
                         const image = $('#selected_product_image').val() || '';
 
@@ -1723,6 +1761,7 @@
                             departmentName,
                             subCategoryId,
                             subCategoryName,
+                            vendorId,
                             sku,
                             variantName,
                             vendorName,
@@ -1773,6 +1812,7 @@
                                 department_name: departmentName,
                                 sub_category_id: subCategoryId,
                                 sub_category_name: subCategoryName,
+                                vendor_id: vendorId,
                                 // Display data for UI (not sent to server)
                                 id: productId + (variantId ? '_' + variantId : ''), // Unique ID for UI
                                 name: productName,
@@ -1801,6 +1841,7 @@
                         $('#selected_product_taxes_info').val('');
                         $('#selected_product_sku').val('');
                         $('#selected_product_variant_name').val('');
+                        $('#selected_product_vendor_id').val('');
                         $('#selected_product_vendor_name').val('');
                         $('#selected_product_image').val('');
                         $('#selected_product_stock').val('');
@@ -1985,10 +2026,13 @@
 
                     // Calculate shipping cost via API
                     function calculateShipping() {
-                        const customerType = $('input[name="customer_type"]:checked').val();
+                        const customerType = $('input[name="customer_type"]:checked').val() || $('input[name="customer_type"]').val();
+                        
+                        console.log('calculateShipping: Customer type', customerType);
                         
                         // Check if we have products
                         if (products.length === 0) {
+                            console.log('calculateShipping: No products, skipping');
                             $('#shipping').val(0);
                             updateSummary();
                             return;
@@ -2003,8 +2047,11 @@
                             sub_category_id: p.sub_category_id,
                             sub_category_name: p.sub_category_name,
                             product_id: p.vendor_product_id,
+                            vendor_id: p.vendor_id,
                             quantity: p.quantity
                         }));
+                        
+                        console.log('calculateShipping: Cart items prepared', cartItems);
 
                         let requestData = {
                             cart_items: cartItems
@@ -2014,7 +2061,10 @@
                             const customerId = $('#selected_customer_id').val();
                             const addressId = $('#customer_address_select').val();
 
+                            console.log('calculateShipping: Existing customer', {customerId, addressId});
+
                             if (!customerId || !addressId) {
+                                console.log('calculateShipping: Missing customer or address, skipping');
                                 $('#shipping').val(0);
                                 updateSummary();
                                 return;
@@ -2026,7 +2076,10 @@
                             // External customer - use city_id directly
                             const cityId = $('#external_city_id').val();
 
+                            console.log('calculateShipping: External customer', {cityId});
+
                             if (!cityId) {
+                                console.log('calculateShipping: Missing city, skipping');
                                 $('#shipping').val(0);
                                 updateSummary();
                                 return;
@@ -2034,6 +2087,8 @@
 
                             requestData.city_id = cityId;
                         }
+
+                        console.log('calculateShipping: Sending request', requestData);
 
                         // Call shipping calculation endpoint
                         $.ajax({
@@ -2072,7 +2127,7 @@
                         let errors = [];
 
                         // Check customer selection
-                        const customerType = $('input[name="customer_type"]:checked').val();
+                        const customerType = $('input[name="customer_type"]:checked').val() || $('input[name="customer_type"]').val();
 
                         if (customerType === 'existing') {
                             const customerId = $('#selected_customer_id').val();

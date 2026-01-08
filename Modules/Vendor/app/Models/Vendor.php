@@ -267,8 +267,40 @@ class Vendor extends BaseModel
         $productsTotal = $result->products_total ?? 0;
         $shippingTotal = $result->shipping_total ?? 0;
 
-        // Total = products + shipping (no promo/points shares added)
-        return $productsTotal + $shippingTotal;
+        // Get vendor's fees and discounts from delivered orders
+        $extrasResult = \Illuminate\Support\Facades\DB::table('order_extra_fees_discounts as oefd')
+            ->join('orders as o', 'oefd.order_id', '=', 'o.id')
+            ->join('vendor_order_stages as vos', function ($join) {
+                $join->on('vos.order_id', '=', 'o.id')
+                     ->on('vos.vendor_id', '=', 'oefd.vendor_id');
+            })
+            ->where('oefd.vendor_id', $this->id)
+            ->where('vos.stage_id', $deliverStageId)
+            ->select(
+                \Illuminate\Support\Facades\DB::raw('SUM(CASE WHEN oefd.type = "fee" THEN oefd.cost ELSE 0 END) as fees_total'),
+                \Illuminate\Support\Facades\DB::raw('SUM(CASE WHEN oefd.type = "discount" THEN oefd.cost ELSE 0 END) as discounts_total')
+            )
+            ->first();
+
+        $feesTotal = $extrasResult->fees_total ?? 0;
+        $discountsTotal = $extrasResult->discounts_total ?? 0;
+
+        // Get vendor's promo code and points shares from delivered orders
+        $sharesResult = \Illuminate\Support\Facades\DB::table('vendor_order_stages as vos')
+            ->join('orders as o', 'vos.order_id', '=', 'o.id')
+            ->where('vos.vendor_id', $this->id)
+            ->where('vos.stage_id', $deliverStageId)
+            ->select(
+                \Illuminate\Support\Facades\DB::raw('SUM(COALESCE(vos.promo_code_share, 0)) as promo_code_total'),
+                \Illuminate\Support\Facades\DB::raw('SUM(COALESCE(vos.points_share, 0)) as points_total')
+            )
+            ->first();
+
+        $promoCodeTotal = $sharesResult->promo_code_total ?? 0;
+        $pointsTotal = $sharesResult->points_total ?? 0;
+
+        // Total = products + shipping + fees - discounts - promo_code - points
+        return $productsTotal + $shippingTotal + $feesTotal - $discountsTotal - $promoCodeTotal - $pointsTotal;
     }
 
     /**

@@ -402,8 +402,28 @@
                         const customerName = data.customer_name || '-';
                         const customerEmail = data.customer_email || '-';
                         const customerPhone = data.customer_phone || '-';
+                        const hasQuotation = data.has_quotation || false;
+                        const quotationNumber = data.quotation_number || '';
+                        const quotationStatus = data.quotation_status || '';
 
-                        return `
+                        // Status labels and colors
+                        const statusLabels = {
+                            'pending': '{{ __('order::request-quotation.status_pending') }}',
+                            'sent_offer': '{{ __('order::request-quotation.status_sent_offer') }}',
+                            'accepted_offer': '{{ __('order::request-quotation.status_accepted_offer') }}',
+                            'rejected_offer': '{{ __('order::request-quotation.status_rejected_offer') }}',
+                            'order_created': '{{ __('order::request-quotation.status_order_created') }}'
+                        };
+                        
+                        const statusColors = {
+                            'pending': '#ffc107',
+                            'sent_offer': '#17a2b8',
+                            'accepted_offer': '#28a745',
+                            'rejected_offer': '#dc3545',
+                            'order_created': '#007bff'
+                        };
+
+                        let html = `
                             <div class="customer-info">
                                 <div class="fw-bold mb-1">
                                     <i class="uil uil-receipt me-1"></i><strong>${orderNumber}</strong>
@@ -415,12 +435,32 @@
                                     <div class="mb-1">
                                         <i class="uil uil-envelope me-1"></i> <a href="mailto:${customerEmail}">${customerEmail}</a>
                                     </div>
-                                    <div>
+                                    <div class="mb-1">
                                         <i class="uil uil-phone me-1"></i> ${customerPhone}
-                                    </div>
+                                    </div>`;
+                        
+                        if (hasQuotation) {
+                            const statusLabel = statusLabels[quotationStatus] || quotationStatus;
+                            const statusColor = statusColors[quotationStatus] || '#6c757d';
+                            
+                            html += `
+                                    <div>
+                                        <span class="badge badge-round" style="background-color: ${statusColor}; font-size: 10px;">
+                                            <i class="uil uil-file-question-alt me-1"></i>{{ __('order::request-quotation.from_quotation') }}: ${quotationNumber}
+                                        </span>
+                                        <br>
+                                        <span class="badge badge-round mt-1" style="background-color: ${statusColor}; font-size: 9px;">
+                                            ${statusLabel}
+                                        </span>
+                                    </div>`;
+                        }
+                        
+                        html += `
                                 </div>
                             </div>
                         `;
+                        
+                        return html;
                     }
                 }
             ];

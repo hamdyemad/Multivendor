@@ -349,6 +349,7 @@
                             <input type="hidden" id="selected_product_sub_category_name" value="">
                             <input type="hidden" id="selected_product_sku" value="">
                             <input type="hidden" id="selected_product_variant_name" value="">
+                            <input type="hidden" id="selected_product_vendor_id" value="">
                             <input type="hidden" id="selected_product_vendor_name" value="">
                             <input type="hidden" id="selected_product_image" value="">
                             <input type="hidden" id="selected_product_stock" value="">
@@ -937,6 +938,7 @@
                                                      data-sub-category-name="${subCategoryName}"
                                                      data-sku="${variantSku}"
                                                      data-variant-name="${variantName}"
+                                                     data-vendor-id="${vendorId}"
                                                      data-vendor-name="${vendorName}"
                                                      data-image="${productImage || ''}"
                                                      data-stock="${variantStock}"
@@ -1027,6 +1029,7 @@
                         const subCategoryName = $(this).data('sub-category-name');
                         const sku = $(this).data('sku') || 'N/A';
                         const variantName = $(this).data('variant-name') || '';
+                        const vendorId = $(this).data('vendor-id') || null;
                         const vendorName = $(this).data('vendor-name') || 'N/A';
                         const image = $(this).data('image') || '';
                         const stock = parseInt($(this).data('stock')) || 0;
@@ -1081,6 +1084,7 @@
                         $('#selected_product_sub_category_name').val(subCategoryName);
                         $('#selected_product_sku').val(sku);
                         $('#selected_product_variant_name').val(variantName);
+                        $('#selected_product_vendor_id').val(vendorId);
                         $('#selected_product_vendor_name').val(vendorName);
                         $('#selected_product_image').val(image);
                         $('#selected_product_stock').val(stock);
@@ -1798,6 +1802,7 @@
                         const subCategoryName = $('#selected_product_sub_category_name').val();
                         const sku = $('#selected_product_sku').val() || 'N/A';
                         const variantName = $('#selected_product_variant_name').val() || '';
+                        const vendorId = $('#selected_product_vendor_id').val() || null;
                         const vendorName = $('#selected_product_vendor_name').val() || 'N/A';
                         const image = $('#selected_product_image').val() || '';
 
@@ -1867,6 +1872,7 @@
                                 department_name: departmentName,
                                 sub_category_id: subCategoryId,
                                 sub_category_name: subCategoryName,
+                                vendor_id: vendorId,
                                 // Display data for UI (not sent to server)
                                 id: productId + (variantId ? '_' + variantId : ''), // Unique ID for UI
                                 name: productName,
@@ -1895,6 +1901,7 @@
                         $('#selected_product_taxes_info').val('');
                         $('#selected_product_sku').val('');
                         $('#selected_product_variant_name').val('');
+                        $('#selected_product_vendor_id').val('');
                         $('#selected_product_vendor_name').val('');
                         $('#selected_product_image').val('');
                         $('#selected_product_stock').val('');
@@ -2111,7 +2118,7 @@
 
                     // Calculate shipping cost via API
                     function calculateShipping() {
-                        const customerType = $('input[name="customer_type"]:checked').val();
+                        const customerType = $('input[name="customer_type"]:checked').val() || $('input[name="customer_type"]').val();
                         
                         // Check if we have products
                         if (products.length === 0) {
@@ -2129,6 +2136,7 @@
                             sub_category_id: p.sub_category_id,
                             sub_category_name: p.sub_category_name,
                             product_id: p.vendor_product_id,
+                            vendor_id: p.vendor_id,
                             quantity: p.quantity
                         }));
 
@@ -2198,7 +2206,7 @@
                         let errors = [];
 
                         // Check customer selection
-                        const customerType = $('input[name="customer_type"]:checked').val();
+                        const customerType = $('input[name="customer_type"]:checked').val() || $('input[name="customer_type"]').val();
 
                         if (customerType === 'existing') {
                             const customerId = $('#selected_customer_id').val();

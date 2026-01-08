@@ -58,6 +58,7 @@ return [
     'change_vendor_stage' => 'تغيير مرحلة التاجر',
     'vendor_stage_updated_successfully' => 'تم تحديث مرحلة التاجر بنجاح',
     'vendor_stage_change_info' => 'سيؤدي هذا إلى تحديث المرحلة لجميع منتجاتك في هذا الطلب.',
+    'quotation_not_accepted_yet' => 'لا يمكن تغيير مرحلة الطلب. لم يقبل العميل عرض السعر بعد.',
     'current_stage' => 'المرحلة الحالية',
     'your_store' => 'متجرك',
     'no_vendors' => 'لم يتم العثور على تجار',
@@ -229,6 +230,8 @@ return [
     'location' => 'الموقع',
     'commission' => 'العمولة',
     'bnaia_commission' => 'عمولة بنايا',
+    'extra_fees' => 'رسوم إضافية',
+    'extra_discounts' => 'خصومات إضافية',
     'promo_code_share' => 'حصة البرومو كود',
     'points_share' => 'حصة النقاط',
     'promo_code_discount' => 'خصم البرومو كود',
@@ -342,4 +345,8 @@ return [
     'cannot_cancel_order_not_all_new' => 'لا يمكن إلغاء الطلب. يجب أن يكون جميع التجار في مرحلة "جديد" للإلغاء.',
     'no_delivered_vendors_to_refund' => 'لم يتم العثور على تجار تم التسليم لهم للاسترداد. يمكن استرداد الطلبات المسلمة فقط.',
     'cannot_change_stage' => 'لا يمكن تغيير مرحلة الطلب',
+    
+    // Promo Code Validation
+    'promo_code_already_used' => 'لقد استخدمت هذا الكود الترويجي من قبل',
+    'promo_code_limit_reached' => 'وصل هذا الكود الترويجي إلى الحد الأقصى للاستخدام',
 ];

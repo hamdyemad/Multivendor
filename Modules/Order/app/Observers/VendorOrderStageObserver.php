@@ -4,6 +4,7 @@ namespace Modules\Order\app\Observers;
 
 use App\Helpers\PointsHelper;
 use Illuminate\Support\Facades\Log;
+use Modules\CatalogManagement\app\Models\StockBooking;
 use Modules\Order\app\Models\OrderProduct;
 use Modules\Order\app\Models\OrderStage;
 use Modules\Order\app\Models\VendorOrderStage;
@@ -31,12 +32,70 @@ class VendorOrderStageObserver
     {
         $newStage = OrderStage::withoutGlobalScopes()->find($vendorOrderStage->stage_id);
         
-        if (!$newStage || $newStage->type !== 'deliver') {
+        if (!$newStage) {
             return;
         }
 
-        // Award points when vendor order is delivered
-        $this->awardPointsForVendorOrder($vendorOrderStage);
+        switch ($newStage->type) {
+            case 'deliver':
+                // Vendor order delivered - fulfill bookings and award points
+                $this->fulfillVendorBookings($vendorOrderStage);
+                $this->awardPointsForVendorOrder($vendorOrderStage);
+                break;
+
+            case 'cancel':
+                // Vendor order cancelled - release bookings
+                $this->releaseVendorBookings($vendorOrderStage);
+                break;
+        }
+    }
+
+    /**
+     * Fulfill stock bookings for vendor's products
+     */
+    protected function fulfillVendorBookings(VendorOrderStage $vendorOrderStage): void
+    {
+        $bookings = StockBooking::where('order_id', $vendorOrderStage->order_id)
+            ->where('vendor_id', $vendorOrderStage->vendor_id)
+            ->whereIn('status', [StockBooking::STATUS_BOOKED, StockBooking::STATUS_ALLOCATED])
+            ->get();
+
+        foreach ($bookings as $booking) {
+            $booking->update([
+                'status' => StockBooking::STATUS_FULFILLED,
+                'fulfilled_at' => now(),
+            ]);
+
+            Log::info('Stock booking fulfilled', [
+                'booking_id' => $booking->id,
+                'order_id' => $vendorOrderStage->order_id,
+                'vendor_id' => $vendorOrderStage->vendor_id,
+            ]);
+        }
+    }
+
+    /**
+     * Release stock bookings for vendor's products
+     */
+    protected function releaseVendorBookings(VendorOrderStage $vendorOrderStage): void
+    {
+        $bookings = StockBooking::where('order_id', $vendorOrderStage->order_id)
+            ->where('vendor_id', $vendorOrderStage->vendor_id)
+            ->whereIn('status', [StockBooking::STATUS_BOOKED, StockBooking::STATUS_ALLOCATED])
+            ->get();
+
+        foreach ($bookings as $booking) {
+            $booking->update([
+                'status' => StockBooking::STATUS_RELEASED,
+                'released_at' => now(),
+            ]);
+
+            Log::info('Stock booking released', [
+                'booking_id' => $booking->id,
+                'order_id' => $vendorOrderStage->order_id,
+                'vendor_id' => $vendorOrderStage->vendor_id,
+            ]);
+        }
     }
 
     /**

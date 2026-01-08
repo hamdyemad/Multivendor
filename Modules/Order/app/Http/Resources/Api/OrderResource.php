@@ -108,7 +108,7 @@ class OrderResource extends JsonResource
     }
     
     /**
-     * Calculate total price (products with tax + shipping - discounts)
+     * Calculate total price (products with tax + shipping + fees - discounts - promo - points)
      */
     private function calculateTotalPrice(): float
     {
@@ -119,9 +119,20 @@ class OrderResource extends JsonResource
         }
         
         $shipping = (float) $this->shipping;
+        
+        // Get total fees and discounts from order_extra_fees_discounts
+        $totalFees = \Modules\Order\app\Models\OrderExtraFeeDiscount::where('order_id', $this->id)
+            ->where('type', 'fee')
+            ->sum('cost');
+        
+        $totalDiscounts = \Modules\Order\app\Models\OrderExtraFeeDiscount::where('order_id', $this->id)
+            ->where('type', 'discount')
+            ->sum('cost');
+        
         $promoDiscount = (float) ($this->customer_promo_code_amount ?? 0);
         $pointsDiscount = (float) ($this->points_cost ?? 0);
         
-        return round($totalProductsWithTax + $shipping - $promoDiscount - $pointsDiscount, 2);
+        // Total = products + shipping + fees - discounts - promo - points
+        return round($totalProductsWithTax + $shipping + $totalFees - $totalDiscounts - $promoDiscount - $pointsDiscount, 2);
     }
 }

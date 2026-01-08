@@ -365,11 +365,11 @@
                                             <tr>
                                                 <td class="fw-bold">{{ __('accounting.withdraws') }}</td>
                                                 @foreach($monthHeaders as $month)
-                                                    <td class="text-center text-warning">
+                                                    <td class="text-center text-secondary">
                                                         {{ number_format($summary['monthly_data'][$month['key']]['withdraws'] ?? 0, 2) }} {{ currency() }}
                                                     </td>
                                                 @endforeach
-                                                <td class="text-center text-warning fw-bold">
+                                                <td class="text-center text-secondary fw-bold">
                                                     {{ number_format($summary['total_withdraws'] ?? 0, 2) }} {{ currency() }}
                                                 </td>
                                             </tr>
@@ -377,8 +377,8 @@
                                                 <td class="fw-bold">{{ __('accounting.net_profit') }}</td>
                                                 @foreach($monthHeaders as $month)
                                                     @php
-                                                        // Net Profit = Income - Commissions - Expenses
-                                                        $monthProfit = ($summary['monthly_data'][$month['key']]['income'] ?? 0) - ($summary['monthly_data'][$month['key']]['commissions'] ?? 0) - ($summary['monthly_data'][$month['key']]['expenses'] ?? 0);
+                                                        // Net Profit = Platform Commission - Expenses
+                                                        $monthProfit = ($summary['monthly_data'][$month['key']]['commissions'] ?? 0) - ($summary['monthly_data'][$month['key']]['expenses'] ?? 0);
                                                     @endphp
                                                     <td class="text-center fw-bold {{ $monthProfit >= 0 ? 'text-success' : 'text-danger' }}">
                                                         {{ number_format($monthProfit, 2) }} {{ currency() }}
@@ -696,8 +696,8 @@
                 incomeData.push(monthlyData[i]?.income || 0);
                 expenseData.push(monthlyData[i]?.expenses || 0);
                 commissionData.push(monthlyData[i]?.commissions || 0);
-                // Profit = Income - Commissions - Expenses
-                profitData.push((monthlyData[i]?.income || 0) - (monthlyData[i]?.commissions || 0) - (monthlyData[i]?.expenses || 0));
+                // Profit = Platform Commission - Expenses
+                profitData.push((monthlyData[i]?.commissions || 0) - (monthlyData[i]?.expenses || 0));
             }
 
             new Chart(ctx, {

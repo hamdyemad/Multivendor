@@ -658,13 +658,7 @@
                                 </span>
                             </a>
                         </li>
-                        <li class="<?php echo e(isMenuActive('admin.system-catalog.index', $currentRoute) ? 'active' : ''); ?>">
-                            <a href="<?php echo e(route('admin.system-catalog.index')); ?>"
-                                class="<?php echo e(isMenuActive('admin.system-catalog.index', $currentRoute) ? 'active' : ''); ?>">
-                                <span class="nav-icon uil uil-list-ul"></span>
-                                <span class="menu-text"><?php echo e(trans('menu.system_catalog.title')); ?></span>
-                            </a>
-                        </li>
+
                     <?php endif; ?>
 
                     <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['variant-keys.index', 'variant-keys.create'])): ?>
@@ -689,6 +683,13 @@
                             </a>
                         </li>
                     <?php endif; ?>
+                    <li>
+                        <a class="d-flex align-items-center justify-content-between fw-bold <?php echo e(isMenuActive('admin.system-catalog.index', $currentRoute) ? 'active' : ''); ?>"
+                            href="<?php echo e(route('admin.system-catalog.index')); ?>">
+                            <?php echo e(trans('menu.system_catalog.title')); ?>
+
+                        </a>
+                    </li>
                 </ul>
             </li>
         <?php endif; ?>

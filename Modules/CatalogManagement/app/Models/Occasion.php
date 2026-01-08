@@ -19,6 +19,35 @@ class Occasion extends BaseModel
     protected $table = 'occasions';
     protected $guarded = [];
 
+    /**
+     * Boot the model
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($occasion) {
+            if (empty($occasion->slug)) {
+                // Get English title from translations if available
+                $englishTitle = null;
+                
+                // Try to get from request if creating via form
+                if (request()->has('translations')) {
+                    $translations = request()->input('translations', []);
+                    foreach ($translations as $translation) {
+                        if (isset($translation['lang_code']) && $translation['lang_code'] === 'en' && isset($translation['name'])) {
+                            $englishTitle = $translation['name'];
+                            break;
+                        }
+                    }
+                }
+                
+                // Generate slug from English title or use UUID
+                $occasion->slug = $englishTitle ? \Illuminate\Support\Str::slug($englishTitle) : \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
+
 
     /**
      * Get all attachments for the occasion

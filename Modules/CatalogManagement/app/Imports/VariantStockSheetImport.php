@@ -8,9 +8,13 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\SkipsErrors;
-use Modules\CatalogManagement\app\Models\ProductVariant;
-use Modules\CatalogManagement\app\Models\VariantStock;
+use Modules\CatalogManagement\app\Models\VendorProductVariant;
+use Modules\CatalogManagement\app\Models\VendorProductVariantStock;
 
+/**
+ * Sheet: variant_stock
+ * Creates VendorProductVariantStock entries
+ */
 class VariantStockSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
 {
     use SkipsErrors;
@@ -19,102 +23,94 @@ class VariantStockSheetImport implements ToCollection, WithHeadingRow, SkipsOnEr
 
     public function __construct(
         protected array &$variantMap,
-        protected array &$importErrors = []
+        protected array &$importErrors = [],
+        protected bool $isAdmin = false
     ) {}
 
     public function collection(Collection $rows)
     {
         foreach ($rows as $index => $row) {
-            $excelVariantId = (int)($row['variant_id'] ?? 0);
+            $variantSku = trim((string)($row['variant_sku'] ?? ''));
             $regionId = (int)($row['region_id'] ?? 0);
-            $stock = (int)($row['stock'] ?? 0);
+            $quantity = (int)($row['stock'] ?? 0);
 
             $validator = Validator::make($row->toArray(), [
-                'variant_id' => 'required|integer|min:1',
+                'variant_sku' => 'required|string|max:255',
                 'region_id' => 'required|integer|exists:regions,id',
                 'stock' => 'required|integer|min:0',
+            ], [
+                'variant_sku.required' => __('validation.required', ['attribute' => 'variant_sku']),
+                'variant_sku.string' => __('validation.string', ['attribute' => 'variant_sku']),
+                'region_id.required' => __('validation.required', ['attribute' => 'region_id']),
+                'region_id.exists' => __('validation.exists', ['attribute' => 'region_id']),
+                'stock.required' => __('validation.required', ['attribute' => 'stock']),
+                'stock.integer' => __('validation.integer', ['attribute' => 'stock']),
             ]);
 
             if ($validator->fails()) {
                 $this->importErrors[] = [
                     'sheet' => 'variant_stock',
                     'row' => $index + 2,
-                    'variant_id' => $excelVariantId,
+                    'sku' => $variantSku,
                     'errors' => $validator->errors()->all()
                 ];
                 continue;
             }
 
-            if ($excelVariantId <= 0 || $regionId <= 0) {
+            if ($variantSku === '' || $regionId <= 0) {
                 $this->importErrors[] = [
                     'sheet' => 'variant_stock',
                     'row' => $index + 2,
-                    'variant_id' => $excelVariantId,
-                    'errors' => ['Invalid variant ID or region ID']
+                    'sku' => $variantSku,
+                    'errors' => [__('catalogmanagement::product.invalid_variant_or_region_id')]
                 ];
                 continue;
             }
 
-            if (!isset($this->variantMap[$excelVariantId])) {
+            if (!isset($this->variantMap[$variantSku])) {
+                $this->importErrors[] = [
+                    'sheet' => 'variant_stock',
+                    'row' => $index + 2,
+                    'sku' => $variantSku,
+                    'errors' => [__('catalogmanagement::product.variant_not_found_or_skipped')]
+                ];
                 continue;
             }
 
-            $dbVariantId = $this->variantMap[$excelVariantId];
-            $variant = ProductVariant::find($dbVariantId);
+            $dbVariantId = $this->variantMap[$variantSku];
+            $variant = VendorProductVariant::find($dbVariantId);
+            
             if (!$variant) {
                 continue;
             }
 
-            VariantStock::updateOrCreate(
+            VendorProductVariantStock::updateOrCreate(
                 [
-                    'product_variant_id' => $dbVariantId,
+                    'vendor_product_variant_id' => $dbVariantId,
                     'region_id' => $regionId
                 ],
                 [
-                    'stock' => $stock
+                    'quantity' => $quantity
                 ]
             );
 
-            $this->variantsWithStock[$excelVariantId] = true;
+            $this->variantsWithStock[$variantSku] = true;
         }
 
-        $this->recalculateStocks();
+        // Validate that all variants have stock entries
         $this->validateVariantsHaveStock();
     }
 
     protected function validateVariantsHaveStock(): void
     {
-        foreach ($this->variantMap as $excelVariantId => $dbVariantId) {
-            if (!isset($this->variantsWithStock[$excelVariantId])) {
+        foreach ($this->variantMap as $variantSku => $dbVariantId) {
+            if (!isset($this->variantsWithStock[$variantSku])) {
                 $this->importErrors[] = [
                     'sheet' => 'variant_stock',
                     'row' => '-',
-                    'variant_id' => $excelVariantId,
-                    'errors' => ['Variant exists but has no stock entries in variant_stock sheet']
+                    'sku' => $variantSku,
+                    'errors' => [__('catalogmanagement::product.variant_has_no_stock_entries')]
                 ];
-            }
-        }
-    }
-
-    private function recalculateStocks()
-    {
-        $variantIds = array_unique(array_values($this->variantMap));
-
-        foreach ($variantIds as $variantId) {
-            $variant = ProductVariant::find($variantId);
-            if (!$variant) {
-                continue;
-            }
-
-            $variantStock = VariantStock::where('product_variant_id', $variantId)->sum('stock');
-            $variant->stock = $variantStock;
-            $variant->save();
-
-            $product = $variant->product;
-            if ($product && !$product->trashed()) {
-                $productStock = ProductVariant::where('product_id', $product->id)->sum('stock');
-                $product->stock = $productStock;
-                $product->save();
             }
         }
     }

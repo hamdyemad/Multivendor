@@ -67,9 +67,34 @@ class AccountingService
             
             // Add shipping cost
             $vendorShipping = $products->sum('shipping_cost');
-            $vendorTotalWithShipping = $vendorTotal + $vendorShipping;
+            
+            // Get vendor's fees and discounts from order_extra_fees_discounts
+            $extrasResult = \Illuminate\Support\Facades\DB::table('order_extra_fees_discounts')
+                ->where('order_id', $order->id)
+                ->where('vendor_id', $vendorId)
+                ->select(
+                    \Illuminate\Support\Facades\DB::raw('SUM(CASE WHEN type = "fee" THEN cost ELSE 0 END) as fees_total'),
+                    \Illuminate\Support\Facades\DB::raw('SUM(CASE WHEN type = "discount" THEN cost ELSE 0 END) as discounts_total')
+                )
+                ->first();
 
-            // Calculate commission on total with shipping
+            $feesTotal = $extrasResult->fees_total ?? 0;
+            $discountsTotal = $extrasResult->discounts_total ?? 0;
+
+            // Get vendor's promo code and points shares from vendor_order_stages
+            $vendorStage = \Illuminate\Support\Facades\DB::table('vendor_order_stages')
+                ->where('order_id', $order->id)
+                ->where('vendor_id', $vendorId)
+                ->select('promo_code_share', 'points_share')
+                ->first();
+
+            $promoCodeShare = $vendorStage->promo_code_share ?? 0;
+            $pointsShare = $vendorStage->points_share ?? 0;
+
+            // Total = products + shipping + fees - discounts - promo_code - points
+            $vendorTotalWithExtras = $vendorTotal + $vendorShipping + $feesTotal - $discountsTotal - $promoCodeShare - $pointsShare;
+
+            // Calculate commission on total with extras
             // commission field stores the percentage, fallback to department commission
             $totalCommissionAmount = $products->sum(function($product) {
                 $productTotal = $product->price + ($product->shipping_cost ?? 0);
@@ -79,17 +104,17 @@ class AccountingService
                 return $productTotal * ($commissionPercent / 100);
             });
 
-            $vendorAmount = $vendorTotalWithShipping - $totalCommissionAmount;
+            $vendorAmount = $vendorTotalWithExtras - $totalCommissionAmount;
 
             // Calculate average commission rate for display
-            $avgCommissionRate = $vendorTotalWithShipping > 0 ? ($totalCommissionAmount / $vendorTotalWithShipping) * 100 : 0;
+            $avgCommissionRate = $vendorTotalWithExtras > 0 ? ($totalCommissionAmount / $vendorTotalWithExtras) * 100 : 0;
 
             // Create income entry for each vendor
             AccountingEntry::create([
                 'order_id' => $order->id,
                 'vendor_id' => $vendorId,
                 'type' => 'income',
-                'amount' => $vendorTotalWithShipping,
+                'amount' => $vendorTotalWithExtras, // Now includes fees, discounts, promo codes, and points
                 'commission_rate' => $avgCommissionRate,
                 'commission_amount' => $totalCommissionAmount,
                 'vendor_amount' => $vendorAmount,
@@ -100,12 +125,16 @@ class AccountingService
                 'metadata' => [
                     'order_number' => $order->order_number,
                     'stage_changed_at' => now(),
-                    'product_count' => $products->count()
+                    'product_count' => $products->count(),
+                    'fees' => $feesTotal,
+                    'discounts' => $discountsTotal,
+                    'promo_code_share' => $promoCodeShare,
+                    'points_share' => $pointsShare
                 ]
             ]);
 
-            // Update vendor balance
-            $this->updateVendorBalance($vendorId, $vendorAmount, $totalCommissionAmount);
+            // Update vendor balance - pass full amount (with extras) as earnings, not vendor_amount
+            $this->updateVendorBalance($vendorId, $vendorTotalWithExtras, $totalCommissionAmount);
         }
     }
 
@@ -206,9 +235,34 @@ class AccountingService
         
         // Add shipping cost
         $vendorShipping = $products->sum('shipping_cost');
-        $vendorTotalWithShipping = $vendorTotal + $vendorShipping;
+        
+        // Get vendor's fees and discounts from order_extra_fees_discounts
+        $extrasResult = \Illuminate\Support\Facades\DB::table('order_extra_fees_discounts')
+            ->where('order_id', $order->id)
+            ->where('vendor_id', $vendorId)
+            ->select(
+                \Illuminate\Support\Facades\DB::raw('SUM(CASE WHEN type = "fee" THEN cost ELSE 0 END) as fees_total'),
+                \Illuminate\Support\Facades\DB::raw('SUM(CASE WHEN type = "discount" THEN cost ELSE 0 END) as discounts_total')
+            )
+            ->first();
 
-        // Calculate commission on total with shipping
+        $feesTotal = $extrasResult->fees_total ?? 0;
+        $discountsTotal = $extrasResult->discounts_total ?? 0;
+
+        // Get vendor's promo code and points shares from vendor_order_stages
+        $vendorStage = \Illuminate\Support\Facades\DB::table('vendor_order_stages')
+            ->where('order_id', $order->id)
+            ->where('vendor_id', $vendorId)
+            ->select('promo_code_share', 'points_share')
+            ->first();
+
+        $promoCodeShare = $vendorStage->promo_code_share ?? 0;
+        $pointsShare = $vendorStage->points_share ?? 0;
+
+        // Total = products + shipping + fees - discounts - promo_code - points
+        $vendorTotalWithExtras = $vendorTotal + $vendorShipping + $feesTotal - $discountsTotal - $promoCodeShare - $pointsShare;
+
+        // Calculate commission on total with extras
         // commission field stores the percentage, fallback to department commission
         $totalCommissionAmount = $products->sum(function($product) {
             $productTotal = $product->price + ($product->shipping_cost ?? 0);
@@ -218,17 +272,17 @@ class AccountingService
             return $productTotal * ($commissionPercent / 100);
         });
 
-        $vendorAmount = $vendorTotalWithShipping - $totalCommissionAmount;
+        $vendorAmount = $vendorTotalWithExtras - $totalCommissionAmount;
 
         // Calculate average commission rate for display
-        $avgCommissionRate = $vendorTotalWithShipping > 0 ? ($totalCommissionAmount / $vendorTotalWithShipping) * 100 : 0;
+        $avgCommissionRate = $vendorTotalWithExtras > 0 ? ($totalCommissionAmount / $vendorTotalWithExtras) * 100 : 0;
 
         // Create income entry for this vendor
         AccountingEntry::create([
             'order_id' => $order->id,
             'vendor_id' => $vendorId,
             'type' => 'income',
-            'amount' => $vendorTotalWithShipping,
+            'amount' => $vendorTotalWithExtras, // Now includes fees, discounts, promo codes, and points
             'commission_rate' => $avgCommissionRate,
             'commission_amount' => $totalCommissionAmount,
             'vendor_amount' => $vendorAmount,
@@ -240,12 +294,16 @@ class AccountingService
                 'order_number' => $order->order_number,
                 'stage_changed_at' => now(),
                 'product_count' => $products->count(),
-                'vendor_stage_change' => true
+                'vendor_stage_change' => true,
+                'fees' => $feesTotal,
+                'discounts' => $discountsTotal,
+                'promo_code_share' => $promoCodeShare,
+                'points_share' => $pointsShare
             ]
         ]);
 
-        // Update vendor balance
-        $this->updateVendorBalance($vendorId, $vendorAmount, $totalCommissionAmount);
+        // Update vendor balance - pass full amount (with extras) as earnings, not vendor_amount
+        $this->updateVendorBalance($vendorId, $vendorTotalWithExtras, $totalCommissionAmount);
     }
 
     /**

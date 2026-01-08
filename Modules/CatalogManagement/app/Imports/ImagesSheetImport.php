@@ -17,7 +17,8 @@ class ImagesSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
 
     public function __construct(
         protected array &$productMap,
-        protected array &$importErrors = []
+        protected array &$importErrors = [],
+        protected bool $isAdmin = false
     ) {}
 
     public function collection(Collection $rows)
@@ -30,6 +31,9 @@ class ImagesSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                 'product_id' => 'required|integer|min:1',
                 'image' => 'required|string',
                 'is_main' => 'nullable|in:0,1,true,false,yes,no',
+            ], [
+                'product_id.required' => __('validation.required', ['attribute' => 'product_id']),
+                'image.required' => __('validation.required', ['attribute' => 'image']),
             ]);
 
             if ($validator->fails()) {
@@ -47,7 +51,7 @@ class ImagesSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                     'sheet' => 'images',
                     'row' => $index + 2,
                     'product_id' => $excelProductId,
-                    'errors' => ['Invalid product ID or image URL']
+                    'errors' => [__('catalogmanagement::product.invalid_product_id_or_image_url')]
                 ];
                 continue;
             }

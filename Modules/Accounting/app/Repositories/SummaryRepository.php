@@ -34,14 +34,25 @@ class SummaryRepository implements SummaryRepositoryInterface
         // Get total withdraws (accepted)
         $totalWithdraws = $this->getTotalWithdraws($filters);
         
+        // Calculate totals
+        // amount = full order amount (vendor total + shipping) - THIS IS WHAT WE SHOW AS TOTAL INCOME
+        // commission_amount = platform's share
+        // vendor_amount = vendor's share
+        $totalOrderAmount = (clone $query)->income()->sum('amount');
+        $totalCommissions = (clone $query)->income()->sum('commission_amount');
+        $totalVendorShare = (clone $query)->income()->sum('vendor_amount');
+        $totalExpenses = $expenseQuery->sum('amount');
+        
         return [
-            'total_income' => (clone $query)->income()->sum('amount'),
-            'total_expenses' => $expenseQuery->sum('amount'),
-            'total_commissions' => (clone $query)->income()->sum('commission_amount'),
+            'total_income' => $totalOrderAmount, // Show full order amount as Total Income
+            'total_order_amount' => $totalOrderAmount, // Full order amounts
+            'total_expenses' => $totalExpenses,
+            'total_commissions' => $totalCommissions, // Platform's commission
+            'total_vendor_share' => $totalVendorShare, // Amount that goes to vendors
             'total_refunds' => abs((clone $query)->refund()->sum('amount')),
             'total_withdraws' => $totalWithdraws,
-            // Net profit = Income - Commissions - Expenses (what vendors receive minus platform costs)
-            'net_profit' => (clone $query)->income()->sum('amount') - (clone $query)->income()->sum('commission_amount') - $expenseQuery->sum('amount'),
+            // Net profit = Platform Commission - Expenses
+            'net_profit' => $totalOrderAmount - $totalCommissions - $totalExpenses,
             'monthly_data' => $monthlyData,
             'expense_categories' => $expenseCategories
         ];
@@ -107,9 +118,11 @@ class SummaryRepository implements SummaryRepositoryInterface
             }
             
             $monthlyData[$month] = [
-                'income' => $incomeQuery->sum('amount'),
+                'income' => $incomeQuery->sum('amount'), // Full order amount as income
+                'order_amount' => $incomeQuery->sum('amount'), // Full order amount
                 'expenses' => $expenseQuery->sum('amount'),
-                'commissions' => (clone $incomeQuery)->sum('commission_amount'),
+                'commissions' => (clone $incomeQuery)->sum('commission_amount'), // Platform commission
+                'vendor_share' => (clone $incomeQuery)->sum('vendor_amount'),
                 'withdraws' => $withdrawQuery->sum('sent_amount')
             ];
         }

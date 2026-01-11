@@ -55,8 +55,17 @@ class VendorOrderStageObserver
      */
     protected function fulfillVendorBookings(VendorOrderStage $vendorOrderStage): void
     {
-        $bookings = StockBooking::where('order_id', $vendorOrderStage->order_id)
+        // Get order product IDs for this vendor
+        $orderProductIds = OrderProduct::where('order_id', $vendorOrderStage->order_id)
             ->where('vendor_id', $vendorOrderStage->vendor_id)
+            ->pluck('id');
+
+        if ($orderProductIds->isEmpty()) {
+            return;
+        }
+
+        $bookings = StockBooking::where('order_id', $vendorOrderStage->order_id)
+            ->whereIn('order_product_id', $orderProductIds)
             ->whereIn('status', [StockBooking::STATUS_BOOKED, StockBooking::STATUS_ALLOCATED])
             ->get();
 
@@ -79,8 +88,17 @@ class VendorOrderStageObserver
      */
     protected function releaseVendorBookings(VendorOrderStage $vendorOrderStage): void
     {
-        $bookings = StockBooking::where('order_id', $vendorOrderStage->order_id)
+        // Get order product IDs for this vendor
+        $orderProductIds = OrderProduct::where('order_id', $vendorOrderStage->order_id)
             ->where('vendor_id', $vendorOrderStage->vendor_id)
+            ->pluck('id');
+
+        if ($orderProductIds->isEmpty()) {
+            return;
+        }
+
+        $bookings = StockBooking::where('order_id', $vendorOrderStage->order_id)
+            ->whereIn('order_product_id', $orderProductIds)
             ->whereIn('status', [StockBooking::STATUS_BOOKED, StockBooking::STATUS_ALLOCATED])
             ->get();
 

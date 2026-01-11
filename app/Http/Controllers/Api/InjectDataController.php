@@ -133,14 +133,40 @@ class InjectDataController extends Controller
      */
     public function inject(Request $request)
     {
-        // Prevent double execution with a simple cache lock
-        $include = $request->get('include', 'departments');        
+        $include = $request->get('include', 'departments');
+        $truncate = $request->get('truncate', '0') === '1';
+        $force = $request->get('force', '0') === '1';
+        
+        // STRONG PROTECTION: Prevent double execution
+        // Use database cache to track if injection is running or completed
+        $lockKey = 'inject_running_' . $include;
+        $completedKey = 'inject_completed_' . $include . '_' . date('Y-m-d-H');
+        
+        // Check if already completed in this hour (prevents re-run after completion)
+        if (!$force && cache()->has($completedKey)) {
+            return response()->json([
+                'status' => false,
+                'message' => "Injection for {$include} already completed. Add &force=1 to run again.",
+                'completed_at' => cache()->get($completedKey),
+            ], 429);
+        }
+        
+        // Check if currently running
+        if (!$force && cache()->has($lockKey)) {
+            return response()->json([
+                'status' => false,
+                'message' => "Injection for {$include} is already running. Please wait.",
+            ], 429);
+        }
+        
+        // Set running lock (expires in 2 hours)
+        cache()->put($lockKey, now()->toDateTimeString(), 7200);
+        
         // Increase execution time for large imports
         set_time_limit(0);
         ini_set('memory_limit', '512M');
         
-        $truncate = $request->get('truncate', '0') === '1';
-        $limitPages = $request->get('limit_pages') ? (int) $request->get('limit_pages') : null; // Optional: limit how many pages to process
+        $limitPages = $request->get('limit_pages') ? (int) $request->get('limit_pages') : null;
         $startPage = (int) $request->get('page', 1);
         
         $truncateResult = null;
@@ -156,11 +182,16 @@ class InjectDataController extends Controller
         ];
 
         try {
-            // Truncate existing data before injection (only if explicitly requested)
-            if ($truncate) {
+            // Truncate existing data before injection (only if explicitly requested AND not already done)
+            $truncateKey = 'inject_truncated_' . $include . '_' . date('Y-m-d-H');
+            if ($truncate && !cache()->has($truncateKey)) {
                 Log::info("Truncating data for {$include}");
                 $truncateResult = $this->truncateBeforeInject($include);
                 Log::info("Truncate complete for {$include}", $truncateResult ?? []);
+                // Mark truncate as done for this hour
+                cache()->put($truncateKey, true, 3600);
+            } elseif ($truncate) {
+                Log::info("Truncate already done for {$include}, skipping");
             }
 
             // Fetch and process page by page
@@ -252,6 +283,10 @@ class InjectDataController extends Controller
                 $combinedResult['errors'][] = '... and more errors (truncated)';
             }
 
+            // Clear running lock and mark as completed
+            cache()->forget($lockKey);
+            cache()->put($completedKey, now()->toDateTimeString(), 3600);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Data injected successfully',
@@ -263,6 +298,8 @@ class InjectDataController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            // Clear running lock on error
+            cache()->forget($lockKey);
             Log::error('Inject data error: ' . $e->getMessage());
             return response()->json([
                 'status' => false,
@@ -694,15 +731,10 @@ class InjectDataController extends Controller
         $skipped = 0;
         $errors = [];
 
-        // Sort items: parent variants first (null parent_id), then children
-        usort($items, function($a, $b) {
-            $aParent = $a['parent_id'] ?? null;
-            $bParent = $b['parent_id'] ?? null;
-            if ($aParent === null && $bParent !== null) return -1;
-            if ($aParent !== null && $bParent === null) return 1;
-            return 0;
-        });
+        // Store parent_id mappings for second pass
+        $parentMappings = [];
 
+        // First pass: Insert/update all variants WITHOUT parent_id to avoid FK issues
         foreach ($items as $item) {
             // Skip empty items
             if (empty($item) || !isset($item['id'])) {
@@ -710,14 +742,19 @@ class InjectDataController extends Controller
                 continue;
             }
 
-            try {// Check if variant exists by ID
+            try {
+                // Store parent_id for second pass
+                if (!empty($item['parent_id'])) {
+                    $parentMappings[$item['id']] = $item['parent_id'];
+                }
+
+                // Check if variant exists by ID
                 $variant = VariantsConfiguration::where('id', $item['id'])->first();
 
                 if ($variant) {
-                    // Update existing
+                    // Update existing (without parent_id for now)
                     $variant->update([
                         'key_id' => $item['key_id'] ?? null,
-                        'parent_id' => $item['parent_id'] ?? null,
                         'value' => $item['color'] ?? null,
                         'type' => !empty($item['color']) ? 'color' : 'text',
                         'created_at' => $this->parseDate($item['created_at'] ?? null),
@@ -725,11 +762,11 @@ class InjectDataController extends Controller
                     ]);
                     $updated++;
                 } else {
-                    // Create new with same ID
+                    // Create new with same ID (without parent_id for now)
                     $variant = new VariantsConfiguration();
                     $variant->id = $item['id'];
                     $variant->key_id = $item['key_id'] ?? null;
-                    $variant->parent_id = $item['parent_id'] ?? null;
+                    $variant->parent_id = null; // Will be set in second pass
                     $variant->value = $item['color'] ?? null;
                     $variant->type = !empty($item['color']) ? 'color' : 'text';
                     $variant->created_at = $this->parseDate($item['created_at'] ?? null);
@@ -745,9 +782,24 @@ class InjectDataController extends Controller
                 if (!empty($item['name_ar'])) {
                     $variant->setTranslation('name', 'ar', $item['name_ar']);
                 }
-                $variant->save();} catch (\Exception $e) {$nameEn = $item['name_en'] ?? $item['id'];
+                $variant->save();
+
+            } catch (\Exception $e) {
+                $nameEn = $item['name_en'] ?? $item['id'];
                 $errors[] = "Variant {$nameEn} (ID: {$item['id']}): " . $e->getMessage();
                 Log::error("Error injecting variant: " . $e->getMessage());
+            }
+        }
+
+        // Second pass: Update parent_id for variants that have parents
+        foreach ($parentMappings as $variantId => $parentId) {
+            try {
+                // Only update if parent exists
+                if (VariantsConfiguration::where('id', $parentId)->exists()) {
+                    VariantsConfiguration::where('id', $variantId)->update(['parent_id' => $parentId]);
+                }
+            } catch (\Exception $e) {
+                $errors[] = "Failed to set parent_id {$parentId} for variant {$variantId}: " . $e->getMessage();
             }
         }
 

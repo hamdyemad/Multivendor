@@ -34,26 +34,70 @@ class CategoryApiService
 
     /**
      * Get categories by filters (handles department, category, and sub-category hierarchy)
+     * Returns both categories and sub-categories when applicable
      */
     public function getCategoriesByFilters(array $filters)
     {
-        // If department_id is provided, return main categories for that department
-        if (!empty($filters['department_id'])) {
-            $dto = new CategoryFilterDTO(department_id: $filters['department_id']);
-            return $this->CategoryRepository->getAllCategories($dto);
+        $result = [];
+        
+        // If sub_category_id is provided, return empty (no further children)
+        if (!empty($filters['sub_category_id'])) {
+            return [];
         }
 
-        // If main_category_id or category_id is provided, return sub-categories
+        // If main_category_id or category_id is provided, return sub-categories (priority over department_id)
         $categoryId = $filters['main_category_id'] ?? $filters['category_id'] ?? null;
         if (!empty($categoryId)) {
             $subCategories = $this->SubCategoryRepository->getSubCategoriesByCategory($categoryId);
-            // If no sub-categories, return empty (category has no children)
-            return $subCategories;
+            
+            // Format sub-categories
+            foreach ($subCategories as $subCategory) {
+                $result[] = [
+                    'id' => $subCategory->id,
+                    'title' => $subCategory->name,
+                    'slug' => $subCategory->slug,
+                    'image' => $subCategory->image ? asset('storage/' . $subCategory->image) : null,
+                    'icon' => $subCategory->icon ? asset('storage/' . $subCategory->icon) : null,
+                    'type' => 'sub_category',
+                    'parent_id' => (int) $categoryId,
+                ];
+            }
+            
+            return $result;
         }
-
-        // If sub_category_id is provided, return empty (no further children)
-        if (!empty($filters['sub_category_id'])) {
-            return collect();
+        
+        // If department_id is provided, return main categories AND their sub-categories for that department
+        if (!empty($filters['department_id'])) {
+            $dto = new CategoryFilterDTO(department_id: $filters['department_id']);
+            $categories = $this->CategoryRepository->getAllCategories($dto);
+            
+            // Add categories with type
+            foreach ($categories as $category) {
+                $result[] = [
+                    'id' => $category->id,
+                    'title' => $category->name,
+                    'slug' => $category->slug,
+                    'image' => $category->image ? asset('storage/' . $category->image) : null,
+                    'icon' => $category->icon ? asset('storage/' . $category->icon) : null,
+                    'type' => 'category',
+                ];
+                
+                // Get sub-categories from the already eager-loaded activeSubs relationship
+                $subCategories = $category->activeSubs ?? collect();
+                foreach ($subCategories as $subCategory) {
+                    $result[] = [
+                        'id' => $subCategory->id,
+                        'title' => $subCategory->name,
+                        'slug' => $subCategory->slug,
+                        'image' => $subCategory->image ? asset('storage/' . $subCategory->image) : null,
+                        'icon' => $subCategory->icon ? asset('storage/' . $subCategory->icon) : null,
+                        'type' => 'sub_category',
+                        'parent_id' => $category->id,
+                    ];
+                }
+            }
+            
+            return $result;
         }
 
         // If brand_id only, return all departments that have products from this brand

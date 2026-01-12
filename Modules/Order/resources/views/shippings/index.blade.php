@@ -546,18 +546,30 @@
             // Delete shipping
             $(document).on('click', '#confirmDeleteShippingBtn', function() {
                 let id = $(this).data('item-id');
+                let baseUrl = "{{ route('admin.shippings.index') }}";
                 $.ajax({
-                    url: "{{ route('admin.shippings.destroy', ':id') }}".replace(':id', id),
-                    type: 'DELETE',
-                    data: { _token: '{{ csrf_token() }}' },
+                    url: baseUrl + '/' + id,
+                    type: 'POST',
+                    data: { 
+                        _token: '{{ csrf_token() }}',
+                        _method: 'DELETE'
+                    },
                     success: function(response) {
                         $('#modal-delete-shipping').modal('hide');
-                        toastr.success('{{ trans('shipping.deleted_successfully') }}');
-                        table.ajax.reload();
+                        if (response.success || response.status) {
+                            toastr.success(response.message || '{{ trans('shipping.deleted_successfully') }}');
+                            table.ajax.reload();
+                        } else {
+                            toastr.error(response.message || '{{ trans('shipping.error_deleting') }}');
+                        }
                     },
-                    error: function() {
+                    error: function(xhr) {
                         $('#modal-delete-shipping').modal('hide');
-                        toastr.error('{{ trans('shipping.error_deleting') }}');
+                        let message = '{{ trans('shipping.error_deleting') }}';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            message = xhr.responseJSON.message;
+                        }
+                        toastr.error(message);
                     }
                 });
             });

@@ -271,13 +271,34 @@ class ShippingController extends Controller
     /**
      * Remove the specified shipping from storage
      */
-    public function destroy($lang, $countryCode, $id)
+    public function destroy($lang, $countryCode, $id, Request $request)
     {
         try {
             $this->shippingService->deleteShipping($id);
+            
+            // Return JSON for AJAX requests
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'status' => true,
+                    'message' => trans('shipping.deleted_successfully')
+                ]);
+            }
+            
             return redirect()->route('admin.shippings.index')
                            ->with('success', trans('shipping.deleted_successfully'));
         } catch (\Exception $e) {
+            \Log::error('Error deleting shipping: ' . $e->getMessage());
+            
+            // Return JSON for AJAX requests
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'status' => false,
+                    'message' => trans('shipping.error_deleting')
+                ], 500);
+            }
+            
             return back()->with('error', trans('shipping.error_deleting'));
         }
     }

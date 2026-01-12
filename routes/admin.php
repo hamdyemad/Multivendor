@@ -18,6 +18,7 @@ use App\Http\Controllers\AreaSettings\SubRegionController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\Api\InjectDataController;
 use App\Http\Controllers\Admin\TruncateController;
+use Database\Seeders\OrderStageSeeder;
 use Database\Seeders\SyncVendorUsersSeeder;
 use Database\Seeders\VendorProductTaxSeeder;
 use Illuminate\Support\Facades\Artisan;
@@ -138,11 +139,11 @@ Route::get('seeder', function () {
             //     'name' => 'Vendor Seeder',
             //     'description' => 'Creates vendors with country_id and translations',
             // ],
-            // [
-            //     'class' => OrderStageSeeder::class,
-            //     'name' => 'Order Stage Seeder',
-            //     'description' => 'Creates order stages',
-            // ],
+            [
+                'class' => OrderStageSeeder::class,
+                'name' => 'Order Stage Seeder',
+                'description' => 'Creates order stages',
+            ],
             // [
             //     'class' => AutoProductSeeder::class,
             //     'name' => 'Auto Product Seeder',
@@ -163,16 +164,16 @@ Route::get('seeder', function () {
             //     'name' => 'Order Seeder',
             //     'description' => 'Creates 30 sample orders with products, pricing, and shipping',
             // ],
-            [
-                'class' => SyncVendorUsersSeeder::class,
-                'name' => 'SyncVendorUsersSeeder',
-                'description' => 'Update Vendor Users',
-            ],
-            [
-                'class' => VendorProductTaxSeeder::class,
-                'name' => 'VendorProductTaxSeeder',
-                'description' => 'Assign all active taxes to every vendor product',
-            ],
+            // [
+            //     'class' => SyncVendorUsersSeeder::class,
+            //     'name' => 'SyncVendorUsersSeeder',
+            //     'description' => 'Update Vendor Users',
+            // ],
+            // [
+            //     'class' => VendorProductTaxSeeder::class,
+            //     'name' => 'VendorProductTaxSeeder',
+            //     'description' => 'Assign all active taxes to every vendor product',
+            // ],
         ];
 
         $results = [];

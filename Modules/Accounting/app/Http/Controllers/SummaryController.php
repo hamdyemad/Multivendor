@@ -25,14 +25,14 @@ class SummaryController extends Controller
     private function generateMonthHeaders($filters)
     {
         $currentYear = date('Y');
-        $currentMonth = date('n');
         
         if (!empty($filters['date_from']) && !empty($filters['date_to'])) {
             $startDate = \Carbon\Carbon::parse($filters['date_from']);
             $endDate = \Carbon\Carbon::parse($filters['date_to']);
         } else {
+            // Default to full year (January to December)
             $startDate = \Carbon\Carbon::create($currentYear, 1, 1);
-            $endDate = \Carbon\Carbon::create($currentYear, $currentMonth, 1);
+            $endDate = \Carbon\Carbon::create($currentYear, 12, 31);
         }
         
         $months = [];

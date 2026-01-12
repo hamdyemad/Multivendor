@@ -33,7 +33,7 @@ class AboutUsResource extends JsonResource
                     'bullet_1' => $this->getTranslation('section_1_bullet_1', $locale) ?? '',
                     'bullet_2' => $this->getTranslation('section_1_bullet_2', $locale) ?? '',
                 ],
-                'link' => $this->getTranslation('section_1_link', $locale) ?? '',
+                'link' => $this->section_1_link ?? '',
             ],
             'section_2' => [
                 'image' => $this->section_2_image ? asset('storage/' . $this->section_2_image) : null,
@@ -49,7 +49,7 @@ class AboutUsResource extends JsonResource
                     'bullet_3' => $this->getTranslation('section_2_bullet_3', $locale) ?? '',
                     'bullet_4' => $this->getTranslation('section_2_bullet_4', $locale) ?? '',
                 ],
-                'video_link' => $this->getTranslation('section_2_video_link', $locale) ?? '',
+                'video_link' => $this->section_2_video_link ?? '',
             ],
             'section_3' => [
                 'side_title_1' => $this->getTranslation('section_3_title', $locale) ?? '',

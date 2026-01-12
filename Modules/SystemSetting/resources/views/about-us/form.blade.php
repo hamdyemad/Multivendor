@@ -227,16 +227,17 @@
                                             <div class="col-12">
                                                 <h6 class="fw-bold mb-3"><i class="uil uil-link me-1"></i> {{ __('systemsetting::about-us.link') }}</h6>
                                             </div>
-                                            <x-multilingual-input 
-                                                name="section_1_link" 
-                                                label="Link"
-                                                labelAr="الرابط"
-                                                placeholder="Enter link URL"
-                                                placeholderAr="أدخل رابط URL"
-                                                :languages="$languages" 
-                                                :model="$aboutUs"
-                                                inputClass="nockeditor"
-                                            />
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="section_1_link" class="form-label">{{ __('systemsetting::about-us.link') }}</label>
+                                                    <input type="url" 
+                                                           class="form-control nockeditor" 
+                                                           id="section_1_link" 
+                                                           name="section_1_link" 
+                                                           value="{{ $aboutUs->section_1_link ?? '' }}"
+                                                           placeholder="https://example.com">
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -380,16 +381,17 @@
                                             <div class="col-12">
                                                 <h6 class="fw-bold mb-3"><i class="uil uil-video me-1"></i> {{ __('systemsetting::about-us.video_link') }}</h6>
                                             </div>
-                                            <x-multilingual-input 
-                                                name="section_2_video_link" 
-                                                label="Video Link"
-                                                labelAr="رابط الفيديو"
-                                                placeholder="Enter video URL"
-                                                placeholderAr="أدخل رابط الفيديو"
-                                                :languages="$languages" 
-                                                :model="$aboutUs"
-                                                inputClass="nockeditor"
-                                            />
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="section_2_video_link" class="form-label">{{ __('systemsetting::about-us.video_link') }}</label>
+                                                    <input type="url" 
+                                                           class="form-control nockeditor" 
+                                                           id="section_2_video_link" 
+                                                           name="section_2_video_link" 
+                                                           value="{{ $aboutUs->section_2_video_link ?? '' }}"
+                                                           placeholder="https://youtube.com/watch?v=...">
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

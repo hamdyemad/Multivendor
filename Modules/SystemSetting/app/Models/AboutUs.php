@@ -92,10 +92,17 @@ class AboutUs extends Model
             $fields[] = "section_{$i}_bullet_4";
         }
         
-        // Additional fields
-        $fields[] = 'section_1_link';
-        $fields[] = 'section_2_video_link';
-        
         return $fields;
+    }
+    
+    /**
+     * Get non-translatable link fields (URLs don't need translation)
+     */
+    public static function getLinkFields(): array
+    {
+        return [
+            'section_1_link',
+            'section_2_video_link',
+        ];
     }
 }

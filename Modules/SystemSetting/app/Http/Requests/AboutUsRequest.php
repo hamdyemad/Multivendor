@@ -16,6 +16,9 @@ class AboutUsRequest extends FormRequest
     {
         $rules = [
             'translations' => 'nullable|array',
+            // Link fields (not translatable)
+            'section_1_link' => 'nullable|string|max:500',
+            'section_2_video_link' => 'nullable|string|max:500',
         ];
         
         // Add rules for each section (1-4)

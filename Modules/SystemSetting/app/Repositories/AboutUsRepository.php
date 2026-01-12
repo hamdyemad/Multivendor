@@ -48,8 +48,9 @@ class AboutUsRepository
                 }
             }
 
-            // Update non-translatable fields (only image fields)
-            $updateData = array_intersect_key($data, array_flip($imageFields));
+            // Update non-translatable fields (image fields + link fields)
+            $linkFields = AboutUs::getLinkFields();
+            $updateData = array_intersect_key($data, array_flip(array_merge($imageFields, $linkFields)));
 
             if (!empty($updateData)) {
                 $aboutUs->update($updateData);

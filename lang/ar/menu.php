@@ -219,6 +219,7 @@
             'messages' => 'الرسائل',
         ],
         'messages' => 'الرسائل',
+        'new_message' => 'أرسل رسالة جديدة',
         'no_messages' => 'لا توجد رسائل',
         'see_all_messages' => 'عرض جميع الرسائل',
         'latest_orders' => 'أحدث الطلبات',

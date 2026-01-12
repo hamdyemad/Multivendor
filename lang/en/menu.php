@@ -227,6 +227,7 @@
             'messages' => 'messages',
         ],
         'messages' => 'Messages',
+        'new_message' => 'Sent a new message',
         'no_messages' => 'No messages',
         'see_all_messages' => 'See All Messages',
         'latest_orders' => 'Latest Orders',

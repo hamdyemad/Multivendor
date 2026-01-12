@@ -22,7 +22,9 @@ class BlogApiRepository implements BlogApiRepositoryInterface
 
     public function find($id)
     {
-        $blog = Blog::with(['blogCategory.translations', 'translations', 'attachments', 'comments'])
+        $blog = Blog::with(['blogCategory.translations', 'translations', 'attachments', 'comments' => function($q) {
+                $q->latest();
+            }])
         ->withCount('comments')
         ->active()
             ->where(function($q) use ($id) {

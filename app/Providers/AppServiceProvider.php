@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Observers\GlobalModelObserver;
 use App\Models\ActivityLog;
 use Modules\AreaSettings\app\Models\Country;
+use Carbon\Carbon;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -54,6 +55,9 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') === 'production') {
             URL::forceScheme('https');
         }
+
+        // Set Carbon locale based on app locale
+        Carbon::setLocale(app()->getLocale());
 
         // Register Blade directive for admin routes with lang and country
         // Note: URL defaults are set by SetAdminRouteDefaults middleware

@@ -15,7 +15,7 @@
                     'title' => $vendor->name,
                     'description' => trans('menu.become a vendor requests.wants_to_become'),
                     'url' => route('admin.vendors.show', $vendor->id),
-                    'created_at' => $vendor->created_at,
+                    'created_at' => $vendor->getRawOriginal('created_at'),
                     'source' => 'vendors',
                 ];
             });
@@ -40,7 +40,7 @@
                 'title' => trans('menu.order') . ' #' . $order->order_number,
                 'description' => $order->customer_name ?? 'N/A',
                 'url' => route('admin.orders.show', $order->id),
-                'created_at' => $order->created_at,
+                'created_at' => $order->getRawOriginal('created_at'),
                 'source' => 'orders',
             ];
         });
@@ -58,9 +58,9 @@
                     'icon' => 'uil-envelope',
                     'color' => 'success',
                     'title' => $message->name,
-                    'description' => $message->title,
+                    'description' => trans('menu.new_message'),
                     'url' => route('admin.messages.show', $message->id),
-                    'created_at' => $message->created_at,
+                    'created_at' => $message->getRawOriginal('created_at'),
                     'source' => 'messages',
                 ];
             });
@@ -95,6 +95,10 @@
                     $description = trans('order::request-quotation.notification_new_request');
                 }
                 
+                $rawDate = $isAccepted || $isRejected 
+                    ? $quotation->getRawOriginal('offer_responded_at') 
+                    : $quotation->getRawOriginal('created_at');
+                
                 return [
                     'type' => 'request_quotation',
                     'icon' => $icon,
@@ -102,7 +106,7 @@
                     'title' => $quotation->customer_name,
                     'description' => $description,
                     'url' => route('admin.request-quotations.index'),
-                    'created_at' => $isAccepted || $isRejected ? $quotation->offer_responded_at : $quotation->created_at,
+                    'created_at' => $rawDate,
                     'source' => 'request_quotations',
                 ];
             });
@@ -137,7 +141,7 @@
                     'title' => $notification->getTranslation('title', $locale) ?? $notification->getTranslation('title', 'en'),
                     'description' => \Illuminate\Support\Str::limit(strip_tags($notification->getTranslation('description', $locale) ?? $notification->getTranslation('description', 'en')), 50),
                     'url' => route('admin.system-settings.push-notifications.view', ['id' => $notification->id]),
-                    'created_at' => $notification->created_at,
+                    'created_at' => $notification->getRawOriginal('created_at'),
                     'image' => $notification->image ? formatImage($notification->image) : null,
                     'source' => 'push_notifications',
                 ];
@@ -173,7 +177,7 @@
                                     <span>{{ $notification['description'] }}</span>
                                 </p>
                                 <p>
-                                    <span class="time-posted">{{ $notification['created_at'] }}</span>
+                                    <span class="time-posted">{{ \Carbon\Carbon::parse($notification['created_at'])->diffForHumans() }}</span>
                                 </p>
                             </div>
                         </li>

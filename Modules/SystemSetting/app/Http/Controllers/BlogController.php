@@ -72,18 +72,13 @@ class BlogController extends Controller
 
         return DataTables::of($query)
             ->addIndexColumn()
-            ->addColumn('title_category', function ($blog) {
+            ->addColumn('blog_information', function ($blog) {
+                $title = Str::limit($blog->title ?? '-', 50);
                 $html = '<div class="userDatatable-content">';
-                $html .= '<div class="mb-2"><strong>' . ($blog->title ?? '-') . '</strong></div>';
-                if ($blog->blogCategory) {
-                    $html .= '<div class="text-muted small">' . __('systemsetting::blogs.category') . ': ' . ($blog->blogCategory->title ?? '-') . '</div>';
-                }
+                $html .= '<div class="mb-1"><strong>' . $title . '</strong></div>';
+                $html .= '<div class="text-muted small">' . __('systemsetting::blogs.category') . ': ' . ($blog->blogCategory->title ?? '-') . '</div>';
                 $html .= '</div>';
                 return $html;
-            })
-            ->addColumn('content_preview', function ($blog) {
-                $content = strip_tags($blog->content ?? '');
-                return Str::limit($content, 100);
             })
             ->addColumn('image_preview', function ($blog) {
                 if ($blog->mainImage && $blog->mainImage->path) {
@@ -135,7 +130,7 @@ class BlogController extends Controller
                 $actions .= '</div>';
                 return $actions;
             })
-            ->rawColumns(['title_category', 'content_preview', 'image_preview', 'status_badge', 'action'])
+            ->rawColumns(['blog_information', 'image_preview', 'status_badge', 'action'])
             ->make(true);
     }
 

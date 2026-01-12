@@ -163,10 +163,7 @@
                             <thead>
                                 <tr class="userDatatable-header">
                                     <th class="text-center"><span class="userDatatable-title">#</span></th>
-                                    <th><span class="userDatatable-title">{{ __('systemsetting::blogs.title') }}</span>
-                                    </th>
-                                    <th><span
-                                            class="userDatatable-title">{{ __('systemsetting::blogs.content_preview') }}</span>
+                                    <th><span class="userDatatable-title">{{ __('systemsetting::blogs.blog_information') }}</span>
                                     </th>
                                     <th><span class="userDatatable-title">{{ __('systemsetting::blogs.image') }}</span>
                                     </th>
@@ -240,14 +237,8 @@
                         searchable: false
                     },
                     {
-                        data: 'title_category',
-                        name: 'title_category',
-                        orderable: false,
-                        searchable: true
-                    },
-                    {
-                        data: 'content_preview',
-                        name: 'content_preview',
+                        data: 'blog_information',
+                        name: 'blog_information',
                         orderable: false,
                         searchable: true
                     },

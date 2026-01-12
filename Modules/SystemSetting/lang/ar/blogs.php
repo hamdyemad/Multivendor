@@ -162,4 +162,5 @@ return [
     'no_image' => 'لا توجد صورة',
     'upload_image' => 'رفع صورة',
     'action' => 'الاجراءات',
+    'blog_information' => 'معلومات المدونة',
 ];

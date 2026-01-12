@@ -162,4 +162,5 @@ return [
     'no_image' => 'No Image',
     'upload_image' => 'Upload Image',
     'action' => 'Action',
+    'blog_information' => 'Blog Information',
 ];

@@ -19,7 +19,7 @@
         </div>
 
         {{-- Shipping Settings Card --}}
-        <div class="row mb-3">
+        {{-- <div class="row mb-3">
             <div class="col-lg-12">
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white border-bottom py-15">
@@ -75,7 +75,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         <div class="row">
             <div class="col-lg-12">

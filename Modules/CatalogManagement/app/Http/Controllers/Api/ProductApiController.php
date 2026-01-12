@@ -449,6 +449,7 @@ class ProductApiController extends Controller
             $occasions = $this->occasionService->getAllOccasions($filters, 0);
             
             // If brand_id is provided, filter occasions to only show those with products from that brand
+            // and filter the occasion products to only include products from that brand
             if (!empty($brandId)) {
                 $occasions = $occasions->filter(function ($occasion) use ($brandId) {
                     // Check if this occasion has any products from the specified brand
@@ -456,6 +457,15 @@ class ProductApiController extends Controller
                         ->whereHas('vendorProductVariant.vendorProduct.product', function ($q) use ($brandId) {
                             $q->where('brand_id', $brandId);
                         })->exists();
+                });
+                
+                // Filter occasion products to only include products from the specified brand
+                $occasions->each(function ($occasion) use ($brandId) {
+                    $filteredProducts = $occasion->occasionProducts->filter(function ($occasionProduct) use ($brandId) {
+                        $product = $occasionProduct->vendorProductVariant?->vendorProduct?->product;
+                        return $product && $product->brand_id == $brandId;
+                    });
+                    $occasion->setRelation('occasionProducts', $filteredProducts);
                 });
             }
             

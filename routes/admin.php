@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\TruncateController;
 use Database\Seeders\OrderStageSeeder;
 use Database\Seeders\SyncVendorUsersSeeder;
 use Database\Seeders\VendorProductTaxSeeder;
+use Database\Seeders\VendorSeeder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 
@@ -164,11 +165,11 @@ Route::get('seeder', function () {
             //     'name' => 'Order Seeder',
             //     'description' => 'Creates 30 sample orders with products, pricing, and shipping',
             // ],
-            // [
-            //     'class' => SyncVendorUsersSeeder::class,
-            //     'name' => 'SyncVendorUsersSeeder',
-            //     'description' => 'Update Vendor Users',
-            // ],
+            [
+                'class' => SyncVendorUsersSeeder::class,
+                'name' => 'SyncVendorUsersSeeder',
+                'description' => 'Update Vendor Users',
+            ],
             // [
             //     'class' => VendorProductTaxSeeder::class,
             //     'name' => 'VendorProductTaxSeeder',

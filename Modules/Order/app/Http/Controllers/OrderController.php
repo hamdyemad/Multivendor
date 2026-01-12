@@ -167,9 +167,10 @@ class OrderController extends Controller
                         'logo_url' => $vendor->logo ? asset('storage/' . $vendor->logo->path) : asset('assets/img/default.png'),
                         'stage' => $vendorOrderStage && $vendorOrderStage->stage ? [
                             'id' => $vendorOrderStage->stage->id,
-                            'name' => $vendorOrderStage->stage->name ?? '-',
+                            'name' => $vendorOrderStage->stage->getTranslation('name', app()->getLocale()) ?? '-',
                             'color' => $vendorOrderStage->stage->color ?? '#6c757d',
-                            'type' => $vendorOrderStage->stage->type,
+                            'type' => $vendorOrderStage->stage->type ?? null,
+                            'slug' => $vendorOrderStage->stage->slug ?? null,
                         ] : null,
                     ];
                 })->values();
@@ -808,6 +809,91 @@ class OrderController extends Controller
                         'color' => $vendorOrderStage->stage?->color,
                         'type' => $vendorOrderStage->stage?->type,
                     ],
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        }
+    }
+
+    /**
+     * Change stage for all vendors in an order
+     * Only admins can use this
+     */
+    public function changeAllVendorStages($lang, $countryCode, $orderId, Request $request)
+    {
+        try {
+            // Only admins can change all vendor stages
+            if (!isAdmin()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => trans('order::order.unauthorized'),
+                ], 403);
+            }
+
+            $request->validate([
+                'stage_id' => 'required|exists:order_stages,id',
+            ]);
+
+            $order = Order::with(['vendorStages.stage' => function($q) {
+                $q->withoutGlobalScopes();
+            }])->findOrFail($orderId);
+
+            // Check if order is from a quotation and if it's accepted
+            if ($order->requestQuotation) {
+                if ($order->requestQuotation->status !== 'accepted_offer') {
+                    return response()->json([
+                        'status' => false,
+                        'message' => trans('order::order.quotation_not_accepted_yet'),
+                    ], 422);
+                }
+            }
+
+            $newStage = OrderStage::withoutGlobalScopes()->findOrFail($request->stage_id);
+            $updatedCount = 0;
+            $errors = [];
+
+            // Update each vendor's stage
+            foreach ($order->vendorStages as $vendorStage) {
+                try {
+                    // Check if transition is allowed
+                    $currentStage = $vendorStage->stage;
+                    if ($currentStage && $currentStage->isFinalStage()) {
+                        $errors[] = trans('order::order.vendor_already_final_stage', [
+                            'vendor_id' => $vendorStage->vendor_id
+                        ]);
+                        continue;
+                    }
+
+                    // Change vendor order stage
+                    $this->orderService->changeVendorOrderStage($orderId, $vendorStage->vendor_id, $request->stage_id);
+                    $updatedCount++;
+                } catch (\Exception $e) {
+                    $errors[] = $e->getMessage();
+                    \Log::error('Failed to update vendor stage', [
+                        'order_id' => $orderId,
+                        'vendor_id' => $vendorStage->vendor_id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+
+            if ($updatedCount === 0 && !empty($errors)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $errors[0] ?? trans('order::order.error_updating_stage'),
+                ], 422);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => trans('order::order.all_vendor_stages_updated_successfully', ['count' => $updatedCount]),
+                'data' => [
+                    'updated_count' => $updatedCount,
+                    'errors' => $errors,
                 ]
             ]);
         } catch (\Exception $e) {

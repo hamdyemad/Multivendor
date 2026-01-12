@@ -344,6 +344,72 @@
         </div>
     </div>
     @endif
+    
+    {{-- Admin Change Stage Modal (for all vendors) --}}
+    @if(isAdmin())
+    <div class="modal fade" id="adminChangeStageModal" tabindex="-1" aria-labelledby="adminChangeStageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="adminChangeStageModalLabel">
+                        <i class="uil uil-exchange me-2"></i>{{ trans('order::order.change_stage_all_vendors') }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="adminStageOrderId">
+                    <input type="hidden" id="adminCurrentStageType">
+                    <input type="hidden" id="adminCurrentStageId">
+                    
+                    <div class="alert alert-info mb-3">
+                        <i class="uil uil-info-circle me-2"></i>
+                        {{ trans('order::order.admin_stage_change_warning') }}
+                    </div>
+                    <div class="form-group">
+                        <label for="adminNewStage" class="form-label fw-bold">{{ trans('order::order.select_new_stage') }}</label>
+                        <select id="adminNewStage" class="form-select" required>
+                            <option value="">{{ trans('order::order.select_stage') }}</option>
+                        </select>
+                        <div id="adminStageWarning" class="alert alert-warning mt-2" style="display: none;"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('common.cancel') }}</button>
+                    <button type="button" class="btn btn-primary" id="confirmAdminStageBtn">{{ trans('order::order.update_stage') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+    
+    {{-- Admin Quick Stage Change Confirmation Modal --}}
+    @if(isAdmin())
+    <div class="modal fade" id="adminQuickStageModal" tabindex="-1" aria-labelledby="adminQuickStageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="adminQuickStageModalLabel">
+                        <i class="uil uil-exclamation-triangle me-2"></i>{{ trans('common.confirm_action') }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="adminQuickStageOrderId">
+                    <input type="hidden" id="adminQuickStageTargetType">
+                    <div class="alert alert-info mb-3">
+                        <i class="uil uil-info-circle me-2"></i>
+                        {{ trans('order::order.admin_stage_change_warning') }}
+                    </div>
+                    <p id="adminQuickStageMessage" class="mb-0 fs-16"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('common.cancel') }}</button>
+                    <button type="button" class="btn btn-primary" id="confirmAdminQuickStageBtn">{{ __('common.confirm') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 @endsection
 
 @push('after-body')
@@ -665,6 +731,67 @@
                             `;
                         }
                         
+                        // For admin: show stage change button for all vendors
+                        if (!isVendorUser && !isFinalStage) {
+                            actionsHtml += `
+                                <button type="button"
+                                    class="btn btn-warning table_action_father btn-admin-change-stage"
+                                    data-order-id="${row.id}"
+                                    title="{{ trans('order::order.change_stage_all_vendors') }}">
+                                    <i class="uil uil-exchange table_action_icon"></i>
+                                </button>
+                            `;
+                        }
+                        
+                        // Admin quick actions: In Progress, Deliver, Cancel
+                        if (!isVendorUser && row.vendors_with_stages && row.vendors_with_stages.length > 0) {
+                            // Check if all vendors are in 'new' stage
+                            const allNew = row.vendors_with_stages.every(v => v.stage?.type === 'new');
+                            // Check if all vendors are in 'in_progress' stage
+                            const allInProgress = row.vendors_with_stages.every(v => v.stage?.type === 'in_progress');
+                            // Check if any vendor is not in final stage
+                            const hasNonFinal = row.vendors_with_stages.some(v => !['deliver', 'cancel', 'refund'].includes(v.stage?.type));
+                            
+                            // In Progress button (only if all vendors are in 'new')
+                            if (allNew) {
+                                actionsHtml += `
+                                    <button type="button"
+                                        class="btn btn-secondary table_action_father btn-admin-quick-stage"
+                                        data-order-id="${row.id}"
+                                        data-target-type="in_progress"
+                                        title="{{ trans('order::order.mark_in_progress') }}">
+                                        <i class="uil uil-process table_action_icon"></i>
+                                    </button>
+                                `;
+                            }
+                            
+                            // Deliver button (only if all vendors are in 'in_progress')
+                            if (allInProgress) {
+                                actionsHtml += `
+                                    <button type="button"
+                                        class="btn btn-success table_action_father btn-admin-quick-stage"
+                                        data-order-id="${row.id}"
+                                        data-target-type="deliver"
+                                        title="{{ trans('order::order.mark_delivered') }}">
+                                        <i class="uil uil-check-circle table_action_icon"></i>
+                                    </button>
+                                `;
+                            }
+                            
+                            // Cancel button (if any vendor is not in final stage)
+                            if (hasNonFinal) {
+                                actionsHtml += `
+                                    <button type="button"
+                                        class="btn btn-danger table_action_father btn-admin-quick-stage"
+                                        data-order-id="${row.id}"
+                                        data-target-type="cancel"
+                                        title="{{ trans('order::order.cancel_order') }}">
+                                        <i class="uil uil-times-circle table_action_icon"></i>
+                                    </button>
+                                `;
+                            }
+                        }
+                        
                         // Edit button for vendors (if not final stage)
                         if (isVendorUser && !isVendorFinalStage && canEditDelete) {
                             actionsHtml += `
@@ -729,6 +856,20 @@
                                     <i class="uil uil-credit-card table_action_icon"></i>
                                 </a>
                             `;
+                        }
+                        
+                        // Allocate button - for admin when any vendor is in_progress
+                        if (!isVendorUser && row.vendors_with_stages && row.vendors_with_stages.length > 0) {
+                            const hasInProgress = row.vendors_with_stages.some(v => v.stage?.type === 'in_progress');
+                            if (hasInProgress) {
+                                actionsHtml += `
+                                    <a href="${'{{ route('admin.order-fulfillments.allocate', ':id') }}'.replace(':id', row.id)}"
+                                    class="btn btn-info table_action_father"
+                                    title="{{ trans('order::order.allocate') }}">
+                                        <i class="uil uil-box table_action_icon"></i>
+                                    </a>
+                                `;
+                            }
                         }
                         
                         // Allocate button - for vendors only when in_progress and not fully allocated
@@ -1079,6 +1220,271 @@
                     },
                     complete: function() {
                         $btn.prop('disabled', false).html('{{ trans("order::order.update_stage") }}');
+                    }
+                });
+            });
+            @endif
+            
+            @if(isAdmin())
+            // Admin stage management
+            const orderStages = @json($orderStages);
+            
+            // Stage step mapping for validation
+            const STAGE_STEPS = {
+                'new': 1,
+                'in_progress': 2,
+                'deliver': 3,
+                'cancel': 3,
+                'refund': 4
+            };
+            
+            const FINAL_STAGES = ['deliver', 'cancel'];
+            
+            function getStageStep(type) {
+                if (!type) return 0;
+                return STAGE_STEPS[type] || 0;
+            }
+            
+            function isFinalStage(type) {
+                if (!type) return false;
+                return FINAL_STAGES.includes(type);
+            }
+            
+            function canTransitionTo(currentType, newType, currentId, newId) {
+                if (currentId == newId) return false;
+                if (isFinalStage(currentType)) return false;
+                if (!currentType) {
+                    const newStep = getStageStep(newType);
+                    return newStep <= 2;
+                }
+                if (!newType) return true;
+                
+                const currentStep = getStageStep(currentType);
+                const newStep = getStageStep(newType);
+                
+                if (newStep < currentStep) return false;
+                if (newType === 'cancel') return true;
+                if (newStep > currentStep + 1) return false;
+                if (newType === 'refund' && currentType !== 'deliver') return false;
+                
+                return true;
+            }
+            
+            // Admin change stage modal button click
+            $(document).on('click', '.btn-admin-change-stage', function() {
+                const orderId = $(this).data('order-id');
+                $('#adminStageOrderId').val(orderId);
+                $('#adminNewStage').val('');
+                $('#adminStageWarning').hide();
+                
+                // Find the row data to get current vendor stages
+                const rowData = table.rows().data().toArray().find(r => r.id == orderId);
+                
+                // Clear and populate select
+                const $select = $('#adminNewStage');
+                $select.find('option:not(:first)').remove();
+                
+                if (rowData && rowData.vendors_with_stages && rowData.vendors_with_stages.length > 0) {
+                    // Find the "lowest" stage among all vendors (the one that's earliest in workflow)
+                    let lowestStep = 999;
+                    let lowestStageType = null;
+                    let lowestStageId = null;
+                    let lowestStageName = '';
+                    let lowestStageColor = '#6c757d';
+                    let currentStageTypes = [];
+                    
+                    rowData.vendors_with_stages.forEach(v => {
+                        const stageType = v.stage?.type;
+                        const stageId = v.stage?.id;
+                        if (stageType) {
+                            currentStageTypes.push(stageType);
+                            const step = getStageStep(stageType);
+                            if (step < lowestStep) {
+                                lowestStep = step;
+                                lowestStageType = stageType;
+                                lowestStageId = stageId;
+                                lowestStageName = v.stage?.name || '';
+                                lowestStageColor = v.stage?.color || '#6c757d';
+                            }
+                        }
+                    });
+                    
+                    // Show current stage
+                    $('#adminCurrentStageName').text(lowestStageName).css('background-color', lowestStageColor);
+                    $('#adminCurrentStageType').val(lowestStageType);
+                    $('#adminCurrentStageId').val(lowestStageId);
+                    
+                    // Check if all vendors are in final stage
+                    const allFinal = currentStageTypes.length > 0 && currentStageTypes.every(t => isFinalStage(t));
+                    
+                    if (allFinal) {
+                        $('#adminStageWarning').text('{{ trans("order::order.cannot_change_final_stage") }}').show();
+                    } else {
+                        // Populate select with available stages
+                        let hasOptions = false;
+                        orderStages.forEach(stage => {
+                            if (canTransitionTo(lowestStageType, stage.type, lowestStageId, stage.id)) {
+                                $select.append(`<option value="${stage.id}">${stage.name}</option>`);
+                                hasOptions = true;
+                            }
+                        });
+                        
+                        if (!hasOptions) {
+                            $('#adminStageWarning').text('{{ trans("order::order.no_available_stages") }}').show();
+                        }
+                    }
+                } else {
+                    // No vendor stages found, show all stages
+                    $('#adminCurrentStageName').text('-').css('background-color', '#6c757d');
+                    orderStages.forEach(stage => {
+                        $select.append(`<option value="${stage.id}">${stage.name}</option>`);
+                    });
+                }
+                
+                const modal = new bootstrap.Modal(document.getElementById('adminChangeStageModal'));
+                modal.show();
+            });
+            
+            // Confirm admin stage change for all vendors
+            $('#confirmAdminStageBtn').on('click', function() {
+                const orderId = $('#adminStageOrderId').val();
+                const stageId = $('#adminNewStage').val();
+                
+                if (!stageId) {
+                    toastr.warning('{{ trans("order::order.select_stage") }}');
+                    return;
+                }
+                
+                const $btn = $(this);
+                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
+                
+                if (typeof LoadingOverlay !== 'undefined') {
+                    LoadingOverlay.show({ text: '{{ trans("order::order.updating_stage") }}' });
+                }
+                
+                // Find the selected stage to check if it's in_progress
+                const selectedStage = orderStages.find(s => s.id == stageId);
+                
+                $.ajax({
+                    url: '{{ route("admin.orders.change-all-vendor-stages", ["orderId" => "__ORDER__"]) }}'
+                        .replace('__ORDER__', orderId),
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        stage_id: stageId
+                    },
+                    success: function(response) {
+                        if (typeof LoadingOverlay !== 'undefined') LoadingOverlay.hide();
+                        bootstrap.Modal.getInstance(document.getElementById('adminChangeStageModal')).hide();
+                        toastr.success(response.message || '{{ trans("order::order.stage_updated_successfully") }}');
+                        
+                        // Redirect to allocate page if stage is in_progress
+                        if (selectedStage && (selectedStage.type === 'in_progress' || selectedStage.slug === 'in-progress')) {
+                            setTimeout(function() {
+                                window.location.href = '{{ route("admin.order-fulfillments.allocate", ["orderId" => "__ORDER__"]) }}'.replace('__ORDER__', orderId);
+                            }, 500);
+                        } else {
+                            table.ajax.reload(null, false);
+                        }
+                    },
+                    error: function(xhr) {
+                        if (typeof LoadingOverlay !== 'undefined') LoadingOverlay.hide();
+                        let errorMessage = '{{ trans("order::order.error_updating_stage") }}';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        toastr.error(errorMessage);
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).html('{{ trans("order::order.update_stage") }}');
+                    }
+                });
+            });
+            
+            // Admin quick stage change button click
+            $(document).on('click', '.btn-admin-quick-stage', function() {
+                const orderId = $(this).data('order-id');
+                const targetType = $(this).data('target-type');
+                const targetStage = orderStages.find(s => s.type === targetType);
+                
+                if (!targetStage) {
+                    toastr.error('{{ trans("order::order.stage_not_found") }}');
+                    return;
+                }
+                
+                let message = '';
+                switch(targetType) {
+                    case 'in_progress':
+                        message = '{{ trans("order::order.confirm_in_progress_all_vendors") }}';
+                        break;
+                    case 'deliver':
+                        message = '{{ trans("order::order.confirm_deliver_all_vendors") }}';
+                        break;
+                    case 'cancel':
+                        message = '{{ trans("order::order.confirm_cancel_all_vendors") }}';
+                        break;
+                    default:
+                        message = '{{ trans("order::order.confirm_stage_change_all_vendors") }}';
+                }
+                
+                $('#adminQuickStageOrderId').val(orderId);
+                $('#adminQuickStageTargetType').val(targetType);
+                $('#adminQuickStageMessage').text(message);
+                
+                const modal = new bootstrap.Modal(document.getElementById('adminQuickStageModal'));
+                modal.show();
+            });
+            
+            // Confirm admin quick stage change
+            $('#confirmAdminQuickStageBtn').on('click', function() {
+                const orderId = $('#adminQuickStageOrderId').val();
+                const targetType = $('#adminQuickStageTargetType').val();
+                const targetStage = orderStages.find(s => s.type === targetType);
+                
+                if (!targetStage) {
+                    toastr.error('{{ trans("common.error") }}');
+                    return;
+                }
+                
+                const $btn = $(this);
+                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
+                
+                if (typeof LoadingOverlay !== 'undefined') {
+                    LoadingOverlay.show({ text: '{{ trans("order::order.updating_stage") }}' });
+                }
+                
+                $.ajax({
+                    url: '{{ route("admin.orders.change-all-vendor-stages", ["orderId" => "__ORDER__"]) }}'
+                        .replace('__ORDER__', orderId),
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        stage_id: targetStage.id
+                    },
+                    success: function(response) {
+                        if (typeof LoadingOverlay !== 'undefined') LoadingOverlay.hide();
+                        bootstrap.Modal.getInstance(document.getElementById('adminQuickStageModal')).hide();
+                        toastr.success(response.message || '{{ trans("order::order.stage_updated_successfully") }}');
+                        
+                        // Redirect to allocate page if stage is in_progress
+                        if (targetType === 'in_progress') {
+                            setTimeout(function() {
+                                window.location.href = '{{ route("admin.order-fulfillments.allocate", ["orderId" => "__ORDER__"]) }}'.replace('__ORDER__', orderId);
+                            }, 500);
+                        } else {
+                            table.ajax.reload(null, false);
+                        }
+                    },
+                    error: function(xhr) {
+                        if (typeof LoadingOverlay !== 'undefined') LoadingOverlay.hide();
+                        let errorMessage = '{{ trans("order::order.error_updating_stage") }}';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        toastr.error(errorMessage);
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).html('{{ __("common.confirm") }}');
                     }
                 });
             });

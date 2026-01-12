@@ -24,26 +24,37 @@ class SummaryController extends Controller
     
     private function generateMonthHeaders($filters)
     {
-        $currentYear = date('Y');
+        // Determine the year and month range based on filters
+        $year = date('Y');
+        $startMonth = 1;
+        $endMonth = 12;
         
-        if (!empty($filters['date_from']) && !empty($filters['date_to'])) {
-            $startDate = \Carbon\Carbon::parse($filters['date_from']);
-            $endDate = \Carbon\Carbon::parse($filters['date_to']);
-        } else {
-            // Default to full year (January to December)
-            $startDate = \Carbon\Carbon::create($currentYear, 1, 1);
-            $endDate = \Carbon\Carbon::create($currentYear, 12, 31);
+        if (!empty($filters['date_from'])) {
+            $filterStart = \Carbon\Carbon::parse($filters['date_from']);
+            $year = $filterStart->year;
+            $startMonth = $filterStart->month;
+        }
+        
+        if (!empty($filters['date_to'])) {
+            $filterEnd = \Carbon\Carbon::parse($filters['date_to']);
+            if (!empty($filters['date_from'])) {
+                $filterStart = \Carbon\Carbon::parse($filters['date_from']);
+                if ($filterEnd->year == $filterStart->year) {
+                    $endMonth = $filterEnd->month;
+                }
+            } else {
+                $year = $filterEnd->year;
+                $endMonth = $filterEnd->month;
+            }
         }
         
         $months = [];
-        $current = $startDate->copy()->startOfMonth();
-        
-        while ($current <= $endDate) {
+        for ($month = $startMonth; $month <= $endMonth; $month++) {
+            $date = \Carbon\Carbon::create($year, $month, 1);
             $months[] = [
-                'key' => $current->month,
-                'name' => $current->format('M Y')
+                'key' => $month,
+                'name' => $date->format('M Y')
             ];
-            $current->addMonth();
         }
         
         return $months;

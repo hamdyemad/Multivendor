@@ -14,18 +14,20 @@ class SummaryRepository implements SummaryRepositoryInterface
         $query = AccountingEntry::query();
         $expenseQuery = Expense::query();
         
-        // Use scope filters for AccountingEntry
-        $query->filter($filters);
-        
-        // Use scope filters for Expense with date mapping
-        $expenseFilters = $filters;
+        // Map date_from/date_to to created_date_from/created_date_to for filter scope
+        $mappedFilters = $filters;
         if (!empty($filters['date_from'])) {
-            $expenseFilters['created_date_from'] = $filters['date_from'];
+            $mappedFilters['created_date_from'] = $filters['date_from'];
         }
         if (!empty($filters['date_to'])) {
-            $expenseFilters['created_date_to'] = $filters['date_to'];
+            $mappedFilters['created_date_to'] = $filters['date_to'];
         }
-        $expenseQuery->filter($expenseFilters);
+        
+        // Use scope filters for AccountingEntry
+        $query->filter($mappedFilters);
+        
+        // Use scope filters for Expense
+        $expenseQuery->filter($mappedFilters);
         
         // Get monthly data
         $monthlyData = $this->getMonthlyData($filters);
@@ -34,14 +36,30 @@ class SummaryRepository implements SummaryRepositoryInterface
         // Get total withdraws (accepted)
         $totalWithdraws = $this->getTotalWithdraws($filters);
         
-        // Calculate totals
-        // amount = full order amount (vendor total + shipping) - THIS IS WHAT WE SHOW AS TOTAL INCOME
-        // commission_amount = platform's share
-        // vendor_amount = vendor's share
-        $totalOrderAmount = (clone $query)->income()->sum('amount');
-        $totalCommissions = (clone $query)->income()->sum('commission_amount');
-        $totalVendorShare = (clone $query)->income()->sum('vendor_amount');
-        $totalExpenses = $expenseQuery->sum('amount');
+        // Calculate totals from monthly data to ensure consistency
+        $totalOrderAmount = 0;
+        $totalCommissions = 0;
+        $totalVendorShare = 0;
+        $totalExpenses = 0;
+        $totalWithdrawsFromMonthly = 0;
+        
+        foreach ($monthlyData as $month => $data) {
+            $totalOrderAmount += $data['income'] ?? 0;
+            $totalCommissions += $data['commissions'] ?? 0;
+            $totalVendorShare += $data['vendor_share'] ?? 0;
+            $totalExpenses += $data['expenses'] ?? 0;
+            $totalWithdrawsFromMonthly += $data['withdraws'] ?? 0;
+        }
+        
+        // Get refunds with date filter
+        $refundQuery = AccountingEntry::refund();
+        if (!empty($filters['date_from'])) {
+            $refundQuery->whereDate('created_at', '>=', $filters['date_from']);
+        }
+        if (!empty($filters['date_to'])) {
+            $refundQuery->whereDate('created_at', '<=', $filters['date_to']);
+        }
+        $totalRefunds = abs($refundQuery->sum('amount'));
         
         return [
             'total_income' => $totalOrderAmount, // Show full order amount as Total Income
@@ -49,9 +67,9 @@ class SummaryRepository implements SummaryRepositoryInterface
             'total_expenses' => $totalExpenses,
             'total_commissions' => $totalCommissions, // Platform's commission
             'total_vendor_share' => $totalVendorShare, // Amount that goes to vendors
-            'total_refunds' => abs((clone $query)->refund()->sum('amount')),
-            'total_withdraws' => $totalWithdraws,
-            // Net profit = Platform Commission - Expenses
+            'total_refunds' => $totalRefunds,
+            'total_withdraws' => $totalWithdrawsFromMonthly,
+            // Net profit = Total Income - Commissions - Expenses
             'net_profit' => $totalOrderAmount - $totalCommissions - $totalExpenses,
             'monthly_data' => $monthlyData,
             'expense_categories' => $expenseCategories
@@ -74,12 +92,54 @@ class SummaryRepository implements SummaryRepositoryInterface
     
     private function getMonthlyData(array $filters = []): array
     {
-        $currentYear = date('Y');
+        // Determine the year and month range based on filters
+        $year = date('Y');
+        $startMonth = 1;
+        $endMonth = 12;
+        
+        if (!empty($filters['date_from'])) {
+            $filterStart = Carbon::parse($filters['date_from']);
+            $year = $filterStart->year;
+            $startMonth = $filterStart->month;
+        }
+        
+        if (!empty($filters['date_to'])) {
+            $filterEnd = Carbon::parse($filters['date_to']);
+            // If date_to is in a different year than date_from, use date_to's year for end
+            if (!empty($filters['date_from'])) {
+                $filterStart = Carbon::parse($filters['date_from']);
+                if ($filterEnd->year == $filterStart->year) {
+                    $endMonth = $filterEnd->month;
+                } else {
+                    // Cross-year range - for now just show to December of start year
+                    $endMonth = 12;
+                }
+            } else {
+                $year = $filterEnd->year;
+                $endMonth = $filterEnd->month;
+            }
+        }
+        
         $monthlyData = [];
         
-        for ($month = 1; $month <= 12; $month++) {
-            $startDate = Carbon::create($currentYear, $month, 1)->startOfMonth();
-            $endDate = Carbon::create($currentYear, $month, 1)->endOfMonth();
+        for ($month = $startMonth; $month <= $endMonth; $month++) {
+            $startDate = Carbon::create($year, $month, 1)->startOfMonth();
+            $endDate = Carbon::create($year, $month, 1)->endOfMonth();
+            
+            // Adjust boundaries based on filters
+            if (!empty($filters['date_from'])) {
+                $filterStart = Carbon::parse($filters['date_from'])->startOfDay();
+                if ($startDate < $filterStart && $month == $startMonth) {
+                    $startDate = $filterStart;
+                }
+            }
+            
+            if (!empty($filters['date_to'])) {
+                $filterEnd = Carbon::parse($filters['date_to'])->endOfDay();
+                if ($endDate > $filterEnd && $month == $endMonth) {
+                    $endDate = $filterEnd;
+                }
+            }
             
             // Income for this month
             $incomeQuery = AccountingEntry::income()
@@ -92,36 +152,11 @@ class SummaryRepository implements SummaryRepositoryInterface
             $withdrawQuery = \Modules\Withdraw\app\Models\Withdraw::where('status', 'accepted')
                 ->whereBetween('created_at', [$startDate, $endDate]);
             
-            // Apply additional filters if provided
-            if (!empty($filters['date_from']) && !empty($filters['date_to'])) {
-                $filterStart = Carbon::parse($filters['date_from']);
-                $filterEnd = Carbon::parse($filters['date_to']);
-                
-                // Only include months within the filter range
-                if ($endDate < $filterStart || $startDate > $filterEnd) {
-                    $monthlyData[$month] = [
-                        'income' => 0,
-                        'expenses' => 0,
-                        'commissions' => 0,
-                        'withdraws' => 0
-                    ];
-                    continue;
-                }
-                
-                // Adjust date range to filter boundaries
-                $startDate = $startDate->max($filterStart);
-                $endDate = $endDate->min($filterEnd);
-                
-                $incomeQuery->whereBetween('created_at', [$startDate, $endDate]);
-                $expenseQuery->whereBetween('created_at', [$startDate, $endDate]);
-                $withdrawQuery->whereBetween('created_at', [$startDate, $endDate]);
-            }
-            
             $monthlyData[$month] = [
-                'income' => $incomeQuery->sum('amount'), // Full order amount as income
-                'order_amount' => $incomeQuery->sum('amount'), // Full order amount
+                'income' => $incomeQuery->sum('amount'),
+                'order_amount' => $incomeQuery->sum('amount'),
                 'expenses' => $expenseQuery->sum('amount'),
-                'commissions' => (clone $incomeQuery)->sum('commission_amount'), // Platform commission
+                'commissions' => (clone $incomeQuery)->sum('commission_amount'),
                 'vendor_share' => (clone $incomeQuery)->sum('vendor_amount'),
                 'withdraws' => $withdrawQuery->sum('sent_amount')
             ];
@@ -132,6 +167,30 @@ class SummaryRepository implements SummaryRepositoryInterface
     
     private function getExpenseCategories(array $filters = []): array
     {
+        // Determine the year and month range based on filters
+        $year = date('Y');
+        $startMonth = 1;
+        $endMonth = 12;
+        
+        if (!empty($filters['date_from'])) {
+            $filterStart = Carbon::parse($filters['date_from']);
+            $year = $filterStart->year;
+            $startMonth = $filterStart->month;
+        }
+        
+        if (!empty($filters['date_to'])) {
+            $filterEnd = Carbon::parse($filters['date_to']);
+            if (!empty($filters['date_from'])) {
+                $filterStart = Carbon::parse($filters['date_from']);
+                if ($filterEnd->year == $filterStart->year) {
+                    $endMonth = $filterEnd->month;
+                }
+            } else {
+                $year = $filterEnd->year;
+                $endMonth = $filterEnd->month;
+            }
+        }
+        
         // Get expense categories with monthly breakdown
         $categories = [];
         
@@ -141,28 +200,27 @@ class SummaryRepository implements SummaryRepositoryInterface
         foreach ($expenseItems as $item) {
             $monthlyExpenses = [];
             
-            for ($month = 1; $month <= 12; $month++) {
-                $startDate = Carbon::create(date('Y'), $month, 1)->startOfMonth();
-                $endDate = Carbon::create(date('Y'), $month, 1)->endOfMonth();
+            for ($month = $startMonth; $month <= $endMonth; $month++) {
+                $startDate = Carbon::create($year, $month, 1)->startOfMonth();
+                $endDate = Carbon::create($year, $month, 1)->endOfMonth();
+                
+                // Adjust boundaries based on filters
+                if (!empty($filters['date_from'])) {
+                    $filterStart = Carbon::parse($filters['date_from'])->startOfDay();
+                    if ($startDate < $filterStart && $month == $startMonth) {
+                        $startDate = $filterStart;
+                    }
+                }
+                
+                if (!empty($filters['date_to'])) {
+                    $filterEnd = Carbon::parse($filters['date_to'])->endOfDay();
+                    if ($endDate > $filterEnd && $month == $endMonth) {
+                        $endDate = $filterEnd;
+                    }
+                }
                 
                 $expenseQuery = Expense::where('expense_item_id', $item->id)
                     ->whereBetween('created_at', [$startDate, $endDate]);
-                
-                // Apply filters if provided
-                if (!empty($filters['date_from']) && !empty($filters['date_to'])) {
-                    $filterStart = Carbon::parse($filters['date_from']);
-                    $filterEnd = Carbon::parse($filters['date_to']);
-                    
-                    if ($endDate < $filterStart || $startDate > $filterEnd) {
-                        $monthlyExpenses[$month] = 0;
-                        continue;
-                    }
-                    
-                    $startDate = $startDate->max($filterStart);
-                    $endDate = $endDate->min($filterEnd);
-                    
-                    $expenseQuery->whereBetween('created_at', [$startDate, $endDate]);
-                }
                 
                 $monthlyExpenses[$month] = $expenseQuery->sum('amount');
             }
@@ -176,28 +234,27 @@ class SummaryRepository implements SummaryRepositoryInterface
         // Add expenses without category (expense_item_id is null)
         $uncategorizedMonthlyExpenses = [];
         
-        for ($month = 1; $month <= 12; $month++) {
-            $startDate = Carbon::create(date('Y'), $month, 1)->startOfMonth();
-            $endDate = Carbon::create(date('Y'), $month, 1)->endOfMonth();
+        for ($month = $startMonth; $month <= $endMonth; $month++) {
+            $startDate = Carbon::create($year, $month, 1)->startOfMonth();
+            $endDate = Carbon::create($year, $month, 1)->endOfMonth();
+            
+            // Adjust boundaries based on filters
+            if (!empty($filters['date_from'])) {
+                $filterStart = Carbon::parse($filters['date_from'])->startOfDay();
+                if ($startDate < $filterStart && $month == $startMonth) {
+                    $startDate = $filterStart;
+                }
+            }
+            
+            if (!empty($filters['date_to'])) {
+                $filterEnd = Carbon::parse($filters['date_to'])->endOfDay();
+                if ($endDate > $filterEnd && $month == $endMonth) {
+                    $endDate = $filterEnd;
+                }
+            }
             
             $expenseQuery = Expense::whereNull('expense_item_id')
                 ->whereBetween('created_at', [$startDate, $endDate]);
-            
-            // Apply filters if provided
-            if (!empty($filters['date_from']) && !empty($filters['date_to'])) {
-                $filterStart = Carbon::parse($filters['date_from']);
-                $filterEnd = Carbon::parse($filters['date_to']);
-                
-                if ($endDate < $filterStart || $startDate > $filterEnd) {
-                    $uncategorizedMonthlyExpenses[$month] = 0;
-                    continue;
-                }
-                
-                $startDate = $startDate->max($filterStart);
-                $endDate = $endDate->min($filterEnd);
-                
-                $expenseQuery->whereBetween('created_at', [$startDate, $endDate]);
-            }
             
             $uncategorizedMonthlyExpenses[$month] = $expenseQuery->sum('amount');
         }

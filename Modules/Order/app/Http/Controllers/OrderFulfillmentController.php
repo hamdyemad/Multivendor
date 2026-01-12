@@ -21,13 +21,7 @@ class OrderFulfillmentController extends Controller
     ) {
         $this->fulfillmentService = $fulfillmentService;
         $this->stageTransitionService = $stageTransitionService;
-        // Only vendors can access allocation - admins can only view
-        $this->middleware(function ($request, $next) {
-            if (isAdmin()) {
-                abort(403, 'Only vendors can allocate stock. Admins have view-only access.');
-            }
-            return $next($request);
-        })->only(['show', 'allocate']);
+        // Both admin and vendors can access allocation
     }
 
     /**
@@ -36,6 +30,9 @@ class OrderFulfillmentController extends Controller
     public function show($lang, $countryCode, $orderId)
     {
         $data = $this->fulfillmentService->getStockDataForOrder($orderId);
+        
+        // Pass isAdmin flag to view for conditional rendering
+        $data['isAdmin'] = isAdmin();
 
         return view('order::fulfillments.allocate', $data);
     }

@@ -338,7 +338,16 @@ class ProductApiController extends Controller
      */
     public function filters(Request $request)
     {
-        $filterData = $this->productService->getFilters($request->all());
+        $filters = $request->all();
+        
+        // Support both main_category_id and category_id - sync them so both work the same way
+        $categoryValue = $filters['main_category_id'] ?? $filters['category_id'] ?? null;
+        if ($categoryValue) {
+            $filters['category_id'] = $categoryValue;
+            $filters['main_category_id'] = $categoryValue;
+        }
+        
+        $filterData = $this->productService->getFilters($filters);
         
         // Handle categories - could be array or collection
         $categories = $filterData['categories'] ?? [];

@@ -53,9 +53,9 @@ class CartResource extends JsonResource
                 ];
             }) : [],
             'quantity' => $this->quantity,
-            'total_before_taxes' => round($prices['total_before_tax'], 2),
-            'total_tax_amount' => round($totalTaxAmount, 2),
-            'total_after_taxes' => round($prices['total_after_tax'], 2),
+            'price_before_taxes' => round($prices['total_before_tax'], 2),
+            'tax_amount' => round($totalTaxAmount, 2),
+            'price_after_taxes' => round($prices['total_after_tax'], 2),
         ];
     }
 

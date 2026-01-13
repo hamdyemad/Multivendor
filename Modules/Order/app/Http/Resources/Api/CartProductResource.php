@@ -92,9 +92,9 @@ class CartProductResource extends JsonResource
             'variant_stock' => $this->total_stock ?? 0,
             'variant_remaining_stock' => $this->remaining_stock ?? 0,
             // Variant prices (bundle/occasion price if applicable)
-            'price_before_taxes' => round($variantPrice, 2),
-            'tax_amount' => round($variantPriceAfterTaxes - $variantPrice, 2),
-            'price_after_taxes' => round($variantPriceAfterTaxes, 2),
+            'real_price' => round($variantPriceAfterTaxes, 2),
+            'fake_price' => $originalVariantPrice > $variantPrice ? round($originalVariantPrice, 2) : null,
+            'discount' => $discount > 0 ? $discount : null,
             'configuration_tree' => $this->when($this->relationLoaded('variantConfiguration') && $this->variantConfiguration, function() use ($locale) {
                 return $this->buildVariantConfigurationTree($this->variantConfiguration, $this->id, $locale);
             }),

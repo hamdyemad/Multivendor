@@ -7,12 +7,6 @@
 )
 
 @push('styles')
-<style>
-    /* Fix Select2 dropdown z-index in modal */
-    .select2-container--open {
-        z-index: 99999 !important;
-    }
-</style>
 @endpush
 
 @section('content')
@@ -113,152 +107,124 @@
 
                                     @if(isAdmin())
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="vendor_filter" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-store me-1"></i>
-                                                {{ __('catalogmanagement::product.vendor') }}
-                                            </label>
-                                            <select
-                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="vendor_filter">
-                                                <option value="">{{ __('common.all') }}</option>
-                                                @foreach($vendors as $vendor)
-                                                    <option value="{{ $vendor['id'] }}" @if(request('vendor_id') == $vendor['id']) selected @endif>{{ $vendor['name'] }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
+                                        <x-custom-select
+                                            name="vendor_filter"
+                                            id="vendor_filter"
+                                            :label="__('catalogmanagement::product.vendor')"
+                                            icon="uil uil-store"
+                                            :options="$vendors"
+                                            :selected="request('vendor_id')"
+                                            :placeholder="__('common.all')"
+                                        />
                                     </div>
                                     @endif
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="brand_filter" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-tag-alt me-1"></i>
-                                                {{ __('catalogmanagement::product.brand') }}
-                                            </label>
-                                            <select
-                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="brand_filter">
-                                                <option value="">{{ __('common.all') }}</option>
-                                                @foreach($brands as $brand)
-                                                    <option value="{{ $brand['id'] }}" @if(request('brand_id') == $brand['id']) selected @endif>{{ $brand['name'] }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
+                                        <x-custom-select
+                                            name="brand_filter"
+                                            id="brand_filter"
+                                            :label="__('catalogmanagement::product.brand')"
+                                            icon="uil uil-tag-alt"
+                                            :options="$brands"
+                                            :selected="request('brand_id')"
+                                            :placeholder="__('common.all')"
+                                        />
                                     </div>
 
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="department_filter" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-tag-alt me-1"></i>
-                                                {{ __('catalogmanagement::product.department') }}
-                                            </label>
-                                            <select
-                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="department_filter">
-                                                <option value="">{{ __('common.all') }}</option>
-                                                @foreach($departments as $department)
-                                                    <option value="{{ $department['id'] }}" @if(request('department_id') == $department['id']) selected @endif>{{ $department['name'] }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
+                                        <x-custom-select
+                                            name="department_filter"
+                                            id="department_filter"
+                                            :label="__('catalogmanagement::product.department')"
+                                            icon="uil uil-tag-alt"
+                                            :options="$departments"
+                                            :selected="request('department_id')"
+                                            :placeholder="__('common.all')"
+                                        />
                                     </div>
 
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="category_filter" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-folder me-1"></i>
-                                                {{ __('catalogmanagement::product.category') }}
-                                            </label>
-                                            <select
-                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="category_filter">
-                                                <option value="">{{ __('common.all') }}</option>
-                                            </select>
-                                        </div>
+                                        <x-custom-select
+                                            name="category_filter"
+                                            id="category_filter"
+                                            :label="__('catalogmanagement::product.category')"
+                                            icon="uil uil-folder"
+                                            :options="[]"
+                                            :selected="request('category_id')"
+                                            :placeholder="__('common.all')"
+                                        />
                                     </div>
 
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="product_type" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-layers me-1"></i>
-                                                {{ __('catalogmanagement::product.product_type') }}
-                                            </label>
-                                            <select
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="product_type">
-                                                <option value="">{{ __('common.all') }}</option>
-                                                <option value="bank" @if(request('product_type') == 'bank') selected @endif>{{ __('catalogmanagement::product.bank') }}</option>
-                                                <option value="product" @if(request('product_type') == 'product') selected @endif>{{ __('catalogmanagement::product.product') }}</option>
-                                            </select>
-                                        </div>
+                                        <x-custom-select
+                                            name="product_type"
+                                            id="product_type"
+                                            :label="__('catalogmanagement::product.product_type')"
+                                            icon="uil uil-layers"
+                                            :options="[
+                                                ['id' => 'bank', 'name' => __('catalogmanagement::product.bank')],
+                                                ['id' => 'product', 'name' => __('catalogmanagement::product.product')]
+                                            ]"
+                                            :selected="request('product_type')"
+                                            :placeholder="__('common.all')"
+                                        />
                                     </div>
 
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="configuration_filter" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-package me-1"></i>
-                                                {{ __('catalogmanagement::product.configuration') ?? 'Configuration' }}
-                                            </label>
-                                            <select
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="configuration_filter">
-                                                <option value="">{{ __('common.all') }}</option>
-                                                <option value="simple" @if(request('configuration') == 'simple') selected @endif>{{ __('catalogmanagement::product.simple_product') ?? 'Simple Product' }}</option>
-                                                <option value="variants" @if(request('configuration') == 'variants') selected @endif>{{ __('catalogmanagement::product.variant_product') ?? 'Variant Product' }}</option>
-                                            </select>
-                                        </div>
+                                        <x-custom-select
+                                            name="configuration_filter"
+                                            id="configuration_filter"
+                                            :label="__('catalogmanagement::product.configuration') ?? 'Configuration'"
+                                            icon="uil uil-package"
+                                            :options="[
+                                                ['id' => 'simple', 'name' => __('catalogmanagement::product.simple_product') ?? 'Simple Product'],
+                                                ['id' => 'variants', 'name' => __('catalogmanagement::product.variant_product') ?? 'Variant Product']
+                                            ]"
+                                            :selected="request('configuration')"
+                                            :placeholder="__('common.all')"
+                                        />
                                     </div>
 
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="active" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-check-circle me-1"></i>
-                                                {{ __('common.active_status') }}
-                                            </label>
-                                            <select
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="active">
-                                                <option value="">{{ __('common.all') }}</option>
-                                                <option value="1" @if(request('active') == '1') selected @endif>{{ __('common.active') }}
-                                                </option>
-                                                <option value="2" @if(request('active') == '2') selected @endif>{{ __('common.inactive') }}
-                                                </option>
-                                            </select>
-                                        </div>
+                                        <x-custom-select
+                                            name="active"
+                                            id="active"
+                                            :label="__('common.active_status')"
+                                            icon="uil uil-check-circle"
+                                            :options="[
+                                                ['id' => '1', 'name' => __('common.active')],
+                                                ['id' => '2', 'name' => __('common.inactive')]
+                                            ]"
+                                            :selected="request('active')"
+                                            :placeholder="__('common.all')"
+                                        />
                                     </div>
 
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="stock_filter" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-box me-1"></i>
-                                                {{ __('catalogmanagement::product.stock_status') ?? 'Stock Status' }}
-                                            </label>
-                                            <select
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="stock_filter">
-                                                <option value="">{{ __('common.all') }}</option>
-                                                <option value="instock" @if(request('stock') == 'instock') selected @endif>{{ __('dashboard.instock') }}</option>
-                                                <option value="outofstock" @if(request('stock') == 'outofstock') selected @endif>{{ __('dashboard.out_of_stock') }}</option>
-                                            </select>
-                                        </div>
+                                        <x-custom-select
+                                            name="stock_filter"
+                                            id="stock_filter"
+                                            :label="__('catalogmanagement::product.stock_status') ?? 'Stock Status'"
+                                            icon="uil uil-box"
+                                            :options="[
+                                                ['id' => 'instock', 'name' => __('dashboard.instock')],
+                                                ['id' => 'outofstock', 'name' => __('dashboard.out_of_stock')]
+                                            ]"
+                                            :selected="request('stock')"
+                                            :placeholder="__('common.all')"
+                                        />
                                     </div>
 
                                     @if(!isset($statusFilter))
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="status" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-file-check me-1"></i>
-                                                {{ __('catalogmanagement::product.approval_status') }}
-                                            </label>
-                                            <select
-                                                class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="status">
-                                                <option value="">{{ __('common.all') }}</option>
-                                                @foreach(\Modules\CatalogManagement\app\Models\VendorProduct::getStatuses() as $statusValue => $statusLabel)
-                                                    <option value="{{ $statusValue }}">{{ $statusLabel }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
+                                        <x-custom-select
+                                            name="status"
+                                            id="status"
+                                            :label="__('catalogmanagement::product.approval_status')"
+                                            icon="uil uil-file-check"
+                                            :options="collect(\Modules\CatalogManagement\app\Models\VendorProduct::getStatuses())->map(fn($label, $value) => ['id' => $value, 'name' => $label])->values()->toArray()"
+                                            :selected="request('status')"
+                                            :placeholder="__('common.all')"
+                                        />
                                     </div>
                                     @endif
 
@@ -400,21 +366,129 @@
                 inactive: '{{ __('common.inactive') }}'
             };
 
-            // Populate filters from URL parameters on page load
+            // Initialize all Select2 dropdowns (check if select2 is available)
+            if ($.fn.select2) {
+                $('.select2').select2({
+                    allowClear: true,
+                    width: '100%'
+                });
+            }
+
+            // Initialize all custom selects
+            const customSelectIds = [
+                'vendor_filter', 'brand_filter', 'department_filter', 'category_filter',
+                'product_type', 'configuration_filter', 'active', 'stock_filter', 'status'
+            ];
+            
+            customSelectIds.forEach(function(id) {
+                if (document.getElementById(id) && typeof CustomSelect !== 'undefined') {
+                    CustomSelect.init(id);
+                }
+            });
+
+            // Flag to prevent double reload during initialization
+            let isInitializing = true;
+
+            // Department change handler - fetch categories
+            document.getElementById('department_filter').addEventListener('change', function(e) {
+                const departmentId = e.detail ? e.detail.value : (typeof CustomSelect !== 'undefined' ? CustomSelect.getValue('department_filter') : '');
+                const currentCategoryId = "{{ request('category_id') }}";
+                
+                if (!departmentId) {
+                    // Clear categories and set empty options
+                    if (typeof CustomSelect !== 'undefined') {
+                        CustomSelect.setOptions('category_filter', [], '{{ __('common.all') }}');
+                    }
+                    if (!isInitializing) {
+                        table.ajax.reload();
+                    }
+                    return;
+                }
+                
+                // Fetch categories for selected department
+                $.ajax({
+                    url: '/api/categories',
+                    type: 'GET',
+                    data: {
+                        department_id: departmentId,
+                        select2: 1
+                    },
+                    headers: {
+                        'lang': '{{ app()->getLocale() }}',
+                        'X-Country-Code': $("meta[name='currency_country_code']").attr('content')
+                    },
+                    success: function(response) {
+                        const data = response.data || response;
+                        if (data && data.length > 0) {
+                            // Format options for CustomSelect
+                            const options = data.map(function(category) {
+                                return { id: category.id, name: category.name };
+                            });
+                            if (typeof CustomSelect !== 'undefined') {
+                                CustomSelect.setOptions('category_filter', options, '{{ __('common.all') }}');
+                                
+                                // If there's a current category selected, set it
+                                if (currentCategoryId) {
+                                    CustomSelect.setValue('category_filter', currentCategoryId);
+                                }
+                            }
+                        } else {
+                            if (typeof CustomSelect !== 'undefined') {
+                                CustomSelect.setOptions('category_filter', [], '{{ __('common.all') }}');
+                            }
+                        }
+                        if (!isInitializing) {
+                            table.ajax.reload();
+                        }
+                    },
+                    error: function(error) {
+                        console.error('Error fetching categories:', error);
+                        if (typeof CustomSelect !== 'undefined') {
+                            CustomSelect.setOptions('category_filter', [], '{{ __('common.all') }}');
+                        }
+                        if (!isInitializing) {
+                            table.ajax.reload();
+                        }
+                    }
+                });
+            });
+
+            // Add change handlers for all other custom selects (except department which has special handling)
+            ['vendor_filter', 'brand_filter', 'category_filter', 'product_type', 'configuration_filter', 'active', 'stock_filter', 'status'].forEach(function(id) {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('change', function(e) {
+                        if (!isInitializing) {
+                            table.ajax.reload();
+                        }
+                    });
+                }
+            });
+
+            // Trigger department change on page load if a department is selected
+            const initialDepartmentId = typeof CustomSelect !== 'undefined' ? CustomSelect.getValue('department_filter') : '';
+            if (initialDepartmentId) {
+                // Trigger change event to load categories
+                document.getElementById('department_filter').dispatchEvent(new CustomEvent('change', { detail: { value: initialDepartmentId } }));
+            }
+            
+            // Set initializing to false after a short delay to allow initial load
+            setTimeout(function() {
+                isInitializing = false;
+            }, 500);
+
+            // Populate other filters from URL parameters
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('search')) $('#search').val(urlParams.get('search'));
-            // Remove the automatic trigger('change') for department here, handled specifically later to pass isStart=true
-            if (urlParams.has('department_id')) $('#department_filter').val(urlParams.get('department_id'));
-            if (urlParams.has('vendor_id')) $('#vendor_filter').val(urlParams.get('vendor_id')).trigger('change');
-            if (urlParams.has('brand_id')) $('#brand_filter').val(urlParams.get('brand_id')).trigger('change');
-            if (urlParams.has('category_id')) $('#category_filter').val(urlParams.get('category_id')).trigger('change');
-            if (urlParams.has('product_type')) $('#product_type').val(urlParams.get('product_type')).trigger('change');
+            if (urlParams.has('vendor_id')) $('#vendor_filter').val(urlParams.get('vendor_id'));
+            if (urlParams.has('brand_id')) $('#brand_filter').val(urlParams.get('brand_id'));
+            if (urlParams.has('product_type')) $('#product_type').val(urlParams.get('product_type'));
             if (urlParams.has('configuration') && $('#configuration_filter').length) {
-                $('#configuration_filter').val(urlParams.get('configuration')).trigger('change');
+                $('#configuration_filter').val(urlParams.get('configuration'));
             }
-            if (urlParams.has('active')) $('#active').val(urlParams.get('active')).trigger('change');
-            if (urlParams.has('status')) $('#status').val(urlParams.get('status')).trigger('change');
-            if (urlParams.has('stock')) $('#stock_filter').val(urlParams.get('stock')).trigger('change');
+            if (urlParams.has('active')) $('#active').val(urlParams.get('active'));
+            if (urlParams.has('status')) $('#status').val(urlParams.get('status'));
+            if (urlParams.has('stock')) $('#stock_filter').val(urlParams.get('stock'));
             if (urlParams.has('created_date_from')) $('#created_date_from').val(urlParams.get('created_date_from'));
             if (urlParams.has('created_date_to')) $('#created_date_to').val(urlParams.get('created_date_to'));
 
@@ -426,15 +500,15 @@
                     url: '{{ route('admin.products.datatable') }}',
                     data: function(d) {
                         d.search = $('#search').val();
-                        d.department_id = $('#department_filter').val();
-                        d.vendor_id = $('#vendor_filter').val();
-                        d.brand_id = $('#brand_filter').val();
-                        d.category_id = $('#category_filter').val();
-                        d.product_type = $('#product_type').val();
-                        d.configuration = $('#configuration_filter').length ? $('#configuration_filter').val() : '';
-                        d.active = $('#active').val();
-                        d.status = $('#status').val();
-                        d.stock = $('#stock_filter').val();
+                        d.department_id = typeof CustomSelect !== 'undefined' && document.getElementById('department_filter') ? CustomSelect.getValue('department_filter') : '';
+                        d.vendor_id = typeof CustomSelect !== 'undefined' && document.getElementById('vendor_filter') ? CustomSelect.getValue('vendor_filter') : '';
+                        d.brand_id = typeof CustomSelect !== 'undefined' && document.getElementById('brand_filter') ? CustomSelect.getValue('brand_filter') : '';
+                        d.category_id = typeof CustomSelect !== 'undefined' && document.getElementById('category_filter') ? CustomSelect.getValue('category_filter') : '';
+                        d.product_type = typeof CustomSelect !== 'undefined' && document.getElementById('product_type') ? CustomSelect.getValue('product_type') : '';
+                        d.configuration = typeof CustomSelect !== 'undefined' && document.getElementById('configuration_filter') ? CustomSelect.getValue('configuration_filter') : '';
+                        d.active = typeof CustomSelect !== 'undefined' && document.getElementById('active') ? CustomSelect.getValue('active') : '';
+                        d.status = typeof CustomSelect !== 'undefined' && document.getElementById('status') ? CustomSelect.getValue('status') : '';
+                        d.stock = typeof CustomSelect !== 'undefined' && document.getElementById('stock_filter') ? CustomSelect.getValue('stock_filter') : '';
                         @if(isset($statusFilter) && $statusFilter)
                         d.status = '{{ $statusFilter }}';
                         @endif
@@ -750,22 +824,20 @@
                 // Update URL with filter parameters
                 const params = new URLSearchParams();
                 const search = $('#search').val();
-                const vendor = $('#vendor_filter').val();
-                const brand = $('#brand_filter').val();
-                const category = $('#category_filter').val();
-                const productType = $('#product_type').val();
-                const configuration = $('#configuration_filter').val();
-                const active = $('#active').val();
-                const status = $('#status').val();
-                const stock = $('#stock_filter').val();
+                const vendor = typeof CustomSelect !== 'undefined' && document.getElementById('vendor_filter') ? CustomSelect.getValue('vendor_filter') : '';
+                const brand = typeof CustomSelect !== 'undefined' && document.getElementById('brand_filter') ? CustomSelect.getValue('brand_filter') : '';
+                const department = typeof CustomSelect !== 'undefined' ? CustomSelect.getValue('department_filter') : '';
+                const category = typeof CustomSelect !== 'undefined' ? CustomSelect.getValue('category_filter') : '';
+                const productType = typeof CustomSelect !== 'undefined' && document.getElementById('product_type') ? CustomSelect.getValue('product_type') : '';
+                const configuration = typeof CustomSelect !== 'undefined' && document.getElementById('configuration_filter') ? CustomSelect.getValue('configuration_filter') : '';
+                const active = typeof CustomSelect !== 'undefined' && document.getElementById('active') ? CustomSelect.getValue('active') : '';
+                const status = typeof CustomSelect !== 'undefined' && document.getElementById('status') ? CustomSelect.getValue('status') : '';
+                const stock = typeof CustomSelect !== 'undefined' && document.getElementById('stock_filter') ? CustomSelect.getValue('stock_filter') : '';
                 const dateFrom = $('#created_date_from').val();
                 const dateTo = $('#created_date_to').val();
 
                 if (search) params.set('search', search);
-
-                const department = $('#department_filter').val();
                 if (department) params.set('department_id', department);
-
                 if (vendor) params.set('vendor_id', vendor);
                 if (brand) params.set('brand_id', brand);
                 if (category) params.set('category_id', category);
@@ -790,11 +862,7 @@
                 searchTimer = setTimeout(() => table.ajax.reload(), 600);
             });
 
-            // Filters - Use 'select2:select' and 'select2:clear' events for Select2 dropdowns
-            $('#department_filter, #vendor_filter, #brand_filter, #category_filter, #product_type, #configuration_filter, #active, #status, #stock_filter').on('select2:select select2:clear change', function() {
-                table.ajax.reload();
-            });
-
+            // Date filters change handler
             $('#created_date_from, #created_date_to').on('change', () => table.ajax.reload());
 
             // Export
@@ -808,16 +876,17 @@
                 // Clear regular inputs
                 $('#search, #created_date_from, #created_date_to').val('');
 
-                // Clear Select2 dropdowns properly - set to empty value and trigger change
-                $('#department_filter').val('').trigger('change');
-                $('#vendor_filter').val('').trigger('change');
-                $('#brand_filter').val('').trigger('change');
-                $('#category_filter').val('').trigger('change');
-                $('#product_type').val('').trigger('change');
-                $('#configuration_filter').val('').trigger('change');
-                $('#active').val('').trigger('change');
-                $('#status').val('').trigger('change');
-                $('#stock_filter').val('').trigger('change');
+                // Clear all Custom Select dropdowns
+                const customSelectIds = [
+                    'vendor_filter', 'brand_filter', 'department_filter', 'category_filter',
+                    'product_type', 'configuration_filter', 'active', 'stock_filter', 'status'
+                ];
+                
+                customSelectIds.forEach(function(id) {
+                    if (document.getElementById(id) && typeof CustomSelect !== 'undefined') {
+                        CustomSelect.clear(id);
+                    }
+                });
 
                 // Reload table
                 table.ajax.reload();
@@ -859,11 +928,6 @@
             });
 
 
-
-            // Trigger department change on page load if a department is selected (to populate categories)
-            if ($('#department_filter').val()) {
-                $('#department_filter').trigger('change');
-            }
 
             // Show/hide rejection reason and bank product fields based on selected status
             $('#product-status').on('change', function() {
@@ -1201,92 +1265,6 @@
                 }
             });
             @endif
-            // Department Filter: Fetch Categories
-            function getCategories(departmentId, isStart = false) {
-                const categorySelect = $('#category_filter');
-                // Save currently selected value if not start, or get from request if start
-                const currentVal = isStart ? "{{ request('category_id') }}" : categorySelect.val();
-
-                // Clear current options (except "All") but keep "All"
-                categorySelect.empty().append('<option value="">{{ __('common.all') }}</option>');
-
-                if (!departmentId) {
-                    // Trigger change to update Select2 and Table (if cleared)
-                    categorySelect.trigger('change');
-                    return;
-                }
-
-                $.ajax({
-                    url: '/api/categories',
-                    type: 'GET',
-                    data: {
-                        department_id: departmentId,
-                        select2: 1
-                    },
-                    headers: {
-                        'lang': '{{ app()->getLocale() }}',
-                        "X-Country-Code": $("meta[name='currency_country_code']").attr('content')
-                    },
-                    success: function(response) {
-                        const data = response.data || response;
-                        if (data) {
-                            let matched = false;
-                            data.forEach(function(category) {
-                                // Pre-select if it matches
-                                const isSelected = (currentVal && category.id == currentVal) ? 'selected' : '';
-                                if (isSelected) matched = true;
-                                categorySelect.append(`<option value="${category.id}" ${isSelected}>${category.name}</option>`);
-                            });
-
-                            // Trigger Select2 update
-                            // If isStart and we matched a category, we MUST reload the table because the initial load had no category
-                            if (isStart && matched) {
-                                categorySelect.trigger('change'); // This should fire the table reload listener
-                            } else {
-                                categorySelect.trigger('change.select2'); // Just update UI
-                            }
-                        }
-                    },
-                    error: function(error) {
-                        console.error('Error fetching categories:', error);
-                    }
-                });
-            }
-
-            // Department Filter Change Event
-            $('#department_filter').on('change', function() {
-                // If this is triggered by user or script after load
-                // We pass false for isStart so it doesn't try to use the Blade request ID (unless we want it to sticky? No)
-                // Actually, if user changes department, we shouldn't use request('category_id') anymore.
-                // The getCategories function uses isStart to decide.
-                // But wait, if I trigger 'change' manually on load, valid.
-                // We should rely on the caller to specify.
-                // But the 'on change' handler doesn't accept params.
-                // So we need distinct logic for "Init" vs "User Change".
-                // We'll wrap the user change.
-                getCategories($(this).val(), false);
-            });
-
-            // Initial Load: Check if Department is set (from Blade/URL)
-            const initialDepartment = $('#department_filter').val();
-            if (initialDepartment) {
-                // Manually call getCategories with isStart=true
-                // We Unbind the change listener momentarily or just let the function handle it?
-                // The function getCategories is called directly here.
-                // NOTE: The 'change' listener above might essentially do nothing or double fetch if we trigger change.
-                // We are NOT triggering change on department_filter here, just calling getCategories.
-                // But wait, earlier in document.ready (lines 412), we might have triggered change:
-                // if (urlParams.has('department_id')) $('#department_filter').val(...).trigger('change');
-                // If line 412 triggered change, then getCategories(..., false) was called!
-                // We need to fix that flow.
-            }
-
-            // Correction: The block at lines 410 handles URL params and triggers change.
-            // If it triggers change, the listener fires. The listener calls getCategories(..., false).
-            // This means isStart is false, so it WON'T use request('category_id').
-            // This is the BUG.
-            // We need to separate "Apply from URL" Logic.
-
         });
     </script>
 @endpush

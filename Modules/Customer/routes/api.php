@@ -8,15 +8,11 @@ use Modules\Customer\app\Http\Controllers\Api\CustomerPointsApiController;
 
 use Modules\Customer\app\Http\Controllers\Api\SubscriptionController;
 
-// Auth routes (no authentication required)
-Route::prefix('auth')->group(function () {
+// Auth routes (no authentication required) - with strict rate limiting
+Route::prefix('auth')->middleware('throttle:auth')->group(function () {
     // Registration flow
     Route::post('register', [CustomerAuthController::class, 'register']);
-    Route::post('verify-otp', [CustomerAuthController::class, 'verifyOtp']);
-    Route::post('verify-email-token', [CustomerAuthController::class, 'verifyEmailToken']);
-    Route::post('resend-otp', [CustomerAuthController::class, 'resendOtp']);
     Route::post('refresh', [CustomerAuthController::class, 'refresh']);
-
 
     // Login
     Route::post('login', [CustomerAuthController::class, 'login']);
@@ -25,6 +21,13 @@ Route::prefix('auth')->group(function () {
     Route::post('request-password-reset', [CustomerAuthController::class, 'requestPasswordReset']);
     Route::post('verify-reset-otp', [CustomerAuthController::class, 'verifyPasswordResetOtp']);
     Route::post('reset-password', [CustomerAuthController::class, 'resetPassword']);
+});
+
+// OTP routes - with stricter rate limiting
+Route::prefix('auth')->middleware('throttle:otp')->group(function () {
+    Route::post('verify-otp', [CustomerAuthController::class, 'verifyOtp']);
+    Route::post('verify-email-token', [CustomerAuthController::class, 'verifyEmailToken']);
+    Route::post('resend-otp', [CustomerAuthController::class, 'resendOtp']);
 });
 
 // Protected routes (authentication required)

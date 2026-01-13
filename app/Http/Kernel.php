@@ -49,7 +49,7 @@ class Kernel extends HttpKernel
 
         'api' => [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-            // 'throttle:api', // Removed - using per-route throttling instead
+            'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SetCountryCodeFromHeader::class,
         ],

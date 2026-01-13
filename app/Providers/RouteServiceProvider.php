@@ -71,6 +71,7 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function configureRateLimiting()
     {
+        // Default API rate limit: 60 requests per minute
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
@@ -78,6 +79,26 @@ class RouteServiceProvider extends ServiceProvider
         // Higher rate limit for product APIs (public endpoints with high traffic)
         RateLimiter::for('products', function (Request $request) {
             return Limit::perMinute(300)->by($request->user()?->id ?: $request->ip());
+        });
+
+        // Strict rate limit for authentication endpoints (prevent brute-force)
+        RateLimiter::for('auth', function (Request $request) {
+            return Limit::perMinute(10)->by($request->ip());
+        });
+
+        // Rate limit for OTP/verification endpoints
+        RateLimiter::for('otp', function (Request $request) {
+            return Limit::perMinute(5)->by($request->ip());
+        });
+
+        // Rate limit for checkout/payment endpoints
+        RateLimiter::for('checkout', function (Request $request) {
+            return Limit::perMinute(10)->by($request->user()?->id ?: $request->ip());
+        });
+
+        // Rate limit for vendor requests
+        RateLimiter::for('vendor-request', function (Request $request) {
+            return Limit::perMinute(3)->by($request->ip());
         });
     }
 

@@ -195,7 +195,7 @@ class SystemCatalogService
                 'name_ar' => $v->getTranslation('name', 'ar'),
                 'email' => $v->email,
                 'phone' => $v->phone,
-                'logo' => $v->logo?->path ? asset($v->logo->path) : null,
+                'logo' => $v->logo?->path ? asset('storage/' . $v->logo->path) : null,
             ]),
             'total' => $paginated->total(),
             'current_page' => $paginated->currentPage(),

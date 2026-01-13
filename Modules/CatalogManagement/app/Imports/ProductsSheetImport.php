@@ -13,6 +13,7 @@ use Maatwebsite\Excel\Concerns\SkipsErrors;
 use Modules\CatalogManagement\app\Models\Product;
 use Modules\CatalogManagement\app\Models\VendorProduct;
 use App\Models\UserType;
+use App\Models\ActivityLog;
 
 /**
  * Sheet: products
@@ -98,7 +99,7 @@ class ProductsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
 
             // Validate main_category belongs to department
             if ($mainCategoryId > 0 && $departmentId > 0) {
-                $mainCategory = \Modules\CatalogManagement\app\Models\Category::find($mainCategoryId);
+                $mainCategory = \Modules\CategoryManagment\app\Models\Category::find($mainCategoryId);
                 if (!$mainCategory || $mainCategory->department_id != $departmentId) {
                     $this->importErrors[] = [
                         'sheet' => 'products',
@@ -110,10 +111,10 @@ class ProductsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                 }
             }
 
-            // Validate sub_category belongs to main_category
+            // Validate sub_category belongs to main_category (sub_category is in the same Category model with parent_id)
             if ($subCategoryId > 0 && $mainCategoryId > 0) {
-                $subCategory = \Modules\CatalogManagement\app\Models\Category::find($subCategoryId);
-                if (!$subCategory || $subCategory->parent_id != $mainCategoryId) {
+                $subCategory = \Modules\CategoryManagment\app\Models\SubCategory::find($subCategoryId);
+                if (!$subCategory || $subCategory->category_id != $mainCategoryId) {
                     $this->importErrors[] = [
                         'sheet' => 'products',
                         'row' => $index + 2,
@@ -190,16 +191,60 @@ class ProductsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                 }
             }
 
-            // Check if SKU already exists (unique across all vendors)
+            // Check if SKU already exists - if so, update instead of creating new
             $existingVendorProduct = VendorProduct::where('sku', $sku)->first();
                 
             if ($existingVendorProduct) {
-                $this->importErrors[] = [
-                    'sheet' => 'products',
-                    'row' => $index + 2,
-                    'sku' => $sku,
-                    'errors' => [__('catalogmanagement::product.sku_already_exists')]
-                ];
+                // For vendors, only allow updating their own products
+                if (!isAdmin() && $existingVendorProduct->vendor_id != $vendorId) {
+                    $this->importErrors[] = [
+                        'sheet' => 'products',
+                        'row' => $index + 2,
+                        'sku' => $sku,
+                        'errors' => [__('catalogmanagement::product.sku_belongs_to_another_vendor')]
+                    ];
+                    continue;
+                }
+
+                // Update existing product
+                $product = $existingVendorProduct->product;
+                
+                if ($product) {
+                    $oldProductData = $product->toArray();
+                    
+                    $product->update([
+                        'brand_id' => $this->normalizeNullableInt($row['brand'] ?? null) ?: $product->brand_id,
+                        'department_id' => $this->normalizeNullableInt($row['department'] ?? null) ?: $product->department_id,
+                        'category_id' => $this->normalizeNullableInt($row['main_category'] ?? null) ?: $product->category_id,
+                        'sub_category_id' => $this->normalizeNullableInt($row['sub_category'] ?? null),
+                        'configuration_type' => $hasVariants ? 'variants' : 'simple',
+                    ]);
+
+                    // Update translations
+                    $this->updateTranslations($product, $row);
+                    
+                    // Log activity for product update
+                    $this->logBulkActivity('updated', $product, $oldProductData, $product->fresh()->toArray());
+                }
+
+                // Update vendor product
+                $oldVendorProductData = $existingVendorProduct->toArray();
+                
+                $existingVendorProduct->update([
+                    'max_per_order' => (int)($row['max_per_order'] ?? $existingVendorProduct->max_per_order),
+                    'is_active' => $this->normalizeYesNo($row['status'] ?? '1') === 'yes',
+                    'is_featured' => $this->normalizeYesNo($row['featured_product'] ?? '0') === 'yes',
+                ]);
+                
+                // Log activity for vendor product update
+                $this->logBulkActivity('updated', $existingVendorProduct, $oldVendorProductData, $existingVendorProduct->fresh()->toArray());
+
+                // Map to existing IDs
+                $this->productMap[$excelId] = (int)$product->id;
+                $this->vendorProductMap[$excelId] = (int)$existingVendorProduct->id;
+                
+                // Mark this SKU as seen
+                $this->vendorProductSkus[$sku] = $index + 2;
                 continue;
             }
 
@@ -285,6 +330,43 @@ class ProductsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
         }
     }
 
+    private function updateTranslations(Product $product, $row): void
+    {
+        $languages = \App\Models\Language::all();
+        
+        foreach ($languages as $language) {
+            $langCode = $language->code;
+            
+            $fields = [
+                'title' => $row["title_{$langCode}"] ?? null,
+                'details' => $row["description_{$langCode}"] ?? null,
+                'summary' => $row["summary_{$langCode}"] ?? null,
+                'features' => $row["features_{$langCode}"] ?? null,
+                'instructions' => $row["instructions_{$langCode}"] ?? null,
+                'extra_description' => $row["extra_description_{$langCode}"] ?? null,
+                'material' => $row["material_{$langCode}"] ?? null,
+                'meta_title' => $row["meta_title_{$langCode}"] ?? null,
+                'meta_description' => $row["meta_description_{$langCode}"] ?? null,
+                'meta_keywords' => $row["meta_keywords_{$langCode}"] ?? null,
+            ];
+
+            foreach ($fields as $key => $value) {
+                if (!empty($value)) {
+                    // Update or create translation
+                    $product->translations()->updateOrCreate(
+                        [
+                            'lang_id' => $language->id,
+                            'lang_key' => $key,
+                        ],
+                        [
+                            'lang_value' => $value,
+                        ]
+                    );
+                }
+            }
+        }
+    }
+
     private function normalizeYesNo($value): string
     {
         $v = strtolower(trim((string)$value));
@@ -302,5 +384,62 @@ class ProductsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
     {
         $n = (int)($value ?? 0);
         return $n > 0 ? $n : null;
+    }
+
+    /**
+     * Log activity for bulk import operations
+     */
+    private function logBulkActivity(string $action, $model, array $oldData = [], array $newData = []): void
+    {
+        try {
+            $modelName = class_basename($model);
+            $identifier = $model->id;
+            
+            $descriptionKeys = [
+                'created' => 'activity_log.created_model',
+                'updated' => 'activity_log.updated_model',
+            ];
+
+            $properties = [];
+            if ($action === 'updated' && !empty($oldData) && !empty($newData)) {
+                // Get only changed values
+                $changes = array_diff_assoc($newData, $oldData);
+                $oldValues = array_intersect_key($oldData, $changes);
+                
+                if (!empty($changes)) {
+                    $properties = [
+                        'old' => $oldValues,
+                        'new' => $changes,
+                        'source' => 'bulk_upload',
+                    ];
+                }
+            } elseif ($action === 'created') {
+                $properties = [
+                    'source' => 'bulk_upload',
+                ];
+            }
+
+            // Only log if there are actual changes or it's a create action
+            if ($action === 'created' || !empty($properties['new'])) {
+                ActivityLog::create([
+                    'user_id' => Auth::id(),
+                    'action' => $action,
+                    'model' => get_class($model),
+                    'model_id' => $model->id,
+                    'description_key' => $descriptionKeys[$action] ?? null,
+                    'description_params' => [
+                        'model' => $modelName,
+                        'identifier' => $identifier,
+                    ],
+                    'properties' => $properties,
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                    'country_id' => session('country_id'),
+                ]);
+            }
+        } catch (\Exception $e) {
+            // Silent fail - don't break import for logging errors
+            \Illuminate\Support\Facades\Log::error('Bulk import activity log error: ' . $e->getMessage());
+        }
     }
 }

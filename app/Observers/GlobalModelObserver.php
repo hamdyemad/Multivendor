@@ -38,10 +38,22 @@ class GlobalModelObserver
     public function updated(Model $model): void
     {
         if ($this->shouldLog($model) && $model->wasChanged()) {
-            $this->logActivity($model, 'updated', [
-                'old' => $this->getOnlyChangedOriginal($model),
-                'new' => $model->getChanges(),
-            ]);
+            // Get changes excluding only updated_at (when touch() is called for related data changes)
+            $changes = $model->getChanges();
+            $meaningfulChanges = array_diff_key($changes, ['updated_at' => true]);
+            
+            // If only updated_at changed (from touch()), log without old/new details
+            // This handles cases where related data (like translations) changed
+            if (empty($meaningfulChanges) && isset($changes['updated_at'])) {
+                $this->logActivity($model, 'updated', [
+                    'note' => 'Related data updated',
+                ]);
+            } else {
+                $this->logActivity($model, 'updated', [
+                    'old' => $this->getOnlyChangedOriginal($model),
+                    'new' => $changes,
+                ]);
+            }
         }
     }
 

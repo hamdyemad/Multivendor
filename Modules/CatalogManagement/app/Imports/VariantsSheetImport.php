@@ -4,12 +4,14 @@ namespace Modules\CatalogManagement\app\Imports;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\SkipsErrors;
 use Modules\CatalogManagement\app\Models\VendorProduct;
 use Modules\CatalogManagement\app\Models\VendorProductVariant;
+use App\Models\ActivityLog;
 
 /**
  * Sheet: variants
@@ -102,16 +104,42 @@ class VariantsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                 continue;
             }
 
-            // Check if variant SKU already exists (unique across all variants)
+            // Check if variant SKU already exists - if so, update instead of creating new
             $existingVariant = VendorProductVariant::where('sku', $sku)->first();
                 
             if ($existingVariant) {
-                $this->importErrors[] = [
-                    'sheet' => 'variants',
-                    'row' => $index + 2,
-                    'sku' => $sku,
-                    'errors' => [__('catalogmanagement::product.variant_sku_already_exists')]
-                ];
+                // For vendors, only allow updating variants of their own products
+                if (!$this->isAdmin) {
+                    $existingVendorProduct = $existingVariant->vendorProduct;
+                    if ($existingVendorProduct && $existingVendorProduct->vendor_id != $vendorProduct->vendor_id) {
+                        $this->importErrors[] = [
+                            'sheet' => 'variants',
+                            'row' => $index + 2,
+                            'sku' => $sku,
+                            'errors' => [__('catalogmanagement::product.variant_sku_belongs_to_another_vendor')]
+                        ];
+                        continue;
+                    }
+                }
+
+                // Store old data for activity log
+                $oldVariantData = $existingVariant->toArray();
+
+                // Update existing variant
+                $existingVariant->update([
+                    'variant_configuration_id' => !empty($row['variant_configuration_id']) ? (int)$row['variant_configuration_id'] : $existingVariant->variant_configuration_id,
+                    'price' => $this->normalizeDecimal($row['price'] ?? $existingVariant->price),
+                    'has_offer' => $hasOffer,
+                    'price_before_discount' => $hasOffer ? $this->normalizeDecimal($row['price_before_discount'] ?? 0) : 0,
+                    'offer_end_date' => $hasOffer && !empty($row['offer_end_date']) ? $row['offer_end_date'] : null,
+                ]);
+
+                // Log activity for variant update
+                $this->logBulkActivity('updated', $existingVariant, $oldVariantData, $existingVariant->fresh()->toArray());
+
+                // Map to existing ID
+                $this->variantMap[$sku] = (int)$existingVariant->id;
+                $this->variantSkus[$sku] = $index + 2;
                 continue;
             }
 
@@ -150,5 +178,62 @@ class VariantsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
     private function normalizeDecimal($value): float
     {
         return (float)($value ?? 0);
+    }
+
+    /**
+     * Log activity for bulk import operations
+     */
+    private function logBulkActivity(string $action, $model, array $oldData = [], array $newData = []): void
+    {
+        try {
+            $modelName = class_basename($model);
+            $identifier = $model->id;
+            
+            $descriptionKeys = [
+                'created' => 'activity_log.created_model',
+                'updated' => 'activity_log.updated_model',
+            ];
+
+            $properties = [];
+            if ($action === 'updated' && !empty($oldData) && !empty($newData)) {
+                // Get only changed values
+                $changes = array_diff_assoc($newData, $oldData);
+                $oldValues = array_intersect_key($oldData, $changes);
+                
+                if (!empty($changes)) {
+                    $properties = [
+                        'old' => $oldValues,
+                        'new' => $changes,
+                        'source' => 'bulk_upload',
+                    ];
+                }
+            } elseif ($action === 'created') {
+                $properties = [
+                    'source' => 'bulk_upload',
+                ];
+            }
+
+            // Only log if there are actual changes or it's a create action
+            if ($action === 'created' || !empty($properties['new'])) {
+                ActivityLog::create([
+                    'user_id' => Auth::id(),
+                    'action' => $action,
+                    'model' => get_class($model),
+                    'model_id' => $model->id,
+                    'description_key' => $descriptionKeys[$action] ?? null,
+                    'description_params' => [
+                        'model' => $modelName,
+                        'identifier' => $identifier,
+                    ],
+                    'properties' => $properties,
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                    'country_id' => session('country_id'),
+                ]);
+            }
+        } catch (\Exception $e) {
+            // Silent fail - don't break import for logging errors
+            \Illuminate\Support\Facades\Log::error('Bulk import activity log error: ' . $e->getMessage());
+        }
     }
 }

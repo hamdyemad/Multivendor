@@ -83,9 +83,6 @@ class FeatureRepository
 
             // Update translations
             if (isset($data['translations'])) {
-                // Delete old translations
-
-                // Create new translations
                 foreach ($data['translations'] as $langId => $translation) {
                     if (!empty($translation['title'])) {
                         $feature->translations()->create([
@@ -109,7 +106,7 @@ class FeatureRepository
                 // Delete old logo
                 $oldLogo = $feature->attachments()->where('type', 'logo')->first();
                 if ($oldLogo) {
-                    \Storage::disk('public')->delete($oldLogo->path);
+                    Storage::disk('public')->delete($oldLogo->path);
                     $oldLogo->delete();
                 }
 
@@ -120,6 +117,10 @@ class FeatureRepository
                     'type' => 'logo',
                 ]);
             }
+
+            // Touch the model to trigger GlobalModelObserver
+            // This ensures activity log is recorded even when only translations change
+            $feature->touch();
 
             return $feature;
         });
@@ -135,7 +136,7 @@ class FeatureRepository
 
             // Delete attachments
             foreach ($feature->attachments as $attachment) {
-                \Storage::disk('public')->delete($attachment->path);
+                Storage::disk('public')->delete($attachment->path);
                 $attachment->delete();
             }
 

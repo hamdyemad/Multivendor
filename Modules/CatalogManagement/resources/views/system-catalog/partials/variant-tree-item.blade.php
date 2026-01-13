@@ -8,7 +8,7 @@
     @if($variant->childrenRecursive && $variant->childrenRecursive->count() > 0)
         <ul>
             @foreach($variant->childrenRecursive as $child)
-                @include('system-catalog.partials.variant-tree-item', ['variant' => $child])
+                @include('catalogmanagement::system-catalog.partials.variant-tree-item', ['variant' => $child])
             @endforeach
         </ul>
     @endif

@@ -6,7 +6,7 @@
             routes: {
                 bankProductsApi: '{{ route('admin.products.bank.api.products') }}',
                 taxesApi: '{{ route('admin.products.bank.api.taxes') }}',
-                regionsApi: '/api/area/regions',
+                regionsApi: '/api/v1/area/regions',
                 saveStock: '{{ route('admin.products.bank.save-stock') }}'
             }
         };
@@ -2143,7 +2143,7 @@
         // Load variant values based on selected key
         function loadVariantValues(keyId, productIndex, variantIndex) {
             $.ajax({
-                url: '/api/variant-configurations/by-key/' + keyId,
+                url: '/api/v1/variant-configurations/by-key/' + keyId,
                 type: 'GET',
                 success: function(response) {
                     const select = $(`#variant_value_${productIndex}_${variantIndex}`);
@@ -2174,7 +2174,7 @@
             if (keyId && valueId) {
                 // Find or create variant configuration
                 $.ajax({
-                    url: '/api/variant-configurations/find-or-create',
+                    url: '/api/v1/variant-configurations/find-or-create',
                     type: 'POST',
                     data: {
                         key_id: keyId,
@@ -2587,7 +2587,7 @@
             console.log('Loading regions for vendor:', selectedVendorId);
 
             return $.ajax({
-                url: '/api/area/regions',
+                url: '/api/v1/area/regions',
                 type: 'GET',
                 headers: {
                     'X-Country-Code': $("meta[name='currency_country_code']").attr('content'),

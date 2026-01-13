@@ -556,12 +556,15 @@ return [
     'variant_has_no_stock_entries' => 'Variant exists but has no stock entries in variant_stock sheet',
     'main_category_not_belong_to_department' => 'The selected main category does not belong to the specified department',
     'sub_category_not_belong_to_main_category' => 'The selected sub category does not belong to the specified main category',
+    'sub_category_invalid' => 'The selected sub_category is invalid.',
+    'brand_invalid' => 'The selected brand is invalid.',
     'department_not_belong_to_vendor_country' => 'The selected department does not belong to the vendor\'s country',
     'vendor_not_found' => 'Vendor not found',
     'invalid_occasion_id_or_names' => 'Invalid ID or both names are empty',
     'invalid_occasion_or_variant_id' => 'Invalid occasion ID or variant ID',
     'occasion_not_found_or_skipped' => 'Occasion not found or was skipped during import',
     'invalid_product_id_or_image_url' => 'Invalid product ID or image URL',
+    'failed_to_download_image' => 'Failed to download image from URL',
     'product_has_variants_but_no_variants_found' => 'Product has have_varient = yes but no variants found in variants sheet. Please add variants for this product.',
     
     // Common translations

@@ -43,9 +43,9 @@ class VariantsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                 'sku' => 'required|string|max:255',
                 'price' => 'required|numeric|min:0',
                 'variant_configuration_id' => 'nullable|integer|exists:variants_configurations,id',
-                'has_offer' => 'nullable|in:0,1,true,false,yes,no',
+                'has_discount' => 'nullable|in:0,1,true,false,yes,no',
                 'price_before_discount' => 'nullable|numeric|min:0',
-                'offer_end_date' => 'nullable|date',
+                'discount_end_date' => 'nullable|date',
             ], [
                 'product_id.required' => __('validation.required', ['attribute' => 'product_id']),
                 'product_id.integer' => __('validation.integer', ['attribute' => 'product_id']),
@@ -126,12 +126,13 @@ class VariantsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                 $oldVariantData = $existingVariant->toArray();
 
                 // Update existing variant
+                $hasDiscount = $this->normalizeYesNo($row['has_discount'] ?? '0') === 'yes';
                 $existingVariant->update([
                     'variant_configuration_id' => !empty($row['variant_configuration_id']) ? (int)$row['variant_configuration_id'] : $existingVariant->variant_configuration_id,
                     'price' => $this->normalizeDecimal($row['price'] ?? $existingVariant->price),
-                    'has_offer' => $hasOffer,
-                    'price_before_discount' => $hasOffer ? $this->normalizeDecimal($row['price_before_discount'] ?? 0) : 0,
-                    'offer_end_date' => $hasOffer && !empty($row['offer_end_date']) ? $row['offer_end_date'] : null,
+                    'has_discount' => $hasDiscount,
+                    'price_before_discount' => $hasDiscount ? $this->normalizeDecimal($row['price_before_discount'] ?? 0) : 0,
+                    'discount_end_date' => $hasDiscount && !empty($row['discount_end_date']) ? $row['discount_end_date'] : null,
                 ]);
 
                 // Log activity for variant update
@@ -145,16 +146,16 @@ class VariantsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
 
             $this->variantSkus[$sku] = $index + 2;
 
-            $hasOffer = $this->normalizeYesNo($row['has_offer'] ?? '0') === 'yes';
+            $hasDiscount = $this->normalizeYesNo($row['has_discount'] ?? '0') === 'yes';
 
             $variant = VendorProductVariant::create([
                 'vendor_product_id' => $vendorProductId,
                 'variant_configuration_id' => !empty($row['variant_configuration_id']) ? (int)$row['variant_configuration_id'] : null,
                 'sku' => $sku,
                 'price' => $this->normalizeDecimal($row['price'] ?? 0),
-                'has_offer' => $hasOffer,
-                'price_before_discount' => $hasOffer ? $this->normalizeDecimal($row['price_before_discount'] ?? 0) : 0,
-                'offer_end_date' => $hasOffer && !empty($row['offer_end_date']) ? $row['offer_end_date'] : null,
+                'has_discount' => $hasDiscount,
+                'price_before_discount' => $hasDiscount ? $this->normalizeDecimal($row['price_before_discount'] ?? 0) : 0,
+                'discount_end_date' => $hasDiscount && !empty($row['discount_end_date']) ? $row['discount_end_date'] : null,
             ]);
 
             // Map by SKU instead of Excel ID

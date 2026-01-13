@@ -9,24 +9,11 @@
     $totalRemaining = 0;
 
     if (in_array($user_type_id, \App\Models\UserType::adminIds())) {
-        // For admin: calculate totals for all vendors
-        $allVendors = \Modules\Vendor\app\Models\Vendor::all();
-
-        foreach ($allVendors as $v) {
-            $orders = \Modules\Order\app\Models\OrderProduct::where('vendor_id', $v->id)->get();
-            if ($orders->count() > 0) {
-                $commission = $orders->first()->commission ?? 0;
-                $vendorBalance = $orders->sum('price') - ($orders->sum('price') * ($commission / 100));
-                $totalNeeded += $vendorBalance;
-            }
-
-            $sentMoney = \Modules\Withdraw\app\Models\Withdraw::where('reciever_id', $v->id)
-                ->where('status', 'accepted')
-                ->sum('sent_amount');
-            $totalSentMoney += $sentMoney;
-        }
-
-        $totalRemaining = $totalNeeded - $totalSentMoney;
+        // For admin: use optimized statistics query (single DB queries instead of N+1)
+        $statistics = \Modules\Vendor\app\Models\Vendor::getVendorsStatistics();
+        $totalNeeded = (float) str_replace(',', '', $statistics['total_balance']);
+        $totalSentMoney = (float) str_replace(',', '', $statistics['total_sent']);
+        $totalRemaining = (float) str_replace(',', '', $statistics['total_remaining']);
     } else {
         // For vendor: calculate their own totals
         if ($vendor) {

@@ -21,7 +21,7 @@ class WelcomeNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $appName = config('app.name');
+        $appName = 'Bnaia';
         $locale = $notifiable->lang ?? app()->getLocale();
 
         // Set the locale for this email
@@ -36,10 +36,12 @@ class WelcomeNotification extends Notification
     }
 
     public function toArray(object $notifiable): array
-    {
+    {        
+        $appName = 'Bnaia';
+
         return [
             'customer_id' => $notifiable->id,
-            'message' => __('customer.welcome_email.thank_you', ['app_name' => config('app.name')]),
+            'message' => __('customer.welcome_email.thank_you', ['app_name' => $appName]),
         ];
     }
 }

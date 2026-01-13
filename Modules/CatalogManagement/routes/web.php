@@ -4,6 +4,12 @@ use Illuminate\Support\Facades\Route;
 
 // System Catalog - Accessible to all authenticated users (admins and vendors)
 Route::get('system-catalog', 'SystemCatalogController@index')->name('system-catalog.index');
+Route::get('system-catalog/departments', 'SystemCatalogController@departments')->name('system-catalog.departments');
+Route::get('system-catalog/categories', 'SystemCatalogController@categories')->name('system-catalog.categories');
+Route::get('system-catalog/variants', 'SystemCatalogController@variants')->name('system-catalog.variants');
+Route::get('system-catalog/brands', 'SystemCatalogController@brands')->name('system-catalog.brands');
+Route::get('system-catalog/regions', 'SystemCatalogController@regions')->name('system-catalog.regions');
+Route::get('system-catalog/vendors', 'SystemCatalogController@vendors')->name('system-catalog.vendors');
 
 Route::group(['middleware' => 'adminGuard'], function() {
     // Reviews

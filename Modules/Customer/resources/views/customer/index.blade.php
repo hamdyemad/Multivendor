@@ -228,7 +228,7 @@
         // Load cities from session country on page load
         const sessionCountryId = $("meta[name='current_country_id']").attr('content');
         if (sessionCountryId) {
-            fetch(`/api/area/countries/${sessionCountryId}/cities`, {
+            fetch(`/api/v1/area/countries/${sessionCountryId}/cities`, {
                 method: 'GET',
                 headers: {
                     'lang': "{{ app()->getLocale() }}"
@@ -266,7 +266,7 @@
 
             if (cityId) {
                 // Fetch regions for selected city
-                fetch(`/api/area/cities/${cityId}/regions`, {
+                fetch(`/api/v1/area/cities/${cityId}/regions`, {
                     method: 'GET',
                     headers: {
                         'lang': "{{ app()->getLocale() }}"
@@ -634,7 +634,7 @@
 
                 // Reload cities
                 if (sessionCountryId) {
-                    fetch(`/api/area/countries/${sessionCountryId}/cities`, {
+                    fetch(`/api/v1/area/countries/${sessionCountryId}/cities`, {
                         method: 'GET',
                         headers: {
                             'lang': "{{ app()->getLocale() }}"

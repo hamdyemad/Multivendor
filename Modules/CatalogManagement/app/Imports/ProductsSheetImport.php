@@ -55,7 +55,7 @@ class ProductsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                 'title_ar' => 'nullable|string|max:255',
                 'department' => 'required|integer|exists:departments,id',
                 'main_category' => 'required|integer|exists:categories,id',
-                'sub_category' => 'nullable|integer|exists:categories,id',
+                'sub_category' => 'nullable|integer|exists:sub_categories,id',
                 'brand' => 'nullable|integer|exists:brands,id',
                 'status' => 'nullable|in:0,1,true,false,yes,no',
                 'featured_product' => 'nullable|in:0,1,true,false,yes,no',
@@ -75,9 +75,9 @@ class ProductsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                 'main_category.integer' => __('validation.integer', ['attribute' => 'main_category']),
                 'main_category.exists' => __('validation.exists', ['attribute' => 'main_category']),
                 'sub_category.integer' => __('validation.integer', ['attribute' => 'sub_category']),
-                'sub_category.exists' => __('validation.exists', ['attribute' => 'sub_category']),
+                'sub_category.exists' => __('catalogmanagement::product.sub_category_invalid'),
                 'brand.integer' => __('validation.integer', ['attribute' => 'brand']),
-                'brand.exists' => __('validation.exists', ['attribute' => 'brand']),
+                'brand.exists' => __('catalogmanagement::product.brand_invalid'),
                 'max_per_order.integer' => __('validation.integer', ['attribute' => 'max_per_order']),
                 'max_per_order.min' => __('validation.min.numeric', ['attribute' => 'max_per_order', 'min' => 1]),
             ]);
@@ -211,6 +211,9 @@ class ProductsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                 
                 if ($product) {
                     $oldProductData = $product->toArray();
+                    
+                    // Track if product has variants
+                    $hasVariants = $this->normalizeYesNo($row['have_varient'] ?? '') === 'yes';
                     
                     $product->update([
                         'brand_id' => $this->normalizeNullableInt($row['brand'] ?? null) ?: $product->brand_id,

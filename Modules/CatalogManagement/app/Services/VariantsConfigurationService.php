@@ -18,6 +18,14 @@ class VariantsConfigurationService
         return $this->variantsConfigRepository->getAll();
     }
 
+    /**
+     * Get all variants configurations with pagination
+     */
+    public function getAllPaginated(array $filters = [], int $perPage = 20)
+    {
+        return $this->variantsConfigRepository->getAllPaginated($filters, $perPage);
+    }
+
     public function findById($id)
     {
         return $this->variantsConfigRepository->findById($id);

@@ -986,9 +986,6 @@ class ProductController extends Controller
      */
     public function downloadDemo()
     {
-        $currentUser = Auth::user();
-        $userType = $currentUser->user_type_id;
-        
         // Determine which demo file to serve
         if (isAdmin()) {
             $fileName = 'admin_products_demo.xlsx';

@@ -561,12 +561,15 @@ return [
     'variant_has_no_stock_entries' => 'المتغير موجود ولكن لا توجد مدخلات مخزون في ورقة مخزون المتغيرات',
     'main_category_not_belong_to_department' => 'الفئة الرئيسية المحددة لا تنتمي إلى القسم المحدد',
     'sub_category_not_belong_to_main_category' => 'الفئة الفرعية المحددة لا تنتمي إلى الفئة الرئيسية المحددة',
+    'sub_category_invalid' => 'الفئة الفرعية المحددة غير صالحة.',
+    'brand_invalid' => 'العلامة التجارية المحددة غير صالحة.',
     'department_not_belong_to_vendor_country' => 'القسم المحدد لا ينتمي إلى بلد البائع',
     'vendor_not_found' => 'البائع غير موجود',
     'invalid_occasion_id_or_names' => 'معرف غير صالح أو كلا الاسمين فارغان',
     'invalid_occasion_or_variant_id' => 'معرف المناسبة أو معرف المتغير غير صالح',
     'occasion_not_found_or_skipped' => 'المناسبة غير موجودة أو تم تخطيها أثناء الاستيراد',
     'invalid_product_id_or_image_url' => 'معرف المنتج أو رابط الصورة غير صالح',
+    'failed_to_download_image' => 'فشل في تحميل الصورة من الرابط',
     'product_has_variants_but_no_variants_found' => 'المنتج يحتوي على have_varient = yes ولكن لم يتم العثور على متغيرات في ورقة المتغيرات. يرجى إضافة متغيرات لهذا المنتج.',
     
     // Common translations

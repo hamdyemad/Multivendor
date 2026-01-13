@@ -2,6 +2,8 @@
 
 return [
     'system_catalog' => 'كتالوج النظام',
+    'category_tree' => 'شجرة الفئات',
+    'department' => 'القسم',
     'departments' => 'الأقسام',
     'categories_subcategories' => 'الفئات والفئات الفرعية',
     'variants' => 'المتغيرات',
@@ -27,9 +29,13 @@ return [
     'no_regions_found' => 'لم يتم العثور على مناطق',
     'no_vendors_found' => 'لم يتم العثور على موردين',
     'no_subcategories' => 'لا توجد فئات فرعية',
+    'no_categories_in_department' => 'لا توجد فئات في هذا القسم',
     'no_children' => 'لا يوجد عناصر فرعية',
     'no_city' => 'لا توجد مدينة',
     'no_country' => 'لا توجد دولة',
     'search_placeholder' => 'البحث في الأقسام، الفئات، المتغيرات، العلامات التجارية، المناطق، أو الموردين...',
     'no_results_found' => 'لم يتم العثور على نتائج للبحث',
+    'no_data_found' => 'لم يتم العثور على بيانات',
+    'expand_all' => 'توسيع الكل',
+    'collapse_all' => 'طي الكل',
 ];

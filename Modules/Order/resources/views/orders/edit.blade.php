@@ -742,7 +742,7 @@
                     // Load all products
                     function loadAllProducts() {
                         $.ajax({
-                            url: '/api/products/variants-all', // Products API endpoint
+                            url: '/api/v1/products/variants-all', // Products API endpoint
                             type: 'GET',
                             dataType: 'json',
                             data: {
@@ -780,7 +780,7 @@
                     function loadAllCustomers() {
                         let vendor_id = "{{ auth()->user()->vendor?->id }}";
                         $.ajax({
-                            url: '/api/customers', // Customers API endpoint
+                            url: '/api/v1/customers', // Customers API endpoint
                             type: 'GET',
                             data: {
                                 vendor_id
@@ -830,7 +830,7 @@
 
                             // Make AJAX request to search products
                             $.ajax({
-                                url: '/api/products/variants-all',
+                                url: '/api/v1/products/variants-all',
                                 type: 'GET',
                                 dataType: 'json',
                                 xhrFields: {
@@ -1215,7 +1215,7 @@
                     // Load customer addresses
                     function loadCustomerAddresses(customerId, preSelectAddress = null) {
                         $.ajax({
-                            url: `/api/customers/${customerId}/addresses`,
+                            url: `/api/v1/customers/${customerId}/addresses`,
                             type: 'GET',
                             dataType: 'json',
                             xhrFields: {
@@ -1292,7 +1292,7 @@
                         citySelect.empty().append('<option value="">{{ __('common.select') }}</option>');
 
                         $.ajax({
-                            url: `/api/area/countries/${countryId}/cities`,
+                            url: `/api/v1/area/countries/${countryId}/cities`,
                             type: 'GET',
                             dataType: 'json',
                             headers: {
@@ -1326,7 +1326,7 @@
                         if (!cityId) return;
 
                         $.ajax({
-                            url: `/api/area/cities/${cityId}/regions`,
+                            url: `/api/v1/area/cities/${cityId}/regions`,
                             type: 'GET',
                             dataType: 'json',
                             headers: {
@@ -1359,7 +1359,7 @@
                         if (!regionId) return;
 
                         $.ajax({
-                            url: `/api/area/regions/${regionId}/subregions`,
+                            url: `/api/v1/area/regions/${regionId}/subregions`,
                             type: 'GET',
                             dataType: 'json',
                             headers: {
@@ -1392,7 +1392,7 @@
                         citySelect.empty().append('<option value="">{{ __('common.select') }}</option>');
 
                         $.ajax({
-                            url: `/api/area/countries/${countryId}/cities`,
+                            url: `/api/v1/area/countries/${countryId}/cities`,
                             type: 'GET',
                             dataType: 'json',
                             headers: {
@@ -1425,7 +1425,7 @@
                         if (!cityId) return;
 
                         $.ajax({
-                            url: `/api/area/cities/${cityId}/regions`,
+                            url: `/api/v1/area/cities/${cityId}/regions`,
                             type: 'GET',
                             dataType: 'json',
                             headers: {
@@ -1540,7 +1540,7 @@
                         };
 
                         $.ajax({
-                            url: `/api/customers/${customerId}/addresses`,
+                            url: `/api/v1/customers/${customerId}/addresses`,
                             type: 'POST',
                             dataType: 'json',
                             contentType: 'application/json',

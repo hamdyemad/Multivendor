@@ -407,7 +407,7 @@
                 
                 // Fetch categories for selected department
                 $.ajax({
-                    url: '/api/categories',
+                    url: '/api/v1/categories',
                     type: 'GET',
                     data: {
                         department_id: departmentId,

@@ -41,9 +41,10 @@ class RouteServiceProvider extends ServiceProvider
         $this->configureRateLimiting();
 
         $this->routes(function () {
-            // API routes MUST be registered first and without any localization or URL defaults
+            // API routes with v1 versioning prefix
+            // All API endpoints will be accessible at /api/v1/...
             Route::middleware('api')
-                ->prefix('api')
+                ->prefix('api/v1')
                 ->group(base_path('routes/api.php'));
 
             // Web routes with localization

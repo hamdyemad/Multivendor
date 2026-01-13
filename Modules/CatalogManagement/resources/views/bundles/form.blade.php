@@ -482,7 +482,7 @@
                 }
 
                 $.ajax({
-                    url: '/api/products',
+                    url: '/api/v1/products',
                     type: 'GET',
                     headers: {
                         'lang': "{{ app()->getLocale() }}"

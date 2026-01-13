@@ -340,7 +340,7 @@ function loadVendorRegions(vendorId) {
 
     // Load regions via /api/area/regions endpoint with pagination
     $.ajax({
-        url: '/api/area/regions',
+        url: '/api/v1/area/regions',
         type: 'GET',
         dataType: 'json',
         data: {

@@ -5,7 +5,7 @@
     // 1. Vendor Requests (pending vendors where active = 0)
     if (isAdmin()) {
         $vendorRequests = \Modules\Vendor\app\Models\Vendor::where('active', 0)
-            ->with('user')
+            ->with(['user', 'translations'])
             ->get()
             ->map(function($vendor) {
                 return [

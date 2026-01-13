@@ -11,11 +11,16 @@ use Modules\CatalogManagement\app\Http\Resources\Api\BundleCategoryResource;
 class BundleResource extends JsonResource
 {
     /**
+     * Flag to include bundle products (for show endpoint)
+     */
+    public bool $includeProducts = false;
+
+    /**
      * Transform the resource into an array.
      */
     public function toArray(Request $request): array
     {
-        return [
+        $data = [
             'id' => $this->id,
             'sku' => $this->sku,
             'slug' => $this->slug,
@@ -32,12 +37,18 @@ class BundleResource extends JsonResource
             }),
             'bundle_products_count' => $this->bundle_products_count ?? 0,
             'total_price' => round($this->bundleTotalPrice(), 2),
-            'bundle_products' => $this->when('bundleProducts', function() {
-                return BundleProductResource::collection($this->bundleProducts);
-            }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];
+
+        // Only include bundle_products for single bundle (show endpoint)
+        if ($this->includeProducts) {
+            $data['bundle_products'] = $this->when('bundleProducts', function() {
+                return BundleProductResource::collection($this->bundleProducts);
+            });
+        }
+
+        return $data;
     }
 
     /**

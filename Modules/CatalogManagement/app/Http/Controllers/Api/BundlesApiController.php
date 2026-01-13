@@ -40,7 +40,11 @@ class BundlesApiController extends Controller
         ];
         
         $bundle = $this->bundleService->getBundleById($id, $filters);
-        return $this->sendRes(config('responses.success')[app()->getLocale()], true, new BundleResource($bundle));
+        
+        $resource = new BundleResource($bundle);
+        $resource->includeProducts = true;
+        
+        return $this->sendRes(config('responses.success')[app()->getLocale()], true, $resource);
     }
 
 

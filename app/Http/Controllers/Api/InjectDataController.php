@@ -1895,8 +1895,8 @@ class InjectDataController extends Controller
                     $brandId = null; // Will skip vendor_product creation
                 }
 
-                // Check if product exists by ID
-                $product = Product::where('id', $item['id'])->first();
+                // Check if product exists by ID (include soft-deleted)
+                $product = Product::withTrashed()->where('id', $item['id'])->first();
 
                 // Map size_color_type to configuration_type enum values
                 // Also check if product_size_colors has variant configurations
@@ -1961,6 +1961,10 @@ class InjectDataController extends Controller
                 ];
 
                 if ($product) {
+                    // Restore if soft-deleted
+                    if ($product->trashed()) {
+                        $product->restore();
+                    }
                     // Update existing
                     $product->update($productData);
                     $updated++;

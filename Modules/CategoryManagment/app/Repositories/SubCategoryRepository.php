@@ -227,6 +227,9 @@ class SubCategoryRepository implements SubCategoryRepositoryInterface
             ]);
         }
 
+        // Touch the model to trigger GlobalModelObserver for activity logging
+        $subCategory->touch();
+
         return $subCategory;
     }
 

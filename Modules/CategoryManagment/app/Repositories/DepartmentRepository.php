@@ -177,6 +177,9 @@ class DepartmentRepository implements DepartmentRepositoryInterface
             }
         }
 
+        // Touch the model to trigger GlobalModelObserver for activity logging
+        $department->touch();
+
         return $department;
     }
 
@@ -194,8 +197,8 @@ class DepartmentRepository implements DepartmentRepositoryInterface
         if ($oldIcon) {
             $oldIcon->forceDelete();
         }
-        $department->translations()->forceDelete();
-        $department->forceDelete();
+        $department->translations()->delete();
+        $department->delete();
         return true;
     }
 }

@@ -188,6 +188,9 @@ class CategoryRepository implements CategoryRepositoryInterface
             ]);
         }
 
+        // Touch the model to trigger GlobalModelObserver for activity logging
+        $category->touch();
+
         return $category;
     }
 

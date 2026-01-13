@@ -1247,7 +1247,7 @@
                 }
 
                 $.ajax({
-                    url: '/api/area/regions',
+                    url: '/api/v1/area/regions',
                     type: 'GET',
                     dataType: 'json',
                     headers: {
@@ -1873,7 +1873,7 @@
                 const countryId = $("meta[name='current_country_id']").attr("content");
                 
                 $.ajax({
-                    url: `/api/variant-configurations/key/${keyId}/tree`,
+                    url: `/api/v1/variant-configurations/key/${keyId}/tree`,
                     method: 'GET',
                     data: {
                         country_id: countryId

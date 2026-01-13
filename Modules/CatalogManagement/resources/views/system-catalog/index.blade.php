@@ -112,6 +112,37 @@
         margin-left: 0.5rem !important;
         margin-right: 0 !important;
     }
+    
+    /* Collapsible Tree Styles */
+    .collapsible-tree .tree-node {
+        display: flex;
+        align-items: center;
+        padding: 8px 0;
+    }
+    .collapsible-tree .tree-toggle {
+        cursor: pointer;
+        color: var(--color-primary);
+        font-size: 18px;
+        width: 24px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s ease;
+    }
+    .collapsible-tree .tree-toggle:hover {
+        color: #0056b3;
+    }
+    .collapsible-tree .tree-toggle-placeholder {
+        width: 24px;
+        display: inline-block;
+    }
+    .collapsible-tree .tree-children {
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+    }
+    .collapsible-tree .tree-children.collapsed {
+        display: none;
+    }
 </style>
 @endpush
 
@@ -157,7 +188,12 @@
                 <!-- Tabs -->
                 <ul class="nav nav-tabs mb-4" id="catalogTabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="departments-tab" data-bs-toggle="tab" data-bs-target="#departments" type="button" role="tab">
+                        <button class="nav-link active" id="category-tree-tab" data-bs-toggle="tab" data-bs-target="#category-tree" type="button" role="tab">
+                            <i class="uil uil-sitemap me-1"></i> {{ __('catalogmanagement::system_catalog.category_tree') }}
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="departments-tab" data-bs-toggle="tab" data-bs-target="#departments" type="button" role="tab">
                             <i class="uil uil-layer-group me-1"></i> {{ __('catalogmanagement::system_catalog.departments') }}
                         </button>
                     </li>
@@ -192,8 +228,76 @@
 
                 <!-- Tab Content -->
                 <div class="tab-content" id="catalogTabContent">
+                    <!-- Category Tree Tab -->
+                    <div class="tab-pane fade show active" id="category-tree" role="tabpanel">
+                        <div class="d-flex justify-content-end mb-3">
+                            <button type="button" class="btn btn-sm btn-outline-primary me-2" id="expandAllTree">
+                                <i class="uil uil-angle-double-down me-1"></i>{{ __('catalogmanagement::system_catalog.expand_all') }}
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="collapseAllTree">
+                                <i class="uil uil-angle-double-up me-1"></i>{{ __('catalogmanagement::system_catalog.collapse_all') }}
+                            </button>
+                        </div>
+                        <div class="category-tree-container">
+                            @forelse($departments as $department)
+                                <ul class="variant-tree collapsible-tree">
+                                    <li>
+                                        <div class="tree-node">
+                                            @if($department->categories && $department->categories->count() > 0)
+                                                <span class="tree-toggle" data-expanded="true"><i class="uil uil-minus-circle"></i></span>
+                                            @else
+                                                <span class="tree-toggle-placeholder"></span>
+                                            @endif
+                                            <span class="id-badge">{{ $department->id }}</span>
+                                            <span class="variant-name ms-2">{{ $department->getTranslation('name', 'en') }} / {{ $department->getTranslation('name', 'ar') }}</span>
+                                            <i class="uil uil-layer-group ms-2 text-primary"></i>
+                                        </div>
+                                        
+                                        @if($department->categories && $department->categories->count() > 0)
+                                            <ul class="tree-children">
+                                                @foreach($department->categories as $category)
+                                                    <li>
+                                                        <div class="tree-node">
+                                                            @if($category->subs && $category->subs->count() > 0)
+                                                                <span class="tree-toggle" data-expanded="true"><i class="uil uil-minus-circle"></i></span>
+                                                            @else
+                                                                <span class="tree-toggle-placeholder"></span>
+                                                            @endif
+                                                            <span class="id-badge" style="font-size: 11px; padding: 2px 8px; background-color: #17a2b8;">{{ $category->id }}</span>
+                                                            <span class="variant-name ms-2">{{ $category->getTranslation('name', 'en') }} / {{ $category->getTranslation('name', 'ar') }}</span>
+                                                            <i class="uil uil-apps ms-2 text-info"></i>
+                                                        </div>
+                                                        
+                                                        @if($category->subs && $category->subs->count() > 0)
+                                                            <ul class="tree-children">
+                                                                @foreach($category->subs as $sub)
+                                                                    <li>
+                                                                        <div class="tree-node">
+                                                                            <span class="tree-toggle-placeholder"></span>
+                                                                            <span class="id-badge" style="font-size: 11px; padding: 2px 8px; background-color: #6c757d;">{{ $sub->id }}</span>
+                                                                            <span class="variant-name ms-2">{{ $sub->getTranslation('name', 'en') }} / {{ $sub->getTranslation('name', 'ar') }}</span>
+                                                                        </div>
+                                                                    </li>
+                                                                @endforeach
+                                                            </ul>
+                                                        @endif
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        @endif
+                                    </li>
+                                </ul>
+                            @empty
+                                <div class="text-center py-5 text-muted">
+                                    <i class="uil uil-folder-open fs-1 d-block mb-3"></i>
+                                    {{ __('catalogmanagement::system_catalog.no_departments_found') }}
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+
                     <!-- Departments Tab -->
-                    <div class="tab-pane fade show active" id="departments" role="tabpanel">
+                    <div class="tab-pane fade" id="departments" role="tabpanel">
                         <x-catalog-table 
                             :headers="[
                                 ['label' => __('catalogmanagement::system_catalog.id'), 'style' => 'width: 100px;', 'class' => 'text-center'],
@@ -293,7 +397,7 @@
                                             @if($variant->childrenRecursive && $variant->childrenRecursive->count() > 0)
                                                 <ul class="variant-tree">
                                                     @foreach($variant->childrenRecursive as $child)
-                                                        @include('system-catalog.partials.variant-tree-item', ['variant' => $child])
+                                                        @include('catalogmanagement::system-catalog.partials.variant-tree-item', ['variant' => $child])
                                                     @endforeach
                                                 </ul>
                                             @else
@@ -418,8 +522,135 @@
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('globalSearch');
     
+    // Collapsible Tree Functionality
+    const treeToggles = document.querySelectorAll('.collapsible-tree .tree-toggle');
+    
+    treeToggles.forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const isExpanded = this.getAttribute('data-expanded') === 'true';
+            const parentLi = this.closest('li');
+            const childrenUl = parentLi.querySelector(':scope > .tree-children');
+            
+            if (childrenUl) {
+                if (isExpanded) {
+                    childrenUl.classList.add('collapsed');
+                    this.setAttribute('data-expanded', 'false');
+                    this.innerHTML = '<i class="uil uil-plus-circle"></i>';
+                } else {
+                    childrenUl.classList.remove('collapsed');
+                    this.setAttribute('data-expanded', 'true');
+                    this.innerHTML = '<i class="uil uil-minus-circle"></i>';
+                }
+            }
+        });
+    });
+    
+    // Expand All Button
+    document.getElementById('expandAllTree')?.addEventListener('click', function() {
+        document.querySelectorAll('.collapsible-tree .tree-toggle').forEach(toggle => {
+            const parentLi = toggle.closest('li');
+            const childrenUl = parentLi.querySelector(':scope > .tree-children');
+            if (childrenUl) {
+                childrenUl.classList.remove('collapsed');
+                toggle.setAttribute('data-expanded', 'true');
+                toggle.innerHTML = '<i class="uil uil-minus-circle"></i>';
+            }
+        });
+    });
+    
+    // Collapse All Button
+    document.getElementById('collapseAllTree')?.addEventListener('click', function() {
+        document.querySelectorAll('.collapsible-tree .tree-toggle').forEach(toggle => {
+            const parentLi = toggle.closest('li');
+            const childrenUl = parentLi.querySelector(':scope > .tree-children');
+            if (childrenUl) {
+                childrenUl.classList.add('collapsed');
+                toggle.setAttribute('data-expanded', 'false');
+                toggle.innerHTML = '<i class="uil uil-plus-circle"></i>';
+            }
+        });
+    });
+    
     searchInput.addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase().trim();
+        
+        // Search in Category Tree
+        const treeContainer = document.querySelector('.category-tree-container');
+        if (treeContainer) {
+            const allTreeItems = treeContainer.querySelectorAll('.collapsible-tree > li');
+            
+            allTreeItems.forEach(departmentLi => {
+                let departmentMatch = false;
+                const departmentNode = departmentLi.querySelector(':scope > .tree-node');
+                const departmentText = departmentNode ? departmentNode.textContent.toLowerCase() : '';
+                
+                if (searchTerm === '' || departmentText.includes(searchTerm)) {
+                    departmentMatch = true;
+                }
+                
+                // Check categories
+                const categoryItems = departmentLi.querySelectorAll(':scope > .tree-children > li');
+                categoryItems.forEach(categoryLi => {
+                    let categoryMatch = false;
+                    const categoryNode = categoryLi.querySelector(':scope > .tree-node');
+                    const categoryText = categoryNode ? categoryNode.textContent.toLowerCase() : '';
+                    
+                    if (searchTerm === '' || categoryText.includes(searchTerm)) {
+                        categoryMatch = true;
+                    }
+                    
+                    // Check subcategories
+                    const subItems = categoryLi.querySelectorAll(':scope > .tree-children > li');
+                    subItems.forEach(subLi => {
+                        const subNode = subLi.querySelector(':scope > .tree-node');
+                        const subText = subNode ? subNode.textContent.toLowerCase() : '';
+                        
+                        if (searchTerm === '' || subText.includes(searchTerm)) {
+                            subLi.style.display = '';
+                            categoryMatch = true;
+                            departmentMatch = true;
+                        } else {
+                            subLi.style.display = 'none';
+                        }
+                    });
+                    
+                    // Show/hide category
+                    if (searchTerm === '' || categoryMatch) {
+                        categoryLi.style.display = '';
+                        // Expand parent if searching
+                        if (searchTerm !== '' && categoryMatch) {
+                            const childrenUl = categoryLi.querySelector(':scope > .tree-children');
+                            const toggle = categoryLi.querySelector(':scope > .tree-node .tree-toggle');
+                            if (childrenUl && toggle) {
+                                childrenUl.classList.remove('collapsed');
+                                toggle.setAttribute('data-expanded', 'true');
+                                toggle.innerHTML = '<i class="uil uil-minus-circle"></i>';
+                            }
+                        }
+                    } else {
+                        categoryLi.style.display = 'none';
+                    }
+                });
+                
+                // Show/hide department
+                const departmentUl = departmentLi.closest('.collapsible-tree');
+                if (searchTerm === '' || departmentMatch) {
+                    departmentUl.style.display = '';
+                    // Expand department if searching
+                    if (searchTerm !== '' && departmentMatch) {
+                        const childrenUl = departmentLi.querySelector(':scope > .tree-children');
+                        const toggle = departmentLi.querySelector(':scope > .tree-node .tree-toggle');
+                        if (childrenUl && toggle) {
+                            childrenUl.classList.remove('collapsed');
+                            toggle.setAttribute('data-expanded', 'true');
+                            toggle.innerHTML = '<i class="uil uil-minus-circle"></i>';
+                        }
+                    }
+                } else {
+                    departmentUl.style.display = 'none';
+                }
+            });
+        }
         
         // Search in all tables
         const tables = document.querySelectorAll('.table tbody');

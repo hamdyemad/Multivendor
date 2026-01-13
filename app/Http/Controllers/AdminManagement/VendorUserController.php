@@ -34,7 +34,10 @@ class VendorUserController extends Controller
     public function index(Request $request)
     {
         $languages = $this->languageService->getAll();
-        return view('pages.vendor_users_management.vendor_user.index', compact('languages'));
+        $vendors = \Modules\Vendor\app\Models\Vendor::with('translations')
+            ->select('id')
+            ->get();
+        return view('pages.vendor_users_management.vendor_user.index', compact('languages', 'vendors'));
     }
 
     /**

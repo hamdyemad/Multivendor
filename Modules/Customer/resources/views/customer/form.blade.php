@@ -490,7 +490,7 @@
     }
 
     function fetchCities(countryId) {
-        fetch(`/api/area/countries/${sessionCountryId}/cities`, {
+        fetch(`/api/v1/area/countries/${sessionCountryId}/cities`, {
                 method: 'GET',
                 headers: {
                     'lang': "{{ app()->getLocale() }}"
@@ -526,7 +526,7 @@
 
     function fetchRegions(cityId) {
         // Fetch regions for selected city
-        fetch(`/api/area/cities/${cityId}/regions`,  {
+        fetch(`/api/v1/area/cities/${cityId}/regions`,  {
             method: 'GET',
             headers: {
                 'lang': "{{ app()->getLocale() }}"

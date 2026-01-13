@@ -4,6 +4,9 @@ namespace Modules\CatalogManagement\app\Imports;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
@@ -66,6 +69,19 @@ class ImagesSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                 continue;
             }
 
+            // Download and store the image
+            $storedPath = $this->downloadAndStoreImage($imageUrl, $dbProductId);
+            
+            if (!$storedPath) {
+                $this->importErrors[] = [
+                    'sheet' => 'images',
+                    'row' => $index + 2,
+                    'product_id' => $excelProductId,
+                    'errors' => [__('catalogmanagement::product.failed_to_download_image')]
+                ];
+                continue;
+            }
+
             $isMain = in_array(
                 strtolower(trim((string)($row['is_main'] ?? '0'))),
                 ['1', 'true', 'yes'],
@@ -80,7 +96,7 @@ class ImagesSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                         'type' => 'main_image'
                     ],
                     [
-                        'path' => $imageUrl
+                        'path' => $storedPath
                     ]
                 );
             } else {
@@ -89,13 +105,93 @@ class ImagesSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                         'attachable_id' => $dbProductId,
                         'attachable_type' => Product::class,
                         'type' => 'additional_image',
-                        'path' => $imageUrl
+                        'path' => $storedPath
                     ],
                     [
-                        'path' => $imageUrl
+                        'path' => $storedPath
                     ]
                 );
             }
         }
+    }
+
+    /**
+     * Download image from URL and store it locally
+     */
+    private function downloadAndStoreImage(string $imageUrl, int $productId): ?string
+    {
+        try {
+            // Check if it's a valid URL
+            if (!filter_var($imageUrl, FILTER_VALIDATE_URL)) {
+                // If not a URL, assume it's already a local path
+                return $imageUrl;
+            }
+
+            // Download the image
+            $response = Http::timeout(30)->get($imageUrl);
+            
+            if (!$response->successful()) {
+                return null;
+            }
+
+            $imageContent = $response->body();
+            
+            // Get the file extension from URL or content type
+            $extension = $this->getImageExtension($imageUrl, $response->header('Content-Type'));
+            
+            if (!$extension) {
+                $extension = 'jpg'; // Default to jpg
+            }
+
+            // Generate unique filename
+            $filename = 'products/' . $productId . '/' . Str::uuid() . '.' . $extension;
+            
+            // Store the image
+            Storage::disk('public')->put($filename, $imageContent);
+            
+            return $filename;
+            
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to download image: ' . $e->getMessage(), [
+                'url' => $imageUrl,
+                'product_id' => $productId
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Get image extension from URL or content type
+     */
+    private function getImageExtension(string $url, ?string $contentType): ?string
+    {
+        // Try to get from URL
+        $pathInfo = pathinfo(parse_url($url, PHP_URL_PATH));
+        if (!empty($pathInfo['extension'])) {
+            $ext = strtolower($pathInfo['extension']);
+            if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'])) {
+                return $ext;
+            }
+        }
+
+        // Try to get from content type
+        if ($contentType) {
+            $mimeToExt = [
+                'image/jpeg' => 'jpg',
+                'image/jpg' => 'jpg',
+                'image/png' => 'png',
+                'image/gif' => 'gif',
+                'image/webp' => 'webp',
+                'image/svg+xml' => 'svg',
+            ];
+            
+            foreach ($mimeToExt as $mime => $ext) {
+                if (str_contains($contentType, $mime)) {
+                    return $ext;
+                }
+            }
+        }
+
+        return null;
     }
 }

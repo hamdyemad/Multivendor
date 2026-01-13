@@ -2,6 +2,7 @@
 
 return [
     'system_catalog' => 'System Catalog',
+    'category_tree' => 'Category Tree',
     'departments' => 'Departments',
     'categories_subcategories' => 'Categories & Subcategories',
     'variants' => 'Variants',
@@ -27,9 +28,12 @@ return [
     'no_regions_found' => 'No regions found',
     'no_vendors_found' => 'No vendors found',
     'no_subcategories' => 'No subcategories',
+    'no_categories_in_department' => 'No categories in this department',
     'no_children' => 'No children',
     'no_city' => 'No city',
     'no_country' => 'No country',
     'search_placeholder' => 'Search in departments, categories, variants, brands, or regions...',
     'no_results_found' => 'No results found for your search',
+    'expand_all' => 'Expand All',
+    'collapse_all' => 'Collapse All',
 ];

@@ -1855,7 +1855,7 @@
                 }
 
                 $.ajax({
-                    url: '/api/area/regions',
+                    url: '/api/v1/area/regions',
                     type: 'GET',
                     dataType: 'json',
                     headers: {

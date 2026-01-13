@@ -27,8 +27,17 @@ class SystemCatalogService
      */
     public function getAllCatalogData()
     {
-        // Get all departments (0 = no pagination, get all)
+        // Get all departments with categories and subcategories for tree view
         $departments = $this->departmentService->getAllDepartments(['active' => 1], 0);
+        
+        // Load categories with subcategories for each department
+        if ($departments) {
+            $departments->load(['categories' => function($query) {
+                $query->where('active', 1)->with(['translations', 'subs' => function($q) {
+                    $q->where('active', 1)->with('translations');
+                }]);
+            }, 'translations']);
+        }
 
         // Get all categories with subcategories (0 = no pagination, get all)
         $categories = $this->categoryService->getAllCategories(['active' => 1, 'parent_id' => null], 0);

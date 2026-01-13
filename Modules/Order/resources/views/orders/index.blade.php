@@ -567,7 +567,10 @@
                     orderable: false,
                     searchable: false,
                     render: function(data) {
-                        return (data !== null && data !== undefined && data !== '') ? `${parseFloat(data).toFixed(2)} {{ currency() }}` : '-';
+                        if (data !== null && data !== undefined && data !== '') {
+                            return parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' {{ currency() }}';
+                        }
+                        return '-';
                     }
                 },
                 {

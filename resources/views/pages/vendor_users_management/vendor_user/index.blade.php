@@ -84,7 +84,7 @@
                                                 class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select select2"
                                                 id="vendor_id">
                                                 <option value="">{{ trans('admin.all_vendors') }}</option>
-                                                @foreach (\Modules\Vendor\app\Models\Vendor::all() as $vendor)
+                                                @foreach ($vendors as $vendor)
                                                     <option value="{{ $vendor->id }}">
                                                         {{ $vendor->getTranslation('name', app()->getLocale()) }}</option>
                                                 @endforeach

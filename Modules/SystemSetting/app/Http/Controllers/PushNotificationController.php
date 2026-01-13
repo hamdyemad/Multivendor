@@ -49,7 +49,8 @@ class PushNotificationController extends Controller
                 ];
             });
 
-        $vendors = Vendor::where('active', '1')
+        $vendors = Vendor::with(['translations', 'user'])
+            ->where('active', '1')
             ->get()
             ->map(function ($vendor) {
                 return [

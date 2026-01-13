@@ -12,17 +12,25 @@
     $totalVendorBalance = 0;
 
     if (isAdmin()) {
-        // For admin: calculate totals for all vendors
-        $allVendors = \Modules\Vendor\app\Models\Vendor::all();
+        // For admin: use optimized aggregate queries instead of loading all vendors
+        $statistics = \Modules\Vendor\app\Models\Vendor::getVendorsStatistics();
         
-        // Sum up values from all vendors using model attributes
-        $ordersPrice = $allVendors->sum('orders_price');
-        $bnaiaBalance = $allVendors->sum('bnaia_commission');
-        $totalVendorBalance = $allVendors->sum('total_balance');
+        // Get aggregated values using DB queries
+        $ordersPrice = \Illuminate\Support\Facades\DB::table('order_products as op')
+            ->join('vendor_order_stages as vos', function ($join) {
+                $join->on('vos.order_id', '=', 'op.order_id')
+                     ->on('vos.vendor_id', '=', 'op.vendor_id');
+            })
+            ->join('order_stages as os', 'vos.stage_id', '=', 'os.id')
+            ->where('os.type', 'deliver')
+            ->sum('op.price') ?? 0;
+            
+        $totalVendorBalance = (float) str_replace(',', '', $statistics['total_balance']);
+        $bnaiaBalance = $ordersPrice - $totalVendorBalance;
         
         $totalNeeded = $totalVendorBalance;
-        $totalSentMoney = \Modules\Withdraw\app\Models\Withdraw::where('status', 'accepted')->sum('sent_amount');
-        $totalRemaining = $totalNeeded - $totalSentMoney;
+        $totalSentMoney = (float) str_replace(',', '', $statistics['total_sent']);
+        $totalRemaining = (float) str_replace(',', '', $statistics['total_remaining']);
     } else {
         // For vendor: get their own totals from model
         if (!$vendor) {

@@ -498,7 +498,7 @@
                                                         <label
                                                             class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.main_image') }}</label>
                                                         <div class="image-wrapper text-center">
-                                                            <img src="{{ asset('storage/' . $product->product->mainImage->path) }}"
+                                                            <img src="{{ $product->product->mainImage->full_url }}"
                                                                 alt="{{ $product->product->getTranslation('title') }}"
                                                                 class="product-image img-fluid rounded"
                                                                 style="max-height: 300px;">

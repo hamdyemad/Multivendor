@@ -54,7 +54,6 @@ class CartProductResource extends JsonResource
 
         // Calculate prices after taxes
         $variantPriceAfterTaxes = $variantPrice;
-        $originalVariantPriceAfterTaxes = $originalVariantPrice;
         
         // Load taxes if not already loaded
         $vendorProduct = $this->vendorProduct;
@@ -66,7 +65,6 @@ class CartProductResource extends JsonResource
             $totalTaxPercentage = $vendorProduct->taxes->sum('percentage');
             $taxMultiplier = 1 + ($totalTaxPercentage / 100);
             $variantPriceAfterTaxes = $variantPrice * $taxMultiplier;
-            $originalVariantPriceAfterTaxes = $originalVariantPrice * $taxMultiplier;
         }
 
         // Calculate discount percentage
@@ -93,13 +91,10 @@ class CartProductResource extends JsonResource
             'variant_sku' => $this->sku ?? null,
             'variant_stock' => $this->total_stock ?? 0,
             'variant_remaining_stock' => $this->remaining_stock ?? 0,
-            // Original variant prices (real product price)
-            'original_variant_price_before_taxes' => round($originalVariantPrice, 2),
-            'original_variant_price' => round($originalVariantPriceAfterTaxes, 2),
             // Variant prices (bundle/occasion price if applicable)
             'variant_price_before_taxes' => round($variantPrice, 2),
-            'variant_price' => round($variantPriceAfterTaxes, 2),
-            'variant_discount' => $discount,
+            'variant_tax_amount' => round($variantPriceAfterTaxes - $variantPrice, 2),
+            'variant_price_after_taxes' => round($variantPriceAfterTaxes, 2),
             'configuration_tree' => $this->when($this->relationLoaded('variantConfiguration') && $this->variantConfiguration, function() use ($locale) {
                 return $this->buildVariantConfigurationTree($this->variantConfiguration, $this->id, $locale);
             }),

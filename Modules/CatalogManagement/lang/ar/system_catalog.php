@@ -3,6 +3,7 @@
 return [
     'system_catalog' => 'كتالوج النظام',
     'category_tree' => 'شجرة الفئات',
+    'department' => 'القسم',
     'departments' => 'الأقسام',
     'categories_subcategories' => 'الفئات والفئات الفرعية',
     'variants' => 'المتغيرات',
@@ -34,6 +35,7 @@ return [
     'no_country' => 'لا توجد دولة',
     'search_placeholder' => 'البحث في الأقسام، الفئات، المتغيرات، العلامات التجارية، المناطق، أو الموردين...',
     'no_results_found' => 'لم يتم العثور على نتائج للبحث',
+    'no_data_found' => 'لم يتم العثور على بيانات',
     'expand_all' => 'توسيع الكل',
     'collapse_all' => 'طي الكل',
 ];

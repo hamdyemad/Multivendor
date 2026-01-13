@@ -19,6 +19,26 @@ class VariantsConfigurationRepository implements VariantsConfigurationRepository
     }
 
     /**
+     * Get all variants configurations with pagination
+     */
+    public function getAllPaginated(array $filters = [], int $perPage = 20)
+    {
+        $query = VariantsConfiguration::with(['key.translations', 'translations'])
+            ->orderBy('id', 'desc');
+
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('translations', function ($tq) use ($search) {
+                    $tq->where('lang_value', 'like', "%{$search}%");
+                })->orWhere('value', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->paginate($perPage);
+    }
+
+    /**
      * Get variants configurations query for DataTables
      */
     public function getVariantsConfigurationsQuery(array $filters = [])

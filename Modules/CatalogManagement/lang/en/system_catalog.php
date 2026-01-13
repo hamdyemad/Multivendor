@@ -3,6 +3,7 @@
 return [
     'system_catalog' => 'System Catalog',
     'category_tree' => 'Category Tree',
+    'department' => 'Department',
     'departments' => 'Departments',
     'categories_subcategories' => 'Categories & Subcategories',
     'variants' => 'Variants',
@@ -34,6 +35,7 @@ return [
     'no_country' => 'No country',
     'search_placeholder' => 'Search in departments, categories, variants, brands, or regions...',
     'no_results_found' => 'No results found for your search',
+    'no_data_found' => 'No data found',
     'expand_all' => 'Expand All',
     'collapse_all' => 'Collapse All',
 ];

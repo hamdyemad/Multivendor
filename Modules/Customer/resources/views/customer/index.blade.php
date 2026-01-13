@@ -56,86 +56,70 @@
 
                                     {{-- Status --}}
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="active" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-check-circle me-1"></i>
-                                                {{ __('customer::customer.status') }}
-                                            </label>
-                                            <select
-                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="active">
-                                                <option value="">{{ __('customer::customer.all_status') }}</option>
-                                                <option value="1">{{ __('customer::customer.active') }}</option>
-                                                <option value="0">{{ __('customer::customer.inactive') }}</option>
-                                            </select>
-                                        </div>
+                                        <x-custom-select
+                                            name="active"
+                                            id="active"
+                                            :label="__('customer::customer.status')"
+                                            icon="uil uil-check-circle"
+                                            :placeholder="__('customer::customer.all_status')"
+                                            :options="[
+                                                ['id' => '1', 'name' => __('customer::customer.active')],
+                                                ['id' => '0', 'name' => __('customer::customer.inactive')]
+                                            ]"
+                                        />
                                     </div>
 
                                     {{-- Email Verified --}}
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="email_verified" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-envelope-check me-1"></i>
-                                                {{ __('customer::customer.email_verified') }}
-                                            </label>
-                                            <select
-                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="email_verified">
-                                                <option value="">{{ __('customer::customer.all') }}</option>
-                                                <option value="1">{{ __('customer::customer.verified') }}</option>
-                                                <option value="0">{{ __('customer::customer.not_verified') }}</option>
-                                            </select>
-                                        </div>
+                                        <x-custom-select
+                                            name="email_verified"
+                                            id="email_verified"
+                                            :label="__('customer::customer.email_verified')"
+                                            icon="uil uil-envelope-check"
+                                            :placeholder="__('customer::customer.all')"
+                                            :options="[
+                                                ['id' => '1', 'name' => __('customer::customer.verified')],
+                                                ['id' => '0', 'name' => __('customer::customer.not_verified')]
+                                            ]"
+                                        />
                                     </div>
 
                                     @if(isAdmin())
                                     {{-- Vendor Filter --}}
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="vendor_filter" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-store me-1"></i>
-                                                {{ __('customer::customer.created_by_vendor') }}
-                                            </label>
-                                            <select
-                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="vendor_filter">
-                                                <option value="">{{ __('customer::customer.all_vendors') }}</option>
-                                                @foreach($vendors as $vendor)
-                                                    <option value="{{ $vendor['id'] }}">{{ $vendor['name'] }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
+                                        <x-custom-select
+                                            name="vendor_filter"
+                                            id="vendor_filter"
+                                            :label="__('customer::customer.created_by_vendor')"
+                                            icon="uil uil-store"
+                                            :placeholder="__('customer::customer.all_vendors')"
+                                            :options="collect($vendors)->map(fn($v) => ['id' => $v['id'], 'name' => $v['name']])->toArray()"
+                                        />
                                     </div>
                                     @endif
 
                                     {{-- City Filter --}}
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="city_filter" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-map-pin me-1"></i>
-                                                {{ __('customer::customer.city') }}
-                                            </label>
-                                            <select
-                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="city_filter">
-                                                <option value="">{{ __('main.choose') }}</option>
-                                            </select>
-                                        </div>
+                                        <x-custom-select
+                                            name="city_filter"
+                                            id="city_filter"
+                                            :label="__('customer::customer.city')"
+                                            icon="uil uil-map-pin"
+                                            :placeholder="__('main.choose')"
+                                            :options="[]"
+                                        />
                                     </div>
 
                                     {{-- Region Filter --}}
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="region_filter" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-map-marker me-1"></i>
-                                                {{ __('customer::customer.region') }}
-                                            </label>
-                                            <select
-                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="region_filter">
-                                                <option value="">{{ __('main.choose') }}</option>
-                                            </select>
-                                        </div>
+                                        <x-custom-select
+                                            name="region_filter"
+                                            id="region_filter"
+                                            :label="__('customer::customer.region')"
+                                            icon="uil uil-map-marker"
+                                            :placeholder="__('main.choose')"
+                                            :options="[]"
+                                        />
                                     </div>
 
                                     {{-- Created Date From --}}
@@ -253,36 +237,32 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.data && Array.isArray(data.data)) {
-                        data.data.forEach(city => {
-                            const option = document.createElement('option');
-                            option.value = city.id;
-                            option.textContent = city.name;
-                            document.getElementById('city_filter').appendChild(option);
-                        });
-                    }
-                    // Reinitialize Select2
-                    if (typeof $ !== 'undefined' && $.fn.select2) {
-                        $('#city_filter').select2({
-                            theme: 'bootstrap-5',
-                            width: '100%'
-                        });
+                        const cityOptions = data.data.map(city => ({
+                            id: city.id,
+                            name: city.name
+                        }));
+                        CustomSelect.setOptions('city_filter', cityOptions, "{{ __('main.choose') }}");
                     }
                     // After cities are loaded, set city value from URL params
                     const cityIdFromUrl = getUrlParameter('city_id');
                     if (cityIdFromUrl) {
-                        $('#city_filter').val(cityIdFromUrl).trigger('change');
+                        CustomSelect.setValue('city_filter', cityIdFromUrl);
+                        // Trigger change to load regions
+                        document.getElementById('city_filter').dispatchEvent(new CustomEvent('change', { 
+                            detail: { value: cityIdFromUrl },
+                            bubbles: true
+                        }));
                     }
                 })
                 .catch(error => console.error('Error loading cities:', error));
         }
 
         // Handle city filter change to load regions
-        $('#city_filter').on('change', function() {
-            const cityId = this.value;
-            const regionSelect = document.getElementById('region_filter');
+        document.getElementById('city_filter').addEventListener('change', function(e) {
+            const cityId = e.detail ? e.detail.value : CustomSelect.getValue('city_filter');
 
             // Clear region select
-            regionSelect.innerHTML = '<option value="">{{ __("main.choose") }}</option>';
+            CustomSelect.setOptions('region_filter', [], "{{ __('main.choose') }}");
 
             if (cityId) {
                 // Fetch regions for selected city
@@ -295,24 +275,16 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.data && Array.isArray(data.data)) {
-                            data.data.forEach(region => {
-                                const option = document.createElement('option');
-                                option.value = region.id;
-                                option.textContent = region.name;
-                                regionSelect.appendChild(option);
-                            });
+                            const regionOptions = data.data.map(region => ({
+                                id: region.id,
+                                name: region.name
+                            }));
+                            CustomSelect.setOptions('region_filter', regionOptions, "{{ __('main.choose') }}");
                         }
-                        // Reinitialize Select2
-                        if (typeof $ !== 'undefined' && $.fn.select2) {
-                            $('#region_filter').select2({
-                                theme: 'bootstrap-5',
-                                width: '100%'
-                            });
-                        }
-                        // After cities are loaded, set city value from URL params
+                        // After regions are loaded, set region value from URL params
                         const regionIdFromUrl = getUrlParameter('region_id');
                         if (regionIdFromUrl) {
-                            $('#region_filter').val(regionIdFromUrl).trigger('change');
+                            CustomSelect.setValue('region_filter', regionIdFromUrl);
                         }
                     })
                     .catch(error => console.error('Error loading regions:', error));
@@ -342,12 +314,12 @@
                     data: function(d) {
                         d.per_page = d.length;
                         d.page = (d.start / d.length) + 1;
-                        d.active = $('#active').val();
-                        d.email_verified = $('#email_verified').val();
+                        d.active = CustomSelect.getValue('active');
+                        d.email_verified = CustomSelect.getValue('email_verified');
                         d.search = $('#search').val();
-                        d.city_id = $('#city_filter').val();
-                        d.region_id = $('#region_filter').val();
-                        d.vendor_id = $('#vendor_filter').val();
+                        d.city_id = CustomSelect.getValue('city_filter');
+                        d.region_id = CustomSelect.getValue('region_filter');
+                        d.vendor_id = document.getElementById('vendor_filter') ? CustomSelect.getValue('vendor_filter') : '';
                         d.created_date_from = $('#created_date_from').val();
                         d.created_date_to = $('#created_date_to').val();
                         if (d.order && d.order.length > 0) {
@@ -568,11 +540,11 @@
                 const params = new URLSearchParams();
 
                 const search = $('#search').val();
-                const active = $('#active').val();
-                const emailVerified = $('#email_verified').val();
-                const cityId = $('#city_filter').val();
-                const regionId = $('#region_filter').val();
-                const vendorId = $('#vendor_filter').val();
+                const active = CustomSelect.getValue('active');
+                const emailVerified = CustomSelect.getValue('email_verified');
+                const cityId = CustomSelect.getValue('city_filter');
+                const regionId = CustomSelect.getValue('region_filter');
+                const vendorId = document.getElementById('vendor_filter') ? CustomSelect.getValue('vendor_filter') : '';
                 const createdDateFrom = $('#created_date_from').val();
                 const createdDateTo = $('#created_date_to').val();
 
@@ -592,13 +564,19 @@
             // Initialize filters from URL parameters
             function initializeFiltersFromUrl() {
                 $('#search').val(getUrlParameter('search'));
-                $('#active').val(getUrlParameter('active'));
-                $('#email_verified').val(getUrlParameter('email_verified'));
-                $('#city_filter').val(getUrlParameter('city_id'));
-                $('#region_filter').val(getUrlParameter('region_id'));
-                $('#vendor_filter').val(getUrlParameter('vendor_id'));
+                const activeVal = getUrlParameter('active');
+                const emailVerifiedVal = getUrlParameter('email_verified');
+                const vendorIdVal = getUrlParameter('vendor_id');
+                
+                if (activeVal) CustomSelect.setValue('active', activeVal);
+                if (emailVerifiedVal) CustomSelect.setValue('email_verified', emailVerifiedVal);
+                if (vendorIdVal && document.getElementById('vendor_filter')) {
+                    CustomSelect.setValue('vendor_filter', vendorIdVal);
+                }
+                
                 $('#created_date_from').val(getUrlParameter('created_date_from'));
                 $('#created_date_to').val(getUrlParameter('created_date_to'));
+                // Note: city_id and region_id are handled after cities are loaded via AJAX
             }
 
             // Initialize filters from URL
@@ -622,8 +600,19 @@
                 }, 500);
             });
 
-            // Filter change handlers
-            $('#active, #email_verified, #city_filter, #region_filter, #vendor_filter, #created_date_from, #created_date_to').on('change', function() {
+            // Filter change handlers for custom selects
+            ['active', 'email_verified', 'city_filter', 'region_filter', 'vendor_filter'].forEach(function(id) {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('change', function() {
+                        updateUrlWithFilters();
+                        table.draw();
+                    });
+                }
+            });
+            
+            // Filter change handlers for date inputs
+            $('#created_date_from, #created_date_to').on('change', function() {
                 updateUrlWithFilters();
                 table.draw();
             });
@@ -633,28 +622,36 @@
                 console.log('Resetting all filters...');
                 // Clear all filter inputs
                 $('#search').val('');
-                $('#active').val('').trigger('change');
-                $('#email_verified').val('').trigger('change');
-                $('#vendor_filter').val('').trigger('change');
-
-                // Reset city and region
-                $('#city_filter').val('');
-                $('#region_filter').val('');
-                document.getElementById('region_filter').innerHTML = '<option value="">{{ __("main.choose") }}</option>';
-                document.getElementById('city_filter').innerHTML = '<option value="">{{ __("main.choose") }}</option>';
-
-                // Reinitialize Select2 for region
-                if (typeof $ !== 'undefined' && $.fn.select2) {
-                    $('#region_filter').select2({
-                        theme: 'bootstrap-5',
-                        width: '100%'
-                    });
-                     $('#city_filter').select2({
-                        theme: 'bootstrap-5',
-                        width: '100%'
-                    });
+                CustomSelect.clear('active');
+                CustomSelect.clear('email_verified');
+                if (document.getElementById('vendor_filter')) {
+                    CustomSelect.clear('vendor_filter');
                 }
 
+                // Reset city and region
+                CustomSelect.clear('city_filter');
+                CustomSelect.clear('region_filter');
+
+                // Reload cities
+                if (sessionCountryId) {
+                    fetch(`/api/area/countries/${sessionCountryId}/cities`, {
+                        method: 'GET',
+                        headers: {
+                            'lang': "{{ app()->getLocale() }}"
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.data && Array.isArray(data.data)) {
+                                const cityOptions = data.data.map(city => ({
+                                    id: city.id,
+                                    name: city.name
+                                }));
+                                CustomSelect.setOptions('city_filter', cityOptions, "{{ __('main.choose') }}");
+                            }
+                        })
+                        .catch(error => console.error('Error loading cities:', error));
+                }
 
                 $('#created_date_from').val('');
                 $('#created_date_to').val('');

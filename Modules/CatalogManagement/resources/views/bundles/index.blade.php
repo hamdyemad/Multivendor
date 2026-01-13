@@ -44,7 +44,7 @@
                                 <div class="row g-3 align-items-end">
 
                                     {{-- Search --}}
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="search" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-search me-1"></i> {{ __('common.search') }}

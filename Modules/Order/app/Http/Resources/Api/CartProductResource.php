@@ -12,6 +12,11 @@ class CartProductResource extends JsonResource
     use HasVariantConfigurationTree;
     
     /**
+     * Cart context passed from CartResource
+     */
+    public ?array $cartContext = null;
+    
+    /**
      * Transform the resource into an array.
      *
      * @return array<string, mixed>
@@ -27,15 +32,29 @@ class CartProductResource extends JsonResource
 
         $product = $this->vendorProduct->product;
 
-        // Calculate points based on price
-        $price = (float) ($this->price ?? 0);
-        $points = PointsHelper::calculatePoints($price);
+        // Get cart context if available (bundle/occasion price)
+        $cartType = $this->cartContext['type'] ?? 'product';
+        $bundlePrice = $this->cartContext['bundle_price'] ?? null;
+        $occasionPrice = $this->cartContext['occasion_price'] ?? null;
 
-        // Calculate price after taxes
-        $priceBeforeTaxes = (float) ($this->price ?? 0);
-        $fakePriceBeforeTaxes = $this->price_before_discount ? (float) $this->price_before_discount : null;
-        $priceAfterTaxes = $priceBeforeTaxes;
-        $fakePriceAfterTaxes = $fakePriceBeforeTaxes;
+        // Original variant price (always the real product price)
+        $originalVariantPrice = (float) ($this->price ?? 0);
+        
+        // Variant price (bundle/occasion price if applicable, otherwise original)
+        if ($cartType === 'bundle' && $bundlePrice !== null) {
+            $variantPrice = (float) $bundlePrice;
+        } elseif ($cartType === 'occasion' && $occasionPrice !== null) {
+            $variantPrice = (float) $occasionPrice;
+        } else {
+            $variantPrice = $originalVariantPrice;
+        }
+
+        // Calculate points based on variant price
+        $points = PointsHelper::calculatePoints($variantPrice);
+
+        // Calculate prices after taxes
+        $variantPriceAfterTaxes = $variantPrice;
+        $originalVariantPriceAfterTaxes = $originalVariantPrice;
         
         // Load taxes if not already loaded
         $vendorProduct = $this->vendorProduct;
@@ -46,10 +65,14 @@ class CartProductResource extends JsonResource
         if ($vendorProduct && $vendorProduct->taxes && $vendorProduct->taxes->count() > 0) {
             $totalTaxPercentage = $vendorProduct->taxes->sum('percentage');
             $taxMultiplier = 1 + ($totalTaxPercentage / 100);
-            $priceAfterTaxes = $priceBeforeTaxes * $taxMultiplier;
-            if ($fakePriceBeforeTaxes) {
-                $fakePriceAfterTaxes = $fakePriceBeforeTaxes * $taxMultiplier;
-            }
+            $variantPriceAfterTaxes = $variantPrice * $taxMultiplier;
+            $originalVariantPriceAfterTaxes = $originalVariantPrice * $taxMultiplier;
+        }
+
+        // Calculate discount percentage
+        $discount = 0;
+        if ($originalVariantPrice > $variantPrice) {
+            $discount = round((($originalVariantPrice - $variantPrice) / $originalVariantPrice) * 100);
         }
 
         return [
@@ -70,17 +93,16 @@ class CartProductResource extends JsonResource
             'variant_sku' => $this->sku ?? null,
             'variant_stock' => $this->total_stock ?? 0,
             'variant_remaining_stock' => $this->remaining_stock ?? 0,
-            'variant_price_before_taxes' => round($priceBeforeTaxes, 2),
-            'variant_real_price' => round($priceAfterTaxes, 2),
-            'variant_fake_price' => $fakePriceAfterTaxes ? round($fakePriceAfterTaxes, 2) : null,
-            'variant_discount' => $this->discount ?? 0,
+            // Original variant prices (real product price)
+            'original_variant_price_before_taxes' => round($originalVariantPrice, 2),
+            'original_variant_price' => round($originalVariantPriceAfterTaxes, 2),
+            // Variant prices (bundle/occasion price if applicable)
+            'variant_price_before_taxes' => round($variantPrice, 2),
+            'variant_price' => round($variantPriceAfterTaxes, 2),
+            'variant_discount' => $discount,
             'configuration_tree' => $this->when($this->relationLoaded('variantConfiguration') && $this->variantConfiguration, function() use ($locale) {
                 return $this->buildVariantConfigurationTree($this->variantConfiguration, $this->id, $locale);
             }),
-            'price_before_taxes' => round($priceBeforeTaxes, 2),
-            'real_price' => round($priceAfterTaxes, 2),
-            'fake_price' => $fakePriceAfterTaxes ? round($fakePriceAfterTaxes, 2) : null,
-            'discount' => $this->discount ?? 0,
             'countDeliveredProduct' => $this->countDeliveredProduct ?? 0,
             'countOfAvailable' => $this->countOfAvailable ?? 0,
         ];

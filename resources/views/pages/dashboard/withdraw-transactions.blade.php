@@ -87,6 +87,11 @@
                                 <h1>{{ number_format($bnaiaBalance, 2) }} {{ currency() }}</h1>
                                 <p>{{ trans('withdraw::withdraw.bnaia_commission_from_transactions') }}</p>
                             </div>
+                            <div class="ap-po-details__icon-area">
+                                <div class="svg-icon order-bg-opacity-primary color-primary">
+                                    <i class="uil uil-percentage"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

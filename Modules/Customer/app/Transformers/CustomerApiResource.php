@@ -27,6 +27,7 @@ class CustomerApiResource extends JsonResource
             'country' => CountryResource::make($this->whenLoaded('country')),
             'addresses' => AddressResource::collection($this->whenLoaded('addresses')),
             'status' => (bool) $this->status,
+            'verified' => !is_null($this->email_verified_at),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

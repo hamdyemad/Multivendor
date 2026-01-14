@@ -2,6 +2,7 @@
 
 return [
     'project_name' => 'Bnaia',
+    'dashboard' => 'Dashboard',
     'actions' => 'Actions',
     'view' => 'View',
     'edit' => 'Edit',

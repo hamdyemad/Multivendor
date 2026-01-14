@@ -2,6 +2,7 @@
 
 return [
     'project_name' => 'بنايه',
+    'dashboard' => 'لوحة التحكم',
     'actions' => 'الإجراءات',
     'view' => 'عرض',
     'edit' => 'تعديل',

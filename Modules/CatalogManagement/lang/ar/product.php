@@ -545,6 +545,9 @@ return [
     'product_requires_variants' => 'المنتج يحتوي على متغيرات ولكن لم يتم العثور على متغيرات في ورقة المتغيرات',
     'variant_requires_stock' => 'المتغير موجود ولكن لا توجد مدخلات مخزون في ورقة مخزون المتغيرات',
     
+    // Export
+    'export_error' => 'خطأ في تصدير المنتجات',
+    
     // Bulk Upload Error Messages
     'invalid_id_or_sku' => 'معرف أو رمز SKU غير صالح',
     'duplicate_sku_in_excel' => 'رمز SKU مكرر في ملف Excel. الظهور الأول في الصف :row',

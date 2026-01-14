@@ -540,6 +540,9 @@ return [
     'product_requires_variants' => 'Product has variants but no variants found in variants sheet',
     'variant_requires_stock' => 'Variant exists but has no stock entries in variant_stock sheet',
     
+    // Export
+    'export_error' => 'Error exporting products',
+    
     // Bulk Upload Error Messages
     'invalid_id_or_sku' => 'Invalid ID or SKU',
     'duplicate_sku_in_excel' => 'Duplicate SKU in Excel file. First occurrence at row :row',

@@ -7,6 +7,16 @@
 )
 
 @push('styles')
+<style>
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    .rotating {
+        animation: rotate 1s linear infinite;
+        display: inline-block;
+    }
+</style>
 @endpush
 
 @section('content')
@@ -75,6 +85,9 @@
                         </h4>
                         @can('products.create')
                         <div class="d-flex gap-2">
+                            <button type="button" id="exportBtn" class="btn btn-info btn-squared shadow-sm px-4">
+                                <i class="uil uil-download-alt"></i> {{ trans('common.export_excel') }}
+                            </button>
                             <a href="{{ route('admin.products.bulk-upload') }}"
                                 class="btn btn-success btn-squared shadow-sm px-4">
                                 <i class="uil uil-upload"></i> {{ trans('catalogmanagement::product.bulk_upload') }}
@@ -1265,6 +1278,46 @@
                 }
             });
             @endif
+
+            // Export button handler
+            $('#exportBtn').on('click', function() {
+                const btn = $(this);
+                const originalHtml = btn.html();
+                
+                // Disable button and show loading
+                btn.prop('disabled', true);
+                btn.html('<i class="uil uil-spinner-alt rotating"></i> {{ __('common.processing') }}');
+                
+                // Get current filter values
+                const filters = {
+                    search: $('#search').val(),
+                    vendor_id: typeof CustomSelect !== 'undefined' ? CustomSelect.getValue('vendor_filter') : '',
+                    department_id: typeof CustomSelect !== 'undefined' ? CustomSelect.getValue('department_filter') : '',
+                    category_id: typeof CustomSelect !== 'undefined' ? CustomSelect.getValue('category_filter') : '',
+                    brand_id: typeof CustomSelect !== 'undefined' ? CustomSelect.getValue('brand_filter') : '',
+                    status: typeof CustomSelect !== 'undefined' ? CustomSelect.getValue('status') : ''
+                };
+                
+                // Build query string
+                const queryParams = new URLSearchParams();
+                Object.keys(filters).forEach(key => {
+                    if (filters[key]) {
+                        queryParams.append(key, filters[key]);
+                    }
+                });
+                
+                // Create export URL
+                const exportUrl = '{{ route('admin.products.export') }}' + (queryParams.toString() ? '?' + queryParams.toString() : '');
+                
+                // Trigger download
+                window.location.href = exportUrl;
+                
+                // Re-enable button after a delay
+                setTimeout(function() {
+                    btn.prop('disabled', false);
+                    btn.html(originalHtml);
+                }, 2000);
+            });
         });
     </script>
 @endpush

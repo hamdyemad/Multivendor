@@ -84,6 +84,9 @@ Route::group(['prefix' => 'products'], function() {
     Route::post('bulk-upload', 'ProductController@bulkUploadStore')->name('products.bulk-upload.store');
     Route::get('download-demo', 'ProductController@downloadDemo')->name('products.download-demo');
     
+    // Export route
+    Route::get('export', 'ProductController@export')->name('products.export');
+    
     // Product status-based routes (must be before resource)
     Route::get('pending', 'ProductController@pending')->name('products.pending');
     Route::get('rejected', 'ProductController@rejected')->name('products.rejected');

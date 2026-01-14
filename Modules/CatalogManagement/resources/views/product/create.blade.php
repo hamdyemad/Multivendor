@@ -1063,7 +1063,7 @@
                 currentStep: 1,
                 totalSteps: 4,
                 locale: '{{ app()->getLocale() }}',
-                apiBaseUrl: '{{ url('/api') }}',
+                apiBaseUrl: '{{ url('/api/v1') }}',
                 translations: {
                     loading: '{{ __('common.loading') }}',
                     selectOption: '{{ __('common.select_option') }}',

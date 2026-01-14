@@ -840,7 +840,7 @@ class OrderController extends Controller
 
             $order = Order::with(['vendorStages.stage' => function($q) {
                 $q->withoutGlobalScopes();
-            }])->findOrFail($orderId);
+            }, 'vendorStages.vendor'])->findOrFail($orderId);
 
             // Check if order is from a quotation and if it's accepted
             if ($order->requestQuotation) {
@@ -854,16 +854,34 @@ class OrderController extends Controller
 
             $newStage = OrderStage::withoutGlobalScopes()->findOrFail($request->stage_id);
             $updatedCount = 0;
+            $skippedCount = 0;
             $errors = [];
+
+            \Log::info('Changing all vendor stages', [
+                'order_id' => $orderId,
+                'new_stage_id' => $request->stage_id,
+                'vendor_stages_count' => $order->vendorStages->count()
+            ]);
 
             // Update each vendor's stage
             foreach ($order->vendorStages as $vendorStage) {
                 try {
+                    $vendorName = $vendorStage->vendor ? $vendorStage->vendor->name : "Vendor #{$vendorStage->vendor_id}";
+                    
                     // Check if transition is allowed
                     $currentStage = $vendorStage->stage;
                     if ($currentStage && $currentStage->isFinalStage()) {
-                        $errors[] = trans('order::order.vendor_already_final_stage', [
-                            'vendor_id' => $vendorStage->vendor_id
+                        $errorMsg = trans('order::order.vendor_already_final_stage', [
+                            'vendor' => $vendorName
+                        ]);
+                        $errors[] = $errorMsg;
+                        $skippedCount++;
+                        
+                        \Log::warning('Vendor stage is final, skipping', [
+                            'order_id' => $orderId,
+                            'vendor_id' => $vendorStage->vendor_id,
+                            'vendor_name' => $vendorName,
+                            'current_stage' => $currentStage->slug
                         ]);
                         continue;
                     }
@@ -871,12 +889,28 @@ class OrderController extends Controller
                     // Change vendor order stage
                     $this->orderService->changeVendorOrderStage($orderId, $vendorStage->vendor_id, $request->stage_id);
                     $updatedCount++;
+                    
+                    \Log::info('Vendor stage updated successfully', [
+                        'order_id' => $orderId,
+                        'vendor_id' => $vendorStage->vendor_id,
+                        'vendor_name' => $vendorName,
+                        'new_stage_id' => $request->stage_id
+                    ]);
                 } catch (\Exception $e) {
-                    $errors[] = $e->getMessage();
+                    $vendorName = $vendorStage->vendor ? $vendorStage->vendor->name : "Vendor #{$vendorStage->vendor_id}";
+                    $errorMsg = trans('order::order.error_updating_vendor_stage', [
+                        'vendor' => $vendorName,
+                        'error' => $e->getMessage()
+                    ]);
+                    $errors[] = $errorMsg;
+                    $skippedCount++;
+                    
                     \Log::error('Failed to update vendor stage', [
                         'order_id' => $orderId,
                         'vendor_id' => $vendorStage->vendor_id,
-                        'error' => $e->getMessage()
+                        'vendor_name' => $vendorName,
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
                     ]);
                 }
             }
@@ -884,19 +918,32 @@ class OrderController extends Controller
             if ($updatedCount === 0 && !empty($errors)) {
                 return response()->json([
                     'status' => false,
-                    'message' => $errors[0] ?? trans('order::order.error_updating_stage'),
+                    'message' => trans('order::order.no_vendors_updated'),
+                    'errors' => $errors,
                 ], 422);
             }
 
+            $message = $updatedCount > 0 
+                ? trans('order::order.vendor_stages_updated', ['updated' => $updatedCount, 'total' => $order->vendorStages->count()])
+                : trans('order::order.no_vendors_updated');
+
             return response()->json([
                 'status' => true,
-                'message' => trans('order::order.all_vendor_stages_updated_successfully', ['count' => $updatedCount]),
+                'message' => $message,
                 'data' => [
                     'updated_count' => $updatedCount,
+                    'skipped_count' => $skippedCount,
+                    'total_count' => $order->vendorStages->count(),
                     'errors' => $errors,
                 ]
             ]);
         } catch (\Exception $e) {
+            \Log::error('Error in changeAllVendorStages', [
+                'order_id' => $orderId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),

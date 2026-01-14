@@ -55,7 +55,7 @@ class ProductController extends Controller
         protected ProductAction $productAction,
         protected BankService $productBankService,
     ) {
-        $this->middleware('can:products.index')->only(['index', 'datatable', 'pending', 'rejected', 'accepted']);
+        $this->middleware('can:products.index')->only(['index', 'datatable', 'pending', 'rejected', 'accepted', 'export']);
         $this->middleware('can:products.create')->only(['create', 'store', 'searchBankProducts', 'bulkUpload', 'bulkUploadStore', 'downloadDemo']);
         $this->middleware('can:products.edit')->only(['edit', 'update', 'moveToBank']);
         $this->middleware('can:products.stock-management')->only(['stockManagement', 'updateStockPricing']);
@@ -1002,5 +1002,43 @@ class ProductController extends Controller
         }
 
         return response()->download($filePath, $downloadName);
+    }
+
+    /**
+     * Export products to Excel
+     * Exports products that are currently displayed in the list with applied filters
+     */
+    public function export(Request $request)
+    {
+        try {
+            $isAdmin = isAdmin();
+            
+            // Get filters from request
+            $filters = [
+                'vendor_id' => $request->input('vendor_id'),
+                'department_id' => $request->input('department_id'),
+                'category_id' => $request->input('category_id'),
+                'brand_id' => $request->input('brand_id'),
+                'search' => $request->input('search'),
+                'status' => $request->input('status'),
+            ];
+
+            // Remove empty filters
+            $filters = array_filter($filters, function($value) {
+                return $value !== null && $value !== '';
+            });
+
+            $export = new \Modules\CatalogManagement\app\Exports\ProductsExport($isAdmin, $filters);
+            
+            $fileName = 'products_export_' . date('Y-m-d_His') . '.xlsx';
+            
+            return \Maatwebsite\Excel\Facades\Excel::download($export, $fileName);
+        } catch (\Exception $e) {
+            Log::error('Products export error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->back()->with('error', __('catalogmanagement::product.export_error') . ': ' . $e->getMessage());
+        }
     }
 }

@@ -215,7 +215,6 @@ class InjectDataController extends Controller
                     ->get("{$this->sourceBaseUrl}/api/inject-products", [
                         'include' => $include,
                         'page' => $page,
-                        'keyword' => 'CPD-T001-U03',
                     ]);
                 if (!$response->successful()) {
                     $combinedResult['errors'][] = "Failed to fetch page {$page} from source";
@@ -2175,7 +2174,69 @@ class InjectDataController extends Controller
                     if ($localPath) {
                         $customer->update(['image' => $localPath]);
                     }
-                }} catch (\Exception $e) {$errors[] = "Customer {$item['name']} (ID: {$item['id']}): " . $e->getMessage();
+                }
+
+                // Create or update customer addresses
+                // API returns 'address' (singular) as array of addresses
+                $addressList = $item['address'] ?? $item['addresses'] ?? [];
+                if (!empty($addressList) && is_array($addressList)) {
+                    foreach ($addressList as $addressData) {
+                        if (empty($addressData)) continue;
+
+                        $addressCityId = $addressData['city_id'] ?? null;
+                        $addressRegionId = $addressData['region_id'] ?? null;
+                        $addressCountryId = $addressData['country_id'] ?? null;
+                        $addressSubregionId = $addressData['subregion_id'] ?? null;
+
+                        // Validate foreign keys exist
+                        if ($addressCityId && !City::where('id', $addressCityId)->exists()) {
+                            $addressCityId = null;
+                        }
+                        if ($addressRegionId && !Region::where('id', $addressRegionId)->exists()) {
+                            $addressRegionId = null;
+                        }
+                        if ($addressCountryId && !Country::where('id', $addressCountryId)->exists()) {
+                            $addressCountryId = null;
+                        }
+                        if ($addressSubregionId && !\Modules\AreaSettings\app\Models\Subregion::where('id', $addressSubregionId)->exists()) {
+                            $addressSubregionId = null;
+                        }
+
+                        // Map 'address_type' to 'title' from API response
+                        $addressTitle = $addressData['title'] ?? $addressData['address_type'] ?? 'Home';
+
+                        $addressFields = [
+                            'customer_id' => $customer->id,
+                            'title' => $addressTitle,
+                            'address' => $addressData['address'] ?? '',
+                            'country_id' => $addressCountryId,
+                            'city_id' => $addressCityId,
+                            'region_id' => $addressRegionId,
+                            'subregion_id' => $addressSubregionId,
+                            'postal_code' => $addressData['postal_code'] ?? null,
+                            'latitude' => $addressData['latitude'] ?? null,
+                            'longitude' => $addressData['longitude'] ?? null,
+                            'is_primary' => $addressData['is_primary'] ?? false,
+                        ];
+
+                        if (!empty($addressData['id'])) {
+                            // Try to find existing address by ID
+                            $existingAddress = \Modules\Customer\app\Models\CustomerAddress::where('id', $addressData['id'])->first();
+                            if ($existingAddress) {
+                                $existingAddress->update($addressFields);
+                            } else {
+                                $newAddress = new \Modules\Customer\app\Models\CustomerAddress();
+                                $newAddress->id = $addressData['id'];
+                                $newAddress->fill($addressFields);
+                                $newAddress->save();
+                            }
+                        } else {
+                            // Create new address without specific ID
+                            \Modules\Customer\app\Models\CustomerAddress::create($addressFields);
+                        }
+                    }
+                }
+            } catch (\Exception $e) {$errors[] = "Customer {$item['name']} (ID: {$item['id']}): " . $e->getMessage();
                 Log::error("Error injecting customer: " . $e->getMessage());
             }
         }

@@ -62,6 +62,8 @@
             mapClockIcon: "<?php echo e(asset('assets/img/svg/clock-ticket1.svg')); ?>"
         }
     </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDduF2tLXicDEPDMAtC6-NLOekX0A5vlnY"></script>
+
     <script src="<?php echo e(asset('assets/js/plugins.min.js')); ?>"></script>
     <script src="<?php echo e(asset('assets/js/select2.min.js')); ?>"></script>
 
@@ -100,7 +102,7 @@
     <script src="<?php echo e(asset('js/plugins/toastr.min.js')); ?>"></script>
 
     <!-- CKEditor CDN -->
-    <script src="<?php echo e(asset('assets/js/ckeditor.js')); ?>"></script>
+    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 
     <?php echo app('Illuminate\Foundation\Vite')('resources/js/app.js'); ?>
     <script src="<?php echo e(asset('assets/js/sweetalert2@11.js')); ?>"></script>
@@ -291,6 +293,8 @@
 
     <?php echo $__env->yieldPushContent('scripts'); ?>
 
+    
+    <script src="<?php echo e(asset('assets/js/menu-badges.js')); ?>"></script>
 
     
     <script>

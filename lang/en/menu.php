@@ -262,10 +262,10 @@
         'reports' => [
             'title' => 'reports',
             'registerd users' => 'registered customers',
-            'area users' => 'area customers',
-            'orders report' => 'orders report',
-            'product report' => 'product report',
-            'points report' => 'points report',
+            'area users' => 'Area Customers',
+            'orders report' => 'Orders Report',
+            'product report' => 'Product Report',
+            'points report' => 'Points Report',
         ],
         'brands' => [
             'title' => 'Brands',

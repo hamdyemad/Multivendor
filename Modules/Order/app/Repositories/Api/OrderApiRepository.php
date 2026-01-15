@@ -74,7 +74,7 @@ class OrderApiRepository implements OrderApiRepositoryInterface
     }
 
     /**
-     * Cancel order - only if ALL vendors have 'new' stage
+     * Cancel order - cancels vendors that are still in 'new' stage
      */
     public function cancelOrder(int $customerId, int $orderId)
     {
@@ -98,21 +98,29 @@ class OrderApiRepository implements OrderApiRepositoryInterface
                 throw new OrderException('order.no_vendor_stages_found', trans('order::order.no_vendor_stages_found'));
             }
 
-            // Check if ALL vendors have 'new' stage
-            $allVendorsNew = $vendorStages->every(function ($vendorStage) use ($newStage) {
+            // Get vendors that are still in 'new' stage
+            $vendorsInNewStage = $vendorStages->filter(function ($vendorStage) use ($newStage) {
                 return $vendorStage->stage_id === $newStage->id;
             });
 
-            if (!$allVendorsNew) {
-                throw new OrderException('order.cannot_cancel_order_not_all_new', trans('order::order.cannot_cancel_order_not_all_new'));
+            if ($vendorsInNewStage->isEmpty()) {
+                throw new OrderException('order.cannot_cancel_order_no_new_vendors', trans('order::order.cannot_cancel_order_no_new_vendors'));
             }
 
-            // Update all vendor stages to 'cancel'
+            // Update only vendors in 'new' stage to 'cancel'
             VendorOrderStage::where('order_id', $orderId)
+                ->where('stage_id', $newStage->id)
                 ->update(['stage_id' => $cancelStage->id]);
 
-            // Update main order stage to 'cancel'
-            $order->update(['stage_id' => $cancelStage->id]);
+            // Check if all vendors are now cancelled to update main order stage
+            $allVendorStages = VendorOrderStage::where('order_id', $orderId)->get();
+            $allCancelled = $allVendorStages->every(function ($vendorStage) use ($cancelStage) {
+                return $vendorStage->stage_id === $cancelStage->id;
+            });
+
+            if ($allCancelled) {
+                $order->update(['stage_id' => $cancelStage->id]);
+            }
 
             return $order->fresh();
         });

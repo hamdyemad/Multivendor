@@ -196,14 +196,18 @@ class UserAction {
     }
 
     public function logout() {
+        $user = Auth::user();
+        
         // Log logout before actually logging out
-        $this->logActivity(
-            action: 'logout',
-            descriptionKey: 'activity_log.logout_success',
-            descriptionParams: [],
-            model: Auth::user(),
-            properties: ['email' => Auth::user()->email]
-        );
+        if ($user) {
+            $this->logActivity(
+                action: 'logout',
+                descriptionKey: 'activity_log.logout_success',
+                descriptionParams: [],
+                model: $user,
+                properties: ['email' => $user->email]
+            );
+        }
 
         Auth::logout();
         return $this->sendData(__('auth.logout success'),true);

@@ -27,10 +27,12 @@ class CategoryQueryAction
                     ->withCount(['activeProducts as active_products_count'])
                     ->with(['department' => function($q) {
                         $q->withCount(['activeProducts as active_products_count']);
-                    }, 'translations', 'activeSubs' => function($q) use ($subCategorySort, $subCategorySortType) {
-                        $q->withCount(['activeProducts as active_products_count'])
-                          ->orderBy($subCategorySort, $subCategorySortType);
-                    }])
+                    }, 'translations', 
+                        // 'activeSubs' => function($q) use ($subCategorySort, $subCategorySortType) {
+                        //     $q->withCount(['activeProducts as active_products_count'])
+                        //     ->orderBy($subCategorySort, $subCategorySortType);
+                        // }
+                    ])
                     ->filter($filters)
                     ->orderBy('sort_number', $subCategorySortType);
         return $query;

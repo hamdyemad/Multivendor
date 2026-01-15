@@ -216,12 +216,10 @@
                             <thead>
                                 <tr class="userDatatable-header">
                                     <th class="text-center"><span class="userDatatable-title">#</span></th>
-                                    <th><span class="userDatatable-title">{{ __('report.product_name') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('report.sku') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('report.category') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('report.vendor') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('report.product_status') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('report.product_date') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ __('report.product_info') }}</span></th>
+                                    <th class="text-center"><span class="userDatatable-title">{{ __('report.vendor') }}</span></th>
+                                    <th class="text-center"><span class="userDatatable-title">{{ __('report.product_status') }}</span></th>
+                                    <th class="text-center"><span class="userDatatable-title">{{ __('report.product_date') }}</span></th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -381,28 +379,30 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row) {
+                            // Truncate name function
+                            function truncateStr(str, maxLen) {
+                                if (!str) return '';
+                                return str.length > maxLen ? str.substring(0, maxLen) + '...' : str;
+                            }
+                            
                             let img = row.product_image 
-                                ? '<img src="' + row.product_image + '" class="rounded me-2" style="width: 40px; height: 40px;">' 
-                                : '<div class="bg-light rounded me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;"><i class="uil uil-image text-muted"></i></div>';
-                            return '<div class="d-flex align-items-center">' + img + '<strong>' + (data || '') + '</strong></div>';
-                        }
-                    },
-                    {
-                        data: 'sku',
-                        name: 'sku',
-                        orderable: false,
-                        searchable: false,
-                        render: function(data) {
-                            return '<span class="badge bg-primary text-white px-3 py-2 rounded-pill fw-bold">' + (data || '--') + '</span>';
-                        }
-                    },
-                    {
-                        data: 'category',
-                        name: 'category',
-                        orderable: false,
-                        searchable: false,
-                        render: function(data) {
-                            return data || '--';
+                                ? '<img src="' + row.product_image + '" class="rounded me-2" style="width: 50px; height: 50px; object-fit: cover;">' 
+                                : '<div class="bg-light rounded me-2 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;"><i class="uil uil-image text-muted"></i></div>';
+                            
+                            let truncatedName = truncateStr(data, 30);
+                            let nameHtml = data && data.length > 30 
+                                ? '<strong title="' + data + '">' + truncatedName + '</strong>' 
+                                : '<strong>' + (data || '') + '</strong>';
+                            
+                            let skuHtml = row.sku 
+                                ? '<div class="mt-1"><span class="badge bg-primary text-white px-2 py-1 rounded-pill" style="font-size: 10px;">SKU: ' + row.sku + '</span></div>' 
+                                : '';
+                            
+                            let categoryHtml = row.category 
+                                ? '<div class="mt-1 text-muted" style="font-size: 12px;"><i class="uil uil-folder me-1"></i>' + truncateStr(row.category, 25) + '</div>' 
+                                : '';
+                            
+                            return '<div class="d-flex align-items-start">' + img + '<div>' + nameHtml + skuHtml + categoryHtml + '</div></div>';
                         }
                     },
                     {
@@ -410,11 +410,12 @@
                         name: 'vendor',
                         orderable: false,
                         searchable: false,
+                        className: 'text-center',
                         render: function(data, type, row) {
                             let img = row.vendor_image 
                                 ? '<img src="' + row.vendor_image + '" class="rounded-circle me-2" style="width: 30px; height: 30px;">' 
-                                : '<div class="bg-light rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;"><i class="uil uil-store text-muted" style="font-size: 14px;"></i></div>';
-                            return '<div class="d-flex align-items-center">' + img + '<span>' + (data || '--') + '</span></div>';
+                                : '<div class="bg-light rounded-circle me-2 d-inline-flex align-items-center justify-content-center" style="width: 30px; height: 30px;"><i class="uil uil-store text-muted" style="font-size: 14px;"></i></div>';
+                            return '<div class="d-inline-flex align-items-center">' + img + '<span>' + (data || '--') + '</span></div>';
                         }
                     },
                     {
@@ -422,6 +423,7 @@
                         name: 'status',
                         orderable: false,
                         searchable: false,
+                        className: 'text-center',
                         render: function(data) {
                             const statusColors = {
                                 'approved': 'primary',
@@ -438,6 +440,7 @@
                         name: 'created_at',
                         orderable: false,
                         searchable: false,
+                        className: 'text-center',
                         render: function(data) {
                             return data || '--';
                         }

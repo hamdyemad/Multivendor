@@ -66,6 +66,7 @@ return [
     'status_distribution' => 'توزيع الحالات',
     'product_status_distribution' => 'توزيع حالات المنتجات',
     'product_name' => 'اسم المنتج',
+    'product_info' => 'معلومات المنتج',
     'sku' => 'رمز المنتج',
     'category' => 'الفئة',
     'vendor' => 'البائع',

@@ -68,6 +68,7 @@ return [
     'status_distribution' => 'Status Distribution',
     'product_status_distribution' => 'Product Status Distribution',
     'product_name' => 'Product Name',
+    'product_info' => 'Product Information',
     'sku' => 'SKU',
     'category' => 'Category',
     'vendor' => 'Vendor',

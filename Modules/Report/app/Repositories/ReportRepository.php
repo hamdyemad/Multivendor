@@ -62,11 +62,13 @@ class ReportRepository implements ReportRepositoryInterface
             'other' => $allData->where('gender', 'other')->count(),
         ];
 
-        // Calculate registration trend by date
+        // Calculate registration trend by day (group by date only, not datetime)
         $registrationTrend = [];
         foreach ($allData as $customer) {
-            if ($customer->created_at) {
-                $date = $customer->created_at;
+            // Use getRawOriginal to bypass HumanDates trait accessor
+            $rawCreatedAt = $customer->getRawOriginal('created_at');
+            if ($rawCreatedAt) {
+                $date = \Carbon\Carbon::parse($rawCreatedAt)->format('Y-m-d');
                 $registrationTrend[$date] = ($registrationTrend[$date] ?? 0) + 1;
             }
         }
@@ -166,11 +168,13 @@ class ReportRepository implements ReportRepositoryInterface
         $activeCount = $allData->where('status', 1)->count();
         $inactiveCount = $allData->where('status', 0)->count();
 
-        // Calculate registration trend by date
+        // Calculate registration trend by day (group by date only, not datetime)
         $registrationTrend = [];
         foreach ($allData as $customer) {
-            if ($customer->created_at) {
-                $date = $customer->created_at;
+            // Use getRawOriginal to bypass HumanDates trait accessor
+            $rawCreatedAt = $customer->getRawOriginal('created_at');
+            if ($rawCreatedAt) {
+                $date = \Carbon\Carbon::parse($rawCreatedAt)->format('Y-m-d');
                 $registrationTrend[$date] = ($registrationTrend[$date] ?? 0) + 1;
             }
         }

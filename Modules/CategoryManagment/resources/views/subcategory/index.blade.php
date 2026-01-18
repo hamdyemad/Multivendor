@@ -256,9 +256,6 @@
                                     <th class="text-center"><span class="userDatatable-title">#</span></th>
                                     <th><span class="userDatatable-title">{{ __('categorymanagment::subcategory.subcategory_information') }}</span></th>
                                     <th><span
-                                            class="userDatatable-title">{{ __('categorymanagment::subcategory.category') }}</span>
-                                    </th>
-                                    <th><span
                                             class="userDatatable-title">{{ __('categorymanagment::subcategory.view_status') }}</span>
                                     </th>
                                     <th><span
@@ -386,8 +383,18 @@
                                 }
                             @endforeach
 
-                            // Sort Number
+                            // Category and Sort Number
                             html += '<div class="subcategory-meta-info">';
+                            
+                            // Category
+                            if (row.category && row.category.name) {
+                                html += `<div class="mb-1">
+                                    <small class="text-muted">{{ trans('categorymanagment::subcategory.category') }}:</small>
+                                    <span class="badge badge-round badge-primary badge-lg ms-1" data-category-id="${row.category.id}">${row.category.name}</span>
+                                </div>`;
+                            }
+                            
+                            // Sort Number
                             html += `<div class="mb-1">
                                 <small class="text-muted">{{ trans('categorymanagment::subcategory.sort_number') }}:</small>
                                 <span class="badge badge-secondary badge-round badge-lg ms-1">${row.sort_number ?? 0}</span>
@@ -398,18 +405,6 @@
                             return html;
                         },
                         className: 'text-start'
-                    },
-                    {
-                        data: 'category',
-                        name: 'category',
-                        orderable: false,
-                        render: function(data) {
-                            if (data && data.name) {
-                                return '<span class="badge badge-round badge-primary badge-lg" data-category-id="' +
-                                    data.id + '">' + data.name + '</span>';
-                            }
-                            return '<span class="text-muted">—</span>';
-                        }
                     },
                     {
                         data: 'view_status',
@@ -615,7 +610,7 @@
                     var dateFrom = $('#created_date_from').val();
                     var dateTo = $('#created_date_to').val();
 
-                    // Category filter (column 2)
+                    // Category filter (now in column 2 - subcategory information)
                     if (categoryFilter && categoryFilter !== '') {
                         var categoryColIndex = 2;
 
@@ -644,9 +639,9 @@
                         }
                     }
 
-                    // Active filter (column 5)
+                    // Active filter (column 4 - after removing category column)
                     if (activeFilter && activeFilter !== '') {
-                        var colIndex = 5;
+                        var colIndex = 4;
 
                         // Get the actual rendered cell content (with HTML)
                         var rowNode = table.row(dataIndex).node();
@@ -680,9 +675,9 @@
                         }
                     }
 
-                    // Date filters (column 6)
+                    // Date filters (column 5 - after removing category column)
                     if (dateFrom || dateTo) {
-                        var dateColumn = data[6];
+                        var dateColumn = data[5];
                         if (dateColumn) {
                             var rowDate = dateColumn.replace(/<[^>]*>/g, '').trim().split(' ')[
                                 0]; // Extract YYYY-MM-DD

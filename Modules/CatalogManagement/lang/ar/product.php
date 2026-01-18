@@ -711,5 +711,11 @@ return [
     'col_occ_prod_special_price_source' => 'رقم (مثال: 79.99) أو اتركه فارغاً',
     'col_occ_prod_position_desc' => 'موضع/ترتيب العرض (اختياري)',
     'col_occ_prod_position_source' => 'رقم (مثال: 1، 2، 3...) أو اتركه فارغاً',
+
+    // Refund Settings
+    'is_able_to_refund' => 'تفعيل الاسترجاع',
+    'refund_days' => 'أيام الاسترجاع',
+    'refund_days_placeholder' => 'أدخل عدد الأيام',
+    'refund_days_help' => 'عدد الأيام بعد التسليم التي يمكن للعميل طلب الاسترجاع',
 ];
 

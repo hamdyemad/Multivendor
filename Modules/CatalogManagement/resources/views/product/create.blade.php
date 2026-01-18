@@ -405,6 +405,39 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Card 5: Refund Settings -->
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <h5 class="mb-4">
+                                            <i class="uil uil-redo"></i>
+                                            {{ __('common.refund') }}
+                                        </h5>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <div class="form-group">
+                                                    <label class="form-label d-block">{{ __('catalogmanagement::product.is_able_to_refund') }}</label>
+                                                    <div class="form-check form-switch form-switch-lg">
+                                                        <input class="form-check-input" type="checkbox" role="switch"
+                                                            id="is_able_to_refund" name="is_able_to_refund" value="1"
+                                                            @if (isset($product) && $product->is_able_to_refund) checked @endif>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <div class="form-group">
+                                                    <label for="refund_days" class="form-label">{{ __('catalogmanagement::product.refund_days') }}</label>
+                                                    <input type="number" name="refund_days" id="refund_days"
+                                                        class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                                        min="1" placeholder="{{ __('catalogmanagement::product.refund_days_placeholder') }}"
+                                                        value="{{ isset($product) ? $product->refund_days ?? 7 : 7 }}">
+                                                    <small class="text-muted">{{ __('catalogmanagement::product.refund_days_help') }}</small>
+                                                    <div class="error-message text-danger" id="error-refund_days" style="display: none;"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Step 2: Product Details -->

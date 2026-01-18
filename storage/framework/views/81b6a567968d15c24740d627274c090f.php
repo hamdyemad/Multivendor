@@ -1348,6 +1348,92 @@
             </li>
         <?php endif; ?>
 
+        <li
+            class="has-child <?php echo e(isParentMenuOpen(['admin.refunds.index', 'admin.refunds.settings'], ['admin/refunds*']) ? 'open' : ''); ?>">
+            <a href="#"
+                class="<?php echo e(isParentMenuOpen(['admin.refunds.index', 'admin.refunds.settings'], ['admin/refunds*']) ? 'active' : ''); ?>">
+                <span class="nav-icon uil uil-redo"></span>
+                <span class="menu-text"><?php echo e(trans('menu.refunds.title')); ?></span>
+                <span class="toggle-icon"></span>
+            </a>
+            <ul class="px-0">
+                
+                <li class="l_sidebar">
+                    <a class="d-flex align-items-center justify-content-between fw-bold <?php echo e(isMenuActive('admin.refunds.index', $currentRoute) && !request()->has('status') ? 'active' : ''); ?>"
+                        href="<?php echo e(route('admin.refunds.index')); ?>">
+                        <?php echo e(trans('menu.refunds.all')); ?>
+
+                        <span class="badge badge-round ms-1"
+                            style="<?php echo e(getBadgeStyle(isMenuActive('admin.refunds.index', $currentRoute) && !request()->has('status'))); ?>">
+                            <?php
+                                $allRefundsCount = 0;
+                                try {
+                                    if (isAdmin()) {
+                                        $allRefundsCount = \Modules\Refund\app\Models\RefundRequest::count();
+                                    } else {
+                                        $refundVendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+                                        if ($refundVendor) {
+                                            $allRefundsCount = \Modules\Refund\app\Models\RefundRequest::where('vendor_id', $refundVendor->id)->count();
+                                        }
+                                    }
+                                } catch (\Exception $e) {
+                                    $allRefundsCount = 0;
+                                }
+                            ?>
+                            <?php echo e($allRefundsCount); ?>
+
+                        </span>
+                    </a>
+                </li>
+
+                
+                <?php
+                    $refundStatuses = \Modules\Refund\app\Models\RefundRequest::STATUSES;
+                ?>
+
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $refundStatuses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $statusKey => $statusLabel): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <li class="l_sidebar">
+                        <a class="d-flex align-items-center justify-content-between fw-bold <?php echo e(request()->get('status') == $statusKey ? 'active' : ''); ?>"
+                            href="<?php echo e(route('admin.refunds.index', ['status' => $statusKey])); ?>">
+                            <?php echo e(trans('refund::refund.statuses.' . $statusKey)); ?>
+
+                            <span class="badge badge-round ms-1"
+                                style="<?php echo e(getBadgeStyle(request()->get('status') == $statusKey, $statusKey == 'rejected' ? 'secondary' : 'primary')); ?>">
+                                <?php
+                                    $statusCount = 0;
+                                    try {
+                                        if (isAdmin()) {
+                                            $statusCount = \Modules\Refund\app\Models\RefundRequest::where('status', $statusKey)->count();
+                                        } else {
+                                            $refundVendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+                                            if ($refundVendor) {
+                                                $statusCount = \Modules\Refund\app\Models\RefundRequest::where('vendor_id', $refundVendor->id)->where('status', $statusKey)->count();
+                                            }
+                                        }
+                                    } catch (\Exception $e) {
+                                        $statusCount = 0;
+                                    }
+                                ?>
+                                <?php echo e($statusCount); ?>
+
+                            </span>
+                        </a>
+                    </li>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(isAdmin()): ?>
+                    <li class="l_sidebar">
+                        <a class="d-flex align-items-center justify-content-between fw-bold <?php echo e(isMenuActive('admin.refunds.settings', $currentRoute) ? 'active' : ''); ?>"
+                            href="<?php echo e(route('admin.refunds.settings')); ?>">
+                            <?php echo e(trans('menu.refunds.settings')); ?>
+
+                        </a>
+                    </li>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </ul>
+        </li>
+
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['blog-categories.index', 'blogs.index'])): ?>
             <li class="menu-title mt-30">
                 <span><?php echo e(trans('menu.sections.content and engagement')); ?></span>

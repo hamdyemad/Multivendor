@@ -30,6 +30,8 @@ class VendorProduct extends BaseModel
         'offer_date_view' => 'boolean',
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
+        'is_able_to_refund' => 'boolean',
+        'refund_days' => 'integer',
     ];
 
     // Removed appends to avoid N+1 queries - use withCount and withAvg instead
@@ -503,5 +505,49 @@ class VendorProduct extends BaseModel
     public function getRemainingStockAttribute()
     {
         return max(0, $this->total_stock - $this->booked_stock - $this->allocated_stock - $this->fulfilled_stock);
+    }
+
+    /**
+     * Check if product is eligible for refund based on delivery date
+     * 
+     * @param \Carbon\Carbon|string|null $deliveredAt The delivery date
+     * @return bool
+     */
+    public function isEligibleForRefund($deliveredAt = null): bool
+    {
+        // Check if refunds are enabled for this product
+        if (!$this->is_able_to_refund) {
+            return false;
+        }
+
+        // If no delivery date provided, assume it's eligible (will be checked later)
+        if (!$deliveredAt) {
+            return true;
+        }
+
+        // Convert to Carbon instance if string
+        $deliveredAt = $deliveredAt instanceof \Carbon\Carbon 
+            ? $deliveredAt 
+            : \Carbon\Carbon::parse($deliveredAt);
+
+        // Check if within refund window
+        $refundDeadline = $deliveredAt->copy()->addDays($this->refund_days);
+        
+        return now()->lte($refundDeadline);
+    }
+
+    /**
+     * Get the refund deadline for this product based on delivery date
+     * 
+     * @param \Carbon\Carbon|string $deliveredAt The delivery date
+     * @return \Carbon\Carbon
+     */
+    public function getRefundDeadline($deliveredAt): \Carbon\Carbon
+    {
+        $deliveredAt = $deliveredAt instanceof \Carbon\Carbon 
+            ? $deliveredAt 
+            : \Carbon\Carbon::parse($deliveredAt);
+
+        return $deliveredAt->copy()->addDays($this->refund_days);
     }
 }

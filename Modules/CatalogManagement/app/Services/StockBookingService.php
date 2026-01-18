@@ -82,6 +82,33 @@ class StockBookingService
     }
 
     /**
+     * Release fulfilled stock for refunded order products
+     */
+    public function releaseRefundedStock(int $orderId, array $orderProductIds, string $refundNumber): void
+    {
+        DB::transaction(function () use ($orderId, $orderProductIds, $refundNumber) {
+            $bookings = StockBooking::where('order_id', $orderId)
+                ->whereIn('order_product_id', $orderProductIds)
+                ->where('status', StockBooking::STATUS_FULFILLED)
+                ->get();
+
+            foreach ($bookings as $booking) {
+                $booking->update([
+                    'status' => StockBooking::STATUS_RELEASED,
+                    'released_at' => now(),
+                    'notes' => 'Released due to refund: ' . $refundNumber,
+                ]);
+            }
+
+            Log::info('Stock released for refunded order', [
+                'order_id' => $orderId,
+                'refund_number' => $refundNumber,
+                'bookings_released' => $bookings->count()
+            ]);
+        });
+    }
+
+    /**
      * Fulfill booked stock when order is delivered
      * This also decreases the actual stock quantity
      */

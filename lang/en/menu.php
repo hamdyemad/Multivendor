@@ -185,6 +185,17 @@
             'order stages' => 'order stages',
             'shipping methods' => 'shipping methods',
         ],
+        'refunds' => [
+            'title' => 'Refunds',
+            'all' => 'All Refunds',
+            'pending' => 'Pending',
+            'approved' => 'Approved',
+            'in_progress' => 'In Progress',
+            'picked_up' => 'Picked Up',
+            'refunded' => 'Refunded',
+            'rejected' => 'Rejected',
+            'settings' => 'Refund Settings',
+        ],
         'request_quotations' => [
             'title' => 'Request Quotations',
             'all_requests' => 'All Requests',

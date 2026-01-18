@@ -706,5 +706,11 @@ return [
     'col_occ_prod_special_price_source' => 'Number (e.g., 79.99) or leave empty',
     'col_occ_prod_position_desc' => 'Display position/order (optional)',
     'col_occ_prod_position_source' => 'Number (e.g., 1, 2, 3...) or leave empty',
+
+    // Refund Settings
+    'is_able_to_refund' => 'Enable Refund',
+    'refund_days' => 'Refund Days',
+    'refund_days_placeholder' => 'Enter number of days',
+    'refund_days_help' => 'Number of days after delivery customer can request refund',
 ];
 

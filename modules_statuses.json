@@ -10,5 +10,6 @@
     "Customer": true,
     "Promocodes": true,
     "Report": true,
-    "Accounting": true
+    "Accounting": true,
+    "Refund": true
 }

@@ -177,6 +177,17 @@
             'order stages' => 'مراحل الطلب',
             'shipping methods' => 'طرق الشحن',
         ],
+        'refunds' => [
+            'title' => 'طلبات الاسترجاع',
+            'all' => 'جميع الطلبات',
+            'pending' => 'قيد الانتظار',
+            'approved' => 'مقبول',
+            'in_progress' => 'قيد التنفيذ',
+            'picked_up' => 'تم الاستلام',
+            'refunded' => 'تم الاسترجاع',
+            'rejected' => 'مرفوض',
+            'settings' => 'إعدادات الاسترجاع',
+        ],
         'request_quotations' => [
             'title' => 'طلبات عروض الأسعار',
             'all_requests' => 'جميع الطلبات',

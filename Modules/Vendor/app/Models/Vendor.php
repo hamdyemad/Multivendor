@@ -205,6 +205,7 @@ class Vendor extends BaseModel
             ->leftJoin('departments as d', 'p.department_id', '=', 'd.id')
             ->where('op.vendor_id', $this->id)
             ->where('vos.stage_id', $deliverStageId)
+            ->where('op.is_refunded', false) // Exclude refunded products
             ->select(
                 'op.price',
                 'op.shipping_cost',
@@ -255,6 +256,7 @@ class Vendor extends BaseModel
             })
             ->where('op.vendor_id', $this->id)
             ->where('vos.stage_id', $deliverStageId)
+            ->where('op.is_refunded', false) // Exclude refunded products
             ->select(
                 \Illuminate\Support\Facades\DB::raw('SUM(op.price) as products_total'),
                 \Illuminate\Support\Facades\DB::raw('SUM(COALESCE(op.shipping_cost, 0)) as shipping_total')
@@ -373,6 +375,7 @@ class Vendor extends BaseModel
                      ->on('vos.vendor_id', '=', 'op.vendor_id');
             })
             ->where('vos.stage_id', $deliverStageId)
+            ->where('op.is_refunded', false) // Exclude refunded products
             ->select(
                 \Illuminate\Support\Facades\DB::raw('SUM(op.price) as products_total'),
                 \Illuminate\Support\Facades\DB::raw('SUM(COALESCE(op.shipping_cost, 0)) as shipping_total')
@@ -425,6 +428,7 @@ class Vendor extends BaseModel
             ->leftJoin('products as p', 'vp.product_id', '=', 'p.id')
             ->leftJoin('departments as d', 'p.department_id', '=', 'd.id')
             ->where('vos.stage_id', $deliverStageId)
+            ->where('op.is_refunded', false) // Exclude refunded products
             ->select(
                 \Illuminate\Support\Facades\DB::raw('SUM(
                     (op.price + COALESCE(op.shipping_cost, 0)) * 

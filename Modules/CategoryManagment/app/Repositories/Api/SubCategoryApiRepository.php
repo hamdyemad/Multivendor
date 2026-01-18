@@ -29,9 +29,9 @@ class SubCategoryApiRepository implements SubCategoryApiRepositoryInterface
     public function find(CategoryFilterDTO $dto, $id)
     {
         $filters = $dto->toArray();
-        return $this->query->handle($filters)->with('category')
-        ->where(fn($q) => $q->where('id', $id)
-        ->orWhere('slug', $id))->firstOrFail();
+        return $this->query->handle($filters)
+            ->where(fn($q) => $q->where('id', $id)->orWhere('slug', $id))
+            ->firstOrFail();
     }
 
     /**
@@ -41,7 +41,6 @@ class SubCategoryApiRepository implements SubCategoryApiRepositoryInterface
     {
         return $this->query->handle([])
             ->byCategory($categoryId)
-            ->with('category')
             ->get();
     }
 
@@ -52,7 +51,6 @@ class SubCategoryApiRepository implements SubCategoryApiRepositoryInterface
     {
         $subCategory = $this->query->handle([])
             ->byIdOrSlug($subCategoryId)
-            ->with('category')
             ->first();
 
         return $subCategory ? collect([$subCategory]) : collect();

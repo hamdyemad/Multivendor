@@ -20,9 +20,6 @@ class SubCategoryApiResource extends JsonResource
             'slug' => $this->slug,
             'sort_number' => $this->sort_number ?? 0,
             'parent' => new CategoryApiResource($this->whenLoaded('category')),
-            'parent_department' => $this->whenLoaded('category', function() {
-                return $this->category->department ? new DepartmentApiResource($this->category->department) : null;
-            }),
             'image' => formatImage($this->image),
             'icon' => formatImage($this->icon),
             'products_count' => $this->active_products_count ?? $this->activeProducts()->count(),

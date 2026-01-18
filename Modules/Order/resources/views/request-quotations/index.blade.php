@@ -3,7 +3,6 @@
 @section('title', $isArchived ? __('order::request-quotation.archived_requests') : __('order::request-quotation.all_requests'))
 
 @push('styles')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
     <style>
         .detail-group {
             margin-bottom: 20px;
@@ -222,8 +221,6 @@
 @endsection
 
 @push('scripts')
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
             const isArchived = {{ $isArchived ? 'true' : 'false' }};

@@ -751,9 +751,8 @@ $(document).ready(function() {
                 
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 
-                setTimeout(function() {
-                    window.location.reload();
-                }, 1000);
+                // Reload immediately without delay
+                window.location.reload();
             },
             error: function(xhr) {
                 spinner.addClass('d-none');

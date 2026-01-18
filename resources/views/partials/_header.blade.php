@@ -24,23 +24,22 @@
     @if(\LaravelLocalization::getCurrentLocale() == 'ar')
         <link rel="stylesheet" href="{{ asset('assets/css/plugin.rtl.min.css') }}">
         <link rel="stylesheet" href="{{ asset('assets/css/style.rtl.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('assets/css/variables.rtl.css') }}">
         <link rel="stylesheet" href="{{ asset('css/app.rtl.min.css') }}">
     @else
         <link rel="stylesheet" href="{{ asset('assets/css/style.min.css') }}">
     @endif
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/favicon-bnaia.png') }}">
-    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v3.0.0/css/line.css">
+    <link rel="stylesheet" href="{{ asset('css/unicons/line.css') }}">
     <link rel="stylesheet" href="{{ asset('css/plugins/toastr.min.css') }}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css">
+    <link rel="stylesheet" href="{{ asset('css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/select2-bootstrap-5-theme.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/select2.min.css') }}">
     @vite(['resources/scss/progress-bar.scss'])
     @vite(['resources/scss/rtl-validation.scss'])
     @vite('resources/scss/app.scss')
     @stack('styles')
     @yield('styles')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="{{ asset('js/chart.umd.min.js') }}"></script>
 
     <style>
         /* Fix scrollbar for minimized sidebar submenus */

@@ -3,7 +3,6 @@
 @section('title', __('vendor::vendor-review.vendor_reviews'))
 
 @push('styles')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
     <style>
         .review-modal-content {
             border-radius: 20px;
@@ -289,8 +288,6 @@
 @endsection
 
 @push('scripts')
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
             // Get URL parameters

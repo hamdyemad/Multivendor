@@ -3,7 +3,6 @@
 @section('title', __('accounting.vendor_balance_overview'))
 
 @push('styles')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 @endpush
 
 @section('content')
@@ -120,8 +119,6 @@
     <x-loading-overlay />
 @endpush
 @push('scripts')
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
             let per_page = 10;

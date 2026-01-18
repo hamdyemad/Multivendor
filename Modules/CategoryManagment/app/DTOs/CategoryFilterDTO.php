@@ -34,7 +34,7 @@ class CategoryFilterDTO extends FilterDTO
             department_id: $request->input('department_id'),
             main_category_id: $request->input('main_category_id'),
             category_id: $request->input('category_id'),
-            per_page: $request->integer('per_page', 15),
+            per_page: $request->integer('per_page', 10),
             paginated: $request->input('paginated', null),
             sort: $request->input('sort'),
             sort_type: $request->input('sort_type', 'desc'),

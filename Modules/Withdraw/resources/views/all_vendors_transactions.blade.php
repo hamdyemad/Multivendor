@@ -5,9 +5,6 @@
 @endsection
 
 @push('styles')
-    <!-- Select2 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 
     <style>
         .select2-container--bootstrap-5 .select2-selection {
@@ -69,21 +66,15 @@
                                     </div>
 
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="vendor_filter" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-store me-1"></i>
-                                                {{ __('withdraw::withdraw.vendor') }}
-                                            </label>
-                                            <select
-                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="vendor_filter">
-                                                <small class="text-muted">({{ __('withdraw::withdraw.real_time') }})</small>
-                                                <option value="">{{ __('withdraw::withdraw.all') }} {{ __('withdraw::withdraw.vendors') }}</option>
-                                                @foreach($vendors as $vendor)
-                                                    <option value="{{ $vendor['id'] }}" @if(request('vendor_id') == $vendor['id']) selected @endif>{{ $vendor['name'] }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
+                                        <x-custom-select
+                                            name="vendor_filter"
+                                            id="vendor_filter"
+                                            :label="__('withdraw::withdraw.vendor')"
+                                            icon="uil uil-store"
+                                            :placeholder="__('withdraw::withdraw.all') . ' ' . __('withdraw::withdraw.vendors')"
+                                            :options="collect($vendors)->map(fn($v) => ['id' => $v['id'], 'name' => $v['name']])->toArray()"
+                                            :selected="request('vendor_id')"
+                                        />
                                     </div>
 
 
@@ -198,7 +189,6 @@
 
 @push('scripts')
     <!-- Select2 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
         $(document).ready(function() {
@@ -219,7 +209,7 @@
                 const params = new URLSearchParams();
 
                 const search = $('#search').val();
-                const vendorFilter = $('#vendor_filter').val();
+                const vendorFilter = $('#vendor_filter-input').val(); // Get value from hidden input
                 const createdDateFrom = $('#created_date_from').val();
                 const createdDateTo = $('#created_date_to').val();
 
@@ -243,9 +233,9 @@
             // Initialize filters from URL
             initializeFiltersFromUrl();
 
-            // Initialize Select2 on all select elements
+            // Initialize Select2 only on entriesSelect
             if ($.fn.select2) {
-                $('#entriesSelect, #vendor_filter').select2({
+                $('#entriesSelect').select2({
                     theme: 'bootstrap-5',
                     minimumResultsForSearch: Infinity,
                     width: '100%'
@@ -267,7 +257,7 @@
 
                         // Add filter parameters
                         d.search = $('#search').val();
-                        d.vendor_filter = $('#vendor_filter').val();
+                        d.vendor_filter = $('#vendor_filter-input').val(); // Get value from hidden input
                         d.created_date_from = $('#created_date_from').val();
                         d.created_date_to = $('#created_date_to').val();
 
@@ -386,7 +376,8 @@
             });
 
             // Server-side filter event listeners - reload data when filters change
-            $('#vendor_filter, #created_date_from, #created_date_to').on('change', function() {
+            // For custom select, listen to the hidden input change event
+            $('#vendor_filter-input, #created_date_from, #created_date_to').on('change', function() {
                 console.log('Filter changed:', $(this).attr('id'), '=', $(this).val());
                 updateUrlWithFilters();
                 table.ajax.reload();
@@ -408,7 +399,12 @@
                 console.log('Resetting all filters...');
                 // Clear all filter inputs
                 $('#search').val('');
-                $('#vendor_filter').val('').trigger('change');
+                
+                // Reset custom select using the CustomSelect API
+                if (window.CustomSelect) {
+                    CustomSelect.clear('vendor_filter');
+                }
+                
                 $('#amount_range').val('').trigger('change');
                 $('#transaction_status').val('').trigger('change');
                 $('#created_date_from').val('');

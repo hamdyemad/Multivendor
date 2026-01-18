@@ -6,7 +6,7 @@ class IsPaginatedAction
 {
     public function handle($query, $per_page, $paginated = null)
     {
-        $per_page = $per_page ?? 15;
+        $per_page = $per_page ?? 10;
         
         // If paginated is null (not passed), return all results without pagination
         if ($paginated === null) {

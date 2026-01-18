@@ -52,37 +52,31 @@
                                     </div>
 
                                     <div class="col-md-2">
-                                        <div class="form-group">
-                                            <label for="vendor_filter" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-shop me-1"></i>
-                                                {{ __('withdraw::withdraw.vendor') }}
-                                            </label>
-                                            <select
-                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="vendor_filter">
-                                                <option value="">{{ __('withdraw::withdraw.all') }} {{ __('withdraw::withdraw.vendors') }}</option>
-                                                @foreach($vendors as $vendor)
-                                                    <option value="{{ $vendor['id'] }}" @if(request('vendor_id') == $vendor['id']) selected @endif>{{ $vendor['name'] }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
+                                        <x-custom-select
+                                            name="vendor_filter"
+                                            id="vendor_filter"
+                                            :label="__('withdraw::withdraw.vendor')"
+                                            icon="uil uil-shop"
+                                            :placeholder="__('withdraw::withdraw.all') . ' ' . __('withdraw::withdraw.vendors')"
+                                            :options="collect($vendors)->map(fn($v) => ['id' => $v['id'], 'name' => $v['name']])->toArray()"
+                                            :selected="request('vendor_id')"
+                                        />
                                     </div>
 
                                     <div class="col-md-2">
-                                        <div class="form-group">
-                                            <label for="status_filter" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-check-circle me-1"></i>
-                                                {{ __('withdraw::withdraw.status') }}
-                                            </label>
-                                            <select
-                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="status_filter">
-                                                <option value="">{{ __('withdraw::withdraw.all') }} {{ __('withdraw::withdraw.status') }}</option>
-                                                <option value="new">{{ __('withdraw::withdraw.new') }}</option>
-                                                <option value="accepted">{{ __('withdraw::withdraw.accepted') }}</option>
-                                                <option value="rejected">{{ __('withdraw::withdraw.rejected') }}</option>
-                                            </select>
-                                        </div>
+                                        <x-custom-select
+                                            name="status_filter"
+                                            id="status_filter"
+                                            :label="__('withdraw::withdraw.status')"
+                                            icon="uil uil-check-circle"
+                                            :placeholder="__('withdraw::withdraw.all') . ' ' . __('withdraw::withdraw.status')"
+                                            :options="[
+                                                ['id' => 'new', 'name' => __('withdraw::withdraw.new')],
+                                                ['id' => 'accepted', 'name' => __('withdraw::withdraw.accepted')],
+                                                ['id' => 'rejected', 'name' => __('withdraw::withdraw.rejected')]
+                                            ]"
+                                            :selected="request('status')"
+                                        />
                                     </div>
 
                                     <div class="col-md-2">
@@ -303,8 +297,8 @@
                 const params = new URLSearchParams();
 
                 const search = $('#search').val();
-                const vendorFilter = $('#vendor_filter').val();
-                const statusFilter = $('#status_filter').val();
+                const vendorFilter = $('#vendor_filter-input').val(); // Get from hidden input
+                const statusFilter = $('#status_filter-input').val(); // Get from hidden input
                 const createdDateFrom = $('#created_date_from').val();
                 const createdDateTo = $('#created_date_to').val();
 
@@ -341,10 +335,10 @@
                         d.per_page = d.length;
                         d.page = (d.start / d.length) + 1;
 
-                        // Add filter parameters
+                        // Add filter parameters - get from hidden inputs
                         d.search = $('#search').val();
-                        d.vendor_filter = $('#vendor_filter').val();
-                        d.status_filter = $('#status_filter').val();
+                        d.vendor_filter = $('#vendor_filter-input').val();
+                        d.status_filter = $('#status_filter-input').val();
                         d.created_date_from = $('#created_date_from').val();
                         d.created_date_to = $('#created_date_to').val();
 
@@ -482,9 +476,9 @@
 
 
 
-            // Initialize Select2 on all select elements
+            // Initialize Select2 only on entriesSelect
             if ($.fn.select2) {
-                $('#entriesSelect, #vendor_filter, #status_filter').select2({
+                $('#entriesSelect').select2({
                     theme: 'bootstrap-5',
                     minimumResultsForSearch: Infinity,
                     width: '100%'
@@ -506,7 +500,8 @@
             });
 
             // Server-side filter event listeners - reload data when filters change
-            $('#vendor_filter, #status_filter, #created_date_from, #created_date_to').on('change', function() {
+            // Listen to hidden inputs for custom selects
+            $('#vendor_filter-input, #status_filter-input, #created_date_from, #created_date_to').on('change', function() {
                 console.log('Filter changed:', $(this).attr('id'), '=', $(this).val());
                 updateUrlWithFilters();
                 table.ajax.reload();
@@ -528,8 +523,13 @@
                 console.log('Resetting all filters...');
                 // Clear all filter inputs
                 $('#search').val('');
-                $('#vendor_filter').val('').trigger('change');
-                $('#status_filter').val('').trigger('change');
+                
+                // Reset custom selects using CustomSelect API
+                if (window.CustomSelect) {
+                    CustomSelect.clear('vendor_filter');
+                    CustomSelect.clear('status_filter');
+                }
+                
                 $('#created_date_from').val('');
                 $('#created_date_to').val('');
 

@@ -11,7 +11,7 @@ class DepartmentQueryAction
         $query = Department::query()
                     ->with('translations')
                     ->withCount('activeProducts')
-                    ->with('activeCategories')
+                    ->withCount('activeCategories')
                     ->active()
                     ->where('view_status', 1)
                     ->filter($filters)

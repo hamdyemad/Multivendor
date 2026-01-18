@@ -24,23 +24,22 @@
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(\LaravelLocalization::getCurrentLocale() == 'ar'): ?>
         <link rel="stylesheet" href="<?php echo e(asset('assets/css/plugin.rtl.min.css')); ?>">
         <link rel="stylesheet" href="<?php echo e(asset('assets/css/style.rtl.min.css')); ?>">
-        <link rel="stylesheet" href="<?php echo e(asset('assets/css/variables.rtl.css')); ?>">
         <link rel="stylesheet" href="<?php echo e(asset('css/app.rtl.min.css')); ?>">
     <?php else: ?>
         <link rel="stylesheet" href="<?php echo e(asset('assets/css/style.min.css')); ?>">
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     <link rel="icon" type="image/png" sizes="16x16" href="<?php echo e(asset('assets/img/favicon-bnaia.png')); ?>">
-    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v3.0.0/css/line.css">
+    <link rel="stylesheet" href="<?php echo e(asset('css/unicons/line.css')); ?>">
     <link rel="stylesheet" href="<?php echo e(asset('css/plugins/toastr.min.css')); ?>">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css">
+    <link rel="stylesheet" href="<?php echo e(asset('css/select2.min.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('css/select2-bootstrap-5-theme.min.css')); ?>">
     <link rel="stylesheet" href="<?php echo e(asset('assets/css/select2.min.css')); ?>">
     <?php echo app('Illuminate\Foundation\Vite')(['resources/scss/progress-bar.scss']); ?>
     <?php echo app('Illuminate\Foundation\Vite')(['resources/scss/rtl-validation.scss']); ?>
     <?php echo app('Illuminate\Foundation\Vite')('resources/scss/app.scss'); ?>
     <?php echo $__env->yieldPushContent('styles'); ?>
     <?php echo $__env->yieldContent('styles'); ?>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="<?php echo e(asset('js/chart.umd.min.js')); ?>"></script>
 
     <style>
         /* Fix scrollbar for minimized sidebar submenus */

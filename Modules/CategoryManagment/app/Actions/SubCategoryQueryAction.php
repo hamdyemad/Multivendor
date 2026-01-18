@@ -12,7 +12,15 @@ class SubCategoryQueryAction
                     ->active()
                     ->where('view_status', 1)
                     ->withCount('activeProducts')
-                    ->with(['category','category.department', 'translations'])
+                    ->with([
+                        'category' => function($q) {
+                            $q->withCount('activeProducts');
+                        },
+                        'category.department' => function($q) {
+                            $q->withCount('activeProducts');
+                        },
+                        'translations'
+                    ])
                     ->filter($filters);
 
         // Handle sorting

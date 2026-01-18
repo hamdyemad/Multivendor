@@ -62,11 +62,9 @@
             mapClockIcon: "<?php echo e(asset('assets/img/svg/clock-ticket1.svg')); ?>"
         }
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDduF2tLXicDEPDMAtC6-NLOekX0A5vlnY"></script>
 
     <script src="<?php echo e(asset('assets/js/plugins.min.js')); ?>"></script>
     <script src="<?php echo e(asset('assets/js/select2.min.js')); ?>"></script>
-
 
     
     <script>
@@ -95,18 +93,23 @@
         });
     </script>
 
+    <script src="<?php echo e(asset('js/chart.js')); ?>"></script>
     <script src="<?php echo e(asset('assets/js/script.min.js')); ?>"></script>
     <script src="<?php echo e(asset('js/app.min.js')); ?>"></script>
-
     <!-- Toastr JS -->
     <script src="<?php echo e(asset('js/plugins/toastr.min.js')); ?>"></script>
-
-    <!-- CKEditor CDN -->
-    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
-
+    <script src="<?php echo e(asset('js/ckeditor.js')); ?>"></script>
+    <script>
+        // Set CKEditor base path immediately after loading
+        if (typeof CKEDITOR !== 'undefined') {
+            CKEDITOR.basePath = '<?php echo e(asset("js/")); ?>/';
+            // Version 4.16.2 doesn't require license key
+        }
+    </script>
+    
     <?php echo app('Illuminate\Foundation\Vite')('resources/js/app.js'); ?>
-    <script src="<?php echo e(asset('assets/js/sweetalert2@11.js')); ?>"></script>
 
+    <script src="<?php echo e(asset('assets/js/sweetalert2@11.js')); ?>"></script>
     <script>
         // Configure Toastr options to match login page
         toastr.options = {
@@ -177,40 +180,46 @@
 
     <!-- CKEditor Initialization -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Wait for CKEditor to be available
-            if (typeof CKEDITOR === 'undefined') {
-                return;
-            }
-            // Wait a bit more for DOM to be fully ready
-            setTimeout(function() {
+        // Initialize CKEditor immediately when DOM is ready (no delay)
+        (function() {
+            function initCKEditor() {
+                if (typeof CKEDITOR === 'undefined') {
+                    console.warn('CKEditor not loaded');
+                    return;
+                }
+                
                 // Initialize CKEditor for ALL textareas
                 const textareas = document.querySelectorAll('textarea:not(.nockeditor)');
-                textareas.forEach(function(textarea, index) {
-                    // Skip if no ID or already initialized
-                    if (!textarea.id || CKEDITOR.instances[textarea.id]) {
+                textareas.forEach(function(textarea) {
+                    // Skip if no ID
+                    if (!textarea.id) {
                         return;
                     }
+                    
+                    // Destroy existing instance if any
+                    if (CKEDITOR.instances[textarea.id]) {
+                        CKEDITOR.instances[textarea.id].destroy(true);
+                    }
+                    
                     const isRTL = textarea.getAttribute('dir') === 'rtl';
                     try {
                         CKEDITOR.replace(textarea.id, {
-                            language: 'en', // Use English to avoid missing language files
+                            language: 'en',
                             contentsLangDirection: isRTL ? 'rtl' : 'ltr',
                             height: 200,
                             toolbar: [
-                                { name: 'document', items: [ 'Source', '-', 'NewPage', 'Preview', 'Print', '-', 'Templates' ] },
+                                { name: 'document', items: [ 'Source', '-', 'NewPage', 'Preview', 'Print' ] },
                                 { name: 'clipboard', items: [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo' ] },
-                                { name: 'editing', items: [ 'Find', 'Replace', '-', 'SelectAll', '-', 'Scayt' ] },
-                                { name: 'forms', items: [ 'Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton', 'HiddenField' ] },
+                                { name: 'editing', items: [ 'Find', 'Replace', '-', 'SelectAll' ] },
                                 '/',
                                 { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat' ] },
-                                { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl' ] },
-                                { name: 'links', items: [ 'Link', 'Unlink', 'Anchor' ] },
-                                { name: 'insert', items: [ 'Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak', 'Iframe' ] },
+                                { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock' ] },
+                                { name: 'links', items: [ 'Link', 'Unlink' ] },
+                                { name: 'insert', items: [ 'Image', 'Table', 'HorizontalRule', 'SpecialChar' ] },
                                 '/',
                                 { name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
                                 { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
-                                { name: 'tools', items: [ 'Maximize', 'ShowBlocks' ] }
+                                { name: 'tools', items: [ 'Maximize' ] }
                             ],
                             removePlugins: 'elementspath',
                             resize_enabled: false,
@@ -218,12 +227,9 @@
                             shiftEnterMode: CKEDITOR.ENTER_P,
                             on: {
                                 instanceReady: function(evt) {
-                                    // Set RTL direction after editor is ready
                                     if (isRTL) {
-                                        evt.editor.document.getBody().setStyle(
-                                            'direction', 'rtl');
-                                        evt.editor.document.getBody().setStyle(
-                                            'text-align', 'right');
+                                        evt.editor.document.getBody().setStyle('direction', 'rtl');
+                                        evt.editor.document.getBody().setStyle('text-align', 'right');
                                     }
                                 }
                             }
@@ -232,8 +238,16 @@
                         console.error('Error initializing CKEditor for', textarea.id, ':', error);
                     }
                 });
-            }, 500); // Wait 500ms for DOM to be fully ready
-        });
+            }
+            
+            // Run immediately when DOM is ready (no setTimeout delay)
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initCKEditor);
+            } else {
+                // DOM already loaded, run immediately
+                initCKEditor();
+            }
+        })();
     </script>
 
     

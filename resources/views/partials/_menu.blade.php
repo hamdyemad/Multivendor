@@ -1436,7 +1436,7 @@
                 class="has-child {{ isParentMenuOpen(['admin.system-settings.features.index', 'admin.system-settings.footer-content.index', 'admin.system-settings.faqs.index', 'admin.system-settings.sliders.index', 'admin.system-settings.site-information.index'], ['*/system-settings/features*', '*/system-settings/footer-content*', '*/system-settings/faqs*', '*/system-settings/sliders*', '*/system-settings/site-information*']) ? 'open' : '' }}">
                 <a href="#"
                     class="{{ isParentMenuOpen(['admin.system-settings.features.index', 'admin.system-settings.footer-content.index', 'admin.system-settings.faqs.index', 'admin.system-settings.sliders.index', 'admin.system-settings.site-information.index'], ['*/system-settings/features*', '*/system-settings/footer-content*', '*/system-settings/faqs*', '*/system-settings/sliders*', '*/system-settings/site-information*']) ? 'active' : '' }}">
-                    <span class="nav-icon uil uil-browser"></span>
+                    <span class="nav-icon uil uil-window-section"></span>
                     <span class="menu-text fw-bold">{{ trans('menu.frontend settings.title') }}</span>
                     <span class="toggle-icon"></span>
                 </a>

@@ -122,34 +122,8 @@
 @endpush
 
 @push('scripts')
-<script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
 <script>
 $(document).ready(function() {
-    // Initialize CKEditor for description textareas
-    const editors = {};
-
-    // Wait a bit for DOM to be fully ready
-    setTimeout(function() {
-        document.querySelectorAll('textarea[name*="description"]').forEach(function(textarea) {
-            const editorId = textarea.id;
-            const lang = textarea.getAttribute('data-lang') || 'en';
-
-            editors[editorId] = CKEDITOR.replace(editorId, {
-                height: 200,
-                language: lang === 'ar' ? 'ar' : 'en',
-                contentsLangDirection: lang === 'ar' ? 'rtl' : 'ltr',
-                toolbar: [
-                    { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike'] },
-                    { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'] },
-                    { name: 'links', items: ['Link', 'Unlink'] },
-                    { name: 'insert', items: ['Table'] },
-                    { name: 'styles', items: ['Format'] },
-                    { name: 'tools', items: ['Maximize'] }
-                ]
-            });
-        });
-    }, 500);
-
     const footerContentForm = document.getElementById('footerContentForm');
 
     if (footerContentForm) {
@@ -157,13 +131,6 @@ $(document).ready(function() {
             e.preventDefault();
 
             // Sync all CKEditor instances to their textareas
-            for (let editorId in editors) {
-                if (editors[editorId] && editors[editorId].updateElement) {
-                    editors[editorId].updateElement();
-                }
-            }
-
-            // Also try CKEDITOR.instances in case some weren't tracked
             for (let instance in CKEDITOR.instances) {
                 CKEDITOR.instances[instance].updateElement();
             }
@@ -204,14 +171,12 @@ $(document).ready(function() {
                         );
                     }
 
-                    // Redirect after short delay
-                    setTimeout(() => {
-                        if (data.redirect) {
-                            window.location.href = data.redirect;
-                        } else {
-                            window.location.reload();
-                        }
-                    }, 1000);
+                    // Redirect immediately without delay
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else {
+                        window.location.reload();
+                    }
                 } else {
                     // Hide loading overlay
                     if (window.LoadingOverlay) {

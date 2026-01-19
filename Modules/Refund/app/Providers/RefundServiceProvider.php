@@ -27,6 +27,7 @@ class RefundServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
+        $this->loadHelpers();
     }
 
     /**
@@ -156,5 +157,17 @@ class RefundServiceProvider extends ServiceProvider
         }
 
         return $paths;
+    }
+
+    /**
+     * Load helper functions.
+     */
+    protected function loadHelpers(): void
+    {
+        $helpersPath = module_path($this->name, 'app/Helpers/helpers.php');
+        
+        if (file_exists($helpersPath)) {
+            require_once $helpersPath;
+        }
     }
 }

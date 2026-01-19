@@ -269,4 +269,5 @@ return [
     // Print
     'print' => 'طباعة',
     'print_invoice' => 'طباعة الفاتورة',
+    'days' => 'أيام',
 ];

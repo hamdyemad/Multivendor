@@ -40,6 +40,13 @@ class OrderProductResource extends JsonResource
                 'name' => $this->vendorProduct?->product?->title,
                 'slug' => $this->vendorProduct?->product?->slug,
                 'image' => formatImage($this->vendorProduct?->product?->mainImage),
+                'refund' => [
+                    'is_able_to_refund' => $this->vendorProduct?->is_able_to_refund,
+                    'refund_days' => get_refund_days($this->vendorProduct),
+                    'is_eligible_for_refund' => is_eligible_for_refund($this->vendorProduct, $this->delivered_at),
+                    'refund_deadline' => get_refund_deadline($this->vendorProduct, $this->delivered_at),
+                    'remaining_refund_days' => get_remaining_refund_days($this->vendorProduct, $this->delivered_at),
+                ],
             ],
             'vendor' => [
                 'id' => $this->vendorProduct?->vendor?->id,

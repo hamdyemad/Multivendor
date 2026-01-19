@@ -243,6 +243,7 @@ return [
         'valid_from' => 'تاريخ البدء',
         'valid_to' => 'تاريخ الانتهاء',
         'valid_until' => 'تاريخ الانتهاء',
+        'variants.*.discount_end_date' => 'تاريخ انتهاء خصم المتغير',
     ],
 
 ];

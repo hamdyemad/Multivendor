@@ -20,7 +20,10 @@
             "Modules\\Refund\\": "app/",
             "Modules\\Refund\\Database\\Factories\\": "database/factories/",
             "Modules\\Refund\\Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/Helpers/refund_helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

@@ -225,6 +225,7 @@ return [
 
     'attributes' => [
         'translations.*.name' => 'name',
+        'variants.*.discount_end_date' => 'variant discount end date',
     ],
 
 ];

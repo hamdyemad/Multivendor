@@ -61,6 +61,10 @@ class StoreProductRequest extends FormRequest
             'translations.*.meta_description' => 'nullable|string',
             'translations.*.meta_keywords' => 'nullable|string',
 
+            // Refund Settings
+            'is_able_to_refund' => 'nullable|boolean',
+            'refund_days' => 'nullable|integer|min:0',
+
             // Configuration Type
             'configuration_type' => 'required|in:simple,variants',
         ];
@@ -197,6 +201,7 @@ class StoreProductRequest extends FormRequest
         $this->merge([
             'is_active' => filter_var($this->input('is_active', true), FILTER_VALIDATE_BOOLEAN),
             'is_featured' => filter_var($this->input('is_featured', false), FILTER_VALIDATE_BOOLEAN),
+            'is_able_to_refund' => filter_var($this->input('is_able_to_refund', false), FILTER_VALIDATE_BOOLEAN),
             'has_discount' => filter_var($this->input('has_discount', false), FILTER_VALIDATE_BOOLEAN),
         ]);
 

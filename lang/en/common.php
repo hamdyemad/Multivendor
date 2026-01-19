@@ -264,4 +264,5 @@ return [
     // Print
     'print' => 'Print',
     'print_invoice' => 'Print Invoice',
+    'days' => 'Days',
 ];

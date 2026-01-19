@@ -438,6 +438,35 @@
                                                 </div>
                                             </div>
 
+                                            {{-- Refund Status --}}
+                                            <div class="col-md-4 mb-3">
+                                                <div class="p-3 border rounded"
+                                                    style="background: {{ $product->is_able_to_refund ? '#d4edda' : '#f8d7da' }};">
+                                                    <small
+                                                        class="text-muted d-block mb-1">{{ __('catalogmanagement::product.is_able_to_refund') }}</small>
+                                                    <div class="fw-bold {{ $product->is_able_to_refund ? 'text-success' : 'text-danger' }}"
+                                                        style="font-size: 16px;">
+                                                        <i
+                                                            class="uil {{ $product->is_able_to_refund ? 'uil-redo' : 'uil-times-circle' }} me-1"></i>
+                                                        {{ $product->is_able_to_refund ? __('common.yes') : __('common.no') }}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Refund Days --}}
+                                            @if ($product->is_able_to_refund)
+                                            <div class="col-md-4 mb-3">
+                                                <div class="p-3 border rounded" style="background: #e7f3ff;">
+                                                    <small
+                                                        class="text-muted d-block mb-1">{{ __('catalogmanagement::product.refund_days') }}</small>
+                                                    <div class="fw-bold text-info" style="font-size: 18px;">
+                                                        <i
+                                                            class="uil uil-history me-1"></i>{{ $product->refund_days ?? '7' }} {{ __('common.days') }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @endif
+
                                             {{-- Rejection Reason (Only show if rejected) --}}
                                             @if ($product->status === 'rejected' && $product->rejection_reason)
                                                 <div class="col-md-12 mb-3">

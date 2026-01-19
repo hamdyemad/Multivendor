@@ -152,6 +152,8 @@ class ProductRepository implements ProductInterface
                     'max_per_order' => $data['max_per_order'],
                     'is_active' => $data['is_active'] ?? false,
                     'is_featured' => $data['is_featured'] ?? false,
+                    'is_able_to_refund' => $data['is_able_to_refund'] ?? false,
+                    'refund_days' => $data['refund_days'] ?? 7,
                     'status' => in_array($currentUser->user_type_id, UserType::vendorIds()) ? 'pending' : 'approved',
                 ]
             );
@@ -217,6 +219,8 @@ class ProductRepository implements ProductInterface
                 'max_per_order' => $data['max_per_order'],
                 'is_active' => $data['is_active'] ?? false,
                 'is_featured' => $data['is_featured'] ?? false,
+                'is_able_to_refund' => $data['is_able_to_refund'] ?? false,
+                'refund_days' => $data['refund_days'] ?? 7,
                 'status' => $newStatus,
             ]);
 
@@ -717,6 +721,8 @@ class ProductRepository implements ProductInterface
                 'video_link' => $data['video_link'] ?? null,
                 'is_active' => isset($data['is_active']) ? (bool) $data['is_active'] : true,
                 'is_featured' => isset($data['is_featured']) ? (bool) $data['is_featured'] : false,
+                'is_able_to_refund' => isset($data['is_able_to_refund']) ? (bool) $data['is_able_to_refund'] : false,
+                'refund_days' => $data['refund_days'] ?? 7,
             ];
 
             if(in_array(auth()->user()->user_type_id, UserType::adminIds())) {

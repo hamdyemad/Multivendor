@@ -157,6 +157,18 @@ class UpdateProductRequest extends FormRequest
                 if (!empty($variant['sku'])) {
                     $variantId = $variant['id'] ?? null;
                     
+                    // Build variant description for error message
+                    $variantDescription = [];
+                    if (!empty($variant['size'])) {
+                        $variantDescription[] = "Size: {$variant['size']}";
+                    }
+                    if (!empty($variant['color'])) {
+                        $variantDescription[] = "Color: {$variant['color']}";
+                    }
+                    $variantInfo = !empty($variantDescription) 
+                        ? ' (' . implode(', ', $variantDescription) . ')' 
+                        : " (Variant #" . ($index + 1) . ")";
+                    
                     // Check if SKU exists in database (excluding current variant)
                     $query = \Modules\CatalogManagement\app\Models\VendorProductVariant::withoutGlobalScopes()
                         ->where('sku', $variant['sku']);
@@ -168,7 +180,7 @@ class UpdateProductRequest extends FormRequest
                     if ($query->exists()) {
                         $validator->errors()->add(
                             "variants.{$index}.sku",
-                            __('catalogmanagement::product.sku_unique')
+                            __('catalogmanagement::product.sku_unique') . $variantInfo . " - SKU: {$variant['sku']}"
                         );
                     }
                 }

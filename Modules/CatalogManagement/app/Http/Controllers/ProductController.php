@@ -22,6 +22,8 @@ use Modules\CategoryManagment\app\Http\Resources\DepartmentResource;
 use Modules\CategoryManagment\app\Services\DepartmentService;
 use Modules\CategoryManagment\app\Services\CategoryService;
 use Modules\CategoryManagment\app\Services\SubCategoryService;
+use Modules\CategoryManagment\app\Http\Resources\CategoryResource;
+use Modules\CategoryManagment\app\Http\Resources\SubCategoryResource;
 use Modules\CatalogManagement\app\Http\Requests\Product\StoreProductRequest;
 use Modules\CatalogManagement\app\Http\Requests\Product\UpdateProductRequest;
 use Modules\CatalogManagement\app\Http\Requests\Product\UpdateStockPricingRequest;
@@ -35,7 +37,6 @@ use Modules\CatalogManagement\app\Http\Resources\VariantsConfigurationKeyResourc
 use Modules\CatalogManagement\app\Models\Brand;
 use Modules\CatalogManagement\app\Services\BankService;
 use Modules\CatalogManagement\app\Services\VariantConfigurationKeyService;
-use Modules\CategoryManagment\app\Http\Resources\CategoryResource;
 use Modules\Vendor\app\Models\Vendor;
 
 class ProductController extends Controller
@@ -429,6 +430,14 @@ class ProductController extends Controller
     {
         $languages = $this->languageService->getAll();
 
+        $departments = $this->departmentService->getAllDepartments([], 0);
+        $departments = DepartmentResource::collection($departments)->map(function($department) {
+            return [
+                'id' => $department->id,
+                'name' => $department->name
+            ];
+        });
+
         $brands = $this->brandService->getAllBrands([], 0);
         $brands = BrandResource::collection($brands)->map(function($brand) {
             return [
@@ -445,7 +454,16 @@ class ProductController extends Controller
             ];
         });
 
-        return view('catalogmanagement::product.bank', compact('languages', 'brands', 'categories'));
+        $subCategories = $this->subCategoryService->getAllSubCategories([], 0);
+        $subCategories = SubCategoryResource::collection($subCategories)->map(function($subCategory) {
+            return [
+                'id' => $subCategory->id,
+                'name' => $subCategory->name,
+                'category_id' => $subCategory->category_id
+            ];
+        });
+
+        return view('catalogmanagement::product.bank', compact('languages', 'departments', 'brands', 'categories', 'subCategories'));
     }
 
     /**

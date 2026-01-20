@@ -96,51 +96,50 @@ class OrderStageSeeder extends Seeder
         ];
 
         foreach ($stages as $stageData) {
-
-                $slug = Str::slug($stageData['names']['en']);
-                $counter = 1;
-                $originalSlug = $slug;
-
-                // Keep incrementing counter until we find a unique slug
-                while (OrderStage::where('slug', $slug)->exists()) {
-                    $slug = $originalSlug . '-' . $counter;
-                    $counter++;
-                }
-
             try {
-                // Create the order stage
-                $orderStage = OrderStage::create([
-                    'slug' => $slug,
-                    'type' => $stageData['type'],
-                    'color' => $stageData['color'],
-                    'active' => true,
-                    'is_system' => true, // Mark as system stage (cannot be deleted)
-                    'sort_order' => $stageData['sort_order'],
-                    'country_id' => null,
-                ]);
+                // Use updateOrCreate to avoid duplicate entry errors
+                // Match on slug and country_id (or null) to handle the unique constraint properly
+                $orderStage = OrderStage::updateOrCreate(
+                    [
+                        'slug' => $stageData['slug'],
+                        'country_id' => null, // System stages have null country_id
+                    ],
+                    [
+                        'type' => $stageData['type'],
+                        'color' => $stageData['color'],
+                        'active' => true,
+                        'is_system' => true, // Mark as system stage (cannot be deleted)
+                        'sort_order' => $stageData['sort_order'],
+                    ]
+                );
 
-                $this->command->info("Created order stage: {$stageData['names']['en']} (ID: {$orderStage->id})");
+                $action = $orderStage->wasRecentlyCreated ? 'Created' : 'Updated';
+                $this->command->info("{$action} order stage: {$stageData['names']['en']} (ID: {$orderStage->id})");
 
-                // Add translations
+                // Add or update translations
                 $translationsCreated = 0;
                 foreach ($stageData['names'] as $langCode => $name) {
                     if (isset($languages[$langCode])) {
                         try {
-                            $translation = $orderStage->translations()->create([
-                                'lang_id' => $languages[$langCode]->id,
-                                'lang_key' => 'name',
-                                'lang_value' => $name,
-                            ]);
+                            $translation = $orderStage->translations()->updateOrCreate(
+                                [
+                                    'lang_id' => $languages[$langCode]->id,
+                                    'lang_key' => 'name',
+                                ],
+                                [
+                                    'lang_value' => $name,
+                                ]
+                            );
                             $translationsCreated++;
-                            $this->command->info("  ✓ Translation created: {$langCode} => {$name}");
+                            $this->command->info("  ✓ Translation {$langCode} => {$name}");
                         } catch (\Exception $e) {
                             $this->command->error("  ✗ Failed to create translation for {$langCode}: {$e->getMessage()}");
                         }
                     }
                 }
-                $this->command->info("  Total translations created: {$translationsCreated}");
+                $this->command->info("  Total translations processed: {$translationsCreated}");
             } catch (\Exception $e) {
-                $this->command->error("Error creating stage {$stageData['names']['en']}: {$e->getMessage()}");
+                $this->command->error("Error processing stage {$stageData['names']['en']}: {$e->getMessage()}");
             }
         }
 

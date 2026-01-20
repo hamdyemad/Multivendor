@@ -84,56 +84,56 @@ Route::prefix('vendor-users-management')->name('vendor-users-management.')->grou
 
 
 Route::get('seeder', function () {
-        permessions_reset();
-        roles_reset();
+        // permessions_reset();
+        // roles_reset();
         
-        // Set email_verified_at for all customers
-        \Modules\Customer\app\Models\Customer::whereNull('email_verified_at')
-            ->update(['email_verified_at' => now()]);
+        // // Set email_verified_at for all customers
+        // \Modules\Customer\app\Models\Customer::whereNull('email_verified_at')
+        //     ->update(['email_verified_at' => now()]);
         
-        // Delete orders and withdraws data
-        \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        \Modules\Order\app\Models\OrderProduct::query()->forceDelete();
-        \Modules\Order\app\Models\Order::query()->forceDelete();
-        \Modules\Order\app\Models\OrderExtraFeeDiscount::query()->forceDelete();
-        \Modules\Order\app\Models\VendorOrderStage::query()->forceDelete();
-        \Modules\Order\app\Models\RequestQuotation::query()->forceDelete();
-        \Modules\Withdraw\app\Models\Withdraw::query()->forceDelete();
-        \Modules\CatalogManagement\app\Models\StockBooking::query()->forceDelete();
-        \Modules\CatalogManagement\app\Models\Review::query()->forceDelete();
+        // // Delete orders and withdraws data
+        // \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        // \Modules\Order\app\Models\OrderProduct::query()->forceDelete();
+        // \Modules\Order\app\Models\Order::query()->forceDelete();
+        // \Modules\Order\app\Models\OrderExtraFeeDiscount::query()->forceDelete();
+        // \Modules\Order\app\Models\VendorOrderStage::query()->forceDelete();
+        // \Modules\Order\app\Models\RequestQuotation::query()->forceDelete();
+        // \Modules\Withdraw\app\Models\Withdraw::query()->forceDelete();
+        // \Modules\CatalogManagement\app\Models\StockBooking::query()->forceDelete();
+        // \Modules\CatalogManagement\app\Models\Review::query()->forceDelete();
         
-        // Delete accounting entries
-        \Modules\Accounting\app\Models\AccountingEntry::query()->forceDelete();
-        \Modules\Accounting\app\Models\Expense::query()->forceDelete();
-        \Modules\Accounting\app\Models\ExpenseItem::query()->forceDelete();
-        \Modules\Accounting\app\Models\VendorBalance::query()->forceDelete();
+        // // Delete accounting entries
+        // \Modules\Accounting\app\Models\AccountingEntry::query()->forceDelete();
+        // \Modules\Accounting\app\Models\Expense::query()->forceDelete();
+        // \Modules\Accounting\app\Models\ExpenseItem::query()->forceDelete();
+        // \Modules\Accounting\app\Models\VendorBalance::query()->forceDelete();
         
-        // Delete user points and transactions
-        \DB::statement('DELETE FROM user_points_transactions');
-        \DB::statement('DELETE FROM user_points');
+        // // Delete user points and transactions
+        // \DB::statement('DELETE FROM user_points_transactions');
+        // \DB::statement('DELETE FROM user_points');
         
-        \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        // \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
         
-        // Update product configuration_type based on vendor product variants
-        // If any variant has variant_configuration_id, set product to 'variants'
-        $productsToUpdate = \DB::table('products as p')
-            ->join('vendor_products as vp', 'vp.product_id', '=', 'p.id')
-            ->join('vendor_product_variants as vpv', 'vpv.vendor_product_id', '=', 'vp.id')
-            ->whereNotNull('vpv.variant_configuration_id')
-            ->where('p.configuration_type', 'simple')
-            ->distinct()
-            ->pluck('p.id');
+        // // Update product configuration_type based on vendor product variants
+        // // If any variant has variant_configuration_id, set product to 'variants'
+        // $productsToUpdate = \DB::table('products as p')
+        //     ->join('vendor_products as vp', 'vp.product_id', '=', 'p.id')
+        //     ->join('vendor_product_variants as vpv', 'vpv.vendor_product_id', '=', 'vp.id')
+        //     ->whereNotNull('vpv.variant_configuration_id')
+        //     ->where('p.configuration_type', 'simple')
+        //     ->distinct()
+        //     ->pluck('p.id');
         
-        $productsUpdatedCount = 0;
-        if ($productsToUpdate->count() > 0) {
-            $productsUpdatedCount = \DB::table('products')
-                ->whereIn('id', $productsToUpdate)
-                ->update(['configuration_type' => 'variants']);
-        }
+        // $productsUpdatedCount = 0;
+        // if ($productsToUpdate->count() > 0) {
+        //     $productsUpdatedCount = \DB::table('products')
+        //         ->whereIn('id', $productsToUpdate)
+        //         ->update(['configuration_type' => 'variants']);
+        // }
         
-        // Log how many products were updated
-        $variantProductsCount = \Modules\CatalogManagement\app\Models\Product::where('configuration_type', 'variants')->count();
-        \Illuminate\Support\Facades\Log::info("Products updated to variants: {$productsUpdatedCount}, Total variant products: {$variantProductsCount}");
+        // // Log how many products were updated
+        // $variantProductsCount = \Modules\CatalogManagement\app\Models\Product::where('configuration_type', 'variants')->count();
+        // \Illuminate\Support\Facades\Log::info("Products updated to variants: {$productsUpdatedCount}, Total variant products: {$variantProductsCount}");
     
         try {
         // Seeders in order of dependency
@@ -168,10 +168,15 @@ Route::get('seeder', function () {
             //     'name' => 'Vendor Seeder',
             //     'description' => 'Creates vendors with country_id and translations',
             // ],
+            // [
+            //     'class' => OrderStageSeeder::class,
+            //     'name' => 'Order Stage Seeder',
+            //     'description' => 'Creates order stages',
+            // ],
             [
-                'class' => OrderStageSeeder::class,
-                'name' => 'Order Stage Seeder',
-                'description' => 'Creates order stages',
+                'class' => \Database\Seeders\ProductVariantSeeder::class,
+                'name' => 'Product Variant Seeder',
+                'description' => 'Creates ProductVariant records for products with VendorProductVariants',
             ],
             // [
             //     'class' => AutoProductSeeder::class,
@@ -193,11 +198,11 @@ Route::get('seeder', function () {
             //     'name' => 'Order Seeder',
             //     'description' => 'Creates 30 sample orders with products, pricing, and shipping',
             // ],
-            [
-                'class' => SyncVendorUsersSeeder::class,
-                'name' => 'SyncVendorUsersSeeder',
-                'description' => 'Update Vendor Users',
-            ],
+            // [
+            //     'class' => SyncVendorUsersSeeder::class,
+            //     'name' => 'SyncVendorUsersSeeder',
+            //     'description' => 'Update Vendor Users',
+            // ],
             // [
             //     'class' => VendorProductTaxSeeder::class,
             //     'name' => 'VendorProductTaxSeeder',
@@ -247,8 +252,6 @@ Route::get('seeder', function () {
             'message' => 'All seeders completed!',
             'total_duration' => $totalDuration . 's',
             'seeders_count' => count($seeders),
-            'products_updated_to_variants' => $productsUpdatedCount,
-            'total_variant_products' => $variantProductsCount,
             'results' => $results,
         ]);
 

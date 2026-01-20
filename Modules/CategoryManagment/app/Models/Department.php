@@ -160,6 +160,9 @@ class Department extends BaseModel
         if (isset($filters['view_status']) && $filters['view_status'] !== '') {
             $query->where('view_status', $filters['view_status']);
         }
+        if (isset($filters['ids'])) {
+            $query->whereIn('id', $filters['ids']);
+        }
         
         return $query;
     }

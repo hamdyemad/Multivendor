@@ -582,7 +582,25 @@
 
                                 <span class="badge badge-round ms-1"
                                     style="<?php echo e(getBadgeStyle(isMenuActive('admin.products.bank', $currentRoute))); ?>">
-                                    <?php echo e(\Modules\CatalogManagement\app\Models\Product::where('type', 'bank')->count()); ?>
+                                    <?php
+                                        $bankProductsQuery = \Modules\CatalogManagement\app\Models\Product::where('type', 'bank');
+                                        
+                                        // Filter by vendor's departments if user is a vendor
+                                        if (isVendor()) {
+                                            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById ?? auth()->user()->vendor;
+                                            if ($vendor) {
+                                                $departmentIds = $vendor->departments()->pluck('departments.id')->toArray();
+                                                if (!empty($departmentIds)) {
+                                                    $bankProductsQuery->whereIn('department_id', $departmentIds);
+                                                } else {
+                                                    $bankProductsQuery->whereRaw('1 = 0');
+                                                }
+                                            }
+                                        }
+                                        
+                                        $bankProductsCount = $bankProductsQuery->count();
+                                    ?>
+                                    <?php echo e($bankProductsCount); ?>
 
                                 </span>
                             </a>

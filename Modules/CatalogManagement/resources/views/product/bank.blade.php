@@ -49,55 +49,20 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="brand_filter" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-tag-alt me-1"></i>
-                                                {{ __('catalogmanagement::product.brand') }}
-                                            </label>
-                                            <select
-                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="brand_filter">
-                                                <option value="">{{ __('common.all') }}</option>
-                                                @foreach ($brands as $brand)
-                                                    <option value="{{ $brand['id'] }}">{{ $brand['name'] }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="category_filter" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-folder me-1"></i>
-                                                {{ __('catalogmanagement::product.category') }}
-                                            </label>
-                                            <select
-                                                class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                id="category_filter">
-                                                <option value="">{{ __('common.all') }}</option>
-                                                @foreach ($categories as $category)
-                                                    <option value="{{ $category['id'] }}">{{ $category['name'] }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-
                                     @can('products.bank.change-activation')
                                         <div class="col-md-3">
-                                            <div class="form-group">
-                                                <label for="active" class="il-gray fs-14 fw-500 mb-10">
-                                                    <i class="uil uil-check-circle me-1"></i>
-                                                    {{ __('common.active_status') }}
-                                                </label>
-                                                <select
-                                                    class="select2 form-control ih-medium ip-gray radius-xs b-light px-15 form-select"
-                                                    id="active">
-                                                    <option value="">{{ __('common.all') }}</option>
-                                                    <option value="1">{{ __('common.active') }}</option>
-                                                    <option value="2">{{ __('common.inactive') }}</option>
-                                                </select>
-                                            </div>
+                                            <x-custom-select 
+                                                name="active" 
+                                                id="active"
+                                                :label="__('common.active_status')"
+                                                icon="uil-check-circle"
+                                                :options="[
+                                                    ['id' => '1', 'name' => __('common.active')],
+                                                    ['id' => '2', 'name' => __('common.inactive')]
+                                                ]"
+                                                :selected="request('active')"
+                                                :placeholder="__('common.all')"
+                                            />
                                         </div>
                                     @endcan
 
@@ -153,12 +118,6 @@
                                     <th><span
                                             class="userDatatable-title">{{ __('catalogmanagement::product.product_information') }}</span>
                                     </th>
-                                    <th><span
-                                            class="userDatatable-title">{{ __('catalogmanagement::product.brand') }}</span>
-                                    </th>
-                                    <th><span
-                                            class="userDatatable-title">{{ __('catalogmanagement::product.category') }}</span>
-                                    </th>
                                     <th><span class="userDatatable-title">{{ __('common.activation') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('common.created_at') }}</span></th>
                                     @can('products.bank')
@@ -203,10 +162,8 @@
                     url: '{{ route('admin.products.bank.datatable') }}',
                     data: function(d) {
                         d.search = $('#search').val();
-                        d.brand_id = $('#brand_filter').val();
-                        d.category_id = $('#category_filter').val();
                         @can('products.bank.change-activation')
-                            d.active = $('#active').val();
+                            d.active = typeof CustomSelect !== 'undefined' && document.getElementById('active') ? CustomSelect.getValue('active') : '';
                         @endcan
                         d.created_date_from = $('#created_date_from').val();
                         d.created_date_to = $('#created_date_to').val();
@@ -230,6 +187,7 @@
                                 if (!data) return '<span class="text-muted">—</span>';
                                 let html = '<div class="product-info-container">';
 
+                                // Product Names
                                 if (data.name_en && data.name_en !== '-') {
                                     html += `<div class="product-name-item mb-2">
                                         <span class="language-badge badge bg-primary text-white px-2 py-1 me-2 rounded-pill fw-bold" style="font-size: 10px;">EN</span>
@@ -238,36 +196,60 @@
                                 }
 
                                 if (data.name_ar && data.name_ar !== '-') {
-                                    html += `<div class="product-name-item">
+                                    html += `<div class="product-name-item mb-2">
                                         <span class="language-badge badge bg-success text-white px-2 py-1 me-2 rounded-pill fw-bold" style="font-size: 10px;">AR</span>
                                         <span class="product-name text-dark fw-semibold" dir="rtl">${$('<div/>').text(data.name_ar).html()}</span>
                                     </div>`;
                                 }
 
+                                // Additional Information (Department, Brand, Category, Sub-Category)
+                                html += '<div class="product-meta mt-2">';
+                                // Brand
+                                if (row.brand?.name) {
+                                    html += `<div class="mb-1">
+                                        <span class="text-muted me-1" style="font-size: 11px;">{{ __('catalogmanagement::product.brand') }}:</span>
+                                        <span class="badge badge-lg badge-round bg-info text-white px-2 py-1" style="font-size: 11px;">
+                                            <i class="uil uil-tag-alt me-1"></i>${$('<div/>').text(row.brand.name).html()}
+                                        </span>
+                                    </div>`;
+                                }
+                                
+                                // Department
+                                if (row.department?.name) {
+                                    html += `<div class="mb-1">
+                                        <span class="text-muted me-1" style="font-size: 11px;">{{ __('catalogmanagement::product.department') }}:</span>
+                                        <span class="badge badge-lg badge-round bg-secondary text-white px-2 py-1" style="font-size: 11px;">
+                                            <i class="uil uil-building me-1"></i>${$('<div/>').text(row.department.name).html()}
+                                        </span>
+                                    </div>`;
+                                }
+                                
+
+                                // Category
+                                if (row.category?.name) {
+                                    html += `<div class="mb-1">
+                                        <span class="text-muted me-1" style="font-size: 11px;">{{ __('catalogmanagement::product.category') }}:</span>
+                                        <span class="badge badge-lg badge-round bg-secondary text-white px-2 py-1" style="font-size: 11px;">
+                                            <i class="uil uil-folder me-1"></i>${$('<div/>').text(row.category.name).html()}
+                                        </span>
+                                    </div>`;
+                                }
+                                
+                                // Sub-Category
+                                if (row.sub_category?.name) {
+                                    html += `<div class="mb-1">
+                                        <span class="text-muted me-1" style="font-size: 11px;">{{ __('catalogmanagement::product.sub_category') }}:</span>
+                                        <span class="badge badge-lg badge-round bg-secondary px-2 py-1" style="font-size: 11px;">
+                                            <i class="uil uil-folder-open me-1"></i>${$('<div/>').text(row.sub_category.name).html()}
+                                        </span>
+                                    </div>`;
+                                }
+                                
+                                html += '</div>';
                                 html += '</div>';
                                 return html;
                             },
                             className: 'text-start'
-                        },
-                        {
-                            data: 'brand',
-                            name: 'brand',
-                            searchable: false,
-                            orderable: false,
-                            render: function(data) {
-                                if (!data?.name) return '<span class="text-muted">—</span>';
-                                return `<span class="badge badge-info badge-round badge-lg">${$('<div/>').text(data.name).html()}</span>`;
-                            }
-                        },
-                        {
-                            data: 'category',
-                            name: 'category',
-                            searchable: false,
-                            orderable: false,
-                            render: function(data) {
-                                if (!data?.name) return '<span class="text-muted">—</span>';
-                                return `<span class="badge badge-secondary badge-round badge-lg">${$('<div/>').text(data.name).html()}</span>`;
-                            }
                         }
                     ];
 
@@ -361,7 +343,7 @@
                 pageLength: 10,
                 lengthMenu: [10, 25, 50, 100],
                 order: [
-                    [5, 'desc']
+                    [3, 'desc']
                 ],
                 language: {
                     lengthMenu: "{{ __('common.show') ?? 'Show' }} _MENU_",
@@ -403,13 +385,12 @@
 
             // Filters
             @can('products.bank.change-activation')
-                $('#brand_filter, #category_filter, #active').on('select2:select select2:clear change', function() {
-                    table.ajax.reload();
-                });
-            @else
-                $('#brand_filter, #category_filter').on('select2:select select2:clear change', function() {
-                    table.ajax.reload();
-                });
+                const activeEl = document.getElementById('active');
+                if (activeEl) {
+                    activeEl.addEventListener('change', function(e) {
+                        table.ajax.reload();
+                    });
+                }
             @endcan
 
             // Date filters
@@ -421,9 +402,9 @@
             $('#resetFilters').on('click', function() {
                 $('#search').val('');
                 @can('products.bank.change-activation')
-                    $('#brand_filter, #category_filter, #active').val(null).trigger('change');
-                @else
-                    $('#brand_filter, #category_filter').val(null).trigger('change');
+                    if (typeof CustomSelect !== 'undefined' && document.getElementById('active')) {
+                        CustomSelect.clear('active');
+                    }
                 @endcan
                 $('#created_date_from, #created_date_to').val('');
                 table.ajax.reload();

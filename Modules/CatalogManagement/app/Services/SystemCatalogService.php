@@ -34,6 +34,17 @@ class SystemCatalogService
             $searchFilters['search'] = $filters['search'];
         }
 
+        // Filter by vendor's departments if user is a vendor
+        if (auth()->check() && isVendor()) {
+            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById ?? auth()->user()->vendor;
+            if ($vendor) {
+                $departmentIds = $vendor->departments()->pluck('departments.id')->toArray();
+                if (!empty($departmentIds)) {
+                    $searchFilters['ids'] = $departmentIds;
+                }
+            }
+        }
+
         $paginated = $this->departmentService->getAllDepartments($searchFilters, $perPage);
         
         return [
@@ -58,6 +69,18 @@ class SystemCatalogService
         
         if (!empty($filters['search'])) {
             $searchFilters['search'] = $filters['search'];
+        }
+
+        // Filter by vendor's departments if user is a vendor
+        $vendorDepartmentIds = [];
+        if (auth()->check() && isVendor()) {
+            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById ?? auth()->user()->vendor;
+            if ($vendor) {
+                $vendorDepartmentIds = $vendor->departments()->pluck('departments.id')->toArray();
+                if (!empty($vendorDepartmentIds)) {
+                    $searchFilters['department_ids'] = $vendorDepartmentIds;
+                }
+            }
         }
 
         $paginated = $this->categoryService->getAllCategories($searchFilters, $perPage);

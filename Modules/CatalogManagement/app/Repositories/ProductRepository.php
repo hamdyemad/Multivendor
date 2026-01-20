@@ -13,6 +13,7 @@ use Modules\CatalogManagement\app\Models\VendorProduct;
 use App\Models\UserType;
 use Illuminate\Support\Facades\Auth;
 use Modules\CatalogManagement\app\Http\Resources\BankProductResource;
+use Modules\CatalogManagement\app\Models\ProductVariant;
 use Modules\CatalogManagement\app\Models\Tax;
 
 class ProductRepository implements ProductInterface
@@ -50,7 +51,6 @@ class ProductRepository implements ProductInterface
             'type' => Product::TYPE_BANK,
             'is_active' => true,
         ]);
-        \Log::info('bankFilters', $bankFilters);
 
         $query = Product::with($with)->filter($bankFilters);
         
@@ -65,6 +65,15 @@ class ProductRepository implements ProductInterface
                 if (!empty($departmentIds)) {
                     $query->whereIn('department_id', $departmentIds);
                 }
+                
+                // Exclude products that this vendor already has
+                $query->whereNotExists(function ($subQuery) use ($vendorId) {
+                    $subQuery->select('id')
+                        ->from('vendor_products')
+                        ->whereColumn('vendor_products.product_id', 'products.id')
+                        ->where('vendor_products.vendor_id', $vendorId)
+                        ->whereNull('vendor_products.deleted_at');
+                });
             }
         }
         
@@ -79,6 +88,15 @@ class ProductRepository implements ProductInterface
                 if (!empty($departmentIds)) {
                     $query->whereIn('department_id', $departmentIds);
                 }
+                
+                // Exclude products that this vendor already has
+                $query->whereNotExists(function ($subQuery) use ($vendorId) {
+                    $subQuery->select('id')
+                        ->from('vendor_products')
+                        ->whereColumn('vendor_products.product_id', 'products.id')
+                        ->where('vendor_products.vendor_id', $vendorId)
+                        ->whereNull('vendor_products.deleted_at');
+                });
             }
         }
         
@@ -601,16 +619,6 @@ class ProductRepository implements ProductInterface
                         $incomingVariantIds[] = $variantData['id'];
                         $vendorProductVariant = $existingProductVariant;
                     } else {
-                        // Create new global variant if it doesn't exist (for regular product creation/update)
-                        // Skip this for bank products or bank imports where global variants already exist
-                        $isBankImport = (isset($data['is_bank_import']) && $data['is_bank_import']) || (isset($data['bank_product_id']) && !empty($data['bank_product_id']));
-
-                        if (!$existingProductVariant && !$isBankImport) {
-                            $vendorProduct->product->variants()->create([
-                                'variant_configuration_id' => $variantConfigId,
-                            ]);
-                        }
-
                         // Prepare variant data with discount logic for creation
                         $hasVariantDiscount = filter_var($variantData['has_discount'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
@@ -788,9 +796,9 @@ class ProductRepository implements ProductInterface
         } elseif (in_array($userType, UserType::vendorIds())) {
             // Vendor can only create products for themselves
             if($currentUser->vendor_id) {
-                $vendor_id = $currentUser->vendor_id;
+                return $currentUser->vendor_id;
             } else {
-                $vendor = $currentUser->vendor;
+                $vendor = $currentUser->vendorByUser ?? $currentUser->vendorById ?? $currentUser->vendor;
                 return $vendor ? $vendor->id : null;
             }
         }
@@ -1090,7 +1098,9 @@ class ProductRepository implements ProductInterface
     public function moveProductToBank(int $vendorProductId)
     {
         return DB::transaction(function () use ($vendorProductId) {
-            $vendorProduct = VendorProduct::withoutGlobalScopes()->findOrFail($vendorProductId);
+            $vendorProduct = VendorProduct::withoutGlobalScopes()
+                ->with(['variants'])
+                ->findOrFail($vendorProductId);
             $product = Product::withoutGlobalScopes()->find($vendorProduct->product_id);
 
             if (!$product) {
@@ -1113,16 +1123,40 @@ class ProductRepository implements ProductInterface
                 ->where('id', $product->id)
                 ->update(['type' => 'bank']);
 
+            if ($updated === 0) {
+                throw new \Exception('Failed to update product type');
+            }
+
+            // Create ProductVariant records from VendorProductVariant records
+            if ($vendorProduct->variants && $vendorProduct->variants->count() > 0) {
+                foreach ($vendorProduct->variants as $vendorVariant) {
+                    // Check if ProductVariant already exists for this configuration
+                    $existingProductVariant = ProductVariant::where('product_id', $product->id)
+                        ->where('variant_configuration_id', $vendorVariant->variant_configuration_id)
+                        ->first();
+
+                    if (!$existingProductVariant) {
+                        // Create new ProductVariant (without SKU - SKU is only in vendor_product_variants)
+                        ProductVariant::create([
+                            'product_id' => $product->id,
+                            'variant_configuration_id' => $vendorVariant->variant_configuration_id,
+                        ]);
+
+                        Log::info('Created ProductVariant for bank product', [
+                            'product_id' => $product->id,
+                            'variant_configuration_id' => $vendorVariant->variant_configuration_id,
+                        ]);
+                    }
+                }
+            }
+
             Log::info('Product moved to bank', [
                 'product_id' => $product->id,
                 'vendor_product_id' => $vendorProductId,
                 'moved_by' => auth()->id(),
                 'rows_updated' => $updated,
+                'variants_created' => $vendorProduct->variants->count(),
             ]);
-
-            if ($updated === 0) {
-                throw new \Exception('Failed to update product type');
-            }
 
             return ['message' => __('catalogmanagement::product.product_moved_to_bank_successfully')];
         });

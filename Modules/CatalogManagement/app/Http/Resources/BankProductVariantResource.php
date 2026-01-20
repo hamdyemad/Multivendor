@@ -16,9 +16,8 @@ class BankProductVariantResource extends JsonResource
         $variantTree = null;
 
         if ($this->variantConfiguration) {
-            // Get variant key name (e.g., "Color", "Size")
             // Get variant value name (e.g., "Red", "Large")
-            $variant = $this->variantConfiguration->name ?? 'Default';
+            $variantName = $this->variantConfiguration->name ?? 'Default';
 
             // Build recursive tree structure
             $variantTree = $this->buildVariantTree($this->variantConfiguration);
@@ -26,11 +25,8 @@ class BankProductVariantResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'name' => $variant,
-            'sku' => $this->sku ?? \Modules\CatalogManagement\app\Models\VendorProductVariant::whereHas('vendorProduct', function($q) {
-                $q->where('product_id', $this->product_id)
-                  ->where('vendor_id', $this->product->vendor_id);
-            })->where('variant_configuration_id', $this->variant_configuration_id)->first()?->sku,
+            'name' => $variantName,
+            'sku' => null, // SKU is stored in vendor_product_variants, not product_variants
             'key' => [
                 'id' => $this->variantConfiguration->key->id ?? null,
                 'name' => $this->variantConfiguration->key->name ?? null,

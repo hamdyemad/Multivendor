@@ -99,4 +99,18 @@ class Category extends BaseModel
             ->withTimestamps();
     }
 
+
+    public function scopeFilter(Builder $query, array $filters)
+    {
+        // Call parent filter scope from HasFilterScopes trait
+        parent::scopeFilter($query, $filters);
+
+        if (isset($filters['department_ids'])) {
+            $query->whereHas('department', function($q) use($filters) {
+                $q->whereIn('id', $filters['department_ids']);
+            });
+        }
+        
+        return $query;
+    }
 }

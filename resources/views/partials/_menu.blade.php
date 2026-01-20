@@ -557,7 +557,25 @@
                                 {{ trans('menu.products.bank_products') }}
                                 <span class="badge badge-round ms-1"
                                     style="{{ getBadgeStyle(isMenuActive('admin.products.bank', $currentRoute)) }}">
-                                    {{ \Modules\CatalogManagement\app\Models\Product::where('type', 'bank')->count() }}
+                                    @php
+                                        $bankProductsQuery = \Modules\CatalogManagement\app\Models\Product::where('type', 'bank');
+                                        
+                                        // Filter by vendor's departments if user is a vendor
+                                        if (isVendor()) {
+                                            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById ?? auth()->user()->vendor;
+                                            if ($vendor) {
+                                                $departmentIds = $vendor->departments()->pluck('departments.id')->toArray();
+                                                if (!empty($departmentIds)) {
+                                                    $bankProductsQuery->whereIn('department_id', $departmentIds);
+                                                } else {
+                                                    $bankProductsQuery->whereRaw('1 = 0');
+                                                }
+                                            }
+                                        }
+                                        
+                                        $bankProductsCount = $bankProductsQuery->count();
+                                    @endphp
+                                    {{ $bankProductsCount }}
                                 </span>
                             </a>
                         </li>

@@ -341,8 +341,22 @@ class ProductAction {
             $languages = $this->languageService->getAll();
 
             // Build query for bank products (directly from Product table)
-            $query = Product::with(['brand', 'category', 'translations'])
+            $query = Product::with(['brand', 'category', 'department', 'subCategory', 'translations'])
                 ->where('type', Product::TYPE_BANK);
+
+            // Filter by vendor's departments if user is a vendor
+            if (auth()->check() && isVendor()) {
+                $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById ?? auth()->user()->vendor;
+                if ($vendor) {
+                    $departmentIds = $vendor->departments()->pluck('departments.id')->toArray();
+                    if (!empty($departmentIds)) {
+                        $query->whereIn('department_id', $departmentIds);
+                    } else {
+                        // If vendor has no departments, show no products
+                        $query->whereRaw('1 = 0');
+                    }
+                }
+            }
 
             // Apply filters
             if (!empty($filters['search'])) {
@@ -387,7 +401,22 @@ class ProductAction {
             }
 
             // Get total count before pagination
-            $totalRecords = Product::where('type', Product::TYPE_BANK)->count();
+            $totalRecordsQuery = Product::where('type', Product::TYPE_BANK);
+            
+            // Apply vendor department filter to total count as well
+            if (auth()->check() && isVendor()) {
+                $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById ?? auth()->user()->vendor;
+                if ($vendor) {
+                    $departmentIds = $vendor->departments()->pluck('departments.id')->toArray();
+                    if (!empty($departmentIds)) {
+                        $totalRecordsQuery->whereIn('department_id', $departmentIds);
+                    } else {
+                        $totalRecordsQuery->whereRaw('1 = 0');
+                    }
+                }
+            }
+            
+            $totalRecords = $totalRecordsQuery->count();
             $filteredRecords = $query->count();
 
             // Apply pagination
@@ -414,9 +443,17 @@ class ProductAction {
                         'id' => $product->brand->id,
                         'name' => truncateString($product->brand->name),
                     ] : null,
+                    'department' => $product->department ? [
+                        'id' => $product->department->id,
+                        'name' => truncateString($product->department->name),
+                    ] : null,
                     'category' => $product->category ? [
                         'id' => $product->category->id,
                         'name' => truncateString($product->category->name),
+                    ] : null,
+                    'sub_category' => $product->subCategory ? [
+                        'id' => $product->subCategory->id,
+                        'name' => truncateString($product->subCategory->name),
                     ] : null,
                     'active' => $product->is_active, // Product.is_active for bank products
                     'product_type' => $product->type,

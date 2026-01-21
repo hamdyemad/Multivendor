@@ -1124,6 +1124,15 @@ class ProductRepository implements ProductInterface
             // Create ProductVariant records from VendorProductVariant records
             if ($vendorProduct->variants && $vendorProduct->variants->count() > 0) {
                 foreach ($vendorProduct->variants as $vendorVariant) {
+                    // Skip variants without configuration (simple products)
+                    if (is_null($vendorVariant->variant_configuration_id)) {
+                        Log::info('Skipping simple product variant (no configuration)', [
+                            'product_id' => $product->id,
+                            'vendor_variant_id' => $vendorVariant->id,
+                        ]);
+                        continue;
+                    }
+
                     // Check if ProductVariant already exists for this configuration
                     $existingProductVariant = ProductVariant::where('product_id', $product->id)
                         ->where('variant_configuration_id', $vendorVariant->variant_configuration_id)

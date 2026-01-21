@@ -163,4 +163,5 @@ return [
     'amount' => 'Amount',
     'count' => 'Count',
     'this_month' => 'This Month',
+    'net_remaining_after_refunds' => 'Net Remaining After Refunds',
 ];

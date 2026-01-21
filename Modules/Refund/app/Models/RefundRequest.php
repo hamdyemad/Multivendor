@@ -96,6 +96,7 @@ class RefundRequest extends BaseModel
         'vendor_discounts_amount',
         'promo_code_amount',
         'return_shipping_cost',
+        'customer_pays_return_shipping',
         'points_used',
         'points_to_deduct',
         'total_refund_amount',
@@ -116,6 +117,7 @@ class RefundRequest extends BaseModel
         'vendor_discounts_amount' => 'decimal:2',
         'promo_code_amount' => 'decimal:2',
         'return_shipping_cost' => 'decimal:2',
+        'customer_pays_return_shipping' => 'boolean',
         'points_used' => 'decimal:2',
         'points_to_deduct' => 'integer',
         'total_refund_amount' => 'decimal:2',
@@ -171,6 +173,27 @@ class RefundRequest extends BaseModel
     public function vendor(): BelongsTo
     {
         return $this->belongsTo(Vendor::class);
+    }
+
+    /**
+     * Check if customer should pay return shipping
+     * Uses the value saved in the refund request (snapshot at creation time)
+     */
+    public function shouldCustomerPayReturnShipping(): bool
+    {
+        return (bool) $this->customer_pays_return_shipping;
+    }
+    
+    /**
+     * Get vendor refund settings (for reference only, not used in calculations)
+     */
+    public function getVendorRefundSettings()
+    {
+        if (!$this->vendor_id) {
+            return null;
+        }
+        
+        return VendorRefundSetting::getForVendor($this->vendor_id);
     }
 
     /**
@@ -311,12 +334,29 @@ class RefundRequest extends BaseModel
         $this->total_discount_amount = $items->sum('discount_amount');
         $this->total_shipping_amount = $items->sum('shipping_amount');
         
-        // Calculate final refund amount
-        $this->total_refund_amount = $this->total_products_amount 
+        // Calculate subtotal from items
+        $subtotal = $this->total_products_amount 
             + $this->total_tax_amount 
             + $this->total_shipping_amount
-            - $this->total_discount_amount
-            - ($this->return_shipping_cost ?? 0);
+            - $this->total_discount_amount;
+        
+        // Add vendor fees (customer should get these back)
+        $subtotal += ($this->vendor_fees_amount ?? 0);
+        
+        // Subtract vendor discounts (customer got discount, so refund less)
+        $subtotal -= ($this->vendor_discounts_amount ?? 0);
+        
+        // Subtract promo code amount (customer used promo, so refund less)
+        $subtotal -= ($this->promo_code_amount ?? 0);
+        
+        // Subtract points used (customer used points, so refund less)
+        $subtotal -= ($this->points_used ?? 0);
+        
+        // Subtract return shipping cost from refund amount
+        // Note: If vendor pays return shipping, return_shipping_cost is already 0 in DB
+        // If customer pays, return_shipping_cost contains the actual cost
+        // So we always subtract it (either 0 or the actual cost)
+        $this->total_refund_amount = $subtotal - ($this->return_shipping_cost ?? 0);
         
         $this->save();
     }

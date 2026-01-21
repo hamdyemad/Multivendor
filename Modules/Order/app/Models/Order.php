@@ -57,7 +57,6 @@ class Order extends BaseModel
         'stage_id',
         'city_id',
         'region_id',
-        'refunded_amount',
     ];
 
     /**
@@ -72,7 +71,6 @@ class Order extends BaseModel
         'total_discounts' => 'decimal:2',
         'points_used' => 'decimal:2',
         'points_cost' => 'decimal:2',
-        'refunded_amount' => 'decimal:2',
         'customer_promo_code_value' => 'decimal:2',
         'customer_promo_code_amount' => 'decimal:2',
     ];

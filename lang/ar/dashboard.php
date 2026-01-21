@@ -163,4 +163,5 @@ return [
     'amount' => 'المبلغ',
     'count' => 'العدد',
     'this_month' => 'هذا الشهر',
+    'net_remaining_after_refunds' => 'صافي المتبقي بعد المرتجعات',
 ];

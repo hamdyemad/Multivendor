@@ -153,12 +153,30 @@ class VendorProductVariant extends Model
     }
 
     /**
-     * Get remaining stock (total - booked - allocated - fulfilled)
+     * Get total refunded stock (refunded orders)
+     * Not in appends to avoid N+1 - call explicitly when needed
+     */
+    public function getRefundedStockAttribute()
+    {
+        if (array_key_exists('refunded_stock_sum', $this->attributes)) {
+            return (int) ($this->attributes['refunded_stock_sum'] ?? 0);
+        }
+
+        return (int) StockBooking::where('vendor_product_variant_id', $this->id)
+            ->where('status', StockBooking::STATUS_RELEASED)
+            ->sum('booked_quantity');
+    }
+
+    /**
+     * Get remaining stock (total - booked - allocated - fulfilled + refunded)
+     * Refunded stock is added back because it was previously counted in fulfilled
      * Not in appends to avoid N+1 - call explicitly when needed
      */
     public function getRemainingStockAttribute()
     {
-        return max(0, $this->total_stock - $this->booked_stock - $this->allocated_stock - $this->fulfilled_stock);
+        // Remaining = Total - (Booked + Allocated + Fulfilled - Refunded)
+        // OR: Remaining = Total - Booked - Allocated - Fulfilled + Refunded
+        return max(0, $this->total_stock - $this->booked_stock - $this->allocated_stock - $this->fulfilled_stock + $this->refunded_stock);
     }
 
     public function getVariantNameAttribute()

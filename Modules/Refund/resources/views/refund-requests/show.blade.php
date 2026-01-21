@@ -161,6 +161,24 @@
                                         </div>
                                         @endif
 
+                                        {{-- Return Shipping Responsibility --}}
+                                        <div class="col-md-12">
+                                            <div class="view-item">
+                                                <label class="il-gray fs-14 fw-500 mb-10">{{ trans('refund::refund.fields.return_shipping_responsibility') }}</label>
+                                                <p class="fs-15">
+                                                    @if($refundRequest->shouldCustomerPayReturnShipping())
+                                                        <span class="badge badge-lg badge-round badge-warning badge-lg">
+                                                            <i class="uil uil-user me-1"></i>{{ trans('refund::refund.customer_pays_shipping') }}
+                                                        </span>
+                                                    @else
+                                                        <span class="badge badge-lg badge-round badge-success badge-lg">
+                                                            <i class="uil uil-store me-1"></i>{{ trans('refund::refund.vendor_pays_shipping') }}
+                                                        </span>
+                                                    @endif
+                                                </p>
+                                            </div>
+                                        </div>
+
                                         {{-- Customer Notes --}}
                                         @if($refundRequest->customer_notes)
                                         <div class="col-md-12">
@@ -249,6 +267,75 @@
                                             </div>
                                         </div>
 
+                                        {{-- Return Shipping Cost --}}
+                                        @if($refundRequest->return_shipping_cost > 0)
+                                        <div class="col-md-6 mb-3">
+                                            <div class="p-3 border rounded" style="background: {{ $refundRequest->shouldCustomerPayReturnShipping() ? '#fff3cd' : '#d4edda' }};">
+                                                <small class="text-muted d-block mb-1">{{ trans('refund::refund.fields.return_shipping_cost') }}</small>
+                                                <div class="fw-bold {{ $refundRequest->shouldCustomerPayReturnShipping() ? 'text-warning' : 'text-success' }}" style="font-size: 18px;">
+                                                    <i class="uil uil-truck me-1"></i>{{ number_format($refundRequest->return_shipping_cost, 2) }} {{ trans('common.currency') ?? 'EGP' }}
+                                                </div>
+                                                <small class="d-block mt-1" style="font-size: 12px;">
+                                                    @if($refundRequest->shouldCustomerPayReturnShipping())
+                                                        <span class="badge badge-warning">{{ trans('refund::refund.customer_pays_shipping') }}</span>
+                                                        <span class="text-muted ms-1">({{ trans('refund::refund.based_on_vendor_settings') }})</span>
+                                                    @else
+                                                        <span class="badge badge-success">{{ trans('refund::refund.vendor_pays_shipping') }}</span>
+                                                        <span class="text-muted ms-1">({{ trans('refund::refund.based_on_vendor_settings') }})</span>
+                                                    @endif
+                                                </small>
+                                            </div>
+                                        </div>
+                                        @endif
+
+                                        {{-- Vendor Fees --}}
+                                        @if($refundRequest->vendor_fees_amount > 0)
+                                        <div class="col-md-6 mb-3">
+                                            <div class="p-3 border rounded" style="background: #e7f3ff;">
+                                                <small class="text-muted d-block mb-1">{{ trans('refund::refund.fields.vendor_fees_amount') }}</small>
+                                                <div class="fw-bold text-info" style="font-size: 18px;">
+                                                    <i class="uil uil-plus-circle me-1"></i>{{ number_format($refundRequest->vendor_fees_amount, 2) }} {{ trans('common.currency') ?? 'EGP' }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
+
+                                        {{-- Vendor Discounts --}}
+                                        @if($refundRequest->vendor_discounts_amount > 0)
+                                        <div class="col-md-6 mb-3">
+                                            <div class="p-3 border rounded" style="background: #f8d7da;">
+                                                <small class="text-muted d-block mb-1">{{ trans('refund::refund.fields.vendor_discounts_amount') }}</small>
+                                                <div class="fw-bold text-danger" style="font-size: 18px;">
+                                                    <i class="uil uil-minus-circle me-1"></i>{{ number_format($refundRequest->vendor_discounts_amount, 2) }} {{ trans('common.currency') ?? 'EGP' }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
+
+                                        {{-- Promo Code Amount --}}
+                                        @if($refundRequest->promo_code_amount > 0)
+                                        <div class="col-md-6 mb-3">
+                                            <div class="p-3 border rounded" style="background: #f8d7da;">
+                                                <small class="text-muted d-block mb-1">{{ trans('refund::refund.fields.promo_code_amount') }}</small>
+                                                <div class="fw-bold text-danger" style="font-size: 18px;">
+                                                    <i class="uil uil-ticket me-1"></i>{{ number_format($refundRequest->promo_code_amount, 2) }} {{ trans('common.currency') ?? 'EGP' }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
+
+                                        {{-- Points Used --}}
+                                        @if($refundRequest->points_used > 0)
+                                        <div class="col-md-6 mb-3">
+                                            <div class="p-3 border rounded" style="background: #f8d7da;">
+                                                <small class="text-muted d-block mb-1">{{ trans('refund::refund.fields.points_used') }}</small>
+                                                <div class="fw-bold text-danger" style="font-size: 18px;">
+                                                    <i class="uil uil-star me-1"></i>{{ number_format($refundRequest->points_used, 2) }} {{ trans('common.currency') ?? 'EGP' }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
+
                                         {{-- Total Refund Amount --}}
                                         <div class="col-md-12 mb-3">
                                             <div class="p-3 border rounded" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
@@ -311,6 +398,142 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        {{-- Points & Accounting Information (Only show if refunded) --}}
+                        @if($refundRequest->status === 'refunded')
+                        <div class="col-md-12">
+                            <div class="card card-holder mt-3">
+                                <div class="card-header">
+                                    <h3>
+                                        <i class="uil uil-chart-line me-1"></i>{{ trans('refund::refund.titles.refund_processing_details') }}
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        {{-- Points Information --}}
+                                        @if($refundRequest->points_used > 0 || $refundRequest->points_to_deduct > 0)
+                                        <div class="col-md-12 mb-3">
+                                            <h5 class="mb-3">
+                                                <i class="uil uil-star me-1"></i>{{ trans('refund::refund.titles.points_information') }}
+                                            </h5>
+                                            <div class="row">
+                                                @if($refundRequest->points_used > 0)
+                                                <div class="col-md-6 mb-2">
+                                                    <div class="p-3 border rounded" style="background: #d4edda;">
+                                                        <small class="text-muted d-block mb-1">{{ trans('refund::refund.fields.points_returned') }}</small>
+                                                        <div class="fw-bold text-success" style="font-size: 16px;">
+                                                            <i class="uil uil-plus-circle me-1"></i>{{ number_format($refundRequest->points_used, 0) }} {{ trans('refund::refund.points') }}
+                                                        </div>
+                                                        <small class="text-muted">{{ trans('refund::refund.points_returned_desc') }}</small>
+                                                    </div>
+                                                </div>
+                                                @endif
+                                                
+                                                @if($refundRequest->points_to_deduct > 0)
+                                                <div class="col-md-6 mb-2">
+                                                    <div class="p-3 border rounded" style="background: #f8d7da;">
+                                                        <small class="text-muted d-block mb-1">{{ trans('refund::refund.fields.points_deducted') }}</small>
+                                                        <div class="fw-bold text-danger" style="font-size: 16px;">
+                                                            <i class="uil uil-minus-circle me-1"></i>{{ number_format($refundRequest->points_to_deduct, 0) }} {{ trans('refund::refund.points') }}
+                                                        </div>
+                                                        <small class="text-muted">{{ trans('refund::refund.points_deducted_desc') }}</small>
+                                                    </div>
+                                                </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        @endif
+                                        
+                                        {{-- Accounting Information --}}
+                                        @php
+                                            $accountingEntry = \Modules\Accounting\app\Models\AccountingEntry::where('order_id', $refundRequest->order_id)
+                                                ->where('type', 'refund')
+                                                ->whereJsonContains('metadata->refund_request_id', $refundRequest->id)
+                                                ->first();
+                                        @endphp
+                                        
+                                        @if($accountingEntry)
+                                        <div class="col-md-12 mb-3">
+                                            <h5 class="mb-3">
+                                                <i class="uil uil-calculator me-1"></i>{{ trans('refund::refund.titles.accounting_information') }}
+                                            </h5>
+                                            <div class="row">
+                                                <div class="col-md-4 mb-2">
+                                                    <div class="p-3 border rounded" style="background: #e7f3ff;">
+                                                        <small class="text-muted d-block mb-1">{{ trans('refund::refund.fields.refund_amount') }}</small>
+                                                        <div class="fw-bold text-info" style="font-size: 16px;">
+                                                            {{ number_format($accountingEntry->amount, 2) }} {{ trans('common.currency') ?? 'EGP' }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-md-4 mb-2">
+                                                    <div class="p-3 border rounded" style="background: #fff3cd;">
+                                                        <small class="text-muted d-block mb-1">{{ trans('refund::refund.fields.commission_returned') }}</small>
+                                                        <div class="fw-bold text-warning" style="font-size: 16px;">
+                                                            {{ number_format($accountingEntry->commission_amount, 2) }} {{ trans('common.currency') ?? 'EGP' }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-md-4 mb-2">
+                                                    <div class="p-3 border rounded" style="background: #d4edda;">
+                                                        <small class="text-muted d-block mb-1">{{ trans('refund::refund.fields.vendor_refund_amount') }}</small>
+                                                        <div class="fw-bold text-success" style="font-size: 16px;">
+                                                            {{ number_format($accountingEntry->vendor_amount, 2) }} {{ trans('common.currency') ?? 'EGP' }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
+                                        
+                                        {{-- Stock Information --}}
+                                        @php
+                                            $stockBookings = \Modules\CatalogManagement\app\Models\StockBooking::where('order_id', $refundRequest->order_id)
+                                                ->where('status', 'released')
+                                                ->where('notes', 'like', '%' . $refundRequest->refund_number . '%')
+                                                ->get();
+                                        @endphp
+                                        
+                                        @if($stockBookings->count() > 0)
+                                        <div class="col-md-12">
+                                            <h5 class="mb-3">
+                                                <i class="uil uil-box me-1"></i>{{ trans('refund::refund.titles.stock_information') }}
+                                            </h5>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-sm">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th>{{ trans('refund::refund.fields.product') }}</th>
+                                                            <th>{{ trans('refund::refund.fields.variant') }}</th>
+                                                            <th>{{ trans('refund::refund.fields.region') }}</th>
+                                                            <th>{{ trans('refund::refund.fields.quantity_released') }}</th>
+                                                            <th>{{ trans('refund::refund.fields.released_at') }}</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach($stockBookings as $booking)
+                                                        <tr>
+                                                            <td>{{ $booking->vendorProductVariant->vendorProduct->product->name ?? '-' }}</td>
+                                                            <td>{{ $booking->vendorProductVariant->variant_name ?? '-' }}</td>
+                                                            <td>{{ $booking->region->name ?? '-' }}</td>
+                                                            <td>
+                                                                <span class="badge badge-success">{{ $booking->quantity }}</span>
+                                                            </td>
+                                                            <td>{{ $booking->updated_at->format('d M, Y h:i A') }}</td>
+                                                        </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
                     </div>
 
                     {{-- History Section --}}

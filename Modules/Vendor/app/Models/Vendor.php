@@ -14,8 +14,6 @@ use App\Models\Attachment;
 use App\Models\Traits\HumanDates;
 use Illuminate\Database\Eloquent\Builder;
 use Modules\AreaSettings\app\Models\Country;
-use app\Models\Language;
-use Illuminate\Support\Facades\DB;
 
 use Modules\CatalogManagement\app\Models\Review;
 use Modules\Order\app\Models\OrderProduct;
@@ -269,6 +267,7 @@ class Vendor extends BaseModel
     /**
      * Get orders price (total transactions) for this vendor
      * Only includes orders where vendor's stage is deliver (from vendor_order_stages)
+     * Considers partial refunds by calculating remaining quantity
      */
     public function getOrdersPriceAttribute()
     {
@@ -419,7 +418,7 @@ class Vendor extends BaseModel
 
     /**
      * Static method to get all vendors statistics using optimized database queries
-     * Replaces in-memory aggregation with single database queries for performance
+     * Considers partial refunds by calculating remaining quantity after refunds
      */
     public static function getVendorsStatistics($countryId = null)
     {
@@ -434,17 +433,18 @@ class Vendor extends BaseModel
                 'total_commission' => number_format(0, 2),
                 'total_sent' => number_format(0, 2),
                 'total_remaining' => number_format(0, 2),
+                'total_transactions' => number_format(0, 2),
             ];
         }
 
-        // Calculate total orders price using pure SQL aggregation
-        // Formula: SUM((price / quantity) * (quantity - COALESCE(refunded_quantity, 0)))
+        // Calculate total orders price considering partial refunds
         $ordersQuery = \Illuminate\Support\Facades\DB::table('order_products as op')
             ->join('orders as o', 'op.order_id', '=', 'o.id')
             ->join('vendor_order_stages as vos', function ($join) {
                 $join->on('vos.order_id', '=', 'o.id')
                      ->on('vos.vendor_id', '=', 'op.vendor_id');
             })
+            // Get total refunded quantity for each order product
             ->leftJoin(\Illuminate\Support\Facades\DB::raw('(
                 SELECT rri.order_product_id, SUM(rri.quantity) as refunded_quantity
                 FROM refund_request_items rri
@@ -462,14 +462,14 @@ class Vendor extends BaseModel
             SUM(
                 CASE 
                     WHEN (op.quantity - COALESCE(refunds.refunded_quantity, 0)) > 0 
-                    THEN (op.price / op.quantity) * (op.quantity - COALESCE(refunds.refunded_quantity, 0))
+                    THEN ((op.price / op.quantity) * (op.quantity - COALESCE(refunds.refunded_quantity, 0)))
                     ELSE 0 
                 END
             ) as products_total,
             SUM(
                 CASE 
                     WHEN (op.quantity - COALESCE(refunds.refunded_quantity, 0)) > 0 
-                    THEN (op.shipping_cost / op.quantity) * (op.quantity - COALESCE(refunds.refunded_quantity, 0))
+                    THEN ((op.shipping_cost / op.quantity) * (op.quantity - COALESCE(refunds.refunded_quantity, 0)))
                     ELSE 0 
                 END
             ) as shipping_total
@@ -516,11 +516,10 @@ class Vendor extends BaseModel
         $promoCodeTotal = $sharesResult->promo_code_total ?? 0;
         $pointsTotal = $sharesResult->points_total ?? 0;
 
-        // Calculate total orders price
-        $totalOrdersPrice = $productsTotal + $shippingTotal + $feesTotal - $discountsTotal - $promoCodeTotal - $pointsTotal;
+        // Calculate total orders price (total transactions) after refunds
+        $totalTransactions = $productsTotal + $shippingTotal + $feesTotal - $discountsTotal - $promoCodeTotal - $pointsTotal;
 
-        // Calculate total commission using pure SQL aggregation
-        // Formula: SUM(((price + shipping) / quantity * remaining_quantity) * commission / 100)
+        // Calculate total commission considering partial refunds
         $commissionQuery = \Illuminate\Support\Facades\DB::table('order_products as op')
             ->join('orders as o', 'op.order_id', '=', 'o.id')
             ->join('vendor_order_stages as vos', function ($join) {
@@ -530,6 +529,7 @@ class Vendor extends BaseModel
             ->leftJoin('vendor_products as vp', 'op.vendor_product_id', '=', 'vp.id')
             ->leftJoin('products as p', 'vp.product_id', '=', 'p.id')
             ->leftJoin('departments as d', 'p.department_id', '=', 'd.id')
+            // Get total refunded quantity for each order product
             ->leftJoin(\Illuminate\Support\Facades\DB::raw('(
                 SELECT rri.order_product_id, SUM(rri.quantity) as refunded_quantity
                 FROM refund_request_items rri
@@ -564,8 +564,8 @@ class Vendor extends BaseModel
 
         $totalCommission = $commissionResult->total_commission ?? 0;
 
-        // Total balance = orders price - commission
-        $totalBalance = $totalOrdersPrice - $totalCommission;
+        // Total balance = transactions - commission
+        $totalBalance = $totalTransactions - $totalCommission;
 
         // Get total sent (accepted withdrawals) using aggregation
         $withdrawQuery = \Illuminate\Support\Facades\DB::table('withdraws')
@@ -577,25 +577,7 @@ class Vendor extends BaseModel
         
         $totalSent = $withdrawQuery->sum('sent_amount') ?? 0;
 
-        // Get total refunded amount for delivered orders
-        // Note: We should NOT subtract refund amounts here because they're already
-        // accounted for in the balance calculation through refunded quantities
-        // $refundQuery = \Illuminate\Support\Facades\DB::table('refund_requests as rr')
-        //     ->join('orders as o', 'rr.order_id', '=', 'o.id')
-        //     ->join('vendor_order_stages as vos', function ($join) {
-        //         $join->on('vos.order_id', '=', 'o.id')
-        //              ->on('vos.vendor_id', '=', 'rr.vendor_id');
-        //     })
-        //     ->where('vos.stage_id', $deliverStageId)
-        //     ->where('rr.status', 'refunded');
-        
-        // if ($countryId) {
-        //     $refundQuery->where('o.country_id', $countryId);
-        // }
-        
-        // $totalRefunded = $refundQuery->sum('rr.total_refund_amount') ?? 0;
-
-        // Total remaining = balance - sent (refunds already deducted in balance calculation)
+        // Total remaining = balance - sent
         $totalRemaining = $totalBalance - $totalSent;
 
         return [
@@ -603,6 +585,7 @@ class Vendor extends BaseModel
             'total_commission' => number_format($totalCommission, 2),
             'total_sent' => number_format($totalSent, 2),
             'total_remaining' => number_format($totalRemaining, 2),
+            'total_transactions' => number_format($totalTransactions, 2),
         ];
     }
 

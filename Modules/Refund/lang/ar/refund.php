@@ -23,6 +23,10 @@ return [
         'vendor_refund_settings' => 'إعدادات الاسترجاع للمورد',
         'manage_vendor_refund_settings' => 'إدارة إعدادات الاسترجاع للموردين',
         'edit_vendor_refund_settings' => 'تعديل إعدادات الاسترجاع للمورد',
+        'refund_processing_details' => 'تفاصيل معالجة الاسترجاع',
+        'points_information' => 'معلومات النقاط',
+        'accounting_information' => 'المعلومات المحاسبية',
+        'stock_information' => 'معلومات المخزون',
     ],
 
     'statistics' => [
@@ -48,6 +52,10 @@ return [
         'total_shipping_amount' => 'قيمة الشحن',
         'total_tax_amount' => 'قيمة الضريبة',
         'total_discount_amount' => 'قيمة الخصم',
+        'vendor_fees_amount' => 'رسوم المورد',
+        'vendor_discounts_amount' => 'خصومات المورد',
+        'promo_code_amount' => 'خصم الكوبون',
+        'points_used' => 'النقاط المستخدمة',
         'return_shipping_cost' => 'تكلفة شحن الإرجاع',
         'reason' => 'السبب',
         'customer_notes' => 'ملاحظات العميل',
@@ -64,7 +72,18 @@ return [
         'cancellation_reason' => 'سبب الإلغاء',
         'customer_pays_return_shipping' => 'العميل يدفع شحن الإرجاع',
         'refund_processing_days' => 'أيام الاسترجاع الافتراضية',
+        'return_shipping_responsibility' => 'مسؤولية شحن الإرجاع',
     ],
+
+    'customer_pays_shipping' => 'العميل يتحمل شحن الإرجاع',
+    'vendor_pays_shipping' => 'المورد يتحمل شحن الإرجاع',
+    'based_on_vendor_settings' => 'بناءً على إعدادات المورد',
+    'customer_gets_original_shipping_back' => 'العميل يسترد تكلفة الشحن الأصلية',
+    'customer_does_not_get_original_shipping_back' => 'العميل لا يسترد تكلفة الشحن الأصلية',
+    'shipping_cost_deducted' => 'تم خصم تكلفة الشحن من المبلغ المسترد',
+    'no_shipping_cost_deducted' => 'لم يتم خصم تكلفة الشحن',
+    'customer_responsible_for_shipping_cost' => 'العميل مسؤول عن تكلفة شحن الإرجاع',
+    'vendor_responsible_for_shipping_cost' => 'المورد مسؤول عن تكلفة شحن الإرجاع',
 
     'statuses' => [
         'pending' => 'قيد الانتظار',

@@ -59,7 +59,17 @@ class RefundRequestApiController extends Controller
      */
     public function show($id)
     {
-        $refund = $this->refundService->getRefundWithRelations($id, ['items', 'history.user', 'order', 'customer', 'vendor']);
+        $refund = $this->refundService->getRefundWithRelations($id, [
+            'items.orderProduct.vendorProduct.product',
+            'items.orderProduct.vendorProduct.vendor',
+            'items.orderProduct.vendorProduct.variants.variantConfiguration.key',
+            'items.orderProduct.vendorProduct.taxes',
+            'items.orderProduct.vendorProductVariant',
+            'history.user', 
+            'order', 
+            'customer', 
+            'vendor'
+        ]);
 
         // Check authorization
         if (!$this->refundService->canUserAccessRefund($id, auth()->user())) {

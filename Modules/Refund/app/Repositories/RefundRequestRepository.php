@@ -17,7 +17,17 @@ class RefundRequestRepository implements RefundRequestRepositoryInterface
     public function getAllPaginated(array $filters = [], int $perPage = 15)
     {
         $query = $this->model
-            ->with(['order', 'customer', 'vendor', 'items.orderProduct', 'history']);
+            ->with([
+                'order', 
+                'customer', 
+                'vendor', 
+                'items.orderProduct.vendorProduct.product',
+                'items.orderProduct.vendorProduct.vendor',
+                'items.orderProduct.vendorProduct.variants.variantConfiguration.key',
+                'items.orderProduct.vendorProduct.taxes',
+                'items.orderProduct.vendorProductVariant',
+                'history'
+            ]);
         
         
         return $query->filter($filters)
@@ -28,7 +38,16 @@ class RefundRequestRepository implements RefundRequestRepositoryInterface
     public function findById(int $id)
     {
         return $this->model
-            ->with(['order', 'customer', 'vendor', 'items.orderProduct'])
+            ->with([
+                'order', 
+                'customer', 
+                'vendor', 
+                'items.orderProduct.vendorProduct.product',
+                'items.orderProduct.vendorProduct.vendor',
+                'items.orderProduct.vendorProduct.variants.variantConfiguration.key',
+                'items.orderProduct.vendorProduct.taxes',
+                'items.orderProduct.vendorProductVariant'
+            ])
             ->findOrFail($id);
     }
 
@@ -124,6 +143,51 @@ class RefundRequestRepository implements RefundRequestRepositoryInterface
 
             // Create independent refund requests for each vendor
             foreach ($itemsByVendor as $vendorId => $vendorItems) {
+                // Calculate total quantity being refunded for this vendor
+                $totalRefundedQty = collect($vendorItems)->sum('quantity');
+                $totalOrderQtyForVendor = collect($vendorItems)->sum(fn($item) => $item['order_product']->quantity);
+                
+                // Calculate proportional fees/discounts/points for this vendor
+                $vendorFees = \Illuminate\Support\Facades\DB::table('order_extra_fees_discounts')
+                    ->where('order_id', $order->id)
+                    ->where('vendor_id', $vendorId)
+                    ->where('type', 'fee')
+                    ->sum('cost') ?? 0;
+                
+                $vendorDiscounts = \Illuminate\Support\Facades\DB::table('order_extra_fees_discounts')
+                    ->where('order_id', $order->id)
+                    ->where('vendor_id', $vendorId)
+                    ->where('type', 'discount')
+                    ->sum('cost') ?? 0;
+                
+                // Get vendor's share of promo code and points from vendor_order_stages
+                $vendorShares = \Illuminate\Support\Facades\DB::table('vendor_order_stages')
+                    ->where('order_id', $order->id)
+                    ->where('vendor_id', $vendorId)
+                    ->select('promo_code_share', 'points_share')
+                    ->first();
+                
+                $promoCodeShare = $vendorShares->promo_code_share ?? 0;
+                $pointsShare = $vendorShares->points_share ?? 0;
+                
+                // Calculate proportional amounts based on refunded quantity
+                $proportionRefunded = $totalOrderQtyForVendor > 0 ? $totalRefundedQty / $totalOrderQtyForVendor : 0;
+                
+                $proportionalFees = $vendorFees * $proportionRefunded;
+                $proportionalDiscounts = $vendorDiscounts * $proportionRefunded;
+                $proportionalPromoCode = $promoCodeShare * $proportionRefunded;
+                $proportionalPoints = $pointsShare * $proportionRefunded;
+                
+                // Get vendor refund settings to determine who pays return shipping
+                $vendorSettings = \Modules\Refund\app\Models\VendorRefundSetting::getForVendor($vendorId);
+                $customerPaysReturnShipping = $data['customer_pays_return_shipping'] ?? $vendorSettings->customer_pays_return_shipping;
+                
+                // If vendor pays return shipping, set return_shipping_cost to 0
+                // If customer pays, use the provided return_shipping_cost
+                $returnShippingCost = $customerPaysReturnShipping 
+                    ? ($data['return_shipping_cost'] ?? 0) 
+                    : 0;
+                
                 // Create basic refund request
                 $refundRequest = $this->create([
                     'order_id' => $order->id,
@@ -133,6 +197,12 @@ class RefundRequestRepository implements RefundRequestRepositoryInterface
                     'status' => 'pending',
                     'reason' => $data['reason'],
                     'customer_notes' => $data['customer_notes'] ?? null,
+                    'vendor_fees_amount' => $proportionalFees,
+                    'vendor_discounts_amount' => $proportionalDiscounts,
+                    'promo_code_amount' => $proportionalPromoCode,
+                    'points_used' => $proportionalPoints,
+                    'customer_pays_return_shipping' => $customerPaysReturnShipping,
+                    'return_shipping_cost' => $returnShippingCost,
                 ]);
 
                 // Add items
@@ -145,7 +215,8 @@ class RefundRequestRepository implements RefundRequestRepositoryInterface
                         : $orderProduct->price;
                     
                     // Calculate proportional shipping cost for refunded quantity
-                    $shippingPerUnit = $orderProduct->quantity > 0 
+                    // If vendor pays return shipping, don't refund original shipping cost
+                    $shippingPerUnit = $customerPaysReturnShipping && $orderProduct->quantity > 0 
                         ? ($orderProduct->shipping_cost ?? 0) / $orderProduct->quantity 
                         : 0;
                     $refundShippingAmount = $shippingPerUnit * $item['quantity'];
@@ -167,6 +238,7 @@ class RefundRequestRepository implements RefundRequestRepositoryInterface
                         'shipping_amount' => $refundShippingAmount,
                         'tax_amount' => $refundTaxAmount,
                         'discount_amount' => 0, // Will be calculated in calculateTotals if needed
+                        'refund_amount' => ($actualUnitPrice * $item['quantity']) + $refundShippingAmount + $refundTaxAmount,
                         'reason' => $item['reason'],
                     ]);
                 }

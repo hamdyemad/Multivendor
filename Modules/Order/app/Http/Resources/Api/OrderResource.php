@@ -46,7 +46,6 @@ class OrderResource extends JsonResource
             'total_price' => $this->calculateTotalPrice(),
             'promo_code' => $this->customer_promo_code_title,
             'promo_discount' => $this->customer_promo_code_amount ? (float) $this->customer_promo_code_amount : 0,
-            'refunded' => (float) ($this->refunded_amount ?? 0),
             'vendors_stages' => $vendorsWithStages,
             'products' => OrderProductResource::collection($this->whenLoaded('products')),
             'payments' => PaymentResource::collection($this->whenLoaded('payments')),

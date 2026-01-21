@@ -25,8 +25,8 @@
         // Get total commission from statistics
         $totalCommission = (float) str_replace(',', '', $statistics['total_commission'] ?? '0');
         
-        // Calculate orders price = balance + commission (reverse calculation)
-        $ordersPrice = $totalVendorBalance + $totalCommission;
+        // Get total transactions (this is the actual delivered orders value)
+        $ordersPrice = (float) str_replace(',', '', $statistics['total_transactions'] ?? '0');
         
         // Bnaia commission is the same as total commission
         $bnaiaBalance = $totalCommission;
@@ -34,6 +34,7 @@
         $totalNeeded = $totalVendorBalance;
         $totalSentMoney = (float) str_replace(',', '', $statistics['total_sent']);
         $totalRemaining = (float) str_replace(',', '', $statistics['total_remaining']);
+        
     } else {
         // For vendor: get their own totals from model
         if (!$vendor) {

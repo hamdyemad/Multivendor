@@ -91,16 +91,28 @@ class AccountingService
             $promoCodeShare = $vendorStage->promo_code_share ?? 0;
             $pointsShare = $vendorStage->points_share ?? 0;
 
-            // Total = products + shipping + fees - discounts - promo_code - points
-            $vendorTotalWithExtras = $vendorTotal + $vendorShipping + $feesTotal - $discountsTotal - $promoCodeShare - $pointsShare;
+            // Total for accounting = products + shipping + fees - discounts
+            // (Don't subtract customer promo/points because vendor receives this from Bnaia)
+            $vendorTotalWithExtras = $vendorTotal + $vendorShipping + $feesTotal - $discountsTotal;
+            
+            // Calculate vendor's share of customer promo/points for metadata only
+            $orderGrandTotal = $order->products->sum(function($p) {
+                return $p->price + ($p->shipping_cost ?? 0);
+            });
+            
+            $vendorGrandTotal = $vendorTotal + $vendorShipping;
+            $vendorPercentage = $orderGrandTotal > 0 
+                ? ($vendorGrandTotal / $orderGrandTotal) 
+                : 0;
+            
+            $customerPromoShare = ($order->customer_promo_code_amount ?? 0) * $vendorPercentage;
+            $customerPointsShare = ($order->points_cost ?? 0) * $vendorPercentage;
 
             // Calculate commission on total with extras
-            // commission field stores the percentage, fallback to department commission
+            // Commission = 0 is valid (means no commission), don't fallback to department
             $totalCommissionAmount = $products->sum(function($product) {
                 $productTotal = $product->price + ($product->shipping_cost ?? 0);
-                $commissionPercent = $product->commission > 0 
-                    ? $product->commission 
-                    : ($product->vendorProduct?->product?->department?->commission ?? 0);
+                $commissionPercent = $product->commission ?? 0;
                 return $productTotal * ($commissionPercent / 100);
             });
 
@@ -129,7 +141,9 @@ class AccountingService
                     'fees' => $feesTotal,
                     'discounts' => $discountsTotal,
                     'promo_code_share' => $promoCodeShare,
-                    'points_share' => $pointsShare
+                    'points_share' => $pointsShare,
+                    'customer_promo_share' => $customerPromoShare,
+                    'customer_points_share' => $customerPointsShare
                 ]
             ]);
 
@@ -259,16 +273,28 @@ class AccountingService
         $promoCodeShare = $vendorStage->promo_code_share ?? 0;
         $pointsShare = $vendorStage->points_share ?? 0;
 
-        // Total = products + shipping + fees - discounts - promo_code - points
-        $vendorTotalWithExtras = $vendorTotal + $vendorShipping + $feesTotal - $discountsTotal - $promoCodeShare - $pointsShare;
+        // Total for accounting = products + shipping + fees - discounts
+        // (Don't subtract customer promo/points because vendor receives this from Bnaia)
+        $vendorTotalWithExtras = $vendorTotal + $vendorShipping + $feesTotal - $discountsTotal;
+        
+        // Calculate vendor's share of customer promo/points for metadata only
+        $orderGrandTotal = $order->products->sum(function($p) {
+            return $p->price + ($p->shipping_cost ?? 0);
+        });
+        
+        $vendorGrandTotal = $vendorTotal + $vendorShipping;
+        $vendorPercentage = $orderGrandTotal > 0 
+            ? ($vendorGrandTotal / $orderGrandTotal) 
+            : 0;
+        
+        $customerPromoShare = ($order->customer_promo_code_amount ?? 0) * $vendorPercentage;
+        $customerPointsShare = ($order->points_cost ?? 0) * $vendorPercentage;
 
         // Calculate commission on total with extras
-        // commission field stores the percentage, fallback to department commission
+        // Commission = 0 is valid (means no commission), don't fallback to department
         $totalCommissionAmount = $products->sum(function($product) {
             $productTotal = $product->price + ($product->shipping_cost ?? 0);
-            $commissionPercent = $product->commission > 0 
-                ? $product->commission 
-                : ($product->vendorProduct?->product?->department?->commission ?? 0);
+            $commissionPercent = $product->commission ?? 0;
             return $productTotal * ($commissionPercent / 100);
         });
 
@@ -298,7 +324,9 @@ class AccountingService
                 'fees' => $feesTotal,
                 'discounts' => $discountsTotal,
                 'promo_code_share' => $promoCodeShare,
-                'points_share' => $pointsShare
+                'points_share' => $pointsShare,
+                'customer_promo_share' => $customerPromoShare,
+                'customer_points_share' => $customerPointsShare
             ]
         ]);
 

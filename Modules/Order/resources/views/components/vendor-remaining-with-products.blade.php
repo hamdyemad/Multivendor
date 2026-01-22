@@ -16,6 +16,9 @@
     'refundedAmount' => 0,
     'refundedCommission' => 0,
     'finalCommission' => 0,
+    'customerPromoAmount' => 0,
+    'customerPointsCost' => 0,
+    'orderCustomerPaid' => null,
     'colors' => ['#28a745', '#5dd879']
 ])
 
@@ -74,9 +77,11 @@
                             $itemRefundAmount = ($refundItem->total_price ?? 0) + ($refundItem->shipping_amount ?? 0);
                             $productRefundedAmount += $itemRefundAmount;
                             
-                            // Use the same commission percentage as the original product
-                            if ($itemRefundAmount > 0 && $productCommissionPercent > 0) {
-                                $productRefundedCommission += ($itemRefundAmount * $productCommissionPercent) / 100;
+                            // Get commission percentage from order_products table
+                            $orderProduct = $refundItem->orderProduct;
+                            $itemCommissionPercent = $orderProduct ? ($orderProduct->commission ?? 0) : 0;
+                            if ($itemRefundAmount > 0 && $itemCommissionPercent > 0) {
+                                $productRefundedCommission += ($itemRefundAmount * $itemCommissionPercent) / 100;
                             }
                         }
                         
@@ -188,12 +193,10 @@
         
         {{-- Vendor Total Summary --}}
         @php
-            // Customer total = what customer actually paid (total - discounts)
-            $customerTotal = $total - $promoCodeShare - $pointsShare;
-            
-            // Calculate total before remaining (after adding back discounts that Bnaia covers)
-            // Both promo_code_share and points_share are added (Bnaia covers them)
-            $totalBeforeRemaining = $total + $promoCodeShare + $pointsShare;
+            // Customer total = Total with Shipping - Promo - Points
+            // (discounts applied AFTER shipping)
+            $customerTotal = $total - $customerPromoAmount - $customerPointsCost;
+            $customerTotal = max(0, $customerTotal); // Cannot be negative
         @endphp
         <div class="summary-details">
             <div class="summary-row mb-12">
@@ -226,34 +229,31 @@
                     <span class="fw-bold" style="color: #dc3545;">-{{ number_format($discounts, 2) }} {{ currency() }}</span>
                 </div>
             @endif
+            {{-- Total with shipping (before customer discounts) --}}
             <div class="summary-row mb-12">
                 <span class="fw-bold">{{ trans('order::order.total_with_shipping') }}</span>
                 <span class="fw-bold">{{ number_format($total, 2) }} {{ currency() }}</span>
             </div>
-            @if ($promoCodeShare > 0 || $pointsShare > 0)
-                {{-- Show customer total (what customer actually paid) --}}
-                @if ($promoCodeShare > 0)
+            @if ($customerPromoAmount > 0 || $customerPointsCost > 0)
+                {{-- Show promo code and points discounts AFTER total with shipping --}}
+                @if ($customerPromoAmount > 0)
                     <div class="summary-row mb-12">
                         <span class="fw-bold">{{ trans('order::order.promo_code_discount') }}</span>
-                        <span class="fw-bold" style="color: #dc3545;">-{{ number_format($promoCodeShare, 2) }} {{ currency() }}</span>
+                        <span class="fw-bold" style="color: #dc3545;">-{{ number_format($customerPromoAmount, 2) }} {{ currency() }}</span>
                     </div>
                 @endif
-                @if ($pointsShare > 0)
+                @if ($customerPointsCost > 0)
                     <div class="summary-row mb-12">
                         <span class="fw-bold">{{ trans('order::order.points_discount') }}</span>
-                        <span class="fw-bold" style="color: #dc3545;">-{{ number_format($pointsShare, 2) }} {{ currency() }}</span>
+                        <span class="fw-bold" style="color: #dc3545;">-{{ number_format($customerPointsCost, 2) }} {{ currency() }}</span>
                     </div>
                 @endif
-                <div class="summary-row mb-12" style="background: #f8f9fa; padding: 8px 12px; border-radius: 6px;">
-                    <span class="fw-bold">{{ trans('order::order.customer_total') }}</span>
-                    <span class="fw-bold" style="color: #5f63f2;">{{ number_format($customerTotal, 2) }} {{ currency() }}</span>
+                {{-- Show customer total (what customer actually paid) --}}
+                <div class="summary-row mb-12" style="background: #e8f5e9; padding: 8px 12px; border-radius: 6px;">
+                    <span class="fw-bold" style="color: #2e7d32;">{{ trans('order::order.customer_total') }}</span>
+                    <span class="fw-bold" style="color: #2e7d32;">{{ number_format($customerTotal, 2) }} {{ currency() }}</span>
                 </div>
                 <hr style="border-color: rgba(0,0,0,0.1); margin: 15px 0;">
-                {{-- Show total with shipping again before commission --}}
-                <div class="summary-row mb-12">
-                    <span class="fw-bold">{{ trans('order::order.total_with_shipping') }}</span>
-                    <span class="fw-bold">{{ number_format($total, 2) }} {{ currency() }}</span>
-                </div>
             @endif
             <div class="summary-row mb-12">
                 <span class="fw-bold">{{ trans('order::order.bnaia_commission') }}</span>

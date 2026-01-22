@@ -124,6 +124,9 @@ return [
         'product_already_refunded' => 'المنتج لديه بالفعل طلب استرجاع',
         'refund_window_expired' => 'انتهت فترة الاسترجاع المسموح بها',
         'cannot_cancel_refund' => 'لا يمكن إلغاء طلب الاسترجاع هذا. يمكن إلغاء الطلبات قيد الانتظار فقط.',
+        'cannot_cancel_refunded' => 'لا يمكن إلغاء طلب استرجاع تم إكماله بالفعل.',
+        'already_cancelled' => 'تم إلغاء طلب الاسترجاع هذا بالفعل.',
+        'can_only_cancel_pending' => 'يمكن إلغاء طلبات الاسترجاع قيد الانتظار فقط.',
         'only_customer_can_cancel' => 'يمكن للعميل فقط إلغاء طلب الاسترجاع الخاص به',
         'confirm_approve' => 'هل أنت متأكد من قبول طلب الاسترجاع هذا؟',
         'confirm_cancel' => 'هل أنت متأكد من إلغاء طلب الاسترجاع هذا؟',
@@ -218,5 +221,6 @@ return [
         'refund_processing_days_min' => 'يجب أن تكون أيام معالجة الاسترجاع :min على الأقل.',
         'refund_processing_days_max' => 'يجب ألا تتجاوز أيام معالجة الاسترجاع :max.',
         'customer_pays_return_shipping_boolean' => 'يجب أن يكون حقل العميل يدفع شحن الإرجاع صحيحاً أو خطأ.',
+        'quantity_exceeds_available' => 'لا يمكن استرجاع :requested من :product. فقط :available متاحة للاسترجاع.',
     ],
 ];

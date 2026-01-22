@@ -334,8 +334,8 @@ class RefundRequest extends BaseModel
         $this->total_discount_amount = $items->sum('discount_amount');
         $this->total_shipping_amount = $items->sum('shipping_amount');
         
-        // Calculate subtotal from items
-        // Note: total_price already includes tax, so we don't add tax_amount again
+        // Calculate subtotal from items (products + shipping - discounts)
+        // Note: total_price already includes tax
         $subtotal = $this->total_products_amount 
             + $this->total_shipping_amount
             - $this->total_discount_amount;
@@ -346,17 +346,40 @@ class RefundRequest extends BaseModel
         // Subtract vendor discounts (customer got discount, so refund less)
         $subtotal -= ($this->vendor_discounts_amount ?? 0);
         
-        // Subtract promo code amount (customer used promo, so refund less)
-        $subtotal -= ($this->promo_code_amount ?? 0);
+        // Check if customer paid anything in the original order
+        $customerPaidInOrder = $this->order ? ($this->order->customer_paid ?? $this->order->total_price) : 0;
         
-        // Subtract points used (customer used points, so refund less)
-        $subtotal -= ($this->points_used ?? 0);
+        // If customer paid 0 in original order, they should get 0 cash refund
+        if ($customerPaidInOrder == 0) {
+            $this->total_refund_amount = 0;
+        } else {
+            // Calculate what customer actually paid for this refund
+            // Subtract promo code and points (what customer didn't pay)
+            $cashPaid = $subtotal - ($this->promo_code_amount ?? 0) - ($this->points_used ?? 0);
+            
+            // Subtract return shipping cost
+            $cashPaid -= ($this->return_shipping_cost ?? 0);
+            
+            // Refund amount cannot be negative
+            $this->total_refund_amount = max(0, $cashPaid);
+        }
         
-        // Subtract return shipping cost from refund amount
-        // Note: If vendor pays return shipping, return_shipping_cost is already 0 in DB
-        // If customer pays, return_shipping_cost contains the actual cost
-        // So we always subtract it (either 0 or the actual cost)
-        $this->total_refund_amount = $subtotal - ($this->return_shipping_cost ?? 0);
+        // Calculate points to deduct (points that were earned from this purchase)
+        // Get the points per currency rate from the order's currency settings
+        $pointsPerCurrency = 1; // Default fallback
+        
+        if ($this->order && $this->order->country && $this->order->country->currency) {
+            $pointsSetting = \Modules\SystemSetting\app\Models\PointsSetting::where('currency_id', $this->order->country->currency->id)
+                ->where('is_active', true)
+                ->first();
+            
+            if ($pointsSetting && $pointsSetting->points_value > 0) {
+                $pointsPerCurrency = (float) $pointsSetting->points_value;
+            }
+        }
+        
+        // Calculate points to deduct: refunded amount × points per currency
+        $this->points_to_deduct = (int) floor($this->total_products_amount * $pointsPerCurrency);
         
         $this->save();
     }

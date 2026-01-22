@@ -37,7 +37,7 @@ class Customer extends Authenticatable
         return \Modules\Customer\database\factories\CustomerFactory::new();
     }
 
-    protected $appends = ['full_name'];
+    protected $appends = ['full_name', 'total_points', 'available_points'];
 
     protected $hidden = [
         'password',
@@ -186,5 +186,85 @@ class Customer extends Authenticatable
     public function getFullNameAttribute()
     {
         return $this->first_name . ' ' . $this->last_name;
+    }
+
+    /**
+     * Get points transactions relationship
+     */
+    public function pointsTransactions()
+    {
+        return $this->hasMany(\Modules\SystemSetting\app\Models\UserPointsTransaction::class, 'user_id');
+    }
+
+    /**
+     * Get total points (calculated dynamically from transactions)
+     */
+    public function getTotalPointsAttribute(): float
+    {
+        return $this->pointsTransactions()->sum('points');
+    }
+
+    /**
+     * Get earned points (calculated dynamically from transactions)
+     */
+    public function getEarnedPointsAttribute(): float
+    {
+        return $this->pointsTransactions()->where('type', 'earned')->sum('points');
+    }
+
+    /**
+     * Get redeemed points (calculated dynamically from transactions)
+     */
+    public function getRedeemedPointsAttribute(): float
+    {
+        return abs($this->pointsTransactions()->where('type', 'redeemed')->sum('points'));
+    }
+
+    /**
+     * Get adjusted points (calculated dynamically from transactions)
+     */
+    public function getAdjustedPointsAttribute(): float
+    {
+        return $this->pointsTransactions()->where('type', 'adjusted')->sum('points');
+    }
+
+    /**
+     * Get expired points (calculated dynamically from transactions)
+     */
+    public function getExpiredPointsAttribute(): float
+    {
+        return abs($this->pointsTransactions()->where('type', 'expired')->sum('points'));
+    }
+
+    /**
+     * Get available points (total points that can be used)
+     * Calculation: earned - redeemed - expired
+     * Note: adjusted points (from refunds) are excluded as they reduce earned points
+     */
+    public function getAvailablePointsAttribute(): float
+    {
+        $earned = $this->pointsTransactions()->where('type', 'earned')->sum('points');
+        $redeemed = abs($this->pointsTransactions()->where('type', 'redeemed')->sum('points'));
+        $expired = abs($this->pointsTransactions()->where('type', 'expired')->sum('points'));
+        $adjusted = $this->pointsTransactions()->where('type', 'adjusted')->sum('points'); // Usually negative
+        
+        // Available = earned + adjusted - redeemed - expired
+        // (adjusted is usually negative, so it reduces the available points)
+        return $earned + $adjusted - $redeemed - $expired;
+    }
+
+    /**
+     * Get points balance breakdown
+     */
+    public function getPointsBalanceAttribute(): array
+    {
+        return [
+            'total' => $this->total_points,
+            'earned' => $this->earned_points,
+            'redeemed' => $this->redeemed_points,
+            'adjusted' => $this->adjusted_points,
+            'expired' => $this->expired_points,
+            'available' => $this->available_points,
+        ];
     }
 }

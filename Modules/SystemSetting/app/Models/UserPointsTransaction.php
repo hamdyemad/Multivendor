@@ -17,6 +17,7 @@ class UserPointsTransaction extends Model
 
     protected $casts = [
         'points' => 'decimal:2',
+        'points_per_currency' => 'decimal:2',
         'expires_at' => 'datetime',
     ];
 

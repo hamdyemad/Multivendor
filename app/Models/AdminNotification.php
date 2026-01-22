@@ -150,10 +150,15 @@ class AdminNotification extends Model
         // If we have data array, replace placeholders
         if ($this->data && is_array($this->data)) {
             foreach ($this->data as $key => $value) {
+                // Convert value to string if it's an array or object
+                if (is_array($value) || is_object($value)) {
+                    $value = json_encode($value);
+                }
+                
                 // Replace :key with value (e.g., :refund_number with actual refund number)
                 // Extract the last part of the translation key (e.g., 'refund_number' from 'refund::refund.refund_number')
                 $placeholder = str_contains($key, '.') ? substr($key, strrpos($key, '.') + 1) : $key;
-                $description = str_replace(':' . $placeholder, $value, $description);
+                $description = str_replace(':' . $placeholder, (string)$value, $description);
             }
         }
         
@@ -171,9 +176,14 @@ class AdminNotification extends Model
         // If we have data array, replace placeholders
         if ($this->data && is_array($this->data)) {
             foreach ($this->data as $key => $value) {
+                // Convert value to string if it's an array or object
+                if (is_array($value) || is_object($value)) {
+                    $value = json_encode($value);
+                }
+                
                 // Replace :key with value
                 $placeholder = str_contains($key, '.') ? substr($key, strrpos($key, '.') + 1) : $key;
-                $title = str_replace(':' . $placeholder, $value, $title);
+                $title = str_replace(':' . $placeholder, (string)$value, $title);
             }
         }
         

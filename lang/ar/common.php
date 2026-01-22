@@ -61,6 +61,7 @@ return [
     'info' => 'معلومات',
     'type' => 'النوع',
     'name' => 'الاسم',
+    'vendor' => 'المورد',
     'available' => 'متاح',
     'total' => 'الإجمالي',
     'date_from' => 'من تاريخ',
@@ -243,6 +244,7 @@ return [
     'manager_name' => 'اسم المدير',
     'company_logo' => 'شعار الشركة',
     'email' => 'البريد الإلكتروني',
+    'message_id' => 'رقم الرسالة',
     'phone' => 'الهاتف',
     'date' => 'التاريخ',
     'amount' => 'المبلغ',
@@ -296,6 +298,9 @@ return [
     'thursday' => 'الخميس',
     'friday' => 'الجمعة',
     'saturday' => 'السبت',
+    
+    // Load More
+    'load_more' => 'تحميل المزيد',
 ];
 
     

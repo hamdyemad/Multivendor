@@ -136,6 +136,9 @@ return [
         'product_already_refunded' => 'Product already has a refund request',
         'refund_window_expired' => 'Refund window has expired',
         'cannot_cancel_refund' => 'Cannot cancel this refund request. Only pending refunds can be cancelled.',
+        'cannot_cancel_refunded' => 'Cannot cancel a refund that has already been completed.',
+        'already_cancelled' => 'This refund request has already been cancelled.',
+        'can_only_cancel_pending' => 'Only pending refund requests can be cancelled.',
         'only_customer_can_cancel' => 'Only the customer can cancel their refund request',
         'confirm_approve' => 'Are you sure you want to approve this refund request?',
         'confirm_cancel' => 'Are you sure you want to cancel this refund request?',
@@ -230,5 +233,6 @@ return [
         'refund_processing_days_min' => 'The refund processing days must be at least :min.',
         'refund_processing_days_max' => 'The refund processing days must not exceed :max.',
         'customer_pays_return_shipping_boolean' => 'The customer pays return shipping field must be true or false.',
+        'quantity_exceeds_available' => 'Cannot refund :requested quantity of :product. Only :available quantity available for refund.',
     ],
 ];

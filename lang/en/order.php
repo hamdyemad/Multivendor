@@ -48,6 +48,8 @@ return [
 
     // Order Creation
     'create_order' => 'Create Order',
+    'new_order_received' => 'New order received',
+    'order_from' => 'Order from :name',
     'edit_order' => 'Edit Order',
     'order_details' => 'Order Details',
     'customer_information' => 'Customer Information',

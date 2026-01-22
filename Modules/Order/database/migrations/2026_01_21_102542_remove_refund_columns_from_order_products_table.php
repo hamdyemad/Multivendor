@@ -12,7 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('order_products', function (Blueprint $table) {
-            $table->dropColumn(['is_refund', 'refunded_amount']);
+            // Check if columns exist before dropping
+            if (Schema::hasColumn('order_products', 'is_refund')) {
+                $table->dropColumn('is_refund');
+            }
+            if (Schema::hasColumn('order_products', 'refunded_amount')) {
+                $table->dropColumn('refunded_amount');
+            }
         });
     }
 

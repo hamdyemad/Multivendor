@@ -11,9 +11,7 @@
                         <th><span class="userDatatable-title">{{ trans('dashboard.order_number') }}</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.customer') }}</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.total') }}</span></th>
-                        <th><span class="userDatatable-title">Status</span></th>
                         <th><span class="userDatatable-title">{{ trans('dashboard.actions') }}</span></th>
-                    </tr>
                 </thead>
                 <tbody>
                     @forelse($latestOrders ?? [] as $index => $order)
@@ -48,17 +46,6 @@
                             @endif
                         </td>
                         <td class="fw-bold text-success">{{ number_format($order->vendor_product_total ?? $order->total_price ?? 0, 2) }} {{ currency() }}</td>
-                        <td class="text-center">
-                            @if($order->stage)
-                                <span class="badge badge-round badge-lg" style="background-color: {{ $order->stage->color ?? '#6c757d' }}; color: #fff;">
-                                    {{ $order->stage->name ?? $order->stage->getTranslation('name', app()->getLocale()) ?? '-' }}
-                                </span>
-                            @elseif($order->stage_id)
-                                <span class="badge bg-secondary badge-round badge-lg">ID: {{ $order->stage_id }}</span>
-                            @else
-                                <span class="badge bg-secondary badge-round badge-lg">-</span>
-                            @endif
-                        </td>
                         <td class="actions">
                             <a href="{{ route('admin.orders.show', $order->id) }}" target="_blank" class="btn btn-sm btn-primary">
                                 <i class="uil uil-eye m-0"></i>
@@ -67,7 +54,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="text-center text-muted">{{ trans('common.no_data_available') }}</td>
+                        <td colspan="5" class="text-center text-muted">{{ trans('common.no_data_available') }}</td>
                     </tr>
                     @endforelse
                 </tbody>

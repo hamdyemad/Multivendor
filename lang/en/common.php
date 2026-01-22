@@ -58,6 +58,7 @@ return [
     'info' => 'Info',
     'type' => 'Type',
     'name' => 'Name',
+    'vendor' => 'Vendor',
     'available' => 'Available',
     'total' => 'Total',
     'date_from' => 'Date From',
@@ -238,6 +239,7 @@ return [
     'manager_name' => 'Manager Name',
     'company_logo' => 'Company Logo',
     'email' => 'Email',
+    'message_id' => 'Message ID',
     'phone' => 'Phone',
     'date' => 'Date',
     'amount' => 'Amount',
@@ -291,6 +293,9 @@ return [
     'thursday' => 'Thursday',
     'friday' => 'Friday',
     'saturday' => 'Saturday',
+    
+    // Load More
+    'load_more' => 'Load More',
 ];
 
 

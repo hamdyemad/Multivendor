@@ -714,18 +714,12 @@
                         $vendorPointsShare = 0;
                         
                         if (isset($isVendorUser) && $isVendorUser) {
-                            // For vendor: get their specific share from vendor_order_stages
-                            $currentVendorId = auth()->user()->vendor?->id;
-                            if ($currentVendorId) {
-                                $vendorStage = \Modules\Order\app\Models\VendorOrderStage::where('order_id', $order->id)
-                                    ->where('vendor_id', $currentVendorId)
-                                    ->first();
-                                $vendorPromoShare = $vendorStage->promo_code_share ?? 0;
-                                $vendorPointsShare = $vendorStage->points_share ?? 0;
-                            }
+                            // For vendor: use customer shares passed from controller
+                            $vendorPromoShare = $customerPromoShare ?? 0;
+                            $vendorPointsShare = $customerPointsShare ?? 0;
                             
-                            // For vendor: products total + shipping - shares (deducted from total)
-                            $finalTotal = ($vendorProductTotal ?? $totalWithTax) + $shippingCost - $vendorPromoShare - $vendorPointsShare;
+                            // For vendor: Total with Shipping - customer discounts
+                            $finalTotal = $totalWithTax + $shippingCost - $vendorPromoShare - $vendorPointsShare;
                             $showPromoDiscount = true;
                             $showPointsDiscount = true;
                         } else {

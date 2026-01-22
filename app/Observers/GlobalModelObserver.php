@@ -158,7 +158,13 @@ class GlobalModelObserver
             
             // Get user from request (works for both web and API)
             $user = request()->user() ?? auth()->user() ?? auth('web')->user();
-            $userId = $user?->id;
+            
+            // Only set user_id if the authenticated user is from the users table (admin/vendor)
+            // Not from customers table (customers don't have entries in users table)
+            $userId = null;
+            if ($user && $user instanceof \App\Models\User) {
+                $userId = $user->id;
+            }
 
             // Map actions to translation keys
             $descriptionKeys = [

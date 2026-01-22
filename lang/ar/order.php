@@ -48,6 +48,8 @@ return [
 
     // Order Creation
     'create_order' => 'إنشاء طلب',
+    'new_order_received' => 'تم استلام طلب جديد',
+    'order_from' => 'طلب من :name',
     'edit_order' => 'تعديل الطلب',
     'order_details' => 'تفاصيل الطلب',
     'customer_information' => 'معلومات العميل',

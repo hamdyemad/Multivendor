@@ -4,7 +4,6 @@ namespace Modules\SystemSetting\app\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Services\LanguageService;
-use Modules\SystemSetting\app\Models\UserPoints;
 use Illuminate\Http\Request;
 use Modules\Customer\app\Services\CustomerService;
 
@@ -61,14 +60,7 @@ class UserPointsController extends Controller
             // Format data for datatable
             $data = [];
             foreach ($customers as $index => $customer) {
-                // Get customer's points
-                $points = UserPoints::where('user_id', $customer->id)->first();
-
-                // Calculate adjusted points from transactions with type 'adjusted'
-                $adjustedPoints = \Modules\SystemSetting\app\Models\UserPointsTransaction::where('user_id', $customer->id)
-                    ->where('type', 'adjusted')
-                    ->sum('points');
-
+                // Use dynamic calculations from Customer model
                 $data[] = [
                     'id' => $customer->id,
                     'index' => $skip + $index + 1,
@@ -77,11 +69,11 @@ class UserPointsController extends Controller
                         'email' => strtolower($customer->email ?? '-'),
                         'phone' => $customer->phone ?? '-',
                     ],
-                    'total_points' => $points ? number_format($points->total_points, 2) : '0.00',
-                    'earned_points' => $points ? number_format($points->earned_points, 2) : '0.00',
-                    'redeemed_points' => $points ? number_format($points->redeemed_points, 2) : '0.00',
-                    'adjusted_points' => number_format($adjustedPoints, 2),
-                    'available_points' => $points ? number_format($points->available_points, 2) : '0.00',
+                    'total_points' => number_format($customer->total_points, 2),
+                    'earned_points' => number_format($customer->earned_points, 2),
+                    'redeemed_points' => number_format($customer->redeemed_points, 2),
+                    'adjusted_points' => number_format($customer->adjusted_points, 2),
+                    'available_points' => number_format($customer->available_points, 2),
                 ];
             }
 
@@ -111,23 +103,17 @@ class UserPointsController extends Controller
             $customer = \Modules\Customer\app\Models\Customer::findOrFail($userId);
             $languages = $this->languageService->getAll();
 
-            // // Get customer's points
-            $userPoint = UserPoints::where('user_id', $customer->id)->first();
-
-            // // Calculate adjusted points from transactions with type 'adjusted'
-            $adjustedPoints = \Modules\SystemSetting\app\Models\UserPointsTransaction::where('user_id', $customer->id)
-                ->where('type', 'adjusted')
-                ->sum('points');
+            // Use dynamic calculations from Customer model
             $data = [
                 'title' => trans('systemsetting::points.transaction_history'),
                 'customer' => $customer,
                 'languages' => $languages,
-                'total_points' => $userPoint ? $userPoint->total_points : 0,
-                'earned_points' => $userPoint ? $userPoint->earned_points : 0,
-                'redeemed_points' => $userPoint ? $userPoint->redeemed_points : 0,
-                'expired_points' => $userPoint ? $userPoint->expired_points : 0,
-                'available_points' => $userPoint ? $userPoint->available_points : 0,
-                'adjusted_points' => $adjustedPoints,
+                'total_points' => $customer->total_points,
+                'earned_points' => $customer->earned_points,
+                'redeemed_points' => $customer->redeemed_points,
+                'expired_points' => $customer->expired_points,
+                'available_points' => $customer->available_points,
+                'adjusted_points' => $customer->adjusted_points,
             ];
 
             return view('systemsetting::user_points.transactions', $data);
@@ -230,46 +216,35 @@ class UserPointsController extends Controller
                 'description_ar' => 'required|string|max:500',
             ]);
 
-            // Get customer and their points
+            // Get customer
             $customer = \Modules\Customer\app\Models\Customer::findOrFail($userId);
-            $userPoint = UserPoints::firstOrCreate(['user_id' => $userId]);
-
-            // Calculate new totals
-            $points = $validated['points'];
-            $isPositive = $points > 0;
-
-            if ($isPositive) {
-                $userPoint->total_points += $points;
-                $userPoint->adjusted_points += $points;
-            } else {
-                $points = abs($points);
-                $userPoint->total_points -= $points;
-                $userPoint->adjusted_points -= $points;
-            }
-
-            $userPoint->save();
 
             // Create transaction record with correct type
-            $transaction = $userPoint->transactions()->create([
+            $transaction = \Modules\SystemSetting\app\Models\UserPointsTransaction::create([
                 'user_id' => $userId,
                 'points' => $validated['points'],
                 'type' => 'adjusted',
+                'transactionable_id' => null,
+                'transactionable_type' => null,
             ]);
 
             // Store descriptions in both languages
             $transaction->setTranslation('description', 'en', $validated['description_en']);
             $transaction->setTranslation('description', 'ar', $validated['description_ar']);
+            $transaction->save();
 
+            // Refresh customer to get updated calculations
+            $customer->refresh();
 
             return response()->json([
                 'success' => true,
                 'message' => trans('systemsetting::points.points_adjusted_successfully'),
                 'data' => [
-                    'total_points' => $userPoint->total_points,
-                    'earned_points' => $userPoint->earned_points,
-                    'adjusted_points' => $userPoint->adjusted_points,
-                    'redeemed_points' => $userPoint->redeemed_points,
-                    'available_points' => $userPoint->available_points,
+                    'total_points' => $customer->total_points,
+                    'earned_points' => $customer->earned_points,
+                    'adjusted_points' => $customer->adjusted_points,
+                    'redeemed_points' => $customer->redeemed_points,
+                    'available_points' => $customer->available_points,
                 ]
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {

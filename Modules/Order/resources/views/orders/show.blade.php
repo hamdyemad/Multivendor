@@ -780,11 +780,9 @@
                                 // Get shipping cost for this product
                                 $prodShippingCost = $prod->shipping_cost ?? 0;
 
-                                // Commission is stored as percentage, calculate the amount
-                                $commPercent =
-                                    $prod->commission > 0
-                                        ? $prod->commission
-                                        : $prod->vendorProduct?->product?->department?->commission ?? 0;
+                                // Commission is stored as percentage, use it directly
+                                // Don't fallback to department commission if it's 0 (e.g., when points are used)
+                                $commPercent = $prod->commission ?? 0;
                                 $prodTotalWithShipping = $prodTotalWithTax + $prodShippingCost;
                                 $commAmount = ($prodTotalWithShipping * $commPercent) / 100;
 
@@ -797,6 +795,11 @@
                             // Total with tax for vendor remaining calculation
                             $totalProductsPriceWithTax = $totalProductsPriceBeforeTax + $totalProductsTax;
 
+                            // Get vendor shares (promo code and points that Bnaia pays to vendor)
+                            $vendorOrderStages = \Modules\Order\app\Models\VendorOrderStage::where('order_id', $order->id)->get();
+                            $totalPromoCodeShare = $vendorOrderStages->sum('promo_code_share') ?? 0;
+                            $totalPointsShare = $vendorOrderStages->sum('points_share') ?? 0;
+
                             // Calculate total with shipping (should match order total_price)
                             // Total = Subtotal with tax - Promo - Points + Fees - Discounts + Shipping
                             $totalWithShippingOrder = $totalProductsPriceWithTax 
@@ -806,12 +809,16 @@
                                 + $order->shipping 
                                 - $order->points_cost;
                             
-                            // Recalculate remaining correctly: Total with Shipping - Commission
-                            // The per-product calculation doesn't include fees/discounts, so recalculate here
-                            $totalRemaining = $totalWithShippingOrder - $totalCommission;
+                            // Recalculate remaining correctly: Total with Shipping + Vendor Shares - Commission
+                            // Vendor shares (promo_code_share + points_share) are what Bnaia pays to vendor
+                            $totalRemaining = $totalWithShippingOrder + $totalPromoCodeShare + $totalPointsShare - $totalCommission;
                             
                             // Calculate total refunded amount (only completed refunds)
                             $totalRefundedAmount = $order->refunds()->where('status', 'refunded')->sum('total_refund_amount');
+                            
+                            // Calculate refunded fees and discounts
+                            $totalRefundedFees = $order->refunds()->where('status', 'refunded')->sum('vendor_fees_amount');
+                            $totalRefundedDiscounts = $order->refunds()->where('status', 'refunded')->sum('vendor_discounts_amount');
                             
                             // Calculate commission on refunded amount
                             // When products are refunded, the commission on those products should also be reversed
@@ -821,23 +828,29 @@
                                 foreach ($refund->items as $item) {
                                     $orderProduct = $item->orderProduct;
                                     if ($orderProduct) {
-                                        // Get commission percentage
-                                        $commPercent = $orderProduct->commission > 0 
-                                            ? $orderProduct->commission 
-                                            : ($orderProduct->vendorProduct?->product?->department?->commission ?? 0);
-                                        
                                         // Calculate refunded amount for this item (total_price already includes tax)
                                         $itemRefundAmount = $item->total_price + $item->shipping_amount;
                                         
-                                        // Calculate commission on this refunded amount
+                                        // Get commission percentage from order_products table
+                                        $commPercent = $orderProduct->commission ?? 0;
                                         $refundedCommission += ($itemRefundAmount * $commPercent) / 100;
                                     }
                                 }
                             }
                             
                             // Adjust commission and remaining after refunds
+                            // The refunded amount includes fees (added back) and discounts (subtracted)
+                            // So we need to account for the net impact on remaining
                             $finalCommission = $totalCommission - $refundedCommission;
-                            $finalRemaining = $totalRemaining - ($totalRefundedAmount - $refundedCommission);
+                            
+                            // Remaining calculation:
+                            // Start with: totalRemaining (which is totalWithShipping - commission)
+                            // Subtract: refunded products and shipping (reduces what vendor gets)
+                            // Add back: refunded commission (vendor doesn't pay commission on refunded items)
+                            // Add back: refunded fees (these were added to order total, now refunded)
+                            // Subtract: refunded discounts (these were subtracted from order total, now reversed)
+                            $netRefundImpact = $totalRefundedAmount - $refundedCommission;
+                            $finalRemaining = $totalRemaining - $netRefundImpact;
                         @endphp
                         <div class="row mb-40">
                             <div class="col-12">
@@ -924,31 +937,8 @@
                                                     style="color: #5f63f2;">{{ number_format($order->total_price, 2) }}
                                                     {{ currency() }}</span>
                                             </div>
-                                            <hr style="border-color: rgba(0,0,0,0.1); margin: 15px 0;">
-                                            <div class="summary-row mb-12" style="font-size: 16px;">
-                                                <span class="fw-bold">{{ trans('order::order.bnaia_commission') }}</span>
-                                                <span class="fw-bold"
-                                                    style="color: #dc3545;">-{{ number_format($totalCommission, 2) }}
-                                                    {{ currency() }}</span>
-                                            </div>
                                             @if ($totalRefundedAmount > 0)
-                                                <div class="summary-row mb-12" style="font-size: 14px; color: #666; padding-left: 20px;">
-                                                    <span class="fw-500">{{ trans('order::order.minus') }} {{ trans('order::order.refunded_commission') }}</span>
-                                                    <span class="fw-500"
-                                                        style="color: #28a745;">-{{ number_format($refundedCommission, 2) }}
-                                                        {{ currency() }}</span>
-                                                </div>
-                                                <div class="summary-row mb-12" style="font-size: 16px; background: #fff3cd; padding: 10px 15px; border-radius: 6px;">
-                                                    <span class="fw-bold" style="color: #856404;">= {{ trans('order::order.net_commission') }}</span>
-                                                    <span class="fw-bold"
-                                                        style="color: #856404;">{{ number_format($finalCommission, 2) }}
-                                                        {{ currency() }}</span>
-                                                </div>
                                                 <hr style="border-color: rgba(0,0,0,0.1); margin: 15px 0;">
-                                                <div class="summary-row mb-12" style="font-size: 14px; color: #666;">
-                                                    <span>{{ trans('order::order.calculation') }}: {{ number_format($totalWithShippingOrder, 2) }} - {{ number_format($totalCommission, 2) }}</span>
-                                                    <span></span>
-                                                </div>
                                                 <div class="summary-row mb-12" style="font-size: 16px; background: #e8f5e9; padding: 10px 15px; border-radius: 6px;">
                                                     <span class="fw-bold" style="color: #2e7d32;">= {{ trans('order::order.remaining_before_refund') }}</span>
                                                     <span class="fw-bold"
@@ -975,24 +965,13 @@
                                                         {{ currency() }}</span>
                                                 </div>
                                                 <hr style="border-color: rgba(0,0,0,0.1); margin: 15px 0;">
-                                                <div class="summary-row mb-12" style="font-size: 14px; color: #666;">
-                                                    <span>{{ trans('order::order.calculation') }}: {{ number_format($totalRemaining, 2) }} - {{ number_format($totalRefundedAmount - $refundedCommission, 2) }}</span>
-                                                    <span></span>
-                                                </div>
-                                            @else
-                                                <hr style="border-color: rgba(0,0,0,0.1); margin: 15px 0;">
-                                                <div class="summary-row mb-12" style="font-size: 14px; color: #666;">
-                                                    <span>{{ trans('order::order.calculation') }}: {{ number_format($totalWithShippingOrder, 2) }} - {{ number_format($totalCommission, 2) }}</span>
-                                                    <span></span>
+                                                <div class="summary-row mb-12" style="font-size: 18px; background: #e3f2fd; padding: 12px 15px; border-radius: 6px;">
+                                                    <span class="fw-bold" style="color: #1976d2;">= {{ trans('order::order.final_remaining') }}</span>
+                                                    <span class="fw-bold"
+                                                        style="color: #1976d2;">{{ number_format($finalRemaining, 2) }}
+                                                        {{ currency() }}</span>
                                                 </div>
                                             @endif
-                                            <hr style="border-color: rgba(0,0,0,0.1); margin: 15px 0;">
-                                            <div class="summary-row" style="font-size: 18px; background: #e8f5e9; padding: 12px 15px; border-radius: 6px;">
-                                                <span class="fw-bold">= {{ trans('order::order.remaining') }}</span>
-                                                <span class="fw-bold"
-                                                    style="color: {{ $finalRemaining >= 0 ? '#28a745' : '#dc3545' }};">{{ number_format($finalRemaining, 2) }}
-                                                    {{ currency() }}</span>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -1025,10 +1004,8 @@
                                 $vendorShippingCost += $prodShippingCost;
 
                                 // Calculate commission from each product (on total with shipping)
-                                $commPercent =
-                                    $prod->commission > 0
-                                        ? $prod->commission
-                                        : $prod->vendorProduct?->product?->department?->commission ?? 0;
+                                // Use commission directly from order_products (don't fallback to department)
+                                $commPercent = $prod->commission ?? 0;
                                 $prodTotalWithShipping = $prodTotalWithTax + $prodShippingCost;
                                 $prodCommissionAmount = ($prodTotalWithShipping * $commPercent) / 100;
                                 $totalCommission += $prodCommissionAmount;
@@ -1085,7 +1062,8 @@
                             $totalWithShipping = $totalProductsPriceWithTax + $shippingToUse;
                             
                             // Calculate refunds for this vendor (if vendor user) or all refunds (if admin)
-                            $vendorRefundedAmount = 0;
+                            $vendorRefundedAmount = 0; // Customer refund amount (for display)
+                            $vendorDeductionAmount = 0; // Vendor deduction amount (for remaining calculation)
                             $vendorRefundedCommission = 0;
                             
                             if (isset($isVendorUser) && $isVendorUser && $currentVendorId) {
@@ -1102,15 +1080,23 @@
                             foreach ($vendorRefunds as $refund) {
                                 $vendorRefundedAmount += $refund->total_refund_amount;
                                 
+                                // Calculate vendor deduction: products + shipping + fees - discounts - return shipping
+                                $vendorDeductionAmount += $refund->total_products_amount 
+                                    + $refund->total_shipping_amount 
+                                    + ($refund->vendor_fees_amount ?? 0)
+                                    - ($refund->vendor_discounts_amount ?? 0)
+                                    - ($refund->return_shipping_cost ?? 0);
+                                
                                 foreach ($refund->items as $item) {
                                     $orderProduct = $item->orderProduct;
                                     if ($orderProduct) {
-                                        $commPercent = $orderProduct->commission > 0 
-                                            ? $orderProduct->commission 
-                                            : ($orderProduct->vendorProduct?->product?->department?->commission ?? 0);
+                                        // Get commission from order_products table (0 is valid, means no commission)
+                                        $commPercent = $orderProduct->commission ?? 0;
                                         
                                         $itemRefundAmount = $item->total_price + $item->shipping_amount;
-                                        $vendorRefundedCommission += ($itemRefundAmount * $commPercent) / 100;
+                                        if ($itemRefundAmount > 0 && $commPercent > 0) {
+                                            $vendorRefundedCommission += ($itemRefundAmount * $commPercent) / 100;
+                                        }
                                     }
                                 }
                             }
@@ -1139,14 +1125,31 @@
                                 // Update total with fees and discounts
                                 $totalWithShippingAndExtras = $totalWithShipping + $vendorFees - $vendorDiscounts;
 
+                                // Calculate vendor's share of customer promo/points discounts
+                                // Based on vendor's GRAND TOTAL percentage (products + shipping)
+                                $orderGrandTotal = $order->products->sum(function($p) {
+                                    return $p->price + ($p->shipping_cost ?? 0);
+                                });
+                                
+                                $vendorGrandTotal = $totalProductsPriceWithTax + $vendorShippingCost;
+                                $vendorPercentage = $orderGrandTotal > 0 
+                                    ? ($vendorGrandTotal / $orderGrandTotal) 
+                                    : 0;
+                                
+                                $vendorCustomerPromoAmount = ($order->customer_promo_code_amount ?? 0) * $vendorPercentage;
+                                $vendorCustomerPointsCost = ($order->points_cost ?? 0) * $vendorPercentage;
+
                                 // Calculate final commission and remaining after refunds
                                 $finalVendorCommission = $totalCommission - $vendorRefundedCommission;
                                 
                                 // Remaining calculation:
-                                // Start with total, subtract original commission to get remaining before refund
-                                // Then subtract the net refund impact (refunded amount minus refunded commission)
+                                // The totalWithShippingAndExtras already represents what vendor receives
+                                // (including promo_code_share and points_share that Bnaia pays)
+                                // So we just subtract commission and refund impact
                                 $remainingBeforeRefund = $totalWithShippingAndExtras - $totalCommission;
-                                $netRefundImpact = $vendorRefundedAmount - $vendorRefundedCommission;
+                                
+                                // Use vendor deduction amount (not customer refund amount) for remaining calculation
+                                $netRefundImpact = $vendorDeductionAmount - $vendorRefundedCommission;
                                 $totalRemainingWithExtras = $remainingBeforeRefund - $netRefundImpact;
                             @endphp
                             <div class="col-12 mb-3">
@@ -1156,6 +1159,8 @@
                                     :refundedAmount="$vendorRefundedAmount" :refundedCommission="$vendorRefundedCommission" :finalCommission="$finalVendorCommission"
                                     :remaining="$totalRemainingWithExtras"
                                     :promoCodeShare="$vendorPromoCodeShare" :pointsShare="$vendorPointsShare" :fees="$vendorFees" :discounts="$vendorDiscounts"
+                                    :customerPromoAmount="$vendorCustomerPromoAmount" :customerPointsCost="$vendorCustomerPointsCost"
+                                    :orderCustomerPaid="$order->customer_paid ?? null"
                                     :colors="['#28a745', '#5dd879']" />
                             </div>
                         @else
@@ -1269,10 +1274,8 @@
                                         $vendorShipping += $prodShippingCost;
 
                                         // Calculate commission from each product (on total with shipping)
-                                        $commPercent =
-                                            $prod->commission > 0
-                                                ? $prod->commission
-                                                : $prod->vendorProduct?->product?->department?->commission ?? 0;
+                                        // Use commission directly from order_products (don't fallback to department)
+                                        $commPercent = $prod->commission ?? 0;
                                         $prodTotalWithShipping = $prodTotalWithTax + $prodShippingCost;
                                         $prodCommissionAmount = ($prodTotalWithShipping * $commPercent) / 100;
                                         $vendorTotalCommission += $prodCommissionAmount;
@@ -1309,8 +1312,23 @@
                                     $vendorTotalWithShippingAndExtras =
                                         $vendorTotalWithShipping + $vendorFees - $vendorDiscounts;
 
+                                    // Calculate vendor's share of customer promo/points discounts
+                                    // Based on vendor's GRAND TOTAL percentage (products + shipping)
+                                    $orderGrandTotal = $order->products->sum(function($p) {
+                                        return $p->price + ($p->shipping_cost ?? 0);
+                                    });
+                                    
+                                    $vendorGrandTotal = $vendorSubtotalWithTax + $vendorShipping;
+                                    $vendorPercentage = $orderGrandTotal > 0 
+                                        ? ($vendorGrandTotal / $orderGrandTotal) 
+                                        : 0;
+                                    
+                                    $vendorCustomerPromoAmount = ($order->customer_promo_code_amount ?? 0) * $vendorPercentage;
+                                    $vendorCustomerPointsCost = ($order->points_cost ?? 0) * $vendorPercentage;
+
                                     // Calculate refunds for this vendor
-                                    $vendorRefundedAmount = 0;
+                                    $vendorRefundedAmount = 0; // Customer refund amount (for display)
+                                    $vendorDeductionAmount = 0; // Vendor deduction amount (for remaining calculation)
                                     $vendorRefundedCommission = 0;
                                     
                                     $vendorRefunds = $order->refunds()->where('status', 'refunded')
@@ -1321,15 +1339,23 @@
                                     foreach ($vendorRefunds as $refund) {
                                         $vendorRefundedAmount += $refund->total_refund_amount;
                                         
+                                        // Calculate vendor deduction: products + shipping + fees - discounts - return shipping
+                                        $vendorDeductionAmount += $refund->total_products_amount 
+                                            + $refund->total_shipping_amount 
+                                            + ($refund->vendor_fees_amount ?? 0)
+                                            - ($refund->vendor_discounts_amount ?? 0)
+                                            - ($refund->return_shipping_cost ?? 0);
+                                        
                                         foreach ($refund->items as $item) {
                                             $orderProduct = $item->orderProduct;
                                             if ($orderProduct) {
-                                                $commPercent = $orderProduct->commission > 0 
-                                                    ? $orderProduct->commission 
-                                                    : ($orderProduct->vendorProduct?->product?->department?->commission ?? 0);
+                                                // Get commission from order_products table (0 is valid, means no commission)
+                                                $commPercent = $orderProduct->commission ?? 0;
                                                 
                                                 $itemRefundAmount = $item->total_price + $item->shipping_amount;
-                                                $vendorRefundedCommission += ($itemRefundAmount * $commPercent) / 100;
+                                                if ($itemRefundAmount > 0 && $commPercent > 0) {
+                                                    $vendorRefundedCommission += ($itemRefundAmount * $commPercent) / 100;
+                                                }
                                             }
                                         }
                                     }
@@ -1338,10 +1364,13 @@
                                     $finalVendorCommission = $vendorTotalCommission - $vendorRefundedCommission;
                                     
                                     // Remaining calculation:
-                                    // Start with total, subtract original commission to get remaining before refund
-                                    // Then subtract the net refund impact (refunded amount minus refunded commission)
+                                    // The vendorTotalWithShippingAndExtras already represents what vendor receives
+                                    // (including promo_code_share and points_share that Bnaia pays)
+                                    // So we just subtract commission and refund impact
                                     $remainingBeforeRefund = $vendorTotalWithShippingAndExtras - $vendorTotalCommission;
-                                    $netRefundImpact = $vendorRefundedAmount - $vendorRefundedCommission;
+                                    
+                                    // Use vendor deduction amount (not customer refund amount) for remaining calculation
+                                    $netRefundImpact = $vendorDeductionAmount - $vendorRefundedCommission;
                                     $vendorTotalRemaining = $remainingBeforeRefund - $netRefundImpact;
 
                                     // Get color for this vendor
@@ -1357,6 +1386,8 @@
                                         :refundedAmount="$vendorRefundedAmount" :refundedCommission="$vendorRefundedCommission" :finalCommission="$finalVendorCommission"
                                         :remaining="$vendorTotalRemaining"
                                         :promoCodeShare="$promoCodeShare" :pointsShare="$pointsShare" :fees="$vendorFees" :discounts="$vendorDiscounts"
+                                        :customerPromoAmount="$vendorCustomerPromoAmount" :customerPointsCost="$vendorCustomerPointsCost"
+                                        :orderCustomerPaid="$order->customer_paid ?? null"
                                         :colors="$colors" />
                                 </div>
                             @endforeach

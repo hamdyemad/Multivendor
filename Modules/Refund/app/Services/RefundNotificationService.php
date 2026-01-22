@@ -321,7 +321,7 @@ class RefundNotificationService
             type: $type,
             title: $title,
             description: $description,
-            url: $adminNotificationService->generateAdminUrl('admin.refunds.show', ['refundRequest' => $refundRequest->id]),
+            url: $adminNotificationService->generateAdminUrl('admin.refunds.show', ['id' => $refundRequest->id]),
             icon: $icon,
             color: $color,
             notifiable: $refundRequest,

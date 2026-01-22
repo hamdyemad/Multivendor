@@ -20,20 +20,20 @@ class CustomerPointsApiController extends Controller
     public function myPoints(Request $request)
     {
         try {
-            $user = $request->user();
+            $customer = $request->user();
 
-            // Get user points
-            $userPoints = UserPoints::where('user_id', $user->id)->first();
-
-            $currencyId = $user->country?->currency?->id;
+            // Use dynamic calculations from Customer model
+            $currencyId = $customer->country?->currency?->id;
             $settings = $currencyId ? PointsSetting::where('currency_id', $currencyId)->first() : null;
             
+            // Calculate points value in currency
             $pointsValue = 0;
-            if ($userPoints && $settings && $settings->points_per_currency > 0) {
-                $pointsValue = ($userPoints->total_points / $settings->points_per_currency) * $settings->currency_per_point;
+            if ($customer->total_points > 0 && $settings && $settings->points_per_currency > 0) {
+                $pointsValue = ($customer->total_points / $settings->points_per_currency) * $settings->currency_per_point;
             }
 
-            $expiringSoon = UserPointsTransaction::where('user_id', $user->id)
+            // Get expiring soon transactions
+            $expiringSoon = UserPointsTransaction::where('user_id', $customer->id)
                 ->where('expires_at', '>', now())
                 ->where('expires_at', '<=', now()->addDays(30))
                 ->where('points', '>', 0)
@@ -41,12 +41,13 @@ class CustomerPointsApiController extends Controller
                 ->get();
 
             $data = [
-                'total_points' => $userPoints ? round($userPoints->total_points, 2) : 0,
+                'total_points' => round($customer->total_points, 2),
                 'points_value' => $pointsValue ? round($pointsValue, 2) : 0,
-                'earned_points' => $userPoints ? round($userPoints->earned_points, 2) : 0,
-                'redeemed_points' => $userPoints ? round($userPoints->redeemed_points, 2) : 0,
-                'expired_points' => $userPoints ? round($userPoints->expired_points, 2) : 0,
-                'available_points' => $userPoints ? round($userPoints->available_points, 2) : 0,
+                'earned_points' => round($customer->earned_points, 2),
+                'redeemed_points' => round($customer->redeemed_points, 2),
+                'expired_points' => round($customer->expired_points, 2),
+                'adjusted_points' => round($customer->adjusted_points, 2),
+                'available_points' => round($customer->available_points, 2),
                 'expiring_soon' => $expiringSoon
             ];
 

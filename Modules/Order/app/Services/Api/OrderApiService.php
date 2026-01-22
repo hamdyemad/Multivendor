@@ -19,6 +19,7 @@ use Modules\Order\app\Pipelines\SyncOrderProducts;
 use Modules\Order\app\Pipelines\UpdateProductSales;
 use Modules\Order\app\Pipelines\EmptyCart;
 use Modules\Order\app\Pipelines\CalculatePointsUsagePipeline;
+use Modules\Order\app\Pipelines\AdjustCommissionForPoints;
 use Modules\Order\app\Pipelines\ValidateDiscountAgainstRemaining;
 
 class OrderApiService
@@ -53,6 +54,7 @@ class OrderApiService
                     CalculateExtras::class,
                     ValidateDiscountAgainstRemaining::class,
                     CalculatePointsUsagePipeline::class,
+                    // AdjustCommissionForPoints::class, // REMOVED: Commission should be calculated normally even with points
                     CalculateFinalTotal::class,
                     CreateOrder::class,
                     SyncOrderProducts::class,

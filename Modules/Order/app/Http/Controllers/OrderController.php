@@ -237,15 +237,22 @@ class OrderController extends Controller
                     $vendorFees = $vendorSpecificFees + $vendorSharedFees;
                     $vendorDiscounts = $vendorSpecificDiscounts + $vendorSharedDiscounts;
                     
-                    // Get vendor's promo code and points shares from vendor_order_stages
-                    $vendorOrderStage = \Modules\Order\app\Models\VendorOrderStage::where('order_id', $order->id)
-                        ->where('vendor_id', $currentVendorId)
-                        ->first();
-                    $promoCodeShare = $vendorOrderStage?->promo_code_share ?? 0;
-                    $pointsShare = $vendorOrderStage?->points_share ?? 0;
+                    // Calculate vendor's share of customer promo/points discounts
+                    // Based on vendor's GRAND TOTAL percentage (products + shipping)
+                    $orderGrandTotal = $order->products->sum(function($p) {
+                        return $p->price + ($p->shipping_cost ?? 0);
+                    });
                     
-                    // Vendor total = products + shipping + fees - discounts - promo_code - points
-                    $displayTotalPrice = $vendorProductTotal + $vendorShipping + $vendorFees - $vendorDiscounts - $promoCodeShare - $pointsShare;
+                    $vendorGrandTotal = $vendorProductTotal + $vendorShipping;
+                    $vendorPercentage = $orderGrandTotal > 0 
+                        ? ($vendorGrandTotal / $orderGrandTotal) 
+                        : 0;
+                    
+                    $customerPromoShare = ($order->customer_promo_code_amount ?? 0) * $vendorPercentage;
+                    $customerPointsShare = ($order->points_cost ?? 0) * $vendorPercentage;
+                    
+                    // Vendor total = products + shipping + fees - discounts - customer promo/points
+                    $displayTotalPrice = $vendorProductTotal + $vendorShipping + $vendorFees - $vendorDiscounts - $customerPromoShare - $customerPointsShare;
                 }
 
                 // Get product stages - filter by vendor if vendor user
@@ -606,8 +613,22 @@ class OrderController extends Controller
                     $feesShare = $vendorOrderStage?->fees_share ?? 0;
                     $discountsShare = $vendorOrderStage?->discounts_share ?? 0;
                     
-                    // Vendor total = products + shipping + fees - discounts
-                    $vendorProductTotal = $vendorProductTotal + $vendorShipping + $feesShare - $promoCodeShare - $pointsShare - $discountsShare;
+                    // Calculate vendor's share of customer promo/points discounts
+                    // Based on vendor's GRAND TOTAL percentage (products + shipping)
+                    $orderGrandTotal = $order->products->sum(function($p) {
+                        return $p->price + ($p->shipping_cost ?? 0);
+                    });
+                    
+                    $vendorGrandTotal = $vendorProductTotal + $vendorShipping;
+                    $vendorPercentage = $orderGrandTotal > 0 
+                        ? ($vendorGrandTotal / $orderGrandTotal) 
+                        : 0;
+                    
+                    $customerPromoShare = ($order->customer_promo_code_amount ?? 0) * $vendorPercentage;
+                    $customerPointsShare = ($order->points_cost ?? 0) * $vendorPercentage;
+                    
+                    // Vendor total = products + shipping + fees - customer discounts
+                    $vendorProductTotal = $vendorProductTotal + $vendorShipping + $feesShare - $customerPromoShare - $customerPointsShare - $discountsShare;
                 }
             } else {
                 // For admins: if specific products selected, filter by those IDs
@@ -616,9 +637,13 @@ class OrderController extends Controller
                         return in_array($product->id, $selectedProductIds);
                     });
                 }
+                
+                // Set customer shares for admin view
+                $customerPromoShare = $order->customer_promo_code_amount ?? 0;
+                $customerPointsShare = $order->points_cost ?? 0;
             }
             
-            return view('order::orders.print', compact('order', 'isVendorUser', 'vendorProducts', 'vendorProductTotal'));
+            return view('order::orders.print', compact('order', 'isVendorUser', 'vendorProducts', 'vendorProductTotal', 'customerPromoShare', 'customerPointsShare'));
         } catch (\Exception $e) {
             return abort(500, trans('order::order.error_loading_order'));
         }

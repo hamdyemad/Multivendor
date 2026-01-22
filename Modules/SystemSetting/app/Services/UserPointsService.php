@@ -5,7 +5,7 @@ namespace Modules\SystemSetting\app\Services;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Modules\SystemSetting\app\Models\UserPointsTransaction;
-use App\Models\User;
+use Modules\Customer\app\Models\Customer;
 
 class UserPointsService
 {
@@ -18,28 +18,35 @@ class UserPointsService
         string $transactionableType,
         int $transactionableId,
         string $description,
-        ?\DateTime $expiresAt = null
+        ?\DateTime $expiresAt = null,
+        ?float $pointsPerCurrency = null
     ): UserPointsTransaction {
-        return DB::transaction(function () use ($userId, $points, $transactionableType, $transactionableId, $description, $expiresAt) {
-            // Update user points
-            $user = User::findOrFail($userId);
-            $user->increment('points', $points);
+        return DB::transaction(function () use ($userId, $points, $transactionableType, $transactionableId, $description, $expiresAt, $pointsPerCurrency) {
+            // Verify customer exists
+            $customer = Customer::findOrFail($userId);
 
-            // Create transaction record
+            // Create transaction record (points are calculated from transactions, not stored in customer table)
             $transaction = UserPointsTransaction::create([
                 'user_id' => $userId,
                 'points' => $points,
                 'type' => 'earned',
                 'transactionable_type' => $transactionableType,
                 'transactionable_id' => $transactionableId,
-                'description' => $description,
                 'expires_at' => $expiresAt,
+                'points_per_currency' => $pointsPerCurrency,
             ]);
 
-            Log::info('Points added to user', [
-                'user_id' => $userId,
+            // Set description using Translation trait
+            $transaction->setTranslation('description', 'en', $description);
+            $transaction->setTranslation('description', 'ar', $description);
+            $transaction->save();
+
+            Log::info('Points added to customer', [
+                'customer_id' => $userId,
                 'points' => $points,
+                'points_per_currency' => $pointsPerCurrency,
                 'transaction_id' => $transaction->id,
+                'total_points' => $this->getUserPoints($userId),
             ]);
 
             return $transaction;
@@ -54,27 +61,34 @@ class UserPointsService
         float $points,
         string $transactionableType,
         int $transactionableId,
-        string $description
+        string $description,
+        ?float $pointsPerCurrency = null
     ): UserPointsTransaction {
-        return DB::transaction(function () use ($userId, $points, $transactionableType, $transactionableId, $description) {
-            // Update user points
-            $user = User::findOrFail($userId);
-            $user->decrement('points', $points);
+        return DB::transaction(function () use ($userId, $points, $transactionableType, $transactionableId, $description, $pointsPerCurrency) {
+            // Verify customer exists
+            $customer = Customer::findOrFail($userId);
 
-            // Create transaction record (negative points)
+            // Create transaction record with negative points (points are calculated from transactions, not stored in customer table)
             $transaction = UserPointsTransaction::create([
                 'user_id' => $userId,
                 'points' => -$points,
                 'type' => 'adjusted',
                 'transactionable_type' => $transactionableType,
                 'transactionable_id' => $transactionableId,
-                'description' => $description,
+                'points_per_currency' => $pointsPerCurrency,
             ]);
 
-            Log::info('Points deducted from user', [
-                'user_id' => $userId,
+            // Set description using Translation trait
+            $transaction->setTranslation('description', 'en', $description);
+            $transaction->setTranslation('description', 'ar', $description);
+            $transaction->save();
+
+            Log::info('Points deducted from customer', [
+                'customer_id' => $userId,
                 'points' => $points,
+                'points_per_currency' => $pointsPerCurrency,
                 'transaction_id' => $transaction->id,
+                'total_points' => $this->getUserPoints($userId),
             ]);
 
             return $transaction;
@@ -89,27 +103,34 @@ class UserPointsService
         float $points,
         string $transactionableType,
         int $transactionableId,
-        string $description
+        string $description,
+        ?float $pointsPerCurrency = null
     ): UserPointsTransaction {
-        return DB::transaction(function () use ($userId, $points, $transactionableType, $transactionableId, $description) {
-            // Update user points
-            $user = User::findOrFail($userId);
-            $user->decrement('points', $points);
+        return DB::transaction(function () use ($userId, $points, $transactionableType, $transactionableId, $description, $pointsPerCurrency) {
+            // Verify customer exists
+            $customer = Customer::findOrFail($userId);
 
-            // Create transaction record (negative points)
+            // Create transaction record with negative points (points are calculated from transactions, not stored in customer table)
             $transaction = UserPointsTransaction::create([
                 'user_id' => $userId,
                 'points' => -$points,
                 'type' => 'redeemed',
                 'transactionable_type' => $transactionableType,
                 'transactionable_id' => $transactionableId,
-                'description' => $description,
+                'points_per_currency' => $pointsPerCurrency,
             ]);
 
-            Log::info('Points redeemed by user', [
-                'user_id' => $userId,
+            // Set description using Translation trait
+            $transaction->setTranslation('description', 'en', $description);
+            $transaction->setTranslation('description', 'ar', $description);
+            $transaction->save();
+
+            Log::info('Points redeemed by customer', [
+                'customer_id' => $userId,
                 'points' => $points,
+                'points_per_currency' => $pointsPerCurrency,
                 'transaction_id' => $transaction->id,
+                'total_points' => $this->getUserPoints($userId),
             ]);
 
             return $transaction;
@@ -125,24 +146,28 @@ class UserPointsService
         string $description
     ): UserPointsTransaction {
         return DB::transaction(function () use ($userId, $points, $description) {
-            // Update user points
-            $user = User::findOrFail($userId);
-            $user->decrement('points', $points);
+            // Verify customer exists
+            $customer = Customer::findOrFail($userId);
 
-            // Create transaction record (negative points)
+            // Create transaction record with negative points (points are calculated from transactions, not stored in customer table)
             $transaction = UserPointsTransaction::create([
                 'user_id' => $userId,
                 'points' => -$points,
                 'type' => 'expired',
                 'transactionable_type' => null,
                 'transactionable_id' => null,
-                'description' => $description,
             ]);
 
-            Log::info('Points expired for user', [
-                'user_id' => $userId,
+            // Set description using Translation trait
+            $transaction->setTranslation('description', 'en', $description);
+            $transaction->setTranslation('description', 'ar', $description);
+            $transaction->save();
+
+            Log::info('Points expired for customer', [
+                'customer_id' => $userId,
                 'points' => $points,
                 'transaction_id' => $transaction->id,
+                'total_points' => $this->getUserPoints($userId),
             ]);
 
             return $transaction;
@@ -150,12 +175,12 @@ class UserPointsService
     }
 
     /**
-     * Get user's total points
+     * Get user's total points (calculated from transactions)
      */
     public function getUserPoints(int $userId): float
     {
-        $user = User::find($userId);
-        return $user ? $user->points : 0;
+        // Calculate total points from all transactions
+        return UserPointsTransaction::where('user_id', $userId)->sum('points');
     }
 
     /**

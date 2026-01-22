@@ -44,6 +44,8 @@ Route::get('inject-data', [InjectDataController::class, 'inject'])->name('inject
 
 // Admin Notifications
 Route::prefix('notifications')->name('notifications.')->group(function() {
+    Route::get('/', [AdminNotificationController::class, 'index'])->name('index');
+    Route::get('/count', [AdminNotificationController::class, 'count'])->name('count');
     Route::get('/{id}', [AdminNotificationController::class, 'show'])->name('show');
     Route::post('/mark-read', [AdminNotificationController::class, 'markAsRead'])->name('mark-read');
     Route::post('/mark-all-read', [AdminNotificationController::class, 'markAllAsRead'])->name('mark-all-read');

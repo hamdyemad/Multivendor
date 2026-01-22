@@ -341,7 +341,6 @@
         </script>
         <script>
             function getVendorBalance(vendor_id) {
-                let vendor_id = $("#vendor_id").value();
                 let url = "{{ route('admin.getVendorBalance', ':vendor_id') }}";
                 url = url.replace(':vendor_id', vendor_id);
 

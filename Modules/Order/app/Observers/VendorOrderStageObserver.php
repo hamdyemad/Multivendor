@@ -187,6 +187,13 @@ class VendorOrderStageObserver
 
             $currencyId = $country->currency->id;
 
+            // Get points per currency rate from settings
+            $pointsSetting = \Modules\SystemSetting\app\Models\PointsSetting::where('currency_id', $currencyId)
+                ->where('is_active', true)
+                ->first();
+
+            $pointsPerCurrency = $pointsSetting ? (float) $pointsSetting->points_value : 0;
+
             // Get order products for this vendor
             $orderProducts = OrderProduct::where('order_id', $vendorOrderStage->order_id)
                 ->where('vendor_id', $vendorOrderStage->vendor_id)
@@ -243,6 +250,7 @@ class VendorOrderStageObserver
                 'type' => 'earned',
                 'transactionable_type' => VendorOrderStage::class,
                 'transactionable_id' => $vendorOrderStage->id,
+                'points_per_currency' => $pointsPerCurrency,
             ]);
 
             // Set transaction descriptions
@@ -255,6 +263,7 @@ class VendorOrderStageObserver
                 'vendor_id' => $vendorOrderStage->vendor_id,
                 'customer_id' => $customerId,
                 'points_awarded' => $totalPoints,
+                'points_per_currency' => $pointsPerCurrency,
                 'new_total_points' => $userPoints->total_points
             ]);
 

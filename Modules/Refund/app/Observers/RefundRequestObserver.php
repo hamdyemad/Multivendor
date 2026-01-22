@@ -175,34 +175,116 @@ class RefundRequestObserver
                     $refundRequest->saveQuietly(); // Save without triggering observer again
                 }
                 
-                // 2. Update Customer Points using service
+                // 2. Calculate points to deduct based on original earning rate
+                $pointsToDeduct = 0;
+                $pointsPerCurrency = null;
+                
+                if ($customer) {
+                    // Customer ID is the user ID for points system
+                    $userId = $customer->id;
+                    
+                    // Find the points transaction from when this order was delivered
+                    // Get all vendor order stages for this order
+                    $vendorOrderStages = \Modules\Order\app\Models\VendorOrderStage::where('order_id', $order->id)
+                        ->where('vendor_id', $refundRequest->vendor_id)
+                        ->pluck('id');
+                    
+                    // Find the earned points transaction for this vendor's order stage
+                    $earnedTransaction = \Modules\SystemSetting\app\Models\UserPointsTransaction::where('user_id', $userId)
+                        ->where('type', 'earned')
+                        ->where('transactionable_type', \Modules\Order\app\Models\VendorOrderStage::class)
+                        ->whereIn('transactionable_id', $vendorOrderStages)
+                        ->orderBy('created_at', 'desc')
+                        ->first();
+                    
+                    if ($earnedTransaction && $earnedTransaction->points_per_currency > 0) {
+                        // Use the same rate that was used when earning points
+                        $pointsPerCurrency = (float) $earnedTransaction->points_per_currency;
+                        
+                        // Calculate points to deduct: refunded amount * points per currency
+                        // total_products_amount already includes tax
+                        $pointsToDeduct = (int) floor($refundRequest->total_products_amount * $pointsPerCurrency);
+                        
+                        Log::info('Calculated points to deduct using original earning rate', [
+                            'refund_id' => $refundRequest->id,
+                            'refunded_amount' => $refundRequest->total_products_amount,
+                            'points_per_currency' => $pointsPerCurrency,
+                            'points_to_deduct' => $pointsToDeduct,
+                            'original_transaction_id' => $earnedTransaction->id,
+                        ]);
+                    } else {
+                        // Fallback: Get current points setting for the currency
+                        $country = $order->country;
+                        if ($country && $country->currency) {
+                            $pointsSetting = \Modules\SystemSetting\app\Models\PointsSetting::where('currency_id', $country->currency->id)
+                                ->where('is_active', true)
+                                ->first();
+                            
+                            if ($pointsSetting && $pointsSetting->points_value > 0) {
+                                $pointsPerCurrency = (float) $pointsSetting->points_value;
+                                $pointsToDeduct = (int) floor($refundRequest->total_products_amount * $pointsPerCurrency);
+                                
+                                Log::warning('Using current points setting (original transaction not found)', [
+                                    'refund_id' => $refundRequest->id,
+                                    'refunded_amount' => $refundRequest->total_products_amount,
+                                    'points_per_currency' => $pointsPerCurrency,
+                                    'points_to_deduct' => $pointsToDeduct,
+                                ]);
+                            }
+                        }
+                    }
+                }
+                
+                // 3. Update Customer Points using service
                 // Deduct points that were earned from this purchase (if any)
-                if ($refundRequest->points_to_deduct > 0 && $customer && $customer->user_id) {
+                if ($pointsToDeduct > 0 && $customer) {
                     try {
+                        Log::info('Attempting to deduct points for refund', [
+                            'refund_id' => $refundRequest->id,
+                            'customer_id' => $customer->id,
+                            'points_to_deduct' => $pointsToDeduct,
+                            'points_per_currency' => $pointsPerCurrency,
+                        ]);
+                        
                         $this->userPointsService->deductPoints(
-                            userId: $customer->user_id,
-                            points: $refundRequest->points_to_deduct,
+                            userId: $customer->id,
+                            points: $pointsToDeduct,
                             transactionableType: RefundRequest::class,
                             transactionableId: $refundRequest->id,
-                            description: "Points deducted for refund: {$refundRequest->refund_number}"
+                            description: "Points deducted for refund: {$refundRequest->refund_number}",
+                            pointsPerCurrency: $pointsPerCurrency
                         );
+                        
+                        Log::info('Successfully deducted points for refund', [
+                            'refund_id' => $refundRequest->id,
+                            'points_deducted' => $pointsToDeduct,
+                            'points_per_currency' => $pointsPerCurrency,
+                        ]);
                     } catch (\Exception $e) {
                         Log::error('Failed to deduct points for refund', [
                             'refund_id' => $refundRequest->id,
                             'error' => $e->getMessage(),
+                            'trace' => $e->getTraceAsString(),
                         ]);
                     }
+                } else {
+                    Log::warning('Skipping points deduction for refund', [
+                        'refund_id' => $refundRequest->id,
+                        'points_to_deduct' => $pointsToDeduct,
+                        'has_customer' => $customer !== null,
+                    ]);
                 }
                 
                 // Return points that were used in the original purchase
-                if ($refundRequest->points_used > 0 && $customer && $customer->user_id) {
+                if ($refundRequest->points_used > 0 && $customer) {
                     try {
                         $this->userPointsService->addPoints(
-                            userId: $customer->user_id,
+                            userId: $customer->id,
                             points: $refundRequest->points_used,
                             transactionableType: RefundRequest::class,
                             transactionableId: $refundRequest->id,
-                            description: "Points refunded for refund: {$refundRequest->refund_number}"
+                            description: "Points refunded for refund: {$refundRequest->refund_number}",
+                            pointsPerCurrency: $pointsPerCurrency
                         );
                     } catch (\Exception $e) {
                         Log::error('Failed to refund points', [
@@ -232,19 +314,29 @@ class RefundRequestObserver
                 try {
                     $commissionDetails = $this->calculateCommissionReversal($refundRequest);
                     
+                    // Calculate vendor deduction amount
+                    // Vendor loses: products + shipping + fees - discounts - return shipping
+                    $vendorDeduction = $refundRequest->total_products_amount 
+                        + $refundRequest->total_shipping_amount 
+                        + ($refundRequest->vendor_fees_amount ?? 0)
+                        - ($refundRequest->vendor_discounts_amount ?? 0)
+                        - ($refundRequest->return_shipping_cost ?? 0);
+                    
                     \Modules\Accounting\app\Models\AccountingEntry::create([
                         'order_id' => $order->id,
                         'vendor_id' => $vendor?->id,
                         'type' => 'refund',
-                        'amount' => $refundRequest->total_refund_amount,
+                        'amount' => $vendorDeduction,
                         'commission_rate' => $commissionDetails['average_commission_rate'],
                         'commission_amount' => $commissionDetails['total_commission'],
-                        'vendor_amount' => $refundRequest->total_refund_amount - $commissionDetails['total_commission'],
+                        'vendor_amount' => $vendorDeduction - $commissionDetails['total_commission'],
                         'description' => "Refund for order {$order->order_number} - {$refundRequest->refund_number}",
                         'metadata' => [
                             'refund_request_id' => $refundRequest->id,
                             'refund_number' => $refundRequest->refund_number,
                             'refund_reason' => $refundRequest->reason,
+                            'customer_refund_amount' => $refundRequest->total_refund_amount,
+                            'vendor_deduction_amount' => $vendorDeduction,
                             'products_amount' => $refundRequest->total_products_amount,
                             'shipping_amount' => $refundRequest->total_shipping_amount,
                             'tax_amount' => $refundRequest->total_tax_amount,
@@ -329,13 +421,8 @@ class RefundRequestObserver
                 continue;
             }
             
-            // Get commission percentage from order_product (already stored there)
+            // Get commission percentage directly from order_products table
             $commissionPercent = $orderProduct->commission ?? 0;
-            
-            // If commission is 0, try to get it from department
-            if ($commissionPercent == 0 && $orderProduct->vendorProduct) {
-                $commissionPercent = $orderProduct->vendorProduct->product->department->commission ?? 0;
-            }
             
             // Calculate commission on refunded amount
             // Commission is calculated on (price + shipping) including tax

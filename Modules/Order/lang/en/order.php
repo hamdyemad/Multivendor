@@ -291,6 +291,7 @@ return [
     'promo_code_discount' => 'Promo Code Discount',
     'points_discount' => 'Points Discount',
     'customer_total' => 'Customer Total',
+    'customer_paid_zero_note' => 'Customer paid 0 EGP for entire order (used promo code and/or points)',
     'discount_share_explanation_title' => 'How Discount Sharing Works',
     'refund_summary' => 'Refund Summary',
     'refunded_products_amount' => 'Refunded Products Amount',

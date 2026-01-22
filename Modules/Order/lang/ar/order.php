@@ -288,6 +288,7 @@ return [
     'minus' => 'ناقص',
     'plus' => 'زائد',
     'customer_total' => 'إجمالي العميل',
+    'customer_paid_zero_note' => 'العميل دفع 0 جنيه للطلب بالكامل (استخدم برومو كود و/أو نقاط)',
     'discount_share_explanation_title' => 'كيف يعمل توزيع الخصم',
     'refund_summary' => 'ملخص الاسترجاع',
     'refunded_products_amount' => 'قيمة المنتجات المرتجعة',

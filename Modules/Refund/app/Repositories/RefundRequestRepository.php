@@ -140,6 +140,37 @@ class RefundRequestRepository implements RefundRequestRepositoryInterface
 
             // Group items by vendor
             $itemsByVendor = $this->groupItemsByVendor($data['items']);
+            
+            // Validate that we're not refunding more than purchased for each order product
+            foreach ($data['items'] as $item) {
+                $orderProduct = \Modules\Order\app\Models\OrderProduct::findOrFail($item['order_product_id']);
+                
+                // Calculate total already refunded for this order product (excluding cancelled)
+                $totalRefunded = \Modules\Refund\app\Models\RefundRequestItem::where('order_product_id', $orderProduct->id)
+                    ->whereHas('refundRequest', function($q) {
+                        $q->whereNotIn('status', ['cancelled']);
+                    })
+                    ->sum('quantity');
+                
+                // Check if requested quantity exceeds available
+                $availableForRefund = $orderProduct->quantity - $totalRefunded;
+                if ($item['quantity'] > $availableForRefund) {
+                    $message = trans('refund::refund.validation.quantity_exceeds_available', [
+                        'requested' => $item['quantity'],
+                        'available' => $availableForRefund,
+                        'product' => $orderProduct->vendorProduct->product->name ?? 'Product #' . $orderProduct->id
+                    ]);
+                    \Log::error('Refund quantity validation failed', [
+                        'order_product_id' => $orderProduct->id,
+                        'requested_quantity' => $item['quantity'],
+                        'available_quantity' => $availableForRefund,
+                        'total_quantity' => $orderProduct->quantity,
+                        'already_refunded' => $totalRefunded,
+                    ]);
+                    throw new \Exception($message);
+                }
+            }
+            
             $createdRefunds = [];
 
             // Create independent refund requests for each vendor
@@ -168,8 +199,8 @@ class RefundRequestRepository implements RefundRequestRepositoryInterface
                     ->select('promo_code_share', 'points_share')
                     ->first();
                 
-                $promoCodeShare = $vendorShares->promo_code_share ?? 0;
-                $pointsShare = $vendorShares->points_share ?? 0;
+                $promoCodeShare = $vendorShares ? ($vendorShares->promo_code_share ?? 0) : 0;
+                $pointsShare = $vendorShares ? ($vendorShares->points_share ?? 0) : 0;
                 
                 // Calculate proportional amounts based on refunded quantity
                 $proportionRefunded = $totalOrderQtyForVendor > 0 ? $totalRefundedQty / $totalOrderQtyForVendor : 0;
@@ -324,8 +355,19 @@ class RefundRequestRepository implements RefundRequestRepositoryInterface
     {
         $refund = $this->findById($id);
         
-        if ($refund->status != 'pending') {
-            throw new \Exception('Cannot cancel this refund request');
+        // Cannot cancel if already refunded
+        if ($refund->status === 'refunded') {
+            throw new \Exception(trans('refund::refund.messages.cannot_cancel_refunded'));
+        }
+        
+        // Cannot cancel if already cancelled
+        if ($refund->status === 'cancelled') {
+            throw new \Exception(trans('refund::refund.messages.already_cancelled'));
+        }
+        
+        // Can only cancel pending refunds
+        if ($refund->status !== 'pending') {
+            throw new \Exception(trans('refund::refund.messages.can_only_cancel_pending'));
         }
 
         $refund = $this->update($id, [

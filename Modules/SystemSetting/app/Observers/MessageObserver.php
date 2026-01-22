@@ -40,16 +40,16 @@ class MessageObserver
     {
         $this->notificationService->create(
             type: 'new_message',
-            title: $message->name,
-            description: trans('menu.new_message'),
+            title: 'menu.new_message', // Translation key
+            description: 'menu.sent_new_message', // Translation key
             url: $this->notificationService->generateAdminUrl('admin.messages.show', ['message' => $message]),
             icon: 'uil-envelope',
             color: 'success',
             notifiable: $message,
             data: [
-                'message_id' => $message->id,
-                'name' => $message->name,
-                'email' => $message->email,
+                'common.message_id' => $message->id, // Translation key prefix
+                'common.name' => $message->name,
+                'common.email' => $message->email,
             ],
             vendorId: null
         );

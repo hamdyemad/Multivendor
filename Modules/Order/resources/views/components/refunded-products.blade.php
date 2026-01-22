@@ -30,14 +30,13 @@
             $refundsByVendor[$vendorId]['total_fees'] += $refund->vendor_fees_amount ?? 0;
             $refundsByVendor[$vendorId]['total_discounts'] += $refund->vendor_discounts_amount ?? 0;
             
-            // Calculate commission
+            // Calculate commission using commission from order_products
             foreach ($refund->items as $item) {
                 $orderProduct = $item->orderProduct;
                 if ($orderProduct) {
-                    $commPercent = $orderProduct->commission > 0 
-                        ? $orderProduct->commission 
-                        : ($orderProduct->vendorProduct?->product?->department?->commission ?? 0);
                     $itemRefundAmount = $item->total_price + $item->shipping_amount;
+                    // Get commission percentage from order_products table
+                    $commPercent = $orderProduct->commission ?? 0;
                     $refundsByVendor[$vendorId]['total_commission'] += ($itemRefundAmount * $commPercent) / 100;
                 }
             }
@@ -254,9 +253,8 @@
                                             
                                             // Calculate refund amount (total_price already includes tax)
                                             $itemRefundAmount = $refundItem->total_price + $refundItem->shipping_amount;
-                                            $commissionPercent = $orderProduct->commission > 0 
-                                                ? $orderProduct->commission 
-                                                : ($orderProduct->vendorProduct?->product?->department?->commission ?? 0);
+                                            // Get commission percentage from order_products table
+                                            $commissionPercent = $orderProduct->commission ?? 0;
                                             $itemRefundCommission = ($itemRefundAmount * $commissionPercent) / 100;
                                         @endphp
                                         <tr style="background: white; border-bottom: 1px solid #f0f0f0;">

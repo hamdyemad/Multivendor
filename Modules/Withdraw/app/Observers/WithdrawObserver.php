@@ -38,19 +38,19 @@ class WithdrawObserver
      */
     protected function createWithdrawRequestNotification(Withdraw $withdraw): void
     {
+        $vendorName = $withdraw->vendor?->name ?? trans('common.vendor');
+        
         $this->notificationService->create(
             type: 'withdraw_request',
-            title: $withdraw->vendor?->name ?? 'Vendor',
-            description: trans('menu.withdraw module.vendor_sent_request', ['vendor' => $withdraw->vendor?->name ?? 'Vendor']),
+            title: 'menu.withdraw module.withdraw_request', // Translation key
+            description: 'menu.withdraw module.vendor_sent_request', // Translation key with :vendor placeholder
             url: $this->notificationService->generateAdminUrl('admin.transactionsRequests', ['status' => 'new']),
             icon: 'uil-wallet',
             color: 'warning',
             notifiable: $withdraw,
             data: [
-                'withdraw_id' => $withdraw->id,
-                'vendor_id' => $withdraw->reciever_id,
-                'vendor_name' => $withdraw->vendor?->name,
-                'amount' => $withdraw->sent_amount,
+                'menu.withdraw module.withdraw_id' => $withdraw->id,
+                'common.vendor' => $vendorName, // This will replace :vendor in the description
             ],
             vendorId: null // For admin only
         );
@@ -62,13 +62,16 @@ class WithdrawObserver
     protected function createWithdrawStatusNotification(Withdraw $withdraw): void
     {
         $isAccepted = $withdraw->status === 'accepted';
-        
+        $vendorName = $withdraw->vendor?->name ?? trans('common.vendor');
+
         $this->notificationService->create(
             type: 'withdraw_status',
             title: $isAccepted 
-                ? trans('menu.withdraw module.bnaia_sent_money') 
-                : trans('menu.withdraw module.bnaia_rejected_request'),
-            description: trans('menu.withdraw module.request_value') . ': ' . $withdraw->sent_amount . ' ' . currency(),
+                ? 'menu.withdraw module.bnaia_sent_money' // Translation key
+                : 'menu.withdraw module.bnaia_rejected_request', // Translation key
+            description: $isAccepted
+                ? 'menu.withdraw module.request_accepted' // Translation key
+                : 'menu.withdraw module.request_rejected', // Translation key
             url: $this->notificationService->generateAdminUrl('admin.transactionsRequests', [
                 'status' => $isAccepted ? 'accepted' : 'rejected'
             ]),
@@ -76,9 +79,9 @@ class WithdrawObserver
             color: $isAccepted ? 'success' : 'danger',
             notifiable: $withdraw,
             data: [
-                'withdraw_id' => $withdraw->id,
-                'status' => $withdraw->status,
-                'amount' => $withdraw->sent_amount,
+                'menu.withdraw module.withdraw_id' => $withdraw->id,
+                'menu.withdraw module.status' => $withdraw->status,
+                'common.vendor' => $vendorName, // This will replace :vendor in the description
             ],
             vendorId: $withdraw->reciever_id // For specific vendor
         );

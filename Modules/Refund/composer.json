@@ -22,7 +22,6 @@
             "Modules\\Refund\\Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/Helpers/refund_helpers.php"
         ]
     },
     "autoload-dev": {

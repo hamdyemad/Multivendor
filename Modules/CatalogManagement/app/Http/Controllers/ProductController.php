@@ -114,6 +114,7 @@ class ProductController extends Controller
 
     /**
      * Update sort order for products (drag & drop)
+     * Swaps sort numbers instead of renumbering all items
      */
     public function updateSortOrder(Request $request)
     {
@@ -130,66 +131,47 @@ class ProductController extends Controller
             ]);
 
             $items = $request->items;
-            $itemIds = array_column($items, 'id');
 
-            // Get all products ordered by sort_number
-            $allProducts = VendorProduct::orderBy('sort_number', 'asc')->get();
-            
-            // Remove the dragged items from the list
-            $remainingProducts = $allProducts->filter(function($product) use ($itemIds) {
-                return !in_array($product->id, $itemIds);
-            })->values();
-
-            // Build new order: insert dragged items at their new positions
-            $newOrder = [];
-            $sortNumber = 1;
-
-            // Create a map of id => new_sort_number from request
-            $itemSortMap = [];
+            // Simple approach: Just update each item with its new sort_number
+            // If there's a conflict (two items with same sort_number), swap them
             foreach ($items as $item) {
-                $itemSortMap[$item['id']] = $item['sort_number'];
-            }
-
-            // Sort the dragged items by their new sort_number
-            usort($items, function($a, $b) {
-                return $a['sort_number'] - $b['sort_number'];
-            });
-
-            // Merge: go through positions and assign
-            $draggedIndex = 0;
-            $remainingIndex = 0;
-            $totalCount = count($allProducts);
-
-            for ($pos = 1; $pos <= $totalCount; $pos++) {
-                // Check if any dragged item should be at this position
-                if ($draggedIndex < count($items) && $items[$draggedIndex]['sort_number'] == $pos) {
-                    $newOrder[] = ['id' => $items[$draggedIndex]['id'], 'sort_number' => $sortNumber++];
-                    $draggedIndex++;
-                } elseif ($remainingIndex < count($remainingProducts)) {
-                    $newOrder[] = ['id' => $remainingProducts[$remainingIndex]->id, 'sort_number' => $sortNumber++];
-                    $remainingIndex++;
+                $productId = $item['id'];
+                $newSortNumber = $item['sort_number'];
+                
+                // Get the product being moved
+                $product = VendorProduct::find($productId);
+                if (!$product) {
+                    continue;
                 }
+                
+                $oldSortNumber = $product->sort_number;
+                
+                // If sort number hasn't changed, skip
+                if ($oldSortNumber == $newSortNumber) {
+                    continue;
+                }
+                
+                // Find if there's another product with the target sort_number
+                $conflictingProduct = VendorProduct::where('sort_number', $newSortNumber)
+                    ->where('id', '!=', $productId)
+                    ->first();
+                
+                if ($conflictingProduct) {
+                    // Swap: Give the conflicting product the old sort number
+                    $conflictingProduct->update(['sort_number' => $oldSortNumber]);
+                    Log::info('Swapped sort numbers', [
+                        'product_1' => $productId,
+                        'product_1_new_sort' => $newSortNumber,
+                        'product_2' => $conflictingProduct->id,
+                        'product_2_new_sort' => $oldSortNumber
+                    ]);
+                }
+                
+                // Update the dragged product with new sort number
+                $product->update(['sort_number' => $newSortNumber]);
             }
 
-            // Add any remaining dragged items
-            while ($draggedIndex < count($items)) {
-                $newOrder[] = ['id' => $items[$draggedIndex]['id'], 'sort_number' => $sortNumber++];
-                $draggedIndex++;
-            }
-
-            // Add any remaining products
-            while ($remainingIndex < count($remainingProducts)) {
-                $newOrder[] = ['id' => $remainingProducts[$remainingIndex]->id, 'sort_number' => $sortNumber++];
-                $remainingIndex++;
-            }
-
-            // Update all sort numbers
-            foreach ($newOrder as $item) {
-                VendorProduct::where('id', $item['id'])
-                    ->update(['sort_number' => $item['sort_number']]);
-            }
-
-            Log::info('Products reordered successfully', ['new_order' => $newOrder]);
+            Log::info('Products reordered successfully');
 
             return response()->json([
                 'success' => true,

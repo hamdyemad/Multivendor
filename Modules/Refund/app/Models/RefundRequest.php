@@ -458,9 +458,6 @@ class RefundRequest extends BaseModel
                 $q->where('refund_number', 'like', '%' . $filters['search'] . '%')
                   ->orWhereHas('order', function ($orderQuery) use ($filters) {
                       $orderQuery->where('order_number', 'like', '%' . $filters['search'] . '%');
-                  })
-                  ->orWhereHas('customer', function ($customerQuery) use ($filters) {
-                      $customerQuery->where('name', 'like', '%' . $filters['search'] . '%');
                   });
             });
         }

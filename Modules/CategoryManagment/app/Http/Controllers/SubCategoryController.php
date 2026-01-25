@@ -330,6 +330,7 @@ class SubCategoryController extends Controller
      * Reorder subcategories by updating sort_number
     /**
      * Reorder subcategories by updating sort_number
+     * Swaps sort numbers instead of renumbering all items
      */
     public function reorder($lang, $countryCode, Request $request)
     {
@@ -346,60 +347,47 @@ class SubCategoryController extends Controller
             ]);
 
             $items = $request->items;
-            $itemIds = array_column($items, 'id');
 
-            // Get all subcategories ordered by sort_number
-            $allSubCategories = \Modules\CategoryManagment\app\Models\SubCategory::orderBy('sort_number', 'asc')->get();
-            
-            // Remove the dragged items from the list
-            $remainingSubCategories = $allSubCategories->filter(function($subcat) use ($itemIds) {
-                return !in_array($subcat->id, $itemIds);
-            })->values();
-
-            // Build new order: insert dragged items at their new positions
-            $newOrder = [];
-            $sortNumber = 1;
-
-            // Sort the dragged items by their new sort_number
-            usort($items, function($a, $b) {
-                return $a['sort_number'] - $b['sort_number'];
-            });
-
-            // Merge: go through positions and assign
-            $draggedIndex = 0;
-            $remainingIndex = 0;
-            $totalCount = count($allSubCategories);
-
-            for ($pos = 1; $pos <= $totalCount; $pos++) {
-                // Check if any dragged item should be at this position
-                if ($draggedIndex < count($items) && $items[$draggedIndex]['sort_number'] == $pos) {
-                    $newOrder[] = ['id' => $items[$draggedIndex]['id'], 'sort_number' => $sortNumber++];
-                    $draggedIndex++;
-                } elseif ($remainingIndex < count($remainingSubCategories)) {
-                    $newOrder[] = ['id' => $remainingSubCategories[$remainingIndex]->id, 'sort_number' => $sortNumber++];
-                    $remainingIndex++;
+            // Simple approach: Just update each item with its new sort_number
+            // If there's a conflict (two items with same sort_number), swap them
+            foreach ($items as $item) {
+                $subCategoryId = $item['id'];
+                $newSortNumber = $item['sort_number'];
+                
+                // Get the subcategory being moved
+                $subCategory = \Modules\CategoryManagment\app\Models\SubCategory::find($subCategoryId);
+                if (!$subCategory) {
+                    continue;
                 }
+                
+                $oldSortNumber = $subCategory->sort_number;
+                
+                // If sort number hasn't changed, skip
+                if ($oldSortNumber == $newSortNumber) {
+                    continue;
+                }
+                
+                // Find if there's another subcategory with the target sort_number
+                $conflictingSubCategory = \Modules\CategoryManagment\app\Models\SubCategory::where('sort_number', $newSortNumber)
+                    ->where('id', '!=', $subCategoryId)
+                    ->first();
+                
+                if ($conflictingSubCategory) {
+                    // Swap: Give the conflicting subcategory the old sort number
+                    $conflictingSubCategory->update(['sort_number' => $oldSortNumber]);
+                    Log::info('Swapped subcategory sort numbers', [
+                        'subcategory_1' => $subCategoryId,
+                        'subcategory_1_new_sort' => $newSortNumber,
+                        'subcategory_2' => $conflictingSubCategory->id,
+                        'subcategory_2_new_sort' => $oldSortNumber
+                    ]);
+                }
+                
+                // Update the dragged subcategory with new sort number
+                $subCategory->update(['sort_number' => $newSortNumber]);
             }
 
-            // Add any remaining dragged items
-            while ($draggedIndex < count($items)) {
-                $newOrder[] = ['id' => $items[$draggedIndex]['id'], 'sort_number' => $sortNumber++];
-                $draggedIndex++;
-            }
-
-            // Add any remaining subcategories
-            while ($remainingIndex < count($remainingSubCategories)) {
-                $newOrder[] = ['id' => $remainingSubCategories[$remainingIndex]->id, 'sort_number' => $sortNumber++];
-                $remainingIndex++;
-            }
-
-            // Update all sort numbers
-            foreach ($newOrder as $item) {
-                \Modules\CategoryManagment\app\Models\SubCategory::where('id', $item['id'])
-                    ->update(['sort_number' => $item['sort_number']]);
-            }
-
-            Log::info('SubCategories reordered successfully', ['new_order' => $newOrder]);
+            Log::info('SubCategories reordered successfully');
 
             return response()->json([
                 'success' => true,

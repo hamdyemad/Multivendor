@@ -375,8 +375,7 @@ class DepartmentController extends Controller
 
     /**
      * Reorder departments by updating sort_number
-    /**
-     * Reorder departments by updating sort_number
+     * Swaps sort numbers instead of renumbering all items
      */
     public function reorder($lang, $countryCode, Request $request)
     {
@@ -393,66 +392,47 @@ class DepartmentController extends Controller
             ]);
 
             $items = $request->items;
-            $itemIds = array_column($items, 'id');
 
-            // Get all departments ordered by sort_number
-            $allDepartments = \Modules\CategoryManagment\app\Models\Department::orderBy('sort_number', 'asc')->get();
-            
-            // Remove the dragged items from the list
-            $remainingDepartments = $allDepartments->filter(function($dept) use ($itemIds) {
-                return !in_array($dept->id, $itemIds);
-            })->values();
-
-            // Build new order: insert dragged items at their new positions
-            $newOrder = [];
-            $sortNumber = 1;
-
-            // Create a map of id => new_sort_number from request
-            $itemSortMap = [];
+            // Simple approach: Just update each item with its new sort_number
+            // If there's a conflict (two items with same sort_number), swap them
             foreach ($items as $item) {
-                $itemSortMap[$item['id']] = $item['sort_number'];
-            }
-
-            // Sort the dragged items by their new sort_number
-            usort($items, function($a, $b) {
-                return $a['sort_number'] - $b['sort_number'];
-            });
-
-            // Merge: go through positions and assign
-            $draggedIndex = 0;
-            $remainingIndex = 0;
-            $totalCount = count($allDepartments);
-
-            for ($pos = 1; $pos <= $totalCount; $pos++) {
-                // Check if any dragged item should be at this position
-                if ($draggedIndex < count($items) && $items[$draggedIndex]['sort_number'] == $pos) {
-                    $newOrder[] = ['id' => $items[$draggedIndex]['id'], 'sort_number' => $sortNumber++];
-                    $draggedIndex++;
-                } elseif ($remainingIndex < count($remainingDepartments)) {
-                    $newOrder[] = ['id' => $remainingDepartments[$remainingIndex]->id, 'sort_number' => $sortNumber++];
-                    $remainingIndex++;
+                $departmentId = $item['id'];
+                $newSortNumber = $item['sort_number'];
+                
+                // Get the department being moved
+                $department = \Modules\CategoryManagment\app\Models\Department::find($departmentId);
+                if (!$department) {
+                    continue;
                 }
+                
+                $oldSortNumber = $department->sort_number;
+                
+                // If sort number hasn't changed, skip
+                if ($oldSortNumber == $newSortNumber) {
+                    continue;
+                }
+                
+                // Find if there's another department with the target sort_number
+                $conflictingDepartment = \Modules\CategoryManagment\app\Models\Department::where('sort_number', $newSortNumber)
+                    ->where('id', '!=', $departmentId)
+                    ->first();
+                
+                if ($conflictingDepartment) {
+                    // Swap: Give the conflicting department the old sort number
+                    $conflictingDepartment->update(['sort_number' => $oldSortNumber]);
+                    Log::info('Swapped department sort numbers', [
+                        'department_1' => $departmentId,
+                        'department_1_new_sort' => $newSortNumber,
+                        'department_2' => $conflictingDepartment->id,
+                        'department_2_new_sort' => $oldSortNumber
+                    ]);
+                }
+                
+                // Update the dragged department with new sort number
+                $department->update(['sort_number' => $newSortNumber]);
             }
 
-            // Add any remaining dragged items
-            while ($draggedIndex < count($items)) {
-                $newOrder[] = ['id' => $items[$draggedIndex]['id'], 'sort_number' => $sortNumber++];
-                $draggedIndex++;
-            }
-
-            // Add any remaining departments
-            while ($remainingIndex < count($remainingDepartments)) {
-                $newOrder[] = ['id' => $remainingDepartments[$remainingIndex]->id, 'sort_number' => $sortNumber++];
-                $remainingIndex++;
-            }
-
-            // Update all sort numbers
-            foreach ($newOrder as $item) {
-                \Modules\CategoryManagment\app\Models\Department::where('id', $item['id'])
-                    ->update(['sort_number' => $item['sort_number']]);
-            }
-
-            Log::info('Departments reordered successfully', ['new_order' => $newOrder]);
+            Log::info('Departments reordered successfully');
 
             return response()->json([
                 'success' => true,

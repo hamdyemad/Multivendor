@@ -547,6 +547,7 @@ return [
     
     // Export
     'export_error' => 'خطأ في تصدير المنتجات',
+    'please_select_products_to_export' => 'يرجى تحديد منتج واحد على الأقل للتصدير',
     
     // Bulk Upload Error Messages
     'invalid_id_or_sku' => 'معرف أو رمز SKU غير صالح',

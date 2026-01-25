@@ -265,19 +265,42 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-12 d-flex align-items-center">
-                                        <button type="button" id="searchBtn"
-                                            class="btn btn-success btn-default btn-squared me-1"
-                                            title="{{ __('common.search') }}">
-                                            <i class="uil uil-search me-1"></i>
-                                            {{ __('common.search') }}
-                                        </button>
-                                        <button type="button" id="resetFilters"
-                                            class="btn btn-warning btn-default btn-squared me-1"
-                                            title="{{ __('common.reset') }}">
-                                            <i class="uil uil-redo me-1"></i>
-                                            {{ __('common.reset_filters') }}
-                                        </button>
+                                    <div class="col-md-12 d-flex align-items-center gap-2">
+                                        {{-- Per Page Selector --}}
+                                        <div class="d-flex align-items-center">
+                                            <label class="me-1 mb-0 text-muted" style="font-size: 13px;">{{ __('common.show') }}:</label>
+                                            <div style="width: 70px;">
+                                                <x-custom-select
+                                                    name="per_page_filter"
+                                                    id="per_page_filter"
+                                                    class="form-select-sm"
+                                                    :options="[
+                                                        ['id' => '10', 'name' => '10'],
+                                                        ['id' => '25', 'name' => '25'],
+                                                        ['id' => '50', 'name' => '50'],
+                                                        ['id' => '100', 'name' => '100']
+                                                    ]"
+                                                    :selected="'10'"
+                                                    :placeholder="''"
+                                                />
+                                            </div>
+                                            <span class="ms-1 mb-0 text-muted" style="font-size: 13px;">{{ __('common.entries') }}</span>
+                                        </div>
+                                        
+                                        <div class="d-flex gap-1">
+                                            <button type="button" id="searchBtn"
+                                                class="btn btn-success btn-default btn-squared"
+                                                title="{{ __('common.search') }}">
+                                                <i class="uil uil-search me-1"></i>
+                                                {{ __('common.search') }}
+                                            </button>
+                                            <button type="button" id="resetFilters"
+                                                class="btn btn-warning btn-default btn-squared"
+                                                title="{{ __('common.reset') }}">
+                                                <i class="uil uil-redo me-1"></i>
+                                                {{ __('common.reset_filters') }}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -289,6 +312,9 @@
                         <table id="productsDataTable" class="table mb-0 table-bordered table-hover" style="width:100%">
                             <thead>
                                 <tr class="userDatatable-header">
+                                    <th class="text-center" style="width: 40px;">
+                                        <input type="checkbox" id="selectAllProducts" class="form-check-input" style="cursor: pointer;">
+                                    </th>
                                     <th class="text-center"><span class="userDatatable-title">#</span></th>
                                     <th><span class="userDatatable-title">{{ __('catalogmanagement::product.product_information') }}</span></th>
                                     @if(auth()->user() && in_array(auth()->user()->user_type_id, \App\Models\UserType::adminIds()))
@@ -296,7 +322,6 @@
                                     @endif
                                     <th><span class="userDatatable-title">{{ __('catalogmanagement::product.approval_status') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('common.activation') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('common.created_at') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('common.actions') }}</span></th>
                                 </tr>
                             </thead>
@@ -390,7 +415,7 @@
             // Initialize all custom selects
             const customSelectIds = [
                 'vendor_filter', 'brand_filter', 'department_filter', 'category_filter',
-                'product_type', 'configuration_filter', 'active', 'stock_filter', 'status'
+                'product_type', 'configuration_filter', 'active', 'stock_filter', 'status', 'per_page_filter'
             ];
             
             customSelectIds.forEach(function(id) {
@@ -478,6 +503,15 @@
                 }
             });
 
+            // Per page filter change handler
+            const perPageEl = document.getElementById('per_page_filter');
+            if (perPageEl) {
+                perPageEl.addEventListener('change', function(e) {
+                    const perPage = e.detail ? e.detail.value : (typeof CustomSelect !== 'undefined' ? CustomSelect.getValue('per_page_filter') : 10);
+                    table.page.len(parseInt(perPage)).draw();
+                });
+            }
+
             // Trigger department change on page load if a department is selected
             const initialDepartmentId = typeof CustomSelect !== 'undefined' ? CustomSelect.getValue('department_filter') : '';
             if (initialDepartmentId) {
@@ -527,10 +561,20 @@
                         @endif
                         d.created_date_from = $('#created_date_from').val();
                         d.created_date_to = $('#created_date_to').val();
-                        d.per_page = $('#entriesSelect').val() || 10;
+                        d.per_page = typeof CustomSelect !== 'undefined' && document.getElementById('per_page_filter') ? CustomSelect.getValue('per_page_filter') : 10;
                     }
                 },
                 columns: [{
+                        data: null,
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center',
+                        width: '40px',
+                        render: function(data, type, row) {
+                            return `<input type="checkbox" class="form-check-input product-checkbox" data-product-id="${row.vendor_product_id}" style="cursor: pointer;">`;
+                        }
+                    },
+                    {
                         data: 'index',
                         name: 'index',
                         orderable: false,
@@ -622,6 +666,13 @@
                                 <small class="text-muted">{{ __('catalogmanagement::product.remaining_stock') }}:</small>
                                 <span class="badge ${stockBadgeClass} badge-round badge-lg ms-1">${remainingStock > 0 ? remainingStock.toLocaleString() : '{{ __('dashboard.out_of_stock') }}'}</span>
                             </div>`;
+                            // Created At
+                            if (row.created_at) {
+                                html += `<div class="mb-1">
+                                    <small class="text-muted"><i class="uil uil-calendar-alt"></i> {{ __('common.created_at') }}:</small>
+                                    <span class="text-dark ms-1">${row.created_at}</span>
+                                </div>`;
+                            }
                             html += '</div>';
 
                             html += '</div>';
@@ -694,15 +745,6 @@
                                     <label class="form-check-label" for="${switchId}"></label>
                                 </div>
                             </div>`;
-                        }
-                    },
-                    {
-                        data: 'created_at',
-                        name: 'created_at',
-                        orderable: false,
-                        searchable: false,
-                        render: function(data) {
-                            return data;
                         }
                     },
                     {
@@ -786,11 +828,7 @@
                 pageLength: 10,
                 lengthMenu: [10, 25, 50, 100],
                 order: [
-                    @if(auth()->user() && in_array(auth()->user()->user_type_id, [\App\Models\UserType::SUPER_ADMIN_TYPE, \App\Models\UserType::ADMIN_TYPE]))
-                        [5, 'desc'] // Created at column for admin users (with vendor column)
-                    @else
-                        [4, 'desc'] // Created at column for vendor users (without vendor column)
-                    @endif
+                    [1, 'desc'] // Index column (no default sorting, just show as is)
                 ],
                 language: {
                     lengthMenu: "{{ __('common.show') ?? 'Show' }} _MENU_",
@@ -832,12 +870,6 @@
                 }]
             });
             
-
-            // Entries Selector
-            $('#entriesSelect').html([10, 25, 50, 100].map(n => `<option value="${n}">${n}</option>`).join(''));
-            $('#entriesSelect').val(10).on('change', function() {
-                table.page.len($(this).val()).draw();
-            });
 
             // Search button click
             $('#searchBtn').on('click', function() {
@@ -907,6 +939,11 @@
                         CustomSelect.clear(id);
                     }
                 });
+
+                // Reset per page to default (10)
+                if (document.getElementById('per_page_filter') && typeof CustomSelect !== 'undefined') {
+                    CustomSelect.setValue('per_page_filter', '10');
+                }
 
                 // Reload table
                 table.ajax.reload();
@@ -1291,6 +1328,19 @@
                 const btn = $(this);
                 const originalHtml = btn.html();
                 
+                // Get selected product IDs
+                const selectedIds = [];
+                $('.product-checkbox:checked').each(function() {
+                    selectedIds.push($(this).data('product-id'));
+                });
+                
+                // Check if any products are selected
+                if (selectedIds.length === 0) {
+                    // Show info toast
+                    toastr.info('{{ __('catalogmanagement::product.please_select_products_to_export') }}', '{{ __('common.info') }}');
+                    return;
+                }
+                
                 // Disable button and show loading
                 btn.prop('disabled', true);
                 btn.html('<i class="uil uil-spinner-alt rotating"></i> {{ __('common.processing') }}');
@@ -1308,7 +1358,8 @@
                     is_active: (typeof CustomSelect !== 'undefined' && document.getElementById('active_status')) ? CustomSelect.getValue('active_status') : '',
                     stock_status: (typeof CustomSelect !== 'undefined' && document.getElementById('stock_status')) ? CustomSelect.getValue('stock_status') : '',
                     created_from: $('#created_date_from').val() || '',
-                    created_to: $('#created_date_to').val() || ''
+                    created_to: $('#created_date_to').val() || '',
+                    product_ids: selectedIds.join(',') // Add selected product IDs
                 };
                 
                 // Build query string
@@ -1331,6 +1382,34 @@
                     btn.html(originalHtml);
                 }, 2000);
             });
+            
+            // Select all checkbox handler
+            $('#selectAllProducts').on('change', function() {
+                const isChecked = $(this).prop('checked');
+                $('.product-checkbox').prop('checked', isChecked);
+                updateExportButtonState();
+            });
+            
+            // Individual checkbox handler
+            $(document).on('change', '.product-checkbox', function() {
+                // Update select all checkbox state
+                const totalCheckboxes = $('.product-checkbox').length;
+                const checkedCheckboxes = $('.product-checkbox:checked').length;
+                $('#selectAllProducts').prop('checked', totalCheckboxes === checkedCheckboxes);
+                updateExportButtonState();
+            });
+            
+            // Update export button state based on selection
+            function updateExportButtonState() {
+                const selectedCount = $('.product-checkbox:checked').length;
+                const btn = $('#exportBtn');
+                
+                if (selectedCount > 0) {
+                    btn.html(`<i class="uil uil-download-alt"></i> {{ __('common.export_excel') }} (${selectedCount})`);
+                } else {
+                    btn.html('<i class="uil uil-download-alt"></i> {{ __('common.export_excel') }}');
+                }
+            }
         });
     </script>
 @endpush

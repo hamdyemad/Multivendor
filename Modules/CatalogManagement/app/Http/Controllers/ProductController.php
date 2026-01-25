@@ -1025,6 +1025,7 @@ class ProductController extends Controller
     /**
      * Export products to Excel
      * Exports products that are currently displayed in the list with applied filters
+     * If product_ids are provided, only those products will be exported
      */
     public function export(Request $request)
     {
@@ -1049,10 +1050,20 @@ class ProductController extends Controller
                 'search' => $request->input('search'),
                 'status' => $request->input('status'),
             ];
+            
+            // Add product IDs filter if provided
+            if ($request->has('product_ids') && !empty($request->input('product_ids'))) {
+                $productIds = $request->input('product_ids');
+                // Convert comma-separated string to array
+                if (is_string($productIds)) {
+                    $productIds = explode(',', $productIds);
+                }
+                $filters['product_ids'] = array_filter($productIds);
+            }
 
             // Remove empty filters
             $filters = array_filter($filters, function($value) {
-                return $value !== null && $value !== '';
+                return $value !== null && $value !== '' && $value !== [];
             });
 
             $export = new \Modules\CatalogManagement\app\Exports\ProductsExport($isAdmin, $filters);

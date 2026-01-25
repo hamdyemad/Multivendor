@@ -542,6 +542,7 @@ return [
     
     // Export
     'export_error' => 'Error exporting products',
+    'please_select_products_to_export' => 'Please select at least one product to export',
     
     // Bulk Upload Error Messages
     'invalid_id_or_sku' => 'Invalid ID or SKU',

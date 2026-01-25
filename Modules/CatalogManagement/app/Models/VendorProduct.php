@@ -290,6 +290,12 @@ class VendorProduct extends BaseModel
      */
     public function scopeFilter(Builder $query, array $filters)
     {
+        // Product IDs filter (for selective export)
+        if (!empty($filters['product_ids'])) {
+            $productIds = is_array($filters['product_ids']) ? $filters['product_ids'] : [$filters['product_ids']];
+            $query->whereIn('id', $productIds);
+        }
+        
         // Handle search through product relationship instead of direct translations
         if (!empty($filters['search'])) {
             $search = $filters['search'];

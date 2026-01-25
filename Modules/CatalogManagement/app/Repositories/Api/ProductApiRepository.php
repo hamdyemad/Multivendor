@@ -350,17 +350,6 @@ class ProductApiRepository implements ProductApiRepositoryInterface
         if (empty($brandIds)) {
             return [];
         }
-        
-        // Get brand IDs from products
-        $brandIds = Product::whereIn('id', $productIds)
-            ->whereNotNull('brand_id')
-            ->pluck('brand_id')
-            ->unique()
-            ->toArray();
-        
-        if (empty($brandIds)) {
-            return [];
-        }
 
         return \Modules\CatalogManagement\app\Models\Brand::whereIn('id', $brandIds)
             ->where('active', true)

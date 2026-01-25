@@ -13,6 +13,8 @@
     'customSelectIds' => [],
     'order' => [[0, 'desc']],
     'pageLength' => 10,
+    'customScript' => null, // New: Custom JavaScript to inject
+    'additionalAjaxData' => null, // New: Additional ajax data function
 ])
 
 <div class="row">
@@ -59,8 +61,12 @@
                         <thead>
                             <tr class="userDatatable-header">
                                 @foreach($headers as $header)
-                                    <th class="{{ $header['class'] ?? '' }}">
-                                        <span class="userDatatable-title">{{ $header['label'] }}</span>
+                                    <th class="{{ $header['class'] ?? '' }}" @if(isset($header['style'])) style="{{ $header['style'] }}" @endif>
+                                        @if(isset($header['raw']) && $header['raw'])
+                                            {!! $header['label'] !!}
+                                        @else
+                                            <span class="userDatatable-title">{{ $header['label'] }}</span>
+                                        @endif
                                     </th>
                                 @endforeach
                             </tr>
@@ -115,8 +121,21 @@
         if (urlParams.has('created_date_from')) $('#created_date_from').val(urlParams.get('created_date_from'));
         if (urlParams.has('created_date_to')) $('#created_date_to').val(urlParams.get('created_date_to'));
 
-        // Parse columns (will be evaluated as JavaScript)
-        const columns = {!! $columnsJson !!};
+        // Parse columns - check if columns are defined in custom script or passed as JSON
+        let columns;
+        if (typeof window.datatableColumns !== 'undefined') {
+            // Columns defined in custom script
+            columns = window.datatableColumns;
+        } else if ('{{ $columnsJson }}' === 'COLUMNS_DEFINED_IN_SCRIPT') {
+            // Columns will be defined in custom script below
+            columns = [];
+        } else {
+            // Parse columns from JSON
+            let columnsJson = `{!! $columnsJson !!}`;
+            
+            // Evaluate the JSON string to get the columns array
+            columns = eval('(' + columnsJson + ')');
+        }
 
         // Initialize DataTable
         let table = $('#{{ $tableId }}').DataTable({
@@ -129,7 +148,13 @@
                     d.search = $('#search').val();
                     d.created_date_from = $('#created_date_from').val();
                     d.created_date_to = $('#created_date_to').val();
-                    d.per_page = $('#entriesSelect').val() || {{ $pageLength }};
+                    
+                    // Get per_page from per_page_filter if exists, otherwise use default
+                    if (typeof CustomSelect !== 'undefined' && document.getElementById('per_page_filter')) {
+                        d.per_page = CustomSelect.getValue('per_page_filter') || {{ $pageLength }};
+                    } else {
+                        d.per_page = $('#entriesSelect').val() || {{ $pageLength }};
+                    }
 
                     // Add custom select values
                     customSelectIds.forEach(function(id) {
@@ -137,6 +162,11 @@
                             d[id] = CustomSelect.getValue(id);
                         }
                     });
+
+                    @if($additionalAjaxData)
+                        // Additional ajax data from custom script
+                        {!! $additionalAjaxData !!}
+                    @endif
                 }
             },
             columns: columns,
@@ -173,6 +203,15 @@
             },
             dom: '<"row"<"col-sm-12"tr>><"row mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
         });
+
+        // Per page filter change handler (if exists)
+        const perPageEl = document.getElementById('per_page_filter');
+        if (perPageEl) {
+            perPageEl.addEventListener('change', function(e) {
+                const perPage = e.detail ? e.detail.value : (typeof CustomSelect !== 'undefined' ? CustomSelect.getValue('per_page_filter') : {{ $pageLength }});
+                table.page.len(parseInt(perPage)).draw();
+            });
+        }
 
         // Search button click
         $('#searchBtn').on('click', function() {
@@ -220,6 +259,11 @@
                 }
             });
 
+            // Reset per page to default (10)
+            if (document.getElementById('per_page_filter') && typeof CustomSelect !== 'undefined') {
+                CustomSelect.setValue('per_page_filter', '10');
+            }
+
             table.ajax.reload();
         });
 
@@ -227,6 +271,11 @@
         if ($('html').attr('dir') === 'rtl') {
             $('.dataTables_wrapper').addClass('text-end');
         }
+
+        @if($customScript)
+            // Custom JavaScript from parent view
+            {!! $customScript !!}
+        @endif
     });
 </script>
 

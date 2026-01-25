@@ -222,7 +222,11 @@
                         if (typeof CustomSelect !== 'undefined' && document.getElementById(id)) {
                             const value = CustomSelect.getValue(id);
                             // Map filter IDs to backend parameter names
-                            const paramName = id.replace('_filter', '_id').replace('configuration_id', 'configuration').replace('stock_id', 'stock').replace('vendor_id', 'vendor_id');
+                            // Keep status_filter as is, convert others to _id format
+                            let paramName = id;
+                            if (id !== 'status_filter') {
+                                paramName = id.replace('_filter', '_id').replace('configuration_id', 'configuration').replace('stock_id', 'stock').replace('vendor_id', 'vendor_id');
+                            }
                             d[paramName] = value;
                         }
                     });

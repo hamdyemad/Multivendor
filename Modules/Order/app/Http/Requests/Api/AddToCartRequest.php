@@ -60,6 +60,7 @@ class AddToCartRequest extends FormRequest
     /**
      * Validate quantity against vendor product max_per_order
      * and validate product belongs to bundle/occasion
+     * and validate remaining stock (including existing cart items)
      */
     public function withValidator(Validator $validator): void
     {
@@ -86,6 +87,32 @@ class AddToCartRequest extends FormRequest
             if (!$variant) {
                 $validator->errors()->add('vendor_product_variant_id', __('validation.variant_not_belong_to_product'));
                 return;
+            }
+
+            // Check remaining stock including existing cart items
+            $remainingStock = $variant->remaining_stock ?? 0;
+            
+            // Get existing cart quantity for this variant
+            $customerId = $this->user()->id;
+            $existingCartQuantity = \Modules\Order\app\Models\Cart::where('customer_id', $customerId)
+                ->where('vendor_product_variant_id', $vendorProductVariantId)
+                ->where('type', $type)
+                ->where('bundle_id', $bundleId)
+                ->where('occasion_id', $occasionId)
+                ->sum('quantity');
+            
+            // Total quantity = existing cart + new request
+            $totalQuantity = $existingCartQuantity + $quantity;
+            
+            if ($totalQuantity > $remainingStock) {
+                $validator->errors()->add(
+                    'quantity',
+                    __('validation.quantity_exceeds_available_stock_with_cart', [
+                        'available' => $remainingStock,
+                        'in_cart' => $existingCartQuantity,
+                        'remaining' => max(0, $remainingStock - $existingCartQuantity)
+                    ])
+                );
             }
 
             // Check if quantity exceeds max_per_order

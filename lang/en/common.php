@@ -264,6 +264,7 @@ return [
     'sort_number' => 'Sort Number',
     'ascending' => 'Ascending',
     'descending' => 'Descending',
+    'sort_updated' => 'Sort order updated successfully',
     
     // Print
     'print' => 'Print',

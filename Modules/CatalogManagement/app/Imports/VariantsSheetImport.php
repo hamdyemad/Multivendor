@@ -122,12 +122,23 @@ class VariantsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                     }
                 }
 
+                // Check if the variant belongs to the correct product
+                // If product_id in Excel matches the existing variant's product, update it
+                // Otherwise, this is a conflict - SKU exists but for a different product
+                if ($existingVariant->vendor_product_id != $vendorProductId) {
+                    // SKU exists but belongs to a different product
+                    // For now, we'll update the variant to belong to the new product
+                    // This allows moving variants between products via import
+                    $existingVariant->vendor_product_id = $vendorProductId;
+                }
+
                 // Store old data for activity log
                 $oldVariantData = $existingVariant->toArray();
 
                 // Update existing variant
                 $hasDiscount = $this->normalizeYesNo($row['has_discount'] ?? '0') === 'yes';
                 $existingVariant->update([
+                    'vendor_product_id' => $vendorProductId, // Update product association
                     'variant_configuration_id' => !empty($row['variant_configuration_id']) ? (int)$row['variant_configuration_id'] : $existingVariant->variant_configuration_id,
                     'price' => $this->normalizeDecimal($row['price'] ?? $existingVariant->price),
                     'has_discount' => $hasDiscount,

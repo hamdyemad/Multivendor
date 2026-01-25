@@ -31,6 +31,7 @@ class StoreProductRequest extends FormRequest
             'is_active' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
             'max_per_order' => 'required|integer|min:1',
+            'sort_number' => 'nullable|integer|min:0',
             'video_link' => 'nullable|url',
             'bank_product_id' => 'nullable|exists:products,id',
 
@@ -74,8 +75,8 @@ class StoreProductRequest extends FormRequest
             $rules = array_merge($rules, [
                 'price' => 'required|numeric|min:0',
                 'has_discount' => 'nullable|boolean',
-                'price_before_discount' => 'nullable|numeric|min:0',
-                'discount_end_date' => 'nullable|date|after:today',
+                'price_before_discount' => 'required_if:has_discount,1|nullable|numeric|min:0',
+                'discount_end_date' => 'required_if:has_discount,1|nullable|date|after:today',
                 'stocks' => 'required|array',
                 'stocks.*.region_id' => 'required_with:stocks|exists:regions,id',
                 'stocks.*.quantity' => 'required_with:stocks|integer|min:0',
@@ -89,8 +90,8 @@ class StoreProductRequest extends FormRequest
                 'variants.*.sku' => 'required|string',
                 'variants.*.price' => 'required|numeric|min:0',
                 'variants.*.has_discount' => 'nullable|boolean',
-                'variants.*.price_before_discount' => 'nullable|numeric|min:0',
-                'variants.*.discount_end_date' => 'nullable|date|after:today',
+                'variants.*.price_before_discount' => 'required_if:variants.*.has_discount,1|nullable|numeric|min:0',
+                'variants.*.discount_end_date' => 'required_if:variants.*.has_discount,1|nullable|date|after:today',
 
                 // Variant configuration (standardized field name)
                 'variants.*.variant_configuration_id' => 'required|exists:variants_configurations,id',

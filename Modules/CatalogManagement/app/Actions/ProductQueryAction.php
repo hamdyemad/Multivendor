@@ -78,7 +78,7 @@ class ProductQueryAction
     protected function applySorting($query, array $filters)
     {
         $sortBy = $filters['sort_by'] ?? 'created_at';
-        $sortType = $filters['sort_type'] ?? 'desc';
+        $sortType = $filters['sort_type'] ?? 'asc';
 
         if (!in_array($sortType, ['asc', 'desc'])) {
             $sortType = 'desc';
@@ -139,7 +139,7 @@ class ProductQueryAction
                 
             default:
                 // Default sort by created_at
-                $query->orderBy('vendor_products.created_at', $sortType);
+                $query->orderBy('vendor_products.sort_number', $sortType);
         }
 
         return $query;

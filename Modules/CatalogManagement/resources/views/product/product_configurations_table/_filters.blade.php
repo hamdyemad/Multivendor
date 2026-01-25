@@ -163,6 +163,36 @@
                     </div>
                 </div>
 
+                @if(isAdmin())
+                {{-- Sort By Filter --}}
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="sort_column" class="il-gray fs-14 fw-500 mb-10">
+                            <i class="uil uil-sort me-1"></i>
+                            {{ __('common.sort_by') ?? 'Sort By' }}
+                        </label>
+                        <select class="form-control form-select ih-medium ip-gray radius-xs b-light px-15" id="sort_column">
+                            <option value="sort_number" selected>{{ __('common.sort_number') ?? 'Sort Number' }}</option>
+                            <option value="created_at">{{ __('common.created_at') ?? 'Created At' }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                {{-- Sort Direction Filter --}}
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="sort_direction" class="il-gray fs-14 fw-500 mb-10">
+                            <i class="uil uil-sort-amount-up me-1"></i>
+                            {{ __('common.sort_direction') ?? 'Sort Direction' }}
+                        </label>
+                        <select class="form-control form-select ih-medium ip-gray radius-xs b-light px-15" id="sort_direction">
+                            <option value="asc" selected>{{ __('common.ascending') ?? 'Ascending' }}</option>
+                            <option value="desc">{{ __('common.descending') ?? 'Descending' }}</option>
+                        </select>
+                    </div>
+                </div>
+                @endif
+
                 {{-- Action Buttons --}}
                 <div class="col-md-12 d-flex align-items-center gap-2">
                     {{-- Per Page Selector --}}

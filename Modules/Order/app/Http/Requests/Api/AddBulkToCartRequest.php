@@ -58,11 +58,13 @@ class AddBulkToCartRequest extends FormRequest
 
     /**
      * Validate bundle exists and items are valid
+     * and validate remaining stock (including existing cart items)
      */
     public function withValidator(Validator $validator): void
     {
         $validator->after(function ($validator) {
             $items = $this->input('items', []);
+            $customerId = $this->user()->id;
 
             // Validate each item in the bundle
             foreach ($items as $index => $item) {
@@ -80,6 +82,34 @@ class AddBulkToCartRequest extends FormRequest
                         __('validation.vendor_product_id_not_exist')
                     );
                     continue;
+                }
+
+                // Get variant and check remaining stock including existing cart items
+                $variant = \Modules\CatalogManagement\app\Models\VendorProductVariant::find($variantId);
+                if ($variant) {
+                    $remainingStock = $variant->remaining_stock ?? 0;
+                    
+                    // Get existing cart quantity for this variant
+                    $existingCartQuantity = \Modules\Order\app\Models\Cart::where('customer_id', $customerId)
+                        ->where('vendor_product_variant_id', $variantId)
+                        ->where('type', $type)
+                        ->where('bundle_id', $bundleId)
+                        ->where('occasion_id', $occasionId)
+                        ->sum('quantity');
+                    
+                    // Total quantity = existing cart + new request
+                    $totalQuantity = $existingCartQuantity + $quantity;
+                    
+                    if ($totalQuantity > $remainingStock) {
+                        $validator->errors()->add(
+                            "items.$index.quantity",
+                            __('validation.quantity_exceeds_available_stock_with_cart', [
+                                'available' => $remainingStock,
+                                'in_cart' => $existingCartQuantity,
+                                'remaining' => max(0, $remainingStock - $existingCartQuantity)
+                            ])
+                        );
+                    }
                 }
 
                 // Check if bundle exists and is active

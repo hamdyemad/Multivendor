@@ -511,7 +511,9 @@ class ProductApiRepository implements ProductApiRepositoryInterface
             ])
             ->withCount('reviews')
             ->withAvg('reviews', 'star') // assumes your reviews table has a 'star' column
-            ->get();
+            ->orderBy('sort_number')
+            ->get()
+            ;
 
         $reviews =[];
         $totalReviews = $vendorProducts->sum('reviews_count');

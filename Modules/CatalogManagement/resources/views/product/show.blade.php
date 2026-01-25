@@ -334,6 +334,21 @@
                                                     </p>
                                                 </div>
                                             </div>
+
+                                            @if(isAdmin())
+                                            {{-- Sort Number --}}
+                                            <div class="col-md-6">
+                                                <div class="view-item">
+                                                    <label
+                                                        class="il-gray fs-14 fw-500 mb-10">{{ __('common.sort_number') ?? 'Sort Number' }}</label>
+                                                    <p class="fs-15 color-dark fw-500">
+                                                        <span class="badge badge-info badge-round badge-lg">
+                                                            <i class="uil uil-sort-amount-up me-1"></i>{{ $product->sort_number ?? 0 }}
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>

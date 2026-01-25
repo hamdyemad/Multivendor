@@ -15,9 +15,11 @@ use Illuminate\Support\Facades\Auth;
 use Modules\CatalogManagement\app\Http\Resources\BankProductResource;
 use Modules\CatalogManagement\app\Models\ProductVariant;
 use Modules\CatalogManagement\app\Models\Tax;
+use Modules\CategoryManagment\app\Traits\HandlesSortNumber;
 
 class ProductRepository implements ProductInterface
 {
+    use HandlesSortNumber;
     public function getAllProducts(array $filters = [], int $perPage = 10)
     {
         $query = Product::with(['brand', 'category', 'variants', 'translations'])->filter($filters);
@@ -133,6 +135,19 @@ class ProductRepository implements ProductInterface
             // Get current user
             $currentUser = Auth::user();
 
+            // Handle sort number
+            // For vendors: auto-assign (last + 1)
+            // For admins: use provided value or 0
+            if (isAdmin()) {
+                // Admin: use provided value or 0, and handle duplicates
+                $sortNumber = $data['sort_number'] ?? 0;
+                $this->handleSortNumber(VendorProduct::class, null, $sortNumber);
+            } else {
+                // Vendor: get max sort_number and add 1
+                $maxSortNumber = VendorProduct::max('sort_number') ?? 0;
+                $sortNumber = $maxSortNumber + 1;
+            }
+
             // Check if we are creating from a bank product
             if (isset($data['bank_product_id']) && !empty($data['bank_product_id'])) {
                 $product = Product::findOrFail($data['bank_product_id']);
@@ -168,6 +183,7 @@ class ProductRepository implements ProductInterface
                     'sku' => $data['sku'] ?? null,
                     'video_link' => $data['video_link'] ?? null,
                     'max_per_order' => $data['max_per_order'],
+                    'sort_number' => $sortNumber,
                     'is_active' => $data['is_active'] ?? false,
                     'is_featured' => $data['is_featured'] ?? false,
                     'is_able_to_refund' => $data['is_able_to_refund'] ?? false,
@@ -215,6 +231,7 @@ class ProductRepository implements ProductInterface
                 [
                     'sku' => $data['sku'] ?? null,
                     'max_per_order' => $data['max_per_order'],
+                    'sort_number' => $data['sort_number'] ?? 0,
                     'is_active' => $data['is_active'] ?? false,
                     'is_featured' => $data['is_featured'] ?? false,
                     'status' => in_array($currentUser->user_type_id, UserType::vendorIds()) ? 'pending' : 'approved',
@@ -231,7 +248,8 @@ class ProductRepository implements ProductInterface
                 $newStatus = 'pending';
             }
             
-            $vendorProduct->update([
+            // Prepare update data
+            $updateData = [
                 'sku' => $data['sku'] ?? null,
                 'video_link' => $data['video_link'] ?? null,
                 'max_per_order' => $data['max_per_order'],
@@ -240,7 +258,23 @@ class ProductRepository implements ProductInterface
                 'is_able_to_refund' => $data['is_able_to_refund'] ?? false,
                 'refund_days' => $data['refund_days'] ?? 7,
                 'status' => $newStatus,
-            ]);
+            ];
+
+            // Handle sort_number
+            // For vendors: don't allow changing sort_number (keep existing)
+            // For admins: allow changing and handle duplicates
+            if (isAdmin() && isset($data['sort_number'])) {
+                $newSortNumber = (int) $data['sort_number'];
+                $oldSortNumber = $vendorProduct->sort_number;
+                
+                // Use the trait handler function
+                $this->handleSortNumber(VendorProduct::class, $vendorProduct->id, $newSortNumber, $oldSortNumber);
+                
+                $updateData['sort_number'] = $newSortNumber;
+            }
+            // If vendor, sort_number stays the same (not in updateData)
+            
+            $vendorProduct->update($updateData);
 
             // Manually sync active taxes to ensure they are applied on update
             $activeTaxIds = Tax::where('is_active', true)->pluck('id')->toArray();

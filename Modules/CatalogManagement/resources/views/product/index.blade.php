@@ -5,11 +5,16 @@
     $isAdmin = isAdmin();
     
     // Build table headers
-    $tableHeaders = [
-        ['label' => '<input type="checkbox" id="selectAllProducts" class="form-check-input" style="cursor: pointer;">', 'class' => 'text-center', 'style' => 'width: 40px;', 'raw' => true],
-        ['label' => '#', 'class' => 'text-center'],
-        ['label' => trans('catalogmanagement::product.product_information')],
-    ];
+    $tableHeaders = [];
+    
+    // Only show drag handle for admins
+    if ($isAdmin) {
+        $tableHeaders[] = ['label' => '<i class="uil uil-sort"></i>', 'class' => 'text-center', 'style' => 'width: 40px;', 'raw' => true];
+    }
+    
+    $tableHeaders[] = ['label' => '<input type="checkbox" id="selectAllProducts" class="form-check-input" style="cursor: pointer;">', 'class' => 'text-center', 'style' => 'width: 40px;', 'raw' => true];
+    $tableHeaders[] = ['label' => '#', 'class' => 'text-center'];
+    $tableHeaders[] = ['label' => trans('catalogmanagement::product.product_information')];
     
     if ($isAdmin) {
         $tableHeaders[] = ['label' => trans('catalogmanagement::product.vendor')];
@@ -166,7 +171,10 @@
         :customSelectIds="$datatableConfig['customSelectIds']"
         :order="$datatableConfig['order']"
         :pageLength="$datatableConfig['pageLength']"
-        :additionalAjaxData="$datatableConfig['additionalAjaxData']">
+        :additionalAjaxData="$datatableConfig['additionalAjaxData']"
+        :enableSorting="$isAdmin"
+        :sortUpdateUrl="route('admin.products.update-sort-order')"
+        sortPermission="products.edit">
         
         {{-- Additional Buttons Slot --}}
         <x-slot name="additionalButtons">

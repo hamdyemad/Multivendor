@@ -3,6 +3,7 @@
 namespace Modules\CatalogManagement\app\Imports;
 
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Concerns\SkipsUnknownSheets;
 
 /**
  * Products Import for Vendor Products
@@ -12,10 +13,10 @@ use Maatwebsite\Excel\Concerns\WithMultipleSheets;
  * - vendor_products: Vendor's products with SKU
  * - vendor_product_variants: Variants with SKU and price
  * - vendor_product_variant_stocks: Stock per region
- * - occasions: Occasions (admin only)
- * - occasion_products: Products in occasions (admin only)
+ * - occasions: Occasions (admin only, optional)
+ * - occasion_products: Products in occasions (admin only, optional)
  */
-class ProductsImport implements WithMultipleSheets
+class ProductsImport implements WithMultipleSheets, SkipsUnknownSheets
 {
     public array $productMap  = []; // excel_product_id -> db_product_id
     public array $vendorProductMap = []; // excel_product_id -> db_vendor_product_id
@@ -40,13 +41,20 @@ class ProductsImport implements WithMultipleSheets
             'variant_stock'     => new VariantStockSheetImport($this->variantMap, $this->errors, $this->isAdmin),
         ];
 
-        // Occasions sheets are only for admin imports
+        // Occasions sheets are optional for admin imports
+        // If the sheets don't exist in the Excel file, they will be skipped
         if ($this->isAdmin) {
             $sheets['occasions'] = new OccasionsSheetImport($this->occasionMap, $this->errors, $this->isAdmin);
             $sheets['occasion_products'] = new OccasionProductsSheetImport($this->occasionMap, $this->variantMap, $this->errors, $this->isAdmin);
         }
         
         return $sheets;
+    }
+
+    public function onUnknownSheet($sheetName)
+    {
+        // Silently skip unknown sheets - this allows occasions sheets to be optional
+        // No action needed, just implement the method to satisfy SkipsUnknownSheets
     }
 
     /**

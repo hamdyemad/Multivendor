@@ -67,3 +67,34 @@
         </div>
     </div>
 </div>
+
+{{-- Move to Bank Modal --}}
+<div class="modal fade" id="modal-move-to-bank" tabindex="-1" role="dialog" aria-labelledby="moveToBankModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-info" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="moveToBankModalLabel">{{ __('catalogmanagement::product.move_to_bank') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('common.close') }}"></button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-info-body d-flex mb-3">
+                    <div class="modal-info-icon warning">
+                        <img src="{{ asset('assets/img/svg/alert-circle.svg') }}" alt="alert" class="svg">
+                    </div>
+                    <div class="modal-info-text">
+                        <p class="fw-500" id="bank-product-name"></p>
+                        <p class="text-muted fs-13">{{ __('catalogmanagement::product.move_to_bank_confirmation') ?? 'Are you sure you want to move this product to the bank? This will make it available for all vendors.' }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light btn-outlined btn-sm" data-bs-dismiss="modal">
+                    <i class="uil uil-times"></i> {{ __('common.cancel') }}
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" id="confirmMoveToBankBtn">
+                    <i class="uil uil-database"></i> {{ __('catalogmanagement::product.move_to_bank') }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

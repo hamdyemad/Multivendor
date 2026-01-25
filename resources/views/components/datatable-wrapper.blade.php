@@ -15,6 +15,9 @@
     'pageLength' => 10,
     'customScript' => null, // New: Custom JavaScript to inject
     'additionalAjaxData' => null, // New: Additional ajax data function
+    'enableSorting' => false, // New: Enable drag & drop sorting
+    'sortUpdateUrl' => null, // New: URL to update sort order
+    'sortPermission' => null, // New: Permission required for sorting
 ])
 
 <div class="row">
@@ -55,6 +58,12 @@
 
             {{-- DataTable --}}
             <div class="table-responsive">
+                @if($enableSorting)
+                <div class="reorder-info" id="reorderInfo-{{ $tableId }}">
+                    <i class="uil uil-info-circle me-2"></i>
+                    {{ __('common.drag_drop_info') ?? 'Drag and drop rows to reorder. Changes will be saved automatically.' }}
+                </div>
+                @endif
                 <table id="{{ $tableId }}" class="table mb-0 table-bordered table-hover" style="width:100%">
                     @if(!empty($headers))
                         {{-- Generate headers from array --}}
@@ -81,6 +90,57 @@
         </div>
     </div>
 </div>
+
+{{-- Sorting Styles (if enabled) --}}
+@if($enableSorting)
+@push('styles')
+<style>
+    #{{ $tableId }} tbody tr {
+        cursor: default;
+    }
+    #{{ $tableId }} tbody tr.ui-sortable-helper {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        cursor: grabbing;
+    }
+    #{{ $tableId }} tbody tr.ui-sortable-placeholder {
+        border: 2px dashed #2196f3 !important;
+        visibility: visible !important;
+        height: 50px;
+    }
+    .drag-handle {
+        cursor: grab;
+        color: #6c757d;
+        padding: 10px 15px;
+        font-size: 18px;
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+    .drag-handle:hover {
+        color: #495057;
+    }
+    .drag-handle:active {
+        cursor: grabbing;
+    }
+    .drag-disabled .drag-handle {
+        cursor: not-allowed !important;
+        opacity: 0.3;
+    }
+    .reorder-info {
+        border: 1px solid #ffc107;
+        border-radius: 5px;
+        padding: 10px 15px;
+        margin-bottom: 15px;
+        display: none;
+    }
+    .reorder-info.show {
+        display: block;
+    }
+</style>
+<!-- jQuery UI for Sortable -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+@endpush
+@endif
 
 {{-- DataTable Script (if ajaxUrl is provided) --}}
 @if($ajaxUrl)
@@ -150,6 +210,12 @@
                     } else {
                         d.per_page = $('#entriesSelect').val() || {{ $pageLength }};
                     }
+
+                    // Add sort parameters if sorting is enabled
+                    @if($enableSorting)
+                    d.sort_column = $('#sort_column').val() || 'sort_number';
+                    d.sort_direction = $('#sort_direction').val() || 'asc';
+                    @endif
 
                     // Add custom select values
                     customSelectIds.forEach(function(id) {
@@ -310,6 +376,192 @@
         if ($('html').attr('dir') === 'rtl') {
             $('.dataTables_wrapper').addClass('text-end');
         }
+
+        @if($enableSorting)
+        // Drag & Drop Sorting Functionality
+        let dragDropEnabled = true;
+
+        // Sort filter change handlers
+        $('#sort_column, #sort_direction').on('change', function() {
+            updateURLAndReload();
+            updateDragDropState();
+        });
+
+        // Function to update drag and drop state based on sort filters
+        function updateDragDropState() {
+            const sortColumn = $('#sort_column').val();
+            const sortDirection = $('#sort_direction').val();
+            dragDropEnabled = (sortColumn === 'sort_number' && sortDirection === 'asc');
+            
+            if (dragDropEnabled) {
+                $('#{{ $tableId }} tbody').removeClass('drag-disabled');
+                $('.drag-handle').css('opacity', '1').css('cursor', 'grab');
+                $('#reorderInfo-{{ $tableId }}').removeClass('show').html('<i class="uil uil-info-circle me-2"></i>{{ __('common.drag_drop_info') ?? 'Drag and drop rows to reorder. Changes will be saved automatically.' }}');
+            } else {
+                $('#{{ $tableId }} tbody').addClass('drag-disabled');
+                $('.drag-handle').css('opacity', '0.3').css('cursor', 'not-allowed');
+                $('#reorderInfo-{{ $tableId }}').addClass('show').html('<i class="uil uil-exclamation-triangle me-2"></i>{{ __('common.drag_drop_disabled_info') ?? 'Drag and drop is only available when sorting by Sort Number (Ascending).' }}');
+            }
+        }
+
+        // Initialize jQuery UI Sortable
+        @if($sortPermission)
+            @can($sortPermission)
+                initSortable();
+            @endcan
+        @else
+            initSortable();
+        @endif
+
+        function initSortable() {
+            // Load jQuery UI if not already loaded
+            if (typeof $.ui === 'undefined' || typeof $.ui.sortable === 'undefined') {
+                $.getScript('https://code.jquery.com/ui/1.13.2/jquery-ui.min.js', function() {
+                    setupSortable();
+                    updateDragDropState();
+                });
+            } else {
+                setupSortable();
+                updateDragDropState();
+            }
+        }
+
+        function setupSortable() {
+            const $tbody = $('#{{ $tableId }} tbody');
+            
+            // Destroy existing sortable if any
+            if ($tbody.hasClass('ui-sortable')) {
+                $tbody.sortable('destroy');
+            }
+            
+            $tbody.sortable({
+                handle: '.drag-handle',
+                axis: 'y',
+                cursor: 'grabbing',
+                opacity: 0.8,
+                disabled: !dragDropEnabled,
+                helper: function(e, tr) {
+                    const $originals = tr.children();
+                    const $helper = tr.clone();
+                    $helper.children().each(function(index) {
+                        $(this).width($originals.eq(index).outerWidth());
+                    });
+                    return $helper;
+                },
+                placeholder: 'ui-sortable-placeholder',
+                start: function(event, ui) {
+                    if (!dragDropEnabled) {
+                        return false;
+                    }
+                    ui.placeholder.height(ui.item.outerHeight());
+                    const colCount = ui.item.children('td').length;
+                    ui.placeholder.html('<td colspan="' + colCount + '" style="background-color: #e3f2fd; border: 2px dashed #2196f3;">&nbsp;</td>');
+                },
+                update: function(event, ui) {
+                    if (!dragDropEnabled) {
+                        return false;
+                    }
+
+                    // Get new order
+                    const items = [];
+                    $('#{{ $tableId }} tbody tr').each(function(index) {
+                        const id = $(this).find('.drag-handle').data('id');
+                        if (id) {
+                            items.push({
+                                id: id,
+                                sort_number: index + 1
+                            });
+                        }
+                    });
+
+                    console.log('Reorder items:', items);
+
+                    if (items.length > 0) {
+                        // Show loading overlay
+                        if (typeof LoadingOverlay !== 'undefined') {
+                            LoadingOverlay.show({
+                                text: '{{ __('common.saving') ?? 'Saving' }}...',
+                                subtext: '{{ __('common.please_wait') ?? 'Please wait' }}...'
+                            });
+                        }
+
+                        // Send AJAX request to update order
+                        @if($sortUpdateUrl)
+                        $.ajax({
+                            url: '{{ $sortUpdateUrl }}',
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                items: items
+                            },
+                            success: function(response) {
+                                if (typeof LoadingOverlay !== 'undefined') {
+                                    LoadingOverlay.hide();
+                                }
+                                
+                                if (response.success) {
+                                    if (typeof Swal !== 'undefined') {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: '{{ __('common.success') ?? 'Success' }}',
+                                            text: response.message || '{{ __('common.sort_updated') ?? 'Sort order updated successfully' }}',
+                                            timer: 2000,
+                                            showConfirmButton: false,
+                                            toast: true,
+                                            position: 'top-end'
+                                        });
+                                    }
+                                    // Reload table to show updated sort numbers
+                                    table.ajax.reload(null, false);
+                                } else {
+                                    if (typeof Swal !== 'undefined') {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: '{{ __('common.error') ?? 'Error' }}',
+                                            text: response.message || '{{ __('common.reorder_error') ?? 'Failed to update order' }}'
+                                        });
+                                    }
+                                    table.ajax.reload(null, false);
+                                }
+                            },
+                            error: function(xhr) {
+                                if (typeof LoadingOverlay !== 'undefined') {
+                                    LoadingOverlay.hide();
+                                }
+                                
+                                let errorMessage = '{{ __('common.reorder_error') ?? 'Failed to update order' }}';
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMessage = xhr.responseJSON.message;
+                                }
+                                
+                                if (typeof Swal !== 'undefined') {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: '{{ __('common.error') ?? 'Error' }}',
+                                        text: errorMessage
+                                    });
+                                }
+                                table.ajax.reload(null, false);
+                            }
+                        });
+                        @endif
+                    }
+                }
+            });
+            
+            console.log('Sortable initialized');
+        }
+
+        // Re-initialize sortable after table draw
+        table.on('draw', function() {
+            setTimeout(function() {
+                if (typeof $.ui !== 'undefined' && typeof $.ui.sortable !== 'undefined') {
+                    setupSortable();
+                    updateDragDropState();
+                }
+            }, 100);
+        });
+        @endif
 
         @if($customScript)
             // Custom JavaScript from parent view

@@ -349,6 +349,21 @@
                                                         style="display: none;"></div>
                                                 </div>
                                             </div>
+                                            @if(isAdmin())
+                                            <div class="col-md-6 mb-3">
+                                                <div class="form-group">
+                                                    <label for="sort_number"
+                                                        class="form-label">{{ __('common.sort_number') ?? 'Sort Number' }}</label>
+                                                    <input type="number" name="sort_number" id="sort_number"
+                                                        class="form-control ih-medium ip-gray radius-xs b-light px-15"
+                                                        min="0" placeholder="Enter sort number"
+                                                        value="{{ isset($product) ? $product->sort_number ?? 0 : 0 }}">
+                                                    <small class="text-muted">{{ __('catalogmanagement::product.sort_number_help') ?? 'Lower numbers appear first in the list' }}</small>
+                                                    <div class="error-message text-danger" id="error-sort_number"
+                                                        style="display: none;"></div>
+                                                </div>
+                                            </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -2948,6 +2963,23 @@
                                 // Prepare form data
                                 const formData = new FormData(document.getElementById(
                                     'productForm'));
+
+                                // Remove discount fields if discount is not enabled (simple product)
+                                if (!$('#simple_discount').is(':checked')) {
+                                    formData.delete('price_before_discount');
+                                    formData.delete('discount_end_date');
+                                    formData.delete('has_discount');
+                                }
+
+                                // Remove discount fields for variants if discount is not enabled
+                                $('[id^="discount_"]').each(function() {
+                                    const variantIndex = this.id.replace('discount_', '');
+                                    if (!$(this).is(':checked')) {
+                                        formData.delete(`variants[${variantIndex}][price_before_discount]`);
+                                        formData.delete(`variants[${variantIndex}][discount_end_date]`);
+                                        formData.delete(`variants[${variantIndex}][has_discount]`);
+                                    }
+                                });
 
                                 // Send AJAX request
                                 return fetch($('#productForm').attr('action'), {

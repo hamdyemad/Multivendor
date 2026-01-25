@@ -57,6 +57,7 @@ class VendorProductResource extends JsonResource
 
             'number_of_sale' => $this->sales,
             'views' => $this->views,
+            'sort_number' => $this->sort_number ?? 0,
             'stock' => $this->total_stock ?? 0,
             'booked_stock' => $this->booked_stock ?? 0,
             'allocated_stock' => $this->allocated_stock ?? 0,

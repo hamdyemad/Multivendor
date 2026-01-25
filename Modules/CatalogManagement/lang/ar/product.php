@@ -60,6 +60,7 @@ return [
     'featured' => 'مميز',
     'status' => 'الحالة',
     'max_per_order' => 'الحد الأقصى للطلب',
+    'sort_number_help' => 'الأرقام الأقل تظهر أولاً في القائمة',
     'video_link' => 'رابط الفيديو',
     'watch_video' => 'مشاهدة الفيديو',
     'open_video_link' => 'فتح رابط الفيديو',
@@ -343,6 +344,7 @@ return [
     'type_bank' => 'منتج بنك',
     'confirm_move_to_bank' => 'هل أنت متأكد من نقل هذا المنتج إلى البنك؟',
     'move_to_bank_description' => 'نقل هذا المنتج إلى البنك سيجعله متاحًا لجميع البائعين للاختيار والاستخدام.',
+    'move_to_bank_confirmation' => 'هل أنت متأكد من نقل هذا المنتج إلى البنك؟ سيصبح متاحًا لجميع البائعين.',
 
     // Import Product From Bank
     'import_product_from_bank' => 'استيراد منتج من البنك',

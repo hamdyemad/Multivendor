@@ -41,6 +41,7 @@ class RefundRequestApiController extends Controller
             'date_from' => $request->get('date_from'),
             'date_to' => $request->get('date_to'),
             'search' => $request->get('search'),
+            'customer_id' => auth()->id(),
         ];
         
         $perPage = $request->get('per_page', 12);
@@ -167,8 +168,7 @@ class RefundRequestApiController extends Controller
     public function statistics(Request $request)
     {
         $filters = [
-            'customer_id' => $request->get('customer_id'),
-            'vendor_id' => $request->get('vendor_id'),
+            'customer_id' => auth()->id(),
         ];
         $statistics = $this->refundService->getStatistics($filters);
         

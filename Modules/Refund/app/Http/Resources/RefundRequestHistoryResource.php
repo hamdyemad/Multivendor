@@ -24,6 +24,12 @@ class RefundRequestHistoryResource extends JsonResource
             $actorType = 'customer';
         }
         
+        // Translate notes if it's a translation key
+        $notes = $this->notes;
+        if ($notes && str_starts_with($notes, 'refund::')) {
+            $notes = trans($notes);
+        }
+        
         return [
             'id' => $this->id,
             'refund_request_id' => $this->refund_request_id,
@@ -37,7 +43,7 @@ class RefundRequestHistoryResource extends JsonResource
             'customer_name' => $this->customer?->name,
             'actor_name' => $actorName,
             'actor_type' => $actorType,
-            'notes' => $this->notes,
+            'notes' => $notes,
             'created_at' => $this->created_at,
         ];
     }

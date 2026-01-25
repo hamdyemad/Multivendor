@@ -83,6 +83,16 @@ window.renderProductInformation = function(data, type, row) {
         <small class="text-muted">{{ __('catalogmanagement::product.remaining_stock') }}:</small>
         <span class="badge ${stockBadgeClass} badge-round badge-lg ms-1">${remainingStock > 0 ? remainingStock.toLocaleString() : '{{ __('dashboard.out_of_stock') }}'}</span>
     </div>`;
+    
+    @if(isAdmin())
+    // Sort Number (Admin only)
+    const sortNumber = row.sort_number || 0;
+    html += `<div class="mb-1">
+        <small class="text-muted"><i class="uil uil-sort-amount-up"></i> {{ __('common.sort_number') ?? 'Sort Number' }}:</small>
+        <span class="badge badge-info badge-round badge-lg ms-1">${sortNumber}</span>
+    </div>`;
+    @endif
+    
     // Created At
     if (row.created_at) {
         html += `<div class="mb-1">

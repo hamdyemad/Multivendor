@@ -2,6 +2,20 @@
 <script>
 // Define columns for DataTable
 window.datatableColumns = [
+    @if($isAdmin)
+    {
+        data: null,
+        orderable: false,
+        searchable: false,
+        className: 'text-center',
+        width: '40px',
+        render: function(data, type, row) {
+            return `<div class="drag-handle" data-id="${row.vendor_product_id}" style="cursor: grab;">
+                <i class="uil uil-draggabledots" style="font-size: 20px; color: #666;"></i>
+            </div>`;
+        }
+    },
+    @endif
     {
         data: null,
         orderable: false,
@@ -331,6 +345,53 @@ $(document).ready(function() {
             },
             complete: function() {
                 btn.prop('disabled', false).html(originalHtml);
+            }
+        });
+    });
+
+    // Move to Bank Button Click Handler
+    let currentBankProductId = null;
+    $(document).on('click', '.move-to-bank', function() {
+        currentBankProductId = $(this).data('item-id');
+        const productName = $(this).data('item-name');
+        
+        $('#bank-product-name').text(productName);
+        $('#modal-move-to-bank').modal('show');
+    });
+
+    // Confirm Move to Bank
+    $('#confirmMoveToBankBtn').on('click', function() {
+        if (!currentBankProductId) {
+            toastr.error('{{ __('common.error') }}');
+            return;
+        }
+
+        const btn = $(this);
+        const originalHtml = btn.html();
+        btn.prop('disabled', true).html('<i class="uil uil-spinner-alt rotating"></i> {{ __('common.processing') }}');
+
+        $.ajax({
+            url: '{{ route('admin.products.move-to-bank', ':id') }}'.replace(':id', currentBankProductId),
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    toastr.success(response.message);
+                    $('#modal-move-to-bank').modal('hide');
+                    $('#productsDataTable').DataTable().ajax.reload();
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function(xhr) {
+                const errorMessage = xhr.responseJSON?.message || '{{ __('common.error') }}';
+                toastr.error(errorMessage);
+            },
+            complete: function() {
+                btn.prop('disabled', false).html(originalHtml);
+                currentBankProductId = null;
             }
         });
     });

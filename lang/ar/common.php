@@ -269,6 +269,7 @@ return [
     'sort_number' => 'رقم الترتيب',
     'ascending' => 'تصاعدي',
     'descending' => 'تنازلي',
+    'sort_updated' => 'تم تحديث الترتيب بنجاح',
     
     // Print
     'print' => 'طباعة',

@@ -54,6 +54,10 @@ class ProductAction {
                 'type' => $data['type'] ?? null,
             ];
 
+            // Get sort parameters
+            $sortColumn = $data['sort_column'] ?? 'sort_number';
+            $sortDirection = $data['sort_direction'] ?? 'asc';
+
             // Get current user and user type
             $currentUser = Auth::user();
             $userType = $currentUser ? $currentUser->user_type_id : null;
@@ -208,8 +212,19 @@ class ProductAction {
             }
 
             $filteredRecords = $query->count();
+            
+            // Apply sorting
+            if ($sortColumn === 'sort_number') {
+                $query->orderBy('sort_number', $sortDirection);
+            } elseif ($sortColumn === 'created_at') {
+                $query->orderBy('created_at', $sortDirection);
+            } else {
+                // Default sorting
+                $query->orderBy('sort_number', 'asc');
+            }
+            
             // Apply pagination
-            $products = $query->latest()->paginate($perPage, ['*'], 'page', $page);
+            $products = $query->paginate($perPage, ['*'], 'page', $page);
             // Get languages
             $languages = $this->languageService->getAll();
 
@@ -258,6 +273,7 @@ class ProductAction {
                         'status' => $item->status,
                         'product_type' => $product->type,
                         'configuration_type' => $product->configuration_type,
+                        'sort_number' => $item->sort_number ?? 0,
                         'created_at' => $item->created_at,
                         'total_stock' => $totalStock,
                         'remaining_stock' => $remainingStock,

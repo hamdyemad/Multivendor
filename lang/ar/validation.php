@@ -189,6 +189,8 @@ return [
     'quantity_required' => 'الكمية مطلوبة',
     'quantity_min' => 'يجب أن تكون الكمية على الأقل 1',
     'quantity_exceeds_max_per_order' => 'لا يمكن أن تتجاوز الكمية :max لكل طلب',
+    'quantity_exceeds_available_stock' => 'لا يمكن أن تتجاوز الكمية المخزون المتاح (:available وحدة)',
+    'quantity_exceeds_available_stock_with_cart' => 'المخزون غير كافٍ. المتاح: :available، في السلة بالفعل: :in_cart، يمكنك إضافة: :remaining أخرى',
     'quantity_exceeds_bundle_max_per_order' => 'الكمية يجب أن تكون بين :min و :max',
     'type_required' => 'النوع مطلوب',
     'type_invalid' => 'يجب أن يكون النوع أحد الخيارات التالية: product, bundle, occasion',

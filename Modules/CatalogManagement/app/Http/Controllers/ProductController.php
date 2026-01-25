@@ -113,6 +113,98 @@ class ProductController extends Controller
     }
 
     /**
+     * Update sort order for products (drag & drop)
+     */
+    public function updateSortOrder(Request $request)
+    {
+        try {
+            $request->validate([
+                'items' => 'required|array',
+                'items.*.id' => 'required|integer|exists:vendor_products,id',
+                'items.*.sort_number' => 'required|integer|min:0'
+            ]);
+
+            Log::info('Products reorder request', [
+                'items' => $request->items,
+                'changed_by' => auth()->id()
+            ]);
+
+            $items = $request->items;
+            $itemIds = array_column($items, 'id');
+
+            // Get all products ordered by sort_number
+            $allProducts = VendorProduct::orderBy('sort_number', 'asc')->get();
+            
+            // Remove the dragged items from the list
+            $remainingProducts = $allProducts->filter(function($product) use ($itemIds) {
+                return !in_array($product->id, $itemIds);
+            })->values();
+
+            // Build new order: insert dragged items at their new positions
+            $newOrder = [];
+            $sortNumber = 1;
+
+            // Create a map of id => new_sort_number from request
+            $itemSortMap = [];
+            foreach ($items as $item) {
+                $itemSortMap[$item['id']] = $item['sort_number'];
+            }
+
+            // Sort the dragged items by their new sort_number
+            usort($items, function($a, $b) {
+                return $a['sort_number'] - $b['sort_number'];
+            });
+
+            // Merge: go through positions and assign
+            $draggedIndex = 0;
+            $remainingIndex = 0;
+            $totalCount = count($allProducts);
+
+            for ($pos = 1; $pos <= $totalCount; $pos++) {
+                // Check if any dragged item should be at this position
+                if ($draggedIndex < count($items) && $items[$draggedIndex]['sort_number'] == $pos) {
+                    $newOrder[] = ['id' => $items[$draggedIndex]['id'], 'sort_number' => $sortNumber++];
+                    $draggedIndex++;
+                } elseif ($remainingIndex < count($remainingProducts)) {
+                    $newOrder[] = ['id' => $remainingProducts[$remainingIndex]->id, 'sort_number' => $sortNumber++];
+                    $remainingIndex++;
+                }
+            }
+
+            // Add any remaining dragged items
+            while ($draggedIndex < count($items)) {
+                $newOrder[] = ['id' => $items[$draggedIndex]['id'], 'sort_number' => $sortNumber++];
+                $draggedIndex++;
+            }
+
+            // Add any remaining products
+            while ($remainingIndex < count($remainingProducts)) {
+                $newOrder[] = ['id' => $remainingProducts[$remainingIndex]->id, 'sort_number' => $sortNumber++];
+                $remainingIndex++;
+            }
+
+            // Update all sort numbers
+            foreach ($newOrder as $item) {
+                VendorProduct::where('id', $item['id'])
+                    ->update(['sort_number' => $item['sort_number']]);
+            }
+
+            Log::info('Products reordered successfully', ['new_order' => $newOrder]);
+
+            return response()->json([
+                'success' => true,
+                'message' => trans('common.sort_updated') ?? 'Sort order updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Product Sort Order Update Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create($lang, $countryCode)

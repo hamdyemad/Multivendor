@@ -184,6 +184,8 @@ return [
     'quantity_required' => 'quantity is required',
     'quantity_min' => 'quantity must be at least 1',
     'quantity_exceeds_max_per_order' => 'quantity cannot exceed :max per order',
+    'quantity_exceeds_available_stock' => 'quantity cannot exceed available stock (:available units)',
+    'quantity_exceeds_available_stock_with_cart' => 'Not enough stock. Available: :available, Already in cart: :in_cart, You can add: :remaining more',
     'quantity_exceeds_bundle_max_per_order' => 'quantity must be between :min and :max',
     'type_required' => 'type is required',
     'type_invalid' => 'type must be one of: product, bundle, occasion',

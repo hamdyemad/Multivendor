@@ -82,6 +82,9 @@ Route::group(['prefix' => 'products'], function() {
     // Products - Static routes MUST come before resource routes
     Route::get('datatable', 'ProductController@datatable')->name('products.datatable');
     
+    // Sort order update
+    Route::post('update-sort-order', 'ProductController@updateSortOrder')->name('products.update-sort-order');
+    
     // Bulk Upload routes
     Route::get('bulk-upload', 'ProductController@bulkUpload')->name('products.bulk-upload');
     Route::post('bulk-upload', 'ProductController@bulkUploadStore')->name('products.bulk-upload.store');

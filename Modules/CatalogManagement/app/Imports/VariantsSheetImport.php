@@ -22,6 +22,7 @@ class VariantsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
     use SkipsErrors;
 
     protected array $variantSkus = [];
+    protected array $processedVariantsByProduct = []; // Track which variants were processed for each product
 
     public function __construct(
         protected array &$vendorProductMap,
@@ -37,8 +38,12 @@ class VariantsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
             $rowCounter++;
             $excelProductId = (int)($row['product_id'] ?? 0);
             $sku = $this->normalizeSku($row['sku'] ?? '');
+            
+            // Normalize SKU in the row data for validation
+            $rowData = $row->toArray();
+            $rowData['sku'] = $sku;
 
-            $validator = Validator::make($row->toArray(), [
+            $validator = Validator::make($rowData, [
                 'product_id' => 'required|integer|min:1',
                 'sku' => 'required|string|max:255',
                 'price' => 'required|numeric|min:0',
@@ -104,6 +109,11 @@ class VariantsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                 continue;
             }
 
+            // Track this variant as processed for this product
+            if (!isset($this->processedVariantsByProduct[$vendorProductId])) {
+                $this->processedVariantsByProduct[$vendorProductId] = [];
+            }
+
             // Check if variant SKU already exists - if so, update instead of creating new
             $existingVariant = VendorProductVariant::where('sku', $sku)->first();
                 
@@ -152,6 +162,9 @@ class VariantsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                 // Map to existing ID
                 $this->variantMap[$sku] = (int)$existingVariant->id;
                 $this->variantSkus[$sku] = $index + 2;
+                
+                // Track this variant as processed
+                $this->processedVariantsByProduct[$vendorProductId][] = $existingVariant->id;
                 continue;
             }
 
@@ -171,7 +184,13 @@ class VariantsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
 
             // Map by SKU instead of Excel ID
             $this->variantMap[$sku] = (int)$variant->id;
+            
+            // Track this variant as processed
+            $this->processedVariantsByProduct[$vendorProductId][] = $variant->id;
         }
+        
+        // After processing all rows, delete variants that weren't in the Excel file
+        $this->deleteUnprocessedVariants();
     }
 
     private function normalizeYesNo($value): string
@@ -193,6 +212,29 @@ class VariantsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
     }
 
     /**
+     * Delete variants that exist in the database but weren't in the Excel file
+     * This ensures the Excel file is the source of truth for variants
+     */
+    private function deleteUnprocessedVariants(): void
+    {
+        foreach ($this->processedVariantsByProduct as $vendorProductId => $processedVariantIds) {
+            // Get all existing variants for this product
+            $existingVariants = VendorProductVariant::where('vendor_product_id', $vendorProductId)->get();
+            
+            foreach ($existingVariants as $variant) {
+                // If this variant wasn't processed (not in Excel), delete it
+                if (!in_array($variant->id, $processedVariantIds)) {
+                    // Log activity for variant deletion
+                    $this->logBulkActivity('deleted', $variant, $variant->toArray(), []);
+                    
+                    // Delete the variant (this will cascade delete stock entries if configured)
+                    $variant->delete();
+                }
+            }
+        }
+    }
+
+    /**
      * Log activity for bulk import operations
      */
     private function logBulkActivity(string $action, $model, array $oldData = [], array $newData = []): void
@@ -204,6 +246,7 @@ class VariantsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
             $descriptionKeys = [
                 'created' => 'activity_log.created_model',
                 'updated' => 'activity_log.updated_model',
+                'deleted' => 'activity_log.deleted_model',
             ];
 
             $properties = [];
@@ -223,10 +266,16 @@ class VariantsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                 $properties = [
                     'source' => 'bulk_upload',
                 ];
+            } elseif ($action === 'deleted') {
+                $properties = [
+                    'old' => $oldData,
+                    'source' => 'bulk_upload',
+                    'reason' => 'Variant not present in Excel import file',
+                ];
             }
 
-            // Only log if there are actual changes or it's a create action
-            if ($action === 'created' || !empty($properties['new'])) {
+            // Only log if there are actual changes or it's a create/delete action
+            if ($action === 'created' || $action === 'deleted' || !empty($properties['new'])) {
                 ActivityLog::create([
                     'user_id' => Auth::id(),
                     'action' => $action,

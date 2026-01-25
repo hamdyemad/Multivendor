@@ -313,6 +313,16 @@ admin.@extends('layout.app')
                                                         <td>{{ __('catalogmanagement::product.col_material_source') }}</td>
                                                     </tr>
                                                     <tr>
+                                                        <td><code>tags_en</code></td>
+                                                        <td>{{ __('catalogmanagement::product.col_tags_en_desc') }}</td>
+                                                        <td>{{ __('catalogmanagement::product.col_tags_source') }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><code>tags_ar</code></td>
+                                                        <td>{{ __('catalogmanagement::product.col_tags_ar_desc') }}</td>
+                                                        <td>{{ __('catalogmanagement::product.col_tags_source') }}</td>
+                                                    </tr>
+                                                    <tr>
                                                         <td><code>meta_title_en</code></td>
                                                         <td>{{ __('catalogmanagement::product.col_meta_title_en_desc') }}</td>
                                                         <td>{{ __('catalogmanagement::product.col_meta_title_source') }}</td>
@@ -741,7 +751,46 @@ document.getElementById('bulkUploadForm').addEventListener('submit', function() 
     const btn = document.getElementById('importBtn');
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>{{ __("catalogmanagement::product.importing") }}...';
+    
+    // Show loading overlay
+    if (typeof LoadingOverlay !== 'undefined') {
+        LoadingOverlay.show({
+            text: '{{ __("catalogmanagement::product.importing_products") }}',
+            subtext: '{{ __("common.please_wait") ?? "Please wait" }}...'
+        });
+    }
+});
+
+// Show toastr notifications for session messages
+$(document).ready(function() {
+    @if(session('success'))
+        toastr.success('{{ session('success') }}', '{{ __('common.success') ?? 'Success' }}', {
+            closeButton: true,
+            progressBar: true,
+            timeOut: 5000
+        });
+    @endif
+
+    @if(session('warning'))
+        toastr.warning('{{ session('warning') }}', '{{ __('common.warning') ?? 'Warning' }}', {
+            closeButton: true,
+            progressBar: true,
+            timeOut: 8000
+        });
+    @endif
+
+    @if(session('error'))
+        toastr.error('{{ session('error') }}', '{{ __('common.error') ?? 'Error' }}', {
+            closeButton: true,
+            progressBar: true,
+            timeOut: 8000
+        });
+    @endif
 });
 </script>
+@endpush
+
+@push('after-body')
+<x-loading-overlay />
 @endpush
 @endsection

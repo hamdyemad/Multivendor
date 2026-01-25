@@ -46,7 +46,7 @@ class VariantStockSheetExport implements FromCollection, WithHeadings, WithMappi
         return [
             'variant_sku',
             'region_id',
-            'quantity',
+            'stock',
         ];
     }
 

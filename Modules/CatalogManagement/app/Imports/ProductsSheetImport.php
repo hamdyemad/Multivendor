@@ -46,9 +46,13 @@ class ProductsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
         foreach ($rows as $index => $row) {
             $excelId = (int)($row['id'] ?? 0);
             $sku     = $this->normalizeSku($row['sku'] ?? '');
+            
+            // Normalize SKU in the row data for validation
+            $rowData = $row->toArray();
+            $rowData['sku'] = $sku;
 
             // Validate row data
-            $validator = Validator::make($row->toArray(), [
+            $validator = Validator::make($rowData, [
                 'id' => 'required|integer|min:1',
                 'sku' => 'required|string|max:255',
                 'title_en' => 'nullable|string|max:255',
@@ -316,6 +320,7 @@ class ProductsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                 'instructions' => $row["instructions_{$langCode}"] ?? null,
                 'extra_description' => $row["extra_description_{$langCode}"] ?? null,
                 'material' => $row["material_{$langCode}"] ?? null,
+                'tags' => $row["tags_{$langCode}"] ?? null,
                 'meta_title' => $row["meta_title_{$langCode}"] ?? null,
                 'meta_description' => $row["meta_description_{$langCode}"] ?? null,
                 'meta_keywords' => $row["meta_keywords_{$langCode}"] ?? null,
@@ -348,6 +353,7 @@ class ProductsSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                 'instructions' => $row["instructions_{$langCode}"] ?? null,
                 'extra_description' => $row["extra_description_{$langCode}"] ?? null,
                 'material' => $row["material_{$langCode}"] ?? null,
+                'tags' => $row["tags_{$langCode}"] ?? null,
                 'meta_title' => $row["meta_title_{$langCode}"] ?? null,
                 'meta_description' => $row["meta_description_{$langCode}"] ?? null,
                 'meta_keywords' => $row["meta_keywords_{$langCode}"] ?? null,

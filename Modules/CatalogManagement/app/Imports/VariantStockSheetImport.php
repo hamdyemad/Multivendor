@@ -20,6 +20,7 @@ class VariantStockSheetImport implements ToCollection, WithHeadingRow, SkipsOnEr
     use SkipsErrors;
 
     protected array $variantsWithStock = [];
+    protected array $processedStockByVariant = []; // Track which stock entries were processed for each variant
 
     public function __construct(
         protected array &$variantMap,
@@ -33,8 +34,12 @@ class VariantStockSheetImport implements ToCollection, WithHeadingRow, SkipsOnEr
             $variantSku = trim((string)($row['variant_sku'] ?? ''));
             $regionId = (int)($row['region_id'] ?? 0);
             $quantity = (int)($row['stock'] ?? 0);
+            
+            // Normalize variant_sku in the row data for validation
+            $rowData = $row->toArray();
+            $rowData['variant_sku'] = $variantSku;
 
-            $validator = Validator::make($row->toArray(), [
+            $validator = Validator::make($rowData, [
                 'variant_sku' => 'required|string|max:255',
                 'region_id' => 'required|integer|exists:regions,id',
                 'stock' => 'required|integer|min:0',
@@ -84,7 +89,12 @@ class VariantStockSheetImport implements ToCollection, WithHeadingRow, SkipsOnEr
                 continue;
             }
 
-            VendorProductVariantStock::updateOrCreate(
+            // Track this variant as having stock processed
+            if (!isset($this->processedStockByVariant[$dbVariantId])) {
+                $this->processedStockByVariant[$dbVariantId] = [];
+            }
+
+            $stock = VendorProductVariantStock::updateOrCreate(
                 [
                     'vendor_product_variant_id' => $dbVariantId,
                     'region_id' => $regionId
@@ -94,11 +104,16 @@ class VariantStockSheetImport implements ToCollection, WithHeadingRow, SkipsOnEr
                 ]
             );
 
+            // Track this stock entry as processed
+            $this->processedStockByVariant[$dbVariantId][] = $stock->id;
             $this->variantsWithStock[$variantSku] = true;
         }
 
         // Validate that all variants have stock entries
         $this->validateVariantsHaveStock();
+        
+        // After processing all rows, delete stock entries that weren't in the Excel file
+        $this->deleteUnprocessedStock();
     }
 
     protected function validateVariantsHaveStock(): void
@@ -111,6 +126,25 @@ class VariantStockSheetImport implements ToCollection, WithHeadingRow, SkipsOnEr
                     'sku' => $variantSku,
                     'errors' => [__('catalogmanagement::product.variant_has_no_stock_entries')]
                 ];
+            }
+        }
+    }
+    
+    /**
+     * Delete stock entries that exist in the database but weren't in the Excel file
+     * This ensures the Excel file is the source of truth for stock
+     */
+    private function deleteUnprocessedStock(): void
+    {
+        foreach ($this->processedStockByVariant as $variantId => $processedStockIds) {
+            // Get all existing stock entries for this variant
+            $existingStocks = VendorProductVariantStock::where('vendor_product_variant_id', $variantId)->get();
+            
+            foreach ($existingStocks as $stock) {
+                // If this stock entry wasn't processed (not in Excel), delete it
+                if (!in_array($stock->id, $processedStockIds)) {
+                    $stock->delete();
+                }
             }
         }
     }

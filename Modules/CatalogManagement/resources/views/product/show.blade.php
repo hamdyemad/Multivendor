@@ -539,24 +539,22 @@
                                                 {{-- Main Image --}}
                                                 @if ($product->product->mainImage)
                                                     <div class="mb-3">
-                                                        <label
-                                                            class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.main_image') }}</label>
-                                                        <div class="image-wrapper text-center">
+                                                        <label class="il-gray fs-14 fw-500 align-text-top d-block mb-2">{{ __('catalogmanagement::product.main_image') }}</label>
+                                                        <div class="image-wrapper text-center w-100">
                                                             <img src="{{ asset('storage/' . $product->product->mainImage->path) }}"
                                                                 alt="{{ $product->product->getTranslation('title') }}"
-                                                                class="product-image img-fluid rounded"
-                                                                style="max-height: 300px;">
+                                                                class="product-image img-fluid rounded w-100"
+                                                                style="max-height: 400px; object-fit: contain;">
                                                         </div>
                                                     </div>
                                                 @else
                                                     <div class="mb-3">
-                                                        <label
-                                                            class="il-gray fs-14 fw-500 mb-10">{{ __('catalogmanagement::product.main_image') }}</label>
-                                                        <div class="image-wrapper text-center">
+                                                        <label class="il-gray fs-14 fw-500 align-text-top d-block mb-2">{{ __('catalogmanagement::product.main_image') }}</label>
+                                                        <div class="image-wrapper text-center w-100">
                                                             <img src="{{ asset('assets/img/default.png') }}"
                                                                 alt="{{ $product->product->getTranslation('title') }}"
-                                                                class="product-image img-fluid rounded"
-                                                                style="max-height: 300px;">
+                                                                class="product-image img-fluid rounded w-100"
+                                                                style="max-height: 300px; object-fit: contain;">
                                                         </div>
                                                     </div>
                                                 @endif

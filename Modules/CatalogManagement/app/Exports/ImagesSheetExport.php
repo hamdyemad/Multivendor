@@ -47,7 +47,7 @@ class ImagesSheetExport implements FromCollection, WithHeadings, WithMapping, Wi
     {
         return [
             'product_id',
-            'image_url',
+            'image',
             'is_main',
         ];
     }

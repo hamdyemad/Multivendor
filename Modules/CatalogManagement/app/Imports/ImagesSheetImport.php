@@ -18,6 +18,8 @@ class ImagesSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
 {
     use SkipsErrors;
 
+    protected array $processedImagesByProduct = []; // Track which images were processed for each product
+
     public function __construct(
         protected array &$productMap,
         protected array &$importErrors = [],
@@ -69,6 +71,11 @@ class ImagesSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                 continue;
             }
 
+            // Track this product as having images processed
+            if (!isset($this->processedImagesByProduct[$dbProductId])) {
+                $this->processedImagesByProduct[$dbProductId] = [];
+            }
+
             // Download and store the image
             $storedPath = $this->downloadAndStoreImage($imageUrl, $dbProductId);
             
@@ -89,7 +96,7 @@ class ImagesSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
             );
 
             if ($isMain) {
-                $product->mainImage()->updateOrCreate(
+                $attachment = $product->mainImage()->updateOrCreate(
                     [
                         'attachable_id' => $dbProductId,
                         'attachable_type' => Product::class,
@@ -99,8 +106,9 @@ class ImagesSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                         'path' => $storedPath
                     ]
                 );
+                $this->processedImagesByProduct[$dbProductId][] = $attachment->id;
             } else {
-                Attachment::updateOrCreate(
+                $attachment = Attachment::updateOrCreate(
                     [
                         'attachable_id' => $dbProductId,
                         'attachable_type' => Product::class,
@@ -111,8 +119,12 @@ class ImagesSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
                         'path' => $storedPath
                     ]
                 );
+                $this->processedImagesByProduct[$dbProductId][] = $attachment->id;
             }
         }
+        
+        // After processing all rows, delete images that weren't in the Excel file
+        $this->deleteUnprocessedImages();
     }
 
     /**
@@ -193,5 +205,33 @@ class ImagesSheetImport implements ToCollection, WithHeadingRow, SkipsOnError
         }
 
         return null;
+    }
+    
+    /**
+     * Delete images that exist in the database but weren't in the Excel file
+     * This ensures the Excel file is the source of truth for images
+     */
+    private function deleteUnprocessedImages(): void
+    {
+        foreach ($this->processedImagesByProduct as $productId => $processedImageIds) {
+            // Get all existing images for this product (main and additional)
+            $existingImages = Attachment::where('attachable_id', $productId)
+                ->where('attachable_type', Product::class)
+                ->whereIn('type', ['main_image', 'additional_image'])
+                ->get();
+            
+            foreach ($existingImages as $image) {
+                // If this image wasn't processed (not in Excel), delete it
+                if (!in_array($image->id, $processedImageIds)) {
+                    // Delete the physical file if it exists
+                    if ($image->path && Storage::disk('public')->exists($image->path)) {
+                        Storage::disk('public')->delete($image->path);
+                    }
+                    
+                    // Delete the database record
+                    $image->delete();
+                }
+            }
+        }
     }
 }

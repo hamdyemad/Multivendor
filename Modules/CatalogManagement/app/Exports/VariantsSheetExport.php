@@ -46,8 +46,9 @@ class VariantsSheetExport implements FromCollection, WithHeadings, WithMapping, 
             'sku',
             'variant_configuration_id',
             'price',
+            'has_discount',
             'price_before_discount',
-            'offer_end_date',
+            'discount_end_date',
             'tax_id',
         ];
     }
@@ -57,11 +58,15 @@ class VariantsSheetExport implements FromCollection, WithHeadings, WithMapping, 
         // Use the incremental index from the mapping
         $productId = $this->productIdMapping[$variant->vendor_product_id] ?? $variant->vendor_product_id;
         
+        // Determine if has discount
+        $hasDiscount = !empty($variant->price_before_discount) && $variant->price_before_discount > $variant->price;
+        
         return [
             $productId,
             $variant->sku ?? '',
             $variant->variant_configuration_id ?? '',
             $variant->price ?? 0,
+            $hasDiscount ? 'yes' : 'no',
             $variant->price_before_discount ?? '',
             $variant->offer_end_date ? $variant->offer_end_date->format('Y-m-d') : '',
             $variant->tax_id ?? '',

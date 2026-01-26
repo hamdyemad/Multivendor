@@ -617,22 +617,18 @@
                                 <span class="badge badge-round ms-1"
                                     style="<?php echo e(getBadgeStyle(isMenuActive('admin.products.vendor-bank', $currentRoute))); ?>">
                                     <?php
-                                        $vendorBankProductsQuery = \Modules\CatalogManagement\app\Models\Product::where('type', 'bank');
-                                        
-                                        // Filter by vendor's departments
+                                        $vendorBankProductsCount = 0;
                                         $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById ?? auth()->user()->vendor;
-                                        if ($vendor) {
-                                            $departmentIds = $vendor->departments()->pluck('departments.id')->toArray();
-                                            if (!empty($departmentIds)) {
-                                                $vendorBankProductsQuery->whereIn('department_id', $departmentIds);
-                                            } else {
-                                                $vendorBankProductsQuery->whereRaw('1 = 0');
-                                            }
-                                        } else {
-                                            $vendorBankProductsQuery->whereRaw('1 = 0');
-                                        }
                                         
-                                        $vendorBankProductsCount = $vendorBankProductsQuery->count();
+                                        if ($vendor) {
+                                            // Count bank products that belong to this vendor through vendor_products table
+                                            $vendorBankProductsCount = \Modules\CatalogManagement\app\Models\Product::where('type', 'bank')
+                                                ->whereHas('vendors', function($query) use ($vendor) {
+                                                    $query->where('vendor_products.vendor_id', $vendor->id)
+                                                          ->whereNull('vendor_products.deleted_at');
+                                                })
+                                                ->count();
+                                        }
                                     ?>
                                     <?php echo e($vendorBankProductsCount); ?>
 

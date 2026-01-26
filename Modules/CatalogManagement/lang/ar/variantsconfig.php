@@ -36,6 +36,10 @@ return [
     'no_parent' => 'لا يوجد أب',
     'parent_help' => 'اختر متغير أب لإنشاء علاقات هرمية',
     'select_key_first' => 'اختر مفتاح أولاً',
+    'select_root_key' => 'اختر المفتاح الجذر',
+    'select_child_key' => 'اختر المفتاح الفرعي',
+    'select_parent_variant' => 'اختر المتغير الأب',
+    'no_variants_for_key' => 'لا توجد متغيرات لهذا المفتاح بعد. يمكنك إنشاء الأول.',
     'error_loading_parents' => 'خطأ في تحميل المتغيرات الأب',
 
     // Messages

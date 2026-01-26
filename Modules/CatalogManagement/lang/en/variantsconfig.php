@@ -36,6 +36,10 @@ return [
     'no_parent' => 'No Parent',
     'parent_help' => 'Select a parent variant to create hierarchical relationships',
     'select_key_first' => 'Select a key first',
+    'select_root_key' => 'Select root key',
+    'select_child_key' => 'Select child key',
+    'select_parent_variant' => 'Select parent variant',
+    'no_variants_for_key' => 'No variants exist for this key yet. You can create the first one.',
     'error_loading_parents' => 'Error loading parent variants',
 
     // Messages

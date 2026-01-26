@@ -131,53 +131,47 @@
                                     </div>
                                 @endforeach
 
-                                <!-- Variant Configuration Key -->
-                                <div class="col-md-6">
+                                <!-- Variant Configuration Key - Hierarchical Selection -->
+                                <div class="col-md-12">
                                     <div class="form-group mb-25">
-                                        <label for="key_id" class="il-gray fs-14 fw-500 mb-10"
-                                               @if(app()->getLocale() == 'ar') dir="rtl" style="text-align: right; display: block;" @endif>
+                                        <label class="il-gray fs-14 fw-500 mb-10 d-block"
+                                               @if(app()->getLocale() == 'ar') dir="rtl" style="text-align: right;" @endif>
                                             {{ trans('catalogmanagement::variantsconfig.key') }} <span class="text-danger">*</span>
                                         </label>
-                                        <select name="key_id" id="key_id"
-                                                class="form-control select2 ih-medium ip-gray radius-xs b-light px-15 @error('key_id') is-invalid @enderror"
-                                                @if(app()->getLocale() == 'ar') dir="rtl" @endif>
-                                            <option value="">-- {{ trans('common.select') }} --</option>
-                                            @if(isset($variantKeys))
-                                                @foreach($variantKeys as $key)
-                                                    <option value="{{ $key['id'] }}"
-                                                        {{ (isset($variantsConfig) && $variantsConfig['key_id'] == $key['id']) ? 'selected' : (old('key_id') == $key['id'] ? 'selected' : '') }}>
-                                                        {{ $key['name'] }}
-                                                    </option>
-                                                @endforeach
-                                            @endif
-                                        </select>
+                                        <div id="keySelectorsContainer">
+                                            <!-- Root Key Selector -->
+                                            <div class="mb-3">
+                                                <x-custom-select
+                                                    id="root_key_id"
+                                                    name="root_key_id"
+                                                    :label="null"
+                                                    :options="collect($variantKeys ?? [])->filter(fn($key) => !isset($key['parent_key_id']) || $key['parent_key_id'] === null)->values()->toArray()"
+                                                    :selected="isset($variantsConfig) ? $variantsConfig['key_id'] : old('key_id')"
+                                                    :placeholder="trans('catalogmanagement::variantsconfig.select_root_key')"
+                                                />
+                                            </div>
+                                            <!-- Child key selectors will be dynamically added here -->
+                                        </div>
+                                        <!-- Hidden input to store the final selected key_id -->
+                                        <input type="hidden" name="key_id" id="key_id" value="{{ isset($variantsConfig) ? $variantsConfig['key_id'] : old('key_id') }}">
                                         @error('key_id')
                                             <div class="invalid-feedback d-block">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
 
-                                <!-- Parent Variant Configuration -->
-                                <div class="col-md-6">
+                                <!-- Parent Variant Configuration - Hierarchical Selection -->
+                                <div class="col-md-12" id="parentVariantContainer" style="display: none;">
                                     <div class="form-group mb-25">
-                                        <label for="parent_id" class="il-gray fs-14 fw-500 mb-10"
+                                        <label class="il-gray fs-14 fw-500 mb-10"
                                                @if(app()->getLocale() == 'ar') dir="rtl" style="text-align: right; display: block;" @endif>
                                             {{ trans('catalogmanagement::variantsconfig.parent') }}
                                         </label>
-                                        <select name="parent_id" id="parent_id"
-                                                class="form-control select2 ih-medium ip-gray radius-xs b-light px-15 @error('parent_id') is-invalid @enderror"
-                                                @if(app()->getLocale() == 'ar') dir="rtl" @endif
-                                                {{ !isset($variantsConfig) || !$variantsConfig->key_id ? 'disabled' : '' }}>
-                                            <option value="">-- {{ trans('catalogmanagement::variantsconfig.select_key_first') }} --</option>
-                                            @if(isset($parentVariants))
-                                                @foreach($parentVariants as $parent)
-                                                    <option value="{{ $parent['id'] }}"
-                                                        {{ (isset($variantsConfig) && $variantsConfig['parent_id'] == $parent['id']) ? 'selected' : (old('parent_id') == $parent['id'] ? 'selected' : '') }}>
-                                                        {{ $parent['name'] }} ({{ $parent['key_name'] }})
-                                                    </option>
-                                                @endforeach
-                                            @endif
-                                        </select>
+                                        <div id="variantSelectorsContainer">
+                                            <!-- Variant selectors will be dynamically added here -->
+                                        </div>
+                                        <!-- Hidden input to store the final selected parent_id -->
+                                        <input type="hidden" name="parent_id" id="parent_id" value="{{ isset($variantsConfig) ? $variantsConfig['parent_id'] : old('parent_id') }}">
                                         <small class="text-muted">{{ trans('catalogmanagement::variantsconfig.parent_help') }}</small>
                                         @error('parent_id')
                                             <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -596,21 +590,361 @@
             });
         });
 
-        // Handle Key Selection Change - Filter Parent Variants
+        // Store translations
+        const translations = {
+            selectChildKey: '{{ trans('catalogmanagement::variantsconfig.select_child_key') }}',
+            selectParentVariant: '{{ trans('catalogmanagement::variantsconfig.select_parent_variant') }}',
+            level: '{{ trans('common.level') }}',
+            select: '{{ trans('common.select') }}',
+            search: '{{ trans('common.search') }}',
+            noResults: '{{ trans('common.no_results') }}',
+            noParent: '{{ trans('catalogmanagement::variantsconfig.no_parent') }}'
+        };
+
+        // Store all variant keys for hierarchical selection
+        const allVariantKeys = @json($variantKeys ?? []);
+        let keySelectionLevel = 0;
+        let variantSelectionLevel = 0;
+        
+        // Store edit mode parent ID for pre-selection
+        const editModeParentId = {{ isset($variantsConfig) && $variantsConfig->parent_id ? $variantsConfig->parent_id : 'null' }};
+
+        // Debug: Log all variant keys to see the data structure
+        console.log('All variant keys loaded:', allVariantKeys);
+        console.log('Total keys:', allVariantKeys.length);
+        console.log('Edit mode parent ID:', editModeParentId);
+        
+        // Debug: Show keys with their parent_key_id
+        const rootKeys = [];
+        const childKeys = [];
+        allVariantKeys.forEach(key => {
+            console.log(`Key ID: ${key.id}, Name: ${key.name}, Parent Key ID: ${key.parent_key_id}`);
+            if (!key.parent_key_id || key.parent_key_id === null) {
+                rootKeys.push(key);
+            } else {
+                childKeys.push(key);
+            }
+        });
+        
+        console.log('Root keys (no parent):', rootKeys);
+        console.log('Child keys (has parent):', childKeys);
+
+        // Function to get child keys of a parent key
+        function getChildKeys(parentKeyId) {
+            console.log('getChildKeys called with parentKeyId:', parentKeyId, 'type:', typeof parentKeyId);
+            const children = allVariantKeys.filter(key => {
+                const match = key.parent_key_id == parentKeyId;
+                if (match) {
+                    console.log(`  Found child: ${key.name} (ID: ${key.id})`);
+                }
+                return match;
+            });
+            console.log(`Total children found: ${children.length}`);
+            return children;
+        }
+
+        // Function to add a child key selector
+        function addChildKeySelector(parentKeyId, level, selectedValue = null) {
+            const childKeys = getChildKeys(parentKeyId);
+            
+            if (childKeys.length === 0) {
+                // No more child keys, this is the final key
+                // Set the final key_id and load variants
+                $('#key_id').val(parentKeyId);
+                loadVariantsForKey(parentKeyId);
+                return;
+            }
+
+            // Check if selector already exists at this level
+            const existingSelector = document.querySelector(`.key-selector-level-${level}`);
+            if (existingSelector) {
+                console.log(`Key selector already exists at level ${level}, skipping`);
+                return;
+            }
+
+            // Remove any selectors after this level
+            const selectorsToRemove = document.querySelectorAll(`.key-selector-level-${level}, .key-selector-level-${level} ~ .key-selector-level-${level + 1}, .key-selector-level-${level} ~ .key-selector-level-${level + 2}`);
+            selectorsToRemove.forEach(el => el.remove());
+
+            // Create new selector
+            const selectorId = `child_key_level_${level}`;
+            
+            const selectorHtml = `
+                <div class="mb-3 key-selector-level-${level}">
+                    <label class="il-gray fs-14 fw-500 mb-10 d-block">
+                        ${translations.selectChildKey} (${translations.level} ${level + 1})
+                    </label>
+                    <div class="custom-select-container" id="${selectorId}" data-name="child_key_${level}">
+                        <div class="custom-select-display">
+                            <div class="custom-select-value">
+                                <span class="custom-select-placeholder">${translations.select}</span>
+                            </div>
+                            <span class="custom-select-arrow">
+                                <i class="uil uil-angle-down"></i>
+                            </span>
+                        </div>
+                        <div class="custom-select-dropdown">
+                            <div class="custom-select-search-wrapper">
+                                <input type="text" class="custom-select-search-input" placeholder="${translations.search}" autocomplete="off">
+                            </div>
+                            <div class="custom-select-options"></div>
+                            <div class="custom-select-no-results" style="display: none;">${translations.noResults}</div>
+                        </div>
+                        <input type="hidden" name="child_key_${level}" value="">
+                    </div>
+                </div>
+            `;
+
+            $('#keySelectorsContainer').append(selectorHtml);
+
+            // Initialize the custom select
+            CustomSelect.init(selectorId);
+
+            // Set options
+            const options = childKeys.map(key => ({ id: key.id, name: key.name }));
+            CustomSelect.setOptions(selectorId, options, translations.select);
+
+            // Set selected value if provided
+            if (selectedValue) {
+                CustomSelect.setValue(selectorId, selectedValue);
+            }
+
+            // Handle change event (only attach once)
+            const selectorElement = document.getElementById(selectorId);
+            if (selectorElement && !selectorElement.dataset.listenerAttached) {
+                selectorElement.dataset.listenerAttached = 'true';
+                selectorElement.addEventListener('change', function(e) {
+                    const selectedKeyId = e.detail ? e.detail.value : CustomSelect.getValue(selectorId);
+                    const currentLevel = level;
+                    
+                    if (selectedKeyId) {
+                        // Check if this key has children
+                        addChildKeySelector(selectedKeyId, currentLevel + 1);
+                    } else {
+                        // Clear subsequent selectors
+                        const selectorsToRemove = document.querySelectorAll(`.key-selector-level-${currentLevel + 1}, .key-selector-level-${currentLevel + 2}, .key-selector-level-${currentLevel + 3}`);
+                        selectorsToRemove.forEach(el => el.remove());
+                        $('#key_id').val('');
+                        $('#parentVariantContainer').hide();
+                        $('#variantSelectorsContainer').empty();
+                    }
+                });
+            }
+
+            // If there's a selected value, trigger change to load next level
+            if (selectedValue) {
+                const event = new CustomEvent('change', { 
+                    detail: { value: selectedValue },
+                    bubbles: true
+                });
+                document.getElementById(selectorId).dispatchEvent(event);
+            }
+        }
+
+        // Function to load variants for the final selected key
+        function loadVariantsForKey(keyId) {
+            console.log('Loading variants for key:', keyId);
+            
+            // Show parent variant container
+            $('#parentVariantContainer').show();
+            $('#variantSelectorsContainer').empty();
+
+            // Load root variants (variants without parent)
+            loadVariantLevel(keyId, null, 0);
+        }
+
+        // Function to load variants at a specific level
+        function loadVariantLevel(keyId, parentVariantId, level) {
+            console.log(`Loading variant level ${level} for key ${keyId}, parent ${parentVariantId}`);
+
+            $.ajax({
+                url: '{{ route('admin.variants-configurations.get-parents-by-key') }}',
+                method: 'GET',
+                data: {
+                    key_id: keyId,
+                    parent_id: parentVariantId,
+                    current_id: '{{ isset($variantsConfig) ? $variantsConfig->id : '' }}'
+                },
+                success: function(response) {
+                    console.log(`Variant level ${level} response:`, response);
+
+                    if (response.success && response.data && response.data.length > 0) {
+                        addVariantSelector(keyId, parentVariantId, level, response.data);
+                    } else {
+                        console.log(`No variants found at level ${level}`);
+                        // If this is level 0 and no variants, just show message
+                        if (level === 0) {
+                            $('#variantSelectorsContainer').html(`
+                                <div class="alert alert-info">
+                                    <i class="uil uil-info-circle me-1"></i>
+                                    {{ trans('catalogmanagement::variantsconfig.no_variants_for_key') }}
+                                </div>
+                            `);
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading variants:', error);
+                }
+            });
+        }
+
+        // Function to add a variant selector
+        function addVariantSelector(keyId, parentVariantId, level, variants) {
+            // Check if selector already exists at this level
+            const existingSelector = document.querySelector(`.variant-selector-level-${level}`);
+            if (existingSelector) {
+                console.log(`Selector already exists at level ${level}, skipping`);
+                return;
+            }
+
+            // Remove any selectors after this level
+            const selectorsToRemove = document.querySelectorAll(`.variant-selector-level-${level}, .variant-selector-level-${level} ~ .variant-selector-level-${level + 1}, .variant-selector-level-${level} ~ .variant-selector-level-${level + 2}`);
+            selectorsToRemove.forEach(el => el.remove());
+
+            const selectorId = `variant_level_${level}`;
+            
+            const selectorHtml = `
+                <div class="mb-3 variant-selector-level-${level}">
+                    <label class="il-gray fs-14 fw-500 mb-10 d-block">
+                        ${translations.selectParentVariant} (${translations.level} ${level + 1})
+                    </label>
+                    <div class="custom-select-container" id="${selectorId}" data-name="variant_${level}" data-key-id="${keyId}">
+                        <div class="custom-select-display">
+                            <div class="custom-select-value">
+                                <span class="custom-select-placeholder">${translations.noParent}</span>
+                            </div>
+                            <span class="custom-select-arrow">
+                                <i class="uil uil-angle-down"></i>
+                            </span>
+                        </div>
+                        <div class="custom-select-dropdown">
+                            <div class="custom-select-search-wrapper">
+                                <input type="text" class="custom-select-search-input" placeholder="${translations.search}" autocomplete="off">
+                            </div>
+                            <div class="custom-select-options"></div>
+                            <div class="custom-select-no-results" style="display: none;">${translations.noResults}</div>
+                        </div>
+                        <input type="hidden" name="variant_${level}" value="">
+                    </div>
+                </div>
+            `;
+
+            $('#variantSelectorsContainer').append(selectorHtml);
+
+            // Initialize the custom select
+            CustomSelect.init(selectorId);
+
+            // Set options
+            const options = variants.map(v => ({ id: v.id, name: v.display_name }));
+            CustomSelect.setOptions(selectorId, options, translations.noParent);
+
+            // Check if we need to pre-select a variant in edit mode
+            if (editModeParentId && level === 0) {
+                console.log('Edit mode: Checking if parent variant', editModeParentId, 'is in this level');
+                const parentVariantInList = variants.find(v => v.id == editModeParentId);
+                if (parentVariantInList) {
+                    console.log('Edit mode: Pre-selecting parent variant', editModeParentId);
+                    CustomSelect.setValue(selectorId, editModeParentId);
+                    $('#parent_id').val(editModeParentId);
+                }
+            }
+
+            // Handle change event (only attach once)
+            const selectorElement = document.getElementById(selectorId);
+            if (selectorElement && !selectorElement.dataset.listenerAttached) {
+                selectorElement.dataset.listenerAttached = 'true';
+                selectorElement.addEventListener('change', function(e) {
+                    const selectedVariantId = e.detail ? e.detail.value : CustomSelect.getValue(selectorId);
+                    const currentLevel = level;
+                    const currentKeyId = this.dataset.keyId;
+                    
+                    // Update hidden parent_id field
+                    $('#parent_id').val(selectedVariantId || '');
+                    
+                    if (selectedVariantId) {
+                        // Load child variants
+                        loadVariantLevel(currentKeyId, selectedVariantId, currentLevel + 1);
+                    } else {
+                        // Clear subsequent selectors
+                        const selectorsToRemove = document.querySelectorAll(`.variant-selector-level-${currentLevel + 1}, .variant-selector-level-${currentLevel + 2}, .variant-selector-level-${currentLevel + 3}`);
+                        selectorsToRemove.forEach(el => el.remove());
+                    }
+                });
+            }
+        }
+
+        // Handle root key selection using custom select event
+        const rootKeyElement = document.getElementById('root_key_id');
+        if (rootKeyElement && !rootKeyElement.dataset.listenerAttached) {
+            rootKeyElement.dataset.listenerAttached = 'true';
+            rootKeyElement.addEventListener('change', function(e) {
+                const selectedKeyId = e.detail ? e.detail.value : CustomSelect.getValue('root_key_id');
+                
+                console.log('=== Root key changed ===');
+                console.log('Selected key ID:', selectedKeyId);
+                
+                // Clear all child selectors
+                const childSelectors = document.querySelectorAll('#keySelectorsContainer .key-selector-level-0, #keySelectorsContainer .key-selector-level-0 ~ *');
+                childSelectors.forEach(el => {
+                    if (!el.classList.contains('mb-3') || el.querySelector('#root_key_id')) return;
+                    el.remove();
+                });
+                
+                $('#key_id').val('');
+                $('#parent_id').val('');
+                $('#parentVariantContainer').hide();
+                $('#variantSelectorsContainer').empty();
+                
+                if (selectedKeyId) {
+                    // Check if this key has children
+                    const childKeys = getChildKeys(selectedKeyId);
+                    
+                    console.log('Decision: Has children?', childKeys.length > 0);
+                    
+                    if (childKeys.length > 0) {
+                        // Has child keys, show next level
+                        console.log('Showing child key selector');
+                        addChildKeySelector(selectedKeyId, 0);
+                    } else {
+                        // No child keys, this is the final key
+                        console.log('No children, loading variants');
+                        $('#key_id').val(selectedKeyId);
+                        loadVariantsForKey(selectedKeyId);
+                    }
+                }
+            });
+        }
+
+        // Handle Key Selection Change - Filter Parent Variants (OLD CODE - KEEP FOR BACKWARD COMPATIBILITY)
         $('#key_id').on('change', function() {
             const selectedKeyId = $(this).val();
             const parentSelect = $('#parent_id');
+
+            console.log('Key changed to:', selectedKeyId);
 
             if (!selectedKeyId) {
                 // If no key selected, show no parent message
                 parentSelect.html('<option value="">-- {{ trans('catalogmanagement::variantsconfig.select_key_first') }} --</option>');
                 parentSelect.prop('disabled', true);
+                // Destroy and reinitialize Select2
+                if (parentSelect.data('select2')) {
+                    parentSelect.select2('destroy');
+                }
+                parentSelect.select2({
+                    width: '100%',
+                    @if(app()->getLocale() == 'ar')
+                    dir: 'rtl'
+                    @endif
+                });
                 return;
             }
 
             // Show loading state
             parentSelect.html('<option value="">{{ trans('common.loading') }}...</option>');
             parentSelect.prop('disabled', true);
+
+            console.log('Making AJAX request to get parents for key:', selectedKeyId);
 
             // Make AJAX request to get parent variants for selected key
             $.ajax({
@@ -621,21 +955,28 @@
                     current_id: '{{ isset($variantsConfig) ? $variantsConfig->id : '' }}'
                 },
                 success: function(response) {
+                    console.log('AJAX response:', response);
+
                     let options = '<option value="">-- {{ trans('catalogmanagement::variantsconfig.no_parent') }} --</option>';
 
                     if (response.success && response.data && response.data.length > 0) {
+                        console.log('Found', response.data.length, 'parent variants');
                         response.data.forEach(function(parent) {
                             const selected = '{{ isset($variantsConfig) ? $variantsConfig->parent_id : old('parent_id') }}' == parent.id ? 'selected' : '';
                             options += `<option value="${parent.id}" ${selected}>${parent.display_name}</option>`;
                         });
+                    } else {
+                        console.log('No parent variants found for this key');
                     }
 
                     parentSelect.html(options);
                     parentSelect.prop('disabled', false);
 
-                    // Reinitialize Select2 with RTL support
+                    // Destroy and reinitialize Select2 with RTL support
+                    if (parentSelect.data('select2')) {
+                        parentSelect.select2('destroy');
+                    }
                     parentSelect.select2({
-                        theme: 'bootstrap-5',
                         width: '100%',
                         @if(app()->getLocale() == 'ar')
                         dir: 'rtl'
@@ -644,6 +985,8 @@
                 },
                 error: function(xhr, status, error) {
                     console.error('Error fetching parent variants:', error);
+                    console.error('XHR:', xhr);
+                    console.error('Status:', status);
                     parentSelect.html('<option value="">-- {{ trans('catalogmanagement::variantsconfig.error_loading_parents') }} --</option>');
                     parentSelect.prop('disabled', false);
                 }
@@ -652,8 +995,177 @@
 
         // Trigger change event on page load if key is already selected
         if ($('#key_id').val()) {
+            console.log('Triggering change on page load for key:', $('#key_id').val());
             $('#key_id').trigger('change');
         }
+
+        // Handle edit mode - pre-populate hierarchical selectors
+        @if(isset($variantsConfig))
+        (function initializeEditMode() {
+            const editKeyId = {{ $variantsConfig->key_id ?? 'null' }};
+            const editParentId = {{ $variantsConfig->parent_id ?? 'null' }};
+            
+            console.log('=== EDIT MODE INITIALIZATION ===');
+            console.log('Edit Key ID:', editKeyId);
+            console.log('Edit Parent ID:', editParentId);
+            
+            if (!editKeyId) {
+                console.log('No key ID in edit mode');
+                return;
+            }
+            
+            // Find the key in allVariantKeys
+            const selectedKey = allVariantKeys.find(k => k.id == editKeyId);
+            if (!selectedKey) {
+                console.log('Selected key not found in allVariantKeys');
+                return;
+            }
+            
+            console.log('Selected key:', selectedKey);
+            
+            // Build the key hierarchy path from root to selected key
+            function getKeyPath(keyId) {
+                const path = [];
+                let currentKey = allVariantKeys.find(k => k.id == keyId);
+                
+                while (currentKey) {
+                    path.unshift(currentKey);
+                    if (currentKey.parent_key_id) {
+                        currentKey = allVariantKeys.find(k => k.id == currentKey.parent_key_id);
+                    } else {
+                        currentKey = null;
+                    }
+                }
+                
+                return path;
+            }
+            
+            const keyPath = getKeyPath(editKeyId);
+            console.log('Key path:', keyPath.map(k => `${k.name} (${k.id})`));
+            
+            if (keyPath.length === 0) {
+                console.log('Empty key path');
+                return;
+            }
+            
+            // Set root key (without triggering change)
+            const rootKey = keyPath[0];
+            console.log('Setting root key:', rootKey.name, rootKey.id);
+            CustomSelect.setValue('root_key_id', rootKey.id);
+            
+            // If there's only one key in path (root key is the final key)
+            if (keyPath.length === 1) {
+                console.log('Root key is the final key');
+                $('#key_id').val(editKeyId);
+                loadVariantsForKey(editKeyId);
+                return;
+            }
+            
+            // Create child key selectors for each level (without triggering change events)
+            for (let i = 0; i < keyPath.length - 1; i++) {
+                const parentKey = keyPath[i];
+                const childKey = keyPath[i + 1];
+                
+                console.log(`Creating selector for level ${i}: parent=${parentKey.name}, child=${childKey.name}`);
+                
+                // Get child keys for this parent
+                const childKeys = getChildKeys(parentKey.id);
+                
+                if (childKeys.length === 0) {
+                    console.log('No child keys found, stopping');
+                    break;
+                }
+                
+                // Create the selector HTML
+                const selectorId = `child_key_level_${i}`;
+                const selectorHtml = `
+                    <div class="mb-3 key-selector-level-${i}">
+                        <label class="il-gray fs-14 fw-500 mb-10 d-block">
+                            ${translations.selectChildKey} (${translations.level} ${i + 1})
+                        </label>
+                        <div class="custom-select-container" id="${selectorId}" data-name="child_key_${i}">
+                            <div class="custom-select-display">
+                                <div class="custom-select-value">
+                                    <span class="custom-select-placeholder">${translations.select}</span>
+                                </div>
+                                <span class="custom-select-arrow">
+                                    <i class="uil uil-angle-down"></i>
+                                </span>
+                            </div>
+                            <div class="custom-select-dropdown">
+                                <div class="custom-select-search-wrapper">
+                                    <input type="text" class="custom-select-search-input" placeholder="${translations.search}" autocomplete="off">
+                                </div>
+                                <div class="custom-select-options"></div>
+                                <div class="custom-select-no-results" style="display: none;">${translations.noResults}</div>
+                            </div>
+                            <input type="hidden" name="child_key_${i}" value="">
+                        </div>
+                    </div>
+                `;
+                
+                $('#keySelectorsContainer').append(selectorHtml);
+                
+                // Initialize the custom select
+                CustomSelect.init(selectorId);
+                
+                // Set options
+                const options = childKeys.map(key => ({ id: key.id, name: key.name }));
+                CustomSelect.setOptions(selectorId, options, translations.select);
+                
+                // Set selected value
+                CustomSelect.setValue(selectorId, childKey.id);
+                
+                // Attach change event listener
+                const selectorElement = document.getElementById(selectorId);
+                if (selectorElement && !selectorElement.dataset.listenerAttached) {
+                    selectorElement.dataset.listenerAttached = 'true';
+                    selectorElement.addEventListener('change', function(e) {
+                        const selectedKeyId = e.detail ? e.detail.value : CustomSelect.getValue(selectorId);
+                        const currentLevel = i;
+                        
+                        if (selectedKeyId) {
+                            addChildKeySelector(selectedKeyId, currentLevel + 1);
+                        } else {
+                            const selectorsToRemove = document.querySelectorAll(`.key-selector-level-${currentLevel + 1}, .key-selector-level-${currentLevel + 2}, .key-selector-level-${currentLevel + 3}`);
+                            selectorsToRemove.forEach(el => el.remove());
+                            $('#key_id').val('');
+                            $('#parentVariantContainer').hide();
+                            $('#variantSelectorsContainer').empty();
+                        }
+                    });
+                }
+            }
+            
+            // Set the final key_id
+            $('#key_id').val(editKeyId);
+            console.log('Set final key_id to:', editKeyId);
+            
+            // Load variants for the final key
+            console.log('Loading variants for final key');
+            loadVariantsForKey(editKeyId);
+            
+            // If there's a parent variant, we need to build its hierarchy and pre-select
+            if (editParentId) {
+                console.log('Edit mode has parent variant:', editParentId);
+                
+                // Wait for variants to load, then pre-select the parent
+                setTimeout(function() {
+                    console.log('Attempting to pre-select parent variant:', editParentId);
+                    
+                    // Find the variant selector at level 0
+                    const level0Selector = document.getElementById('variant_level_0');
+                    if (level0Selector) {
+                        console.log('Found level 0 variant selector, setting value to:', editParentId);
+                        CustomSelect.setValue('variant_level_0', editParentId);
+                        $('#parent_id').val(editParentId);
+                    } else {
+                        console.log('Level 0 variant selector not found yet');
+                    }
+                }, 1500);
+            }
+        })();
+        @endif
     });
 </script>
 @endpush

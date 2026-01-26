@@ -168,6 +168,34 @@ class VariantsConfigurationRepository implements VariantsConfigurationRepository
     }
 
     /**
+     * Get variants by key ID and parent ID (for hierarchical selection)
+     *
+     * @param int $keyId
+     * @param int|null $parentId
+     * @param int|null $currentId
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getVariantsByKeyAndParent($keyId, $parentId = null, $currentId = null)
+    {
+        $query = VariantsConfiguration::with(['key', 'parent_data.translations', 'translations'])
+            ->where('key_id', $keyId);
+
+        // Filter by parent_id (null for root level variants)
+        if ($parentId === null) {
+            $query->whereNull('parent_id');
+        } else {
+            $query->where('parent_id', $parentId);
+        }
+
+        // Exclude current variant to prevent self-referencing
+        if ($currentId) {
+            $query->where('id', '!=', $currentId);
+        }
+
+        return $query->orderBy('id', 'desc')->get();
+    }
+
+    /**
      * Get variant configuration keys for API
      *
      * @return array

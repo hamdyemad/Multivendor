@@ -10,6 +10,7 @@ use Modules\CatalogManagement\app\Actions\VariantsConfigurationAction;
 use Modules\CatalogManagement\app\Http\Requests\VariantsConfigurationRequest;
 use Modules\CatalogManagement\app\Http\Resources\VariantKeyTreeResource;
 use Modules\CatalogManagement\app\Http\Resources\VariantsConfigurationResource;
+use Modules\CatalogManagement\app\Http\Resources\VariantsConfigurationKeyResource;
 use Modules\CatalogManagement\app\Models\VariantConfigurationKey;
 use Modules\CatalogManagement\app\Models\VariantsConfiguration;
 use Modules\CatalogManagement\app\Services\VariantConfigurationKeyService;
@@ -125,8 +126,8 @@ class VariantsConfigurationController extends Controller
     public function create($lang, $countryCode)
     {
         $languages = $this->languageService->getAll();
-        $variantKeys = VariantConfigurationKey::with('translations')->get();
-        $variantKeys = VariantsConfigurationResource::collection($variantKeys)->resolve();
+        $variantKeys = VariantConfigurationKey::withoutGlobalScopes()->with('translations')->get();
+        $variantKeys = VariantsConfigurationKeyResource::collection($variantKeys)->resolve();
         $allVariantsConfigs = $this->variantsConfigService->getAll();
         return view('catalogmanagement::variants-config.form', compact('languages', 'variantKeys', 'allVariantsConfigs'));
     }
@@ -345,8 +346,8 @@ class VariantsConfigurationController extends Controller
     {
         $variantsConfig = $this->variantsConfigService->findById($id);
         $languages = $this->languageService->getAll();
-        $variantKeys = VariantConfigurationKey::with('translations')->get();
-        $variantKeys = VariantsConfigurationResource::collection($variantKeys)->resolve();
+        $variantKeys = VariantConfigurationKey::withoutGlobalScopes()->with('translations')->get();
+        $variantKeys = VariantsConfigurationKeyResource::collection($variantKeys)->resolve();
         $allVariantsConfigs = $this->variantsConfigService->getAll();
 
         if (!$variantsConfig) {
@@ -419,6 +420,7 @@ class VariantsConfigurationController extends Controller
     {
         try {
             $keyId = $request->get('key_id');
+            $parentId = $request->get('parent_id'); // Can be null for root level
             $currentId = $request->get('current_id');
 
             if (!$keyId) {
@@ -428,8 +430,8 @@ class VariantsConfigurationController extends Controller
                 ], 400);
             }
 
-            // Get parent variants with the same key, excluding current variant
-            $parents = $this->variantsConfigService->getParentsByKey($keyId, $currentId);
+            // Get variants with the same key and specific parent (or no parent if null)
+            $parents = $this->variantsConfigService->getVariantsByKeyAndParent($keyId, $parentId, $currentId);
 
             $data = [];
             if ($parents && $parents->count() > 0) {

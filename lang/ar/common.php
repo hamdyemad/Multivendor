@@ -310,6 +310,8 @@ return [
     
     // Load More
     'load_more' => 'تحميل المزيد',
+    'level' => 'المستوى',
+    'no_results' => 'لا توجد نتائج',
 ];
 
     

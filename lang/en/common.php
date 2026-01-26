@@ -305,6 +305,8 @@ return [
     
     // Load More
     'load_more' => 'Load More',
+    'level' => 'Level',
+    'no_results' => 'No results found',
 ];
 
 

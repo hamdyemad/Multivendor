@@ -59,6 +59,19 @@ class VariantsConfigurationService
     }
 
     /**
+     * Get variants by key ID and parent ID
+     *
+     * @param int $keyId
+     * @param int|null $parentId
+     * @param int|null $currentId
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getVariantsByKeyAndParent($keyId, $parentId = null, $currentId = null)
+    {
+        return $this->variantsConfigRepository->getVariantsByKeyAndParent($keyId, $parentId, $currentId);
+    }
+
+    /**
      * Get variant configuration keys for API
      *
      * @return array

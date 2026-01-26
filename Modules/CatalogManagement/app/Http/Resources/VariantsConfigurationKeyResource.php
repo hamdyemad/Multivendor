@@ -25,6 +25,7 @@ class VariantsConfigurationKeyResource extends JsonResource
         return [
             "id" => $this->id,
             "name" => $this->getTranslation('name', $locale),
+            "parent_key_id" => $this->parent_key_id,
             'parent' => VariantsConfigurationKeyResource::make($this->whenLoaded('parent')),
             'children' => VariantsConfigurationKeyResource::collection($this->whenLoaded('childrenKeys')),
         ];

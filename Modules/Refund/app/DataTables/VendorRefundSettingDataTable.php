@@ -31,8 +31,11 @@ class VendorRefundSettingDataTable
         $totalRecords = Vendor::count();
         $filteredRecords = (clone $query)->count();
 
+        // Calculate page number from start and length
+        // DataTables sends start=0 for page 1, start=10 for page 2, etc.
+        $page = ($start / $length) + 1;
+        
         // Apply pagination
-        $page = $data['page'];
         $vendors = $query->paginate($length, ['*'], 'page', $page);
 
         // Format data for DataTables

@@ -5,6 +5,7 @@ namespace Modules\CatalogManagement\app\Http\Resources\Api;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Modules\CatalogManagement\app\Models\VendorProduct;
+use App\Helpers\PointsHelper;
 
 class BundleProductResource extends JsonResource
 {
@@ -57,6 +58,9 @@ class BundleProductResource extends JsonResource
             })->toArray();
         }
 
+        // Calculate points based on bundle price after taxes
+        $points = PointsHelper::calculatePoints($bundlePriceAfterTaxes);
+
         // Merge vendor product data first, then bundle product data (bundle data takes precedence)
         return array_merge($vendorProductData, [
             'id' => $this->id,
@@ -68,6 +72,7 @@ class BundleProductResource extends JsonResource
             'tax_percentage' => $totalTaxPercentage,
             'taxes' => $taxes,
             'price_after_taxes' => round($bundlePriceAfterTaxes, 2),
+            'points' => $points,
             'min_quantity' => $this->min_quantity,
             'is_gift' => ($this->price == 0) ? true : false,
             'limitation_quantity' => $this->limitation_quantity,

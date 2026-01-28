@@ -25,8 +25,8 @@ class VendorProductResource extends JsonResource
         $totalReviews = $this->reviews_count ?? 0;
         $avgStar = $this->reviews_avg_star ?? 0;
 
-        // Calculate points based on minimum variant price
-        $price = $this->variants?->min('price') ?? 0;
+        // Calculate points based on maximum variant price (excluding 0-priced variants)
+        $price = $this->variants?->where('price', '>', 0)->max('price') ?? 0;
         $points = PointsHelper::calculatePoints((float) $price);
 
         return [

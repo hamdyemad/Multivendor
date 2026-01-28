@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Modules\CatalogManagement\app\Http\Resources\Api\BundleCategoryResource;
 use Modules\Vendor\app\Http\Resources\Api\LightVendorResource;
+use App\Helpers\PointsHelper;
 
 class SimpleBundleResource extends JsonResource
 {
@@ -24,6 +25,8 @@ class SimpleBundleResource extends JsonResource
                 ? $this->bundleProducts->sum('price') 
                 : 0);
 
+        $totalPoints = PointsHelper::calculatePoints($totalPrice);
+
         return [
             'id' => $this->id,
             'sku' => $this->sku,
@@ -40,6 +43,7 @@ class SimpleBundleResource extends JsonResource
             }),
             'bundle_products_count' => $bundleProductsCount,
             'total_price' => round($totalPrice, 2),
+            'total_points' => $totalPoints,
             // Relationships
             'vendor' => $this->whenLoaded('vendor', function() {
                 return new LightVendorResource($this->vendor);

@@ -7,6 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Modules\Vendor\app\Http\Resources\Api\VendorApiResource;
 use Modules\CatalogManagement\app\Http\Resources\Api\BundleProductResource;
 use Modules\CatalogManagement\app\Http\Resources\Api\BundleCategoryResource;
+use App\Helpers\PointsHelper;
 
 class BundleResource extends JsonResource
 {
@@ -20,6 +21,9 @@ class BundleResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $totalPrice = round($this->bundleTotalPrice(), 2);
+        $totalPoints = PointsHelper::calculatePoints($totalPrice);
+
         $data = [
             'id' => $this->id,
             'sku' => $this->sku,
@@ -36,7 +40,8 @@ class BundleResource extends JsonResource
                 return new BundleCategoryResource($this->bundleCategory);
             }),
             'bundle_products_count' => $this->bundle_products_count ?? 0,
-            'total_price' => round($this->bundleTotalPrice(), 2),
+            'total_price' => $totalPrice,
+            'total_points' => $totalPoints,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];

@@ -29,6 +29,20 @@ class Bundle extends Model
     ];
 
     /**
+     * Boot the model
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Listen to translation changes
+        static::saved(function ($bundle) {
+            // Reload translations to ensure fresh data
+            $bundle->load('translations');
+        });
+    }
+
+    /**
      * Attachments relationship
      */
     public function attachments()

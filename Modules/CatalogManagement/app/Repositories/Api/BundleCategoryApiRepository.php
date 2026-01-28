@@ -3,6 +3,7 @@
 namespace Modules\CatalogManagement\app\Repositories\Api;
 
 use Modules\CatalogManagement\app\Models\BundleCategory;
+use App\Services\CacheService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -11,9 +12,16 @@ use Modules\CatalogManagement\app\Interfaces\Api\BundleCategoryApiRepositoryInte
 
 class BundleCategoryApiRepository implements BundleCategoryApiRepositoryInterface
 {
+    protected CacheService $cache;
+
+    public function __construct(CacheService $cache)
+    {
+        $this->cache = $cache;
+    }
 
     public function getAll(array $filters = [], $per_page = 10)
     {
+        // Temporarily disable cache to debug
         $query = BundleCategory::with(['translations'])
         ->withCount('bundles')
         ->active()
@@ -28,6 +36,7 @@ class BundleCategoryApiRepository implements BundleCategoryApiRepositoryInterfac
      */
     public function getBundleCategoryById($id)
     {
+        // Temporarily disable cache to debug
         return BundleCategory::with(['translations', 'attachments', 'bundles' => function($q) {
             $q->active()
               ->withCount(['bundleProducts' => function($q) {
@@ -53,6 +62,14 @@ class BundleCategoryApiRepository implements BundleCategoryApiRepositoryInterfac
         ->withCount('bundles')
         ->where('slug', $id)
         ->orWhere('id', $id)->firstOrFail();
+    }
+
+    /**
+     * Clear bundle category API cache
+     */
+    public function clearCache(): void
+    {
+        $this->cache->forgetByPattern('bundlecategoryapi:*');
     }
 
 }

@@ -19,6 +19,20 @@ class BundleCategory extends BaseModel
     protected $guarded = [];
 
     /**
+     * Boot the model
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Listen to translation changes
+        static::saved(function ($bundleCategory) {
+            // Reload translations to ensure fresh data
+            $bundleCategory->load('translations');
+        });
+    }
+
+    /**
      * Attachments relationship
      */
     public function attachments()

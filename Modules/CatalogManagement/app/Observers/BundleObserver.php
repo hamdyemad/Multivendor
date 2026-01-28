@@ -4,6 +4,7 @@ namespace Modules\CatalogManagement\app\Observers;
 
 use Modules\CatalogManagement\app\Models\Bundle;
 use App\Services\CacheService;
+use Illuminate\Support\Facades\Log;
 
 class BundleObserver
 {
@@ -19,7 +20,7 @@ class BundleObserver
      */
     public function created(Bundle $bundle): void
     {
-        $this->clearBundleCache();
+        // Don't clear cache here, wait for saved event
     }
 
     /**
@@ -27,7 +28,18 @@ class BundleObserver
      */
     public function updated(Bundle $bundle): void
     {
-        $this->clearBundleCache();
+        // Don't clear cache here, wait for saved event
+    }
+
+    /**
+     * Handle the Bundle "saved" event (fires after create/update and all relations)
+     */
+    public function saved(Bundle $bundle): void
+    {
+        // Use afterCommit to ensure cache is cleared after transaction completes
+        \Illuminate\Support\Facades\DB::afterCommit(function () {
+            $this->clearBundleCache();
+        });
     }
 
     /**
@@ -44,5 +56,6 @@ class BundleObserver
     protected function clearBundleCache(): void
     {
         $this->cache->forgetByPattern('bundleapi:*');
+        $this->cache->forgetByPattern('bundlecategoryapi:*'); // Also clear category cache as bundles affect categories
     }
 }

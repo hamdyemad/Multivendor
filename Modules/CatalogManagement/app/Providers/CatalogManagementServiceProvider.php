@@ -43,6 +43,10 @@ use Modules\CatalogManagement\app\Repositories\BundleRepository;
 use Modules\CatalogManagement\app\Repositories\OccasionRepository;
 use Modules\CatalogManagement\app\Models\VendorProduct;
 use Modules\CatalogManagement\app\Observers\VendorProductObserver;
+use Modules\CatalogManagement\app\Models\Bundle;
+use Modules\CatalogManagement\app\Observers\BundleObserver;
+use Modules\CatalogManagement\app\Models\BundleCategory;
+use Modules\CatalogManagement\app\Observers\BundleCategoryObserver;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -69,6 +73,8 @@ class CatalogManagementServiceProvider extends ServiceProvider
         
         // Register observers
         VendorProduct::observe(VendorProductObserver::class);
+        Bundle::observe(BundleObserver::class);
+        BundleCategory::observe(BundleCategoryObserver::class);
     }
 
     /**

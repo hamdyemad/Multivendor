@@ -74,7 +74,11 @@ class VendorFilterDTO extends FilterDTO
             $this->errors['sort_type'][] = __('validation.sort_type_invalid');
         }
 
-        if ($this->char && !in_array($this->char, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'])) {
+        if ($this->char && !in_array($this->char, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 
+        'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 
+        'z', 'أ', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 
+        'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'و', 'ي', 'ا', 
+        'ى', 'ة', 'ء', 'آ', 'إ', 'ؤ', 'ئ', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])) {
             $this->errors['char'][] = __('validation.char_invalid');
         }
 

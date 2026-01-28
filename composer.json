@@ -73,7 +73,8 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "allow-plugins": {
-            "wikimedia/composer-merge-plugin": true
+            "wikimedia/composer-merge-plugin": true,
+            "php-http/discovery": true
         }
     },
     "minimum-stability": "dev",

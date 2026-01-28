@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route as RouteFacade;
 use Illuminate\Database\Eloquent\Model;
 use App\Observers\GlobalModelObserver;
+use App\Observers\CacheInvalidationObserver;
 use App\Models\ActivityLog;
 use Modules\AreaSettings\app\Models\Country;
 use Carbon\Carbon;
@@ -68,6 +69,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Register observers for Module models
         $this->registerModuleModelObservers();
+        
+        // Register cache invalidation observers
+        $this->registerCacheInvalidationObservers();
     }
 
     /**
@@ -115,6 +119,46 @@ class AppServiceProvider extends ServiceProvider
             Log::warning('Error registering Module model observers: ' . $e->getMessage());
         }
 
+    }
+
+    /**
+     * Register cache invalidation observers for all Module models automatically
+     */
+    private function registerCacheInvalidationObservers(): void
+    {
+        try {
+            $modulesPath = base_path('Modules');
+            if (!File::exists($modulesPath)) {
+                return;
+            }
+
+            $registeredCount = 0;
+
+            foreach (File::directories($modulesPath) as $module) {
+                $moduleName = basename($module);
+                $modelsPath = $module . '/app/Models';
+
+                if (File::exists($modelsPath)) {
+                    foreach (File::allFiles($modelsPath) as $modelFile) {
+                        $modelClass = "Modules\\{$moduleName}\\app\\Models\\" . $modelFile->getBasename('.php');
+                        
+                        if (class_exists($modelClass) && is_subclass_of($modelClass, Model::class)) {
+                            // Skip excluded models
+                            if (in_array($modelClass, $this->excludedModels)) {
+                                continue;
+                            }
+                            
+                            $modelClass::observe(CacheInvalidationObserver::class);
+                            $registeredCount++;
+                        }
+                    }
+                }
+            }
+
+            Log::info("Cache invalidation observers registered for {$registeredCount} models");
+        } catch (\Exception $e) {
+            Log::error('Error registering cache invalidation observers: ' . $e->getMessage());
+        }
     }
 
 }

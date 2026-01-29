@@ -10,7 +10,9 @@
         "kreait/firebase-php": "7.9",
         "laracasts/flash": "^3.2",
         "laravel/framework": "^12.18",
+        "laravel/nightwatch": "^1.22",
         "laravel/sanctum": "^4.0",
+        "laravel/telescope": "^5.16",
         "laravel/tinker": "^2.8",
         "laravel/ui": "^4.3",
         "maatwebsite/excel": "^3.1.55",
@@ -60,7 +62,9 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": []
+            "dont-discover": [
+                "laravel/telescope"
+            ]
         },
         "merge-plugin": {
             "include": [

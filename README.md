@@ -1,7 +1,7 @@
 # Eramo Multi-Vendor E-Commerce Platform
 
 <p align="center">
-  <img src="public/assets/images/logo.png" alt="Eramo Logo" width="200">
+  <img src="https://www.e-ramo.net/_next/image?url=%2Fimage%2Fe-ramo-logo-high-res%203.png&w=256&q=75" alt="Eramo Logo" width="200">
 </p>
 
 <p align="center">

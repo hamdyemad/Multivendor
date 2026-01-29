@@ -1,0 +1,22 @@
+# Set default index file
+DirectoryIndex index.html
+
+# Force UTF-8 encoding for markdown files
+<FilesMatch "\.(md|markdown)$">
+    AddDefaultCharset UTF-8
+    ForceType text/plain; charset=utf-8
+</FilesMatch>
+
+# Enable content type headers
+<IfModule mod_headers.c>
+    <FilesMatch "\.(md|markdown)$">
+        Header set Content-Type "text/plain; charset=utf-8"
+    </FilesMatch>
+    
+    <FilesMatch "\.(html|htm)$">
+        Header set Content-Type "text/html; charset=utf-8"
+    </FilesMatch>
+</IfModule>
+
+# Prevent directory listing
+Options -Indexes

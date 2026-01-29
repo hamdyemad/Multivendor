@@ -1346,10 +1346,7 @@ Unauthorized copying, modification, distribution, or use of this software, via a
 ## 👥 Team & Credits
 
 ### Development Team
-- **Lead Developer:** [Your Name]
-- **Backend Team:** [Team Members]
-- **Frontend Team:** [Team Members]
-- **QA Team:** [Team Members]
+- **Lead Developer:** [Hamdy Emad Eldin Hamdy](https://github.com/hamdyemad)
 
 ### Built With
 - [Laravel](https://laravel.com) - PHP Framework

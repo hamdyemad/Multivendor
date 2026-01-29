@@ -212,22 +212,21 @@ class ProductApiRepository implements ProductApiRepositoryInterface
 
     /**
      * Get price range from filtered products
-     * Optimized to use JOIN directly without fetching IDs
+     * Optimized to use whereIn with subquery
      */
     public function getPriceByFilters(array $filters)
     {
         // Build the base query with filters
         $baseQuery = $this->query->handle($filters);
         
-        // Get the SQL and bindings from the base query
-        $sql = $baseQuery->toSql();
-        $bindings = $baseQuery->getBindings();
-        
-        // Use JOIN to get max price directly
-        $maxPrice = DB::table(DB::raw("({$sql}) as filtered_products"))
-            ->mergeBindings($baseQuery->getQuery())
-            ->join('vendor_product_variants as vpv', 'filtered_products.id', '=', 'vpv.vendor_product_id')
-            ->max('vpv.price');
+        // Use whereIn with subquery to get max price directly
+        $maxPrice = DB::table('vendor_product_variants')
+            ->whereIn('vendor_product_id', function($query) use ($baseQuery) {
+                $query->select('id')
+                    ->fromSub($baseQuery, 'filtered_products');
+            })
+            ->where('price', '>', 0)
+            ->max('price');
 
         return $maxPrice ?? 0;
     }

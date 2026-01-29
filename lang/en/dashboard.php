@@ -29,6 +29,7 @@ return [
     'today' => 'Today',
     'week' => 'Week',
     'month' => 'Month',
+    'latest_5_years' => 'Latest 5 Years',
 
     // Withdraw Transactions
     'withdraw_transactions' => 'Withdraw Transactions',
@@ -152,6 +153,43 @@ return [
     'thursday' => 'Thursday',
     'friday' => 'Friday',
     'saturday' => 'Saturday',
+    
+    // Short days
+    'sun' => 'Sun',
+    'mon' => 'Mon',
+    'tue' => 'Tue',
+    'wed' => 'Wed',
+    'thu' => 'Thu',
+    'fri' => 'Fri',
+    'sat' => 'Sat',
+    
+    // Months
+    'january' => 'January',
+    'february' => 'February',
+    'march' => 'March',
+    'april' => 'April',
+    'may' => 'May',
+    'june' => 'June',
+    'july' => 'July',
+    'august' => 'August',
+    'september' => 'September',
+    'october' => 'October',
+    'november' => 'November',
+    'december' => 'December',
+    
+    // Short months
+    'jan' => 'Jan',
+    'feb' => 'Feb',
+    'mar' => 'Mar',
+    'apr' => 'Apr',
+    'may_short' => 'May',
+    'jun' => 'Jun',
+    'jul' => 'Jul',
+    'aug' => 'Aug',
+    'sep' => 'Sep',
+    'oct' => 'Oct',
+    'nov' => 'Nov',
+    'dec' => 'Dec',
     
     // Refunds
     'refunds_this_month' => 'Refunds This Month',

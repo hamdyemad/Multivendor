@@ -29,6 +29,7 @@ return [
     'today' => 'اليوم',
     'week' => 'الأسبوع',
     'month' => 'الشهر',
+    'latest_5_years' => 'آخر 5 سنوات',
 
     // Withdraw Transactions
     'withdraw_transactions' => 'معاملات السحب',
@@ -152,6 +153,43 @@ return [
     'thursday' => 'الخميس',
     'friday' => 'الجمعة',
     'saturday' => 'السبت',
+    
+    // Short days
+    'sun' => 'أحد',
+    'mon' => 'إثنين',
+    'tue' => 'ثلاثاء',
+    'wed' => 'أربعاء',
+    'thu' => 'خميس',
+    'fri' => 'جمعة',
+    'sat' => 'سبت',
+    
+    // Months
+    'january' => 'يناير',
+    'february' => 'فبراير',
+    'march' => 'مارس',
+    'april' => 'أبريل',
+    'may' => 'مايو',
+    'june' => 'يونيو',
+    'july' => 'يوليو',
+    'august' => 'أغسطس',
+    'september' => 'سبتمبر',
+    'october' => 'أكتوبر',
+    'november' => 'نوفمبر',
+    'december' => 'ديسمبر',
+    
+    // Short months
+    'jan' => 'ينا',
+    'feb' => 'فبر',
+    'mar' => 'مار',
+    'apr' => 'أبر',
+    'may_short' => 'ماي',
+    'jun' => 'يون',
+    'jul' => 'يول',
+    'aug' => 'أغس',
+    'sep' => 'سبت',
+    'oct' => 'أكت',
+    'nov' => 'نوف',
+    'dec' => 'ديس',
     
     // Refunds
     'refunds_this_month' => 'المرتجعات هذا الشهر',

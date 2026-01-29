@@ -18,11 +18,11 @@
                     </li>
                     <li>
                         <a href="#totalsales-year" data-bs-toggle="tab" id="totalsales-year-tab"
-                            role="tab" aria-selected="true" class="active" style="font-size: 12px">Year</a>
+                            role="tab" aria-selected="true" class="active" style="font-size: 12px">{{ trans('dashboard.year') }}</a>
                     </li>
                     <li>
                         <a href="#totalsales-5years" data-bs-toggle="tab" id="totalsales-5years-tab"
-                            role="tab" aria-selected="false" style="font-size: 12px">Latest 5 Years</a>
+                            role="tab" aria-selected="false" style="font-size: 12px">{{ trans('dashboard.latest_5_years') }}</a>
                     </li>
                 </ul>
             </div>

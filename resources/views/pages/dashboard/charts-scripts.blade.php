@@ -91,7 +91,7 @@
             new Chart(totalSalesWeekCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    labels: ['{{ trans("dashboard.mon") }}', '{{ trans("dashboard.tue") }}', '{{ trans("dashboard.wed") }}', '{{ trans("dashboard.thu") }}', '{{ trans("dashboard.fri") }}', '{{ trans("dashboard.sat") }}', '{{ trans("dashboard.sun") }}'],
                     datasets: [{
                         label: '{{ trans("dashboard.total_sales") }}',
                         data: salesChartWeekly,
@@ -145,7 +145,7 @@
             new Chart(totalSalesYearCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    labels: ['{{ trans("dashboard.jan") }}', '{{ trans("dashboard.feb") }}', '{{ trans("dashboard.mar") }}', '{{ trans("dashboard.apr") }}', '{{ trans("dashboard.may_short") }}', '{{ trans("dashboard.jun") }}', '{{ trans("dashboard.jul") }}', '{{ trans("dashboard.aug") }}', '{{ trans("dashboard.sep") }}', '{{ trans("dashboard.oct") }}', '{{ trans("dashboard.nov") }}', '{{ trans("dashboard.dec") }}'],
                     datasets: [{
                         label: '{{ trans("dashboard.total_sales") }}',
                         data: salesChartMonthly.length ? salesChartMonthly : Array(12).fill(0),
@@ -223,7 +223,7 @@
             new Chart(earningsWeekCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    labels: ['{{ trans("dashboard.mon") }}', '{{ trans("dashboard.tue") }}', '{{ trans("dashboard.wed") }}', '{{ trans("dashboard.thu") }}', '{{ trans("dashboard.fri") }}', '{{ trans("dashboard.sat") }}', '{{ trans("dashboard.sun") }}'],
                     datasets: [{
                         label: 'Earnings',
                         data: earningsChartWeekly,
@@ -277,7 +277,7 @@
             new Chart(earningsYearCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    labels: ['{{ trans("dashboard.jan") }}', '{{ trans("dashboard.feb") }}', '{{ trans("dashboard.mar") }}', '{{ trans("dashboard.apr") }}', '{{ trans("dashboard.may_short") }}', '{{ trans("dashboard.jun") }}', '{{ trans("dashboard.jul") }}', '{{ trans("dashboard.aug") }}', '{{ trans("dashboard.sep") }}', '{{ trans("dashboard.oct") }}', '{{ trans("dashboard.nov") }}', '{{ trans("dashboard.dec") }}'],
                     datasets: [{
                         label: 'Earnings',
                         data: earningsChartMonthly.length ? earningsChartMonthly : Array(12).fill(0),
@@ -373,7 +373,7 @@
         // Yearly Accounting Chart
         const yearlyAccountingCtx = document.getElementById('yearlyAccountingChart');
         if (yearlyAccountingCtx) {
-            const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const monthLabels = ['{{ trans("dashboard.jan") }}', '{{ trans("dashboard.feb") }}', '{{ trans("dashboard.mar") }}', '{{ trans("dashboard.apr") }}', '{{ trans("dashboard.may_short") }}', '{{ trans("dashboard.jun") }}', '{{ trans("dashboard.jul") }}', '{{ trans("dashboard.aug") }}', '{{ trans("dashboard.sep") }}', '{{ trans("dashboard.oct") }}', '{{ trans("dashboard.nov") }}', '{{ trans("dashboard.dec") }}'];
             const monthlyIncome = incomeExpenseYearMonthly.map(d => d.income);
             const monthlyExpenses = incomeExpenseYearMonthly.map(d => d.expenses);
             const monthlyCommission = incomeExpenseYearMonthly.map(d => d.commission || 0);
@@ -500,10 +500,10 @@
             new Chart(yearlyRefundsCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['{{ trans("common.january") }}', '{{ trans("common.february") }}', '{{ trans("common.march") }}', 
-                             '{{ trans("common.april") }}', '{{ trans("common.may") }}', '{{ trans("common.june") }}',
-                             '{{ trans("common.july") }}', '{{ trans("common.august") }}', '{{ trans("common.september") }}',
-                             '{{ trans("common.october") }}', '{{ trans("common.november") }}', '{{ trans("common.december") }}'],
+                    labels: ['{{ trans("dashboard.january") }}', '{{ trans("dashboard.february") }}', '{{ trans("dashboard.march") }}', 
+                             '{{ trans("dashboard.april") }}', '{{ trans("dashboard.may") }}', '{{ trans("dashboard.june") }}',
+                             '{{ trans("dashboard.july") }}', '{{ trans("dashboard.august") }}', '{{ trans("dashboard.september") }}',
+                             '{{ trans("dashboard.october") }}', '{{ trans("dashboard.november") }}', '{{ trans("dashboard.december") }}'],
                     datasets: [{
                         label: '{{ trans("dashboard.refunded_amount") }}',
                         data: refundsYearMonthly.map(d => d.amount),
@@ -642,8 +642,8 @@
             new Chart(netSalesWeekCtx, {
                 ...netSalesChartConfig,
                 data: {
-                    labels: ['{{ trans("common.sunday") }}', '{{ trans("common.monday") }}', '{{ trans("common.tuesday") }}', 
-                             '{{ trans("common.wednesday") }}', '{{ trans("common.thursday") }}', '{{ trans("common.friday") }}', '{{ trans("common.saturday") }}'],
+                    labels: ['{{ trans("dashboard.sunday") }}', '{{ trans("dashboard.monday") }}', '{{ trans("dashboard.tuesday") }}', 
+                             '{{ trans("dashboard.wednesday") }}', '{{ trans("dashboard.thursday") }}', '{{ trans("dashboard.friday") }}', '{{ trans("dashboard.saturday") }}'],
                     datasets: [{
                         label: '{{ trans("dashboard.earnings") }}',
                         data: netSalesWeekly.map(d => d.earnings),
@@ -713,10 +713,10 @@
             new Chart(netSalesYearCtx, {
                 ...netSalesChartConfig,
                 data: {
-                    labels: ['{{ trans("common.january") }}', '{{ trans("common.february") }}', '{{ trans("common.march") }}', 
-                             '{{ trans("common.april") }}', '{{ trans("common.may") }}', '{{ trans("common.june") }}',
-                             '{{ trans("common.july") }}', '{{ trans("common.august") }}', '{{ trans("common.september") }}',
-                             '{{ trans("common.october") }}', '{{ trans("common.november") }}', '{{ trans("common.december") }}'],
+                    labels: ['{{ trans("dashboard.january") }}', '{{ trans("dashboard.february") }}', '{{ trans("dashboard.march") }}', 
+                             '{{ trans("dashboard.april") }}', '{{ trans("dashboard.may") }}', '{{ trans("dashboard.june") }}',
+                             '{{ trans("dashboard.july") }}', '{{ trans("dashboard.august") }}', '{{ trans("dashboard.september") }}',
+                             '{{ trans("dashboard.october") }}', '{{ trans("dashboard.november") }}', '{{ trans("dashboard.december") }}'],
                     datasets: [{
                         label: '{{ trans("dashboard.earnings") }}',
                         data: netSalesMonthly.map(d => d.earnings),
@@ -811,8 +811,8 @@
             new Chart(refundsWeekCtx, {
                 ...refundsChartConfig,
                 data: {
-                    labels: ['{{ trans("common.sunday") }}', '{{ trans("common.monday") }}', '{{ trans("common.tuesday") }}', 
-                             '{{ trans("common.wednesday") }}', '{{ trans("common.thursday") }}', '{{ trans("common.friday") }}', '{{ trans("common.saturday") }}'],
+                    labels: ['{{ trans("dashboard.sunday") }}', '{{ trans("dashboard.monday") }}', '{{ trans("dashboard.tuesday") }}', 
+                             '{{ trans("dashboard.wednesday") }}', '{{ trans("dashboard.thursday") }}', '{{ trans("dashboard.friday") }}', '{{ trans("dashboard.saturday") }}'],
                     datasets: [{
                         label: '{{ trans("dashboard.refunded_amount") }}',
                         data: refundsWeekly.map(d => d.amount),
@@ -850,10 +850,10 @@
             new Chart(refundsYearCtx, {
                 ...refundsChartConfig,
                 data: {
-                    labels: ['{{ trans("common.january") }}', '{{ trans("common.february") }}', '{{ trans("common.march") }}', 
-                             '{{ trans("common.april") }}', '{{ trans("common.may") }}', '{{ trans("common.june") }}',
-                             '{{ trans("common.july") }}', '{{ trans("common.august") }}', '{{ trans("common.september") }}',
-                             '{{ trans("common.october") }}', '{{ trans("common.november") }}', '{{ trans("common.december") }}'],
+                    labels: ['{{ trans("dashboard.january") }}', '{{ trans("dashboard.february") }}', '{{ trans("dashboard.march") }}', 
+                             '{{ trans("dashboard.april") }}', '{{ trans("dashboard.may") }}', '{{ trans("dashboard.june") }}',
+                             '{{ trans("dashboard.july") }}', '{{ trans("dashboard.august") }}', '{{ trans("dashboard.september") }}',
+                             '{{ trans("dashboard.october") }}', '{{ trans("dashboard.november") }}', '{{ trans("dashboard.december") }}'],
                     datasets: [{
                         label: '{{ trans("dashboard.refunded_amount") }}',
                         data: refundsYearMonthly.map(d => d.amount),

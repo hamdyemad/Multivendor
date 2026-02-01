@@ -95,21 +95,21 @@ Route::get('seeder', function () {
         //     ->update(['email_verified_at' => now()]);
         
         // // Delete orders and withdraws data
-        // \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        // \Modules\Order\app\Models\OrderProduct::query()->forceDelete();
-        // \Modules\Order\app\Models\Order::query()->forceDelete();
-        // \Modules\Order\app\Models\OrderExtraFeeDiscount::query()->forceDelete();
-        // \Modules\Order\app\Models\VendorOrderStage::query()->forceDelete();
+        \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        \Modules\Order\app\Models\OrderProduct::query()->forceDelete();
+        \Modules\Order\app\Models\Order::query()->forceDelete();
+        \Modules\Order\app\Models\OrderExtraFeeDiscount::query()->forceDelete();
+        \Modules\Order\app\Models\VendorOrderStage::query()->forceDelete();
         // \Modules\Order\app\Models\RequestQuotation::query()->forceDelete();
-        // \Modules\Withdraw\app\Models\Withdraw::query()->forceDelete();
-        // \Modules\CatalogManagement\app\Models\StockBooking::query()->forceDelete();
+        \Modules\Withdraw\app\Models\Withdraw::query()->forceDelete();
+        \Modules\CatalogManagement\app\Models\StockBooking::query()->forceDelete();
         // \Modules\CatalogManagement\app\Models\Review::query()->forceDelete();
         
         // // Delete accounting entries
-        // \Modules\Accounting\app\Models\AccountingEntry::query()->forceDelete();
-        // \Modules\Accounting\app\Models\Expense::query()->forceDelete();
-        // \Modules\Accounting\app\Models\ExpenseItem::query()->forceDelete();
-        // \Modules\Accounting\app\Models\VendorBalance::query()->forceDelete();
+        \Modules\Accounting\app\Models\AccountingEntry::query()->forceDelete();
+        \Modules\Accounting\app\Models\Expense::query()->forceDelete();
+        \Modules\Accounting\app\Models\ExpenseItem::query()->forceDelete();
+        \Modules\Accounting\app\Models\VendorBalance::query()->forceDelete();
         
         // // Delete user points and transactions
         // \DB::statement('DELETE FROM user_points_transactions');

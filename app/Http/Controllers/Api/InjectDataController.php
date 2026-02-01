@@ -20,6 +20,7 @@ use Modules\CatalogManagement\app\Models\Tax;
 use Modules\CatalogManagement\app\Models\Occasion;
 use Modules\CatalogManagement\app\Models\OccasionProduct;
 use Modules\CatalogManagement\app\Models\Product;
+use Modules\CatalogManagement\app\Models\ProductVariant;
 use Modules\CatalogManagement\app\Models\VendorProduct;
 use Modules\CatalogManagement\app\Models\VendorProductVariant;
 use Modules\CatalogManagement\app\Models\VendorProductVariantStock;
@@ -55,13 +56,15 @@ class InjectDataController extends Controller
             'folders' => ['department-images'],
             'attachable_type' => 'Modules\\CategoryManagment\\app\\Models\\Department',
         ],
-        'categories' => [
-            'tables' => ['categories', 'sub_categories'],
-            'folders' => ['category-images', 'main-category-images', 'sub-category-images'],
-            'attachable_types' => [
-                'Modules\\CategoryManagment\\app\\Models\\Category',
-                'Modules\\CategoryManagment\\app\\Models\\SubCategory',
-            ],
+        'main_categories' => [
+            'tables' => ['categories'],
+            'folders' => ['category-images', 'main-category-images'],
+            'attachable_type' => 'Modules\\CategoryManagment\\app\\Models\\Category',
+        ],
+        'sub_categories' => [
+            'tables' => ['sub_categories'],
+            'folders' => ['sub-category-images'],
+            'attachable_type' => 'Modules\\CategoryManagment\\app\\Models\\SubCategory',
         ],
         'variant_keys' => [
             'tables' => ['variants_configurations_keys'],
@@ -118,7 +121,7 @@ class InjectDataController extends Controller
             'attachable_type' => 'Modules\\AreaSettings\\app\\Models\\City',
         ],
         'products' => [
-            'tables' => ['vendor_product_variant_stocks', 'vendor_product_variants', 'vendor_products', 'products'],
+            'tables' => ['vendor_product_variant_stocks', 'vendor_product_variants', 'vendor_products', 'products', 'product_variants'],
             'folders' => ['product-images'],
             'attachable_type' => 'Modules\\CatalogManagement\\app\\Models\\Product',
         ],
@@ -147,39 +150,21 @@ class InjectDataController extends Controller
      */
     public function inject(Request $request)
     {
+        // Disable Telescope for this request (it consumes too much memory)
+        if (class_exists(\Laravel\Telescope\Telescope::class)) {
+            \Laravel\Telescope\Telescope::stopRecording();
+        }
+        
+        // Increase memory limit and execution time for large imports
+        ini_set('memory_limit', '2048M'); // Increase to 2GB
+        ini_set('max_execution_time', '7200'); // 60 minutes (1 hour)
+        set_time_limit(3600); // Also set via set_time_limit
+        
+        // Disable query logging to save memory
+        DB::connection()->disableQueryLog();
+        
         $include = $request->get('include', 'departments');
         $truncate = $request->get('truncate', '0') === '1';
-        $force = $request->get('force', '0') === '1';
-        
-        // STRONG PROTECTION: Prevent double execution
-        // Use database cache to track if injection is running or completed
-        $lockKey = 'inject_running_' . $include;
-        $completedKey = 'inject_completed_' . $include . '_' . date('Y-m-d-H');
-        
-        // Check if already completed in this hour (prevents re-run after completion)
-        if (!$force && cache()->has($completedKey)) {
-            return response()->json([
-                'status' => false,
-                'message' => "Injection for {$include} already completed. Add &force=1 to run again.",
-                'completed_at' => cache()->get($completedKey),
-            ], 429);
-        }
-        
-        // Check if currently running
-        if (!$force && cache()->has($lockKey)) {
-            return response()->json([
-                'status' => false,
-                'message' => "Injection for {$include} is already running. Please wait.",
-            ], 429);
-        }
-
-        // Set running lock (expires in 2 hours)
-        cache()->put($lockKey, now()->toDateTimeString(), 7200);
-        
-        // Increase execution time for large imports
-        set_time_limit(0);
-        ini_set('memory_limit', '512M');
-        
         $limitPages = $request->get('limit_pages') ? (int) $request->get('limit_pages') : null;
         $startPage = (int) $request->get('page', 1);
         
@@ -196,24 +181,25 @@ class InjectDataController extends Controller
         ];
 
         try {
-            // Truncate existing data before injection (only if explicitly requested AND not already done)
-            $truncateKey = 'inject_truncated_' . $include . '_' . date('Y-m-d-H');
-            if ($truncate && !cache()->has($truncateKey)) {
-                Log::info("Truncating data for {$include}");
+            if ($truncate) {
                 $truncateResult = $this->truncateBeforeInject($include);
+                Log::info("Truncating data for {$include}");
                 Log::info("Truncate complete for {$include}", $truncateResult ?? []);
-                // Mark truncate as done for this hour
-                cache()->put($truncateKey, true, 3600);
             } elseif ($truncate) {
                 Log::info("Truncate already done for {$include}, skipping");
             }
 
             // Fetch and process page by page
             while (true) {
+                // Map include type to API parameter
+                // For main_categories and sub_categories, we need to request 'categories' from the API
+                $apiInclude = ($include === 'main_categories' || $include === 'sub_categories') 
+                    ? 'categories' 
+                    : $include;
+                
                 $response = Http::withOptions(['verify' => false])
-                    ->timeout(60)
                     ->get("{$this->sourceBaseUrl}/api/inject-products", [
-                        'include' => $include,
+                        'include' => $apiInclude,
                         'page' => $page,
                     ]);
                 if (!$response->successful()) {
@@ -232,20 +218,39 @@ class InjectDataController extends Controller
                     continue;
                 }
                 
-                // Handle categories special case
-                if ($include === 'categories') {
+                // Handle categories - can be split into main_categories or sub_categories
+                if ($include === 'categories' || $include === 'main_categories' || $include === 'sub_categories') {
                     $mainCats = $data['data']['main_categories'] ?? null;
                     $subCats = $data['data']['sub_categories'] ?? null;
                     
-                    $pageData = [
-                        'main_categories' => ['data' => $mainCats['data'] ?? []],
-                        'sub_categories' => ['data' => $subCats['data'] ?? []],
-                    ];
-                    
-                    $lastPage = max($lastPage, $mainCats['last_page'] ?? 1, $subCats['last_page'] ?? 1);
-                    $totalFetched += count($mainCats['data'] ?? []) + count($subCats['data'] ?? []);
-                    
-                    $pageResult = $this->injectData($pageData, $include);
+                    // If requesting only main_categories
+                    if ($include === 'main_categories') {
+                        $pageData = [
+                            'main_categories' => ['data' => $mainCats['data'] ?? []],
+                        ];
+                        $lastPage = $mainCats['last_page'] ?? 1;
+                        $totalFetched += count($mainCats['data'] ?? []);
+                        $pageResult = $this->injectCategories($pageData);
+                    }
+                    // If requesting only sub_categories
+                    elseif ($include === 'sub_categories') {
+                        $pageData = [
+                            'sub_categories' => ['data' => $subCats['data'] ?? []],
+                        ];
+                        $lastPage = $subCats['last_page'] ?? 1;
+                        $totalFetched += count($subCats['data'] ?? []);
+                        $pageResult = $this->injectSubCategories($pageData);
+                    }
+                    // If requesting both (legacy 'categories')
+                    else {
+                        $pageData = [
+                            'main_categories' => ['data' => $mainCats['data'] ?? []],
+                            'sub_categories' => ['data' => $subCats['data'] ?? []],
+                        ];
+                        $lastPage = max($lastPage, $mainCats['last_page'] ?? 1, $subCats['last_page'] ?? 1);
+                        $totalFetched += count($mainCats['data'] ?? []) + count($subCats['data'] ?? []);
+                        $pageResult = $this->injectData($pageData, $include);
+                    }
                     
                 } else {
                     $paginatedData = $data['data'][$include] ?? null;
@@ -278,6 +283,10 @@ class InjectDataController extends Controller
 
                 Log::info("Processed page {$page}/{$lastPage} for {$include}");
                 
+                // Force memory cleanup after each page
+                unset($response, $data, $pageData, $pageResult);
+                gc_collect_cycles();
+                
                 $page++;
 
                 // Stop conditions
@@ -296,10 +305,6 @@ class InjectDataController extends Controller
                 $combinedResult['errors'][] = '... and more errors (truncated)';
             }
 
-            // Clear running lock and mark as completed
-            cache()->forget($lockKey);
-            cache()->put($completedKey, now()->toDateTimeString(), 3600);
-
             return response()->json([
                 'status' => true,
                 'message' => 'Data injected successfully',
@@ -311,8 +316,6 @@ class InjectDataController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            // Clear running lock on error
-            cache()->forget($lockKey);
             Log::error('Inject data error: ' . $e->getMessage());
             return response()->json([
                 'status' => false,
@@ -329,6 +332,8 @@ class InjectDataController extends Controller
         return match ($include) {
             'departments' => $this->injectDepartments($data),
             'categories' => $this->injectAllCategories($data),
+            'main_categories' => $this->injectCategories($data),
+            'sub_categories' => $this->injectSubCategories($data),
             'variant_keys' => $this->injectVariantKeys($data),
             'variants' => $this->injectVariants($data),
             'brands' => $this->injectBrands($data),
@@ -559,6 +564,14 @@ class InjectDataController extends Controller
                 if (!empty($item['title_ar'])) {
                     $category->setTranslation('name', 'ar', $item['title_ar']);
                 }
+
+                if (!empty($item['summary_en'])) {
+                    $category->setTranslation('description', 'en', $item['summary_en']);
+                }
+                if (!empty($item['summary_ar'])) {
+                    $category->setTranslation('description', 'ar', $item['summary_ar']);
+                }
+                
                 $category->save();
 
                 // Download and attach image
@@ -593,26 +606,54 @@ class InjectDataController extends Controller
         $updated = 0;
         $skipped = 0;
         $errors = [];
+        
+        $totalItems = count($items);
+        Log::info("=== Starting SubCategory Injection ===", [
+            'total_items' => $totalItems
+        ]);
 
-        foreach ($items as $item) {
-            try {// Get category_id - try different possible keys
+        foreach ($items as $index => $item) {
+            $itemNumber = $index + 1;
+            $subCategoryId = $item['id'] ?? 'unknown';
+            $titleEn = $item['title_en'] ?? 'N/A';
+            
+            Log::info("Processing SubCategory {$itemNumber}/{$totalItems}", [
+                'id' => $subCategoryId,
+                'title_en' => $titleEn,
+            ]);
+            
+            try {
+                // Get category_id - try different possible keys
                 $categoryId = $item['category_id'] ?? $item['main_category_id'] ?? $item['parent_id'] ?? null;
+                
+                Log::info("SubCategory {$subCategoryId}: Checking parent category", [
+                    'category_id' => $categoryId,
+                ]);
                 
                 // Skip if no category_id (can't create orphan subcategory)
                 if (!$categoryId) {
-                    $skipped++;continue;
+                    $skipped++;
+                    Log::warning("SubCategory {$subCategoryId}: SKIPPED - No category_id found", [
+                        'title' => $titleEn,
+                        'item_data' => $item,
+                    ]);
+                    continue;
                 }
 
                 // Validate that parent category exists
                 if (!Category::where('id', $categoryId)->exists()) {
-                    $skipped++;$titleEn = $item['title_en'] ?? $item['id'];
-                    $errors[] = "SubCategory {$titleEn} (ID: {$item['id']}): Parent category {$categoryId} not found";
+                    $skipped++;
+                    $error = "SubCategory {$titleEn} (ID: {$subCategoryId}): Parent category {$categoryId} not found";
+                    $errors[] = $error;
+                    Log::warning("SubCategory {$subCategoryId}: SKIPPED - Parent category not found", [
+                        'title' => $titleEn,
+                        'category_id' => $categoryId,
+                    ]);
                     continue;
                 }
 
                 // Check if subcategory exists by ID
-                $subCategory = SubCategory::where('id', $item['id'])
-                    ->first();
+                $subCategory = SubCategory::where('id', $subCategoryId)->first();
 
                 if ($subCategory) {
                     // Update existing
@@ -624,10 +665,14 @@ class InjectDataController extends Controller
                         'updated_at' => $this->parseDate($item['updated_at'] ?? null),
                     ]);
                     $updated++;
+                    Log::info("SubCategory {$subCategoryId}: UPDATED", [
+                        'title' => $titleEn,
+                        'category_id' => $categoryId,
+                    ]);
                 } else {
                     // Create new with same ID
                     $subCategory = new SubCategory();
-                    $subCategory->id = $item['id'];
+                    $subCategory->id = $subCategoryId;
                     $subCategory->slug = $item['slug_en'] ?? $item['slug'] ?? null;
                     $subCategory->category_id = $categoryId;
                     $subCategory->active = ($item['status'] ?? '1') == '1';
@@ -635,6 +680,10 @@ class InjectDataController extends Controller
                     $subCategory->updated_at = $this->parseDate($item['updated_at'] ?? null);
                     $subCategory->save();
                     $injected++;
+                    Log::info("SubCategory {$subCategoryId}: CREATED", [
+                        'title' => $titleEn,
+                        'category_id' => $categoryId,
+                    ]);
                 }
 
                 // Set translations
@@ -654,11 +703,32 @@ class InjectDataController extends Controller
                 // Download and attach icon
                 if (!empty($item['icon'])) {
                     $this->attachImage($subCategory, $item['icon'], 'icon');
-                }} catch (\Exception $e) {$titleEn = $item['title_en'] ?? $item['id'];
-                $errors[] = "SubCategory {$titleEn} (ID: {$item['id']}): " . $e->getMessage();
-                Log::error("Error injecting subcategory: " . $e->getMessage());
+                }
+                
+                Log::info("SubCategory {$subCategoryId}: SUCCESS", [
+                    'title' => $titleEn,
+                ]);
+                
+            } catch (\Exception $e) {
+                $error = "SubCategory {$titleEn} (ID: {$subCategoryId}): " . $e->getMessage();
+                $errors[] = $error;
+                Log::error("SubCategory {$subCategoryId}: ERROR", [
+                    'title' => $titleEn,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
             }
         }
+        
+        Log::info("=== SubCategory Injection Complete ===", [
+            'total_items' => $totalItems,
+            'injected' => $injected,
+            'updated' => $updated,
+            'skipped' => $skipped,
+            'errors_count' => count($errors),
+            'processed' => $injected + $updated + $skipped,
+            'missing' => $totalItems - ($injected + $updated + $skipped),
+        ]);
 
         return [
             'type' => 'sub_categories',
@@ -914,6 +984,17 @@ class InjectDataController extends Controller
      */
     protected function createOrUpdateVendorForBrand(array $item): void
     {
+        // Temporarily disable vendor observer to prevent notification errors during import
+        Vendor::withoutEvents(function () use ($item) {
+            $this->createOrUpdateVendorForBrandWithoutEvents($item);
+        });
+    }
+    
+    /**
+     * Create or update vendor without triggering events
+     */
+    protected function createOrUpdateVendorForBrandWithoutEvents(array $item): void
+    {
         // Check if vendor exists with same ID
         $vendor = Vendor::where('id', $item['id'])->first();
         
@@ -964,6 +1045,7 @@ class InjectDataController extends Controller
             $vendor->user_id = $user->id;
             $vendor->slug = $item['slug_en'] ?? null;
             $vendor->active = true;
+            $vendor->country_id = 1; // Default country (Egypt)
             $vendor->created_at = $this->parseDate($item['created_at'] ?? null);
             $vendor->updated_at = $this->parseDate($item['updated_at'] ?? null);
             $vendor->save();
@@ -989,6 +1071,11 @@ class InjectDataController extends Controller
 
         $departments = Department::pluck('id');
         $vendor->departments()->sync($departments);
+        
+        // Assign all regions to vendor
+        $regions = \Modules\AreaSettings\app\Models\Region::pluck('id');
+        $vendor->regions()->sync($regions);
+        
         // Set vendor translations
         if (!empty($item['name_en'])) {
             $vendor->setTranslation('name', 'en', $item['name_en']);
@@ -1943,8 +2030,20 @@ class InjectDataController extends Controller
                 ]);
 
                 // Prepare product data - only columns that exist in products table
+                // Make slug unique if duplicate exists
+                $slug = $item['slug_en'] ?? null;
+                if ($slug) {
+                    $existingProduct = Product::where('slug', $slug)
+                        ->where('id', '!=', $item['id'])
+                        ->first();
+                    if ($existingProduct) {
+                        // Append product ID to make it unique
+                        $slug = $slug . '-' . $item['id'];
+                    }
+                }
+                
                 $productData = [
-                    'slug' => $item['slug_en'] ?? null,
+                    'slug' => $slug,
                     'is_active' => ($item['status'] ?? '0') == '1',
                     'configuration_type' => $configurationType,
                     'type' => 'product', // default type
@@ -2016,6 +2115,11 @@ class InjectDataController extends Controller
                             if (empty($sizeColor) || !isset($sizeColor['id'])) {
                                 continue;
                             }
+                            
+                            // Create ProductVariant (bank product variant)
+                            $this->createProductVariant($product, $sizeColor);
+                            
+                            // Create VendorProductVariant
                             $variantResult = $this->createVendorProductVariant($vendorProduct, $sizeColor, $egyptCountry->id);
                             $productVariantsCreated += $variantResult['variant_created'];
                             $variantsCreated += $variantResult['variant_created'];
@@ -2384,6 +2488,47 @@ class InjectDataController extends Controller
     }
 
     /**
+     * Create ProductVariant (bank product variant) from product_size_colors data
+     * Only creates if variant_configuration_id is present
+     */
+    protected function createProductVariant(Product $product, array $sizeColor): void
+    {
+        try {
+            // Only create product variant if it has a variant_configuration_id
+            $variantConfigId = $sizeColor['variants_configuration_id'] ?? $sizeColor['variant_configuration_id'] ?? null;
+            
+            if (!$variantConfigId) {
+                // Skip - this is a simple product variant without configuration
+                return;
+            }
+            
+            // Check if product variant exists by ID
+            $productVariant = ProductVariant::where('id', $sizeColor['id'])->first();
+
+            $variantData = [
+                'product_id' => $product->id,
+                'variant_configuration_id' => $variantConfigId,
+                'created_at' => $this->parseDate($sizeColor['created_at'] ?? null),
+                'updated_at' => $this->parseDate($sizeColor['updated_at'] ?? null),
+            ];
+
+            if ($productVariant) {
+                // Update existing
+                $productVariant->update($variantData);
+            } else {
+                // Create new with same ID
+                $productVariant = new ProductVariant();
+                $productVariant->id = $sizeColor['id'];
+                $productVariant->fill($variantData);
+                $productVariant->save();
+            }
+
+        } catch (\Exception $e) {
+            Log::error("Error creating ProductVariant ID {$sizeColor['id']}: " . $e->getMessage());
+        }
+    }
+
+    /**
      * Create VendorProductVariant from product_size_colors data
      */
     protected function createVendorProductVariant(VendorProduct $vendorProduct, array $sizeColor, int $countryId): array
@@ -2571,6 +2716,7 @@ class InjectDataController extends Controller
 
     /**
      * Download image and save locally with same path
+     * Uses streaming to avoid memory exhaustion
      */
     protected function downloadImage(string $imagePath): ?string
     {
@@ -2588,30 +2734,46 @@ class InjectDataController extends Controller
                 return $imagePath;
             }
 
-            // Download image
-            $response = Http::withOptions(['verify' => false])
-                ->timeout(15)
-                ->get($imageUrl);
-            
-            if (!$response->successful()) {
-                Log::warning("Failed to download image: {$imageUrl} - Status: {$response->status()}");
-                return null;
-            }
-
             // Ensure directory exists
             $directory = dirname($imagePath);
             if ($directory && $directory !== '.') {
                 Storage::disk('public')->makeDirectory($directory);
             }
 
-            // Save image locally with same path
-            Storage::disk('public')->put($imagePath, $response->body());
+            // Get the full local path
+            $localPath = Storage::disk('public')->path($imagePath);
+
+            // Use stream to download directly to file (avoids loading into memory)
+            $client = new \GuzzleHttp\Client(['verify' => false]);
+            $response = $client->request('GET', $imageUrl, [
+                'sink' => $localPath,
+                'timeout' => 30,
+                'connect_timeout' => 10,
+            ]);
+            
+            if ($response->getStatusCode() !== 200) {
+                Log::warning("Failed to download image: {$imageUrl} - Status: {$response->getStatusCode()}");
+                // Clean up partial file
+                if (file_exists($localPath)) {
+                    @unlink($localPath);
+                }
+                return null;
+            }
             
             Log::info("Image downloaded: {$imagePath}");
+            
+            // Force garbage collection to free memory
+            gc_collect_cycles();
+            
             return $imagePath;
 
         } catch (\Exception $e) {
             Log::error("Error downloading image {$imagePath}: " . $e->getMessage());
+            // Clean up partial file
+            $localPath = Storage::disk('public')->path($imagePath);
+            if (file_exists($localPath)) {
+                @unlink($localPath);
+            }
             return null;
         }
     }

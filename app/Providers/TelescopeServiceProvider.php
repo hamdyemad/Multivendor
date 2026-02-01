@@ -27,6 +27,12 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
         $isLocal = $this->app->environment('local');
 
         Telescope::filter(function (IncomingEntry $entry) use ($isLocal) {
+            // Ignore heavy data import routes to prevent memory issues
+            $uri = request()->getRequestUri();
+            if (str_contains($uri, 'inject-data') || str_contains($uri, 'inject-products')) {
+                return false;
+            }
+            
             return $isLocal ||
                    $entry->isReportableException() ||
                    $entry->isFailedRequest() ||

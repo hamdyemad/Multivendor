@@ -62,37 +62,7 @@ class OrderStageSeeder extends Seeder
                     'en' => 'Cancel',
                     'ar' => 'ملغي'
                 ]
-            ],
-            [
-                'slug' => 'want-to-return',
-                'type' => 'want_to_return',
-                'color' => '#e67e22',
-                'sort_order' => 5,
-                'names' => [
-                    'en' => 'Want To Return',
-                    'ar' => 'يريد الإرجاع'
-                ]
-            ],
-            [
-                'slug' => 'in-progress-return',
-                'type' => 'in_progress_return',
-                'color' => '#9b59b6',
-                'sort_order' => 6,
-                'names' => [
-                    'en' => 'In Progress Return',
-                    'ar' => 'قيد الإرجاع'
-                ]
-            ],
-            [
-                'slug' => 'refund',
-                'type' => 'refund',
-                'color' => '#1abc9c',
-                'sort_order' => 7,
-                'names' => [
-                    'en' => 'Refund',
-                    'ar' => 'مسترد'
-                ]
-            ],
+            ]
         ];
 
         foreach ($stages as $stageData) {

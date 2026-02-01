@@ -171,16 +171,16 @@ Route::get('seeder', function () {
             //     'name' => 'Vendor Seeder',
             //     'description' => 'Creates vendors with country_id and translations',
             // ],
-            // [
-            //     'class' => OrderStageSeeder::class,
-            //     'name' => 'Order Stage Seeder',
-            //     'description' => 'Creates order stages',
-            // ],
             [
-                'class' => \Database\Seeders\ProductVariantSeeder::class,
-                'name' => 'Product Variant Seeder',
-                'description' => 'Creates ProductVariant records for products with VendorProductVariants',
+                'class' => OrderStageSeeder::class,
+                'name' => 'Order Stage Seeder',
+                'description' => 'Creates order stages',
             ],
+            // [
+            //     'class' => \Database\Seeders\ProductVariantSeeder::class,
+            //     'name' => 'Product Variant Seeder',
+            //     'description' => 'Creates ProductVariant records for products with VendorProductVariants',
+            // ],
             // [
             //     'class' => AutoProductSeeder::class,
             //     'name' => 'Auto Product Seeder',

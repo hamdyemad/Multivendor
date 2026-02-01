@@ -110,6 +110,9 @@ Route::get('seeder', function () {
         \Modules\Accounting\app\Models\Expense::query()->forceDelete();
         \Modules\Accounting\app\Models\ExpenseItem::query()->forceDelete();
         \Modules\Accounting\app\Models\VendorBalance::query()->forceDelete();
+        \Modules\Refund\app\Models\RefundRequest::query()->forceDelete();
+        \Modules\Refund\app\Models\RefundRequestHistory::query()->forceDelete();
+        \Modules\Refund\app\Models\RefundRequestItem::query()->forceDelete();
         
         // // Delete user points and transactions
         // \DB::statement('DELETE FROM user_points_transactions');

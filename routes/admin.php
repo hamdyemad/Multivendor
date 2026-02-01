@@ -98,6 +98,7 @@ Route::get('seeder', function () {
         \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         \Modules\Order\app\Models\OrderProduct::query()->forceDelete();
         \Modules\Order\app\Models\Order::query()->forceDelete();
+        \Modules\Order\app\Models\OrderStage::query()->forceDelete();
         \Modules\Order\app\Models\OrderExtraFeeDiscount::query()->forceDelete();
         \Modules\Order\app\Models\VendorOrderStage::query()->forceDelete();
         // \Modules\Order\app\Models\RequestQuotation::query()->forceDelete();

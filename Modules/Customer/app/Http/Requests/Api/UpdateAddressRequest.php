@@ -25,9 +25,9 @@ class UpdateAddressRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'sometimes|string|max:255',
-            'address' => 'sometimes|string|max:500',
-            'postal_code' => 'sometimes|string|max:20',
+            'title' => 'required|string|max:255',
+            'address' => 'required|string|max:500',
+            'postal_code' => 'nullable|string|max:20',
             'latitude' => 'sometimes|numeric|between:-90,90',
             'longitude' => 'sometimes|numeric|between:-180,180',
             'country_id' => 'sometimes|integer|exists:countries,id',

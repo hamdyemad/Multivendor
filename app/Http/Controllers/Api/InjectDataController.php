@@ -3430,7 +3430,7 @@ class InjectDataController extends Controller
             'WantTOReturn' => 'refund',
         ];
         
-        $stageType = $stageTypeMap[strtolower($stageName)] ?? null;
+        $stageType = $stageTypeMap[$stageName] ?? null;
         
         // Find stage by type and country
         $stage = \Modules\Order\app\Models\OrderStage::withoutGlobalScopes()

@@ -3243,7 +3243,7 @@ class InjectDataController extends Controller
                 
                 // Map stage from old system to new system
                 // API returns: "order_stage": {"id": 4, "stage": "Cancelled", "stage_ar": "تم الالغاء", ...}
-                $stageData = $item['order_stage'] ?? $item['order_stages'] ?? $item['stage'] ?? null;
+                $stageData = $item['order_stage'];
                 $stageId = $this->mapOrderStage($stageData, $customer->country_id);
                 
                 if (!$stageId) {
@@ -3421,49 +3421,21 @@ class InjectDataController extends Controller
             $stageName = $stageData;
         }
         
-        if (!$stageName) {
-            // Default to 'new' stage if no stage provided
-            $stageName = 'New';
-        }
-        
         // Map old stage names to new stage types
         $stageTypeMap = [
-            'new' => 'new',
-            'inprogress' => 'in_progress',
-            'delivrd' => 'delivered',
-            'delivered' => 'delivered',
-            'cancelled' => 'cancelled',
-            'wanttoreturn' => 'return_requested',
-            'inprogressreturn' => 'return_in_progress',
-            'returned' => 'returned',
-            'no answer' => 'no_answer',
+            'New' => 'new',
+            'Inprogress' => 'in_progress',
+            'Deliverd' => 'deliver',
+            'Cancelled' => 'cancel',
+            'WantTOReturn' => 'refund',
         ];
         
         $stageType = $stageTypeMap[strtolower($stageName)] ?? null;
         
-        if (!$stageType) {
-            // Try to find by name if type mapping fails
-            $stage = \Modules\Order\app\Models\OrderStage::withoutGlobalScopes()
-                ->where('country_id', $countryId)
-                ->whereRaw('LOWER(JSON_EXTRACT(name, "$.en")) = ?', [strtolower($stageName)])
-                ->first();
-            
-            return $stage?->id;
-        }
-        
         // Find stage by type and country
         $stage = \Modules\Order\app\Models\OrderStage::withoutGlobalScopes()
             ->where('type', $stageType)
-            ->where('country_id', $countryId)
-            ->first();
-        
-        if (!$stage) {
-            // Fallback: try without country filter
-            $stage = \Modules\Order\app\Models\OrderStage::withoutGlobalScopes()
-                ->where('type', $stageType)
-                ->first();
-        }
-        
+            ->first();    
         return $stage?->id;
     }
 

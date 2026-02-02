@@ -51,7 +51,6 @@ class UpdateAddressRequest extends FormRequest
             $countryId = $this->country_id ?? ($existingAddress->country_id ?? null);
             $cityId = $this->city_id ?? ($existingAddress->city_id ?? null);
             $regionId = $this->region_id ?? ($existingAddress->region_id ?? null);
-            $subregionId = $this->subregion_id;
 
             // Validate city belongs to country
             if ($cityId && $countryId) {
@@ -66,14 +65,6 @@ class UpdateAddressRequest extends FormRequest
                 $region = Region::withoutGlobalScopes()->find($regionId);
                 if ($region && $region->city_id != $cityId) {
                     $validator->errors()->add('region_id', __('customer::address.region_not_in_city'));
-                }
-            }
-
-            // Validate subregion belongs to region (if provided)
-            if ($subregionId && $regionId) {
-                $subregion = Subregion::withoutGlobalScopes()->find($subregionId);
-                if ($subregion && $subregion->region_id != $regionId) {
-                    $validator->errors()->add('subregion_id', __('customer::address.subregion_not_in_region'));
                 }
             }
         });

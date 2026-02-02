@@ -141,10 +141,9 @@ class InjectDataController extends Controller
             'attachable_type' => 'Modules\\CatalogManagement\\app\\Models\\Bundle',
         ],
         'admins' => [
-            'tables' => [], // Custom truncate logic in truncateBeforeInject
+            'tables' => [],
             'folders' => [],
-            'attachable_type' => null,
-            'truncate_admin_users' => true, // Special flag for admin-only truncation
+            'truncate_admin_users' => true,
         ],
     ];
     
@@ -380,10 +379,8 @@ class InjectDataController extends Controller
         try {
             // Special handling for admin users truncation
             if (!empty($config['truncate_admin_users'])) {
-                // Get admin user type ID
-                $adminUserTypeId = UserType::where('name', 'admin')
-                    ->orWhere('id', 1)
-                    ->first()?->id ?? 1;
+                // Get admin user type ID (user_type_id = 2)
+                $adminUserTypeId = 2;
                 
                 // Get admin user IDs
                 $adminUserIds = DB::table('users')
@@ -3040,14 +3037,11 @@ class InjectDataController extends Controller
         $skipped = 0;
         $errors = [];
         
-        // Get admin user type ID (assuming 1 is admin)
-        $adminUserTypeId = UserType::where('name', 'admin')
-            ->orWhere('id', 1)
-            ->first()?->id ?? 1;
+        // Get admin user type ID (user_type_id = 2)
+        $adminUserTypeId = 2;
         
         // Get admin role
-        $adminRole = Role::where('name', 'admin')
-            ->orWhere('name', 'Admin')
+        $adminRole = Role::where('type', 'admin')
             ->first();
         
         if (!$adminRole) {
@@ -3085,68 +3079,34 @@ class InjectDataController extends Controller
                     'email' => $email,
                 ]);
                 
-                // Check if user exists by email (more reliable than ID)
-                $user = User::where('email', $email)->first();
-                
-                if ($user) {
-                    // Update existing user
-                    $user->update([
-                        'name' => $name,
-                        'phone' => $item['phone'] ?? null,
-                        'user_type_id' => $adminUserTypeId,
-                        'gender' => $item['gender'] ?? null,
-                        'birth_date' => $item['birth_date'] ?? null,
-                        'address' => $item['address'] ?? null,
-                        'facebook' => $item['facebook'] ?? null,
-                        'twitter' => $item['twitter'] ?? null,
-                        'website' => $item['website'] ?? null,
-                        'instagram' => $item['instagram'] ?? null,
-                        'password' => $item['password'] ?? null,
-                        'created_at' => $this->parseDate($item['created_at'] ?? null),
-                        'updated_at' => $this->parseDate($item['updated_at'] ?? null),
-                    ]);
-                    
-                    // Ensure user has admin role
-                    if (!$user->roles()->where('role_id', $adminRole->id)->exists()) {
-                        $user->roles()->attach($adminRole->id);
-                        Log::info("Admin role attached to existing user", ['email' => $email]);
-                    }
-                    
-                    $updated++;
-                    Log::info("Admin UPDATED", ['email' => $email, 'name' => $name]);
-                    
-                } else {
-                    // Create new admin user
-                    $user = new User();
-                    if ($adminId) {
-                        $user->id = $adminId;
-                    }
-                    $user->name = $name;
-                    $user->email = $email;
-                    $user->phone = $item['phone'] ?? null;
-                    $user->password = $item['password']; // Default password
-                    $user->user_type_id = $adminUserTypeId;
-                    $user->gender = $item['gender'] ?? null;
-                    $user->birth_date = $item['birth_date'] ?? null;
-                    $user->address = $item['address'] ?? null;
-                    $user->facebook = $item['facebook'] ?? null;
-                    $user->twitter = $item['twitter'] ?? null;
-                    $user->website = $item['website'] ?? null;
-                    $user->instagram = $item['instagram'] ?? null;
-                    $user->created_at = $this->parseDate($item['created_at'] ?? null);
-                    $user->updated_at = $this->parseDate($item['updated_at'] ?? null);
-                    $user->save();
-                    
-                    // Attach admin role
-                    $user->roles()->attach($adminRole->id);
-                    
-                    $injected++;
-                    Log::info("Admin CREATED", [
-                        'email' => $email,
-                        'name' => $name,
-                        'default_password' => 'password123'
-                    ]);
+                // Check if user exists by email (more reliable than ID)                
+                // Create new admin user
+                $user = new User();
+                if ($adminId) {
+                    $user->id = $adminId;
                 }
+                $user->email = $email;
+                $user->phone = $item['phone'] ?? null;
+                $user->password = $item['password']; // Default password
+                $user->user_type_id = $adminUserTypeId;
+                $user->created_at = $this->parseDate($item['created_at'] ?? null);
+                $user->updated_at = $this->parseDate($item['updated_at'] ?? null);
+                $user->save();
+                
+                // Set name in translations (not direct field)
+                $user->setTranslation('name', 'en', $name);
+                $user->setTranslation('name', 'ar', $name); // Use same name for both languages
+                $user->save();
+                
+                // Attach admin role
+                $user->roles()->attach($adminRole->id);
+                
+                $injected++;
+                Log::info("Admin CREATED", [
+                    'email' => $email,
+                    'name' => $name,
+                    'default_password' => 'password123'
+                ]);
                 
                 // Download and attach profile image if exists
                 if (!empty($item['image'])) {

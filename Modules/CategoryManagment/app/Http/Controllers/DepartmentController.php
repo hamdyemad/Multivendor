@@ -374,12 +374,92 @@ class DepartmentController extends Controller
     }
 
     /**
+     * Fix sort numbers - recalculate all departments, categories, subcategories, and products sort_number sequentially
+     * This is a utility route to fix any sort_number issues
+     */
+    public function fixSortNumbers($lang, $countryCode)
+    {
+        try {
+            $results = \DB::transaction(function () {
+                $results = [];
+
+                // Fix Departments
+                \DB::statement('SET @row_number = 0');
+                $results['departments'] = \DB::update('
+                    UPDATE departments
+                    SET sort_number = (@row_number := @row_number + 1)
+                    ORDER BY sort_number ASC, id ASC
+                ');
+
+                // Fix Categories
+                \DB::statement('SET @row_number = 0');
+                $results['categories'] = \DB::update('
+                    UPDATE categories
+                    SET sort_number = (@row_number := @row_number + 1)
+                    ORDER BY sort_number ASC, id ASC
+                ');
+
+                // Fix Sub Categories
+                \DB::statement('SET @row_number = 0');
+                $results['sub_categories'] = \DB::update('
+                    UPDATE sub_categories
+                    SET sort_number = (@row_number := @row_number + 1)
+                    ORDER BY sort_number ASC, id ASC
+                ');
+
+                // Fix Products (vendor_products table)
+                \DB::statement('SET @row_number = 0');
+                $results['products'] = \DB::update('
+                    UPDATE vendor_products
+                    SET sort_number = (@row_number := @row_number + 1)
+                    ORDER BY sort_number ASC, id ASC
+                ');
+
+                Log::info('Fixed all sort numbers', [
+                    'results' => $results,
+                    'user_id' => auth()->id()
+                ]);
+
+                return $results;
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Sort numbers fixed successfully for all entities.',
+                'results' => [
+                    'departments' => $results['departments'] . ' updated',
+                    'categories' => $results['categories'] . ' updated',
+                    'sub_categories' => $results['sub_categories'] . ' updated',
+                    'products' => $results['products'] . ' updated',
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error fixing sort numbers: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fixing sort numbers: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Reorder departments by updating sort_number
      * Swaps sort numbers instead of renumbering all items
      */
     public function reorder($lang, $countryCode, Request $request)
     {
         try {
+            // Log what we received BEFORE validation
+            Log::info('Departments reorder - RAW REQUEST', [
+                'all_data' => $request->all(),
+                'items' => $request->items,
+                'items_json' => json_encode($request->items),
+            ]);
+
             $request->validate([
                 'items' => 'required|array',
                 'items.*.id' => 'required|integer|exists:departments,id',
@@ -441,7 +521,8 @@ class DepartmentController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error reordering departments: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all()
             ]);
 
             return response()->json([

@@ -24,14 +24,14 @@ class CustomerPointsApiController extends Controller
 
             // Use dynamic calculations from Customer model
             $currencyId = $customer->country?->currency?->id;
-            $settings = $currencyId ? PointsSetting::where('currency_id', $currencyId)->first() : null;
-            
+            if($currencyId) {
+                $setting = $currencyId ? PointsSetting::where('currency_id', $currencyId)->first() : null;
+            }
             // Calculate points value in currency
             $pointsValue = 0;
-            if ($customer->total_points > 0 && $settings && $settings->points_per_currency > 0) {
-                $pointsValue = ($customer->total_points / $settings->points_per_currency) * $settings->currency_per_point;
+            if ($customer->total_points > 0 && $setting && $setting->points_value > 0) {
+                $pointsValue = ($customer->total_points * $setting->points_value);
             }
-
             // Get expiring soon transactions
             $expiringSoon = UserPointsTransaction::where('user_id', $customer->id)
                 ->where('expires_at', '>', now())

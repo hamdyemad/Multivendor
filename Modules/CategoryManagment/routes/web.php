@@ -16,6 +16,7 @@ Route::group(
     Route::post('departments/{id}/change-status', [DepartmentController::class, 'changeStatus'])->name('departments.change-status');
     Route::post('departments/{id}/change-view-status', [DepartmentController::class, 'changeViewStatus'])->name('departments.change-view-status');
     Route::post('departments/reorder', [DepartmentController::class, 'reorder'])->name('departments.reorder');
+    Route::get('departments/fix-sort-numbers', [DepartmentController::class, 'fixSortNumbers'])->name('departments.fix-sort-numbers');
     Route::resource('departments', DepartmentController::class);
 
     // Categories

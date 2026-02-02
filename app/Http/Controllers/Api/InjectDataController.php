@@ -141,9 +141,10 @@ class InjectDataController extends Controller
             'attachable_type' => 'Modules\\CatalogManagement\\app\\Models\\Bundle',
         ],
         'admins' => [
-            'tables' => [], // Don't truncate users table, only update/create
+            'tables' => [], // Custom truncate logic in truncateBeforeInject
             'folders' => [],
             'attachable_type' => null,
+            'truncate_admin_users' => true, // Special flag for admin-only truncation
         ],
     ];
     
@@ -155,6 +156,7 @@ class InjectDataController extends Controller
      */
     public function inject(Request $request)
     {
+        return "test";
         // Disable Telescope for this request (it consumes too much memory)
         if (class_exists(\Laravel\Telescope\Telescope::class)) {
             \Laravel\Telescope\Telescope::stopRecording();
@@ -376,6 +378,51 @@ class InjectDataController extends Controller
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
         try {
+            // Special handling for admin users truncation
+            if (!empty($config['truncate_admin_users'])) {
+                // Get admin user type ID
+                $adminUserTypeId = UserType::where('name', 'admin')
+                    ->orWhere('id', 1)
+                    ->first()?->id ?? 1;
+                
+                // Get admin user IDs
+                $adminUserIds = DB::table('users')
+                    ->where('user_type_id', $adminUserTypeId)
+                    ->pluck('id');
+                
+                Log::info("Truncating admin users", [
+                    'admin_user_type_id' => $adminUserTypeId,
+                    'admin_count' => $adminUserIds->count(),
+                ]);
+                
+                if ($adminUserIds->count() > 0) {
+                    // Delete user roles
+                    DB::table('user_role')->whereIn('user_id', $adminUserIds)->delete();
+                    
+                    // Delete user translations
+                    DB::table('translations')
+                        ->where('translatable_type', 'App\\Models\\User')
+                        ->whereIn('translatable_id', $adminUserIds)
+                        ->delete();
+                    
+                    // Delete user attachments
+                    $deletedAttachments += DB::table('attachments')
+                        ->where('attachable_type', 'App\\Models\\User')
+                        ->whereIn('attachable_id', $adminUserIds)
+                        ->delete();
+                    
+                    // Delete admin users
+                    $deletedUsers = DB::table('users')
+                        ->where('user_type_id', $adminUserTypeId)
+                        ->delete();
+                    
+                    Log::info("Admin users truncated", [
+                        'deleted_users' => $deletedUsers,
+                        'deleted_attachments' => $deletedAttachments,
+                    ]);
+                }
+            }
+            
             // Delete vendor users if configured
             if (!empty($config['delete_vendor_users'])) {
                 $vendorUserTypeIds = [UserType::VENDOR_TYPE, UserType::VENDOR_USER_TYPE];

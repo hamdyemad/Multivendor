@@ -453,20 +453,13 @@ class DepartmentController extends Controller
     public function reorder($lang, $countryCode, Request $request)
     {
         try {
-            // Log what we received BEFORE validation
-            Log::info('Departments reorder - RAW REQUEST', [
-                'all_data' => $request->all(),
-                'items' => $request->items,
-                'items_json' => json_encode($request->items),
-            ]);
-
             $request->validate([
                 'items' => 'required|array',
                 'items.*.id' => 'required|integer|exists:departments,id',
                 'items.*.sort_number' => 'required|integer|min:0'
             ]);
 
-            Log::info('Departments reorder request', [
+            \Log::info('Departments reorder request', [
                 'items' => $request->items,
                 'changed_by' => auth()->id()
             ]);
@@ -500,7 +493,7 @@ class DepartmentController extends Controller
                 if ($conflictingDepartment) {
                     // Swap: Give the conflicting department the old sort number
                     $conflictingDepartment->update(['sort_number' => $oldSortNumber]);
-                    Log::info('Swapped department sort numbers', [
+                    \Log::info('Swapped department sort numbers', [
                         'department_1' => $departmentId,
                         'department_1_new_sort' => $newSortNumber,
                         'department_2' => $conflictingDepartment->id,
@@ -512,7 +505,7 @@ class DepartmentController extends Controller
                 $department->update(['sort_number' => $newSortNumber]);
             }
 
-            Log::info('Departments reordered successfully');
+            \Log::info('Departments reordered successfully');
 
             return response()->json([
                 'success' => true,
@@ -520,9 +513,8 @@ class DepartmentController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Error reordering departments: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-                'request_data' => $request->all()
+            \Log::error('Error reordering departments: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
             ]);
 
             return response()->json([

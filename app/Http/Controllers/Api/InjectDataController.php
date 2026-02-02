@@ -45,7 +45,7 @@ use App\Models\Attachment;
 
 class InjectDataController extends Controller
 {
-    protected string $sourceBaseUrl = 'https://bnaia.com';
+    protected string $sourceBaseUrl = 'https://dashboard-oldversion.bnaia.com';
 
     /**
      * Configuration for truncating data before injection

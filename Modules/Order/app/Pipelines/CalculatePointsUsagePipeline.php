@@ -3,7 +3,6 @@
 namespace Modules\Order\app\Pipelines;
 
 use Modules\SystemSetting\app\Models\PointsSetting;
-use Modules\SystemSetting\app\Models\UserPoints;
 use Modules\SystemSetting\app\Models\UserPointsTransaction;
 
 class CalculatePointsUsagePipeline
@@ -29,14 +28,22 @@ class CalculatePointsUsagePipeline
         }
 
         // Get customer to find their currency first (needed for points calculation)
-        $customer = \Modules\Customer\app\Models\Customer::find($customerId);
+        $customer = \Modules\Customer\app\Models\Customer::with('country.currency')->find($customerId);
         if (!$customer || !$customer->country || !$customer->country->currency) {
-            \Log::warning('CalculatePointsUsagePipeline: No currency found for customer');
+            \Log::warning('CalculatePointsUsagePipeline: No currency found for customer', [
+                'customer_id' => $customerId
+            ]);
             return $next($payload);
         }
 
         $currencyId = $customer->country->currency->id;
         $currencyCode = $customer->country->currency->code ?? 'EGP';
+        
+        \Log::info('CalculatePointsUsagePipeline: Customer loaded', [
+            'customer_id' => $customerId,
+            'currency_id' => $currencyId,
+            'currency_code' => $currencyCode
+        ]);
 
         // Get points setting for this currency to get conversion rate
         $pointsSetting = PointsSetting::where('currency_id', $currencyId)
@@ -77,29 +84,17 @@ class CalculatePointsUsagePipeline
         // Calculate how many points needed to cover the order
         $pointsNeededForOrder = $orderTotal * $pointsPerCurrency;
 
-        // Get customer's available points
-        $userPoints = UserPoints::where('user_id', $customerId)->first();
+        // Get customer's available points using dynamic calculation from Customer model
+        // This matches the /points/my-points API behavior
+        $availablePoints = (float) $customer->available_points;
         
-        if (!$userPoints) {
-            \Log::warning('CalculatePointsUsagePipeline: No user points record found', [
-                'customer_id' => $customerId
-            ]);
-            throw new \App\Exceptions\OrderException(
-                trans('order::order.no_points_available_with_info', [
-                    'available' => 0,
-                    'needed' => number_format($pointsNeededForOrder, 0),
-                    'order_total' => number_format($orderTotal, 2),
-                    'currency' => $currencyCode
-                ])
-            );
-        }
-
-        // Get available points (total_points is the available balance)
-        $availablePoints = (float) $userPoints->total_points;
-        
-        \Log::info('CalculatePointsUsagePipeline: User points found', [
-            'total_points' => $userPoints->total_points,
-            'available_points' => $availablePoints
+        \Log::info('CalculatePointsUsagePipeline: Customer points calculated', [
+            'customer_id' => $customerId,
+            'total_points' => $customer->total_points,
+            'available_points' => $availablePoints,
+            'earned_points' => $customer->earned_points,
+            'redeemed_points' => $customer->redeemed_points,
+            'expired_points' => $customer->expired_points
         ]);
 
         if ($availablePoints <= 0) {
@@ -117,56 +112,57 @@ class CalculatePointsUsagePipeline
         \Log::info('CalculatePointsUsagePipeline: Order total calculated', [
             'subtotal' => $subtotal,
             'tax' => $totalTax,
+            'shipping' => $shipping,
             'order_total' => $orderTotal,
-            'points_per_currency' => $pointsPerCurrency
+            'points_per_currency' => $pointsPerCurrency,
+            'points_needed_for_full_order' => $pointsNeededForOrder,
+            'available_points' => $availablePoints,
+            'has_enough_points' => $availablePoints >= $pointsNeededForOrder
         ]);
         
-        // Check if customer has enough points to cover the full order
-        if ($availablePoints >= $pointsNeededForOrder) {
-            // Use exact points needed to cover the order (total becomes 0)
-            $pointsToUse = $pointsNeededForOrder;
-            $pointsCost = $orderTotal;
-        } else {
-            // Use all available points
-            $pointsToUse = floor($availablePoints);
-            $pointsCost = $pointsToUse / $pointsPerCurrency;
-        }
-        
-        if ($pointsToUse <= 0) {
-            \Log::info('CalculatePointsUsagePipeline: No points to use');
+        // When use_points is enabled, customer wants to pay FULL order with points
+        // Check if customer has enough points to cover the ENTIRE order
+        if ($availablePoints < $pointsNeededForOrder) {
+            \Log::warning('CalculatePointsUsagePipeline: Insufficient points for full order', [
+                'available_points' => $availablePoints,
+                'needed_points' => $pointsNeededForOrder,
+                'shortage' => $pointsNeededForOrder - $availablePoints
+            ]);
+            
             throw new \App\Exceptions\OrderException(
-                trans('order::order.no_points_available_with_info', [
+                trans('order::order.insufficient_points_for_full_order', [
                     'available' => number_format($availablePoints, 0),
                     'needed' => number_format($pointsNeededForOrder, 0),
-                    'order_total' => number_format($orderTotal, 2),
-                    'currency' => $currencyCode
+                    'order_total' => number_format($orderTotal, 2) . ' ' . $currencyCode,
+                    'shortage' => number_format($pointsNeededForOrder - $availablePoints, 0)
                 ])
             );
         }
+        
+        // Use exact points needed to cover the FULL order (total becomes 0)
+        $pointsToUse = $pointsNeededForOrder;
+        $pointsCost = $orderTotal; // Full order amount
 
-        \Log::info('CalculatePointsUsagePipeline: Processing points', [
+        \Log::info('CalculatePointsUsagePipeline: Processing points for full order payment', [
             'available_points' => $availablePoints,
             'points_needed_for_order' => $pointsNeededForOrder,
             'points_to_use' => $pointsToUse,
-            'points_cost' => $pointsCost
+            'points_cost' => $pointsCost,
+            'final_total_will_be' => 0
         ]);
 
         // Update context for CalculateFinalTotal pipeline
         $payload['context']['points_used'] = $pointsToUse;
         $payload['context']['points_cost'] = $pointsCost;
 
-        // Deduct from total_points and add to redeemed_points
-        $userPoints->total_points -= $pointsToUse;
-        $userPoints->redeemed_points += $pointsToUse;
-        $userPoints->save();
-
-        // Create transaction record
+        // Create transaction record (negative points for redemption)
+        // The Customer model accessors will automatically calculate the new balance
         $transaction = UserPointsTransaction::create([
             'user_id' => $customerId,
-            'points' => -$pointsToUse,
+            'points' => -$pointsToUse, // Negative for redemption
             'type' => 'redeemed',
             'transactionable_type' => 'order_checkout',
-            'transactionable_id' => 0,
+            'transactionable_id' => 0, // Will be updated with order ID later
         ]);
 
         $transaction->setTranslation('description', 'en', "Points redeemed for order checkout");
@@ -176,11 +172,16 @@ class CalculatePointsUsagePipeline
         // Store transaction ID for later update with order ID
         $payload['context']['points_transaction_id'] = $transaction->id;
 
+        // Recalculate available points after transaction
+        $customer->refresh();
+        $newAvailablePoints = $customer->available_points;
+
         \Log::info('CalculatePointsUsagePipeline: Points processed', [
             'points_used' => $pointsToUse,
             'points_cost' => $pointsCost,
-            'new_total_points' => $userPoints->total_points,
-            'new_redeemed_points' => $userPoints->redeemed_points
+            'previous_available_points' => $availablePoints,
+            'new_available_points' => $newAvailablePoints,
+            'transaction_id' => $transaction->id
         ]);
 
         return $next($payload);

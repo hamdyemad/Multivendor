@@ -28,6 +28,8 @@ class CustomerPointsApiController extends Controller
                 $setting = $currencyId ? PointsSetting::where('currency_id', $currencyId)->first() : null;
             }
             // Calculate points value in currency
+            // Formula: currency_value = points / points_per_currency
+            // Example: 100 points / 10 points_per_currency = 10 EGP
             $pointsValue = 0;
             if ($customer->total_points > 0 && $setting && $setting->points_value > 0) {
                 $pointsValue = ($customer->total_points * $setting->points_value);

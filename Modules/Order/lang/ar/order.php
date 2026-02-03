@@ -250,6 +250,7 @@ return [
     'promo_discount' => 'خصم كود الخصم',
     'no_points_available' => 'لا توجد نقاط متاحة للاستخدام',
     'no_points_available_with_info' => 'لا توجد نقاط كافية. لديك :available نقطة، لكنك تحتاج :needed نقطة لتغطية إجمالي الطلب :order_total :currency',
+    'insufficient_points_for_full_order' => 'نقاط غير كافية لدفع الطلب بالكامل. لديك :available نقطة، لكنك تحتاج :needed نقطة لتغطية إجمالي الطلب :order_total. ينقصك :shortage نقطة.',
     'discount_exceeds_remaining' => 'إجمالي الخصم (:total_discount :currency) يتجاوز الحد الأقصى المسموح به (:total_remaining :currency). يرجى تقليل مبلغ الخصم أو إزالة كود الخصم/النقاط.',
     'discount_exceeds_commission' => 'إجمالي الخصم (:total_discount :currency) يتجاوز الحد الأقصى للخصم المسموح به (:max_discount :currency). يرجى استخدام خصم أقل أو إزالة كود الخصم/النقاط.',
     'points_used' => 'النقاط المستخدمة',

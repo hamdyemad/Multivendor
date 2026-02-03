@@ -253,6 +253,7 @@ return [
     'promo_discount' => 'Promo Code Discount',
     'no_points_available' => 'No points available to use',
     'no_points_available_with_info' => 'No points available to use. You have :available points, but you need :needed points to cover the order total of :order_total :currency',
+    'insufficient_points_for_full_order' => 'Insufficient points to pay for the full order. You have :available points, but you need :needed points to cover the order total of :order_total. You are short by :shortage points.',
     'discount_exceeds_remaining' => 'Total discount (:total_discount :currency) exceeds the maximum allowed (:total_remaining :currency). Please reduce the discount amount or remove the promo code/points.',
     'discount_exceeds_commission' => 'Total discount (:total_discount :currency) exceeds the maximum allowed discount (:max_discount :currency). Please use a smaller discount or remove the promo code/points.',
     'points_used' => 'Points Used',

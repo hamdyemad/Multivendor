@@ -54,12 +54,11 @@ class OrderApiService
                     CalculateExtras::class,
                     ValidateDiscountAgainstRemaining::class,
                     CalculatePointsUsagePipeline::class,
-                    // AdjustCommissionForPoints::class, // REMOVED: Commission should be calculated normally even with points
                     CalculateFinalTotal::class,
                     CreateOrder::class,
                     SyncOrderProducts::class,
                     UpdateProductSales::class,
-                    EmptyCart::class,
+                    // EmptyCart::class,
                 ])
                 ->thenReturn();
 

@@ -1013,9 +1013,7 @@ class InjectDataController extends Controller
                 if (!empty($item['cover'])) {
                     $this->attachImage($brand, $item['cover'], 'cover');
                 }
-
-                // Create or update vendor for this brand (same ID)
-                $this->createOrUpdateVendorForBrand($item);} catch (\Exception $e) {$nameEn = $item['name_en'] ?? $item['id'];
+            } catch (\Exception $e) {$nameEn = $item['name_en'] ?? $item['id'];
                 $errors[] = "Brand {$nameEn} (ID: {$item['id']}): " . $e->getMessage();
                 Log::error("Error injecting brand: " . $e->getMessage());
             }
@@ -1029,128 +1027,6 @@ class InjectDataController extends Controller
         ];
     }
 
-    /**
-     * Create or update vendor and user for a brand
-     */
-    protected function createOrUpdateVendorForBrand(array $item): void
-    {
-        // Temporarily disable vendor observer to prevent notification errors during import
-        Vendor::withoutEvents(function () use ($item) {
-            $this->createOrUpdateVendorForBrandWithoutEvents($item);
-        });
-    }
-    
-    /**
-     * Create or update vendor without triggering events
-     */
-    protected function createOrUpdateVendorForBrandWithoutEvents(array $item): void
-    {
-        // Check if vendor exists with same ID
-        $vendor = Vendor::where('id', $item['id'])->first();
-        
-        // Generate email from slug
-        $email = ($item['slug_en'] ?? 'vendor-' . $item['id']) . '@bnaia.com';
-
-        if (!$vendor) {
-            // Create user first
-            $user = User::where('email', $email)->first();
-            
-            if (!$user) {
-                $user = new User();
-                $user->uuid = Str::uuid();
-                $user->email = $email;
-                $user->password = bcrypt('password123');
-                $user->user_type_id = UserType::VENDOR_TYPE;
-                $user->active = true;
-                $user->block = false;
-                $user->save();
-
-                // Set user name translations
-                if (!empty($item['name_en'])) {
-                    $user->setTranslation('name', 'en', $item['name_en']);
-                }
-                if (!empty($item['name_ar'])) {
-                    $user->setTranslation('name', 'ar', $item['name_ar']);
-                }
-                $user->save();
-
-                // Assign vendor role to user
-                $vendorRole = Role::where('type', Role::VENDOR_ROLE_TYPE)->first();
-                if ($vendorRole) {
-                    $user->roles()->sync([$vendorRole->id]);
-                }
-
-                // Attach logo image to user
-                if (!empty($item['logo'])) {
-                    $localPath = $this->downloadImage($item['logo']);
-                    if ($localPath) {
-                        $user->update(['image' => $localPath]);
-                    }
-                }
-            }
-
-            // Create vendor with same ID as brand
-            $vendor = new Vendor();
-            $vendor->id = $item['id'];
-            $vendor->user_id = $user->id;
-            $vendor->slug = $item['slug_en'] ?? null;
-            $vendor->active = true;
-            $vendor->country_id = 1; // Default country (Egypt)
-            $vendor->created_at = $this->parseDate($item['created_at'] ?? null);
-            $vendor->updated_at = $this->parseDate($item['updated_at'] ?? null);
-            $vendor->save();
-
-            // Update user with vendor_id
-            $user->update(['vendor_id' => $vendor->id]);
-        } else {
-            // Update existing vendor
-            $vendor->update([
-                'slug' => $item['slug_en'] ?? $vendor->slug,
-                'created_at' => $this->parseDate($item['created_at'] ?? null),
-                'updated_at' => $this->parseDate($item['updated_at'] ?? null),
-            ]);
-
-            // Update user image if vendor has a user
-            if ($vendor->user && !empty($item['logo'])) {
-                $localPath = $this->downloadImage($item['logo']);
-                if ($localPath) {
-                    $vendor->user->update(['image' => $localPath]);
-                }
-            }
-        }
-
-        $departments = Department::pluck('id');
-        $vendor->departments()->sync($departments);
-        
-        // Assign all regions to vendor
-        $regions = \Modules\AreaSettings\app\Models\Region::pluck('id');
-        $vendor->regions()->sync($regions);
-        
-        // Set vendor translations
-        if (!empty($item['name_en'])) {
-            $vendor->setTranslation('name', 'en', $item['name_en']);
-        }
-        if (!empty($item['name_ar'])) {
-            $vendor->setTranslation('name', 'ar', $item['name_ar']);
-        }
-        if (!empty($item['describtion_en'])) {
-            $vendor->setTranslation('description', 'en', $item['describtion_en']);
-        }
-        if (!empty($item['describtion_ar'])) {
-            $vendor->setTranslation('description', 'ar', $item['describtion_ar']);
-        }
-        $vendor->save();
-
-        // Attach logo to vendor
-        if (!empty($item['logo'])) {
-            $this->attachImage($vendor, $item['logo'], 'logo');
-        }
-
-        // Attach cover as banner to vendor
-        if (!empty($item['cover'])) {
-            $this->attachImage($vendor, $item['cover'], 'banner');
-        }
-    }
 
     /**
      * Inject taxes into database
@@ -2028,8 +1904,44 @@ class InjectDataController extends Controller
 
                 // Check if brand/vendor exists (required for vendor_product)
                 if ($brandId && !Vendor::where('id', $brandId)->exists()) {
-                    $brandId = null; // Will skip vendor_product creation
+                    $brandId = null; // Will use default brand
                 }
+                
+                // If no brand_id, create or get a default "Unknown" brand
+                if (!$brandId) {
+                    $defaultBrand = Brand::firstOrCreate(
+                        ['slug' => 'unknown'],
+                        [
+                            'active' => true,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]
+                    );
+                    
+                    // Set translations for default brand if just created
+                    if ($defaultBrand->wasRecentlyCreated) {
+                        $languages = \App\Models\Language::whereIn('code', ['en', 'ar'])->get();
+                        foreach ($languages as $language) {
+                            $defaultBrand->translations()->create([
+                                'lang_id' => $language->id,
+                                'lang_key' => 'name',
+                                'lang_value' => $language->code === 'en' ? 'Unknown Brand' : 'علامة تجارية غير معروفة',
+                            ]);
+                        }
+                    }
+                    
+                    $brandId = $defaultBrand->id;
+                }
+                
+                // Get first vendor for all products (should be Bnaia vendor)
+                $firstVendor = Vendor::first();
+                if (!$firstVendor) {
+                    $skipped++;
+                    $errors[] = "Product {$item['id']}: No vendor found in database. Please create a vendor first.";
+                    Log::error("Product {$item['id']}: No vendor found in database");
+                    continue;
+                }
+                $vendorId = $firstVendor->id;
 
                 // Check if product exists by ID (include soft-deleted)
                 $product = Product::withTrashed()->where('id', $item['id'])->first();
@@ -2097,7 +2009,7 @@ class InjectDataController extends Controller
                     'is_active' => ($item['status'] ?? '0') == '1',
                     'configuration_type' => $configurationType,
                     'type' => 'product', // default type
-                    'vendor_id' => $brandId, // brand_id = vendor_id
+                    'vendor_id' => $vendorId, // Use Bnaia vendor for all products
                     'brand_id' => $brandId,
                     'department_id' => $departmentId,
                     'category_id' => $categoryId,
@@ -2147,13 +2059,11 @@ class InjectDataController extends Controller
                     }
                 }
 
-                // Create VendorProduct if brand_id exists (brand_id = vendor_id)
+                // Create VendorProduct (always create since we have Bnaia vendor)
                 $vendorProduct = null;
-                if (!empty($brandId)) {
-                    $result = $this->createVendorProduct($product, $item, $egyptCountry->id);
-                    $vendorProductsCreated += $result['created'];
-                    $vendorProduct = $result['vendor_product'];
-                }
+                $result = $this->createVendorProduct($product, $item, $egyptCountry->id);
+                $vendorProductsCreated += $result['created'];
+                $vendorProduct = $result['vendor_product'];
 
                 // Create VendorProductVariants from product_size_colors
                 $productVariantsCreated = 0; // Track variants for THIS product
@@ -2516,7 +2426,15 @@ class InjectDataController extends Controller
     protected function createVendorProduct(Product $product, array $item, int $countryId): array
     {
         try {
-            $vendorId = $item['brand_id']; // brand_id = vendor_id
+            // Use Bnaia vendor for all products
+            $bnaiaVendor = Vendor::where('slug', 'bnaia')->first();
+            
+            if (!$bnaiaVendor) {
+                Log::error("Bnaia vendor not found. Please run inject brands first.");
+                return ['created' => 0, 'vendor_product' => null];
+            }
+            
+            $vendorId = $bnaiaVendor->id;
 
             // Check if VendorProduct already exists
             $vendorProduct = VendorProduct::where('product_id', $product->id)
@@ -3469,17 +3387,19 @@ class InjectDataController extends Controller
                     continue;
                 }
                 
-                // Get vendor_id from the product relationship
-                $vendorId = $productData['product']['brand_id'] ?? null; // brand_id is the vendor_id
+                // Use Bnaia vendor for all order products
+                $bnaiaVendor = Vendor::where('slug', 'bnaia')->first();
                 
-                if (!$vendorId) {
+                if (!$bnaiaVendor) {
                     $skippedCount++;
-                    Log::warning("Order product skipped: Missing brand_id (vendor_id)", [
+                    Log::error("Order product skipped: Bnaia vendor not found", [
                         'order_id' => $order->id,
                         'product_id' => $productId,
                     ]);
                     continue;
                 }
+                
+                $vendorId = $bnaiaVendor->id;
                 
                 // Find the vendor product (we need vendor_product_id)
                 $vendorProduct = \Modules\CatalogManagement\app\Models\VendorProduct::withoutGlobalScopes()

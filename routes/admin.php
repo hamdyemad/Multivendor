@@ -90,171 +90,171 @@ Route::prefix('vendor-users-management')->name('vendor-users-management.')->grou
 
 Route::get('seeder', function () {
     // ===== CREATE BNAIA VENDOR AND UPDATE ALL PRODUCTS/ORDERS =====
-    try {
-        echo "🏢 Creating/Updating Bnaia Vendor...\n";
+    // try {
+    //     echo "🏢 Creating/Updating Bnaia Vendor...\n";
 
-        echo "✅ Cleanup complete!\n\n";
+    //     echo "✅ Cleanup complete!\n\n";
         
-        // ===== CREATE BNAIA VENDOR =====
+    //     // ===== CREATE BNAIA VENDOR =====
         
-        // Get or create Bnaia user
-        $bnaiaUser = \App\Models\User::where('email', 'bnaia@bnaia.com')->first();
+    //     // Get or create Bnaia user
+    //     $bnaiaUser = \App\Models\User::where('email', 'bnaia@bnaia.com')->first();
         
-        if (!$bnaiaUser) {
-            $bnaiaUser = new \App\Models\User();
-            $bnaiaUser->uuid = \Str::uuid();
-            $bnaiaUser->email = 'bnaia@bnaia.com';
-            $bnaiaUser->password = bcrypt('password123');
-            $bnaiaUser->user_type_id = \App\Models\UserType::VENDOR_TYPE;
-            $bnaiaUser->active = true;
-            $bnaiaUser->country_id = 1; // Default to Egypt
-            $bnaiaUser->save();
+    //     if (!$bnaiaUser) {
+    //         $bnaiaUser = new \App\Models\User();
+    //         $bnaiaUser->uuid = \Str::uuid();
+    //         $bnaiaUser->email = 'bnaia@bnaia.com';
+    //         $bnaiaUser->password = bcrypt('password123');
+    //         $bnaiaUser->user_type_id = \App\Models\UserType::VENDOR_TYPE;
+    //         $bnaiaUser->active = true;
+    //         $bnaiaUser->country_id = 1; // Default to Egypt
+    //         $bnaiaUser->save();
             
-            // Set user translations
-            $languages = \App\Models\Language::whereIn('code', ['en', 'ar'])->get();
-            foreach ($languages as $language) {
-                $bnaiaUser->translations()->create([
-                    'lang_id' => $language->id,
-                    'lang_key' => 'name',
-                    'lang_value' => $language->code === 'en' ? 'Bnaia Admin' : 'مدير بنايا',
-                ]);
-            }
-            echo "  ✓ Created Bnaia user\n";
-        } else {
-            echo "  ✓ Bnaia user already exists (ID: {$bnaiaUser->id})\n";
-        }
+    //         // Set user translations
+    //         $languages = \App\Models\Language::whereIn('code', ['en', 'ar'])->get();
+    //         foreach ($languages as $language) {
+    //             $bnaiaUser->translations()->create([
+    //                 'lang_id' => $language->id,
+    //                 'lang_key' => 'name',
+    //                 'lang_value' => $language->code === 'en' ? 'Bnaia Admin' : 'مدير بنايا',
+    //             ]);
+    //         }
+    //         echo "  ✓ Created Bnaia user\n";
+    //     } else {
+    //         echo "  ✓ Bnaia user already exists (ID: {$bnaiaUser->id})\n";
+    //     }
         
-        // Get country ID for vendor
-        $countryId = session('country_code')
-            ? \Modules\AreaSettings\app\Models\Country::where('code', strtoupper(session('country_code')))->value('id')
-            : 1;
+    //     // Get country ID for vendor
+    //     $countryId = session('country_code')
+    //         ? \Modules\AreaSettings\app\Models\Country::where('code', strtoupper(session('country_code')))->value('id')
+    //         : 1;
         
-        // Get or create Bnaia vendor
-        $bnaiaVendor = \Modules\Vendor\app\Models\Vendor::where('slug', 'bnaia')->first();
-        if (!$bnaiaVendor) {
-            // Create vendor without triggering events (prevents observer notifications)
-            $bnaiaVendor = \Modules\Vendor\app\Models\Vendor::withoutEvents(function () use ($bnaiaUser, $countryId) {
-                $vendor = new \Modules\Vendor\app\Models\Vendor();
-                $vendor->user_id = $bnaiaUser->id;
-                $vendor->slug = 'bnaia';
-                $vendor->phone = '+201000000000';
-                $vendor->country_id = $countryId;
-                $vendor->active = true;
-                $vendor->save();
-                return $vendor;
-            });
+    //     // Get or create Bnaia vendor
+    //     $bnaiaVendor = \Modules\Vendor\app\Models\Vendor::where('slug', 'bnaia')->first();
+    //     if (!$bnaiaVendor) {
+    //         // Create vendor without triggering events (prevents observer notifications)
+    //         $bnaiaVendor = \Modules\Vendor\app\Models\Vendor::withoutEvents(function () use ($bnaiaUser, $countryId) {
+    //             $vendor = new \Modules\Vendor\app\Models\Vendor();
+    //             $vendor->user_id = $bnaiaUser->id;
+    //             $vendor->slug = 'bnaia';
+    //             $vendor->phone = '+201000000000';
+    //             $vendor->country_id = $countryId;
+    //             $vendor->active = true;
+    //             $vendor->save();
+    //             return $vendor;
+    //         });
 
-            echo "  ✓ Created Bnaia vendor (ID: {$bnaiaVendor->id}, Country ID: {$countryId})\n";
+    //         echo "  ✓ Created Bnaia vendor (ID: {$bnaiaVendor->id}, Country ID: {$countryId})\n";
 
-            // Set vendor translations (after vendor is created)
-            $languages = \App\Models\Language::whereIn('code', ['en', 'ar'])->get();
-            foreach ($languages as $language) {
-                $bnaiaVendor->translations()->create([
-                    'lang_id' => $language->id,
-                    'lang_key' => 'name',
-                    'lang_value' => $language->code === 'en' ? 'Bnaia' : 'بنايا',
-                ]);
-                $bnaiaVendor->translations()->create([
-                    'lang_id' => $language->id,
-                    'lang_key' => 'description',
-                    'lang_value' => $language->code === 'en' ? 'Bnaia - Building Materials Supplier' : 'بنايا - مورد مواد البناء',
-                ]);
-            }
-            echo "  ✓ Created vendor translations\n";
-            // Attach logo if exists
-            $logoPath = public_path('assets/img/logo.png');
-            if (file_exists($logoPath)) {
-                echo "  ℹ Logo source found at: {$logoPath}\n";
+    //         // Set vendor translations (after vendor is created)
+    //         $languages = \App\Models\Language::whereIn('code', ['en', 'ar'])->get();
+    //         foreach ($languages as $language) {
+    //             $bnaiaVendor->translations()->create([
+    //                 'lang_id' => $language->id,
+    //                 'lang_key' => 'name',
+    //                 'lang_value' => $language->code === 'en' ? 'Bnaia' : 'بنايا',
+    //             ]);
+    //             $bnaiaVendor->translations()->create([
+    //                 'lang_id' => $language->id,
+    //                 'lang_key' => 'description',
+    //                 'lang_value' => $language->code === 'en' ? 'Bnaia - Building Materials Supplier' : 'بنايا - مورد مواد البناء',
+    //             ]);
+    //         }
+    //         echo "  ✓ Created vendor translations\n";
+    //         // Attach logo if exists
+    //         $logoPath = public_path('assets/img/logo.png');
+    //         if (file_exists($logoPath)) {
+    //             echo "  ℹ Logo source found at: {$logoPath}\n";
 
-                // Delete existing logo attachment if any
-                \App\Models\Attachment::where('attachable_type', \Modules\Vendor\app\Models\Vendor::class)
-                    ->where('attachable_id', $bnaiaVendor->id)
-                    ->where('type', 'logo')
-                    ->delete();
+    //             // Delete existing logo attachment if any
+    //             \App\Models\Attachment::where('attachable_type', \Modules\Vendor\app\Models\Vendor::class)
+    //                 ->where('attachable_id', $bnaiaVendor->id)
+    //                 ->where('type', 'logo')
+    //                 ->delete();
 
-                // Copy logo to storage/app/public/vendor-images/
-                $storagePath = 'vendor-images/logo.png';
-                $destinationPath = public_path('storage/' . $storagePath);
+    //             // Copy logo to storage/app/public/vendor-images/
+    //             $storagePath = 'vendor-images/logo.png';
+    //             $destinationPath = public_path('storage/' . $storagePath);
 
-                echo "  ℹ Copying to: {$destinationPath}\n";
+    //             echo "  ℹ Copying to: {$destinationPath}\n";
 
-                // Create directory if it doesn't exist
-                $directory = dirname($destinationPath);
-                if (!file_exists($directory)) {
-                    mkdir($directory, 0755, true);
-                    echo "  ℹ Created directory: {$directory}\n";
-                }
+    //             // Create directory if it doesn't exist
+    //             $directory = dirname($destinationPath);
+    //             if (!file_exists($directory)) {
+    //                 mkdir($directory, 0755, true);
+    //                 echo "  ℹ Created directory: {$directory}\n";
+    //             }
 
-                // Copy the logo file
-                copy($logoPath, $destinationPath);
+    //             // Copy the logo file
+    //             copy($logoPath, $destinationPath);
 
-                if (file_exists($destinationPath)) {
-                    echo "  ℹ Logo copied successfully\n";
-                }
+    //             if (file_exists($destinationPath)) {
+    //                 echo "  ℹ Logo copied successfully\n";
+    //             }
 
-                $attachment = new \App\Models\Attachment();
-                $attachment->attachable_type = \Modules\Vendor\app\Models\Vendor::class;
-                $attachment->attachable_id = $bnaiaVendor->id;
-                $attachment->type = 'logo';
-                $attachment->path = $storagePath;
-                $attachment->save();
+    //             $attachment = new \App\Models\Attachment();
+    //             $attachment->attachable_type = \Modules\Vendor\app\Models\Vendor::class;
+    //             $attachment->attachable_id = $bnaiaVendor->id;
+    //             $attachment->type = 'logo';
+    //             $attachment->path = $storagePath;
+    //             $attachment->save();
 
-                echo "  ✓ Attached logo to Bnaia vendor (path: {$storagePath})\n";
-                echo "  ℹ Attachment ID: {$attachment->id}\n";
+    //             echo "  ✓ Attached logo to Bnaia vendor (path: {$storagePath})\n";
+    //             echo "  ℹ Attachment ID: {$attachment->id}\n";
 
-                // Verify attachment was saved
-                $savedAttachment = \App\Models\Attachment::where('attachable_type', \Modules\Vendor\app\Models\Vendor::class)
-                    ->where('attachable_id', $bnaiaVendor->id)
-                    ->where('type', 'logo')
-                    ->first();
+    //             // Verify attachment was saved
+    //             $savedAttachment = \App\Models\Attachment::where('attachable_type', \Modules\Vendor\app\Models\Vendor::class)
+    //                 ->where('attachable_id', $bnaiaVendor->id)
+    //                 ->where('type', 'logo')
+    //                 ->first();
 
-                if ($savedAttachment) {
-                    echo "  ℹ Attachment verified in database (ID: {$savedAttachment->id}, Path: {$savedAttachment->path})\n";
-                } else {
-                    echo "  ⚠ Attachment not found in database!\n";
-                }
-            } else {
-                echo "  ⚠ Logo source not found at: {$logoPath}\n";
-            }
+    //             if ($savedAttachment) {
+    //                 echo "  ℹ Attachment verified in database (ID: {$savedAttachment->id}, Path: {$savedAttachment->path})\n";
+    //             } else {
+    //                 echo "  ⚠ Attachment not found in database!\n";
+    //             }
+    //         } else {
+    //             echo "  ⚠ Logo source not found at: {$logoPath}\n";
+    //         }
 
-            // Assign all departments to Bnaia vendor
-            $allDepartments = \Modules\CategoryManagment\app\Models\Department::pluck('id')->toArray();
-            if (!empty($allDepartments)) {
-                $bnaiaVendor->departments()->sync($allDepartments);
-                echo "  ✓ Assigned " . count($allDepartments) . " departments to Bnaia vendor\n";
-            }
+    //         // Assign all departments to Bnaia vendor
+    //         $allDepartments = \Modules\CategoryManagment\app\Models\Department::pluck('id')->toArray();
+    //         if (!empty($allDepartments)) {
+    //             $bnaiaVendor->departments()->sync($allDepartments);
+    //             echo "  ✓ Assigned " . count($allDepartments) . " departments to Bnaia vendor\n";
+    //         }
 
-            // Assign all regions to Bnaia vendor
-            $allRegions = \Modules\AreaSettings\app\Models\Region::pluck('id')->toArray();
-            if (!empty($allRegions)) {
-                $bnaiaVendor->regions()->sync($allRegions);
-                echo "  ✓ Assigned " . count($allRegions) . " regions to Bnaia vendor\n";
-            }
-        }
+    //         // Assign all regions to Bnaia vendor
+    //         $allRegions = \Modules\AreaSettings\app\Models\Region::pluck('id')->toArray();
+    //         if (!empty($allRegions)) {
+    //             $bnaiaVendor->regions()->sync($allRegions);
+    //             echo "  ✓ Assigned " . count($allRegions) . " regions to Bnaia vendor\n";
+    //         }
+    //     }
         
-        // Update all vendor_products to use Bnaia vendor
-        $updatedVendorProducts = \DB::table('vendor_products')
-            ->where('vendor_id', '!=', $bnaiaVendor->id)
-            ->update(['vendor_id' => $bnaiaVendor->id]);
-        echo "  ✓ Updated {$updatedVendorProducts} vendor products to Bnaia\n";
+    //     // Update all vendor_products to use Bnaia vendor
+    //     $updatedVendorProducts = \DB::table('vendor_products')
+    //         ->where('vendor_id', '!=', $bnaiaVendor->id)
+    //         ->update(['vendor_id' => $bnaiaVendor->id]);
+    //     echo "  ✓ Updated {$updatedVendorProducts} vendor products to Bnaia\n";
         
-        // Update all order_products to use Bnaia vendor
-        $updatedOrderProducts = \DB::table('order_products')
-            ->where('vendor_id', '!=', $bnaiaVendor->id)
-            ->update(['vendor_id' => $bnaiaVendor->id]);
-        echo "  ✓ Updated {$updatedOrderProducts} order products to Bnaia\n";
+    //     // Update all order_products to use Bnaia vendor
+    //     $updatedOrderProducts = \DB::table('order_products')
+    //         ->where('vendor_id', '!=', $bnaiaVendor->id)
+    //         ->update(['vendor_id' => $bnaiaVendor->id]);
+    //     echo "  ✓ Updated {$updatedOrderProducts} order products to Bnaia\n";
         
-        // Update all vendor_order_stages to use Bnaia vendor
-        $updatedVendorStages = \DB::table('vendor_order_stages')
-            ->where('vendor_id', '!=', $bnaiaVendor->id)
-            ->update(['vendor_id' => $bnaiaVendor->id]);
-        echo "  ✓ Updated {$updatedVendorStages} vendor order stages to Bnaia\n";
+    //     // Update all vendor_order_stages to use Bnaia vendor
+    //     $updatedVendorStages = \DB::table('vendor_order_stages')
+    //         ->where('vendor_id', '!=', $bnaiaVendor->id)
+    //         ->update(['vendor_id' => $bnaiaVendor->id]);
+    //     echo "  ✓ Updated {$updatedVendorStages} vendor order stages to Bnaia\n";
         
-        echo "✅ Bnaia vendor setup complete!\n\n";
+    //     echo "✅ Bnaia vendor setup complete!\n\n";
         
-    } catch (\Exception $e) {
-        echo "❌ Error setting up Bnaia vendor: {$e->getMessage()}\n\n";
-    }
+    // } catch (\Exception $e) {
+    //     echo "❌ Error setting up Bnaia vendor: {$e->getMessage()}\n\n";
+    // }
 
     // permessions_reset();
     // roles_reset();
@@ -268,7 +268,7 @@ Route::get('seeder', function () {
 
     // \Modules\Order\app\Models\OrderProduct::query()->forceDelete();
     // \Modules\Order\app\Models\Order::query()->forceDelete();
-    // \Modules\Order\app\Models\OrderStage::query()->forceDelete();
+    \Modules\Order\app\Models\OrderStage::query()->forceDelete();
     // \Modules\Order\app\Models\OrderExtraFeeDiscount::query()->forceDelete();
     // \Modules\Order\app\Models\VendorOrderStage::query()->forceDelete();
     // // \Modules\Order\app\Models\RequestQuotation::query()->forceDelete();
@@ -345,11 +345,11 @@ Route::get('seeder', function () {
             //     'name' => 'Vendor Seeder',
             //     'description' => 'Creates vendors with country_id and translations',
             // ],
-            // [
-            //     'class' => OrderStageSeeder::class,
-            //     'name' => 'Order Stage Seeder',
-            //     'description' => 'Creates order stages',
-            // ],
+            [
+                'class' => OrderStageSeeder::class,
+                'name' => 'Order Stage Seeder',
+                'description' => 'Creates order stages',
+            ],
             // [
             //     'class' => \Database\Seeders\ProductVariantSeeder::class,
             //     'name' => 'Product Variant Seeder',

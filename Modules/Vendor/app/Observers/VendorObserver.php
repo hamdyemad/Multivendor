@@ -36,26 +36,34 @@ class VendorObserver
      */
     protected function createVendorNotification(Vendor $vendor): void
     {
+
+        
         // Determine icon and color based on active status
         $icon = $vendor->active == 1 ? 'uil-store' : 'uil-user-plus';
         $color = $vendor->active == 1 ? 'success' : 'warning';
-        $description = $vendor->active == 1 
-            ? 'New vendor registered' 
+        $description = $vendor->active == 1
+            ? 'New vendor registered'
             : trans('menu.become a vendor requests.wants_to_become');
-        
+
+        // Get vendor name as string (handle translatable field)
+        $vendorName = is_array($vendor->name) 
+            ? ($vendor->name[app()->getLocale()] ?? $vendor->name['en'] ?? 'Vendor') 
+            : (string) $vendor->name;
+
         $this->notificationService->create(
             type: 'vendor',
-            title: $vendor->name,
+            title: $vendorName,
             description: $description,
-            url: $this->notificationService->generateAdminUrl('admin.vendors.show', ['vendor' => $vendor]),
+            url: $this->notificationService->generateAdminUrl('admin.vendors.show', ['vendor' => $vendor->id]),
             icon: $icon,
             color: $color,
             notifiable: $vendor,
             data: [
                 'vendor_id' => $vendor->id,
-                'vendor_name' => $vendor->name,
+                'vendor_name' => $vendorName,
                 'active' => $vendor->active,
             ],
+            userId: null,
             vendorId: null
         );
     }

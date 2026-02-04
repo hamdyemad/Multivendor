@@ -36,6 +36,8 @@ class VendorObserver
      */
     protected function createVendorNotification(Vendor $vendor): void
     {
+
+        
         // Determine icon and color based on active status
         $icon = $vendor->active == 1 ? 'uil-store' : 'uil-user-plus';
         $color = $vendor->active == 1 ? 'success' : 'warning';

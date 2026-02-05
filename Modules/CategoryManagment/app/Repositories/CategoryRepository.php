@@ -56,7 +56,7 @@ class CategoryRepository implements CategoryRepositoryInterface
     public function createCategory(array $data)
     {
         return \DB::transaction(function () use ($data) {
-            $sortNumber = $data['sort_number'] ?? 0;
+            $sortNumber = $data['sort_number'] ?? 1;
             
             // Handle sort number before creating (global scope - no additional conditions)
             $this->handleSortNumber(Category::class, null, $sortNumber);

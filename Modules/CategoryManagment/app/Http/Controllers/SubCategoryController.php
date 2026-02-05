@@ -330,7 +330,7 @@ class SubCategoryController extends Controller
      * Reorder subcategories by updating sort_number
     /**
      * Reorder subcategories by updating sort_number
-     * Swaps sort numbers instead of renumbering all items
+     * Reassigns all sort numbers sequentially to handle cases where all items have sort_number = 0
      */
     public function reorder($lang, $countryCode, Request $request)
     {
@@ -346,46 +346,53 @@ class SubCategoryController extends Controller
                 'changed_by' => auth()->id()
             ]);
 
-            $items = $request->items;
+            \DB::beginTransaction();
 
-            // Simple approach: Just update each item with its new sort_number
-            // If there's a conflict (two items with same sort_number), swap them
-            foreach ($items as $item) {
-                $subCategoryId = $item['id'];
-                $newSortNumber = $item['sort_number'];
-                
-                // Get the subcategory being moved
-                $subCategory = \Modules\CategoryManagment\app\Models\SubCategory::find($subCategoryId);
-                if (!$subCategory) {
-                    continue;
-                }
-                
-                $oldSortNumber = $subCategory->sort_number;
-                
-                // If sort number hasn't changed, skip
-                if ($oldSortNumber == $newSortNumber) {
-                    continue;
-                }
-                
-                // Find if there's another subcategory with the target sort_number
-                $conflictingSubCategory = \Modules\CategoryManagment\app\Models\SubCategory::where('sort_number', $newSortNumber)
-                    ->where('id', '!=', $subCategoryId)
-                    ->first();
-                
-                if ($conflictingSubCategory) {
-                    // Swap: Give the conflicting subcategory the old sort number
-                    $conflictingSubCategory->update(['sort_number' => $oldSortNumber]);
-                    Log::info('Swapped subcategory sort numbers', [
-                        'subcategory_1' => $subCategoryId,
-                        'subcategory_1_new_sort' => $newSortNumber,
-                        'subcategory_2' => $conflictingSubCategory->id,
-                        'subcategory_2_new_sort' => $oldSortNumber
-                    ]);
-                }
-                
-                // Update the dragged subcategory with new sort number
-                $subCategory->update(['sort_number' => $newSortNumber]);
+            // Get all subcategories in current order
+            $allSubCategories = \Modules\CategoryManagment\app\Models\SubCategory::orderBy('sort_number', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
+
+            // Get the dragged item info
+            $items = $request->items;
+            $draggedItem = $items[0]; // We only drag one item at a time
+            $draggedId = $draggedItem['id'];
+            $targetSortNumber = $draggedItem['sort_number'];
+
+            // Find the dragged subcategory in the collection
+            $draggedSubCategory = $allSubCategories->firstWhere('id', $draggedId);
+            if (!$draggedSubCategory) {
+                throw new \Exception('SubCategory not found');
             }
+
+            // Remove the dragged subcategory from collection
+            $allSubCategories = $allSubCategories->reject(function($subCat) use ($draggedId) {
+                return $subCat->id == $draggedId;
+            })->values();
+
+            // Find the target position in the collection
+            $targetIndex = $allSubCategories->search(function($subCat) use ($targetSortNumber) {
+                return $subCat->sort_number == $targetSortNumber;
+            });
+
+            // If target not found, insert at the end
+            if ($targetIndex === false) {
+                $targetIndex = $allSubCategories->count();
+            }
+
+            // Insert the dragged subcategory at the target position
+            $allSubCategories->splice($targetIndex, 0, [$draggedSubCategory]);
+
+            // Reassign sort numbers sequentially
+            $sortNumber = 1;
+            foreach ($allSubCategories as $subCategory) {
+                if ($subCategory->sort_number != $sortNumber) {
+                    $subCategory->update(['sort_number' => $sortNumber]);
+                }
+                $sortNumber++;
+            }
+
+            \DB::commit();
 
             Log::info('SubCategories reordered successfully');
 

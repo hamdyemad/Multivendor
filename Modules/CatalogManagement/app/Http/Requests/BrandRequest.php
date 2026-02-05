@@ -21,6 +21,7 @@ class BrandRequest extends FormRequest
     {
         $rules = [
             'active' => 'required|boolean',
+            'sort_number' => 'nullable|integer|min:0',
             'facebook_url' => 'nullable|url|max:255',
             'linkedin_url' => 'nullable|url|max:255',
             'pinterest_url' => 'nullable|url|max:255',

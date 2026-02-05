@@ -4,6 +4,7 @@ namespace Modules\CatalogManagement\app\Repositories;
 
 use Modules\CatalogManagement\app\Interfaces\BrandRepositoryInterface;
 use Modules\CatalogManagement\app\Models\Brand;
+use Modules\CategoryManagment\app\Traits\HandlesSortNumber;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -11,6 +12,7 @@ use Illuminate\Support\Str;
 
 class BrandRepository implements BrandRepositoryInterface
 {
+    use HandlesSortNumber;
     /**
      * Get all brands with filters and pagination
      */
@@ -135,14 +137,16 @@ class BrandRepository implements BrandRepositoryInterface
     public function createBrand(array $data)
     {
         return DB::transaction(function () use ($data) {
-            // Get the next sort number
-            $maxSortNumber = Brand::max('sort_number') ?? 0;
-            $nextSortNumber = $maxSortNumber + 1;
+            // Get sort number from data or use 1 as default
+            $sortNumber = $data['sort_number'] ?? 1;
+            
+            // Handle sort number before creating (global scope)
+            $this->handleSortNumber(Brand::class, null, $sortNumber);
             
             $brand = Brand::create([
                 'slug' => Str::uuid(),
                 'active' => $data['active'] ?? 0,
-                'sort_number' => $data['sort_number'] ?? $nextSortNumber,
+                'sort_number' => $sortNumber,
                 'facebook_url' => $data['facebook_url'] ?? null,
                 'linkedin_url' => $data['linkedin_url'] ?? null,
                 'pinterest_url' => $data['pinterest_url'] ?? null,
@@ -204,15 +208,27 @@ class BrandRepository implements BrandRepositoryInterface
         return DB::transaction(function () use ($id, $data) {
             $brand = Brand::findOrFail($id);
 
-            $brand->update([
+            $updateData = [
                 'active' => $data['active'] ?? 0,
-                'sort_number' => $data['sort_number'] ?? 0,
                 'facebook_url' => $data['facebook_url'] ?? null,
                 'linkedin_url' => $data['linkedin_url'] ?? null,
                 'pinterest_url' => $data['pinterest_url'] ?? null,
                 'twitter_url' => $data['twitter_url'] ?? null,
                 'instagram_url' => $data['instagram_url'] ?? null,
-            ]);
+            ];
+
+            // Handle sort_number to prevent duplicates GLOBALLY
+            if (isset($data['sort_number'])) {
+                $newSortNumber = (int) $data['sort_number'];
+                $oldSortNumber = $brand->sort_number;
+                
+                // Use the trait handler function (global scope)
+                $this->handleSortNumber(Brand::class, $id, $newSortNumber, $oldSortNumber);
+                
+                $updateData['sort_number'] = $newSortNumber;
+            }
+
+            $brand->update($updateData);
 
             // Update translations from nested array
             if (isset($data['translations']) && is_array($data['translations'])) {
@@ -288,17 +304,27 @@ class BrandRepository implements BrandRepositoryInterface
      */
     public function deleteBrand(int $id)
     {
-        $brand = Brand::findOrFail($id);
-        $brand->translations()->delete();
+        return DB::transaction(function () use ($id) {
+            $brand = Brand::findOrFail($id);
+            $deletedSortNumber = $brand->sort_number;
+            
+            $brand->translations()->delete();
 
-        // Delete attachments
-        if($brand->attachments) {
-            foreach ($brand->attachments as $attachment) {
-                Storage::disk('public')->delete($attachment->path);
+            // Delete attachments
+            if($brand->attachments) {
+                foreach ($brand->attachments as $attachment) {
+                    Storage::disk('public')->delete($attachment->path);
+                }
+                $brand->attachments()->delete();
             }
-            $brand->attachments()->delete();
-        }
-        return $brand->delete();
+            
+            $brand->delete();
+            
+            // Shift down all brands with higher sort numbers to fill the gap (global scope)
+            $this->handleSortNumberAfterDelete(Brand::class, $deletedSortNumber);
+            
+            return true;
+        });
     }
 
     /**

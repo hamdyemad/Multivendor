@@ -448,7 +448,7 @@ class DepartmentController extends Controller
 
     /**
      * Reorder departments by updating sort_number
-     * Swaps sort numbers instead of renumbering all items
+     * Reassigns all sort numbers sequentially to handle cases where all items have sort_number = 0
      */
     public function reorder($lang, $countryCode, Request $request)
     {
@@ -464,46 +464,53 @@ class DepartmentController extends Controller
                 'changed_by' => auth()->id()
             ]);
 
-            $items = $request->items;
+            \DB::beginTransaction();
 
-            // Simple approach: Just update each item with its new sort_number
-            // If there's a conflict (two items with same sort_number), swap them
-            foreach ($items as $item) {
-                $departmentId = $item['id'];
-                $newSortNumber = $item['sort_number'];
-                
-                // Get the department being moved
-                $department = \Modules\CategoryManagment\app\Models\Department::find($departmentId);
-                if (!$department) {
-                    continue;
-                }
-                
-                $oldSortNumber = $department->sort_number;
-                
-                // If sort number hasn't changed, skip
-                if ($oldSortNumber == $newSortNumber) {
-                    continue;
-                }
-                
-                // Find if there's another department with the target sort_number
-                $conflictingDepartment = \Modules\CategoryManagment\app\Models\Department::where('sort_number', $newSortNumber)
-                    ->where('id', '!=', $departmentId)
-                    ->first();
-                
-                if ($conflictingDepartment) {
-                    // Swap: Give the conflicting department the old sort number
-                    $conflictingDepartment->update(['sort_number' => $oldSortNumber]);
-                    \Log::info('Swapped department sort numbers', [
-                        'department_1' => $departmentId,
-                        'department_1_new_sort' => $newSortNumber,
-                        'department_2' => $conflictingDepartment->id,
-                        'department_2_new_sort' => $oldSortNumber
-                    ]);
-                }
-                
-                // Update the dragged department with new sort number
-                $department->update(['sort_number' => $newSortNumber]);
+            // Get all departments in current order
+            $allDepartments = \Modules\CategoryManagment\app\Models\Department::orderBy('sort_number', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
+
+            // Get the dragged item info
+            $items = $request->items;
+            $draggedItem = $items[0]; // We only drag one item at a time
+            $draggedId = $draggedItem['id'];
+            $targetSortNumber = $draggedItem['sort_number'];
+
+            // Find the dragged department in the collection
+            $draggedDepartment = $allDepartments->firstWhere('id', $draggedId);
+            if (!$draggedDepartment) {
+                throw new \Exception('Department not found');
             }
+
+            // Remove the dragged department from collection
+            $allDepartments = $allDepartments->reject(function($dept) use ($draggedId) {
+                return $dept->id == $draggedId;
+            })->values();
+
+            // Find the target position in the collection
+            $targetIndex = $allDepartments->search(function($dept) use ($targetSortNumber) {
+                return $dept->sort_number == $targetSortNumber;
+            });
+
+            // If target not found, insert at the end
+            if ($targetIndex === false) {
+                $targetIndex = $allDepartments->count();
+            }
+
+            // Insert the dragged department at the target position
+            $allDepartments->splice($targetIndex, 0, [$draggedDepartment]);
+
+            // Reassign sort numbers sequentially
+            $sortNumber = 1;
+            foreach ($allDepartments as $department) {
+                if ($department->sort_number != $sortNumber) {
+                    $department->update(['sort_number' => $sortNumber]);
+                }
+                $sortNumber++;
+            }
+
+            \DB::commit();
 
             \Log::info('Departments reordered successfully');
 

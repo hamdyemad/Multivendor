@@ -314,7 +314,7 @@ class CategoryController extends Controller
 
     /**
      * Reorder categories by updating sort_number
-     * Swaps sort numbers instead of renumbering all items
+     * Reassigns all sort numbers sequentially to handle cases where all items have sort_number = 0
      */
     public function reorder($lang, $countryCode, Request $request)
     {
@@ -330,46 +330,53 @@ class CategoryController extends Controller
                 'changed_by' => auth()->id()
             ]);
 
-            $items = $request->items;
+            \DB::beginTransaction();
 
-            // Simple approach: Just update each item with its new sort_number
-            // If there's a conflict (two items with same sort_number), swap them
-            foreach ($items as $item) {
-                $categoryId = $item['id'];
-                $newSortNumber = $item['sort_number'];
-                
-                // Get the category being moved
-                $category = \Modules\CategoryManagment\app\Models\Category::find($categoryId);
-                if (!$category) {
-                    continue;
-                }
-                
-                $oldSortNumber = $category->sort_number;
-                
-                // If sort number hasn't changed, skip
-                if ($oldSortNumber == $newSortNumber) {
-                    continue;
-                }
-                
-                // Find if there's another category with the target sort_number
-                $conflictingCategory = \Modules\CategoryManagment\app\Models\Category::where('sort_number', $newSortNumber)
-                    ->where('id', '!=', $categoryId)
-                    ->first();
-                
-                if ($conflictingCategory) {
-                    // Swap: Give the conflicting category the old sort number
-                    $conflictingCategory->update(['sort_number' => $oldSortNumber]);
-                    \Log::info('Swapped category sort numbers', [
-                        'category_1' => $categoryId,
-                        'category_1_new_sort' => $newSortNumber,
-                        'category_2' => $conflictingCategory->id,
-                        'category_2_new_sort' => $oldSortNumber
-                    ]);
-                }
-                
-                // Update the dragged category with new sort number
-                $category->update(['sort_number' => $newSortNumber]);
+            // Get all categories in current order
+            $allCategories = \Modules\CategoryManagment\app\Models\Category::orderBy('sort_number', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
+
+            // Get the dragged item info
+            $items = $request->items;
+            $draggedItem = $items[0]; // We only drag one item at a time
+            $draggedId = $draggedItem['id'];
+            $targetSortNumber = $draggedItem['sort_number'];
+
+            // Find the dragged category in the collection
+            $draggedCategory = $allCategories->firstWhere('id', $draggedId);
+            if (!$draggedCategory) {
+                throw new \Exception('Category not found');
             }
+
+            // Remove the dragged category from collection
+            $allCategories = $allCategories->reject(function($cat) use ($draggedId) {
+                return $cat->id == $draggedId;
+            })->values();
+
+            // Find the target position in the collection
+            $targetIndex = $allCategories->search(function($cat) use ($targetSortNumber) {
+                return $cat->sort_number == $targetSortNumber;
+            });
+
+            // If target not found, insert at the end
+            if ($targetIndex === false) {
+                $targetIndex = $allCategories->count();
+            }
+
+            // Insert the dragged category at the target position
+            $allCategories->splice($targetIndex, 0, [$draggedCategory]);
+
+            // Reassign sort numbers sequentially
+            $sortNumber = 1;
+            foreach ($allCategories as $category) {
+                if ($category->sort_number != $sortNumber) {
+                    $category->update(['sort_number' => $sortNumber]);
+                }
+                $sortNumber++;
+            }
+
+            \DB::commit();
 
             \Log::info('Categories reordered successfully');
 

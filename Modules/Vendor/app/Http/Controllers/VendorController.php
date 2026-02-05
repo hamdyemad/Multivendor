@@ -616,7 +616,7 @@ class VendorController extends Controller {
 
             return response()->json([
                 'success' => false,
-                'message' => __('vendor::vendor.error_deleting_vendor'),
+                'message' => $e->getMessage(),
                 'error' => $e->getMessage()
             ], 500);
         }

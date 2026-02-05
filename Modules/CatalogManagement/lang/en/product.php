@@ -90,6 +90,11 @@ return [
     'error_rejecting_product' => 'Error rejecting product',
     'pricing_stock_updated_successfully' => 'Pricing and stock updated successfully!',
     'error_saving_pricing_stock' => 'Error saving pricing and stock',
+    
+    // Export Messages
+    'exporting_products' => 'Exporting Products',
+    'export_completed' => 'Export Completed Successfully',
+    'export_failed' => 'Export failed. Please try again.',
     'manage_stock_pricing' => 'Manage Stock & Pricing',
     'stock_management' => 'Stock & Pricing Management',
     'error_loading_product' => 'Error loading product',

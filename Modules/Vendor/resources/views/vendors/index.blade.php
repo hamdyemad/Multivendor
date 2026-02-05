@@ -559,8 +559,19 @@
                             'Vendor deleted successfully');
                     },
                     error: function(xhr) {
-                        showNotification('error', xhr.responseJSON?.message ||
-                            'Error deleting vendor');
+                        $('#modal-delete-vendor').modal('hide');
+                        
+                        // Get error message - check both message and error fields
+                        let errorMessage = 'Error deleting vendor';
+                        if (xhr.responseJSON) {
+                            if (xhr.responseJSON.error) {
+                                errorMessage = xhr.responseJSON.error;
+                            } else if (xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+                        }
+                        
+                        showNotification('error', errorMessage);
                     }
                 });
             });

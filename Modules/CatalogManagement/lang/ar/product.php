@@ -90,6 +90,11 @@ return [
     'error_rejecting_product' => 'خطأ في رفض المنتج',
     'pricing_stock_updated_successfully' => 'تم تحديث التسعير والمخزون بنجاح!',
     'error_saving_pricing_stock' => 'خطأ في حفظ التسعير والمخزون',
+    
+    // Export Messages
+    'exporting_products' => 'جاري تصدير المنتجات',
+    'export_completed' => 'تم التصدير بنجاح',
+    'export_failed' => 'فشل التصدير. يرجى المحاولة مرة أخرى.',
     'manage_stock_pricing' => 'إدارة المخزون والتسعير',
     'stock_management' => 'إدارة المخزون والتسعير',
     'error_loading_product' => 'خطأ في تحميل المنتج',

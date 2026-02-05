@@ -184,16 +184,20 @@ $(document).ready(function() {
             selectedIds.push($(this).data('product-id'));
         });
         
-        // Check if any products are selected
-        if (selectedIds.length === 0) {
-            // Show info toast
-            toastr.info('{{ __('catalogmanagement::product.please_select_products_to_export') }}', '{{ __('common.info') }}');
-            return;
+        // Show loading overlay
+        if (typeof LoadingOverlay !== 'undefined') {
+            LoadingOverlay.show({
+                text: '{{ __('catalogmanagement::product.exporting_products') ?? 'Exporting Products' }}...',
+                subtext: '{{ __('common.please_wait') }}...',
+                progress: true
+            });
+            
+            // Animate progress bar
+            LoadingOverlay.progressSequence([20, 40, 60, 80], [300, 500, 700, 900]);
         }
         
-        // Disable button and show loading
+        // Disable button
         btn.prop('disabled', true);
-        btn.html('<i class="uil uil-spinner-alt rotating"></i> {{ __('common.processing') }}');
         
         // Get current filter values
         const filters = {
@@ -208,9 +212,13 @@ $(document).ready(function() {
             is_active: (typeof CustomSelect !== 'undefined' && document.getElementById('active_status')) ? CustomSelect.getValue('active_status') : '',
             stock_status: (typeof CustomSelect !== 'undefined' && document.getElementById('stock_status')) ? CustomSelect.getValue('stock_status') : '',
             created_from: $('#created_date_from').val() || '',
-            created_to: $('#created_date_to').val() || '',
-            product_ids: selectedIds.join(',')
+            created_to: $('#created_date_to').val() || ''
         };
+        
+        // Only add product_ids if products are selected
+        if (selectedIds.length > 0) {
+            filters.product_ids = selectedIds.join(',');
+        }
         
         // Build query string
         const queryParams = new URLSearchParams();
@@ -227,14 +235,80 @@ $(document).ready(function() {
         const exportUrl = '{{ route('admin.products.export') }}' + (queryParams.toString() ? '?' + queryParams.toString() : '');
         @endif
         
-        // Trigger download
-        window.location.href = exportUrl;
+        // Use XMLHttpRequest for blob download
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', exportUrl, true);
+        xhr.responseType = 'blob';
         
-        // Re-enable button after a delay
-        setTimeout(function() {
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                // Create blob and download
+                const blob = xhr.response;
+                const contentDisposition = xhr.getResponseHeader('Content-Disposition');
+                let fileName = 'products_export_' + new Date().toISOString().slice(0, 10) + '.xlsx';
+                
+                if (contentDisposition) {
+                    const fileNameMatch = contentDisposition.match(/filename="?(.+)"?/);
+                    if (fileNameMatch && fileNameMatch.length === 2) {
+                        fileName = fileNameMatch[1];
+                    }
+                }
+                
+                // Complete progress bar to 100%
+                if (typeof LoadingOverlay !== 'undefined') {
+                    LoadingOverlay.animateProgressBar(100, 300);
+                }
+                
+                // Create download link
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                
+                // Show success and hide overlay after download starts
+                setTimeout(function() {
+                    if (typeof LoadingOverlay !== 'undefined') {
+                        LoadingOverlay.showSuccess(
+                            '{{ __('catalogmanagement::product.export_completed') ?? 'Export Completed Successfully' }}',
+                            '{{ __('common.downloading') ?? 'Downloading' }}...'
+                        );
+                    }
+                    
+                    // Clean up and hide overlay
+                    setTimeout(function() {
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+                        
+                        if (typeof LoadingOverlay !== 'undefined') {
+                            LoadingOverlay.hide();
+                        }
+                        btn.prop('disabled', false);
+                    }, 2000);
+                }, 500);
+            } else {
+                // Error handling
+                if (typeof LoadingOverlay !== 'undefined') {
+                    LoadingOverlay.hide();
+                }
+                
+                toastr.error('{{ __('catalogmanagement::product.export_failed') ?? 'Export failed. Please try again.' }}');
+                btn.prop('disabled', false);
+            }
+        };
+        
+        xhr.onerror = function() {
+            if (typeof LoadingOverlay !== 'undefined') {
+                LoadingOverlay.hide();
+            }
+            
+            toastr.error('{{ __('catalogmanagement::product.export_failed') ?? 'Export failed. Please try again.' }}');
             btn.prop('disabled', false);
-            btn.html(originalHtml);
-        }, 2000);
+        };
+        
+        xhr.send();
     });
 
     // Activation switcher handler

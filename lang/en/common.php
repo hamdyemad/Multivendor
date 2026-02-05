@@ -26,6 +26,7 @@ return [
     'export' => 'Export',
     'import' => 'Import',
     'download' => 'Download',
+    'downloading' => 'Downloading',
     'upload' => 'Upload',
     'submit' => 'Submit',
     'reset' => 'Reset',

@@ -29,6 +29,7 @@ return [
     'export' => 'تصدير',
     'import' => 'استيراد',
     'download' => 'تنزيل',
+    'downloading' => 'جاري التنزيل',
     'upload' => 'رفع',
     'submit' => 'إرسال',
     'reset' => 'إعادة تعيين',

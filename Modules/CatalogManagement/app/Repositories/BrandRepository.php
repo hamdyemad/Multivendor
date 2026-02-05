@@ -83,26 +83,16 @@ class BrandRepository implements BrandRepositoryInterface
         }
 
         // Apply sorting
-        if ($orderBy !== null) {
-            if (is_array($orderBy)) {
-                // Sorting by translated name or description
-                $langId = $orderBy['lang_id'];
-                $langKey = $orderBy['key'] ?? 'name';
-                $query->leftJoin('translations as t_sort', function($join) use ($langId, $langKey) {
-                    $join->on('brands.id', '=', 't_sort.translatable_id')
-                         ->where('t_sort.translatable_type', '=', 'Modules\\Brands\\app\\Models\\Brand')
-                         ->where('t_sort.lang_id', '=', $langId)
-                         ->where('t_sort.lang_key', '=', $langKey);
-                })
-                ->orderBy('t_sort.lang_value', $orderDirection)
-                ->select('brands.*');
-            } else {
-                // Sorting by regular column
-                $query->orderBy($orderBy, $orderDirection);
-            }
+        $sortColumn = $filters['sort_column'] ?? 'sort_number';
+        $sortDirection = $filters['sort_direction'] ?? 'asc';
+
+        if ($sortColumn === 'sort_number') {
+            $query->orderBy('sort_number', $sortDirection);
+        } elseif ($sortColumn === 'created_at') {
+            $query->orderBy('created_at', $sortDirection);
         } else {
-            // Default ordering: latest first
-            $query->orderBy('created_at', 'desc');
+            // Default sorting
+            $query->orderBy('sort_number', 'asc');
         }
 
         return $query;
@@ -145,9 +135,14 @@ class BrandRepository implements BrandRepositoryInterface
     public function createBrand(array $data)
     {
         return DB::transaction(function () use ($data) {
+            // Get the next sort number
+            $maxSortNumber = Brand::max('sort_number') ?? 0;
+            $nextSortNumber = $maxSortNumber + 1;
+            
             $brand = Brand::create([
                 'slug' => Str::uuid(),
                 'active' => $data['active'] ?? 0,
+                'sort_number' => $data['sort_number'] ?? $nextSortNumber,
                 'facebook_url' => $data['facebook_url'] ?? null,
                 'linkedin_url' => $data['linkedin_url'] ?? null,
                 'pinterest_url' => $data['pinterest_url'] ?? null,
@@ -211,6 +206,7 @@ class BrandRepository implements BrandRepositoryInterface
 
             $brand->update([
                 'active' => $data['active'] ?? 0,
+                'sort_number' => $data['sort_number'] ?? 0,
                 'facebook_url' => $data['facebook_url'] ?? null,
                 'linkedin_url' => $data['linkedin_url'] ?? null,
                 'pinterest_url' => $data['pinterest_url'] ?? null,

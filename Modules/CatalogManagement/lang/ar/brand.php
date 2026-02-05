@@ -13,6 +13,7 @@ return [
     
     // Fields
     'name' => 'اسم العلامة التجارية',
+    'brand_information' => 'معلومات العلامة التجارية',
     'description' => 'الوصف',
     'enter_name_placeholder' => 'أدخل اسم العلامة التجارية',
     'enter_description_placeholder' => 'أدخل وصف العلامة التجارية',

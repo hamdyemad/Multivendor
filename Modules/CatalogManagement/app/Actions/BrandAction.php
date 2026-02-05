@@ -31,12 +31,18 @@ class BrandAction {
             $perPage = $data['per_page'] ?? $data['length'] ?? 10;
             $page = $data['page'] ?? 1;
 
+            // Get sort parameters
+            $sortColumn = $data['sort_column'] ?? 'sort_number';
+            $sortDirection = $data['sort_direction'] ?? 'asc';
+
             // Get filter parameters
             $filters = [
                 'search' => $data['search'],
                 'active' => $data['active'],
                 'created_date_from' => $data['created_date_from'],
                 'created_date_to' => $data['created_date_to'],
+                'sort_column' => $sortColumn,
+                'sort_direction' => $sortDirection,
             ];
 
             // Get total and filtered counts
@@ -52,12 +58,15 @@ class BrandAction {
 
             // Return raw data - rendering will be handled by DataTables in the view
             $data = [];
+            $index = ($page - 1) * $perPage + 1;
             foreach ($brands as $brand) {
                 $rowData = [
                     'id' => $brand->id,
+                    'index' => $index++,
                     'logo_path' => $brand->logo ? $brand->logo->path : null,
                     'translations' => [],
                     'active' => $brand->active,
+                    'sort_number' => $brand->sort_number ?? 0,
                     'created_at' => $brand->created_at,
                 ];
 

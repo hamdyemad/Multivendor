@@ -23,6 +23,7 @@ Route::group(['middleware' => 'adminGuard'], function() {
 
     // Brands
     Route::get('brands/datatable', 'BrandController@datatable')->name('brands.datatable');
+    Route::post('brands/reorder', 'BrandController@reorder')->name('brands.reorder');
     Route::resource('brands', 'BrandController');
 
     // Promocodes

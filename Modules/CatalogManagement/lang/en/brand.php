@@ -13,6 +13,7 @@ return [
     
     // Fields
     'name' => 'Brand Name',
+    'brand_information' => 'Brand Information',
     'description' => 'Description',
     'enter_name_placeholder' => 'Enter brand name',
     'enter_description_placeholder' => 'Enter brand description',

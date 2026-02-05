@@ -208,6 +208,24 @@
                                     </div>
                                 </div>
 
+                                {{-- Sort Number --}}
+                                <div class="col-md-6 mb-25">
+                                    <div class="form-group">
+                                        <label for="sort_number" class="il-gray fs-14 fw-500 mb-10">
+                                            {{ trans('common.sort_number') ?? 'Sort Number' }}
+                                        </label>
+                                        <input type="number"
+                                               class="form-control ih-medium ip-gray radius-xs b-light px-15 @error('sort_number') is-invalid @enderror"
+                                               id="sort_number"
+                                               name="sort_number"
+                                               value="{{ old('sort_number', $brand->sort_number ?? 0) }}"
+                                               min="0">
+                                        @error('sort_number')
+                                            <div class="invalid-feedback d-block" style="display: block !important;">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
                                 {{-- Activation Switcher --}}
                                 <div class="col-md-6 mb-25">
                                     <div class="form-group">

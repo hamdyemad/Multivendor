@@ -247,4 +247,80 @@ class BrandController extends Controller
                 ->with('error', __('brand.error_deleting') . ': ' . $e->getMessage());
         }
     }
+
+    /**
+     * Reorder brands
+     */
+    public function reorder($lang, $countryCode, Request $request)
+    {
+        try {
+            $request->validate([
+                'items' => 'required|array',
+                'items.*.id' => 'required|integer|exists:brands,id',
+                'items.*.sort_number' => 'required|integer|min:0'
+            ]);
+
+            \DB::beginTransaction();
+
+            // Get all brands in current page sorted by current sort_number
+            $allBrands = \Modules\CatalogManagement\app\Models\Brand::orderBy('sort_number', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
+
+            // Create a map of brand IDs to their new positions
+            $items = $request->items;
+            $draggedItem = $items[0]; // We only drag one item at a time
+            $draggedId = $draggedItem['id'];
+            $targetSortNumber = $draggedItem['sort_number'];
+
+            // Find the dragged brand in the collection
+            $draggedBrand = $allBrands->firstWhere('id', $draggedId);
+            if (!$draggedBrand) {
+                throw new \Exception('Brand not found');
+            }
+
+            $oldSortNumber = $draggedBrand->sort_number;
+
+            // Remove the dragged brand from collection
+            $allBrands = $allBrands->reject(function($brand) use ($draggedId) {
+                return $brand->id == $draggedId;
+            })->values();
+
+            // Find the target position in the collection
+            $targetIndex = $allBrands->search(function($brand) use ($targetSortNumber) {
+                return $brand->sort_number == $targetSortNumber;
+            });
+
+            // If target not found, insert at the end
+            if ($targetIndex === false) {
+                $targetIndex = $allBrands->count();
+            }
+
+            // Insert the dragged brand at the target position
+            $allBrands->splice($targetIndex, 0, [$draggedBrand]);
+
+            // Reassign sort numbers sequentially
+            $sortNumber = 1;
+            foreach ($allBrands as $brand) {
+                if ($brand->sort_number != $sortNumber) {
+                    $brand->update(['sort_number' => $sortNumber]);
+                }
+                $sortNumber++;
+            }
+
+            \DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => __('common.reorder_success') ?? 'Order updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            \Log::error('Brand reorder error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => __('common.reorder_error') ?? 'Failed to update order'
+            ], 500);
+        }
+    }
 }

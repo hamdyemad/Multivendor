@@ -571,7 +571,16 @@
                             }
                         }
                         
-                        showNotification('error', errorMessage);
+                        // Use toastr if available, otherwise use showNotification
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error(errorMessage, '{{ __('common.error') }}', {
+                                timeOut: 8000,
+                                closeButton: true,
+                                progressBar: true
+                            });
+                        } else {
+                            showNotification('error', errorMessage);
+                        }
                     }
                 });
             });

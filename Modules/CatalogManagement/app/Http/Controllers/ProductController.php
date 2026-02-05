@@ -1284,6 +1284,12 @@ class ProductController extends Controller
             if ($isVendor) {
                 $vendor = Auth::user()->vendor;
                 if (!$vendor) {
+                    if ($request->expectsJson() || $request->ajax()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => __('catalogmanagement::product.vendor_not_found')
+                        ], 404);
+                    }
                     return redirect()->back()->with('error', __('catalogmanagement::product.vendor_not_found'));
                 }
             }
@@ -1319,11 +1325,21 @@ class ProductController extends Controller
             
             return \Maatwebsite\Excel\Facades\Excel::download($export, $fileName);
         } catch (\Exception $e) {
-            Log::error('Products export error: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString()
+            \Log::error('Products export error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
             ]);
             
-            return redirect()->back()->with('error', __('catalogmanagement::product.export_error') . ': ' . $e->getMessage());
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('catalogmanagement::product.export_failed'),
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+            
+            return redirect()->back()->with('error', __('catalogmanagement::product.export_failed') . ': ' . $e->getMessage());
         }
     }
 

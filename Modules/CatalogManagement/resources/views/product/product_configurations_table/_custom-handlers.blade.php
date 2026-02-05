@@ -308,6 +308,43 @@ $(document).ready(function() {
             btn.prop('disabled', false);
         };
         
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status !== 200) {
+                    // Handle error response
+                    if (typeof LoadingOverlay !== 'undefined') {
+                        LoadingOverlay.hide();
+                    }
+                    
+                    let errorMessage = '{{ __('catalogmanagement::product.export_failed') ?? 'Export failed. Please try again.' }}';
+                    
+                    // Try to parse error response
+                    if (xhr.responseType === 'blob' && xhr.response) {
+                        const reader = new FileReader();
+                        reader.onload = function() {
+                            try {
+                                const errorData = JSON.parse(reader.result);
+                                if (errorData.message) {
+                                    errorMessage = errorData.message;
+                                }
+                                if (errorData.error) {
+                                    errorMessage += '\n' + errorData.error;
+                                }
+                            } catch (e) {
+                                console.error('Error parsing error response:', e);
+                            }
+                            toastr.error(errorMessage);
+                        };
+                        reader.readAsText(xhr.response);
+                    } else {
+                        toastr.error(errorMessage);
+                    }
+                    
+                    btn.prop('disabled', false);
+                }
+            }
+        };
+        
         xhr.send();
     });
 

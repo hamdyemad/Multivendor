@@ -120,35 +120,18 @@ class CalculatePointsUsagePipeline
             'has_enough_points' => $availablePoints >= $pointsNeededForOrder
         ]);
         
-        // When use_points is enabled, customer wants to pay FULL order with points
-        // Check if customer has enough points to cover the ENTIRE order
-        if ($availablePoints < $pointsNeededForOrder) {
-            \Log::warning('CalculatePointsUsagePipeline: Insufficient points for full order', [
-                'available_points' => $availablePoints,
-                'needed_points' => $pointsNeededForOrder,
-                'shortage' => $pointsNeededForOrder - $availablePoints
-            ]);
-            
-            throw new \App\Exceptions\OrderException(
-                trans('order::order.insufficient_points_for_full_order', [
-                    'available' => number_format($availablePoints, 0),
-                    'needed' => number_format($pointsNeededForOrder, 0),
-                    'order_total' => number_format($orderTotal, 2) . ' ' . $currencyCode,
-                    'shortage' => number_format($pointsNeededForOrder - $availablePoints, 0)
-                ])
-            );
-        }
-        
-        // Use exact points needed to cover the FULL order (total becomes 0)
-        $pointsToUse = $pointsNeededForOrder;
-        $pointsCost = $orderTotal; // Full order amount
+        // Allow partial payment with points
+        // Use all available points if not enough for full order
+        $pointsToUse = min($availablePoints, $pointsNeededForOrder);
+        $pointsCost = $pointsToUse / $pointsPerCurrency; // Convert points to currency
 
-        \Log::info('CalculatePointsUsagePipeline: Processing points for full order payment', [
+        \Log::info('CalculatePointsUsagePipeline: Processing points payment', [
             'available_points' => $availablePoints,
             'points_needed_for_order' => $pointsNeededForOrder,
             'points_to_use' => $pointsToUse,
             'points_cost' => $pointsCost,
-            'final_total_will_be' => 0
+            'is_full_payment' => $pointsToUse >= $pointsNeededForOrder,
+            'remaining_to_pay' => max(0, $orderTotal - $pointsCost)
         ]);
 
         // Update context for CalculateFinalTotal pipeline

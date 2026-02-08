@@ -782,14 +782,16 @@
                             $totalPromoCodeShare = $vendorOrderStages->sum('promo_code_share') ?? 0;
                             $totalPointsShare = $vendorOrderStages->sum('points_share') ?? 0;
 
-                            // Calculate total with shipping (should match order total_price)
-                            // Total = Subtotal with tax - Promo - Points + Fees - Discounts + Shipping
-                            $totalWithShippingOrder = $totalProductsPriceWithTax 
+                            // Calculate total with shipping BEFORE points deduction
+                            // Total with Shipping = Subtotal with tax - Promo + Fees - Discounts + Shipping
+                            $totalWithShippingBeforePoints = $totalProductsPriceWithTax 
                                 - $order->customer_promo_code_amount 
                                 + $order->total_fees 
                                 - $order->total_discounts 
-                                + $order->shipping 
-                                - $order->points_cost;
+                                + $order->shipping;
+                            
+                            // Final total after points (should match order total_price)
+                            $totalWithShippingOrder = $totalWithShippingBeforePoints - $order->points_cost;
                             
                             // Recalculate remaining correctly: Total with Shipping + Vendor Shares - Commission
                             // Vendor shares (promo_code_share + points_share) are what Bnaia pays to vendor
@@ -900,7 +902,7 @@
                                             <div class="summary-row mb-12">
                                                 <span
                                                     class="fw-bold">{{ trans('order::order.total_with_shipping') }}</span>
-                                                <span class="fw-bold">{{ number_format($totalWithShippingOrder, 2) }}
+                                                <span class="fw-bold">{{ number_format($totalWithShippingBeforePoints, 2) }}
                                                     {{ currency() }}</span>
                                             </div>
                                             @if ($order->points_used > 0)

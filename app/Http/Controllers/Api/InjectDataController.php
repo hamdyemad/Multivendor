@@ -140,6 +140,13 @@ class InjectDataController extends Controller
             'folders' => ['bundles-images'],
             'attachable_type' => 'Modules\\CatalogManagement\\app\\Models\\Bundle',
         ],
+        'orders' => [
+            'tables' => ['orders', 'order_extra_fees_discounts', 'order_fulfillments', 
+            'order_products', '	order_product_taxes', '	vendor_order_stages',
+            'vendor_order_stage_histories'],
+            'folders' => [],
+            'attachable_type' => null,
+        ],
         'admins' => [
             'tables' => [],
             'folders' => [],
@@ -3157,6 +3164,8 @@ class InjectDataController extends Controller
                     'id' => $orderId,
                     'customer_email' => $customerEmail,
                     'total_price' => $item['total_price'] ?? 0,
+                    'has_order_products' => isset($item['order_products']),
+                    'order_products_count' => isset($item['order_products']) ? count($item['order_products']) : 0,
                 ]);
                 
                 // Map stage from old system to new system
@@ -3192,7 +3201,10 @@ class InjectDataController extends Controller
                 }
                 
                 // Basic order info
-                $order->order_number = $item['order_number'] ?? $order->order_number ?? null; // Will auto-generate if null
+                // Generate order number manually since we're setting ID which may bypass observer
+                if (!$order->order_number) {
+                    $order->order_number = 'ORD-' . date('ymd') . '-' . strtoupper(substr(md5(uniqid()), 0, 6));
+                }
                 $order->customer_id = $customer->id;
                 $order->customer_name = $item['customer_name'] ?? $customer->full_name;
                 $order->customer_email = $customer->email;
@@ -3248,7 +3260,18 @@ class InjectDataController extends Controller
                 
                 // Handle order products if provided in API
                 if (!empty($item['order_products']) && is_array($item['order_products'])) {
+                    Log::info("Order has products to sync", [
+                        'order_id' => $order->id,
+                        'products_count' => count($item['order_products']),
+                    ]);
                     $this->syncOrderProducts($order, $item['order_products'], $stageId);
+                } else {
+                    Log::warning("Order has no products to sync", [
+                        'order_id' => $order->id,
+                        'has_order_products_key' => isset($item['order_products']),
+                        'is_array' => isset($item['order_products']) && is_array($item['order_products']),
+                        'is_empty' => empty($item['order_products']),
+                    ]);
                 }
                 
             } catch (\Exception $e) {
@@ -3366,7 +3389,19 @@ class InjectDataController extends Controller
      */
     protected function syncOrderProducts($order, array $products, int $stageId): void
     {
-        $vendorIds = [];
+        Log::info("syncOrderProducts called", [
+            'order_id' => $order->id,
+            'products_count' => count($products),
+            'stage_id' => $stageId,
+            'first_product_sample' => !empty($products[0]) ? [
+                'product_id' => $products[0]['product_id'] ?? 'missing',
+                'product_size_color_id' => $products[0]['product_size_color_id'] ?? 'missing',
+                'quantity' => $products[0]['quantity'] ?? 'missing',
+                'price' => $products[0]['price'] ?? 'missing',
+            ] : 'no products',
+        ]);
+        
+        $vendorIds = []; // Will store unique vendor IDs
         $productCount = 0;
         $skippedCount = 0;
         
@@ -3401,18 +3436,49 @@ class InjectDataController extends Controller
                 
                 $vendorId = $bnaiaVendor->id;
                 
-                // Find the vendor product (we need vendor_product_id)
+                // Check if product exists
+                $product = \Modules\CatalogManagement\app\Models\Product::withoutGlobalScopes()
+                    ->find($productId);
+                
+                if (!$product) {
+                    $skippedCount++;
+                    Log::warning("Order product skipped: Product not found", [
+                        'order_id' => $order->id,
+                        'product_id' => $productId,
+                    ]);
+                    continue;
+                }
+                
+                // Find the vendor product - try with Bnaia vendor first, then ANY vendor
                 $vendorProduct = \Modules\CatalogManagement\app\Models\VendorProduct::withoutGlobalScopes()
                     ->where('product_id', $productId)
                     ->where('vendor_id', $vendorId)
                     ->first();
                 
+                // If not found with Bnaia vendor, try to find with ANY vendor and use it
+                if (!$vendorProduct) {
+                    $vendorProduct = \Modules\CatalogManagement\app\Models\VendorProduct::withoutGlobalScopes()
+                        ->where('product_id', $productId)
+                        ->first();
+                    
+                    if ($vendorProduct) {
+                        Log::info("Using existing vendor product from different vendor", [
+                            'order_id' => $order->id,
+                            'product_id' => $productId,
+                            'existing_vendor_id' => $vendorProduct->vendor_id,
+                            'bnaia_vendor_id' => $vendorId,
+                        ]);
+                        // Use the existing vendor_id for this order product
+                        $vendorId = $vendorProduct->vendor_id;
+                    }
+                }
+                
                 if (!$vendorProduct) {
                     $skippedCount++;
-                    Log::warning("Order product skipped: Vendor product not found", [
+                    Log::warning("Order product skipped: No vendor product found for this product", [
                         'order_id' => $order->id,
                         'product_id' => $productId,
-                        'vendor_id' => $vendorId,
+                        'bnaia_vendor_id' => $vendorId,
                     ]);
                     continue;
                 }
@@ -3436,16 +3502,7 @@ class InjectDataController extends Controller
                 $orderProduct->save();
                 \Modules\Order\app\Models\OrderProduct::setEventDispatcher(new \Illuminate\Events\Dispatcher());
                 
-                // Store product name in translations
-                $nameEn = $productData['product_title_en'] ?? $productData['product']['title_en'] ?? null;
-                $nameAr = $productData['product_title_ar'] ?? $productData['product']['title_ar'] ?? null;
-                
-                if ($nameEn) {
-                    $orderProduct->setTranslation('name', 'en', $nameEn);
-                }
-                if ($nameAr) {
-                    $orderProduct->setTranslation('name', 'ar', $nameAr);
-                }
+
                 $orderProduct->save();
                 
                 // Track vendor IDs for creating vendor stages
@@ -3466,7 +3523,15 @@ class InjectDataController extends Controller
         }
         
         // Create or update vendor order stages (one per vendor, all with same stage as order)
-        foreach ($vendorIds as $vendorId) {
+        $uniqueVendorIds = array_unique($vendorIds);
+        Log::info("Creating vendor order stages", [
+            'order_id' => $order->id,
+            'total_products' => $productCount,
+            'unique_vendors' => count($uniqueVendorIds),
+            'vendor_ids' => $uniqueVendorIds,
+        ]);
+        
+        foreach ($uniqueVendorIds as $vendorId) {
             try {
                 // Check if vendor stage already exists
                 $existingStage = \Modules\Order\app\Models\VendorOrderStage::where('order_id', $order->id)

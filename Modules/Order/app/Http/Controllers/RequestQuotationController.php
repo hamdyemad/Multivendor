@@ -125,12 +125,10 @@ class RequestQuotationController extends Controller
                     
                     // Create Order button - for pending status (new workflow: admin creates order as offer)
                     if (!$isArchived && $quotation->status === 'pending') {
-                        if(auth()->user()->can('request-quotations.send-offer')) {
-                            $orderUrl = route('admin.orders.create') . '?quotation_id=' . $quotation->id;
-                            $html .= '<a href="' . $orderUrl . '" class="btn btn-sm btn-success" title="' . __('order::request-quotation.send_quotation_offer') . '">
-                                <i class="uil uil-file-plus m-0"></i>
-                            </a>';
-                        }
+                        $orderUrl = route('admin.orders.create') . '?quotation_id=' . $quotation->id;
+                        $html .= '<a href="' . $orderUrl . '" class="btn btn-sm btn-success" title="' . __('order::request-quotation.send_quotation_offer') . '">
+                            <i class="uil uil-file-plus m-0"></i>
+                        </a>';
                     }
                     
                     // View Order button - for sent_offer, accepted_offer, rejected_offer, order_created status with order

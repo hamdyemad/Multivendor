@@ -71,7 +71,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1>{{ number_format($ordersPrice, 2) }} {{ currency() }}</h1>
+                                <h1>{{ formatCurrency($ordersPrice) }} {{ currency() }}</h1>
                                 <p>{{ trans('withdraw::withdraw.total_transactions') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
@@ -88,7 +88,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1>{{ number_format($bnaiaBalance, 2) }} {{ currency() }}</h1>
+                                <h1>{{ formatCurrency($bnaiaBalance) }} {{ currency() }}</h1>
                                 <p>{{ trans('withdraw::withdraw.bnaia_commission_from_transactions') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
@@ -105,7 +105,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1>{{ number_format($totalVendorBalance, 2) }} {{ currency() }}</h1>
+                                <h1>{{ formatCurrency($totalVendorBalance) }} {{ currency() }}</h1>
                                 <p>{{ trans('withdraw::withdraw.total_vendor_credit') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
@@ -131,7 +131,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1>{{ number_format($totalVendorBalance, 2) }} {{ currency() }}</h1>
+                                <h1>{{ formatCurrency($totalVendorBalance) }} {{ currency() }}</h1>
                                 <p>{{ trans('withdraw::withdraw.total_balance_needed') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
@@ -148,7 +148,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1>{{ number_format($totalSentMoney, 2) }} {{ currency() }}</h1>
+                                <h1>{{ formatCurrency($totalSentMoney) }} {{ currency() }}</h1>
                                 @if (isAdmin())
                                     <p>{{ trans('dashboard.Total Sent Money To Vendors') }}</p>
                                 @else
@@ -169,7 +169,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1>{{ number_format($totalRemaining, 2) }} {{ currency() }}</h1>
+                                <h1>{{ formatCurrency($totalRemaining) }} {{ currency() }}</h1>
                                 <p>{{ trans('dashboard.Total Vendor\'s Remaining') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">

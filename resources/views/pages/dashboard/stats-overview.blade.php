@@ -19,7 +19,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1 style="">{{ number_format($salesOverview['total_expenses'] ?? 0, 2) }} {{ currency() }}</h1>
+                                <h1 style="">{{ formatCurrency($salesOverview['total_expenses'] ?? 0) }} {{ currency() }}</h1>
                                 <p>{{ trans('dashboard.Total Expenses') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
@@ -36,7 +36,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1 style="">{{ number_format($salesOverview['total_income'] ?? 0, 2) }} {{ currency() }}</h1>
+                                <h1 style="">{{ formatCurrency($salesOverview['total_income'] ?? 0) }} {{ currency() }}</h1>
                                 <p>{{ trans('dashboard.Total Income (After Delivery)') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
@@ -53,7 +53,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1 style="">{{ number_format($salesOverview['net_profit_ytd'] ?? 0, 2) }} {{ currency() }}</h1>
+                                <h1 style="">{{ formatCurrency($salesOverview['net_profit_ytd'] ?? 0) }} {{ currency() }}</h1>
                                 <p>{{ trans('dashboard.Net Profit Y.T.D') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">
@@ -81,7 +81,7 @@
                     <div class="overview-content w-100">
                         <div class="ap-po-details-content d-flex flex-wrap justify-content-between">
                             <div class="ap-po-details__titlebar">
-                                <h1 style="">{{ number_format($salesOverview['revenue_ytd'] ?? 0, 2) }} {{ currency() }}</h1>
+                                <h1 style="">{{ formatCurrency($salesOverview['revenue_ytd'] ?? 0) }} {{ currency() }}</h1>
                                 <p>{{ trans('dashboard.Revenue Y.T.D') }}</p>
                             </div>
                             <div class="ap-po-details__icon-area">

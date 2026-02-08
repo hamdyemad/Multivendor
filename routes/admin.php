@@ -89,89 +89,69 @@ Route::prefix('vendor-users-management')->name('vendor-users-management.')->grou
 
 
 Route::get('seeder', function () {
-    // ===== UPDATE VENDOR ID 4 WITH BNAIA DATA =====
     try {
-        echo "🏢 Updating Vendor ID 4 with Bnaia data...\n";
-
-        // Get vendor with ID 4
-        $vendor = \Modules\Vendor\app\Models\Vendor::find(246);
+        DB::beginTransaction();
         
-        if (!$vendor) {
-            echo "❌ Vendor with ID 4 not found!\n";
+        // Delete all existing vendor_product_taxes relationships
+        $deletedCount = DB::table('vendor_product_taxes')->delete();
+        
+        // Get all active taxes
+        $activeTaxes = \Modules\CatalogManagement\app\Models\Tax::where('is_active', 1)->get();
+        
+        if ($activeTaxes->isEmpty()) {
+            DB::rollBack();
             return response()->json([
-                'success' => false,
-                'message' => 'Vendor with ID 4 not found',
-            ], 404);
+                'status' => false,
+                'message' => 'No active taxes found',
+                'deleted_relationships' => $deletedCount,
+            ]);
         }
         
-        echo "  ✓ Found vendor (ID: {$vendor->id}, Name: {$vendor->name})\n";
-
-        // Assign all regions to vendor
-        $allRegions = \Modules\AreaSettings\app\Models\Region::pluck('id')->toArray();
-        if (!empty($allRegions)) {
-            $vendor->regions()->sync($allRegions);
-            echo "  ✓ Assigned " . count($allRegions) . " regions to vendor\n";
+        // Get all vendor products
+        $vendorProducts = \Modules\CatalogManagement\app\Models\VendorProduct::withoutGlobalScopes()->get();
+        
+        if ($vendorProducts->isEmpty()) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'No vendor products found',
+                'deleted_relationships' => $deletedCount,
+            ]);
         }
         
-        // Update all vendor_products to use this vendor
-        $updatedVendorProducts = \DB::table('vendor_products')
-            ->where('vendor_id', '!=', $vendor->id)
-            ->update(['vendor_id' => $vendor->id]);
-        echo "  ✓ Updated {$updatedVendorProducts} vendor products to vendor ID {$vendor->id}\n";
+        $inserted = 0;
         
-        // Update all order_products to use this vendor
-        $updatedOrderProducts = \DB::table('order_products')
-            ->where('vendor_id', '!=', $vendor->id)
-            ->update(['vendor_id' => $vendor->id]);
-        echo "  ✓ Updated {$updatedOrderProducts} order products to vendor ID {$vendor->id}\n";
-        
-        // Update vendor_order_stages - need to handle duplicates
-        // First, get all order_ids that already have a stage for vendor 246
-        $existingOrderIds = \DB::table('vendor_order_stages')
-            ->where('vendor_id', $vendor->id)
-            ->pluck('order_id')
-            ->toArray();
-        
-        echo "  ℹ Found " . count($existingOrderIds) . " orders already assigned to vendor {$vendor->id}\n";
-        
-        // Delete vendor_order_stages for other vendors where order already exists for vendor 246
-        if (!empty($existingOrderIds)) {
-            $deletedDuplicates = \DB::table('vendor_order_stages')
-                ->where('vendor_id', '!=', $vendor->id)
-                ->whereIn('order_id', $existingOrderIds)
-                ->delete();
-            echo "  ✓ Deleted {$deletedDuplicates} duplicate vendor order stages\n";
+        foreach ($vendorProducts as $vendorProduct) {
+            foreach ($activeTaxes as $tax) {
+                DB::table('vendor_product_taxes')->insert([
+                    'vendor_product_id' => $vendorProduct->id,
+                    'tax_id' => $tax->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                $inserted++;
+            }
         }
         
-        // Now update remaining vendor_order_stages to use this vendor
-        $updatedVendorStages = \DB::table('vendor_order_stages')
-            ->where('vendor_id', '!=', $vendor->id)
-            ->update(['vendor_id' => $vendor->id]);
-        echo "  ✓ Updated {$updatedVendorStages} vendor order stages to vendor ID {$vendor->id}\n";
-        
-        echo "✅ Vendor ID 4 update complete!\n\n";
+        DB::commit();
         
         return response()->json([
-            'success' => true,
-            'message' => 'Vendor ID 4 updated successfully with Bnaia data',
-            'vendor_id' => $vendor->id,
-            'vendor_name' => $vendor->name,
-            'updates' => [
-                'vendor_products' => $updatedVendorProducts,
-                'order_products' => $updatedOrderProducts,
-                'vendor_order_stages' => $updatedVendorStages,
-                'regions' => count($allRegions),
+            'status' => true,
+            'message' => 'All vendor product taxes deleted and reassigned successfully',
+            'data' => [
+                'deleted_relationships' => $deletedCount,
+                'active_taxes_count' => $activeTaxes->count(),
+                'vendor_products_count' => $vendorProducts->count(),
+                'new_relationships_inserted' => $inserted,
             ],
         ]);
         
     } catch (\Exception $e) {
-        echo "❌ Error updating vendor: {$e->getMessage()}\n\n";
+        DB::rollBack();
+        
         return response()->json([
-            'success' => false,
-            'message' => 'Error updating vendor',
-            'error' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
+            'status' => false,
+            'message' => 'Error: ' . $e->getMessage(),
         ], 500);
     }
 });

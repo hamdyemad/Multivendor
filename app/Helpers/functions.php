@@ -510,3 +510,19 @@ function isVendor() {
         return false;
     }
 }
+
+/**
+ * Format currency value and prevent negative zero display
+ * 
+ * @param float|int $value The numeric value to format
+ * @param int $decimals Number of decimal places (default: 2)
+ * @return string Formatted number without negative zero
+ */
+function formatCurrency($value, $decimals = 2): string
+{
+    // Normalize negative zero to positive zero
+    $normalized = ($value == 0) ? 0 : $value;
+    
+    // Format the number
+    return number_format($normalized, $decimals);
+}

@@ -9,7 +9,15 @@ class RequestQuotationApiRepository implements RequestQuotationApiRepositoryInte
 {
     public function getCustomerQuotations(int $customerId, int $perPage = 15, array $filters = [])
     {
-        $query = RequestQuotation::with(['customer', 'customerAddress.city', 'customerAddress.region', 'customerAddress.subregion', 'customerAddress.country', 'order'])
+        $query = RequestQuotation::with([
+            'customer', 
+            'customerAddress.city', 
+            'customerAddress.region', 
+            'customerAddress.subregion', 
+            'customerAddress.country',
+            'vendors.vendor',
+            'vendors.order'
+        ])
             ->where('customer_id', $customerId);
 
         // Filter by status
@@ -22,7 +30,8 @@ class RequestQuotationApiRepository implements RequestQuotationApiRepositoryInte
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('notes', 'like', "%{$search}%")
-                    ->orWhereHas('order', function ($q2) use ($search) {
+                    ->orWhere('quotation_number', 'like', "%{$search}%")
+                    ->orWhereHas('vendors.order', function ($q2) use ($search) {
                         $q2->where('order_number', 'like', "%{$search}%");
                     })
                     ->orWhereHas('customer', function ($q2) use ($search) {
@@ -39,7 +48,15 @@ class RequestQuotationApiRepository implements RequestQuotationApiRepositoryInte
 
     public function findForCustomer(int $id, int $customerId)
     {
-        return RequestQuotation::with(['customer', 'customerAddress.city', 'customerAddress.region', 'customerAddress.subregion', 'customerAddress.country', 'order'])
+        return RequestQuotation::with([
+            'customer', 
+            'customerAddress.city', 
+            'customerAddress.region', 
+            'customerAddress.subregion', 
+            'customerAddress.country',
+            'vendors.vendor',
+            'vendors.order'
+        ])
             ->where('id', $id)
             ->where('customer_id', $customerId)
             ->first();

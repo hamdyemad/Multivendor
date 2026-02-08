@@ -65,27 +65,23 @@
                                             <input type="text" class="form-control ih-medium ip-gray radius-xs b-light px-15" id="search_input" placeholder="{{ __('order::request-quotation.search_placeholder') }}">
                                         </div>
                                     </div>
-
-                                    @if(!$isArchived)
-                                    <div class="col-md-2">
+                                    <div class="col-md-4">
                                         <div class="form-group">
-                                            <label for="status_filter" class="il-gray fs-14 fw-500 mb-10">
-                                                <i class="uil uil-check-circle me-1"></i>
-                                                {{ __('common.status') }}
+                                            <label for="vendor_status_filter" class="il-gray fs-14 fw-500 mb-10">
+                                                <i class="uil uil-tag-alt me-1"></i>
+                                                {{ __('order::request-quotation.vendor_status') }}
                                             </label>
-                                            <select class="form-control ih-medium ip-gray radius-xs b-light px-15 form-select" id="status_filter">
-                                                <option value="all">{{ __('common.all') }}</option>
-                                                <option value="pending">{{ __('order::request-quotation.status_pending') }}</option>
-                                                <option value="sent_offer">{{ __('order::request-quotation.status_sent_offer') }}</option>
-                                                <option value="accepted_offer">{{ __('order::request-quotation.status_accepted_offer') }}</option>
-                                                <option value="rejected_offer">{{ __('order::request-quotation.status_rejected_offer') }}</option>
-                                                <option value="order_created">{{ __('order::request-quotation.status_order_created') }}</option>
+                                            <select class="form-control ih-medium ip-gray radius-xs b-light px-15" id="vendor_status_filter">
+                                                <option value="">{{ __('common.all') }}</option>
+                                                <option value="pending">{{ __('order::request-quotation.vendor_status_pending') }}</option>
+                                                <option value="offer_sent">{{ __('order::request-quotation.vendor_status_offer_sent') }}</option>
+                                                <option value="offer_accepted">{{ __('order::request-quotation.vendor_status_offer_accepted') }}</option>
+                                                <option value="offer_rejected">{{ __('order::request-quotation.vendor_status_offer_rejected') }}</option>
+                                                <option value="order_created">{{ __('order::request-quotation.vendor_status_order_created') }}</option>
                                             </select>
                                         </div>
                                     </div>
-                                    @endif
-
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <div class="form-group">
                                             <label for="created_date_from" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-calendar-alt me-1"></i>
@@ -95,7 +91,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <div class="form-group">
                                             <label for="created_date_to" class="il-gray fs-14 fw-500 mb-10">
                                                 <i class="uil uil-calendar-alt me-1"></i>
@@ -105,7 +101,9 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-3 d-flex align-items-center">
+
+
+                                    <div class="col-md-2 d-flex align-items-center">
                                         <button type="button" id="searchBtn" class="btn btn-success btn-default btn-squared me-1" title="{{ __('common.search') }}">
                                             <i class="uil uil-search me-1"></i>
                                             {{ __('common.search') }}
@@ -126,9 +124,9 @@
                             <thead>
                                 <tr class="userDatatable-header">
                                     <th class="text-center"><span class="userDatatable-title">#</span></th>
+                                    <th><span class="userDatatable-title">{{ __('order::request-quotation.quotation_number') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('order::request-quotation.customer_info') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('common.status') }}</span></th>
-                                    <th><span class="userDatatable-title">{{ __('order::request-quotation.order_number') }}</span></th>
+                                    <th><span class="userDatatable-title">{{ __('order::request-quotation.vendors_and_status') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('common.created_at') }}</span></th>
                                     <th><span class="userDatatable-title">{{ __('common.actions') }}</span></th>
                                 </tr>
@@ -232,17 +230,17 @@
                     url: '{{ route('admin.request-quotations.datatable') }}',
                     data: function(d) {
                         d.is_archived = isArchived;
-                        d.status = $('#status_filter').val();
                         d.created_date_from = $('#created_date_from').val();
                         d.created_date_to = $('#created_date_to').val();
                         d.search_text = $('#search_input').val();
+                        d.vendor_status = $('#vendor_status_filter').val();
                     }
                 },
                 columns: [
                     { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+                    { data: 'quotation_number', name: 'quotation_number', orderable: false, searchable: true },
                     { data: 'customer_info', name: 'customer_info', orderable: false, searchable: true },
-                    { data: 'status_badge', name: 'status', orderable: false, searchable: false },
-                    { data: 'order_number', name: 'order_number', orderable: false, searchable: false },
+                    { data: 'vendors_with_status', name: 'vendors_with_status', orderable: false, searchable: false },
                     { data: 'created_date', name: 'created_at', orderable: false, searchable: false },
                     { data: 'actions', name: 'actions', orderable: false, searchable: false }
                 ],
@@ -270,17 +268,13 @@
             // Handle URL parameters on page load
             const urlParams = new URLSearchParams(window.location.search);
             const searchParam = urlParams.get('search');
-            const statusParam = urlParams.get('status');
             
             if (searchParam) {
                 $('#search_input').val(searchParam);
             }
-            if (statusParam) {
-                $('#status_filter').val(statusParam);
-            }
             
             // Reload table if URL params exist
-            if (searchParam || statusParam) {
+            if (searchParam) {
                 table.ajax.reload();
             }
 
@@ -292,9 +286,9 @@
             // Reset filters
             $('#resetFilters').on('click', function() {
                 $('#search_input').val('');
-                $('#status_filter').val('all');
                 $('#created_date_from').val('');
                 $('#created_date_to').val('');
+                $('#vendor_status_filter').val('');
                 table.ajax.reload();
             });
 
@@ -320,6 +314,16 @@
 
                 let html = `
                     <div class="row">
+                        <div class="col-md-12">
+                            <div class="detail-group">
+                                <label class="detail-label"><i class="uil uil-file-alt"></i> {{ __('order::request-quotation.quotation_number') }}</label>
+                                <div class="detail-value fw-bold text-primary">${data.quotation_number || '-'}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="my-3">
+                    <h6 class="text-primary mb-3"><i class="uil uil-user me-1"></i> {{ __('order::request-quotation.customer_information') }}</h6>
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="detail-group">
                                 <label class="detail-label"><i class="uil uil-user"></i> {{ __('order::request-quotation.name') }}</label>
@@ -338,12 +342,6 @@
                             <div class="detail-group">
                                 <label class="detail-label"><i class="uil uil-phone"></i> {{ __('order::request-quotation.phone') }}</label>
                                 <div class="detail-value">${data.customer_phone || '-'}</div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="detail-group">
-                                <label class="detail-label"><i class="uil uil-check-circle"></i> {{ __('common.status') }}</label>
-                                <div class="detail-value">${statusLabels[data.status] || data.status}</div>
                             </div>
                         </div>
                     </div>
@@ -418,44 +416,83 @@
                     </div>
                 `;
 
-                // Show offer details if available
-                if (data.offer_price) {
+                // Show vendors with their statuses and orders
+                if (data.vendors && data.vendors.length > 0) {
                     html += `
                         <hr class="my-3">
-                        <h6 class="text-info mb-3"><i class="uil uil-envelope-send me-1"></i> {{ __('order::request-quotation.offer_details') }}</h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="detail-group">
-                                    <label class="detail-label"><i class="uil uil-dollar-sign"></i> {{ __('order::request-quotation.offer_price') }}</label>
-                                    <div class="detail-value text-success fw-bold">${parseFloat(data.offer_price).toFixed(2)} {{ currency() }}</div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="detail-group">
-                                    <label class="detail-label"><i class="uil uil-clock"></i> {{ __('order::request-quotation.offer_sent_at') }}</label>
-                                    <div class="detail-value">${data.offer_sent_at || '-'}</div>
-                                </div>
-                            </div>
-                        </div>
+                        <h6 class="text-primary mb-3"><i class="uil uil-users-alt me-1"></i> {{ __('order::request-quotation.vendors_and_status') }}</h6>
                     `;
                     
-                    if (data.offer_notes) {
+                    const vendorStatusLabels = {
+                        'pending': '{{ __('order::request-quotation.vendor_status_pending') }}',
+                        'offer_sent': '{{ __('order::request-quotation.vendor_status_offer_sent') }}',
+                        'offer_accepted': '{{ __('order::request-quotation.vendor_status_offer_accepted') }}',
+                        'offer_rejected': '{{ __('order::request-quotation.vendor_status_offer_rejected') }}',
+                        'order_created': '{{ __('order::request-quotation.vendor_status_order_created') }}'
+                    };
+                    
+                    const vendorStatusColors = {
+                        'pending': 'warning',
+                        'offer_sent': 'info',
+                        'offer_accepted': 'success',
+                        'offer_rejected': 'danger',
+                        'order_created': 'primary'
+                    };
+                    
+                    data.vendors.forEach(function(vendor) {
+                        const statusLabel = vendorStatusLabels[vendor.status] || vendor.status;
+                        const statusColor = vendorStatusColors[vendor.status] || 'secondary';
+                        
                         html += `
-                            <div class="detail-group">
-                                <label class="detail-label"><i class="uil uil-notes"></i> {{ __('order::request-quotation.offer_notes') }}</label>
-                                <div class="detail-value">${data.offer_notes}</div>
+                            <div class="card mb-2 border">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <img src="${vendor.vendor_logo}" alt="${vendor.vendor_name}" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 10px;">
+                                        <div class="flex-grow-1">
+                                            <strong>${vendor.vendor_name}</strong>
+                                        </div>
+                                        <span class="badge badge-${statusColor} badge-round">${statusLabel}</span>
+                                    </div>
+                        `;
+                        
+                        if (vendor.offer_price) {
+                            html += `
+                                <div class="row mt-2">
+                                    <div class="col-md-6">
+                                        <small class="text-muted">{{ __('order::request-quotation.offer_price') }}:</small>
+                                        <div class="fw-bold text-success">${parseFloat(vendor.offer_price).toFixed(2)} {{ currency() }}</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <small class="text-muted">{{ __('order::request-quotation.offer_sent_at') }}:</small>
+                                        <div>${vendor.offer_sent_at || '-'}</div>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            if (vendor.offer_notes) {
+                                html += `
+                                    <div class="mt-2">
+                                        <small class="text-muted">{{ __('order::request-quotation.offer_notes') }}:</small>
+                                        <div>${vendor.offer_notes}</div>
+                                    </div>
+                                `;
+                            }
+                        }
+                        
+                        if (vendor.order_number) {
+                            html += `
+                                <div class="mt-2">
+                                    <small class="text-muted">{{ __('order::request-quotation.order_number') }}:</small>
+                                    <div><a href="/admin/orders/${vendor.order_id}" class="text-primary fw-500">${vendor.order_number}</a></div>
+                                </div>
+                            `;
+                        }
+                        
+                        html += `
+                                </div>
                             </div>
                         `;
-                    }
-
-                    if (data.offer_responded_at) {
-                        html += `
-                            <div class="detail-group">
-                                <label class="detail-label"><i class="uil uil-clock"></i> {{ __('order::request-quotation.offer_responded_at') }}</label>
-                                <div class="detail-value">${data.offer_responded_at}</div>
-                            </div>
-                        `;
-                    }
+                    });
                 }
 
                 html += `

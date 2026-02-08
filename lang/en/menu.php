@@ -8,6 +8,11 @@
             'title' => 'vendors',
             'all' => 'all',
             'create' => 'create',
+            'request_quotations' => [
+                'title' => 'Request Quotations',
+                'all_requests' => 'All Requests',
+                'archived_requests' => 'Archived Requests',
+            ],
         ],
         'customers' => [
             'title' => 'customers',
@@ -206,11 +211,6 @@
             'settings' => 'Refund Settings',
             'admin_settings' => 'Manage Vendor Settings',
         ],
-        'request_quotations' => [
-            'title' => 'Request Quotations',
-            'all_requests' => 'All Requests',
-            'archived_requests' => 'Archived Requests',
-        ],
         'point managment' => [
             'title' => 'point managment',
             'users points' => 'users points',
@@ -263,12 +263,12 @@
             'order and fulfillment' => 'Order & Fulfillment',
             'points system' => 'Points System',
             'financials' => 'Financials',
+            'vendor_management' => 'Vendor Management',
             'content and engagement' => 'Content & Engagement',
             'reports' => 'Reports',
             'settings' => 'Settings',
             'business activities' => 'Business Activities',
             'withdraw module' => 'Withdraw Module',
-            'request_quotations' => 'Request Quotations',
             'push_notifications' => 'Push Notifications',
         ],
         'activities' => [

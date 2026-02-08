@@ -16,6 +16,7 @@ class RespondQuotationOfferRequest extends FormRequest
     {
         return [
             'action' => ['required', Rule::in(['accept', 'reject'])],
+            'vendor_id' => ['required', 'integer', 'exists:vendors,id'],
         ];
     }
 
@@ -24,6 +25,9 @@ class RespondQuotationOfferRequest extends FormRequest
         return [
             'action.required' => config('responses.action_required')[app()->getLocale()],
             'action.in' => config('responses.action_invalid')[app()->getLocale()],
+            'vendor_id.required' => 'Vendor ID is required',
+            'vendor_id.integer' => 'Vendor ID must be an integer',
+            'vendor_id.exists' => 'Vendor not found',
         ];
     }
 }

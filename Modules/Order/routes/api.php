@@ -74,6 +74,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/', [RequestQuotationApiController::class, 'store'])->name('request-quotations.store');
         Route::get('/{id}', [RequestQuotationApiController::class, 'show'])->name('request-quotations.show');
         Route::post('/{id}/respond', [RequestQuotationApiController::class, 'respondToOffer'])->name('request-quotations.respond');
+    
     });
 });
 Route::post('/promocode/check', [OrderApiController::class, 'checkPromoCode'])->name('check-promo-code');

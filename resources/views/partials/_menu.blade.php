@@ -354,43 +354,6 @@
             </li>
         @endcanany
 
-        @can('request-quotations.index')
-            <li class="menu-title mt-30">
-                <span>{{ trans('menu.sections.request_quotations') }}</span>
-            </li>
-            <li
-                class="has-child {{ isParentMenuOpen(['admin.request-quotations.index', 'admin.request-quotations.archived'], ['admin/request-quotations*']) ? 'open' : '' }}">
-                <a href="#"
-                    class="{{ isParentMenuOpen(['admin.request-quotations.index', 'admin.request-quotations.archived'], ['admin/request-quotations*']) ? 'active' : '' }}">
-                    <span class="nav-icon uil uil-file-question-alt"></span>
-                    <span class="menu-text">{{ trans('menu.request_quotations.title') }}</span>
-                    <span class="toggle-icon"></span>
-                </a>
-                <ul class="px-0">
-                    <li class="l_sidebar">
-                        <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.request-quotations.index', $currentRoute) ? 'active' : '' }}"
-                            href="{{ route('admin.request-quotations.index') }}">
-                            {{ trans('menu.request_quotations.all_requests') }}
-                            <span class="badge badge-round ms-1"
-                                style="{{ getBadgeStyle(isMenuActive('admin.request-quotations.index', $currentRoute)) }}">
-                                {{ \Modules\Order\app\Models\RequestQuotation::notArchived()->count() }}
-                            </span>
-                        </a>
-                    </li>
-                    <li class="l_sidebar">
-                        <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.request-quotations.archived', $currentRoute) ? 'active' : '' }}"
-                            href="{{ route('admin.request-quotations.archived') }}">
-                            {{ trans('menu.request_quotations.archived_requests') }}
-                            <span class="badge badge-round ms-1"
-                                style="{{ getBadgeStyle(isMenuActive('admin.request-quotations.archived', $currentRoute)) }}">
-                                {{ \Modules\Order\app\Models\RequestQuotation::archived()->count() }}
-                            </span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        @endcan
-
         @canany(['push-notifications.index', 'push-notifications.create'])
             <li class="menu-title mt-30">
                 <span>{{ trans('menu.sections.push_notifications') }}</span>
@@ -427,6 +390,43 @@
                 </ul>
             </li>
         @endcanany
+
+        @can('request-quotations.index')
+            <li class="menu-title mt-30">
+                <span>{{ trans('menu.sections.vendor_management') }}</span>
+            </li>
+            <li
+                class="has-child {{ isParentMenuOpen(['admin.request-quotations.index', 'admin.request-quotations.archived'], ['admin/request-quotations*']) ? 'open' : '' }}">
+                <a href="#"
+                    class="{{ isParentMenuOpen(['admin.request-quotations.index', 'admin.request-quotations.archived'], ['admin/request-quotations*']) ? 'active' : '' }}">
+                    <span class="nav-icon uil uil-file-question-alt"></span>
+                    <span class="menu-text">{{ trans('menu.vendors.request_quotations.title') }}</span>
+                    <span class="toggle-icon"></span>
+                </a>
+                <ul class="px-0">
+                    <li>
+                        <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.request-quotations.index', $currentRoute) ? 'active' : '' }}"
+                            href="{{ route('admin.request-quotations.index') }}">
+                            {{ trans('menu.vendors.request_quotations.all_requests') }}
+                            <span class="badge badge-round ms-1"
+                                style="{{ getBadgeStyle(isMenuActive('admin.request-quotations.index', $currentRoute)) }}">
+                                {{ \Modules\Order\app\Models\RequestQuotation::notArchived()->count() }}
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.request-quotations.archived', $currentRoute) ? 'active' : '' }}"
+                            href="{{ route('admin.request-quotations.archived') }}">
+                            {{ trans('menu.vendors.request_quotations.archived_requests') }}
+                            <span class="badge badge-round ms-1"
+                                style="{{ getBadgeStyle(isMenuActive('admin.request-quotations.archived', $currentRoute)) }}">
+                                {{ \Modules\Order\app\Models\RequestQuotation::archived()->count() }}
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        @endcan
 
         @canany(['accounting.summary.index', 'accounting.balances.index', 'accounting.expense-items.index', 'accounting.expenses.index', 'accounting.income.index'])
             <li class="menu-title mt-30">
@@ -1148,44 +1148,34 @@
             </li>
         @endcan
 
-        @can('customers.index')
-            <li
-                class="has-child {{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/customers*') ? 'open' : '' }}">
-                <a href="#"
-                    class="{{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/customers*') ? 'active' : '' }}">
-                    <span class="nav-icon uil uil-user-circle"></span>
-                    <span class="menu-text">{{ trans('menu.customers.title') }}</span>
-                    <span class="toggle-icon"></span>
-                </a>
-                <ul class="px-0">
-                    <li>
-                        <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.customers.index', $currentRoute) ? 'active' : '' }}"
-                            href="{{ route('admin.customers.index') }}">
-                            {{ trans('menu.customers.all') }}
-                            <span class="badge badge-round ms-1"
-                                style="{{ getBadgeStyle(isMenuActive('admin.customers.index', $currentRoute)) }}">
-                                @php
-                                    $customerCount = 0;
-                                    if (isAdmin()) {
+        @if(isAdmin())
+            @can('customers.index')
+                <li
+                    class="has-child {{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/customers*') ? 'open' : '' }}">
+                    <a href="#"
+                        class="{{ Request::is(LaravelLocalization::getCurrentLocale() . '/admin/customers*') ? 'active' : '' }}">
+                        <span class="nav-icon uil uil-user-circle"></span>
+                        <span class="menu-text">{{ trans('menu.customers.title') }}</span>
+                        <span class="toggle-icon"></span>
+                    </a>
+                    <ul class="px-0">
+                        <li>
+                            <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.customers.index', $currentRoute) ? 'active' : '' }}"
+                                href="{{ route('admin.customers.index') }}">
+                                {{ trans('menu.customers.all') }}
+                                <span class="badge badge-round ms-1"
+                                    style="{{ getBadgeStyle(isMenuActive('admin.customers.index', $currentRoute)) }}">
+                                    @php
                                         $customerCount = \Modules\Customer\app\Models\Customer::count();
-                                    } else {
-                                        $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
-                                        if ($vendor) {
-                                            // Vendors see: system customers (vendor_id = NULL) + their own customers (vendor_id = their vendor ID)
-                                            $customerCount = \Modules\Customer\app\Models\Customer::where(function($q) use ($vendor) {
-                                                $q->whereNull('vendor_id')
-                                                  ->orWhere('vendor_id', $vendor->id);
-                                            })->count();
-                                        }
-                                    }
-                                @endphp
-                                {{ $customerCount }}
-                            </span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        @endcan
+                                    @endphp
+                                    {{ $customerCount }}
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            @endcan
+        @endif
 
         @canany(['orders.index', 'orders.create'])
                 <li class="menu-title mt-30">
@@ -1223,14 +1213,16 @@
                                 </span>
                             </a>
                         </li>
-                        @can('orders.create')
-                            <li class="l_sidebar">
-                                <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.orders.create', $currentRoute) ? 'active' : '' }}"
-                                    href="{{ route('admin.orders.create') }}">
-                                    {{ trans('menu.orders.create') }}
-                                </a>
-                            </li>
-                        @endcan
+                        @if(isAdmin())
+                            @can('orders.create')
+                                <li class="l_sidebar">
+                                    <a class="d-flex align-items-center justify-content-between fw-bold {{ isMenuActive('admin.orders.create', $currentRoute) ? 'active' : '' }}"
+                                        href="{{ route('admin.orders.create') }}">
+                                        {{ trans('menu.orders.create') }}
+                                    </a>
+                                </li>
+                            @endcan
+                        @endif
 
                         {{-- Order Stages --}}
                         @php
@@ -1350,6 +1342,34 @@
                 </a>
             </li>
         @endcan
+
+        {{-- Request Quotations - For Vendors --}}
+        @if(isVendor())
+            <li>
+                <a href="{{ route('admin.vendor.request-quotations.index') }}"
+                    class="{{ isMenuActive('admin.vendor.request-quotations.index', $currentRoute) ? 'active' : '' }}">
+                    <span class="d-flex align-items-center justify-content-between fw-bold w-100">
+                        <span class="d-flex align-items-center">
+                            <span class="nav-icon uil uil-file-question-alt"></span>
+                            <span class="menu-text">{{ trans('order::request-quotation.my_quotations') }}</span>
+                        </span>
+                        @php
+                            $vendorQuotationsCount = 0;
+                            $vendor = auth()->user()->vendorByUser ?? auth()->user()->vendorById;
+                            if ($vendor) {
+                                $vendorQuotationsCount = \Modules\Order\app\Models\RequestQuotationVendor::where('vendor_id', $vendor->id)
+                                    ->whereIn('status', ['pending', 'offer_sent'])
+                                    ->count();
+                            }
+                        @endphp
+                        @if($vendorQuotationsCount > 0)
+                            <span class="badge badge-round ms-1"
+                                style="{{ getBadgeStyle(isMenuActive('admin.vendor.request-quotations.index', $currentRoute)) }}">{{ $vendorQuotationsCount }}</span>
+                        @endif
+                    </span>
+                </a>
+            </li>
+        @endif
 
         <li
             class="has-child {{ isParentMenuOpen(['admin.refunds.index', 'admin.refunds.settings'], ['admin/refunds*']) ? 'open' : '' }}">

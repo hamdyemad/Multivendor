@@ -20,6 +20,11 @@ class Country extends BaseModel
     protected $guarded = [];
 
 
+    public function getCodeAttribute($value)
+    {
+        return strtolower($value);
+    }
+
     /**
      * Attachments relationship
      */

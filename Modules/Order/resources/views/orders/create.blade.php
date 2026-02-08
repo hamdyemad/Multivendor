@@ -60,6 +60,7 @@
             </div>
         </div>
         <input type="hidden" id="quotation_id" value="{{ $quotation->id }}">
+        <input type="hidden" id="quotation_vendor_id" value="{{ $quotationVendor->id ?? '' }}">
         <input type="hidden" id="quotation_customer_id" value="{{ $quotation->customer_id }}">
         <input type="hidden" id="quotation_customer_name" value="{{ $quotation->customer?->full_name }}">
         <input type="hidden" id="quotation_customer_email" value="{{ $quotation->customer?->email }}">
@@ -1661,6 +1662,12 @@
                         // Add quotation_id to form
                         if (!$('input[name="quotation_id"]').length) {
                             $('#createOrderForm').append('<input type="hidden" name="quotation_id" value="' + quotationId + '">');
+                        }
+                        
+                        // Add quotation_vendor_id to form if exists
+                        const quotationVendorId = $('#quotation_vendor_id').val();
+                        if (quotationVendorId && !$('input[name="quotation_vendor_id"]').length) {
+                            $('#createOrderForm').append('<input type="hidden" name="quotation_vendor_id" value="' + quotationVendorId + '">');
                         }
                     }
 

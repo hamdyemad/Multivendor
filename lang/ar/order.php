@@ -78,6 +78,7 @@ return [
     'product_removed' => 'تمت إزالة المنتج من الطلب',
     'order_created' => 'تم إنشاء الطلب بنجاح',
     'order_updated' => 'تم تحديث الطلب بنجاح',
+    'vendors_can_only_create_from_quotations' => 'يمكن للموردين إنشاء الطلبات من عروض الأسعار فقط',
     'order_deleted' => 'تم حذف الطلب بنجاح',
     'order_cancelled' => 'تم إلغاء الطلب بنجاح',
     'order_status_updated' => 'تم تحديث حالة الطلب بنجاح',

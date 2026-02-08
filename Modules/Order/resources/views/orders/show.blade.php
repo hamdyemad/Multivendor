@@ -32,6 +32,23 @@
                             :show-view-button="false" context="show" />
                     </div>
 
+                    {{-- Request Quotation Information --}}
+                    @if(isset($quotationVendor) && $quotationVendor)
+                        <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
+                            <i class="uil uil-file-question-alt me-2" style="font-size: 24px;"></i>
+                            <div>
+                                <strong>{{ trans('order::request-quotation.order_from_quotation') }}</strong>
+                                <p class="mb-0">
+                                    {{ trans('order::request-quotation.quotation_number') }}: 
+                                    <a href="{{ route('admin.vendor.request-quotations.show', ['lang' => app()->getLocale(), 'countryCode' => request()->route('countryCode') ?? 'eg', 'id' => $quotationVendor->id]) }}" 
+                                       class="fw-bold text-primary">
+                                        {{ $quotationVendor->requestQuotation->quotation_number }}
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                    @endif
+
                     <div class="row mb-40">
                         <!-- Order Details Card -->
                         <div class="col-lg-6 mb-3">

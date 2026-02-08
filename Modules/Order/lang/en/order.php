@@ -178,6 +178,8 @@ return [
     'error_updating_order' => 'Error updating order',
     'update_order' => 'Update Order',
     'error_updating_order' => 'Error updating order',
+    'vendors_can_only_create_from_quotations' => 'Vendors can only create orders from quotations',
+    'quotation_already_has_order' => 'This quotation already has an order created',
     'error_deleting_order' => 'Error deleting order',
     'order_not_found' => 'Order not found',
     'error_loading_order' => 'Error loading order',

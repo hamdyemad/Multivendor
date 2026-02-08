@@ -178,6 +178,8 @@ return [
     'error_deleting_order' => 'خطأ في حذف الطلب',
     'order_not_found' => 'الطلب غير موجود',
     'error_loading_order' => 'خطأ في تحميل الطلب',
+    'vendors_can_only_create_from_quotations' => 'يمكن للموردين إنشاء الطلبات من عروض الأسعار فقط',
+    'quotation_already_has_order' => 'تم إنشاء طلب لعرض السعر هذا بالفعل',
     'cannot_edit_order' => 'لا يمكنك تعديل هذا الطلب لأنه يحتوي على منتجات من بائعين آخرين',
     'cannot_edit_final_stage_order' => 'لا يمكنك تعديل هذا الطلب لأنه تم تسليمه أو إلغاؤه أو استرداده',
     'cannot_delete_order' => 'لا يمكنك حذف هذا الطلب لأنه يحتوي على منتجات من بائعين آخرين',

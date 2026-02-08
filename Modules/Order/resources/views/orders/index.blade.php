@@ -98,12 +98,14 @@
                 <div class="userDatatable global-shadow border-light-0 p-30 bg-white radius-xl w-100 mb-30">
                     <div class="d-flex justify-content-between align-items-center mb-25">
                         <h4 class="mb-0 fw-500 fw-bold">{{ trans('order::order.order_management') }}</h4>
-                        <div class="d-flex gap-2">
-                            <a href="{{ route('admin.orders.create') }}"
-                                class="btn btn-primary btn-default btn-squared text-capitalize">
-                                <i class="uil uil-plus"></i> {{ trans('order::order.create_order') }}
-                            </a>
-                        </div>
+                        @if(isAdmin())
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('admin.orders.create') }}"
+                                    class="btn btn-primary btn-default btn-squared text-capitalize">
+                                    <i class="uil uil-plus"></i> {{ trans('order::order.create_order') }}
+                                </a>
+                            </div>
+                        @endif
                     </div>
 
                     {{-- Search & Filters --}}
@@ -374,24 +376,6 @@
                         const customerPhone = data.customer_phone || '-';
                         const hasQuotation = data.has_quotation || false;
                         const quotationNumber = data.quotation_number || '';
-                        const quotationStatus = data.quotation_status || '';
-
-                        // Status labels and colors
-                        const statusLabels = {
-                            'pending': '{{ __('order::request-quotation.status_pending') }}',
-                            'sent_offer': '{{ __('order::request-quotation.status_sent_offer') }}',
-                            'accepted_offer': '{{ __('order::request-quotation.status_accepted_offer') }}',
-                            'rejected_offer': '{{ __('order::request-quotation.status_rejected_offer') }}',
-                            'order_created': '{{ __('order::request-quotation.status_order_created') }}'
-                        };
-                        
-                        const statusColors = {
-                            'pending': '#ffc107',
-                            'sent_offer': '#17a2b8',
-                            'accepted_offer': '#28a745',
-                            'rejected_offer': '#dc3545',
-                            'order_created': '#007bff'
-                        };
 
                         let html = `
                             <div class="customer-info">
@@ -410,17 +394,10 @@
                                     </div>`;
                         
                         if (hasQuotation) {
-                            const statusLabel = statusLabels[quotationStatus] || quotationStatus;
-                            const statusColor = statusColors[quotationStatus] || '#6c757d';
-                            
                             html += `
                                     <div>
-                                        <span class="badge badge-lg  badge-round" style="background-color: ${statusColor}; font-size: 10px;">
-                                            <i class="uil uil-file-question-alt me-1"></i>{{ __('order::request-quotation.from_quotation') }}: ${quotationNumber}
-                                        </span>
-                                        <br>
-                                        <span class="badge badge-lg badge-round mt-1" style="background-color: ${statusColor}; font-size: 9px;">
-                                            ${statusLabel}
+                                        <span class="badge badge-lg badge-primary badge-round" style="font-size: 10px;">
+                                            <i class="uil uil-file-question-alt me-1"></i>${quotationNumber}
                                         </span>
                                     </div>`;
                         }

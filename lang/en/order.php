@@ -78,6 +78,7 @@ return [
     'product_removed' => 'Product removed from order',
     'order_created' => 'Order created successfully',
     'order_updated' => 'Order updated successfully',
+    'vendors_can_only_create_from_quotations' => 'Vendors can only create orders from quotations',
     'order_deleted' => 'Order deleted successfully',
     'order_cancelled' => 'Order cancelled successfully',
     'order_status_updated' => 'Order status updated successfully',

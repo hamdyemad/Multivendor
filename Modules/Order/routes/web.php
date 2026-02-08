@@ -55,4 +55,18 @@ Route::prefix('request-quotations')->name('request-quotations.')->group(function
     Route::post('/{id}/archive', [RequestQuotationController::class, 'archive'])->name('archive');
     Route::post('/{id}/send-offer', [RequestQuotationController::class, 'sendOffer'])->name('send-offer');
     Route::delete('/{id}', [RequestQuotationController::class, 'destroy'])->name('destroy');
+    
+    // Multi-vendor workflow
+    Route::get('/{id}/select-vendors', [RequestQuotationController::class, 'selectVendors'])->name('select-vendors');
+    Route::post('/{id}/send-to-vendors', [RequestQuotationController::class, 'sendToVendors'])->name('send-to-vendors');
+    Route::get('/{id}/view-offers', [RequestQuotationController::class, 'viewOffers'])->name('view-offers');
+});
+
+// Vendor Request Quotations (with localization parameters)
+Route::prefix('vendor/request-quotations')->name('vendor.request-quotations.')->group(function () {
+    Route::get('/', [\Modules\Order\app\Http\Controllers\VendorRequestQuotationController::class, 'index'])->name('index');
+    Route::get('/datatable', [\Modules\Order\app\Http\Controllers\VendorRequestQuotationController::class, 'datatable'])->name('datatable');
+    Route::get('/{id}', [\Modules\Order\app\Http\Controllers\VendorRequestQuotationController::class, 'show'])->name('show');
+    Route::get('/{id}/create-order-form', [\Modules\Order\app\Http\Controllers\VendorRequestQuotationController::class, 'createOrderForm'])->name('create-order-form');
+    Route::post('/{id}/create-order', [\Modules\Order\app\Http\Controllers\VendorRequestQuotationController::class, 'createOrder'])->name('create-order');
 });

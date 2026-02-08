@@ -73,4 +73,212 @@ class RequestQuotationApiService
             ];
         }
     }
+
+    /**
+     * Accept vendor offer (multi-vendor workflow)
+     */
+    public function acceptVendorOffer(int $quotationId, int $vendorId, Customer $customer): array
+    {
+        $quotation = $this->repository->findForCustomer($quotationId, $customer->id);
+
+        if (!$quotation) {
+            return [
+                'success' => false,
+                'message' => 'Quotation not found',
+            ];
+        }
+
+        $quotationVendor = $quotation->vendors()
+            ->where('vendor_id', $vendorId)
+            ->first();
+
+        if (!$quotationVendor) {
+            return [
+                'success' => false,
+                'message' => 'Vendor offer not found',
+            ];
+        }
+
+        if (!$quotationVendor->canRespondToOffer()) {
+            return [
+                'success' => false,
+                'message' => 'Cannot respond to offer in current status',
+            ];
+        }
+
+        try {
+            \DB::beginTransaction();
+
+            // Accept the offer
+            $quotationVendor->acceptOffer();
+
+            // Create order from the offer
+            $order = $this->createOrderFromOffer($quotationVendor, $customer);
+
+            // Mark as order created
+            $quotationVendor->markOrderCreated($order->id);
+
+            // Send notification to vendor using AdminNotification
+            $vendor = $quotationVendor->vendor;
+            if ($vendor && $vendor->user) {
+                \App\Models\AdminNotification::notify(
+                    type: 'vendor_offer_accepted',
+                    title: 'order::request-quotation.notification_vendor_offer_accepted_title',
+                    description: 'order::request-quotation.notification_vendor_offer_accepted_message',
+                    url: route('admin.vendor.orders.show', [
+                        'lang' => app()->getLocale(),
+                        'countryCode' => $quotationVendor->requestQuotation->country->code ?? 'eg',
+                        'id' => $order->id,
+                    ]),
+                    icon: 'uil-check-circle',
+                    color: 'success',
+                    notifiable: $quotationVendor,
+                    data: [
+                        'customer' => $quotationVendor->requestQuotation->customer_name,
+                        'order_number' => $order->order_number,
+                        'quotation_vendor_id' => $quotationVendor->id,
+                    ],
+                    userId: $vendor->user->id,
+                    vendorId: $vendor->id
+                );
+            }
+
+            \DB::commit();
+
+            return [
+                'success' => true,
+                'quotation_vendor' => $quotationVendor->fresh(),
+                'order' => $order,
+            ];
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            
+            return [
+                'success' => false,
+                'message' => 'Error accepting offer: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Reject vendor offer (multi-vendor workflow)
+     */
+    public function rejectVendorOffer(int $quotationId, int $vendorId, Customer $customer): array
+    {
+        $quotation = $this->repository->findForCustomer($quotationId, $customer->id);
+
+        if (!$quotation) {
+            return [
+                'success' => false,
+                'message' => 'Quotation not found',
+            ];
+        }
+
+        $quotationVendor = $quotation->vendors()
+            ->where('vendor_id', $vendorId)
+            ->first();
+
+        if (!$quotationVendor) {
+            return [
+                'success' => false,
+                'message' => 'Vendor offer not found',
+            ];
+        }
+
+        if (!$quotationVendor->canRespondToOffer()) {
+            return [
+                'success' => false,
+                'message' => 'Cannot respond to offer in current status',
+            ];
+        }
+
+        try {
+            \DB::beginTransaction();
+
+            // Reject the offer
+            $quotationVendor->rejectOffer();
+
+            // Send notification to vendor using AdminNotification
+            $vendor = $quotationVendor->vendor;
+            if ($vendor && $vendor->user) {
+                \App\Models\AdminNotification::notify(
+                    type: 'vendor_offer_rejected',
+                    title: 'order::request-quotation.notification_vendor_offer_rejected_title',
+                    description: 'order::request-quotation.notification_vendor_offer_rejected_message',
+                    url: route('admin.vendor.request-quotations.show', [
+                        'lang' => app()->getLocale(),
+                        'countryCode' => $quotationVendor->requestQuotation->country->code ?? 'eg',
+                        'id' => $quotationVendor->id,
+                    ]),
+                    icon: 'uil-times-circle',
+                    color: 'danger',
+                    notifiable: $quotationVendor,
+                    data: [
+                        'customer' => $quotationVendor->requestQuotation->customer_name,
+                        'quotation_vendor_id' => $quotationVendor->id,
+                    ],
+                    userId: $vendor->user->id,
+                    vendorId: $vendor->id
+                );
+            }
+
+            \DB::commit();
+
+            return [
+                'success' => true,
+                'quotation_vendor' => $quotationVendor->fresh(),
+            ];
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            
+            return [
+                'success' => false,
+                'message' => 'Error rejecting offer: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Create order from accepted offer
+     */
+    protected function createOrderFromOffer($quotationVendor, Customer $customer)
+    {
+        $quotation = $quotationVendor->requestQuotation;
+        
+        // Create order data
+        $orderData = [
+            'customer_id' => $customer->id,
+            'customer_name' => $customer->full_name,
+            'customer_email' => $customer->email,
+            'customer_phone' => $customer->phone,
+            'customer_address' => $quotation->customerAddress?->address,
+            'country_id' => $quotation->country_id,
+            'city_id' => $quotation->customerAddress?->city_id,
+            'region_id' => $quotation->customerAddress?->region_id,
+            'total_price' => $quotationVendor->offer_price,
+            'total_product_price' => $quotationVendor->offer_price,
+            'payment_type' => 'cash_on_delivery', // Default
+            'order_from' => 'quotation',
+            'stage_id' => 1, // Default stage (pending/new)
+            'items_count' => 1,
+            'shipping' => 0,
+            'total_tax' => 0,
+            'total_fees' => 0,
+            'total_discounts' => 0,
+        ];
+
+        // Create order
+        $order = \Modules\Order\app\Models\Order::create($orderData);
+
+        // Create vendor order stage
+        \Modules\Order\app\Models\VendorOrderStage::create([
+            'order_id' => $order->id,
+            'vendor_id' => $quotationVendor->vendor_id,
+            'stage_id' => 1, // Default stage
+        ]);
+
+        return $order;
+    }
 }

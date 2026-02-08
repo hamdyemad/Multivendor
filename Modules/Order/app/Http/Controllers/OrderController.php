@@ -14,6 +14,7 @@ use Modules\Order\app\Http\Requests\AddExtraFeeDiscountRequest;
 use Modules\Order\app\Http\Requests\CreateFulfillmentRequest;
 use Modules\Order\app\Models\Order;
 use Modules\Order\app\Models\RequestQuotation;
+use Modules\Order\app\Models\RequestQuotationVendor;
 use App\Models\Language;
 use Modules\Order\app\Http\Resources\Api\OrderStageResource;
 use Modules\Order\app\Models\OrderProduct;
@@ -320,6 +321,15 @@ class OrderController extends Controller
                     $totalRefundedItemsQuantity += $refund->items->sum('quantity');
                 }
 
+                // Get quotation information (from vendor quotation)
+                $quotationVendor = \Modules\Order\app\Models\RequestQuotationVendor::with('requestQuotation')
+                    ->where('order_id', $order->id)
+                    ->first();
+                
+                $hasQuotation = $quotationVendor !== null;
+                $quotationNumber = $quotationVendor ? $quotationVendor->requestQuotation->quotation_number : null;
+                $quotationStatus = $quotationVendor ? $quotationVendor->status : null;
+
                 $rowData = [
                     'index' => $index++,
                     'id' => $order->id,
@@ -327,9 +337,9 @@ class OrderController extends Controller
                     'customer_name' => $order->customer_name,
                     'customer_email' => $order->customer_email,
                     'customer_phone' => $order->customer_phone ?? '-',
-                    'has_quotation' => $order->requestQuotation ? true : false,
-                    'quotation_number' => $order->requestQuotation ? $order->requestQuotation->quotation_number : null,
-                    'quotation_status' => $order->requestQuotation ? $order->requestQuotation->status : null,
+                    'has_quotation' => $hasQuotation,
+                    'quotation_number' => $quotationNumber,
+                    'quotation_status' => $quotationStatus,
                     'vendor' => $isVendorUser ? [] : $vendorsData, // Hide vendors for vendor users
                     'vendors_with_stages' => $isVendorUser ? [] : $vendorsWithStages, // Vendors with their stages
                     'total_price' => $displayTotalPrice,
@@ -386,18 +396,50 @@ class OrderController extends Controller
      */
     public function create($lang, $countryCode, Request $request)
     {
+        // Vendors can only create orders from quotations
+        if (isVendor() && !$request->has('quotation_vendor_id')) {
+            abort(403, trans('order::order.vendors_can_only_create_from_quotations'));
+        }
+        
         // Load vendor relationships for authenticated user
         if (auth()->check()) {
             auth()->user()->load(['vendorByUser', 'vendorById']);
         }
         
         $quotation = null;
-        if ($request->has('quotation_id')) {
+        $quotationVendor = null;
+        
+        // Handle quotation_vendor_id (from vendor request quotations)
+        if ($request->has('quotation_vendor_id')) {
+            $quotationVendor = RequestQuotationVendor::with([
+                'requestQuotation.customer',
+                'requestQuotation.customerAddress.city',
+                'requestQuotation.customerAddress.region',
+                'requestQuotation.customerAddress.subregion',
+                'requestQuotation.customerAddress.country',
+                'order'
+            ])->find($request->quotation_vendor_id);
+            
+            if ($quotationVendor) {
+                // Check if order already exists for this quotation vendor
+                if ($quotationVendor->order_id && $quotationVendor->order) {
+                    return redirect()->route('admin.orders.show', [
+                        'lang' => $lang,
+                        'countryCode' => $countryCode,
+                        'order' => $quotationVendor->order_id
+                    ])->with('warning', trans('order::order.quotation_already_has_order'));
+                }
+                
+                $quotation = $quotationVendor->requestQuotation;
+            }
+        }
+        // Handle quotation_id (legacy support)
+        elseif ($request->has('quotation_id')) {
             $quotation = RequestQuotation::with(['customer', 'customerAddress.city', 'customerAddress.region', 'customerAddress.subregion', 'customerAddress.country'])
                 ->find($request->quotation_id);
         }
         
-        return view('order::orders.create', compact('quotation'));
+        return view('order::orders.create', compact('quotation', 'quotationVendor'));
     }
 
     /**
@@ -405,6 +447,30 @@ class OrderController extends Controller
      */
     public function store($lang, $countryCode, StoreOrderRequest $request)
     {
+        // Vendors can only create orders from quotations
+        if (isVendor() && !$request->filled('quotation_vendor_id')) {
+            return response()->json([
+                'status' => false,
+                'message' => trans('order::order.vendors_can_only_create_from_quotations'),
+                'errors' => [],
+            ], 403);
+        }
+        
+        // Check if quotation already has an order
+        if ($request->filled('quotation_vendor_id')) {
+            $quotationVendor = RequestQuotationVendor::find($request->input('quotation_vendor_id'));
+            if ($quotationVendor && $quotationVendor->order_id) {
+                return response()->json([
+                    'status' => false,
+                    'message' => trans('order::order.quotation_already_has_order'),
+                    'errors' => [],
+                    'data' => [
+                        'order_id' => $quotationVendor->order_id,
+                    ],
+                ], 422);
+            }
+        }
+        
         try {
             // Prepare data - fields are already decoded by prepareForValidation in the request
             $data = $request->validated();
@@ -430,12 +496,79 @@ class OrderController extends Controller
 
             $order = $this->orderService->createOrder($data);
 
-            // Update request quotation status and link order if quotation_id is provided
-            if ($request->filled('quotation_id')) {
+            // Update request quotation vendor status if quotation_vendor_id is provided
+            if ($request->filled('quotation_vendor_id')) {
+                $quotationVendor = \Modules\Order\app\Models\RequestQuotationVendor::with(['requestQuotation.customer', 'vendor'])
+                    ->find($request->input('quotation_vendor_id'));
+                    
+                if ($quotationVendor) {
+                    // Mark quotation vendor as order created
+                    $quotationVendor->markOrderCreated($order->id);
+                    
+                    // Send notification to customer
+                    $customer = $quotationVendor->requestQuotation->customer;
+                    if ($customer) {
+                        \App\Models\AdminNotification::notify(
+                            type: 'quotation_order_created',
+                            title: 'order::request-quotation.notification_customer_order_created_title',
+                            description: 'order::request-quotation.notification_customer_order_created_message',
+                            url: route('admin.orders.show', [
+                                'lang' => app()->getLocale(),
+                                'countryCode' => $quotationVendor->requestQuotation->country->code ?? 'eg',
+                                'order' => $order->id,
+                            ]),
+                            icon: 'uil-shopping-cart',
+                            color: 'success',
+                            notifiable: $order,
+                            data: [
+                                'vendor' => $quotationVendor->vendor->name,
+                                'order_number' => $order->order_number,
+                                'price' => number_format($order->total_price, 2) . ' ' . currency(),
+                                'quotation_number' => $quotationVendor->requestQuotation->quotation_number,
+                            ],
+                            userId: null, // For admin
+                            vendorId: null
+                        );
+                    }
+                }
+            }
+            // Update request quotation status and link order if quotation_id is provided (legacy support)
+            elseif ($request->filled('quotation_id')) {
                 $quotation = \Modules\Order\app\Models\RequestQuotation::with('customer')->find($request->input('quotation_id'));
                 if ($quotation) {
+                    // Get unique vendor IDs from order products
+                    $vendorIds = $order->products()
+                        ->with('vendorProduct.vendor')
+                        ->get()
+                        ->pluck('vendorProduct.vendor.id')
+                        ->filter()
+                        ->unique()
+                        ->values();
+
+                    // Create or update RequestQuotationVendor record for each vendor
+                    foreach ($vendorIds as $vendorId) {
+                        \Modules\Order\app\Models\RequestQuotationVendor::updateOrCreate(
+                            [
+                                'request_quotation_id' => $quotation->id,
+                                'vendor_id' => $vendorId,
+                            ],
+                            [
+                                'status' => \Modules\Order\app\Models\RequestQuotationVendor::STATUS_ORDER_CREATED,
+                                'order_id' => $order->id,
+                                'offer_sent_at' => now(),
+                            ]
+                        );
+                    }
+
+                    // Update quotation status to sent_to_vendors if vendors were found
+                    if ($vendorIds->isNotEmpty() && $quotation->status === \Modules\Order\app\Models\RequestQuotation::STATUS_PENDING) {
+                        $quotation->update([
+                            'status' => \Modules\Order\app\Models\RequestQuotation::STATUS_SENT_TO_VENDORS,
+                        ]);
+                    }
+
+                    // Legacy: Also update the old fields for backward compatibility
                     $quotation->update([
-                        'status' => \Modules\Order\app\Models\RequestQuotation::STATUS_SENT_OFFER,
                         'order_id' => $order->id,
                         'offer_sent_at' => now(),
                     ]);
@@ -479,6 +612,11 @@ class OrderController extends Controller
             
             // Load vendor stages with stage, vendor, and history relationships
             $order->load(['vendorStages.stage', 'vendorStages.vendor', 'vendorStages.history.oldStage', 'vendorStages.history.newStage', 'vendorStages.history.user', 'products']);
+            
+            // Load request quotation vendor if order was created from quotation
+            $quotationVendor = RequestQuotationVendor::with(['requestQuotation.customer'])
+                ->where('order_id', $order->id)
+                ->first();
             
             // Ensure vendor stages exist (for old orders created before this feature)
             if ($order->products->count() > 0 && $order->vendorStages->count() == 0) {
@@ -530,7 +668,7 @@ class OrderController extends Controller
             // Get order stages for the change stage modal
             $orderStages = $this->orderStageService->getOrderStagesQuery()->get();
             $orderStages = OrderStageResource::collection($orderStages)->resolve();
-            return view('order::orders.show', compact('order', 'isVendorUser', 'vendorProducts', 'vendorProductTotal', 'orderStages', 'currentVendorStage', 'currentVendorId'));
+            return view('order::orders.show', compact('order', 'isVendorUser', 'vendorProducts', 'vendorProductTotal', 'orderStages', 'currentVendorStage', 'currentVendorId', 'quotationVendor'));
         } catch (\Exception $e) {
             return abort(500, trans('order::order.error_loading_order'));
         }

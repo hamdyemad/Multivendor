@@ -8,6 +8,11 @@
             'title' => 'الموردين',
             'all' => 'الكل',
             'create' => 'إضافة',
+            'request_quotations' => [
+                'title' => 'طلبات عروض الأسعار',
+                'all_requests' => 'جميع الطلبات',
+                'archived_requests' => 'الطلبات المؤرشفة',
+            ],
         ],
         'customers' => [
             'title' => 'العملاء',
@@ -198,11 +203,6 @@
             'settings' => 'إعدادات الاسترجاع',
             'admin_settings' => 'إدارة إعدادات الموردين',
         ],
-        'request_quotations' => [
-            'title' => 'طلبات عروض الأسعار',
-            'all_requests' => 'جميع الطلبات',
-            'archived_requests' => 'الطلبات المؤرشفة',
-        ],
         'point managment' => [
             'title' => 'إدارة النقاط',
             'users points' => 'نقاط المستخدمين',
@@ -255,12 +255,12 @@
             'order and fulfillment' => 'الطلبات والتنفيذ',
             'points system' => 'نظام النقاط',
             'financials' => 'الماليات',
+            'vendor_management' => 'إدارة الموردين',
             'content and engagement' => 'المحتوى والتفاعل',
             'reports' => 'التقارير',
             'settings' => 'الإعدادات',
             'business activities' => 'الأنشطة التجارية',
             'withdraw module' => 'وحدة السحب',
-            'request_quotations' => 'طلبات عروض الأسعار',
             'push_notifications' => 'الإشعارات',
         ],
         'activities' => [

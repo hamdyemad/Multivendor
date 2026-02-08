@@ -20,6 +20,10 @@ class RequestQuotationVendorResource extends JsonResource
             ],
             'status' => $this->status,
             'status_label' => $this->status_label,
+            'offer_price' => $this->offer_price,
+            'offer_notes' => $this->offer_notes,
+            'offer_sent_at' => $this->offer_sent_at?->toISOString(),
+            'can_respond' => $this->canRespondToOffer(), // Customer can accept/reject if status is offer_sent
             'order' => $this->whenLoaded('order', function() {
                 return $this->order ? new OrderResource($this->order) : null;
             }),

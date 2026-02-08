@@ -131,10 +131,10 @@ class RequestQuotationApiService
                     type: 'vendor_offer_accepted',
                     title: 'order::request-quotation.notification_vendor_offer_accepted_title',
                     description: 'order::request-quotation.notification_vendor_offer_accepted_message',
-                    url: route('admin.vendor.orders.show', [
+                    url: route('admin.orders.show', [
                         'lang' => app()->getLocale(),
                         'countryCode' => $quotationVendor->requestQuotation->country->code ?? 'eg',
-                        'id' => $order->id,
+                        'order' => $order->id,
                     ]),
                     icon: 'uil-check-circle',
                     color: 'success',
